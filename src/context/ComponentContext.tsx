@@ -5,7 +5,6 @@ import {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
-  ChannelAvatarProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
@@ -78,8 +77,6 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
-  /** Custom UI component to display avatar for a channel in ChannelHeader: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
-  ChannelAvatar?: React.ComponentType<ChannelAvatarProps>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */

@@ -2,6 +2,7 @@ import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { ChannelAvatar } from '../../Avatar';
 import { ChannelPreview } from '../ChannelPreview';
 import { Chat } from '../../Chat';
 
@@ -601,6 +602,9 @@ describe('ChannelPreview', () => {
     });
 
     describe('group channel', () => {
+      const channelPreviewProps = {
+        Avatar: ChannelAvatar,
+      };
       const channelName = 'channel-name';
       const channelState = getChannelState(3, { channel: { name: channelName } });
 
@@ -614,7 +618,7 @@ describe('ChannelPreview', () => {
           channelsData: [channelState],
           customUser: ownUser,
         });
-        await renderComponent({ channel, client });
+        await renderComponent({ channel, channelPreviewProps, client });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(4);
@@ -635,7 +639,7 @@ describe('ChannelPreview', () => {
             client,
           } = await initClientWithChannels({ channelsData: [channelState] });
           const updatedAttribute = { name: 'new-name' };
-          await renderComponent({ channel, client });
+          await renderComponent({ channel, channelPreviewProps, client });
 
           await waitFor(() => {
             expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -661,7 +665,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, client });
+        await renderComponent({ channel, channelPreviewProps, client });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -693,7 +697,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, client });
+        await renderComponent({ channel, channelPreviewProps, client });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -725,7 +729,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, client });
+        await renderComponent({ channel, channelPreviewProps, client });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
@@ -760,7 +764,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, client });
+        await renderComponent({ channel, channelPreviewProps, client });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();

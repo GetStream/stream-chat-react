@@ -2,7 +2,7 @@ import React from 'react';
 
 import { MenuIcon as DefaultMenuIcon } from './icons';
 
-import { ChannelAvatar, ChannelAvatarProps } from '../Avatar';
+import { ChannelAvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -12,7 +12,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelHeaderProps = {
-  /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
+  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
@@ -33,7 +33,7 @@ export const ChannelHeader = <
   props: ChannelHeaderProps,
 ) => {
   const {
-    Avatar = ChannelAvatar,
+    Avatar = DefaultAvatar,
     MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,

@@ -48,7 +48,7 @@ export type ChannelPreviewProps<
   channel: Channel<StreamChatGenerics>;
   /** Current selected channel object */
   activeChannel?: Channel<StreamChatGenerics>;
-  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
+  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps<StreamChatGenerics>>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;

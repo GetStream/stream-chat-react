@@ -3,28 +3,17 @@ id: avatar
 title: Avatar
 ---
 
-The SDK supports variety of avatar component types. Different approach is taken to display a channel avatar and an avatar of a message author.
+Semantically we can speak about two types of avatars in the SDK. One type is the avatar that represents the channel and the other representing another user. The SDK exports the follwing avatar components:
 
-The channel avatar accounts for the fact that the channel may contain more than two members and thus become a group channel. Therefore, it renders a `GroupAvatar` component in case of more than two channel members and `Avatar` in case of two or less channel members.
-On the other hand, messages use the avatars for a specific single user and thus using the `Avatar` component exclusively.
+- `Avatar` - displays single image or name initials in case image is not available
+- `GroupAvatar` - displays images or name initials as a fallback in a 2x2 grid
+- `ChannelAvatar` - renders `GroupAvatar` in case a channel has more than two members and `Avatar` otherwise
 
-The `Avatar` component displays an image, with fallback to the first letter of the optional name prop. The `GroupAvatar` displays up to four `Avatar` components in a 2x2 grid.
+By default, all the SDK components use `Avatar` to display channel resp. user avatar. However, it makes sense to override the default in `ChannelList` resp. `ChannelPreview` and `ChannelHeader` as those avatars may represent a group of users .
 
-## Customizing Avatar component
+## Customizing avatar component
 
-The SDK's default `Avatar` component is used by the following components:
-
-- `ChannelSearch` results for users
-- `Message`
-- `QuotesMessage`
-- `MesageStatus`
-- `QuotedMessagePreview` in message composer
-- Suggestion items for user mentions
-- `Poll`
-- Message `Reactions`
-- `ThreadList`
-
-Passing your custom avatar component to `Channel` prop `Avatar` overrides the avatar for all the above components.
+Passing your custom avatar component to `Channel` prop `Avatar` overrides the avatar for all the `Channel` component's children.
 
 Here's an example of using the `Avatar` component within a custom preview component:
 
@@ -39,13 +28,14 @@ const Avatar = (props: AvatarProps) => {
 <Channel Avatar={Avatar} />;
 ```
 
-## Customizing Channel Avatar
+## Customizing channel avatar
 
 You can also take advantage of the `Avatar` prop on the `ChannelHeader` and `ChannelList` components to override just that aspect of these components specifically, see the example below.
 
 An example of overriding just the `Avatar` component in the default `ChannelPreview` component.
 
 ```tsx
+import { ChannelList } from 'stream-chat-react';
 import type { ChannelAvatarProps } from 'stream-chat-react';
 
 const CustomChannelAvatar = (props: ChannelAvatarProps) => {
@@ -55,18 +45,20 @@ const CustomChannelAvatar = (props: ChannelAvatarProps) => {
 <ChannelList Avatar={CustomChannelAvatar} />;
 ```
 
-To override channel avatar in `ChannelHeader` we need to provide our component to `Channel` prop `ChannelAvatar`:
+To override the channel avatar in `ChannelHeader` we need to provide it prop `Avatar`:
 
 ```tsx
-import { Channel } from 'stream-chat-react';
+import { ChannelHeader } from 'stream-chat-react';
 import type { ChannelAvatarProps } from 'stream-chat-react';
 
 const CustomChannelAvatar = (props: ChannelAvatarProps) => {
   return <div>Custom Channel Avatar</div>;
 };
 
-<Channel ChannelAvatar={CustomChannelAvatar} />;
+<ChannelHeader Avatar={CustomChannelAvatar} />;
 ```
+
+Also, we can take the advantage of existing SDK's `ChannelAvatar` and pass it to both `ChannelHeader` and `ChannelList` as described above.
 
 ## Avatar Props
 

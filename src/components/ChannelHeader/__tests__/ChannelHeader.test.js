@@ -20,6 +20,7 @@ import {
 } from '../../../mock-builders';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
+import { ChannelAvatar } from '../../Avatar';
 expect.extend(toHaveNoViolations);
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -194,6 +195,10 @@ describe('ChannelHeader', () => {
   });
 
   describe('group channel', () => {
+    const props = {
+      Avatar: ChannelAvatar,
+    };
+
     const getChannelState = (memberCount, channelData) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
@@ -216,7 +221,7 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      await renderComponentBase({ channel, client });
+      await renderComponentBase({ channel, client, props });
       await waitFor(() => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages).toHaveLength(4);
@@ -237,7 +242,7 @@ describe('ChannelHeader', () => {
           client,
         } = await initClientWithChannels({ channelsData: [channelState] });
         const updatedAttribute = { name: 'new-name' };
-        await renderComponentBase({ channel, client });
+        await renderComponentBase({ channel, client, props });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -263,7 +268,7 @@ describe('ChannelHeader', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { image: 'new-image' };
-      await renderComponentBase({ channel, client });
+      await renderComponentBase({ channel, client, props });
       await waitFor(() => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages).toHaveLength(3);
@@ -295,7 +300,7 @@ describe('ChannelHeader', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { image: 'new-image' };
-      await renderComponentBase({ channel, client });
+      await renderComponentBase({ channel, client, props });
       await waitFor(() => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages).toHaveLength(3);
@@ -327,7 +332,7 @@ describe('ChannelHeader', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { custom: 'new-custom' };
-      await renderComponentBase({ channel, client });
+      await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
@@ -362,7 +367,7 @@ describe('ChannelHeader', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { custom: 'new-custom' };
-      await renderComponentBase({ channel, client });
+      await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();

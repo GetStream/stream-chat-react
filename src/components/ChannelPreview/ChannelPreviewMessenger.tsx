@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import clsx from 'clsx';
-import { ChannelAvatar } from '../Avatar/ChannelAvatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -12,7 +12,7 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar = ChannelAvatar,
+    Avatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,

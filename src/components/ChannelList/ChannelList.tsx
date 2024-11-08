@@ -16,7 +16,7 @@ import { useNotificationRemovedFromChannelListener } from './hooks/useNotificati
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
-import { ChannelAvatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
   ChannelSearchProps,
@@ -54,7 +54,7 @@ export type ChannelListProps<
    * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
-  /** Custom UI component to display channel avatar, defaults to and accepts same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
+  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (
@@ -166,7 +166,7 @@ const UnMemoizedChannelList = <
 ) => {
   const {
     additionalChannelSearchProps,
-    Avatar = ChannelAvatar,
+    Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
