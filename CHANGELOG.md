@@ -1,3 +1,10 @@
+## [12.5.2](https://github.com/GetStream/stream-chat-react/compare/v12.5.1...v12.5.2) (2024-11-11)
+
+
+### Bug Fixes
+
+* change SuggestionEmoji to extended EmojiSearchIndexResult ([#2551](https://github.com/GetStream/stream-chat-react/issues/2551)) ([658d722](https://github.com/GetStream/stream-chat-react/commit/658d7220e9e143933a19186e3f354ec4d4934442))
+
 ## [12.5.1](https://github.com/GetStream/stream-chat-react/compare/v12.5.0...v12.5.1) (2024-11-06)
 
 
