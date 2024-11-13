@@ -27,6 +27,7 @@ type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
 type LocalCommandType = string;
 type LocalEventType = Record<string, unknown>;
+type LocalMemberType = Record<string, unknown>;
 type LocalMessageType = Record<string, unknown>;
 type LocalPollOptionType = Record<string, unknown>;
 type LocalPollType = Record<string, unknown>;
@@ -38,6 +39,7 @@ type StreamChatGenerics = {
   channelType: LocalChannelType;
   commandType: LocalCommandType;
   eventType: LocalEventType;
+  memberType: LocalMemberType;
   messageType: LocalMessageType;
   pollOptionType: LocalPollOptionType;
   pollType: LocalPollType;
