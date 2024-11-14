@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Channel } from 'stream-chat';
 
-import { getDisplayImage, getDisplayTitle } from '../utils';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
+import { getDisplayImage, getDisplayTitle, getGroupChannelDisplayInfo } from '../utils';
 import { useChatContext } from '../../../context';
+
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamChatGenerics> = {
   channel: Channel<StreamChatGenerics>;
@@ -29,24 +29,32 @@ export const useChannelPreviewInfo = <
     () => overrideImage || getDisplayImage(channel, client.user),
   );
 
+  const [groupChannelDisplayInfo, setGroupDisplayChannelInfo] = useState<
+    ReturnType<typeof getGroupChannelDisplayInfo>
+  >(() => getGroupChannelDisplayInfo(channel));
+
   useEffect(() => {
     if (overrideTitle && overrideImage) return;
 
-    const updateTitles = () => {
+    const updateInfo = () => {
       if (!overrideTitle) setDisplayTitle(getDisplayTitle(channel, client.user));
-      if (!overrideImage) setDisplayImage(getDisplayImage(channel, client.user));
+      if (!overrideImage) {
+        setDisplayImage(getDisplayImage(channel, client.user));
+        setGroupDisplayChannelInfo(getGroupChannelDisplayInfo(channel));
+      }
     };
 
-    updateTitles();
+    updateInfo();
 
-    client.on('user.updated', updateTitles);
+    client.on('user.updated', updateInfo);
     return () => {
-      client.off('user.updated', updateTitles);
+      client.off('user.updated', updateInfo);
     };
   }, [channel, channel.data, client, overrideImage, overrideTitle]);
 
   return {
     displayImage: overrideImage || displayImage,
     displayTitle: overrideTitle || displayTitle,
+    groupChannelDisplayInfo,
   };
 };

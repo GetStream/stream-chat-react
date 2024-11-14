@@ -91,6 +91,26 @@ export const getLatestMessagePreview = <
   return t('Empty message...');
 };
 
+export type GroupChannelDisplayInfo = { image?: string; name?: string }[];
+
+export const getGroupChannelDisplayInfo = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  channel: Channel<StreamChatGenerics>,
+): GroupChannelDisplayInfo | undefined => {
+  const members = Object.values(channel.state.members);
+  if (members.length <= 2) return;
+
+  const info: GroupChannelDisplayInfo = [];
+  for (let i = 0; i < members.length; i++) {
+    const { user } = members[i];
+    if (!user?.name && !user?.image) continue;
+    info.push({ image: user.image, name: user.name });
+    if (info.length === 4) break;
+  }
+  return info;
+};
+
 const getChannelDisplayInfo = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
