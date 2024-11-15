@@ -639,14 +639,26 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  describe('bounced message', () => {
-    const bouncedMessageOptions = {
-      moderation_details: {
-        action: 'MESSAGE_RESPONSE_ACTION_BOUNCE',
+  describe.each([
+    [
+      'v1',
+      {
+        moderation_details: {
+          action: 'MESSAGE_RESPONSE_ACTION_BOUNCE',
+        },
+        type: 'error',
       },
-      type: 'error',
-    };
-
+    ],
+    [
+      'v2',
+      {
+        moderation: {
+          action: 'bounce',
+        },
+        type: 'error',
+      },
+    ],
+  ])('bounced message %s', (_, bouncedMessageOptions) => {
     it('should render error badge for bounced messages', async () => {
       const message = generateAliceMessage(bouncedMessageOptions);
       const { queryByTestId } = await renderMessageSimple({ message });

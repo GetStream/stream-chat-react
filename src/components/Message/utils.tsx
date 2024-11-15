@@ -485,10 +485,11 @@ export const isOnlyEmojis = (text?: string) => {
 export const isMessageBounced = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message: Pick<StreamMessage<StreamChatGenerics>, 'type' | 'moderation_details'>,
+  message: Pick<StreamMessage<StreamChatGenerics>, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
   message.type === 'error' &&
-  message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE';
+  (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE' ||
+    message.moderation?.action === 'bounce');
 
 export const isMessageEdited = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
