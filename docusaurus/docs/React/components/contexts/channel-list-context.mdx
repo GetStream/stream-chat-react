@@ -24,10 +24,10 @@ import { useChannelListContext } from 'stream-chat-react';
 export const CustomComponent = () => {
   const { channels, setChannels } = useChannelListContext();
   // component logic ...
-  return(
-      {/* rendered elements */}
-  );
-}
+  return {
+    /* rendered elements */
+  };
+};
 ```
 
 ## Value
@@ -37,7 +37,7 @@ export const CustomComponent = () => {
 State representing the array of loaded channels. Channels query is executed by default only within the [`ChannelList` component](../core-components/channel-list.mdx) in the SDK.
 
 | Type        |
-|-------------|
+| ----------- |
 | `Channel[]` |
 
 ### setChannels
@@ -109,5 +109,5 @@ const Sidebar = () => {
 ```
 
 | Type                                  |
-|---------------------------------------|
+| ------------------------------------- |
 | `Dispatch<SetStateAction<Channel[]>>` |
