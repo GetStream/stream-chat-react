@@ -1,3 +1,12 @@
+## [12.6.0](https://github.com/GetStream/stream-chat-react/compare/v12.5.2...v12.6.0) (2024-11-15)
+
+
+### Features
+
+* add group avatar ([#2556](https://github.com/GetStream/stream-chat-react/issues/2556)) ([414745d](https://github.com/GetStream/stream-chat-react/commit/414745ddd84dc35a025bf046ffa589a288aadf9b))
+* support custom member data in StreamChatGenerics ([#2559](https://github.com/GetStream/stream-chat-react/issues/2559)) ([41b23db](https://github.com/GetStream/stream-chat-react/commit/41b23db9c6ae99b0a4812ca0eca7f89998a3846a))
+* support moderation v2 workflow ([#2562](https://github.com/GetStream/stream-chat-react/issues/2562)) ([18afa22](https://github.com/GetStream/stream-chat-react/commit/18afa22d99ca42b6e28e2011f9b1ab6919e0e0cd))
+
 ## [12.5.2](https://github.com/GetStream/stream-chat-react/compare/v12.5.1...v12.5.2) (2024-11-11)
 
 
