@@ -15,7 +15,12 @@ import { useNotificationMessageNewListener } from './hooks/useNotificationMessag
 import { useNotificationRemovedFromChannelListener } from './hooks/useNotificationRemovedFromChannelListener';
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
+import { useMemberUpdatedListener } from './hooks/useMemberUpdatedListener';
+import {
+  MAX_QUERY_CHANNELS_LIMIT,
+  moveChannelUpwards,
+  shouldConsiderPinnedChannels,
+} from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
@@ -246,8 +251,7 @@ const UnMemoizedChannelList = <
           channels,
           channelToMove: customActiveChannelObject,
           // TODO: adjust acordingly (based on sort)
-          considerPinnedChannels: false,
-          userId: client.userID!,
+          considerPinnedChannels: shouldConsiderPinnedChannels(sort),
         });
 
         setChannels(newChannels);
@@ -298,6 +302,8 @@ const UnMemoizedChannelList = <
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
+  const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
+
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   useMessageNewListener(
@@ -306,7 +312,7 @@ const UnMemoizedChannelList = <
     lockChannelOrder,
     allowNewMessagesFromUnfilteredChannels,
     // TODO: adjust accordingly (consider sort option)
-    false,
+    considerPinnedChannels,
   );
   useNotificationMessageNewListener(
     setChannels,
@@ -318,6 +324,10 @@ const UnMemoizedChannelList = <
     onAddedToChannel,
     allowNewMessagesFromUnfilteredChannels,
   );
+  useMemberUpdatedListener({
+    considerPinnedChannels,
+    setChannels,
+  });
   useNotificationRemovedFromChannelListener(setChannels, onRemovedFromChannel);
   useChannelDeletedListener(setChannels, onChannelDeleted);
   useChannelHiddenListener(setChannels, onChannelHidden);

@@ -1,23 +1,19 @@
 import { useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-
-import { useChatContext } from '../../../context/ChatContext';
-
 import type { Channel, Event, ExtendableGenerics } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 import { moveChannelUpwards } from '../utils';
+import { useChatContext } from '../../../context/ChatContext';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const isChannelPinned = <SCG extends ExtendableGenerics>({
   channel,
-  userId,
 }: {
-  userId: string;
   channel?: Channel<SCG>;
 }) => {
   if (!channel) return false;
 
-  const member = channel.state.members[userId];
+  const member = channel.state.membership;
 
   return !!member?.pinned_at;
 };
@@ -47,7 +43,6 @@ export const useMessageNewListener = <
 
           const isTargetChannelPinned = isChannelPinned({
             channel: channels[targetChannelIndex],
-            userId: client.userID!,
           });
 
           if (
@@ -74,7 +69,6 @@ export const useMessageNewListener = <
               channelToMove,
               channelToMoveIndexWithinChannels: targetChannelIndex,
               considerPinnedChannels,
-              userId: client.userID!,
             });
           }
 

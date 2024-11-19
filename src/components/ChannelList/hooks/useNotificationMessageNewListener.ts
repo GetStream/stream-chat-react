@@ -9,6 +9,7 @@ import type { Channel, Event } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+// TODO: re-visit this and adjust (apply pinned channels)
 export const useNotificationMessageNewListener = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
