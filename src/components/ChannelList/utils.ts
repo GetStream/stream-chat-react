@@ -116,13 +116,15 @@ export const moveChannelUpwards = <
   return newChannels;
 };
 
-// TODO: adjust and re-test when the actual behavior is implemented by the BE
+/**
+ * Set to true only if `{ pinned_at: -1 }` option is first within the `sort` array.
+ */
 export const shouldConsiderPinnedChannels = (sort: ChannelListProps['sort']) => {
   if (!sort) return false;
 
-  if (Array.isArray(sort)) {
-    return sort.some((v) => v.pinned_at === -1);
-  }
+  if (!Array.isArray(sort)) return false;
 
-  return sort.pinned_at === -1;
+  const [option] = sort;
+
+  return option?.pinned_at === -1;
 };
