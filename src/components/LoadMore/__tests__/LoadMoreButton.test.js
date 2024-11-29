@@ -55,7 +55,7 @@ describe('LoadMoreButton', () => {
     expect(loadingIndicator).toBeInTheDocument();
   });
 
-  it('deprecates prop refreshing in favor of isLoading', () => {
+  it('deprecates prop refreshing in favor of queryInProgress', () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
     const onClickMock = jest.fn();
 

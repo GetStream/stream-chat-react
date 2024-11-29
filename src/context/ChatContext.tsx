@@ -6,6 +6,11 @@ import { getDisplayName } from './utils/getDisplayName';
 import type { ChatProps } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
+import {
+  DefaultSearchSources,
+  SearchController,
+  SearchSource,
+} from '../components/Search/SearchController';
 
 type CSSClasses =
   | 'chat'
@@ -24,7 +29,8 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 type ChannelCID = string; // e.g.: "messaging:general"
 
 export type ChatContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SearchSources extends SearchSource[] = DefaultSearchSources
 > = {
   /**
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
@@ -35,6 +41,8 @@ export type ChatContextValue<
   latestMessageDatesByChannels: Record<ChannelCID, Date>;
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
+  /** Instance of SearchController class that allows to control all the search operations. */
+  searchController: SearchController<SearchSources>;
   /**
    * Sets active channel to be rendered within Channel component.
    * @param newChannel
@@ -61,12 +69,13 @@ export type ChatContextValue<
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
 export const ChatProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: ChatContextValue<StreamChatGenerics>;
+  value: ChatContextValue<StreamChatGenerics, SearchSources>;
 }>) => (
   <ChatContext.Provider value={(value as unknown) as ChatContextValue}>
     {children}
@@ -74,7 +83,8 @@ export const ChatProvider = <
 );
 
 export const useChatContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >(
   componentName?: string,
 ) => {
@@ -85,10 +95,10 @@ export const useChatContext = <
       `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ChatContextValue<StreamChatGenerics>;
+    return {} as ChatContextValue<StreamChatGenerics, Sources>;
   }
 
-  return (contextValue as unknown) as ChatContextValue<StreamChatGenerics>;
+  return (contextValue as unknown) as ChatContextValue<StreamChatGenerics, Sources>;
 };
 
 /**

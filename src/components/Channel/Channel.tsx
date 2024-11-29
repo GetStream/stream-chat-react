@@ -99,7 +99,7 @@ import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews'
 import { useThreadContext } from '../Threads';
 import { CHANNEL_CONTAINER_ID } from './constants';
 
-type ChannelPropsForwardedToComponentContext<
+export type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<
   ComponentContextValue<StreamChatGenerics>,

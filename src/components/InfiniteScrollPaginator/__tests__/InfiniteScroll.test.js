@@ -123,7 +123,7 @@ describe('InfiniteScroll', () => {
           </InfiniteScroll>,
         )
         .toJSON();
-    it('should render the loader in the right place if isLoading is true', () => {
+    it('should render the loader in the right place if queryInProgress is true', () => {
       expect(getRenderResult()).toMatchInlineSnapshot(`
         <div>
           <div>

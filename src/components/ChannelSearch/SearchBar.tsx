@@ -115,7 +115,7 @@ export const SearchBar = (props: SearchBarProps) => {
 
   useEffect(() => {
     if (!props.inputRef.current) return;
-
+    const input = props.inputRef.current;
     const handleFocus = () => {
       activateSearch();
     };
@@ -124,20 +124,18 @@ export const SearchBar = (props: SearchBarProps) => {
       e.stopPropagation(); // handle blur/focus state with React state
     };
 
-    props.inputRef.current.addEventListener('focus', handleFocus);
-    props.inputRef.current.addEventListener('blur', handleBlur);
+    input.addEventListener('focus', handleFocus);
+    input.addEventListener('blur', handleBlur);
     return () => {
-      props.inputRef.current?.removeEventListener('focus', handleFocus);
-      props.inputRef.current?.addEventListener('blur', handleBlur);
+      input.removeEventListener('focus', handleFocus);
+      input.removeEventListener('blur', handleBlur);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activateSearch, props.inputRef]);
 
   const handleClearClick = useCallback(() => {
     exitSearch();
     inputProps.inputRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [exitSearch, inputProps.inputRef]);
 
   const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);
 

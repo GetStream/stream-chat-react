@@ -5,6 +5,7 @@ import {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
+  ChannelSearchProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
@@ -54,10 +55,14 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
+import { SearchSourceResultsProps } from '../components/Search/SearchResults/SearchSourceResults';
+import { SearchResultsHeaderProps } from '../components/Search/SearchResults/SearchResultsHeader';
+import type { DefaultSearchSources, SearchSource } from '../components/Search/SearchController';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
+  SearchSources extends SearchSource[] = DefaultSearchSources
 > = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
@@ -77,6 +82,24 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
+  // todo: decide the naming for the 2 different searches
+  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
+  // ChannelSearchBar?: React.ComponentType;
+  // /** Custom UI component to display empty search results */
+  // ChannelSearchEmptyResultsList?: React.ComponentType;
+  // ChannelSearchInput?: React.ComponentType;
+  // /** Custom UI component to display the search loading state */
+  // /** Custom UI component to display a search result list item, defaults to and accepts the same props as: [DefaultSearchResultItems](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
+  // ChannelSearchLoading?: React.ComponentType;
+  // ChannelSearchResultItem?: React.ComponentType<ChannelSearchResultItemProps<StreamChatGenerics>>;
+  // ChannelSearchResults?: React.ComponentType;
+  // /** Custom UI component to display the search results header */
+  // ChannelSearchResultsHeader?: React.ComponentType<
+  //   ChannelSearchResultsListProps<StreamChatGenerics>
+  // >;
+  // /** Custom UI component to display all the search results, defaults to and accepts the same props as: [DefaultSearchResultsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
+  // ChannelSearchResultsList?: React.ComponentType;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
@@ -160,6 +183,10 @@ export type ComponentContextValue<
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
+  /** Custom UI component to display header of search results pane, defaults to and accepts same props as: [SearchResultsHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResultsHeader.tsx) */
+  SearchResultsHeader?: React.ComponentType<SearchResultsHeaderProps<SearchSources>>;
+  /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResultsProps](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
+  SearchSourceResults?: React.ComponentType<SearchSourceResultsProps<SearchSources>>;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
@@ -208,14 +235,20 @@ export const ComponentProvider = <
 
 export const useComponentContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
+  SearchSources extends SearchSource[] = DefaultSearchSources
 >(
   /**
    * @deprecated
    */
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   _componentName?: string,
-) => (useContext(ComponentContext) as unknown) as ComponentContextValue<StreamChatGenerics, V>;
+) =>
+  (useContext(ComponentContext) as unknown) as ComponentContextValue<
+    StreamChatGenerics,
+    V,
+    SearchSources
+  >;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext

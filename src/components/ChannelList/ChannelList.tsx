@@ -263,21 +263,22 @@ const UnMemoizedChannelList = <
     setChannelUpdateCount,
   ]);
 
-  const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
-      setSearchActive(false);
-    } else {
-      setSearchActive(true);
-    }
-    additionalChannelSearchProps?.onSearch?.(event);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onSearch = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!event.target.value) {
+        setSearchActive(false);
+      } else {
+        setSearchActive(true);
+      }
+      additionalChannelSearchProps?.onSearch?.(event);
+    },
+    [additionalChannelSearchProps],
+  );
 
   const onSearchExit = useCallback(() => {
     setSearchActive(false);
     additionalChannelSearchProps?.onSearchExit?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [additionalChannelSearchProps]);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,

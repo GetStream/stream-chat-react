@@ -1,5 +1,6 @@
 export * from './ChannelActionContext';
 export * from './ChannelListContext';
+export * from './SearchContext';
 export * from './ChannelStateContext';
 export * from './ChatContext';
 export * from './ComponentContext';

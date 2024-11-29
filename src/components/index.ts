@@ -29,6 +29,7 @@ export * from './Modal';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';
+export * from './Search';
 export * from './Thread';
 export * from './Tooltip';
 export * from './TypingIndicator';
