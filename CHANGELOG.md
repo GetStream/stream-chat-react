@@ -1,3 +1,10 @@
+## [12.6.1](https://github.com/GetStream/stream-chat-react/compare/v12.6.0...v12.6.1) (2024-12-02)
+
+
+### Bug Fixes
+
+* report correct package version in the source code ([#2566](https://github.com/GetStream/stream-chat-react/issues/2566)) ([2157d2f](https://github.com/GetStream/stream-chat-react/commit/2157d2f9814f88bccce2855830585d33f52f0299))
+
 ## [12.6.0](https://github.com/GetStream/stream-chat-react/compare/v12.5.2...v12.6.0) (2024-11-15)
 
 
