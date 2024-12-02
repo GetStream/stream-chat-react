@@ -184,6 +184,7 @@
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.2",
+    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
     "@stream-io/stream-chat-css": "^5.4.0",
@@ -221,6 +222,7 @@
     "dotenv": "^8.6.0",
     "emoji-mart": "^5.5.2",
     "esbuild": "^0.23.1",
+    "esbuild-plugin-replace": "^1.4.0",
     "eslint": "7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
@@ -260,7 +262,7 @@
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "build": "rm -rf dist && ./scripts/copy-version.sh && yarn build-translations && yarn bundle",
+    "build": "rm -rf dist && yarn build-translations && yarn bundle",
     "bundle": "concurrently tsc ./scripts/copy-css.sh ./scripts/bundle.mjs",
     "build-translations": "i18next",
     "coverage": "jest --collectCoverage && codecov",

@@ -12,8 +12,6 @@ import {
   getTestClientWithUser,
 } from '../../../mock-builders';
 
-import { version } from '../../../../package.json';
-
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));
   return <div data-testid='children' />;
@@ -66,7 +64,7 @@ describe('Chat', () => {
       expect(context.openMobileNav).toBeInstanceOf(Function);
       expect(context.closeMobileNav).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toBe(
-        `stream-chat-react-${version}-${originalUserAgent}`,
+        `stream-chat-react-__STREAM_CHAT_REACT_VERSION__-${originalUserAgent}`,
       );
     });
   });
