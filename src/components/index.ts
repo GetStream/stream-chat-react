@@ -36,6 +36,7 @@ export * from './UserItem';
 export * from './Window';
 export * from './Threads';
 export * from './ChatView';
+export * from './AITypingIndicatorView';
 
 export { UploadButton } from './ReactFileUtilities';
 export type { UploadButtonProps } from './ReactFileUtilities';
