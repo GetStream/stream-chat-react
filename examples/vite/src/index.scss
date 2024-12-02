@@ -30,6 +30,10 @@ body,
     flex-shrink: 0;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 
+    .str-chat__channel-preview-messenger {
+      max-width: 1000px;
+    }
+
     &--open {
       width: 30%;
       position: fixed;

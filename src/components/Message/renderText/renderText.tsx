@@ -35,6 +35,13 @@ export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji'
   // custom types (tagNames)
   'emoji',
   'mention',
+  'table',
+  'thead',
+  'tbody',
+  'th',
+  'tr',
+  'td',
+  'tfoot',
 ];
 
 function formatUrlForDisplay(url: string) {
