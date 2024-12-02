@@ -169,7 +169,7 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     customActiveChannel,
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
-    filters,
+    filters = {},
     getLatestMessagePreview,
     LoadingErrorIndicator = NullComponent,
     LoadingIndicator = LoadingChannels,
@@ -286,11 +286,10 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
-
   const { customFn, defaultFn } = usePrepareShapeHandlers<SCG>({
     allowNewMessagesFromUnfilteredChannels,
-    considerPinnedChannels,
+    filters,
+    sort,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,

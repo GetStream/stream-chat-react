@@ -1,9 +1,8 @@
 import uniqBy from 'lodash.uniqby';
 import type { Channel, ExtendableGenerics } from 'stream-chat';
 
-import { isChannelPinned } from './hooks';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { ChannelListProps } from './ChannelList';
+import type { ChannelListProps } from './ChannelList';
 
 export const MAX_QUERY_CHANNELS_LIMIT = 30;
 
@@ -45,7 +44,7 @@ export function findLastPinnedChannelIndex<SCG extends ExtendableGenerics>({
   let lastPinnedChannelIndex: number | null = null;
 
   for (const channel of channels) {
-    if (!isChannelPinned({ channel })) break;
+    if (!isChannelPinned(channel)) break;
 
     if (typeof lastPinnedChannelIndex === 'number') {
       lastPinnedChannelIndex++;
@@ -75,7 +74,7 @@ type MoveChannelUpwardsParams<SCG extends DefaultStreamChatGenerics = DefaultStr
 };
 
 export const moveChannelUpwards = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channels,
   channelToMove,
@@ -117,14 +116,45 @@ export const moveChannelUpwards = <
 };
 
 /**
- * Set to true only if `{ pinned_at: -1 }` option is first within the `sort` array.
+ * Returns true only if `{ pinned_at: -1 }` or `{ pinned_at: 1 }` option is first within the `sort` array.
  */
-export const shouldConsiderPinnedChannels = (sort: ChannelListProps['sort']) => {
+export const shouldConsiderPinnedChannels = <SCG extends ExtendableGenerics>(
+  sort: ChannelListProps<SCG>['sort'],
+) => {
   if (!sort) return false;
 
   if (!Array.isArray(sort)) return false;
 
   const [option] = sort;
 
-  return option?.pinned_at === -1;
+  if (!option?.pinned_at) return false;
+
+  return Math.abs(option.pinned_at) === 1;
+};
+
+/**
+ * Returns `true` only if `archived` property is set to `false` within `filters`.
+ */
+export const shouldConsiderArchivedChannels = <SCG extends ExtendableGenerics>(
+  filters: ChannelListProps<SCG>['filters'],
+) => {
+  if (!filters) return false;
+
+  return !filters.archived;
+};
+
+export const isChannelPinned = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
+  if (!channel) return false;
+
+  const member = channel.state.membership;
+
+  return !!member?.pinned_at;
+};
+
+export const isChannelArchived = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
+  if (!channel) return false;
+
+  const member = channel.state.membership;
+
+  return !!member?.archived_at;
 };
