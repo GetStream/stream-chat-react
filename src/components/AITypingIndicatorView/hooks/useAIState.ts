@@ -23,11 +23,15 @@ export const AIStates = {
 export const useAIState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  channel: Channel<StreamChatGenerics>,
+  channel?: Channel<StreamChatGenerics>,
 ) => {
   const [aiState, setAiState] = useState<AIStateType>(AIStates.Idle);
 
   useEffect(() => {
+    if (!channel) {
+      return;
+    }
+
     const indicatorChangedListener = channel.on(
       // @ts-ignore
       'ai_indicator_changed',

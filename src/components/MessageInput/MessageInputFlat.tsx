@@ -9,6 +9,7 @@ import {
 import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
+import { StopGeneratingButton as DefaultStopGeneratingButton } from './StopGeneratingButton';
 import {
   AudioRecorder as DefaultAudioRecorder,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
@@ -32,6 +33,7 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { AIStates, useAIState } from '../AITypingIndicatorView';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -66,6 +68,7 @@ export const MessageInputFlat = <
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
+    StopGeneratingButton = DefaultStopGeneratingButton,
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
   const {
@@ -75,6 +78,13 @@ export const MessageInputFlat = <
   } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
   const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
   const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
+
+  const { aiState } = useAIState(channel);
+
+  // @ts-ignore
+  const stopGenerating = useCallback(() => channel?.sendEvent({ type: 'stop_generating' }), [
+    channel,
+  ]);
 
   const [
     showRecordingPermissionDeniedNotification,
@@ -133,6 +143,8 @@ export const MessageInputFlat = <
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
+  const shouldDisplayStopAIGeneration = [AIStates.Thinking, AIStates.Generating].includes(aiState);
+
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
@@ -174,41 +186,45 @@ export const MessageInputFlat = <
               {EmojiPicker && <EmojiPicker />}
             </div>
           </div>
-          {!hideSendButton && (
-            <>
-              {cooldownRemaining ? (
-                <CooldownTimer
-                  cooldownInterval={cooldownRemaining}
-                  setCooldownRemaining={setCooldownRemaining}
-                />
-              ) : (
-                <>
-                  <SendButton
-                    disabled={
-                      !numberOfUploads &&
-                      !text.length &&
-                      attachments.length - failedUploadsCount === 0
-                    }
-                    sendMessage={handleSubmit}
+          {shouldDisplayStopAIGeneration ? (
+            <StopGeneratingButton onClick={stopGenerating} />
+          ) : (
+            !hideSendButton && (
+              <>
+                {cooldownRemaining ? (
+                  <CooldownTimer
+                    cooldownInterval={cooldownRemaining}
+                    setCooldownRemaining={setCooldownRemaining}
                   />
-                  {recordingEnabled && (
-                    <StartRecordingAudioButton
+                ) : (
+                  <>
+                    <SendButton
                       disabled={
-                        isRecording ||
-                        (!asyncMessagesMultiSendEnabled &&
-                          attachments.some(
-                            (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
-                          ))
+                        !numberOfUploads &&
+                        !text.length &&
+                        attachments.length - failedUploadsCount === 0
                       }
-                      onClick={() => {
-                        recordingController.recorder?.start();
-                        setShowRecordingPermissionDeniedNotification(true);
-                      }}
+                      sendMessage={handleSubmit}
                     />
-                  )}
-                </>
-              )}
-            </>
+                    {recordingEnabled && (
+                      <StartRecordingAudioButton
+                        disabled={
+                          isRecording ||
+                          (!asyncMessagesMultiSendEnabled &&
+                            attachments.some(
+                              (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
+                            ))
+                        }
+                        onClick={() => {
+                          recordingController.recorder?.start();
+                          setShowRecordingPermissionDeniedNotification(true);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )
           )}
         </div>
       </div>
