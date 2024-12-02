@@ -30,10 +30,8 @@ export const AITypingIndicatorView = <
   };
 
   return aiState in allowedStates ? (
-    <div style={{ backgroundColor: 'gainsboro', padding: '0px 8px' }}>
-      <p style={{ color: 'black' }}>{allowedStates[aiState]}</p>
+    <div className='str-chat__ai-typing-indicator-container'>
+      <p className='str-chat__ai-typing-indicator-text'>{allowedStates[aiState]}</p>
     </div>
   ) : null;
 };
-
-AITypingIndicatorView.displayName = 'AITypingIndicatorView{messageSimple{content}}';
