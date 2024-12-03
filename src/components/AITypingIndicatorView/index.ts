@@ -1,2 +1,2 @@
-export * from './AITypingIndicatorView';
+export * from './AITypingIndicator';
 export * from './hooks/useAIState';

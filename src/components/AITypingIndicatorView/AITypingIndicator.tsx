@@ -7,20 +7,20 @@ import { AIStates, useAIState } from './hooks/useAIState';
 import { useChannelStateContext, useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type AITypingIndicatorViewProps<
+export type AITypingIndicatorProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channel?: Channel<StreamChatGenerics>;
 };
 
-export const AITypingIndicatorView = <
+export const AITypingIndicator = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   channel: channelFromProps,
-}: AITypingIndicatorViewProps<StreamChatGenerics>) => {
+}: AITypingIndicatorProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext();
   const { channel: channelFromContext } = useChannelStateContext<StreamChatGenerics>(
-    'AITypingIndicatorView',
+    'AITypingIndicator',
   );
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
