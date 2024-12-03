@@ -1,2 +1,2 @@
-export * from './AITypingIndicator';
+export * from './AIGenerationIndicator';
 export * from './hooks/useAIState';

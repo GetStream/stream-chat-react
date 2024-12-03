@@ -1,6 +1,6 @@
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
-  AITypingIndicator,
+  AIGenerationIndicator,
   Channel,
   ChannelAvatar,
   ChannelHeader,
@@ -90,7 +90,7 @@ const App = () => {
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
-              <AITypingIndicator />
+              <AIGenerationIndicator />
               <MessageInput focus />
             </Window>
             <Thread virtualized />
