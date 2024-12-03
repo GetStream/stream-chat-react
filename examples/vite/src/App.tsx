@@ -14,8 +14,7 @@ import {
   ThreadList,
   ChatView,
 } from 'stream-chat-react';
-// import 'stream-chat-react/css/v2/index.css';
-import '@stream-io/stream-chat-css/dist/v2/css/index.css';
+import 'stream-chat-react/css/v2/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
