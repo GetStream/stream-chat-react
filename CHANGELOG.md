@@ -1,3 +1,10 @@
+## [12.6.2](https://github.com/GetStream/stream-chat-react/compare/v12.6.1...v12.6.2) (2024-12-03)
+
+
+### Bug Fixes
+
+* report correct package version in esm build ([#2569](https://github.com/GetStream/stream-chat-react/issues/2569)) ([521775c](https://github.com/GetStream/stream-chat-react/commit/521775c414815f71cd7b1312d1ed0b2da27103b1))
+
 ## [12.6.1](https://github.com/GetStream/stream-chat-react/compare/v12.6.0...v12.6.1) (2024-12-02)
 
 
