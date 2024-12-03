@@ -155,6 +155,7 @@
   "aria/Remove attachment": "Remove attachment",
   "aria/Retry upload": "Retry upload",
   "aria/Send": "Send",
+  "aria/Stop AI Generation": "Stop AI Generation",
   "live": "live",
   "replyCount_one": "1 reply",
   "replyCount_other": "{{ count }} replies",

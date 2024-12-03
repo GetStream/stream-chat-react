@@ -152,6 +152,7 @@
   "aria/Remove attachment": "添付ファイルを削除",
   "aria/Retry upload": "アップロードを再試行",
   "aria/Send": "送信",
+  "aria/Stop AI Generation": "AI生成を停止",
   "ban-command-args": "[@ユーザ名] [テキスト]",
   "ban-command-description": "ユーザーを禁止する",
   "giphy-command-args": "[テキスト]",

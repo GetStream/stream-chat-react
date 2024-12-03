@@ -1,13 +1,17 @@
 import React from 'react';
+import { useTranslationContext } from '../../context';
 
 export type StopAIGenerationButtonProps = React.ComponentProps<'button'>;
 
-export const StopAIGenerationButton = ({ onClick, ...restProps }: StopAIGenerationButtonProps) => (
-  <button
-    aria-label='aria/Stop'
-    className='str-chat__stop-generating-button'
-    data-testid='stop-ai-generation-button'
-    onClick={onClick}
-    {...restProps}
-  />
-);
+export const StopAIGenerationButton = ({ onClick, ...restProps }: StopAIGenerationButtonProps) => {
+  const { t } = useTranslationContext();
+  return (
+    <button
+      aria-label={t('aria/Stop AI Generation')}
+      className='str-chat__stop-generating-button'
+      data-testid='stop-ai-generation-button'
+      onClick={onClick}
+      {...restProps}
+    />
+  );
+};

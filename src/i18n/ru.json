@@ -161,6 +161,7 @@
   "aria/Remove attachment": "Удалить вложение",
   "aria/Retry upload": "Повторить загрузку",
   "aria/Send": "Отправить",
+  "aria/Stop AI Generation": "Остановить генерацию ИИ",
   "ban-command-args": "[@имяпользователя] [текст]",
   "ban-command-description": "Заблокировать пользователя",
   "giphy-command-args": "[текст]",

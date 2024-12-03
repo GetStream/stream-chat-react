@@ -156,6 +156,7 @@
   "aria/Remove attachment": "संलग्नक हटाएं",
   "aria/Retry upload": "अपलोड पुनः प्रयास करें",
   "aria/Send": "भेजें",
+  "aria/Stop AI Generation": "एआई जनरेशन रोकें",
   "ban-command-args": "[@उपयोगकर्तनाम] [पाठ]",
   "ban-command-description": "एक उपयोगकर्ता को प्रतिषेधित करें",
   "giphy-command-args": "[पाठ]",

@@ -155,6 +155,7 @@
   "aria/Remove attachment": "Eki kaldır",
   "aria/Retry upload": "Yüklemeyi Tekrar Dene",
   "aria/Send": "Gönder",
+  "aria/Stop AI Generation": "Yapay Zeka Üretimini Durdur",
   "ban-command-args": "[@kullanıcıadı] [metin]",
   "ban-command-description": "Bir kullanıcıyı yasakla",
   "giphy-command-args": "[metin]",

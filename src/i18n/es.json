@@ -158,6 +158,7 @@
   "aria/Remove attachment": "Eliminar adjunto",
   "aria/Retry upload": "Reintentar carga",
   "aria/Send": "Enviar",
+  "aria/Stop AI Generation": "Detener generación de IA",
   "ban-command-args": "[@usuario] [texto]",
   "ban-command-description": "Prohibir a un usuario",
   "giphy-command-args": "[texto]",
