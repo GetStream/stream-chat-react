@@ -263,7 +263,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && yarn build-translations && yarn bundle",
-    "bundle": "concurrently tsc ./scripts/copy-css.sh ./scripts/bundle.mjs",
+    "bundle": "concurrently ./scripts/bundle-esm.mjs ./scripts/copy-css.sh scripts/bundle-cjs.mjs",
     "build-translations": "i18next",
     "coverage": "jest --collectCoverage && codecov",
     "eslint": "eslint '**/*.{js,md,ts,jsx,tsx}' --max-warnings 0",
