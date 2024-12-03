@@ -146,7 +146,7 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
             channels,
             channelToMove,
             channelToMoveIndexWithinChannels: targetChannelIndex,
-            considerPinnedChannels,
+            sort,
           });
         }
 
@@ -169,10 +169,9 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         return customHandler(setChannels, event);
       }
 
-      const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
-      const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
-
-      if (!event.channel?.type) return;
+      if (!event.channel) {
+        return;
+      }
 
       const channel = await getChannel({
         client,
@@ -180,18 +179,21 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         type: event.channel.type,
       });
 
+      const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
       if (isChannelArchived(channel) && considerArchivedChannels) {
         return;
       }
 
-      if (!allowNewMessagesFromUnfilteredChannels) return;
+      if (!allowNewMessagesFromUnfilteredChannels) {
+        return;
+      }
 
       setChannels((channels) =>
         moveChannelUpwards({
           channels,
           channelToMove: channel,
           channelToMoveIndexWithinChannels: -1,
-          considerPinnedChannels,
+          sort,
         }),
       );
     },
@@ -249,10 +251,14 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         return;
       }
 
+      const member = event.member;
       const channelType = event.channel_type;
       const channelId = event.channel_id;
 
       const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
+
+      // TODO: extract this and consider single property sort object too
+      const pinnedAtSort = Array.isArray(sort) ? (sort[0]?.pinned_at ?? null) : null;
 
       setChannels((currentChannels) => {
         const targetChannel = client.channel(channelType, channelId);
@@ -260,21 +266,29 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         const targetChannelIndex = currentChannels.indexOf(targetChannel);
         const targetChannelExistsWithinList = targetChannelIndex >= 0;
 
+        // handle pinning
+        if (!considerPinnedChannels || lockChannelOrder) return currentChannels;
+
         const newChannels = [...currentChannels];
 
         if (targetChannelExistsWithinList) {
           newChannels.splice(targetChannelIndex, 1);
         }
 
-        // handle archiving
-        if (typeof event.member?.archived_at === 'string') {
+        // handle archiving (remove channel)
+        if (typeof member.archived_at === 'string') {
           return newChannels;
         }
 
-        // handle pinning
-        if (!considerPinnedChannels || lockChannelOrder) return currentChannels;
+        let lastPinnedChannelIndex: number | null = null;
 
-        const lastPinnedChannelIndex = findLastPinnedChannelIndex({ channels: newChannels });
+        // calculate last pinned channel index only if `pinned_at` sort is set to
+        // ascending order or if it's in descending order while the pin is being removed, otherwise
+        // we move to the top (index 0)
+        if (pinnedAtSort === 1 || (pinnedAtSort === -1 && !member.pinned_at)) {
+          lastPinnedChannelIndex = findLastPinnedChannelIndex({ channels: newChannels });
+        }
+
         const newTargetChannelIndex =
           typeof lastPinnedChannelIndex === 'number' ? lastPinnedChannelIndex + 1 : 0;
 

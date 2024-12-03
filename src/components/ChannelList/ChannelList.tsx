@@ -5,11 +5,7 @@ import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMe
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
-import {
-  MAX_QUERY_CHANNELS_LIMIT,
-  moveChannelUpwards,
-  shouldConsiderPinnedChannels,
-} from './utils';
+import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
@@ -238,8 +234,7 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
         const newChannels = moveChannelUpwards({
           channels,
           channelToMove: customActiveChannelObject,
-          // TODO: adjust acordingly (based on sort)
-          considerPinnedChannels: shouldConsiderPinnedChannels(sort),
+          sort,
         });
 
         setChannels(newChannels);
