@@ -33,7 +33,7 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { AIStates, useAIState } from '../AITypingIndicatorView';
+import { AIStates, useAIState } from '../AIStateIndicator';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
