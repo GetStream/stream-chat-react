@@ -3,7 +3,7 @@ import React from 'react';
 import { MessageText, MessageTextProps } from './MessageText';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import { useMessageContext } from '../../context';
-import { useStreamingMessage } from './hooks';
+import { useMessageTextStreaming } from './hooks';
 
 export type StreamedMessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -28,7 +28,7 @@ export const StreamedMessageText = <
   );
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
-  const { streamedMessageText } = useStreamingMessage({
+  const { streamedMessageText } = useMessageTextStreaming({
     renderingLetterCount,
     streamingLetterIntervalMs,
     text,

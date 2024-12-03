@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import { StreamedMessageTextProps } from '../StreamedMessageText';
 
-export type UseStreamingMessageProps<
+export type UseMessageTextStreamingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<
   StreamedMessageTextProps<StreamChatGenerics>,
@@ -13,13 +13,13 @@ export type UseStreamingMessageProps<
 const DEFAULT_LETTER_INTERVAL = 30;
 const DEFAULT_RENDERING_LETTER_COUNT = 2;
 
-export const useStreamingMessage = <
+export const useMessageTextStreaming = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   streamingLetterIntervalMs = DEFAULT_LETTER_INTERVAL,
   renderingLetterCount = DEFAULT_RENDERING_LETTER_COUNT,
   text,
-}: UseStreamingMessageProps<StreamChatGenerics>) => {
+}: UseMessageTextStreamingProps<StreamChatGenerics>) => {
   const [streamedMessageText, setStreamedMessageText] = useState<string>(text);
   const textCursor = useRef<number>(text.length);
 
