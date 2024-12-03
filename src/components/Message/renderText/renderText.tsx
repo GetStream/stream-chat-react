@@ -32,9 +32,6 @@ export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji'
   'pre',
   'blockquote',
   'del',
-  // custom types (tagNames)
-  'emoji',
-  'mention',
   'table',
   'thead',
   'tbody',
@@ -42,6 +39,9 @@ export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji'
   'tr',
   'td',
   'tfoot',
+  // custom types (tagNames)
+  'emoji',
+  'mention',
 ];
 
 function formatUrlForDisplay(url: string) {
