@@ -9,7 +9,7 @@ import {
 import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
-import { StopGeneratingButton as DefaultStopGeneratingButton } from './StopGeneratingButton';
+import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import {
   AudioRecorder as DefaultAudioRecorder,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
@@ -68,9 +68,13 @@ export const MessageInputFlat = <
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
-    StopGeneratingButton = DefaultStopGeneratingButton,
+    StopAIGenerationButton: StopAIGenerationButtonOverride,
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
+  const StopAIGenerationButton =
+    StopAIGenerationButtonOverride === undefined
+      ? DefaultStopAIGenerationButton
+      : StopAIGenerationButtonOverride;
   const {
     acceptedFiles = [],
     multipleUploads,
@@ -142,7 +146,8 @@ export const MessageInputFlat = <
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
-  const shouldDisplayStopAIGeneration = [AIStates.Thinking, AIStates.Generating].includes(aiState);
+  const shouldDisplayStopAIGeneration =
+    [AIStates.Thinking, AIStates.Generating].includes(aiState) && !!StopAIGenerationButton;
 
   return (
     <>
@@ -186,7 +191,7 @@ export const MessageInputFlat = <
             </div>
           </div>
           {shouldDisplayStopAIGeneration ? (
-            <StopGeneratingButton onClick={stopGenerating} />
+            <StopAIGenerationButton onClick={stopGenerating} />
           ) : (
             !hideSendButton && (
               <>

@@ -54,7 +54,7 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import { StopGeneratingButtonProps } from '../components/MessageInput/StopGeneratingButton';
+import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -165,7 +165,7 @@ export type ComponentContextValue<
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
-  StopGeneratingButton?: React.ComponentType<StopGeneratingButtonProps>;
+  StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
