@@ -81,8 +81,7 @@ export const MessageInputFlat = <
 
   const { aiState } = useAIState(channel);
 
-  // @ts-ignore
-  const stopGenerating = useCallback(() => channel?.sendEvent({ type: 'stop_generating' }), [
+  const stopGenerating = useCallback(() => channel?.sendEvent({ type: 'ai_indicator.stop' }), [
     channel,
   ]);
 
