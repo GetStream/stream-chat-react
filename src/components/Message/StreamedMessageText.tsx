@@ -18,7 +18,9 @@ export const StreamedMessageText = <
   props: StreamedMessageTextProps<StreamChatGenerics>,
 ) => {
   const { letterInterval, message: messageFromProps, renderingLetterCount, renderText } = props;
-  const { message: messageFromContext } = useMessageContext<StreamChatGenerics>('MessageText');
+  const { message: messageFromContext } = useMessageContext<StreamChatGenerics>(
+    'StreamedMessageText',
+  );
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
   const { streamedMessageText } = useStreamingMessage({
