@@ -30,8 +30,8 @@ export const AIGenerationIndicator = <
   };
 
   return aiState in allowedStates ? (
-    <div className='str-chat__ai-typing-indicator-container'>
-      <p className='str-chat__ai-typing-indicator-text'>{allowedStates[aiState]}</p>
+    <div className='str-chat__ai-generation-indicator-container'>
+      <p className='str-chat__ai-generation-indicator-text'>{allowedStates[aiState]}</p>
     </div>
   ) : null;
 };
