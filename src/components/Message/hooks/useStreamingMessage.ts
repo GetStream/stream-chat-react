@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import { StreamingMessageViewProps } from '../StreamingMessageView';
+import { StreamedMessageTextProps } from '../StreamedMessageText';
 
 export type UseStreamingMessageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<
-  StreamingMessageViewProps<StreamChatGenerics>,
+  StreamedMessageTextProps<StreamChatGenerics>,
   'letterInterval' | 'renderingLetterCount'
 > & { text: string };
 

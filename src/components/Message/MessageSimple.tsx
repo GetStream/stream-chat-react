@@ -34,7 +34,7 @@ import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { StreamingMessageView } from './StreamingMessageView';
+import { StreamedMessageText } from './StreamedMessageText';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -187,7 +187,7 @@ const MessageSimpleWithContext = <
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
               {message.ai_generated ? (
-                <StreamingMessageView message={message} renderText={renderText} />
+                <StreamedMessageText message={message} renderText={renderText} />
               ) : (
                 <MessageText message={message} renderText={renderText} />
               )}

@@ -13,5 +13,5 @@ export * from './QuotedMessage';
 export * from './renderText';
 export * from './types';
 export * from './utils';
-export * from './StreamingMessageView';
+export * from './StreamedMessageText';
 export type { TimestampProps } from './Timestamp';
