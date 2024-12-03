@@ -7,7 +7,7 @@ export type UseStreamingMessageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<
   StreamedMessageTextProps<StreamChatGenerics>,
-  'letterInterval' | 'renderingLetterCount'
+  'streamingLetterIntervalMs' | 'renderingLetterCount'
 > & { text: string };
 
 const DEFAULT_LETTER_INTERVAL = 30;
@@ -16,7 +16,7 @@ const DEFAULT_RENDERING_LETTER_COUNT = 2;
 export const useStreamingMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  letterInterval = DEFAULT_LETTER_INTERVAL,
+  streamingLetterIntervalMs = DEFAULT_LETTER_INTERVAL,
   renderingLetterCount = DEFAULT_RENDERING_LETTER_COUNT,
   text,
 }: UseStreamingMessageProps<StreamChatGenerics>) => {
@@ -35,12 +35,12 @@ export const useStreamingMessage = <
       const codeBlockCounts = (newText.match(/```/g) || []).length;
       const shouldOptimisticallyCloseCodeBlock = codeBlockCounts > 0 && codeBlockCounts % 2 > 0;
       setStreamedMessageText(shouldOptimisticallyCloseCodeBlock ? newText + '```' : newText);
-    }, letterInterval);
+    }, streamingLetterIntervalMs);
 
     return () => {
       clearInterval(interval);
     };
-  }, [letterInterval, renderingLetterCount, text]);
+  }, [streamingLetterIntervalMs, renderingLetterCount, text]);
 
   return { streamedMessageText };
 };

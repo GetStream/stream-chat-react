@@ -8,8 +8,8 @@ import { useStreamingMessage } from './hooks';
 export type StreamedMessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<MessageTextProps<StreamChatGenerics>, 'message' | 'renderText'> & {
-  letterInterval?: number;
   renderingLetterCount?: number;
+  streamingLetterIntervalMs?: number;
 };
 
 export const StreamedMessageText = <
@@ -17,15 +17,20 @@ export const StreamedMessageText = <
 >(
   props: StreamedMessageTextProps<StreamChatGenerics>,
 ) => {
-  const { letterInterval, message: messageFromProps, renderingLetterCount, renderText } = props;
+  const {
+    message: messageFromProps,
+    renderingLetterCount,
+    renderText,
+    streamingLetterIntervalMs,
+  } = props;
   const { message: messageFromContext } = useMessageContext<StreamChatGenerics>(
     'StreamedMessageText',
   );
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
   const { streamedMessageText } = useStreamingMessage({
-    letterInterval,
     renderingLetterCount,
+    streamingLetterIntervalMs,
     text,
   });
 
