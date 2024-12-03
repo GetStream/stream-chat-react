@@ -217,12 +217,10 @@ const MessageSimpleWithContext = <
                 </span>
               )}
               <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
-              {isEdited && !message.ai_generated && (
+              {isEdited && (
                 <span className='str-chat__mesage-simple-edited'>{t<string>('Edited')}</span>
               )}
-              {isEdited && !message.ai_generated && (
-                <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />
-              )}
+              {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
             </div>
           )}
         </div>
