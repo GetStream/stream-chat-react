@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import { StreamedMessageTextProps } from '../StreamedMessageText';
+import type { StreamedMessageTextProps } from '../StreamedMessageText';
 
 export type UseMessageTextStreamingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
