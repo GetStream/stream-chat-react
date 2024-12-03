@@ -7,20 +7,20 @@ import { AIStates, useAIState } from './hooks/useAIState';
 import { useChannelStateContext, useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type AIGenerationIndicatorProps<
+export type AIStateIndicatorProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channel?: Channel<StreamChatGenerics>;
 };
 
-export const AIGenerationIndicator = <
+export const AIStateIndicator = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   channel: channelFromProps,
-}: AIGenerationIndicatorProps<StreamChatGenerics>) => {
+}: AIStateIndicatorProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext();
   const { channel: channelFromContext } = useChannelStateContext<StreamChatGenerics>(
-    'AIGenerationIndicator',
+    'AIStateIndicator',
   );
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
@@ -30,8 +30,8 @@ export const AIGenerationIndicator = <
   };
 
   return aiState in allowedStates ? (
-    <div className='str-chat__ai-generation-indicator-container'>
-      <p className='str-chat__ai-generation-indicator-text'>{allowedStates[aiState]}</p>
+    <div className='str-chat__ai-state-indicator-container'>
+      <p className='str-chat__ai-state-indicator-text'>{allowedStates[aiState]}</p>
     </div>
   ) : null;
 };
