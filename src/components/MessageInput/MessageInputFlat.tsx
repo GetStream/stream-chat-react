@@ -81,9 +81,7 @@ export const MessageInputFlat = <
 
   const { aiState } = useAIState(channel);
 
-  const stopGenerating = useCallback(() => channel?.sendEvent({ type: 'ai_indicator.stop' }), [
-    channel,
-  ]);
+  const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
 
   const [
     showRecordingPermissionDeniedNotification,
