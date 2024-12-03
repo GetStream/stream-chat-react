@@ -43,7 +43,6 @@ export const useAIState = <
       },
     );
 
-    // @ts-ignore
     const indicatorClearedListener = channel.on('ai_indicator.clear', (event) => {
       const { cid } = event;
       if (channel.cid === cid) {
