@@ -37,6 +37,7 @@ import {
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
+  StreamedMessageTextProps,
   SuggestionItemProps,
   SuggestionListProps,
   ThreadHeaderProps,
@@ -166,6 +167,7 @@ export type ComponentContextValue<
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
+  StreamedMessageText?: React.ComponentType<StreamedMessageTextProps>;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
