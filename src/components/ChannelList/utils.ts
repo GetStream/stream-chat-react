@@ -71,7 +71,7 @@ type MoveChannelUpwardsParams<SCG extends DefaultStreamChatGenerics = DefaultStr
  * This function should not be used to move pinned already channels.
  */
 export const moveChannelUpwards = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   channels,
   channelToMove,

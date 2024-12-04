@@ -42,15 +42,17 @@ type HandleNotificationMessageNewParameters<SCG extends ExtendableGenerics> = Ba
     lockChannelOrder: boolean;
   } & Required<Pick<ChannelListProps<SCG>, 'filters' | 'sort'>>;
 
-type HandleNotificationRemovedFromChannelParameters<SCG extends ExtendableGenerics> =
-  BaseParameters<SCG> & RepeatedParameters<SCG>;
+type HandleNotificationRemovedFromChannelParameters<
+  SCG extends ExtendableGenerics
+> = BaseParameters<SCG> & RepeatedParameters<SCG>;
 
-type HandleNotificationAddedToChannelParameters<SCG extends ExtendableGenerics> =
-  BaseParameters<SCG> &
-    RepeatedParameters<SCG> & {
-      allowNewMessagesFromUnfilteredChannels: boolean;
-      lockChannelOrder: boolean;
-    } & Required<Pick<ChannelListProps<SCG>, 'sort'>>;
+type HandleNotificationAddedToChannelParameters<
+  SCG extends ExtendableGenerics
+> = BaseParameters<SCG> &
+  RepeatedParameters<SCG> & {
+    allowNewMessagesFromUnfilteredChannels: boolean;
+    lockChannelOrder: boolean;
+  } & Required<Pick<ChannelListProps<SCG>, 'sort'>>;
 
 type HandleMemberUpdatedParameters<SCG extends ExtendableGenerics> = BaseParameters<SCG> & {
   lockChannelOrder: boolean;
@@ -99,12 +101,12 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
   const handleMessageNew = useCallback(
     ({
       allowNewMessagesFromUnfilteredChannels,
-      filters,
-      sort,
       customHandler,
       event,
+      filters,
       lockChannelOrder,
       setChannels,
+      sort,
     }: HandleMessageNewParameters<SCG>) => {
       if (typeof customHandler === 'function') {
         return customHandler(setChannels, event);
@@ -159,11 +161,11 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
   const handleNotificationMessageNew = useCallback(
     async ({
       allowNewMessagesFromUnfilteredChannels,
-      sort,
-      filters,
       customHandler,
       event,
+      filters,
       setChannels,
+      sort,
     }: HandleNotificationMessageNewParameters<SCG>) => {
       if (typeof customHandler === 'function') {
         return customHandler(setChannels, event);
@@ -246,7 +248,7 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
   );
 
   const handleMemberUpdated = useCallback(
-    ({ sort, event, lockChannelOrder, setChannels }: HandleMemberUpdatedParameters<SCG>) => {
+    ({ event, lockChannelOrder, setChannels, sort }: HandleMemberUpdatedParameters<SCG>) => {
       if (!event.member?.user || event.member.user.id !== client.userID || !event.channel_type) {
         return;
       }
@@ -258,7 +260,7 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
       const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
 
       // TODO: extract this and consider single property sort object too
-      const pinnedAtSort = Array.isArray(sort) ? (sort[0]?.pinned_at ?? null) : null;
+      const pinnedAtSort = Array.isArray(sort) ? sort[0]?.pinned_at ?? null : null;
 
       setChannels((currentChannels) => {
         const targetChannel = client.channel(channelType, channelId);
@@ -448,17 +450,18 @@ type UseDefaultHandleChannelListShapeParameters<SCG extends ExtendableGenerics> 
     | 'onMessageNewHandler'
     | 'onRemovedFromChannel'
   > & {
+    setChannels: SetChannels<SCG>;
     customHandleChannelListShape?: (data: {
-      defaults: ReturnType<typeof useChannelListShapeDefaults<SCG>>;
+      defaults: ReturnType<typeof useChannelListShapeDefaults>;
       event: Event<SCG>;
       setChannels: SetChannels<SCG>;
     }) => void;
-    setChannels: SetChannels<SCG>;
   };
 
 export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
   allowNewMessagesFromUnfilteredChannels,
   customHandleChannelListShape,
+  filters,
   lockChannelOrder,
   onAddedToChannel,
   onChannelDeleted,
@@ -470,7 +473,6 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
   onMessageNewHandler,
   onRemovedFromChannel,
   setChannels,
-  filters,
   sort,
 }: UseDefaultHandleChannelListShapeParameters<SCG>) => {
   const defaults = useChannelListShapeDefaults<SCG>();
@@ -480,6 +482,7 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
   const customHandleChannelListShapeRef = useRef<(e: Event<SCG>) => void>();
 
   customHandleChannelListShapeRef.current = (event: Event<SCG>) => {
+    // @ts-expect-error can't use ReturnType<typeof useChannelListShapeDefaults<SCG>> until we upgrade prettier to at least v2.7.0
     customHandleChannelListShape?.({ defaults, event, setChannels });
   };
 
@@ -488,33 +491,33 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
       case 'message.new':
         defaults.handleMessageNew({
           allowNewMessagesFromUnfilteredChannels,
-          sort,
-          filters,
           customHandler: onMessageNewHandler,
           event,
+          filters,
           lockChannelOrder,
           setChannels,
+          sort,
         });
         break;
       case 'notification.message_new':
         defaults.handleNotificationMessageNew({
           allowNewMessagesFromUnfilteredChannels,
-          sort,
-          filters,
           customHandler: onMessageNew,
           event,
+          filters,
           lockChannelOrder,
           setChannels,
+          sort,
         });
         break;
       case 'notification.added_to_channel':
         defaults.handleNotificationAddedToChannel({
           allowNewMessagesFromUnfilteredChannels,
-          sort,
           customHandler: onAddedToChannel,
           event,
           lockChannelOrder,
           setChannels,
+          sort,
         });
         break;
       case 'notification.removed_from_channel':
@@ -548,10 +551,10 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
         break;
       case 'member.updated':
         defaults.handleMemberUpdated({
-          sort,
           event,
           lockChannelOrder,
           setChannels,
+          sort,
         });
         break;
       default:
@@ -572,8 +575,8 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
   }, [customHandleChannelListShape]);
 
   return {
-    defaultFn,
-    customFn,
+    customHandler: customFn,
+    defaultHandler: defaultFn,
   };
 };
 

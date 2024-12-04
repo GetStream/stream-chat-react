@@ -35,7 +35,7 @@ const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 export type ChannelListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
   additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
@@ -281,10 +281,9 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  const { customFn, defaultFn } = usePrepareShapeHandlers<SCG>({
+  const { customHandler, defaultHandler } = usePrepareShapeHandlers<SCG>({
     allowNewMessagesFromUnfilteredChannels,
     filters,
-    sort,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -296,11 +295,12 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     onMessageNewHandler,
     onRemovedFromChannel,
     setChannels,
+    sort,
     // TODO: implement
     // customHandleChannelListShape
   });
 
-  useChannelListShape<SCG>(customFn ?? defaultFn);
+  useChannelListShape<SCG>(customHandler ?? defaultHandler);
 
   // TODO: maybe move this too
   useConnectionRecoveredListener(forceUpdate);
