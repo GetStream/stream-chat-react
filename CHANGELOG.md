@@ -1,3 +1,10 @@
+## [12.7.0](https://github.com/GetStream/stream-chat-react/compare/v12.6.2...v12.7.0) (2024-12-04)
+
+
+### Features
+
+* add support for ai generated messages ([#2570](https://github.com/GetStream/stream-chat-react/issues/2570)) ([fb1bfdd](https://github.com/GetStream/stream-chat-react/commit/fb1bfddd3ccfae10ef907c5c853791240fc83a35))
+
 ## [12.6.2](https://github.com/GetStream/stream-chat-react/compare/v12.6.1...v12.6.2) (2024-12-03)
 
 
