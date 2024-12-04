@@ -8,7 +8,7 @@ export const StopAIGenerationButton = ({ onClick, ...restProps }: StopAIGenerati
   return (
     <button
       aria-label={t('aria/Stop AI Generation')}
-      className='str-chat__stop-generating-button'
+      className='str-chat__stop-ai-generation-button'
       data-testid='stop-ai-generation-button'
       onClick={onClick}
       {...restProps}
