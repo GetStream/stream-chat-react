@@ -77,7 +77,9 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    return renderPreviewText(previewTextToRender);
+    return latestMessage.ai_generated
+      ? previewTextToRender
+      : renderPreviewText(previewTextToRender);
   }
 
   if (latestMessage.command) {

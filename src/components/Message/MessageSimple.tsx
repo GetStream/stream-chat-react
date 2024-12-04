@@ -34,6 +34,7 @@ import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -81,6 +82,7 @@ const MessageSimpleWithContext = <
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionsList = DefaultReactionList,
+    StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
 
@@ -185,7 +187,11 @@ const MessageSimpleWithContext = <
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
-              <MessageText message={message} renderText={renderText} />
+              {message.ai_generated ? (
+                <StreamedMessageText message={message} renderText={renderText} />
+              ) : (
+                <MessageText message={message} renderText={renderText} />
+              )}
               {message.mml && (
                 <MML
                   actionHandler={handleAction}

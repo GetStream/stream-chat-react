@@ -2368,10 +2368,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^5.4.0":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.4.0.tgz#c0da423bb62059cf5ff8820b057aaf8b073782dc"
-  integrity sha512-uVjksyycM999L9kMLOuLfSyjcSPpztF4Y4ZMTWEuPL87qLHCr1lRxytGc9EWtgcdYuohj3UcLtOj5hUkpWU06Q==
+"@stream-io/stream-chat-css@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.5.0.tgz#224165d7db64891e6f45d46462f5e4dbe69a0ec1"
+  integrity sha512-6ZiJljhz8+AVOFUeKNk3UHtenQuvhLqaRPAf13C+e7/Jp8cMXrdg7OPf/ShcbvESNlTUWAyzW3nje507TWDnvw==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -12231,10 +12231,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@^8.45.0:
-  version "8.45.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.45.0.tgz#bbb18ea897138dabb5ccd045a40958ec7242923c"
-  integrity sha512-re6GPh4F50ksB5/5GG5FtNAji+ZFTmIcLBIUhkGlnCwNaM8Ub59jcoI21Rtf/51+Nwrcitld2MzzlY49RlkwOA==
+stream-chat@^8.46.0:
+  version "8.46.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.46.0.tgz#416b325e05b144d0937a3527d1e622463113d605"
+  integrity sha512-HQVCRVldrfQFAvsBOHiHR0TKYf+wpsg/cAzRojeZY+buy1vG6eoqk09h6Fl4k2eG3zFLoA0G9W6o7o45jyFE1g==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "~9.0.0"
