@@ -68,10 +68,6 @@ export type MessageContextValue<
   handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /**
-   * A factory function that determines whether a message is AI generated or not.
-   */
-  isMessageAIGenerated: (message: StreamMessage<StreamChatGenerics>) => boolean;
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
@@ -110,6 +106,10 @@ export type MessageContextValue<
   highlighted?: boolean;
   /** Whether the threaded message is the first in the thread list */
   initialMessage?: boolean;
+  /**
+   * A factory function that determines whether a message is AI generated or not.
+   */
+  isMessageAIGenerated?: (message: StreamMessage<StreamChatGenerics>) => boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */

@@ -55,7 +55,7 @@ export const Chat = <
     defaultLanguage,
     i18nInstance,
     initialNavOpen = true,
-    isMessageAIGenerated = () => false,
+    isMessageAIGenerated,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
   } = props;
