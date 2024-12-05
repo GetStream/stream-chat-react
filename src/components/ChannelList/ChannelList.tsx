@@ -30,7 +30,7 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { NullComponent } from '../UtilityComponents';
 
-import { ChannelListContextProvider } from '../../context';
+import { ChannelListContextProvider, ChatContextValue } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
@@ -75,6 +75,7 @@ export type ChannelListProps<
     channel: Channel<StreamChatGenerics>,
     t: TranslationContextValue['t'],
     userLanguage: TranslationContextValue['userLanguage'],
+    isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
   ) => string | JSX.Element;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
