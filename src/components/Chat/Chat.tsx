@@ -12,7 +12,7 @@ import type { StreamChat } from 'stream-chat';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { MessageContextValue } from '../../context';
+import type { MessageContextValue } from '../../context';
 
 export type ChatProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
