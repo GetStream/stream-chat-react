@@ -494,6 +494,5 @@ export const isMessageBounced = <
 export const isMessageEdited = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message: Pick<StreamMessage<StreamChatGenerics>, 'message_text_updated_at'> &
-    Partial<Pick<StreamMessage<StreamChatGenerics>, 'ai_generated'>>,
-) => !!message.message_text_updated_at && !message.ai_generated;
+  message: Pick<StreamMessage<StreamChatGenerics>, 'message_text_updated_at'>,
+) => !!message.message_text_updated_at;

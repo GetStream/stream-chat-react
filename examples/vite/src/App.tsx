@@ -73,7 +73,7 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <Chat client={chatClient}>
+    <Chat client={chatClient} isMessageAIGenerated={(message) => !!message?.ai_generated}>
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>

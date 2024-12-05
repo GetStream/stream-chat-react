@@ -56,6 +56,7 @@ const MessageSimpleWithContext = <
     handleOpenThread,
     handleRetry,
     highlighted,
+    isMessageAIGenerated,
     isMyMessage,
     message,
     onUserClick,
@@ -101,7 +102,7 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
-  const isEdited = isMessageEdited(message);
+  const isEdited = isMessageEdited(message) && !isMessageAIGenerated(message);
 
   let handleClick: (() => void) | undefined = undefined;
 
@@ -187,7 +188,7 @@ const MessageSimpleWithContext = <
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
-              {message.ai_generated ? (
+              {isMessageAIGenerated(message) ? (
                 <StreamedMessageText message={message} renderText={renderText} />
               ) : (
                 <MessageText message={message} renderText={renderText} />
