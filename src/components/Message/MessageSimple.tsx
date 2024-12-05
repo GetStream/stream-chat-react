@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
@@ -89,6 +89,10 @@ const MessageSimpleWithContext = <
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
+  const isAIGenerated = useMemo(() => isMessageAIGenerated?.(message), [
+    isMessageAIGenerated,
+    message,
+  ]);
 
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
@@ -102,7 +106,7 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
-  const isEdited = isMessageEdited(message) && !isMessageAIGenerated?.(message);
+  const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   let handleClick: (() => void) | undefined = undefined;
 
@@ -188,7 +192,7 @@ const MessageSimpleWithContext = <
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
-              {isMessageAIGenerated?.(message) ? (
+              {isAIGenerated ? (
                 <StreamedMessageText message={message} renderText={renderText} />
               ) : (
                 <MessageText message={message} renderText={renderText} />
