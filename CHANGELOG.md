@@ -1,3 +1,10 @@
+## [12.7.1](https://github.com/GetStream/stream-chat-react/compare/v12.7.0...v12.7.1) (2024-12-05)
+
+
+### Bug Fixes
+
+* add support for custom resolution of whether a message is ai generated ([#2572](https://github.com/GetStream/stream-chat-react/issues/2572)) ([54640ac](https://github.com/GetStream/stream-chat-react/commit/54640ac4ec89bb3ddd73b9641d3a2ffc0d3ea924))
+
 ## [12.7.0](https://github.com/GetStream/stream-chat-react/compare/v12.6.2...v12.7.0) (2024-12-04)
 
 
