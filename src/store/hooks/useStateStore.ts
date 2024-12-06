@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 import type { StateStore } from 'stream-chat';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
 
 export function useStateStore<
   T extends Record<string, unknown>,
@@ -14,18 +17,31 @@ export function useStateStore<
   T extends Record<string, unknown>,
   O extends Readonly<Record<string, unknown> | Readonly<unknown[]>>,
 >(store: StateStore<T> | undefined, selector: (v: T) => O) {
-  const [state, setState] = useState<O | undefined>(() => {
-    if (!store) return undefined;
-    return selector(store.getLatestValue());
-  });
+  const wrappedSubscription = useCallback(
+    (onStoreChange: () => void) => {
+      const unsubscribe = store?.subscribeWithSelector(selector, onStoreChange);
+      return unsubscribe ?? noop;
+    },
+    [store, selector],
+  );
 
-  useEffect(() => {
-    if (!store) return;
+  const wrappedSnapshot = useMemo(() => {
+    let cached: [T, O];
+    return () => {
+      const current = store?.getLatestValue();
 
-    const unsubscribe = store.subscribeWithSelector(selector, setState);
+      if (!current) return undefined;
 
-    return unsubscribe;
+      if (!cached || cached[0] !== current) {
+        cached = [current, selector(current)];
+        return cached[1];
+      }
+
+      return cached[1];
+    };
   }, [store, selector]);
+
+  const state = useSyncExternalStore(wrappedSubscription, wrappedSnapshot);
 
   return state;
 }
