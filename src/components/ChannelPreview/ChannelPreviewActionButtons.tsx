@@ -4,6 +4,7 @@ import type { Channel, ExtendableGenerics } from 'stream-chat';
 
 import { useChannelMembershipState } from '../ChannelList';
 import { Icon } from './icons';
+import { useTranslationContext } from '../../context';
 
 export type ChannelPreviewActionButtonsProps<SCG extends ExtendableGenerics> = {
   channel: Channel<SCG>;
@@ -13,10 +14,12 @@ export function ChannelPreviewActionButtons<SCG extends ExtendableGenerics>({
   channel,
 }: ChannelPreviewActionButtonsProps<SCG>) {
   const membership = useChannelMembershipState(channel);
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__channel-preview__action-buttons'>
       <button
+        aria-label={membership.pinned_at ? t('Unpin') : t('Pin')}
         className={clsx(
           'str-chat__channel-preview__action-button',
           'str-chat__channel-preview__action-button--pin',
@@ -30,10 +33,12 @@ export function ChannelPreviewActionButtons<SCG extends ExtendableGenerics>({
             channel.pin();
           }
         }}
+        title={membership.pinned_at ? t('Unpin') : t('Pin')}
       >
         <Icon.Pin />
       </button>
       <button
+        aria-label={membership.archived_at ? t('Unarchive') : t('Archive')}
         className={clsx(
           'str-chat__channel-preview__action-button',
           'str-chat__channel-preview__action-button--archive',
@@ -47,6 +52,7 @@ export function ChannelPreviewActionButtons<SCG extends ExtendableGenerics>({
             channel.archive();
           }
         }}
+        title={membership.archived_at ? t('Unarchive') : t('Archive')}
       >
         <Icon.ArchiveBox />
       </button>
