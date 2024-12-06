@@ -12,8 +12,10 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
       className="str-chat__channel-preview__action-buttons"
     >
       <button
+        aria-label="Pin"
         className="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--pin"
         onClick={[Function]}
+        title="Pin"
       >
         <svg
           className="str-chat__icon str-chat__icon--pin"
@@ -27,8 +29,10 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
         </svg>
       </button>
       <button
+        aria-label="Archive"
         className="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--archive"
         onClick={[Function]}
+        title="Archive"
       >
         <svg
           className="str-chat__icon str-chat__icon--archive-box"
