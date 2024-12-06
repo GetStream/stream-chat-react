@@ -390,7 +390,7 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
           }
 
           // FIXME: oh no...
-          const newChannel = channel; // dumb workaround for linter
+          const newChannel = channel;
           newChannel.state.members[event.user.id].user = event.user;
 
           return newChannel;
@@ -452,6 +452,7 @@ type UseDefaultHandleChannelListShapeParameters<SCG extends ExtendableGenerics> 
   > & {
     setChannels: SetChannels<SCG>;
     customHandleChannelListShape?: (data: {
+      // can't use ReturnType<typeof useChannelListShapeDefaults<SCG>> until we upgrade prettier to at least v2.7.0
       defaults: ReturnType<typeof useChannelListShapeDefaults>;
       event: Event<SCG>;
       setChannels: SetChannels<SCG>;
@@ -558,7 +559,6 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
         });
         break;
       default:
-        console.log(`ChannelList[${event.type}]: no event handler registered`);
         break;
     }
   };

@@ -96,7 +96,9 @@ describe('SearchResults', () => {
     await act(() => {
       fireEvent.keyDown(searchResultList, { key: 'ArrowDown' });
     });
-    expect(searchResultList.children[1]).toHaveClass('str-chat__channel-search-result--focused');
+    expect(searchResultList.children[1].lastChild).toHaveClass(
+      'str-chat__channel-search-result--focused',
+    );
   });
 
   it('should add class "inline" to the results list root by default', () => {
