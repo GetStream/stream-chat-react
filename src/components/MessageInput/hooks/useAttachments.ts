@@ -38,7 +38,7 @@ const getAttachmentTypeFromMime = (mimeType: string) => {
 };
 
 const ensureIsLocalAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
 ): LocalAttachment<StreamChatGenerics> => {
@@ -57,7 +57,7 @@ const ensureIsLocalAttachment = <
 
 export const useAttachments = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
@@ -68,9 +68,8 @@ export const useAttachments = <
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
   const { t } = useTranslationContext('useAttachments');
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('useAttachments');
-  const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
-    'useAttachments',
-  );
+  const { channel, maxNumberOfFiles, multipleUploads } =
+    useChannelStateContext<StreamChatGenerics>('useAttachments');
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.

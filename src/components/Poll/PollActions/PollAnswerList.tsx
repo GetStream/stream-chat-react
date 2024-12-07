@@ -15,7 +15,7 @@ type PollStateSelectorReturnValue = {
   ownAnswer: PollAnswer | undefined;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({
@@ -29,7 +29,7 @@ export type PollAnswerListProps = {
 };
 
 export const PollAnswerList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   close,
   onUpdateOwnAnswerClick,
@@ -38,13 +38,8 @@ export const PollAnswerList = <
   const { poll } = usePollContext<StreamChatGenerics>();
   const { is_closed, ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
-  const {
-    answers,
-    error,
-    hasNextPage,
-    loading,
-    loadMore,
-  } = usePollAnswerPagination<StreamChatGenerics>();
+  const { answers, error, hasNextPage, loading, loadMore } =
+    usePollAnswerPagination<StreamChatGenerics>();
 
   return (
     <div className='str-chat__modal__poll-answer-list'>

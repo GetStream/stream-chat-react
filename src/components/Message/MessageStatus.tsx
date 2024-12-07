@@ -32,7 +32,7 @@ export type MessageStatusProps = {
 };
 
 const UnMemoizedMessageStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageStatusProps,
 ) => {
@@ -49,13 +49,8 @@ const UnMemoizedMessageStatus = <
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
-  const {
-    isMyMessage,
-    lastReceivedId,
-    message,
-    readBy,
-    threadList,
-  } = useMessageContext<StreamChatGenerics>('MessageStatus');
+  const { isMyMessage, lastReceivedId, message, readBy, threadList } =
+    useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 

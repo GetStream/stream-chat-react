@@ -8,14 +8,14 @@ import { useAudioController } from './hooks/useAudioController';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AudioProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   // fixme: rename og to attachment
   og: Attachment<StreamChatGenerics>;
 };
 
 const UnMemoizedAudio = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: AudioProps<StreamChatGenerics>,
 ) => {

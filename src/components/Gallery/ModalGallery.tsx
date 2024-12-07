@@ -7,7 +7,7 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ModalGalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The images for the Carousel component */
   images: Attachment<StreamChatGenerics>[];
@@ -26,7 +26,7 @@ const renderItem = ({ original, originalAlt }: ReactImageGalleryItem) => (
 );
 
 export const ModalGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ModalGalleryProps<StreamChatGenerics>,
 ) => {

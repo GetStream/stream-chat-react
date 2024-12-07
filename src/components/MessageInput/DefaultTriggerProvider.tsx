@@ -22,13 +22,13 @@ export type AutocompleteMinimalData = {
 } & ({ id: string } | { name: string });
 
 export type CommandTriggerSetting<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = TriggerSetting<CommandItemProps, SuggestionCommand<StreamChatGenerics>>;
 
 export type EmojiTriggerSetting = TriggerSetting<EmoticonItemProps>;
 
 export type UserTriggerSetting<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = TriggerSetting<UserItemProps, SuggestionUser<StreamChatGenerics>>;
 
 export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
@@ -38,9 +38,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
     text: string,
     onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
   ) => U[] | PromiseLike<void> | void;
-  output: (
-    entity: U,
-  ) =>
+  output: (entity: U) =>
     | {
         caretPosition: 'start' | 'end' | 'next' | number;
         text: string;
@@ -53,7 +51,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
 
 export type TriggerSettings<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > =
   | {
       [key in keyof V]: TriggerSetting<V[key]['componentProps'], V[key]['data']>;
@@ -66,7 +64,7 @@ export type TriggerSettings<
 
 export const DefaultTriggerProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >({
   children,
 }: PropsWithChildren<Record<string, unknown>>) => {

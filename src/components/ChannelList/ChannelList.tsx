@@ -43,7 +43,7 @@ const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 export type ChannelListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
   additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
@@ -161,7 +161,7 @@ export type ChannelListProps<
 };
 
 const UnMemoizedChannelList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelListProps<StreamChatGenerics>,
 ) => {
@@ -260,9 +260,10 @@ const UnMemoizedChannelList = <
    * For some events, inner properties on the channel will update but the shallow comparison will not
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
-  const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), [
-    setChannelUpdateCount,
-  ]);
+  const forceUpdate = useCallback(
+    () => setChannelUpdateCount((count) => count + 1),
+    [setChannelUpdateCount],
+  );
 
   const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {

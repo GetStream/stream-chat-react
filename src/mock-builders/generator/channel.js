@@ -11,10 +11,10 @@ export const generateChannel = (options = { channel: {} }) => {
     messages: [],
     pinnedMessages: [],
     ...optionsBesidesChannel,
-     
+
     channel: {
       cid: `${type}:${id}`,
-       
+
       config: {
         automod: 'disabled',
         automod_behavior: 'flag',

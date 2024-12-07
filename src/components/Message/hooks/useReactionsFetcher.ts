@@ -6,14 +6,14 @@ import { ReactionType } from '../../Reactions/types';
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 
 type FetchMessageReactionsNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export function useReactionsFetcher<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: StreamMessage<StreamChatGenerics>,
   notifications: FetchMessageReactionsNotifications<StreamChatGenerics> = {},
@@ -37,7 +37,7 @@ export function useReactionsFetcher<
 }
 
 async function fetchMessageReactions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   client: StreamChat<StreamChatGenerics>,
   messageId: string,

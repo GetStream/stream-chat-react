@@ -14,7 +14,7 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type GalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   images: ((
     | {
@@ -27,7 +27,7 @@ export type GalleryProps<
 };
 
 const UnMemoizedGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: GalleryProps<StreamChatGenerics>,
 ) => {
@@ -36,9 +36,8 @@ const UnMemoizedGallery = <
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
-    'Gallery',
-  );
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } =
+    useComponentContext('Gallery');
   const { t } = useTranslationContext('Gallery');
 
   const imageFallbackTitle = t('User uploaded content');

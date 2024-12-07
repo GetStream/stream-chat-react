@@ -4,15 +4,14 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useUserRole = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: StreamMessage<StreamChatGenerics>,
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const { channel, channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
-    'useUserRole',
-  );
+  const { channel, channelCapabilities = {} } =
+    useChannelStateContext<StreamChatGenerics>('useUserRole');
   const { client } = useChatContext<StreamChatGenerics>('useUserRole');
 
   /**

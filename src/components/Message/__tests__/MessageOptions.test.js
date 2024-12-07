@@ -1,4 +1,3 @@
- 
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -68,7 +67,7 @@ async function renderMessageOptions({
             <ComponentProvider
               value={{
                 Attachment,
-                 
+
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -158,7 +157,7 @@ describe('<MessageOptions />', () => {
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
-     
+
     expect(handleOpenThread).toHaveBeenCalled();
   });
 

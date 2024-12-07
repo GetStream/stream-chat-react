@@ -214,7 +214,6 @@ describe('ChatAutoComplete', () => {
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
 
-     
     expect(userText).toHaveLength(0);
   });
 

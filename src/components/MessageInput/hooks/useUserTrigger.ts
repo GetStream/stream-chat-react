@@ -16,7 +16,7 @@ import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvid
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UserTriggerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
   disableMentions?: boolean;
@@ -26,7 +26,7 @@ export type UserTriggerParams<
 };
 
 export const useUserTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: UserTriggerParams<StreamChatGenerics>,
 ): UserTriggerSetting<StreamChatGenerics> => {

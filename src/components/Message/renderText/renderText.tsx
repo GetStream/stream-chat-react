@@ -71,7 +71,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 };
 
 export type RenderTextOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})>;
   customMarkDownRenderers?: Options['components'] &
@@ -84,7 +84,7 @@ export type RenderTextOptions<
 };
 
 export const renderText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   text?: string,
   mentionedUsers?: UserResponse<StreamChatGenerics>[],

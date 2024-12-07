@@ -3,7 +3,7 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type AttachmentPreviewProps<
   A extends LocalAttachment,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachment: A;
   handleRetry: (

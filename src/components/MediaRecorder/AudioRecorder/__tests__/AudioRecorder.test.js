@@ -116,19 +116,16 @@ window.navigator.permissions = {
   query: jest.fn(),
 };
 
- 
 window.MediaRecorder = MediaRecorderMock;
 
- 
 window.AudioContext = AudioContextMock;
 
- 
 window.AnalyserNode = AnalyserNodeMock;
 
 const fileObjectURL = 'fileObjectURL';
- 
+
 window.URL.createObjectURL = jest.fn(() => fileObjectURL);
- 
+
 window.URL.revokeObjectURL = jest.fn();
 
 describe('MessageInput', () => {

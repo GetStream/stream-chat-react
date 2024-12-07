@@ -55,7 +55,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
 ] as const;
 
 export type AttachmentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
   attachments: StreamAttachment<StreamChatGenerics>[];
@@ -87,7 +87,7 @@ export type AttachmentProps<
  * A component used for rendering message attachments. By default, the component supports: AttachmentActions, Audio, Card, File, Gallery, Image, and Video
  */
 export const Attachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: AttachmentProps<StreamChatGenerics>,
 ) => {
@@ -107,7 +107,7 @@ export const Attachment = <
 };
 
 const renderGroupedAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachments,
   ...rest
@@ -169,7 +169,7 @@ const renderGroupedAttachments = <
 };
 
 const getAttachmentType = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
 ): keyof typeof CONTAINER_MAP => {

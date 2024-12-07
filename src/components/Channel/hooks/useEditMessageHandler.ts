@@ -5,7 +5,7 @@ import type { StreamChat, UpdatedMessage } from 'stream-chat';
 import type { DefaultStreamChatGenerics, UpdateMessageOptions } from '../../../types/types';
 
 type UpdateHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (
   cid: string,
   updatedMessage: UpdatedMessage<StreamChatGenerics>,
@@ -13,7 +13,7 @@ type UpdateHandler<
 ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
 
 export const useEditMessageHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   doUpdateMessageRequest?: UpdateHandler<StreamChatGenerics>,
 ) => {

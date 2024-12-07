@@ -26,7 +26,7 @@ type UseMarkReadParams = {
  * @param wasChannelMarkedUnread
  */
 export const useMarkRead = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   isMessageListScrolledToBottom,
   messageListIsThread,
@@ -108,7 +108,7 @@ export const useMarkRead = <
 };
 
 function getPreviousLastMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(messages: StreamMessage<StreamChatGenerics>[], newMessage?: MessageResponse<StreamChatGenerics>) {
   if (!newMessage) return;
   let previousLastMessage;

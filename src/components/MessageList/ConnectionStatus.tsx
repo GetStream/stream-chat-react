@@ -7,7 +7,7 @@ import { useChatContext, useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedConnectionStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { client } = useChatContext<StreamChatGenerics>('ConnectionStatus');
   const { t } = useTranslationContext('ConnectionStatus');

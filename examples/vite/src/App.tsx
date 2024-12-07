@@ -16,9 +16,9 @@ import {
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
-const params = (new Proxy(new URLSearchParams(window.location.search), {
+const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown) as Record<string, string | null>;
+}) as unknown as Record<string, string | null>;
 
 const parseUserIdFromToken = (token: string) => {
   const [, payload] = token.split('.');

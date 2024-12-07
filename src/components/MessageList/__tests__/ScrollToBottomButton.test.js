@@ -94,7 +94,6 @@ describe.each([
     });
 
     await waitFor(() => {
-       
       expect(onClick).toHaveBeenCalled();
     });
   });

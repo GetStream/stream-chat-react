@@ -71,7 +71,6 @@ async function renderComponent({
         >
           <ComponentProvider
             value={{
-               
               Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
               ...components,
             }}

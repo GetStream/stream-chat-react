@@ -9,7 +9,7 @@ type PollStateSelectorReturnValue = {
   vote_counts_by_option: Record<string, number>;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({
@@ -22,7 +22,7 @@ export type PollResultOptionVoteCounterProps = {
 };
 
 export const PollResultOptionVoteCounter = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   optionId,
 }: PollResultOptionVoteCounterProps) => {
@@ -43,13 +43,13 @@ export const PollResultOptionVoteCounter = <
 };
 
 export type PollOptionWithVotesHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   option: PollOption<StreamChatGenerics>;
 };
 
 export const PollOptionWithVotesHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   option,
 }: PollOptionWithVotesHeaderProps<StreamChatGenerics>) => (

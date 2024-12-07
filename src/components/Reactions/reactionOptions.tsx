@@ -1,5 +1,5 @@
 /* eslint-disable sort-keys */
- 
+
 import React from 'react';
 
 import { StreamEmoji } from './StreamEmoji';

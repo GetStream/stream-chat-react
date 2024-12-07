@@ -6,7 +6,7 @@ import type { ReactEventHandler } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type MarkUnreadHandlerNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   getSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
@@ -14,7 +14,7 @@ export type MarkUnreadHandlerNotifications<
 };
 
 export const useMarkUnreadHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
   notifications: MarkUnreadHandlerNotifications<StreamChatGenerics> = {},

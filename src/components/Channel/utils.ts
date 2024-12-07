@@ -4,28 +4,30 @@ import type { ChannelState, MessageResponse } from 'stream-chat';
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types';
 
-export const makeAddNotifications = (
-  setNotifications: Dispatch<SetStateAction<ChannelNotifications>>,
-  notificationTimeouts: NodeJS.Timeout[],
-) => (text: string, type: 'success' | 'error') => {
-  if (typeof text !== 'string' || (type !== 'success' && type !== 'error')) {
-    return;
-  }
+export const makeAddNotifications =
+  (
+    setNotifications: Dispatch<SetStateAction<ChannelNotifications>>,
+    notificationTimeouts: NodeJS.Timeout[],
+  ) =>
+  (text: string, type: 'success' | 'error') => {
+    if (typeof text !== 'string' || (type !== 'success' && type !== 'error')) {
+      return;
+    }
 
-  const id = nanoid();
+    const id = nanoid();
 
-  setNotifications((prevNotifications) => [...prevNotifications, { id, text, type }]);
+    setNotifications((prevNotifications) => [...prevNotifications, { id, text, type }]);
 
-  const timeout = setTimeout(
-    () =>
-      setNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.id !== id),
-      ),
-    5000,
-  );
+    const timeout = setTimeout(
+      () =>
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter((notification) => notification.id !== id),
+        ),
+      5000,
+    );
 
-  notificationTimeouts.push(timeout);
-};
+    notificationTimeouts.push(timeout);
+  };
 
 /**
  * Utility function for jumpToFirstUnreadMessage
@@ -33,7 +35,7 @@ export const makeAddNotifications = (
  * @param msgSet
  */
 export const findInMsgSetById = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   targetId: string,
   msgSet: ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>[],
@@ -59,7 +61,7 @@ export const findInMsgSetById = <
  * @param exact
  */
 export const findInMsgSetByDate = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   targetDate: Date,
   msgSet:

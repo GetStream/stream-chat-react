@@ -20,7 +20,7 @@ export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<voi
 
 export type MessageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
@@ -113,11 +113,11 @@ export type MessageProps<
 };
 
 export type MessageUIComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<MessageContextValue<StreamChatGenerics>>;
 
 export type PinIndicatorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   message?: StreamMessage<StreamChatGenerics>;
   t?: TFunction;

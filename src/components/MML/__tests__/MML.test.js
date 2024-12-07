@@ -7,7 +7,7 @@ import { MML } from '../MML';
 import { ChatProvider } from '../../../context/ChatContext';
 import { MessageProvider } from '../../../context/MessageContext';
 
-afterEach(cleanup);  
+afterEach(cleanup);
 
 const renderComponent = async (
   { chatCtx = {}, messageCtx = {}, mmlProps },

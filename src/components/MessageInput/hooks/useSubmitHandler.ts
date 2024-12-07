@@ -18,7 +18,7 @@ import type { EnrichURLsController } from './useLinkPreviews';
 
 export const useSubmitHandler = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
@@ -32,9 +32,8 @@ export const useSubmitHandler = <
 
   const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
-  const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
-    'useSubmitHandler',
-  );
+  const { addNotification, editMessage, sendMessage } =
+    useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
 
   const textReference = useRef({ hasChanged: false, initialText: text });
@@ -113,7 +112,7 @@ export const useSubmitHandler = <
                   (attFromUpload) => attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
                 ),
             )
-             
+
             .map(({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment);
 
       // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
@@ -146,11 +145,11 @@ export const useSubmitHandler = <
 
       try {
         await editMessage(
-          ({
+          {
             ...message,
             ...updatedMessage,
             ...customMessageData,
-          } as unknown) as UpdatedMessage<StreamChatGenerics>,
+          } as unknown as UpdatedMessage<StreamChatGenerics>,
           sendOptions,
         );
 

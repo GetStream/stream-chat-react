@@ -53,7 +53,7 @@ export const PinIcon = () => (
 );
 
 export const PinIndicator = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   message,
   t,

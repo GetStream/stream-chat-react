@@ -12,7 +12,7 @@ import type { PollAnswer, PollAnswersQueryParams, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const paginationStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: CursorPaginatorState<PollVote<StreamChatGenerics>>,
 ): [Error | undefined, boolean, boolean] => [state.error, state.hasNextPage, state.loading];
@@ -22,7 +22,7 @@ type UsePollAnswerPaginationParams = {
 };
 
 export const usePollAnswerPagination = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({ paginationParams }: UsePollAnswerPaginationParams = {}) => {
   const { poll } = usePollContext<StreamChatGenerics>();
 

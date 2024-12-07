@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 
-afterEach(cleanup);  
+afterEach(cleanup);
 
 describe('EmptyStateIndicator', () => {
   it('should render with default props', () => {

@@ -33,13 +33,13 @@ const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
 };
 
 type PollVoteProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   vote: PollVoteType<StreamChatGenerics>;
 };
 
 const PollVoteAuthor = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   vote,
 }: PollVoteProps<StreamChatGenerics>) => {
@@ -81,7 +81,7 @@ const PollVoteAuthor = <
 };
 
 export const PollVote = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   vote,
 }: PollVoteProps<StreamChatGenerics>) => (
@@ -92,13 +92,13 @@ export const PollVote = <
 );
 
 export type PollVoteListingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   votes: PollVoteType<StreamChatGenerics>[];
 };
 
 export const PollVoteListing = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   votes,
 }: PollVoteListingProps<StreamChatGenerics>) => (

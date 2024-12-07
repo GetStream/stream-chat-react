@@ -12,7 +12,7 @@ import { Streami18n } from '../../../i18n';
 
 Dayjs.extend(calendar);
 
-afterEach(cleanup);  
+afterEach(cleanup);
 
 const DATE_SEPARATOR_TEST_ID = 'date-separator';
 const dateMock = 'the date';

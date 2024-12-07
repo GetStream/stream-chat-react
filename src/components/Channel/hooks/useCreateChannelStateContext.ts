@@ -7,7 +7,7 @@ import type { ChannelStateContextValue } from '../../../context/ChannelStateCont
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   value: Omit<ChannelStateContextValue<StreamChatGenerics>, 'channelCapabilities'> & {
     channelCapabilitiesArray: string[];

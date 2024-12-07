@@ -10,14 +10,14 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type VoiceRecordingPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>
+  CustomLocalMetadata = Record<string, unknown>,
 > = AttachmentPreviewProps<
   LocalVoiceRecordingAttachment<StreamChatGenerics, CustomLocalMetadata>,
   StreamChatGenerics
 >;
 
 export const VoiceRecordingPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
   handleRetry,

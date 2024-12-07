@@ -60,7 +60,7 @@ export const calculateLevenshtein = (query: string, name: string) => {
 };
 
 export type SearchLocalUserParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   ownUserId: string | undefined;
   query: string;
@@ -70,7 +70,7 @@ export type SearchLocalUserParams<
 };
 
 export const searchLocalUsers = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: SearchLocalUserParams<StreamChatGenerics>,
 ): UserResponse<StreamChatGenerics>[] => {
@@ -113,7 +113,7 @@ export const searchLocalUsers = <
 };
 
 type CheckUploadPermissionsParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   addNotification: ChannelActionContextValue<StreamChatGenerics>['addNotification'];
   file: File;
@@ -123,7 +123,7 @@ type CheckUploadPermissionsParams<
 };
 
 export const checkUploadPermissions = async <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: CheckUploadPermissionsParams<StreamChatGenerics>,
 ) => {

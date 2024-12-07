@@ -294,7 +294,7 @@ describe('ChannelList', () => {
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
       expect(getByRole('list')).toBeInTheDocument();
-       
+
       expect(queryAllByRole('listitem')).toHaveLength(1);
     });
     const results = await axe(container);
@@ -620,7 +620,7 @@ describe('ChannelList', () => {
       let channel;
       beforeEach(async () => {
         client = await getTestClientWithUser({ id: user1.id });
-         
+
         useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
         channel = client.channel('messaging', mockedChannels[0].id);
         await channel.watch();

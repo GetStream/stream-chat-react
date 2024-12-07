@@ -85,7 +85,7 @@ async function renderMessageSimple({
             <ComponentProvider
               value={{
                 Attachment: AttachmentMock,
-                 
+
                 Message: () => <MessageSimple {...props} />,
                 reactionOptions: defaultReactionOptions,
                 ...components,
@@ -500,7 +500,7 @@ describe('<MessageSimple />', () => {
         handleOpenThread: jest.fn(),
       },
     });
-     
+
     expect(MessageOptionsMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -556,7 +556,7 @@ describe('<MessageSimple />', () => {
         unsafeHTML,
       },
     });
-     
+
     expect(MessageTextMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();

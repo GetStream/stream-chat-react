@@ -12,7 +12,7 @@ export type ContainerMeasures = {
 };
 
 export type UseMessageListScrollManagerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   loadMoreScrollThreshold: number;
   messages: StreamMessage<StreamChatGenerics>[];
@@ -25,7 +25,7 @@ export type UseMessageListScrollManagerParams<
 
 // FIXME: change this generic name to something like useAdjustScrollPositionToListSize
 export function useMessageListScrollManager<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
   const {
     loadMoreScrollThreshold,

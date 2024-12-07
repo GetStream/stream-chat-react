@@ -15,7 +15,7 @@ type ReactionSelectorWithButtonProps = {
  * cluttering the parent component.
  */
 export const ReactionSelectorWithButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {

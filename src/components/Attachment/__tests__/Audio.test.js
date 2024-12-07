@@ -15,7 +15,7 @@ const originalConsoleError = console.error;
 jest.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg) => {
   const msg = Array.isArray(errorOrTextorArg)
     ? errorOrTextorArg[0]
-    : errorOrTextorArg.message ?? errorOrTextorArg;
+    : (errorOrTextorArg.message ?? errorOrTextorArg);
   if (msg.match('Not implemented')) return;
   originalConsoleError(...errorOrTextorArg);
 });

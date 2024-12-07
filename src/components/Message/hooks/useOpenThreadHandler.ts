@@ -7,7 +7,7 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useOpenThreadHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
   customOpenThread?: (
@@ -15,9 +15,8 @@ export const useOpenThreadHandler = <
     event: React.BaseSyntheticEvent,
   ) => void,
 ): ReactEventHandler => {
-  const { openThread: channelOpenThread } = useChannelActionContext<StreamChatGenerics>(
-    'useOpenThreadHandler',
-  );
+  const { openThread: channelOpenThread } =
+    useChannelActionContext<StreamChatGenerics>('useOpenThreadHandler');
 
   const openThread = customOpenThread || channelOpenThread;
 

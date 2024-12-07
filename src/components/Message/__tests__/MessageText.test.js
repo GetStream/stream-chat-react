@@ -1,4 +1,3 @@
- 
 import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
@@ -84,7 +83,7 @@ async function renderMessageText({
             <ComponentProvider
               value={{
                 Attachment,
-                 
+
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -281,7 +280,7 @@ describe('<MessageText />', () => {
         },
       },
     });
-     
+
     expect(MessageOptionsMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();

@@ -23,7 +23,7 @@ import type {
 import { mergeDeep } from '../../../utils/mergeDeep';
 
 export type MessageInputState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachments: LocalAttachment<StreamChatGenerics>[];
   linkPreviews: LinkPreviewMap;
@@ -33,7 +33,7 @@ export type MessageInputState<
 };
 
 type UpsertAttachmentsAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachments: LocalAttachment<StreamChatGenerics>[];
   type: 'upsertAttachments';
@@ -60,14 +60,14 @@ type SetLinkPreviewsAction = {
 };
 
 type AddMentionedUserAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   type: 'addMentionedUser';
   user: UserResponse<StreamChatGenerics>;
 };
 
 export type MessageInputReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > =
   | SetTextAction
   | ClearAction
@@ -77,7 +77,7 @@ export type MessageInputReducerAction<
   | RemoveAttachmentsAction;
 
 export type MessageInputHookProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
@@ -104,7 +104,7 @@ export type MessageInputHookProps<
 };
 
 const makeEmptyMessageInputState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): MessageInputState<StreamChatGenerics> => ({
   attachments: [],
   linkPreviews: new Map(),
@@ -117,7 +117,7 @@ const makeEmptyMessageInputState = <
  * Initializes the state. Empty if the message prop is falsy.
  */
 const initState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: Pick<StreamMessage<StreamChatGenerics>, 'attachments' | 'mentioned_users' | 'text'>,
 ): MessageInputState<StreamChatGenerics> => {
@@ -143,7 +143,7 @@ const initState = <
           ({
             ...att,
             localMetadata: { id: nanoid() },
-          } as LocalAttachment<StreamChatGenerics>),
+          }) as LocalAttachment<StreamChatGenerics>,
       ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
@@ -161,7 +161,7 @@ const initState = <
  * MessageInput state reducer
  */
 const messageInputReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: MessageInputState<StreamChatGenerics>,
   action: MessageInputReducerAction<StreamChatGenerics>,
@@ -265,7 +265,7 @@ export type MentionsListState = {
  */
 export const useMessageInputState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
 ): MessageInputState<StreamChatGenerics> &
@@ -282,10 +282,8 @@ export const useMessageInputState = <
     urlEnrichmentConfig,
   } = props;
 
-  const {
-    channelCapabilities = {},
-    enrichURLForPreview: enrichURLForPreviewChannelContext,
-  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
+  const { channelCapabilities = {}, enrichURLForPreview: enrichURLForPreviewChannelContext } =
+    useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =

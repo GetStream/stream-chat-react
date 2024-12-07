@@ -11,7 +11,7 @@ import type { Channel } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../types/types';
 
 export type ChannelListContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /**
    * State representing the array of loaded channels.
@@ -30,20 +30,20 @@ export const ChannelListContext = createContext<ChannelListContextValue | undefi
  * Context provider for components rendered within the `ChannelList`
  */
 export const ChannelListContextProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: ChannelListContextValue<StreamChatGenerics>;
 }>) => (
-  <ChannelListContext.Provider value={(value as unknown) as ChannelListContextValue}>
+  <ChannelListContext.Provider value={value as unknown as ChannelListContextValue}>
     {children}
   </ChannelListContext.Provider>
 );
 
 export const useChannelListContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   componentName?: string,
 ) => {
@@ -57,5 +57,5 @@ export const useChannelListContext = <
     return {} as ChannelListContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChannelListContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChannelListContextValue<StreamChatGenerics>;
 };

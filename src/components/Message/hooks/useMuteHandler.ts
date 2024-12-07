@@ -14,7 +14,7 @@ export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
 export type MuteUserNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   getErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   getSuccessNotification?: (user: UserResponse<StreamChatGenerics>) => string;
@@ -22,7 +22,7 @@ export type MuteUserNotifications<
 };
 
 export const useMuteHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
   notifications: MuteUserNotifications<StreamChatGenerics> = {},

@@ -1,4 +1,3 @@
- 
 import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -23,7 +22,7 @@ type ProcessMessagesContext = {
 };
 
 export type ProcessMessagesParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ProcessMessagesContext & {
   messages: StreamMessage<StreamChatGenerics>[];
   reviewProcessedMessage?: (params: {
@@ -61,18 +60,13 @@ export type ProcessMessagesParams<
  * @return {StreamMessage<StreamChatGenerics>[]} Transformed list of messages
  */
 export const processMessages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
   const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
-  const {
-    enableDateSeparator,
-    hideDeletedMessages,
-    hideNewMessageSeparator,
-    lastRead,
-    userId,
-  } = context;
+  const { enableDateSeparator, hideDeletedMessages, hideNewMessageSeparator, lastRead, userId } =
+    context;
 
   let unread = false;
   let ephemeralMessagePresent = false;
@@ -171,7 +165,7 @@ export const makeDateMessageId = (date?: string | Date) => {
 
 // fast since it usually iterates just the last few messages
 export const getLastReceived = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
 ) => {
@@ -185,7 +179,7 @@ export const getLastReceived = <
 };
 
 export const getReadStates = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
   read: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }> = {},
@@ -229,15 +223,15 @@ export const getReadStates = <
 };
 
 export const insertIntro = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({
+  const intro = {
     customType: CUSTOM_MESSAGE_TYPE.intro,
-  } as unknown) as StreamMessage<StreamChatGenerics>;
+  } as unknown as StreamMessage<StreamChatGenerics>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -285,7 +279,7 @@ export const insertIntro = <
 export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
 export const getGroupStyles = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: StreamMessage<StreamChatGenerics>,
   previousMessage: StreamMessage<StreamChatGenerics>,
@@ -368,7 +362,7 @@ type DateSeparatorMessage = {
 };
 
 export function isDateSeparatorMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
   return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
 }

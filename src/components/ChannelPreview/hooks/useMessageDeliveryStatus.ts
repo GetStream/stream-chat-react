@@ -12,7 +12,7 @@ export enum MessageDeliveryStatus {
 }
 
 type UseMessageStatusParamsChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   channel: Channel<StreamChatGenerics>;
   /** The last message received in a channel */
@@ -20,7 +20,7 @@ type UseMessageStatusParamsChannelPreviewProps<
 };
 
 export const useMessageDeliveryStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channel,
   lastMessage,

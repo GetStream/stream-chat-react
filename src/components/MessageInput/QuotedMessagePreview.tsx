@@ -15,7 +15,7 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessagePreviewHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('QuotedMessagePreview');
   const { t } = useTranslationContext('QuotedMessagePreview');
@@ -37,21 +37,19 @@ export const QuotedMessagePreviewHeader = <
 };
 
 export type QuotedMessagePreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   quotedMessage: StreamMessage<StreamChatGenerics>;
 };
 
 export const QuotedMessagePreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
   const { client } = useChatContext();
-  const {
-    Attachment = DefaultAttachment,
-    Avatar = DefaultAvatar,
-  } = useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
+  const { Attachment = DefaultAttachment, Avatar = DefaultAvatar } =
+    useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 
   const quotedMessageText =

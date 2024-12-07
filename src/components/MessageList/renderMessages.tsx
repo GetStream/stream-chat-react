@@ -15,7 +15,7 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { MessageProps } from '../Message';
 
 export interface RenderMessagesOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   components: ComponentContextValue<StreamChatGenerics>;
   lastReceivedMessageId: string | null;
@@ -39,11 +39,11 @@ export interface RenderMessagesOptions<
 }
 
 export type SharedMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
 
 export type MessageRenderer<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (options: RenderMessagesOptions<StreamChatGenerics>) => Array<ReactNode>;
 
 type MessagePropsToOmit =
@@ -55,7 +55,7 @@ type MessagePropsToOmit =
   | 'readBy';
 
 export function defaultRenderMessages<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channelUnreadUiState,
   components,

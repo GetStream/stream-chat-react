@@ -6,7 +6,7 @@ import type { Poll as PollClass } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const Poll = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   isQuoted,
   poll,
@@ -14,10 +14,8 @@ export const Poll = <
   poll: PollClass<StreamChatGenerics>;
   isQuoted?: boolean;
 }) => {
-  const {
-    PollContent = DefaultPollContent,
-    QuotedPoll = DefaultQuotedPoll,
-  } = useComponentContext();
+  const { PollContent = DefaultPollContent, QuotedPoll = DefaultQuotedPoll } =
+    useComponentContext();
   return poll ? (
     <PollProvider poll={poll}>{isQuoted ? <QuotedPoll /> : <PollContent />}</PollProvider>
   ) : null;

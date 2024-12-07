@@ -29,7 +29,7 @@ import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
@@ -58,7 +58,7 @@ export type ThreadProps<
  */
 export const Thread = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: ThreadProps<StreamChatGenerics, V>,
 ) => {
@@ -83,7 +83,7 @@ const selector = (nextValue: ThreadState) => ({
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: ThreadProps<StreamChatGenerics, V> & { key: string },
 ) => {
@@ -135,7 +135,6 @@ const ThreadInner = <
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
-     
   }, [thread, loadMoreThread]);
 
   const threadProps: Pick<

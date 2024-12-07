@@ -43,7 +43,7 @@ describe('SearchBar', () => {
   beforeEach(async () => {
     const user = generateUser();
     client = await getTestClientWithUser({ id: user.id });
-    useMockedApis(client, [queryUsersApi([user])]);  
+    useMockedApis(client, [queryUsersApi([user])]);
   });
 
   it.each([

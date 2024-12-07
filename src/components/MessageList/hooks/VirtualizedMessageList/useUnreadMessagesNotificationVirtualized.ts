@@ -21,7 +21,7 @@ export type UseUnreadMessagesNotificationParams = {
  * @param unreadCount
  */
 export const useUnreadMessagesNotificationVirtualized = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   lastRead,
   showAlways,

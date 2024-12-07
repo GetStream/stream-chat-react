@@ -1935,9 +1935,11 @@ describe('Channel', () => {
           name: 'MessageList',
         },
         {
-          callback: (message) => ({ openThread, thread }) => {
-            if (!thread) openThread(message, { preventDefault: () => null });
-          },
+          callback:
+            (message) =>
+            ({ openThread, thread }) => {
+              if (!thread) openThread(message, { preventDefault: () => null });
+            },
           component: Thread,
           getFirstMessageAvatar: () => {
             // the first avatar is that of the ThreadHeader

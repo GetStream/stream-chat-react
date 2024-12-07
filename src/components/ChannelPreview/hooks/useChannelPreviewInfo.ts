@@ -15,7 +15,7 @@ export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamCha
 };
 
 export const useChannelPreviewInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewInfoParams<StreamChatGenerics>,
 ) => {

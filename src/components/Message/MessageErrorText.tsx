@@ -5,14 +5,14 @@ import { DefaultStreamChatGenerics } from '../../types/types';
 import { isMessageBounced } from './utils';
 
 export interface MessageErrorTextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   message: StreamMessage<StreamChatGenerics>;
   theme: string;
 }
 
 export function MessageErrorText<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({ message, theme }: MessageErrorTextProps<StreamChatGenerics>) {
   const { t } = useTranslationContext('MessageText');
 

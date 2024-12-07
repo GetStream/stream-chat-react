@@ -89,7 +89,7 @@ type VirtualizedMessageListPropsForContext =
  * Context object provided to some Virtuoso props that are functions (components rendered by Virtuoso and other functions)
  */
 export type VirtuosoContext<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Required<
   Pick<
     ComponentContextValue<StreamChatGenerics>,
@@ -123,7 +123,7 @@ export type VirtuosoContext<
   };
 
 type VirtualizedMessageListWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = VirtualizedMessageListProps<StreamChatGenerics> & {
   channel: Channel<StreamChatGenerics>;
   hasMore: boolean;
@@ -175,7 +175,7 @@ function calculateInitialTopMostItemIndex(
 }
 
 const VirtualizedMessageListWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: VirtualizedMessageListWithContextProps<StreamChatGenerics>,
 ) => {
@@ -225,10 +225,8 @@ const VirtualizedMessageListWithContext = <
     threadList,
   } = props;
 
-  const {
-    components: virtuosoComponentsFromProps,
-    ...overridingVirtuosoProps
-  } = additionalVirtuosoProps;
+  const { components: virtuosoComponentsFromProps, ...overridingVirtuosoProps } =
+    additionalVirtuosoProps;
 
   // Stops errors generated from react-virtuoso to bubble up
   // to Sentry or other tracking tools.
@@ -254,18 +252,15 @@ const VirtualizedMessageListWithContext = <
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const {
-    show: showUnreadMessagesNotification,
-    toggleShowUnreadMessagesNotification,
-  } = useUnreadMessagesNotificationVirtualized({
-    lastRead: channelUnreadUiState?.last_read,
-    showAlways: !!showUnreadNotificationAlways,
-    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
-  });
+  const { show: showUnreadMessagesNotification, toggleShowUnreadMessagesNotification } =
+    useUnreadMessagesNotificationVirtualized({
+      lastRead: channelUnreadUiState?.last_read,
+      showAlways: !!showUnreadNotificationAlways,
+      unreadCount: channelUnreadUiState?.unread_messages ?? 0,
+    });
 
-  const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
-    separateGiphyPreview,
-  );
+  const { giphyPreviewMessage, setGiphyPreviewMessage } =
+    useGiphyPreview<StreamChatGenerics>(separateGiphyPreview);
 
   const processedMessages = useMemo(() => {
     if (typeof messages === 'undefined') {
@@ -310,9 +305,10 @@ const VirtualizedMessageListWithContext = <
     userID: client.userID,
   });
 
-  const lastReceivedMessageId = useMemo(() => getLastReceived(processedMessages), [
-    processedMessages,
-  ]);
+  const lastReceivedMessageId = useMemo(
+    () => getLastReceived(processedMessages),
+    [processedMessages],
+  );
 
   const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
@@ -529,7 +525,7 @@ const VirtualizedMessageListWithContext = <
 };
 
 export type VirtualizedMessageListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
   additionalVirtuosoProps?: VirtuosoProps<UnknownType, VirtuosoContext<StreamChatGenerics>>;
@@ -639,13 +635,10 @@ export type VirtualizedMessageListProps<
  * It is a consumer of the React contexts set in [Channel](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/Channel.tsx).
  */
 export function VirtualizedMessageList<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(props: VirtualizedMessageListProps<StreamChatGenerics>) {
-  const {
-    jumpToLatestMessage,
-    loadMore,
-    loadMoreNewer,
-  } = useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
+  const { jumpToLatestMessage, loadMore, loadMoreNewer } =
+    useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
   const {
     channel,
     channelUnreadUiState,

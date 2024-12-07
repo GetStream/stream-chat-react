@@ -4,8 +4,8 @@ export const resampleWaveformData = (waveformData: number[], amplitudesCount: nu
   waveformData.length === amplitudesCount
     ? waveformData
     : waveformData.length > amplitudesCount
-    ? downSample(waveformData, amplitudesCount)
-    : upSample(waveformData, amplitudesCount);
+      ? downSample(waveformData, amplitudesCount)
+      : upSample(waveformData, amplitudesCount);
 
 /**
  * The downSample function uses the Largest-Triangle-Three-Buckets (LTTB) algorithm.

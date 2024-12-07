@@ -105,7 +105,7 @@ describe('InfiniteScroll', () => {
       consoleWarnSpy.mockRestore();
 
       expect(oldLoaderSpy).not.toHaveBeenCalled();
-       
+
       expect(newLoaderSpy).toHaveBeenCalled();
     },
   );

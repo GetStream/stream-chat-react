@@ -36,7 +36,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
         options: [{ id: nanoid(), text: '' }],
         user_id: client.user?.id,
         voting_visibility: 'public',
-      } as PollFormState),
+      }) as PollFormState,
   );
 
   return (

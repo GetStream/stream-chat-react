@@ -364,7 +364,7 @@ describe('MessageList', () => {
           return null;
         }
       }
-       
+
       window.IntersectionObserver = IntersectionObserverMock;
     });
     afterEach(jest.clearAllMocks);

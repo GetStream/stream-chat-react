@@ -80,7 +80,7 @@ export enum RecordingAttachmentType {
 }
 
 export class MediaRecorderController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;

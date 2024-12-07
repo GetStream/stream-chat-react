@@ -1,5 +1,5 @@
 /* eslint-disable sort-keys */
- 
+
 import { Streami18n } from '../Streami18n';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
@@ -10,9 +10,8 @@ import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
 
 const customDayjsLocaleConfig = {
-  months: 'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
-    '_',
-  ),
+  months:
+    'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split('_'),
   monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
   weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split('_'),
   weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),

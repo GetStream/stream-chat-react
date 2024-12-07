@@ -12,7 +12,7 @@ import { DefaultStreamChatGenerics } from '../../types/types';
 import { ReactionSort } from 'stream-chat';
 
 type ReactionsListModalProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ModalProps &
   Partial<
     Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -28,7 +28,7 @@ type ReactionsListModalProps<
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
 export function ReactionsListModal<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   handleFetchReactions,
   onSelectedReactionTypeChange,
@@ -49,15 +49,13 @@ export function ReactionsListModal<
   const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
-  const {
-    isLoading: areReactionsLoading,
-    reactions: reactionDetails,
-  } = useFetchReactions<StreamChatGenerics>({
-    handleFetchReactions,
-    reactionType: selectedReactionType,
-    shouldFetch: modalProps.open,
-    sort: reactionDetailsSort,
-  });
+  const { isLoading: areReactionsLoading, reactions: reactionDetails } =
+    useFetchReactions<StreamChatGenerics>({
+      handleFetchReactions,
+      reactionType: selectedReactionType,
+      shouldFetch: modalProps.open,
+      sort: reactionDetailsSort,
+    });
 
   const reactionDetailsWithLegacyFallback = useMemo(
     () =>

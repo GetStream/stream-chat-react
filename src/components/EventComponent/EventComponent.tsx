@@ -10,7 +10,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type EventComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = TimestampFormatterOptions & {
   /** Message object */
   message: StreamMessage<StreamChatGenerics>;
@@ -22,7 +22,7 @@ export type EventComponentProps<
  * Component to display system and channel event messages
  */
 const UnMemoizedEventComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: EventComponentProps<StreamChatGenerics>,
 ) => {

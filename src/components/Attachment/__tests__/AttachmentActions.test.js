@@ -51,7 +51,6 @@ describe('AttachmentActions', () => {
     fireEvent.click(getByTestId(actions[1].name));
 
     await waitFor(() => {
-       
       expect(actionHandler).toHaveBeenCalledTimes(2);
     });
   });

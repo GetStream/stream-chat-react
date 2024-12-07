@@ -65,15 +65,12 @@ const expectRegistersError = async ({ action, controller, errorMsg, notification
   notificationSubscription?.unsubscribe();
 };
 
- 
 window.MediaRecorder = MediaRecorderMock;
 
- 
 window.AudioContext = AudioContextMock;
 
- 
 window.URL.createObjectURL = jest.fn(() => fileObjectURL);
- 
+
 window.URL.revokeObjectURL = jest.fn();
 
 describe('MediaRecorderController', () => {

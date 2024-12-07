@@ -6,7 +6,7 @@ import type { ChannelState, StreamMessage } from '../../context/ChannelStateCont
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelStateReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > =
   | {
       type: 'closeThread';
@@ -86,11 +86,11 @@ export type ChannelStateReducerAction<
     };
 
 export type ChannelStateReducer<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Reducer<ChannelState<StreamChatGenerics>, ChannelStateReducerAction<StreamChatGenerics>>;
 
 export const channelReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: ChannelState<StreamChatGenerics>,
   action: ChannelStateReducerAction<StreamChatGenerics>,

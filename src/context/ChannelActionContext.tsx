@@ -34,11 +34,11 @@ export type MarkReadWrapperOptions = {
 };
 
 export type MessageAttachments<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Array<Attachment<StreamChatGenerics>>;
 
 export type MessageToSend<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachments?: MessageAttachments<StreamChatGenerics>;
   error?: ErrorFromResponse<APIErrorResponse>;
@@ -52,11 +52,11 @@ export type MessageToSend<
 };
 
 export type RetrySendMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (message: StreamMessage<StreamChatGenerics>) => Promise<void>;
 
 export type ChannelActionContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
@@ -103,20 +103,20 @@ export const ChannelActionContext = React.createContext<ChannelActionContextValu
 );
 
 export const ChannelActionProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: ChannelActionContextValue<StreamChatGenerics>;
 }>) => (
-  <ChannelActionContext.Provider value={(value as unknown) as ChannelActionContextValue}>
+  <ChannelActionContext.Provider value={value as unknown as ChannelActionContextValue}>
     {children}
   </ChannelActionContext.Provider>
 );
 
 export const useChannelActionContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   componentName?: string,
 ) => {
@@ -130,7 +130,7 @@ export const useChannelActionContext = <
     return {} as ChannelActionContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChannelActionContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChannelActionContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -140,7 +140,7 @@ export const useChannelActionContext = <
  */
 export const withChannelActionContext = <
   P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   Component: React.ComponentType<P>,
 ) => {

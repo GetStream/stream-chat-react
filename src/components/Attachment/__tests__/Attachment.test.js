@@ -213,7 +213,6 @@ describe('attachment', () => {
         ],
       });
       await waitFor(() => {
-         
         const Card = queryAllByTestId('card-attachment');
 
         expect(Card).toHaveLength(3);

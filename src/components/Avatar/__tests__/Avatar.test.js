@@ -9,7 +9,7 @@ const AVATAR_ROOT_TEST_ID = 'avatar';
 const AVATAR_FALLBACK_TEST_ID = 'avatar-fallback';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
-afterEach(cleanup);  
+afterEach(cleanup);
 
 describe('Avatar', () => {
   it('should render component with default props', () => {

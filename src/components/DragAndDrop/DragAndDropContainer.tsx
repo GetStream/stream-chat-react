@@ -22,8 +22,8 @@ export const DragAndDropContainer = ({
     dragStartIndex === null || dragOverIndex === null
       ? undefined
       : dragStartIndex <= dragOverIndex
-      ? 'down'
-      : 'up';
+        ? 'down'
+        : 'up';
 
   const childrenArray = React.Children.toArray(children);
 

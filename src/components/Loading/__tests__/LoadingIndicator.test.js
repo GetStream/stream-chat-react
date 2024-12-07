@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import { LoadingIndicator } from '../LoadingIndicator';
 
-afterEach(cleanup);  
+afterEach(cleanup);
 
 describe('LoadingIndicator', () => {
   it('should render with default props', () => {

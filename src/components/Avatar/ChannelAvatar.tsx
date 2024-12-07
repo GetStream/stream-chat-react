@@ -3,11 +3,11 @@ import { Avatar, AvatarProps, GroupAvatar, GroupAvatarProps } from './index';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export type ChannelAvatarProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<GroupAvatarProps> & AvatarProps<StreamChatGenerics>;
 
 export const ChannelAvatar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   groupChannelDisplayInfo,
   image,

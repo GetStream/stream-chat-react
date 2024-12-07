@@ -6,14 +6,14 @@ import { StreamMessage, useChannelStateContext } from '../../context/ChannelStat
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type WindowProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** optional prop to force addition of class str-chat__main-panel---with-thread-opn to the Window root element */
   thread?: StreamMessage<StreamChatGenerics>;
 };
 
 const UnMemoizedWindow = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: PropsWithChildren<WindowProps<StreamChatGenerics>>,
 ) => {

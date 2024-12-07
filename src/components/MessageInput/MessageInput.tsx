@@ -40,7 +40,7 @@ export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
 
 export type MessageInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -130,7 +130,7 @@ export type MessageInputProps<
 
 const MessageInputProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: PropsWithChildren<MessageInputProps<StreamChatGenerics, V>>,
 ) => {
@@ -154,7 +154,7 @@ const MessageInputProvider = <
 
 const UnMemoizedMessageInput = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
 ) => {

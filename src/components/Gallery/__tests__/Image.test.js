@@ -31,7 +31,6 @@ describe('Image', () => {
 
   describe('it should prevent unsafe image uri protocols in the rendered image src', () => {
     it('should prevent javascript protocol in image src', () => {
-       
       const xssJavascriptUri = 'javascript:alert("p0wn3d")';
       const { getByTestId } = render(
         <ComponentProvider value={{}}>
@@ -41,7 +40,6 @@ describe('Image', () => {
       expect(getByTestId('image-test')).not.toHaveAttribute('src', xssJavascriptUri);
     });
     it('should prevent javascript protocol in thumbnail src', () => {
-       
       const xssJavascriptUri = 'javascript:alert("p0wn3d")';
       const { getByTestId } = render(
         <ComponentProvider value={{}}>

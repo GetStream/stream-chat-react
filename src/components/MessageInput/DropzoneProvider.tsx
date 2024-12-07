@@ -17,20 +17,15 @@ import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../.
 
 const DropzoneInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >({
   children,
 }: PropsWithChildren<UnknownType>) => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
-    'DropzoneProvider',
-  );
+  const { acceptedFiles, multipleUploads } =
+    useChannelStateContext<StreamChatGenerics>('DropzoneProvider');
 
-  const {
-    cooldownRemaining,
-    isUploadEnabled,
-    maxFilesLeft,
-    uploadNewFiles,
-  } = useMessageInputContext<StreamChatGenerics, V>('DropzoneProvider');
+  const { cooldownRemaining, isUploadEnabled, maxFilesLeft, uploadNewFiles } =
+    useMessageInputContext<StreamChatGenerics, V>('DropzoneProvider');
 
   return (
     <ImageDropzone
@@ -47,7 +42,7 @@ const DropzoneInner = <
 
 export const DropzoneProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: PropsWithChildren<MessageInputProps<StreamChatGenerics, V>>,
 ) => {

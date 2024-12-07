@@ -1,4 +1,3 @@
- 
 import React, { useCallback } from 'react';
 import type { ChannelSort } from 'stream-chat';
 import {
