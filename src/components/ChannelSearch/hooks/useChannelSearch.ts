@@ -156,7 +156,7 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [disabled, inputIsFocused, query, exitSearch, clearSearchOnClickOutside]);
 
   useEffect(() => {
@@ -213,7 +213,7 @@ export const useChannelSearch = <
       let results: ChannelOrUserResponse<StreamChatGenerics>[] = [];
       try {
         const userQueryPromise = client.queryUsers(
-          // @ts-expect-error
+          // @ts-expect-error this is a valid query
           {
             $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
             ...searchQueryParams?.userFilters?.filters,
@@ -228,7 +228,7 @@ export const useChannelSearch = <
           results = users.filter((u) => u.id !== client.user?.id);
         } else {
           const channelQueryPromise = client.queryChannels(
-            // @ts-expect-error
+            // @ts-expect-error this is a valid query
             {
               name: { $autocomplete: text },
               ...searchQueryParams?.channelFilters?.filters,

@@ -116,19 +116,19 @@ window.navigator.permissions = {
   query: jest.fn(),
 };
 
-// eslint-disable-next-line
+ 
 window.MediaRecorder = MediaRecorderMock;
 
-// eslint-disable-next-line
+ 
 window.AudioContext = AudioContextMock;
 
-// eslint-disable-next-line
+ 
 window.AnalyserNode = AnalyserNodeMock;
 
 const fileObjectURL = 'fileObjectURL';
-// eslint-disable-next-line
+ 
 window.URL.createObjectURL = jest.fn(() => fileObjectURL);
-// eslint-disable-next-line
+ 
 window.URL.revokeObjectURL = jest.fn();
 
 describe('MessageInput', () => {

@@ -113,7 +113,7 @@ export const useSubmitHandler = <
                   (attFromUpload) => attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
                 ),
             )
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             .map(({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment);
 
       // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.

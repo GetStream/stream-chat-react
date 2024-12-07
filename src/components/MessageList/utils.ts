@@ -1,4 +1,4 @@
-/* eslint-disable no-continue */
+ 
 import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -369,7 +369,6 @@ type DateSeparatorMessage = {
 
 export function isDateSeparatorMessage<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-  // @ts-ignore
 >(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
   return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
 }

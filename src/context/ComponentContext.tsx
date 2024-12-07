@@ -217,7 +217,7 @@ export const useComponentContext = <
   /**
    * @deprecated
    */
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => (useContext(ComponentContext) as unknown) as ComponentContextValue<StreamChatGenerics, V>;
 

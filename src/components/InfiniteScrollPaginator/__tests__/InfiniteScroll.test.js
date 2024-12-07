@@ -105,7 +105,7 @@ describe('InfiniteScroll', () => {
       consoleWarnSpy.mockRestore();
 
       expect(oldLoaderSpy).not.toHaveBeenCalled();
-      // eslint-disable-next-line jest/prefer-called-with
+       
       expect(newLoaderSpy).toHaveBeenCalled();
     },
   );

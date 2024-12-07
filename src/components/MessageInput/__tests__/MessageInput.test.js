@@ -957,7 +957,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for image uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+         
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1001,7 +1001,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+         
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1047,7 +1047,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+         
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1396,7 +1396,7 @@ function axeNoViolations(container) {
 
       if (componentName !== 'EditMessageForm') {
         await waitFor(
-          () => expect(screen.getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
+          () => expect(screen.getByTestId('suggestion-list')).toBeInTheDocument(),  
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();

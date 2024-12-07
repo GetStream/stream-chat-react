@@ -1,4 +1,4 @@
-/* eslint-disable jest-dom/prefer-to-have-class */
+ 
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -68,7 +68,7 @@ async function renderMessageOptions({
             <ComponentProvider
               value={{
                 Attachment,
-                // eslint-disable-next-line react/display-name
+                 
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -158,7 +158,7 @@ describe('<MessageOptions />', () => {
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
-    // eslint-disable-next-line jest/prefer-called-with
+     
     expect(handleOpenThread).toHaveBeenCalled();
   });
 

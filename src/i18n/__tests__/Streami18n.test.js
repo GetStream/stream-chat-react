@@ -1,9 +1,10 @@
-/* eslint-disable */
+/* eslint-disable sort-keys */
+ 
 import { Streami18n } from '../Streami18n';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
-import { nlTranslations, frTranslations } from '../translations';
+import { frTranslations, nlTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
@@ -270,7 +271,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
-          formatters: { timestampFormatter: (s) => () => 'custom' },
+          formatters: { timestampFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | timestampFormatter }}' },
         });
         await i18n.init();
@@ -278,7 +279,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
-          formatters: { customFormatter: (s) => () => 'custom' },
+          formatters: { customFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | customFormatter }}' },
         });
         await i18n.init();

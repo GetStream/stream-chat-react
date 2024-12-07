@@ -9,7 +9,7 @@ import { Chat } from '../../Chat';
 
 import { getTestClientWithUser } from '../../../mock-builders';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);  
 
 describe('LoadingErrorIndicator', () => {
   it('should return null if no error is provided', () => {

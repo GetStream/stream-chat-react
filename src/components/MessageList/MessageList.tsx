@@ -400,9 +400,9 @@ export const MessageList = <
   } = useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
-    members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    members: membersPropToNotPass,  
+    mutes: mutesPropToNotPass,  
+    watchers: watchersPropToNotPass,  
     ...restChannelStateContext
   } = useChannelStateContext<StreamChatGenerics>('MessageList');
 

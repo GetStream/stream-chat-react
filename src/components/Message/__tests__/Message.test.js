@@ -71,7 +71,7 @@ async function renderComponent({
         >
           <ComponentProvider
             value={{
-              // eslint-disable-next-line react/display-name
+               
               Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
               ...components,
             }}

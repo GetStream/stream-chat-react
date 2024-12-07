@@ -138,7 +138,7 @@ export const useLinkPreviews = <
     enqueuedLinks.forEach((linkPreview) => {
       client
         .enrichURL(linkPreview.og_scrape_url)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         .then(({ duration, ...ogAttachment }) => {
           if (shouldDiscardEnrichQueries.current) return;
 

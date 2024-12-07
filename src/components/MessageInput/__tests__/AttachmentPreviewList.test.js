@@ -1,4 +1,4 @@
-/* eslint-disable jest-dom/prefer-in-document */
+ 
 
 import React from 'react';
 

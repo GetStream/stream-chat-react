@@ -158,7 +158,7 @@ export const MessageProvider = <
 export const useMessageContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => {
   const contextValue = useContext(MessageContext);

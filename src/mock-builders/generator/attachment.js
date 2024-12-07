@@ -45,7 +45,7 @@ export const generateLocalImageUploadAttachmentData = (overrides, attachmentData
     ...generateLocalFileUploadAttachmentData().localMetadata,
     previewUri: 'image-preview-uri',
     ...overrides,
-    // eslint-disable-next-line sort-keys
+     
     file: generateImageFile(overrides?.file ?? {}),
   },
   type: 'image',

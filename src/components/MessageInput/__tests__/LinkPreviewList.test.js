@@ -25,9 +25,9 @@ import '@testing-library/jest-dom';
 // Mock out lodash debounce implementation, so it calls the debounced method immediately
 jest.mock('lodash.debounce', () =>
   jest.fn((fn) => {
-    //eslint-disable-next-line
+     
     fn.cancel = jest.fn();
-    //eslint-disable-next-line
+     
     fn.flush = jest.fn();
     return fn;
   }),
@@ -341,7 +341,7 @@ describe('Link preview', () => {
       });
     });
     const linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData.og_scrape_url);
   });
@@ -384,7 +384,7 @@ describe('Link preview', () => {
       });
     });
     let linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData1.og_scrape_url);
 
@@ -396,7 +396,7 @@ describe('Link preview', () => {
       });
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(2);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData1.og_scrape_url);
     expect(linkPreviews[1]).toHaveTextContent(scrapedData2.og_scrape_url);
@@ -409,7 +409,7 @@ describe('Link preview', () => {
       });
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(3);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData1.og_scrape_url);
     expect(linkPreviews[1]).toHaveTextContent(scrapedData2.og_scrape_url);
@@ -451,7 +451,7 @@ describe('Link preview', () => {
 
     await waitFor(() => {
       const linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-      // eslint-disable-next-line
+       
       expect(linkPreviews).toHaveLength(3);
       expect(linkPreviews[0]).toHaveTextContent(scrapedData1.og_scrape_url);
       expect(linkPreviews[1]).toHaveTextContent(scrapedData2.og_scrape_url);
@@ -473,7 +473,7 @@ describe('Link preview', () => {
       });
     });
     let linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData.og_scrape_url);
 
@@ -485,7 +485,7 @@ describe('Link preview', () => {
       });
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData.og_scrape_url);
   });
@@ -562,7 +562,7 @@ describe('Link preview', () => {
       });
     });
     let linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData.og_scrape_url);
 
@@ -574,7 +574,7 @@ describe('Link preview', () => {
       });
     });
     linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(0);
   });
 
@@ -593,7 +593,7 @@ describe('Link preview', () => {
       });
     });
     let linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData.og_scrape_url);
 
@@ -601,7 +601,7 @@ describe('Link preview', () => {
       fireEvent.click(await screen.findByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID));
     });
     linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(0);
 
     await act(async () => {
@@ -830,7 +830,7 @@ describe('Link preview', () => {
     });
 
     const linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    // eslint-disable-next-line
+     
     expect(linkPreviews).toHaveLength(1);
     expect(linkPreviews[0]).toHaveTextContent(scrapedData1.og_scrape_url);
   });
@@ -950,10 +950,11 @@ describe('Link preview', () => {
   it('submit new message with skip_url_enrich:false if no link previews managed to get loaded', async () => {
     const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')
-      // eslint-disable-next-line no-unused-vars
+       
       .mockImplementationOnce(() => new Promise((res) => (resolveEnrichURLPromise = res)));
 
     const { submit } = await renderComponent({
@@ -987,10 +988,11 @@ describe('Link preview', () => {
 
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')
-      // eslint-disable-next-line no-unused-vars
+       
       .mockImplementationOnce(() => new Promise((res) => (resolveEnrichURLPromise = res)));
 
     const { submit } = await renderComponent({

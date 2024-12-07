@@ -65,15 +65,15 @@ const expectRegistersError = async ({ action, controller, errorMsg, notification
   notificationSubscription?.unsubscribe();
 };
 
-// eslint-disable-next-line
+ 
 window.MediaRecorder = MediaRecorderMock;
 
-// eslint-disable-next-line
+ 
 window.AudioContext = AudioContextMock;
 
-// eslint-disable-next-line
+ 
 window.URL.createObjectURL = jest.fn(() => fileObjectURL);
-// eslint-disable-next-line
+ 
 window.URL.revokeObjectURL = jest.fn();
 
 describe('MediaRecorderController', () => {

@@ -17,7 +17,7 @@ export function defaultScrollToItem(container, item) {
     return;
   }
 
-  // eslint-disable-next-line
+   
   container.scrollTop = itemOffsetTop;
 }
 

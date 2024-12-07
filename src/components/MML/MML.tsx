@@ -5,6 +5,7 @@ import { useChatContext } from '../../context/ChatContext';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 const MMLReact = React.lazy(async () => {
+  // eslint-disable-next-line import/no-extraneous-dependencies
   const mml = await import('mml-react');
   return { default: mml.MML };
 });

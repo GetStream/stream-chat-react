@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+ 
 /* eslint-disable no-underscore-dangle */
 import { StreamChat } from 'stream-chat';
 import { nanoid } from 'nanoid';

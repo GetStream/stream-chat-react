@@ -1,4 +1,4 @@
-/* eslint-disable sort-keys */
+ 
 import clsx from 'clsx';
 import React, { PropsWithChildren, useState } from 'react';
 
@@ -16,7 +16,6 @@ export type MessageActionSetItem = {
   placement: 'quick' | 'dropdown';
   type:
     | keyof typeof MESSAGE_ACTIONS
-    // eslint-disable-next-line @typescript-eslint/ban-types
     | (string & {});
 };
 

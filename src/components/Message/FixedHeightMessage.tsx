@@ -29,8 +29,8 @@ const selectColor = (number: number, dark: boolean) => {
 
 const hashUserId = (userId: string) => {
   const hash = userId.split('').reduce((acc, c) => {
-    acc = (acc << 5) - acc + c.charCodeAt(0); // eslint-disable-line
-    return acc & acc; // eslint-disable-line no-bitwise
+    acc = (acc << 5) - acc + c.charCodeAt(0);  
+    return acc & acc;  
   }, 0);
   return Math.abs(hash) / 10 ** Math.ceil(Math.log10(Math.abs(hash) + 1));
 };

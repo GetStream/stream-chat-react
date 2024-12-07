@@ -586,7 +586,7 @@ const ChannelInner = <
         });
 
         if (client.user?.id && channel.state.read[client.user.id]) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+           
           const { user, ...ownReadState } = channel.state.read[client.user.id];
           _setChannelUnreadUiState(ownReadState);
         }
@@ -1008,7 +1008,7 @@ const ChannelInner = <
         });
 
         thread?.upsertReplyLocally({
-          // @ts-expect-error
+          // @ts-expect-error message type mismatch
           message: {
             ...message,
             error: parsedError,
@@ -1047,7 +1047,7 @@ const ChannelInner = <
     };
 
     thread?.upsertReplyLocally({
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       message: messagePreview,
     });
 
@@ -1224,7 +1224,7 @@ const ChannelInner = <
     ],
   );
 
-  // @ts-expect-error
+  // @ts-expect-error generics are missing (not needed here)
   const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({
       Attachment: props.Attachment,
