@@ -26,18 +26,35 @@ export function useStateStore<
   );
 
   const wrappedSnapshot = useMemo(() => {
-    let cached: [T, O];
+    let cachedTuple: [T, O];
+
     return () => {
-      const current = store?.getLatestValue();
+      const currentValue = store?.getLatestValue();
 
-      if (!current) return undefined;
+      if (!currentValue) return undefined;
 
-      if (!cached || cached[0] !== current) {
-        cached = [current, selector(current)];
-        return cached[1];
+      // store value hasn't changed, no need to compare individual values
+      if (cachedTuple && cachedTuple[0] === currentValue) {
+        return cachedTuple[1];
       }
 
-      return cached[1];
+      const newlySelected = selector(currentValue);
+
+      // store value changed but selected values wouldn't have to, double-check selected
+      if (cachedTuple) {
+        let selectededAreEqualToCached = true;
+
+        for (const key in cachedTuple[1]) {
+          if (cachedTuple[1][key] === newlySelected[key]) continue;
+          selectededAreEqualToCached = false;
+          break;
+        }
+
+        if (selectededAreEqualToCached) return cachedTuple[1];
+      }
+
+      cachedTuple = [currentValue, newlySelected];
+      return cachedTuple[1];
     };
   }, [store, selector]);
 
