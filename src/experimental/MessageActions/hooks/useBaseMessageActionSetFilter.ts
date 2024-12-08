@@ -16,16 +16,8 @@ export const useBaseMessageActionSetFilter = (
   disable = false,
 ) => {
   const { initialMessage: isInitialMessage, message } = useMessageContext();
-  const {
-    canDelete,
-    canEdit,
-    canFlag,
-    canMarkUnread,
-    canMute,
-    canQuote,
-    canReact,
-    canReply,
-  } = useUserRole(message);
+  const { canDelete, canEdit, canFlag, canMarkUnread, canMute, canQuote, canReact, canReply } =
+    useUserRole(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
 
   return useMemo(() => {

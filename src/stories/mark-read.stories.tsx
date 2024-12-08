@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import type { ChannelSort } from 'stream-chat';
 import { nanoid } from 'nanoid';

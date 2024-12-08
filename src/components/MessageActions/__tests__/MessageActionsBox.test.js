@@ -408,13 +408,13 @@ describe('MessageActionsBox', () => {
       });
       await toggleOpenMessageActions(0);
       let boxes = screen.getAllByTestId('message-actions-box');
-      // eslint-disable-next-line jest-dom/prefer-in-document
+
       expect(boxes).toHaveLength(1);
       expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
 
       await toggleOpenMessageActions(1);
       boxes = screen.getAllByTestId('message-actions-box');
-      // eslint-disable-next-line jest-dom/prefer-in-document
+
       expect(boxes).toHaveLength(1);
       expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
     });

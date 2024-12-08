@@ -7,11 +7,11 @@ import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = { options: PollOption<StreamChatGenerics>[] };
 
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue<StreamChatGenerics> => ({ options: nextValue.options });
@@ -21,13 +21,12 @@ export type PollOptionListProps = {
 };
 
 export const PollOptionList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   optionsDisplayCount,
 }: PollOptionListProps) => {
-  const {
-    PollOptionSelector = DefaultPollOptionSelector,
-  } = useComponentContext<StreamChatGenerics>();
+  const { PollOptionSelector = DefaultPollOptionSelector } =
+    useComponentContext<StreamChatGenerics>();
   const { poll } = usePollContext<StreamChatGenerics>();
   const { options } = useStateStore(poll.state, pollStateSelector);
 

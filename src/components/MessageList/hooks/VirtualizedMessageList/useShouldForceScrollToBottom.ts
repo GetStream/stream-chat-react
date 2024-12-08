@@ -5,7 +5,7 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export function useShouldForceScrollToBottom<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(messages: StreamMessage<StreamChatGenerics>[], currentUserId?: string) {
   const lastFocusedOwnMessage = useRef('');
   const initialFocusRegistered = useRef(false);

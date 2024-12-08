@@ -19,7 +19,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelPreviewUIComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ChannelPreviewProps<StreamChatGenerics> & {
   /** If the component's channel is the active (selected) Channel */
   active?: boolean;
@@ -42,7 +42,7 @@ export type ChannelPreviewUIComponentProps<
 };
 
 export type ChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<StreamChatGenerics>;
@@ -72,7 +72,7 @@ export type ChannelPreviewProps<
 };
 
 export const ChannelPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {

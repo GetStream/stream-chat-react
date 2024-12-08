@@ -10,12 +10,12 @@ import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type ValidCommand<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Required<Pick<CommandResponse<StreamChatGenerics>, 'name'>> &
   Omit<CommandResponse<StreamChatGenerics>, 'name'>;
 
 export const useCommandTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): CommandTriggerSetting<StreamChatGenerics> => {
   const { channelConfig } = useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
   const { t } = useTranslationContext('useCommandTrigger');

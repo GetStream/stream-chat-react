@@ -37,7 +37,7 @@ export type FileInputProps = UploadButtonProps;
 export const FileInput = UploadButton;
 
 export const UploadFileInput = forwardRef(function UploadFileInput<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   {
     className,
@@ -47,14 +47,10 @@ export const UploadFileInput = forwardRef(function UploadFileInput<
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { acceptedFiles = [], multipleUploads } = useChannelStateContext<StreamChatGenerics>(
-    'UploadFileInput',
-  );
-  const {
-    isUploadEnabled,
-    maxFilesLeft,
-    uploadNewFiles,
-  } = useMessageInputContext<StreamChatGenerics>('UploadFileInput');
+  const { acceptedFiles = [], multipleUploads } =
+    useChannelStateContext<StreamChatGenerics>('UploadFileInput');
+  const { isUploadEnabled, maxFilesLeft, uploadNewFiles } =
+    useMessageInputContext<StreamChatGenerics>('UploadFileInput');
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(

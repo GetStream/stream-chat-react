@@ -36,7 +36,7 @@ type FormValue<F extends Record<FieldId, FieldConfig>> = {
 };
 
 export const FormDialog = <
-  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<Record<FieldId, FieldConfig>>
+  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<Record<FieldId, FieldConfig>>,
 >({
   className,
   close,

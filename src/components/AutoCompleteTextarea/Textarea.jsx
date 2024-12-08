@@ -455,7 +455,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'value',
     ];
 
-    // eslint-disable-next-line
+     
     for (const prop in props) {
       if (notSafe.includes(prop)) delete props[prop];
     }

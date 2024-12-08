@@ -7,13 +7,13 @@ import { DownloadButton, FileSizeIndicator } from './components';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type FileAttachmentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachment: Attachment<StreamChatGenerics>;
 };
 
 const UnMemoizedFileAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
 }: FileAttachmentProps<StreamChatGenerics>) => (

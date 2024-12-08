@@ -59,7 +59,7 @@ import type { StopAIGenerationButtonProps } from '../components/MessageInput/Sto
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
@@ -198,28 +198,28 @@ export const ComponentContext = React.createContext<ComponentContextValue>({});
 
 export const ComponentProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: Partial<ComponentContextValue<StreamChatGenerics, V>>;
 }>) => (
-  <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
+  <ComponentContext.Provider value={value as unknown as ComponentContextValue}>
     {children}
   </ComponentContext.Provider>
 );
 
 export const useComponentContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   /**
    * @deprecated
    */
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
-) => (useContext(ComponentContext) as unknown) as ComponentContextValue<StreamChatGenerics, V>;
+) => useContext(ComponentContext) as unknown as ComponentContextValue<StreamChatGenerics, V>;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext
@@ -229,7 +229,7 @@ export const useComponentContext = <
 export const withComponentContext = <
   P extends UnknownType,
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   Component: React.ComponentType<P>,
 ) => {

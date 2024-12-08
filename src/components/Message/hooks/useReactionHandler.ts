@@ -15,15 +15,14 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
 ) => {
   const thread = useThreadContext();
   const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useReactionHandler');
-  const { channel, channelCapabilities } = useChannelStateContext<StreamChatGenerics>(
-    'useReactionHandler',
-  );
+  const { channel, channelCapabilities } =
+    useChannelStateContext<StreamChatGenerics>('useReactionHandler');
   const { client } = useChatContext<StreamChatGenerics>('useReactionHandler');
 
   const createMessagePreview = useCallback(
@@ -94,7 +93,7 @@ export const useReactionHandler = <
 
     try {
       updateMessage(tempMessage);
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
@@ -106,7 +105,7 @@ export const useReactionHandler = <
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message });
     }
   }, 1000);
@@ -120,7 +119,7 @@ export const useReactionHandler = <
       return console.warn(reactionHandlerWarning);
     }
 
-    let userExistingReaction = (null as unknown) as ReactionResponse<StreamChatGenerics>;
+    let userExistingReaction = null as unknown as ReactionResponse<StreamChatGenerics>;
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {

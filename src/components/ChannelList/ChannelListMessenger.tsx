@@ -8,7 +8,7 @@ import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelListMessengerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Whether the channel query request returned an errored response */
   error: ErrorFromResponse<APIErrorResponse> | null;
@@ -28,7 +28,7 @@ export type ChannelListMessengerProps<
  * A preview list of channels, allowing you to select the channel you want to open
  */
 export const ChannelListMessenger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: PropsWithChildren<ChannelListMessengerProps<StreamChatGenerics>>,
 ) => {

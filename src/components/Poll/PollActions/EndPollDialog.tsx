@@ -8,7 +8,7 @@ export type EndPollDialogProps = {
 };
 
 export const EndPollDialog = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   close,
 }: EndPollDialogProps) => {

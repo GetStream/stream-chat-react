@@ -7,17 +7,17 @@ import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
 
 type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = { latest_votes_by_option: Record<string, PollVote<StreamChatGenerics>[]> };
 
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({ latest_votes_by_option: nextValue.latest_votes_by_option });
 
 export type PollOptionWithVotesProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   option: PollOption<StreamChatGenerics>;
   countVotesPreview?: number;
@@ -25,7 +25,7 @@ export type PollOptionWithVotesProps<
 };
 
 export const PollOptionWithLatestVotes = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   countVotesPreview = 5,
   option,

@@ -4,13 +4,13 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
-const STATUSES_EXCLUDED_FROM_PREPEND = ({
+const STATUSES_EXCLUDED_FROM_PREPEND = {
   failed: true,
   sending: true,
-} as const) as Record<string, boolean>;
+} as const as Record<string, boolean>;
 
 export function usePrependedMessagesCount<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
   const firstRealMessageIndex = hasDateSeparator ? 1 : 0;
   const firstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>();

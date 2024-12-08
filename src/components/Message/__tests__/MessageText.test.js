@@ -1,4 +1,3 @@
-/* eslint-disable jest-dom/prefer-to-have-class */
 import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
@@ -84,7 +83,7 @@ async function renderMessageText({
             <ComponentProvider
               value={{
                 Attachment,
-                // eslint-disable-next-line react/display-name
+
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -281,7 +280,7 @@ describe('<MessageText />', () => {
         },
       },
     });
-    // eslint-disable-next-line jest/prefer-called-with
+
     expect(MessageOptionsMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();

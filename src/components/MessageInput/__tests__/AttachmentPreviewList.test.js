@@ -1,5 +1,3 @@
-/* eslint-disable jest-dom/prefer-in-document */
-
 import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';

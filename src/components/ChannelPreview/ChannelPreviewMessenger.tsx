@@ -6,7 +6,7 @@ import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedChannelPreviewMessenger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewUIComponentProps<StreamChatGenerics>,
 ) => {

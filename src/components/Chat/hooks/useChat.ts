@@ -13,7 +13,7 @@ import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 's
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UseChatParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   client: StreamChat<StreamChatGenerics>;
   defaultLanguage?: SupportedTranslations;
@@ -22,7 +22,7 @@ export type UseChatParams<
 };
 
 export const useChat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   client,
   defaultLanguage = 'en',

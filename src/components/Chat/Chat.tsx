@@ -15,7 +15,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { MessageContextValue } from '../../context';
 
 export type ChatProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The StreamChat client object */
   client: StreamChat<StreamChatGenerics>;
@@ -44,7 +44,7 @@ export type ChatProps<
  * as it provides the ChatContext.
  */
 export const Chat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: PropsWithChildren<ChatProps<StreamChatGenerics>>,
 ) => {

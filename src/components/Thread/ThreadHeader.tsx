@@ -12,7 +12,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ThreadHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Callback for closing the thread */
   closeThread: (event?: React.BaseSyntheticEvent) => void;
@@ -21,7 +21,7 @@ export type ThreadHeaderProps<
 };
 
 export const ThreadHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ThreadHeaderProps<StreamChatGenerics> &
     Pick<ChannelPreviewInfoParams<StreamChatGenerics>, 'overrideImage' | 'overrideTitle'>,

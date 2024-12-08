@@ -1,17 +1,17 @@
-/* eslint-disable */
+/* eslint-disable sort-keys */
+
 import { Streami18n } from '../Streami18n';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
-import { nlTranslations, frTranslations } from '../translations';
+import { frTranslations, nlTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
 
 const customDayjsLocaleConfig = {
-  months: 'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
-    '_',
-  ),
+  months:
+    'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split('_'),
   monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
   weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split('_'),
   weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),
@@ -270,7 +270,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
-          formatters: { timestampFormatter: (s) => () => 'custom' },
+          formatters: { timestampFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | timestampFormatter }}' },
         });
         await i18n.init();
@@ -278,7 +278,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
-          formatters: { customFormatter: (s) => () => 'custom' },
+          formatters: { customFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | customFormatter }}' },
         });
         await i18n.init();

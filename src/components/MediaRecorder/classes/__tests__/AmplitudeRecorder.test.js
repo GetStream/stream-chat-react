@@ -5,7 +5,6 @@ import {
 } from '../AmplitudeRecorder';
 import { AudioContextMock } from '../../../../mock-builders/browser';
 
-// eslint-disable-next-line
 window.AudioContext = AudioContextMock;
 
 const intervalID = 1;

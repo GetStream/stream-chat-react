@@ -20,7 +20,7 @@ export type URLEnrichmentConfig = {
 };
 
 type UseEnrichURLsParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = URLEnrichmentConfig & {
   dispatch: Dispatch<MessageInputReducerAction<StreamChatGenerics>>;
   linkPreviews: MessageInputState<StreamChatGenerics>['linkPreviews'];
@@ -36,7 +36,7 @@ export type EnrichURLsController = {
 };
 
 export const useLinkPreviews = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   debounceURLEnrichmentMs: debounceURLEnrichmentMsInputContext,
   dispatch,
@@ -138,7 +138,7 @@ export const useLinkPreviews = <
     enqueuedLinks.forEach((linkPreview) => {
       client
         .enrichURL(linkPreview.og_scrape_url)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         .then(({ duration, ...ogAttachment }) => {
           if (shouldDiscardEnrichQueries.current) return;
 

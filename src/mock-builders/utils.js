@@ -45,7 +45,6 @@ export const initClientWithChannels = async ({ channelsData, customUser } = {}) 
         ...channelData,
       });
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
       const channel = client.channel(mockedChannelData.channel.type, mockedChannelData.channel.id);
       await channel.watch();

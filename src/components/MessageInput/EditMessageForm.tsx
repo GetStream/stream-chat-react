@@ -7,7 +7,7 @@ import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types
 
 export const EditMessageForm = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >() => {
   const { t } = useTranslationContext('EditMessageForm');
 

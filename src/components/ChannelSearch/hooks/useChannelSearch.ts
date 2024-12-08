@@ -22,7 +22,7 @@ import type { SearchResultsController } from '../SearchResults';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type ChannelSearchFunctionParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
@@ -30,11 +30,11 @@ export type ChannelSearchFunctionParams<
 };
 
 export type SearchController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = SearchInputController & SearchBarController & SearchResultsController<StreamChatGenerics>;
 
 export type SearchQueryParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   channelFilters?: {
     filters?: ChannelFilters<StreamChatGenerics>;
@@ -51,7 +51,7 @@ export type SearchQueryParams<
 };
 
 export type ChannelSearchParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
@@ -82,14 +82,14 @@ export type ChannelSearchParams<
 };
 
 export type ChannelSearchControllerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ChannelSearchParams<StreamChatGenerics> & {
   /** Set the array of channels displayed in the ChannelList */
   setChannels?: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
 };
 
 export const useChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channelType = 'messaging',
   clearSearchOnClickOutside = true,
@@ -156,7 +156,6 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, inputIsFocused, query, exitSearch, clearSearchOnClickOutside]);
 
   useEffect(() => {
@@ -213,7 +212,7 @@ export const useChannelSearch = <
       let results: ChannelOrUserResponse<StreamChatGenerics>[] = [];
       try {
         const userQueryPromise = client.queryUsers(
-          // @ts-expect-error
+          // @ts-expect-error this is a valid query
           {
             $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
             ...searchQueryParams?.userFilters?.filters,
@@ -228,7 +227,7 @@ export const useChannelSearch = <
           results = users.filter((u) => u.id !== client.user?.id);
         } else {
           const channelQueryPromise = client.queryChannels(
-            // @ts-expect-error
+            // @ts-expect-error this is a valid query
             {
               name: { $autocomplete: text },
               ...searchQueryParams?.channelFilters?.filters,

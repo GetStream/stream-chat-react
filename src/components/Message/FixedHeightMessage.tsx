@@ -29,8 +29,8 @@ const selectColor = (number: number, dark: boolean) => {
 
 const hashUserId = (userId: string) => {
   const hash = userId.split('').reduce((acc, c) => {
-    acc = (acc << 5) - acc + c.charCodeAt(0); // eslint-disable-line
-    return acc & acc; // eslint-disable-line no-bitwise
+    acc = (acc << 5) - acc + c.charCodeAt(0);
+    return acc & acc;
   }, 0);
   return Math.abs(hash) / 10 ** Math.ceil(Math.log10(Math.abs(hash) + 1));
 };
@@ -39,14 +39,14 @@ const getUserColor = (theme: string, userId: string) =>
   selectColor(hashUserId(userId), theme.includes('dark'));
 
 export type FixedHeightMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   groupedByUser?: boolean;
   message?: StreamMessage<StreamChatGenerics>;
 };
 
 const UnMemoizedFixedHeightMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: FixedHeightMessageProps<StreamChatGenerics>,
 ) => {
@@ -54,14 +54,11 @@ const UnMemoizedFixedHeightMessage = <
 
   const { theme } = useChatContext<StreamChatGenerics>('FixedHeightMessage');
 
-  const {
-    groupedByUser: contextGroupedByUser,
-    message: contextMessage,
-  } = useMessageContext<StreamChatGenerics>('FixedHeightMessage');
+  const { groupedByUser: contextGroupedByUser, message: contextMessage } =
+    useMessageContext<StreamChatGenerics>('FixedHeightMessage');
 
-  const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<StreamChatGenerics>(
-    'FixedHeightMessage',
-  );
+  const { MessageDeleted = DefaultMessageDeleted } =
+    useComponentContext<StreamChatGenerics>('FixedHeightMessage');
 
   const { userLanguage } = useTranslationContext('FixedHeightMessage');
 
@@ -75,10 +72,10 @@ const UnMemoizedFixedHeightMessage = <
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message?.text;
 
-  const renderedText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
-    message.mentioned_users,
-    messageTextToRender,
-  ]);
+  const renderedText = useMemo(
+    () => renderText(messageTextToRender, message.mentioned_users),
+    [message.mentioned_users, messageTextToRender],
+  );
 
   const userId = message.user?.id || '';
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);

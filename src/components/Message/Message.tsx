@@ -53,7 +53,7 @@ type MessageContextPropsToPick =
   | 'sortReactionDetails';
 
 type MessageWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit> &
   Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick> & {
     canPin: boolean;
@@ -61,7 +61,7 @@ type MessageWithContextProps<
   };
 
 const MessageWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageWithContextProps<StreamChatGenerics>,
 ) => {
@@ -143,12 +143,12 @@ const MessageWithContext = <
   );
 
   const {
-    canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onlySenderCanEdit: onlySenderCanEditPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    canPin: canPinPropToNotPass,
+    messageActions: messageActionsPropToNotPass,
+    onlySenderCanEdit: onlySenderCanEditPropToNotPass,
+    onUserClick: onUserClickPropToNotPass,
+    onUserHover: onUserHoverPropToNotPass,
+    userRoles: userRolesPropToNotPass,
     ...rest
   } = props;
 
@@ -185,7 +185,7 @@ const MemoizedMessage = React.memo(
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
 export const Message = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageProps<StreamChatGenerics>,
 ) => {

@@ -59,7 +59,7 @@ async function renderComponent(props, channelData, channelType = 'messaging') {
   return renderComponentBase({ channel, client, props });
 }
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('ChannelHeader', () => {
   it('should display live label when prop live is true', async () => {

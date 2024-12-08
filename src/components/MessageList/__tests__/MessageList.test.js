@@ -364,7 +364,7 @@ describe('MessageList', () => {
           return null;
         }
       }
-      // eslint-disable-next-line jest/prefer-spy-on
+
       window.IntersectionObserver = IntersectionObserverMock;
     });
     afterEach(jest.clearAllMocks);

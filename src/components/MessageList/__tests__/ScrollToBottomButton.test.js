@@ -94,7 +94,6 @@ describe.each([
     });
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(onClick).toHaveBeenCalled();
     });
   });

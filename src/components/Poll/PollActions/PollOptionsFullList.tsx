@@ -9,7 +9,7 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 type PollStateSelectorReturnValue = { name: string };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({ name: nextValue.name });
@@ -19,7 +19,7 @@ export type FullPollOptionsListingProps = {
 };
 
 export const PollOptionsFullList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   close,
 }: FullPollOptionsListingProps) => {

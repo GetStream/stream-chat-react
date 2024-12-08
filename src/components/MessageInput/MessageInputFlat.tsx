@@ -36,7 +36,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import { AIStates, useAIState } from '../AIStateIndicator';
 
 export const MessageInputFlat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { t } = useTranslationContext('MessageInputFlat');
   const {
@@ -83,10 +83,8 @@ export const MessageInputFlat = <
 
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
 
-  const [
-    showRecordingPermissionDeniedNotification,
-    setShowRecordingPermissionDeniedNotification,
-  ] = useState(false);
+  const [showRecordingPermissionDeniedNotification, setShowRecordingPermissionDeniedNotification] =
+    useState(false);
   const closePermissionDeniedNotification = useCallback(() => {
     setShowRecordingPermissionDeniedNotification(false);
   }, []);

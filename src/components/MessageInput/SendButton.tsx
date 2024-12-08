@@ -4,7 +4,7 @@ import { SendIcon } from './icons';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type SendButtonProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   sendMessage: (
     event: React.BaseSyntheticEvent,
@@ -12,7 +12,7 @@ export type SendButtonProps<
   ) => void;
 } & React.ComponentProps<'button'>;
 export const SendButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   sendMessage,
   ...rest

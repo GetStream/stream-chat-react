@@ -5,11 +5,11 @@ import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type OnMentionAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (event: React.BaseSyntheticEvent, user?: UserResponse<StreamChatGenerics>) => void;
 
 export const useMentionsHandlers = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   onMentionsHover?: OnMentionAction<StreamChatGenerics>,
   onMentionsClick?: OnMentionAction<StreamChatGenerics>,

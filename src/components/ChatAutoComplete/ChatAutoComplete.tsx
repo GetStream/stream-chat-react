@@ -16,24 +16,24 @@ import { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
 type ObjectUnion<T> = T[keyof T];
 
 export type SuggestionCommand<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = CommandResponse<StreamChatGenerics>;
 
 export type SuggestionUser<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = UserResponse<StreamChatGenerics>;
 
 export type SuggestionEmoji<T extends UnknownType = UnknownType> = EmojiSearchIndexResult & T;
 
 export type SuggestionItem<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UnknownType = UnknownType
+  T extends UnknownType = UnknownType,
 > = SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics> | SuggestionEmoji<T>;
 
 // FIXME: entity type is wrong, fix
 export type SuggestionItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UnknownType = UnknownType
+  T extends UnknownType = UnknownType,
 > = {
   className: string;
   component: React.ComponentType<{
@@ -59,41 +59,39 @@ export interface SuggestionHeaderProps {
 
 export type SuggestionListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
-> = ObjectUnion<
-  {
-    [key in keyof TriggerSettings<StreamChatGenerics, V>]: {
-      component: TriggerSettings<StreamChatGenerics, V>[key]['component'];
-      currentTrigger: string;
-      dropdownScroll: (element: HTMLDivElement) => void;
-      getSelectedItem:
-        | ((item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0]) => void)
-        | null;
-      getTextToReplace: (
-        item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0],
-      ) => {
-        caretPosition: 'start' | 'end' | 'next' | number;
-        text: string;
-        key?: string;
-      };
-      Header: React.ComponentType<SuggestionHeaderProps>;
-      onSelect: (newToken: {
-        caretPosition: 'start' | 'end' | 'next' | number;
-        text: string;
-      }) => void;
-      selectionEnd: number;
-      SuggestionItem: React.ComponentType<SuggestionItemProps>;
-      values: Parameters<
-        Parameters<TriggerSettings<StreamChatGenerics, V>[key]['dataProvider']>[2]
-      >[0];
-      className?: string;
-      itemClassName?: string;
-      itemStyle?: React.CSSProperties;
-      style?: React.CSSProperties;
-      value?: string;
+  V extends CustomTrigger = CustomTrigger,
+> = ObjectUnion<{
+  [key in keyof TriggerSettings<StreamChatGenerics, V>]: {
+    component: TriggerSettings<StreamChatGenerics, V>[key]['component'];
+    currentTrigger: string;
+    dropdownScroll: (element: HTMLDivElement) => void;
+    getSelectedItem:
+      | ((item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0]) => void)
+      | null;
+    getTextToReplace: (
+      item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0],
+    ) => {
+      caretPosition: 'start' | 'end' | 'next' | number;
+      text: string;
+      key?: string;
     };
-  }
->;
+    Header: React.ComponentType<SuggestionHeaderProps>;
+    onSelect: (newToken: {
+      caretPosition: 'start' | 'end' | 'next' | number;
+      text: string;
+    }) => void;
+    selectionEnd: number;
+    SuggestionItem: React.ComponentType<SuggestionItemProps>;
+    values: Parameters<
+      Parameters<TriggerSettings<StreamChatGenerics, V>[key]['dataProvider']>[2]
+    >[0];
+    className?: string;
+    itemClassName?: string;
+    itemStyle?: React.CSSProperties;
+    style?: React.CSSProperties;
+    value?: string;
+  };
+}>;
 
 export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
   /** Function to override the default submit handler on the underlying `textarea` component */
@@ -118,14 +116,12 @@ export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
 
 const UnMemoizedChatAutoComplete = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: ChatAutoCompleteProps,
 ) => {
-  const {
-    AutocompleteSuggestionItem: SuggestionItem,
-    AutocompleteSuggestionList: SuggestionList,
-  } = useComponentContext<StreamChatGenerics, V>('ChatAutoComplete');
+  const { AutocompleteSuggestionItem: SuggestionItem, AutocompleteSuggestionList: SuggestionList } =
+    useComponentContext<StreamChatGenerics, V>('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
 
   const messageInput = useMessageInputContext<StreamChatGenerics, V>('ChatAutoComplete');

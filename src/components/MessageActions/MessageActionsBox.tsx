@@ -25,7 +25,7 @@ type PropsDrilledToMessageActionsBox =
   | 'handlePin';
 
 export type MessageActionsBoxProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<MessageContextValue<StreamChatGenerics>, PropsDrilledToMessageActionsBox> & {
   isUserMuted: () => boolean;
   mine: boolean;
@@ -33,7 +33,7 @@ export type MessageActionsBoxProps<
 } & ComponentProps<'div'>;
 
 const UnMemoizedMessageActionsBox = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageActionsBoxProps<StreamChatGenerics>,
 ) => {
@@ -52,13 +52,11 @@ const UnMemoizedMessageActionsBox = <
     ...restDivProps
   } = props;
 
-  const {
-    CustomMessageActionsList = DefaultCustomMessageActionsList,
-  } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
+  const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
+    useComponentContext<StreamChatGenerics>('MessageActionsBox');
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, threadList } = useMessageContext<StreamChatGenerics>(
-    'MessageActionsBox',
-  );
+  const { customMessageActions, message, threadList } =
+    useMessageContext<StreamChatGenerics>('MessageActionsBox');
 
   const { t } = useTranslationContext('MessageActionsBox');
 

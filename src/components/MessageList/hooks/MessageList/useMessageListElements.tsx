@@ -13,7 +13,7 @@ import type { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../../.
 import { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
 type UseMessageListElementsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
   internalMessageProps: SharedMessageProps<StreamChatGenerics>;
@@ -26,7 +26,7 @@ type UseMessageListElementsProps<
 };
 
 export const useMessageListElements = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: UseMessageListElementsProps<StreamChatGenerics>,
 ) => {
@@ -52,9 +52,10 @@ export const useMessageListElements = <
     userID: client.userID,
   });
 
-  const lastReceivedMessageId = useMemo(() => getLastReceived(enrichedMessages), [
-    enrichedMessages,
-  ]);
+  const lastReceivedMessageId = useMemo(
+    () => getLastReceived(enrichedMessages),
+    [enrichedMessages],
+  );
 
   const elements: React.ReactNode[] = useMemo(
     () =>

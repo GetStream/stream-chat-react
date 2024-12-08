@@ -205,7 +205,7 @@ describe('useMessageInputState', () => {
             file: {
               name: type === 'image' ? data.fallback : data.title,
               type:
-                type === 'image' ? 'image/' + data.fallback.split('.')[1] : data.mime_type ?? '',
+                type === 'image' ? 'image/' + data.fallback.split('.')[1] : (data.mime_type ?? ''),
             },
           };
           const attachment = {
@@ -433,9 +433,8 @@ describe('useMessageInputState', () => {
                 props:
                   scenario === 'custom'
                     ? {
-                        [type === 'image'
-                          ? 'doImageUploadRequest'
-                          : 'doFileUploadRequest']: customSendSpy,
+                        [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']:
+                          customSendSpy,
                       }
                     : {},
               });

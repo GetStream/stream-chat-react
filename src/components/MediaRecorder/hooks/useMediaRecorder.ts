@@ -10,7 +10,7 @@ import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type RecordingController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   completeRecording: () => void;
   permissionState?: PermissionState;
@@ -20,7 +20,7 @@ export type RecordingController<
 };
 
 type UseMediaRecorderParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<
   MessageInputContextValue<StreamChatGenerics>,
   'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
@@ -31,7 +31,7 @@ type UseMediaRecorderParams<
 };
 
 export const useMediaRecorder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   asyncMessagesMultiSendEnabled,
   enabled,

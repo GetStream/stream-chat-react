@@ -5,7 +5,7 @@ import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/ty
 
 export const useCreateMessageInputContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   value: MessageInputContextValue<StreamChatGenerics, V>,
 ) => {

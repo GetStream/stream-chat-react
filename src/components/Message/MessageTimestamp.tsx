@@ -8,7 +8,7 @@ import type { TimestampFormatterOptions } from '../../i18n/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageTimestampProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = TimestampFormatterOptions & {
   /* Adds a CSS class name to the component's outer `time` container. */
   customClass?: string;
@@ -17,7 +17,7 @@ export type MessageTimestampProps<
 };
 
 const UnMemoizedMessageTimestamp = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageTimestampProps<StreamChatGenerics>,
 ) => {

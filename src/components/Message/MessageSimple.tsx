@@ -37,11 +37,11 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
 type MessageSimpleWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = MessageContextValue<StreamChatGenerics>;
 
 const MessageSimpleWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageSimpleWithContextProps<StreamChatGenerics>,
 ) => {
@@ -89,10 +89,10 @@ const MessageSimpleWithContext = <
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
-  const isAIGenerated = useMemo(() => isMessageAIGenerated?.(message), [
-    isMessageAIGenerated,
-    message,
-  ]);
+  const isAIGenerated = useMemo(
+    () => isMessageAIGenerated?.(message),
+    [isMessageAIGenerated, message],
+  );
 
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
@@ -243,7 +243,7 @@ const MemoizedMessageSimple = React.memo(
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
 export const MessageSimple = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageUIComponentProps<StreamChatGenerics>,
 ) => {

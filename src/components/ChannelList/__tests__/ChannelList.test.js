@@ -294,7 +294,7 @@ describe('ChannelList', () => {
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
       expect(getByRole('list')).toBeInTheDocument();
-      // eslint-disable-next-line jest-dom/prefer-in-document
+
       expect(queryAllByRole('listitem')).toHaveLength(1);
     });
     const results = await axe(container);
@@ -620,7 +620,7 @@ describe('ChannelList', () => {
       let channel;
       beforeEach(async () => {
         client = await getTestClientWithUser({ id: user1.id });
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+
         useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
         channel = client.channel('messaging', mockedChannels[0].id);
         await channel.watch();

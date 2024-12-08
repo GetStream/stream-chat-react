@@ -9,7 +9,7 @@ export function useManagePollVotesRealtime<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   T extends
     | PollVote<StreamChatGenerics>
-    | PollAnswer<StreamChatGenerics> = PollVote<StreamChatGenerics>
+    | PollAnswer<StreamChatGenerics> = PollVote<StreamChatGenerics>,
 >(
   managedVoteType: 'answer' | 'vote',
   cursorPaginatorState?: CursorPaginatorStateStore<T>,

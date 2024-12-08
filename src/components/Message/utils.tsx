@@ -23,10 +23,8 @@ export const validateAndGetMessage = <T extends unknown[]>(
 ) => {
   if (!func || typeof func !== 'function') return null;
 
-  // below is due to tests passing a single argument
-  // rather than an array.
   if (!(args instanceof Array)) {
-    // @ts-expect-error
+    // @ts-expect-error below is due to tests passing a single argument rather than an array
     args = [args];
   }
 
@@ -41,7 +39,7 @@ export const validateAndGetMessage = <T extends unknown[]>(
  * Tell if the owner of the current message is muted
  */
 export const isUserMuted = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: StreamMessage<StreamChatGenerics>,
   mutes?: Mute<StreamChatGenerics>[],
@@ -219,7 +217,7 @@ export const showMessageActionsBox = (
 ) => shouldRenderMessageActions({ inThread, messageActions: actions });
 
 export const shouldRenderMessageActions = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   customMessageActions,
   CustomMessageActionsList,
@@ -266,7 +264,7 @@ export const shouldRenderMessageActions = <
 };
 
 function areMessagesEqual<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   prevMessage: StreamMessage<StreamChatGenerics>,
   nextMessage: StreamMessage<StreamChatGenerics>,
@@ -292,7 +290,7 @@ function areMessagesEqual<
 }
 
 export const areMessagePropsEqual = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   prevProps: MessageProps<StreamChatGenerics> & {
     mutes?: Mute<StreamChatGenerics>[];
@@ -336,7 +334,7 @@ export const areMessagePropsEqual = <
 };
 
 export const areMessageUIPropsEqual = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   prevProps: MessageContextValue<StreamChatGenerics> & {
     showDetailedReactions?: boolean;
@@ -370,19 +368,19 @@ export const areMessageUIPropsEqual = <
 };
 
 export const messageHasReactions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
 ) => Object.values(message?.reaction_groups ?? {}).some(({ count }) => count > 0);
 
 export const messageHasAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
 ) => !!message?.attachments && !!message.attachments.length;
 
 export const getImages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: MessageResponse<StreamChatGenerics>,
 ) => {
@@ -393,7 +391,7 @@ export const getImages = <
 };
 
 export const getNonImageAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: MessageResponse<StreamChatGenerics>,
 ) => {
@@ -417,7 +415,7 @@ export interface TooltipUsernameMapper {
 export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
 
 export const getReadByTooltipText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
@@ -483,7 +481,7 @@ export const isOnlyEmojis = (text?: string) => {
 };
 
 export const isMessageBounced = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: Pick<StreamMessage<StreamChatGenerics>, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
@@ -492,7 +490,7 @@ export const isMessageBounced = <
     message.moderation?.action === 'bounce');
 
 export const isMessageEdited = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: Pick<StreamMessage<StreamChatGenerics>, 'message_text_updated_at'>,
 ) => !!message.message_text_updated_at;

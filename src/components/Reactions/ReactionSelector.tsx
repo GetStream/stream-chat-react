@@ -15,7 +15,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 
 export type ReactionSelectorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
@@ -44,7 +44,7 @@ export type ReactionSelectorProps<
 };
 
 const UnMemoizedReactionSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ReactionSelectorProps<StreamChatGenerics>,
 ) => {
@@ -179,9 +179,8 @@ const UnMemoizedReactionSelector = <
                 className={clsx(
                   'str-chat__message-reactions-list-item str-chat__message-reactions-option',
                   {
-                    'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
-                      reactionType,
-                    ),
+                    'str-chat__message-reactions-option-selected':
+                      iHaveReactedWithReaction(reactionType),
                   },
                 )}
                 data-testid='select-reaction-button'

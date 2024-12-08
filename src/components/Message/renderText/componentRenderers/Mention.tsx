@@ -4,7 +4,7 @@ import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export type MentionProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = PropsWithChildren<{
   node: {
     mentionedUser: UserResponse<StreamChatGenerics>;
@@ -12,7 +12,7 @@ export type MentionProps<
 }>;
 
 export const Mention = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   node: { mentionedUser },

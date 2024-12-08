@@ -46,12 +46,12 @@ import {
 } from '../../constants/limits';
 
 type MessageListWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<ChannelStateContextValue<StreamChatGenerics>, 'members' | 'mutes' | 'watchers'> &
   MessageListProps<StreamChatGenerics>;
 
 const MessageListWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageListWithContextProps<StreamChatGenerics>,
 ) => {
@@ -107,20 +107,15 @@ const MessageListWithContext = <
     MessageListMainPanel = DefaultMessageListMainPanel,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
-  const {
-    hasNewMessages,
-    isMessageListScrolledToBottom,
-    onScroll,
-    scrollToBottom,
-    wrapperRect,
-  } = useScrollLocationLogic({
-    hasMoreNewer,
-    listElement,
-    loadMoreScrollThreshold,
-    messages,
-    scrolledUpThreshold: props.scrolledUpThreshold,
-    suppressAutoscroll,
-  });
+  const { hasNewMessages, isMessageListScrolledToBottom, onScroll, scrollToBottom, wrapperRect } =
+    useScrollLocationLogic({
+      hasMoreNewer,
+      listElement,
+      loadMoreScrollThreshold,
+      messages,
+      scrolledUpThreshold: props.scrolledUpThreshold,
+      suppressAutoscroll,
+    });
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
@@ -313,7 +308,7 @@ type PropsDrilledToMessage =
   | 'unsafeHTML';
 
 export type MessageListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
@@ -389,20 +384,17 @@ export type MessageListProps<
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageListProps<StreamChatGenerics>,
 ) => {
-  const {
-    jumpToLatestMessage,
-    loadMore,
-    loadMoreNewer,
-  } = useChannelActionContext<StreamChatGenerics>('MessageList');
+  const { jumpToLatestMessage, loadMore, loadMoreNewer } =
+    useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
-    members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    members: membersPropToNotPass,
+    mutes: mutesPropToNotPass,
+    watchers: watchersPropToNotPass,
     ...restChannelStateContext
   } = useChannelStateContext<StreamChatGenerics>('MessageList');
 

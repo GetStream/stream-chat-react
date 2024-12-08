@@ -3,7 +3,7 @@ import { StreamMessage } from '../../../../context';
 import { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type UseScrollToBottomOnNewMessageParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   scrollToBottom: () => void;
   messages?: StreamMessage<StreamChatGenerics>[];
@@ -12,7 +12,7 @@ type UseScrollToBottomOnNewMessageParams<
 };
 
 export const useScrollToBottomOnNewMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   messages,
   scrollToBottom,

@@ -98,7 +98,6 @@ describe('ChannelPreview', () => {
     [c0, c1] = await client.queryChannels({}, {});
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it('should mark channel as read, when set as active channel', async () => {
     // Mock the countUnread function on channel, to return 10.
     c0.countUnread = () => 10;

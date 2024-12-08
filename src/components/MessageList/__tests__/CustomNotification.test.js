@@ -1,4 +1,3 @@
-/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
@@ -6,7 +5,7 @@ import { cleanup, render } from '@testing-library/react';
 
 import { CustomNotification } from '../CustomNotification';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('CustomNotification', () => {
   it('should render nothing if active is false', () => {

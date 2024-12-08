@@ -213,7 +213,6 @@ describe('attachment', () => {
         ],
       });
       await waitFor(() => {
-        /* eslint-disable jest-dom/prefer-in-document */
         const Card = queryAllByTestId('card-attachment');
 
         expect(Card).toHaveLength(3);

@@ -8,7 +8,7 @@ expect.extend(toHaveNoViolations);
 
 import { UserItem } from '../UserItem';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('UserItem', () => {
   it('should render component with default props', () => {

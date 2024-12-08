@@ -43,7 +43,7 @@ describe('SearchBar', () => {
   beforeEach(async () => {
     const user = generateUser();
     client = await getTestClientWithUser({ id: user.id });
-    useMockedApis(client, [queryUsersApi([user])]); // eslint-disable-line react-hooks/rules-of-hooks
+    useMockedApis(client, [queryUsersApi([user])]);
   });
 
   it.each([

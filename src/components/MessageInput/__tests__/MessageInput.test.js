@@ -111,64 +111,66 @@ function dropFile(file, formElement) {
   });
 }
 
-const makeRenderFn = (InputComponent) => async ({
-  channelProps = {},
-  channelData = [],
-  chatContextOverrides = {},
-  customChannel,
-  customClient,
-  customUser,
-  messageInputProps = {},
-  messageContextOverrides = {},
-  messageActionsBoxProps = {},
-} = {}) => {
-  let channel = customChannel;
-  let client = customClient;
-  if (!(channel || client)) {
-    const result = await initClientWithChannels({
-      channelsData: [{ ...mockedChannelData, ...channelData }],
-      customUser: customUser || user,
-    });
-    channel = result.channels[0];
-    client = result.client;
-  }
-  let renderResult;
+const makeRenderFn =
+  (InputComponent) =>
+  async ({
+    channelProps = {},
+    channelData = [],
+    chatContextOverrides = {},
+    customChannel,
+    customClient,
+    customUser,
+    messageInputProps = {},
+    messageContextOverrides = {},
+    messageActionsBoxProps = {},
+  } = {}) => {
+    let channel = customChannel;
+    let client = customClient;
+    if (!(channel || client)) {
+      const result = await initClientWithChannels({
+        channelsData: [{ ...mockedChannelData, ...channelData }],
+        customUser: customUser || user,
+      });
+      channel = result.channels[0];
+      client = result.client;
+    }
+    let renderResult;
 
-  const defaultMessageInputProps =
-    InputComponent.name === 'EditMessageForm' ? { message: mainListMessage } : {};
-  await act(() => {
-    renderResult = render(
-      <ChatProvider value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}>
-        <Channel
-          doSendMessageRequest={submitMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
-        >
-          <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
+    const defaultMessageInputProps =
+      InputComponent.name === 'EditMessageForm' ? { message: mainListMessage } : {};
+    await act(() => {
+      renderResult = render(
+        <ChatProvider value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}>
+          <Channel
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
+          >
+            <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
+              <MessageActionsBox
+                {...messageActionsBoxProps}
+                getMessageActions={defaultMessageContextValue.getMessageActions}
+              />
+            </MessageProvider>
+            <MessageInput
+              Input={InputComponent}
+              {...{ ...defaultMessageInputProps, ...messageInputProps }}
             />
-          </MessageProvider>
-          <MessageInput
-            Input={InputComponent}
-            {...{ ...defaultMessageInputProps, ...messageInputProps }}
-          />
-        </Channel>
-      </ChatProvider>,
-    );
-  });
+          </Channel>
+        </ChatProvider>,
+      );
+    });
 
-  const submit = async () => {
-    const submitButton =
-      renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
-      renderResult.findByText('Send') ||
-      renderResult.findByTitle('Send');
-    fireEvent.click(await submitButton);
+    const submit = async () => {
+      const submitButton =
+        renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
+        renderResult.findByText('Send') ||
+        renderResult.findByTitle('Send');
+      fireEvent.click(await submitButton);
+    };
+
+    return { channel, client, submit, ...renderResult };
   };
-
-  return { channel, client, submit, ...renderResult };
-};
 
 const tearDown = () => {
   cleanup();
@@ -957,7 +959,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for image uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1001,7 +1003,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1047,7 +1049,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1395,9 +1397,7 @@ function axeNoViolations(container) {
       });
 
       if (componentName !== 'EditMessageForm') {
-        await waitFor(
-          () => expect(screen.getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
-        );
+        await waitFor(() => expect(screen.getByTestId('suggestion-list')).toBeInTheDocument());
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       }

@@ -34,7 +34,7 @@ export const Modal = ({ children, className, onClose, open }: PropsWithChildren<
     if (!open) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose?.((event as unknown) as React.KeyboardEvent);
+      if (event.key === 'Escape') onClose?.(event as unknown as React.KeyboardEvent);
     };
 
     document.addEventListener('keydown', handleKeyDown);

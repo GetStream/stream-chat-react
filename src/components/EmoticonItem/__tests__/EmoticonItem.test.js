@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import { EmoticonItem } from '../EmoticonItem';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('EmoticonItem', () => {
   it('should render component with empty entity', () => {

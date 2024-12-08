@@ -16,7 +16,7 @@ import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvid
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UserTriggerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
   disableMentions?: boolean;
@@ -26,7 +26,7 @@ export type UserTriggerParams<
 };
 
 export const useUserTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: UserTriggerParams<StreamChatGenerics>,
 ): UserTriggerSetting<StreamChatGenerics> => {
@@ -68,7 +68,7 @@ export const useUserTrigger = <
     throttle(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         try {
-          // @ts-expect-error
+          // @ts-expect-error this is a valid query
           const response = await channel.queryMembers({
             name: { $autocomplete: query },
           });
@@ -100,7 +100,7 @@ export const useUserTrigger = <
 
     try {
       const { users } = await client.queryUsers(
-        // @ts-expect-error
+        // @ts-expect-error this is a valid query
         {
           $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
           ...(typeof mentionQueryParams.filters === 'function'

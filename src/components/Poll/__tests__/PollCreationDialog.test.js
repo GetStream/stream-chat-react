@@ -166,7 +166,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.blur(optionFields[1]);
     });
     const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionErrors).toHaveLength(3);
     expect(optionErrors[1]).toHaveTextContent(DUPLICATE_OPTION_FIELD_ERROR_TEXT);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -196,7 +196,7 @@ describe('PollCreationDialog', () => {
     expect(optionFields[1]).toHaveValue(text);
     expect(optionFields[2]).toHaveValue('');
     const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionErrors).toHaveLength(3);
     expect(optionErrors[0]).not.toHaveTextContent();
     expect(optionErrors[1]).not.toHaveTextContent();
@@ -221,7 +221,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(optionFields[0], { target: { value: '' } });
     });
     optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionFields).toHaveLength(1);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
@@ -284,7 +284,7 @@ describe('PollCreationDialog', () => {
     });
 
     const maxVoteCountErrors = screen.getAllByTestId(MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(maxVoteCountErrors).toHaveLength(1);
     expect(maxVoteCountErrors[0]).toHaveTextContent(MAX_VOTE_COUNT_FIELD_ERROR_TEXT);
     expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('1');

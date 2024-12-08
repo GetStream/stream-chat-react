@@ -6,7 +6,7 @@ import { useChannelActionContext } from './ChannelActionContext';
 import { isMessageBounced } from '../components';
 
 export interface MessageBounceContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   handleDelete: ReactEventHandler;
   handleEdit: ReactEventHandler;
@@ -17,7 +17,7 @@ export interface MessageBounceContextValue<
 const MessageBounceContext = createContext<MessageBounceContextValue | undefined>(undefined);
 
 export function useMessageBounceContext<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(componentName?: string) {
   const contextValue = useContext(MessageBounceContext);
 
@@ -33,7 +33,7 @@ export function useMessageBounceContext<
 }
 
 export function MessageBounceProvider<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({ children }: PropsWithChildrenOnly) {
   const {
     handleRetry: doHandleRetry,

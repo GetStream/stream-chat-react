@@ -16,12 +16,8 @@ import {
 import './CustomMessage.scss';
 
 export const CustomMessage = () => {
-  const {
-    showDetailedReactions,
-    isReactionEnabled,
-    message,
-    reactionSelectorRef,
-  } = useMessageContext();
+  const { showDetailedReactions, isReactionEnabled, message, reactionSelectorRef } =
+    useMessageContext();
 
   const messageWrapperRef = useRef<HTMLDivElement>(null);
 

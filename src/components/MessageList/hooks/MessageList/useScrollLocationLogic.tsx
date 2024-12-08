@@ -7,7 +7,7 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export type UseScrollLocationLogicParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
@@ -18,7 +18,7 @@ export type UseScrollLocationLogicParams<
 };
 
 export const useScrollLocationLogic = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: UseScrollLocationLogicParams<StreamChatGenerics>,
 ) => {

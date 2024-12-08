@@ -7,7 +7,7 @@ expect.extend(toHaveNoViolations);
 
 import { MessageNotification } from '../MessageNotification';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('MessageNotification', () => {
   it('should render nothing if showNotification is false', () => {

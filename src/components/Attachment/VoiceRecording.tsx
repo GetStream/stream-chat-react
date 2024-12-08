@@ -12,7 +12,7 @@ import type { DefaultStreamChatGenerics } from '../../types';
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
 export type VoiceRecordingPlayerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
@@ -86,7 +86,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
 };
 
 export type QuotedVoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
@@ -120,7 +120,7 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
 };
 
 export type VoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The attachment object from the message's attachment list. */
   attachment: Attachment<StreamChatGenerics>;

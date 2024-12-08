@@ -16,12 +16,10 @@ import type { TranslationLanguages } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
-  const {
-    Attachment = DefaultAttachment,
-    Avatar: ContextAvatar,
-  } = useComponentContext<StreamChatGenerics>('QuotedMessage');
+  const { Attachment = DefaultAttachment, Avatar: ContextAvatar } =
+    useComponentContext<StreamChatGenerics>('QuotedMessage');
   const { client } = useChatContext();
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');

@@ -21,11 +21,11 @@ const DefaultSearchEmpty = () => {
 };
 
 export type SearchResultsHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<SearchResultsProps<StreamChatGenerics>, 'results'>;
 
 const DefaultSearchResultsHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   results,
 }: SearchResultsHeaderProps<StreamChatGenerics>) => {
@@ -43,7 +43,7 @@ const DefaultSearchResultsHeader = <
 };
 
 export type SearchResultsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Required<
   Pick<SearchResultsProps<StreamChatGenerics>, 'results' | 'SearchResultItem' | 'selectResult'>
 > & {
@@ -51,7 +51,7 @@ export type SearchResultsListProps<
 };
 
 const DefaultSearchResultsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultsListProps<StreamChatGenerics>,
 ) => {
@@ -73,7 +73,7 @@ const DefaultSearchResultsList = <
 };
 
 export type SearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<SearchResultsProps<StreamChatGenerics>, 'selectResult'> & {
   index: number;
   result: ChannelOrUserResponse<StreamChatGenerics>;
@@ -81,7 +81,7 @@ export type SearchResultItemProps<
 };
 
 const DefaultSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultItemProps<StreamChatGenerics>,
 ) => {
@@ -143,7 +143,7 @@ const ResultsContainer = ({
 };
 
 export type SearchResultsController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   results: Array<ChannelOrUserResponse<StreamChatGenerics>>;
   searching: boolean;
@@ -151,7 +151,7 @@ export type SearchResultsController<
 };
 
 export type AdditionalSearchResultsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
@@ -168,11 +168,11 @@ export type AdditionalSearchResultsProps<
 };
 
 export type SearchResultsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = AdditionalSearchResultsProps<StreamChatGenerics> & SearchResultsController<StreamChatGenerics>;
 
 export const SearchResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultsProps<StreamChatGenerics>,
 ) => {

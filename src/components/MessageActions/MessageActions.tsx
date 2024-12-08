@@ -23,7 +23,7 @@ type MessageContextPropsToPick =
   | 'message';
 
 export type MessageActionsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
   /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
   ActionsIcon?: React.ComponentType<IconProps>;
@@ -36,7 +36,7 @@ export type MessageActionsProps<
 };
 
 export const MessageActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageActionsProps<StreamChatGenerics>,
 ) => {

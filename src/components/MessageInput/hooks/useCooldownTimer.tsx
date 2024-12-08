@@ -12,11 +12,10 @@ export type CooldownTimerState = {
 };
 
 export const useCooldownTimer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): CooldownTimerState => {
-  const { client, latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>(
-    'useCooldownTimer',
-  );
+  const { client, latestMessageDatesByChannels } =
+    useChatContext<StreamChatGenerics>('useCooldownTimer');
   const { channel, messages = [] } = useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 

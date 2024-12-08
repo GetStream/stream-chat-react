@@ -22,7 +22,7 @@ export type AdditionalChannelSearchProps = {
 };
 
 export type ChannelSearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = AdditionalSearchBarProps &
   AdditionalSearchInputProps &
   AdditionalSearchResultsProps<StreamChatGenerics> &
@@ -30,7 +30,7 @@ export type ChannelSearchProps<
   ChannelSearchControllerParams<StreamChatGenerics>;
 
 const UnMemoizedChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelSearchProps<StreamChatGenerics>,
 ) => {

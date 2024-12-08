@@ -43,7 +43,7 @@ type PollStateSelectorReturnValue = {
   ownAnswer: PollAnswer | undefined;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({
@@ -66,7 +66,7 @@ export type PollActionsProps = {
 };
 
 export const PollActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   AddCommentForm = DefaultAddCommentForm,
   EndPollDialog = DefaultEndPollDialog,

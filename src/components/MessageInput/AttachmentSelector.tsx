@@ -21,10 +21,8 @@ import {
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {
-  const {
-    AttachmentSelectorInitiationButtonContents,
-    FileUploadIcon = DefaultUploadIcon,
-  } = useComponentContext();
+  const { AttachmentSelectorInitiationButtonContents, FileUploadIcon = DefaultUploadIcon } =
+    useComponentContext();
   const inputRef = useRef<ElementRef<'input'>>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
   const id = useMemo(() => nanoid(), []);
@@ -80,7 +78,6 @@ export type AttachmentSelectorActionProps = {
 
 export type AttachmentSelectorAction = {
   ActionButton: React.ComponentType<AttachmentSelectorActionProps>;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   type: 'uploadFile' | 'createPoll' | (string & {});
   ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
 };
@@ -132,7 +129,7 @@ export type AttachmentSelectorProps = {
 };
 
 const useAttachmentSelectorActionsFiltered = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   original: AttachmentSelectorAction[],
 ) => {
@@ -159,7 +156,7 @@ const useAttachmentSelectorActionsFiltered = <
 };
 
 export const AttachmentSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
   getModalPortalDestination,

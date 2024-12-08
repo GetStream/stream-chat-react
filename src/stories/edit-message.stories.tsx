@@ -35,8 +35,7 @@ const Controls = () => {
                 type: 'image',
               },
             ],
-            text:
-              'chat: https://getstream.io/chat/\nactivity-feeds: https://getstream.io/activity-feeds/',
+            text: 'chat: https://getstream.io/chat/\nactivity-feeds: https://getstream.io/activity-feeds/',
           })
         }
       >
