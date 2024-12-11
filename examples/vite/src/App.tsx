@@ -35,9 +35,10 @@ const userId = parseUserIdFromToken(userToken);
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
+  archived: false,
 };
-const options: ChannelOptions = { limit: 3, presence: true, state: true };
-const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+const options: ChannelOptions = { limit: 5, presence: true, state: true };
+const sort: ChannelSort = [{ pinned_at: 1 }, { last_message_at: -1 }, { updated_at: -1 }];
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
