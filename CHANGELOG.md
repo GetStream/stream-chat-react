@@ -1,3 +1,10 @@
+## [12.8.0](https://github.com/GetStream/stream-chat-react/compare/v12.7.1...v12.8.0) (2024-12-12)
+
+
+### Features
+
+* per-user channel pinning/archiving ([#2555](https://github.com/GetStream/stream-chat-react/issues/2555)) ([a51fad0](https://github.com/GetStream/stream-chat-react/commit/a51fad067bdc0ee94fce6fff49c5085196dcc186))
+
 ## [12.7.1](https://github.com/GetStream/stream-chat-react/compare/v12.7.0...v12.7.1) (2024-12-05)
 
 
