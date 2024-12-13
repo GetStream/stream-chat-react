@@ -4,9 +4,13 @@ import {
   SearchController,
   SearchSource,
 } from '../components/Search/SearchController';
+import type { DefaultStreamChatGenerics } from '../types';
 
-export type SearchContextValue<Sources extends SearchSource[] = DefaultSearchSources> = {
-  searchController: SearchController<Sources>;
+export type SearchContextValue<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
+  searchController: SearchController<StreamChatGenerics, Sources>;
   /** The type of channel to create on user result select, defaults to `messaging` */
   userToUserCreatedChannelType: string;
   /** Sets the input element into disabled state */
@@ -14,7 +18,7 @@ export type SearchContextValue<Sources extends SearchSource[] = DefaultSearchSou
   // /** Clear search state / results on every click outside the search input, defaults to true */
   exitSearchOnInputBlur?: boolean;
   /** Search input change handler */
-  onSearch?: React.ChangeEventHandler<HTMLInputElement>;
+  inputOnChangeHandler?: React.ChangeEventHandler<HTMLInputElement>;
   /** Custom callback invoked when the search UI is deactivated */
   onSearchExit?: () => void;
   // todo: document this is not available - better override search result item
@@ -25,8 +29,6 @@ export type SearchContextValue<Sources extends SearchSource[] = DefaultSearchSou
   // ) => Promise<void> | void;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
-  /** The number of milliseconds to debounce the search query. The default interval is 200ms. */
-  searchDebounceIntervalMs?: number;
 };
 
 export const SearchContext = createContext<SearchContextValue | undefined>(undefined);
@@ -34,18 +36,24 @@ export const SearchContext = createContext<SearchContextValue | undefined>(undef
 /**
  * Context provider for components rendered within the `ChannelSearch`
  */
-export const SearchContextProvider = <Sources extends SearchSource[] = DefaultSearchSources>({
+export const SearchContextProvider = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>({
   children,
   value,
 }: PropsWithChildren<{
-  value: SearchContextValue<Sources>;
+  value: SearchContextValue<StreamChatGenerics, Sources>;
 }>) => (
   <SearchContext.Provider value={(value as unknown) as SearchContextValue}>
     {children}
   </SearchContext.Provider>
 );
 
-export const useSearchContext = <Sources extends SearchSource[] = DefaultSearchSources>() => {
+export const useSearchContext = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>() => {
   const contextValue = useContext(SearchContext);
 
   if (!contextValue) {
@@ -53,8 +61,8 @@ export const useSearchContext = <Sources extends SearchSource[] = DefaultSearchS
       `The useChannelSearchContext hook was called outside of the ChannelSearchContext provider. Make sure this hook is called within the ChannelSearch component.`,
     );
 
-    return {} as SearchContextValue<Sources>;
+    return {} as SearchContextValue<StreamChatGenerics, Sources>;
   }
 
-  return (contextValue as unknown) as SearchContextValue<Sources>;
+  return (contextValue as unknown) as SearchContextValue<StreamChatGenerics, Sources>;
 };

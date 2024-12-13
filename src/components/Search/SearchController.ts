@@ -1,60 +1,84 @@
-import { Channel, MessageResponse, StreamChat } from 'stream-chat';
+import { StateStore } from 'stream-chat';
 import type {
-  // Channel,
+  Channel,
   ChannelFilters,
+  MessageResponse,
+  SearchMessageSort,
   SearchOptions,
-  // StreamChat,
+  StreamChat,
   UserFilters,
   UserResponse,
   UserSort,
 } from 'stream-chat';
-import { StateStore } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
+import debounce from 'lodash.debounce';
+import type { DebouncedFunc } from 'lodash';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type SearchSourceType = 'channels' | 'users' | 'channelsByMessages' | (string & {});
+export type SearchSourceType = 'channels' | 'users' | 'messages' | (string & {});
+export type QueryReturnValue<T> = { items: T[]; next?: string };
 
-export interface SearchSource<T = unknown> {
+type DebouncedExecQueryFunction = DebouncedFunc<(searchString?: string) => Promise<void>>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface SearchSource<T = any> {
   readonly hasMore: boolean;
+  readonly hasResults: boolean;
   readonly isLoading: boolean;
-  readonly items: T[];
+  readonly items: T[] | undefined;
   readonly lastQueryError: Error | undefined;
-  loadMore(): Promise<void>;
+  // loadMore(): Promise<void>;
   readonly next: string | undefined;
   readonly offset: number | undefined;
   resetState(): void;
-  search(text: string): Promise<void>;
+  search(text?: string): Promise<void>;
+  searchDebounced: DebouncedExecQueryFunction;
   readonly searchQuery: string;
+  setDebounceOptions(debounceMs: number): void;
+  readonly state: StateStore<SearchSourceState<T>>;
   readonly type: SearchSourceType;
 }
 
-export type SearchSourceState<T> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SearchSourceState<T = any> = {
   hasMore: boolean;
   isLoading: boolean;
-  items: T[];
+  items: T[] | undefined;
   searchQuery: string;
   lastQueryError?: Error;
   next?: string;
   offset?: number;
 };
 
-export type QueryReturnValue<T> = { items: T[]; next?: string };
+export type SearchSourceOptions = {
+  /** The number of milliseconds to debounce the search query. The default interval is 300ms. */
+  debounceMs?: number;
+  pageSize?: number;
+};
+
+const DEFAULT_SEARCH_SOURCE_OPTIONS: Required<SearchSourceOptions> = {
+  debounceMs: 300,
+  pageSize: 10,
+} as const;
 
 export abstract class BaseSearchSource<T> implements SearchSource<T> {
-  protected state: StateStore<SearchSourceState<T>>;
+  state: StateStore<SearchSourceState<T>>;
   protected pageSize: number;
   abstract readonly type: SearchSourceType;
+  searchDebounced: DebouncedExecQueryFunction;
   // todo: hold filters, sort, options attributes and allow to change them
 
-  constructor(pageSize = 8) {
-    this.pageSize = pageSize;
+  protected constructor(options?: SearchSourceOptions) {
+    const finalOptions = { ...DEFAULT_SEARCH_SOURCE_OPTIONS, ...options };
+    this.pageSize = finalOptions.pageSize;
     this.state = new StateStore<SearchSourceState<T>>({
       hasMore: true,
       isLoading: false,
-      items: [],
+      items: undefined,
       offset: 0,
       searchQuery: '',
     });
+    this.searchDebounced = debounce(this.executeQuery.bind(this), finalOptions.debounceMs);
   }
 
   get lastQueryError() {
@@ -63,6 +87,10 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
 
   get hasMore() {
     return this.state.getLatestValue().hasMore;
+  }
+
+  get hasResults() {
+    return Array.isArray(this.state.getLatestValue().items);
   }
 
   get isLoading() {
@@ -89,10 +117,16 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
 
   protected abstract filterQueryResults(items: T[]): T[] | Promise<T[]>;
 
-  protected async executeQuery(searchQuery?: string) {
+  setDebounceOptions = (debounceMs: number) => {
+    this.searchDebounced = debounce(this.executeQuery, debounceMs);
+  };
+
+  async executeQuery(searchQuery?: string) {
     const hasNewSearchQuery = typeof searchQuery !== 'undefined';
     const preventLoadMore =
-      (!hasNewSearchQuery && !this.hasMore) || this.isLoading || !this.searchQuery;
+      (!hasNewSearchQuery && !this.hasMore) ||
+      this.isLoading ||
+      (!hasNewSearchQuery && !this.searchQuery);
     const preventSearchStart = hasNewSearchQuery && this.isLoading;
     if (preventLoadMore || preventSearchStart) return;
 
@@ -101,10 +135,14 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
     } else {
       this.state.partialNext({ isLoading: true });
     }
+
     const queryToSearch = hasNewSearchQuery ? searchQuery : this.searchQuery;
     const stateUpdate: Partial<SearchSourceState<T>> = {};
     try {
-      const { items, next } = await this.query(queryToSearch);
+      const results = await this.query(queryToSearch);
+      console.log('XXX', results);
+      if (!results) return;
+      const { items, next } = results;
 
       if (next) {
         stateUpdate.next = next;
@@ -122,24 +160,20 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
         ...prev,
         ...stateUpdate,
         isLoading: false,
-        items: [...prev.items, ...(stateUpdate.items || [])],
+        items: [...(prev.items ?? []), ...(stateUpdate.items || [])],
       }));
     }
   }
 
-  async search(searchQuery: string) {
-    await this.executeQuery(searchQuery);
-  }
-
-  async loadMore() {
-    await this.executeQuery();
+  async search(searchQuery?: string) {
+    await this.searchDebounced(searchQuery);
   }
 
   resetState(stateOverrides?: Partial<SearchSourceState<T>>) {
     this.state.next({
       hasMore: true,
       isLoading: false,
-      items: [],
+      items: undefined,
       lastQueryError: undefined,
       next: undefined,
       offset: 0,
@@ -155,11 +189,8 @@ export class UserSearchSource<
   readonly type = 'users';
   private client: StreamChat<StreamChatGenerics>;
 
-  constructor(
-    client: StreamChat<StreamChatGenerics>,
-    { pageSize = 8 }: { pageSize?: number } = {},
-  ) {
-    super(pageSize);
+  constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
+    super(options);
     this.client = client;
   }
 
@@ -184,16 +215,16 @@ export class ChannelSearchSource<
   readonly type = 'channels';
   private client: StreamChat<StreamChatGenerics>;
 
-  constructor(
-    client: StreamChat<StreamChatGenerics>,
-    { pageSize = 5 }: { pageSize?: number } = {},
-  ) {
-    super(pageSize);
+  constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
+    super(options);
     this.client = client;
   }
 
   protected async query(searchQuery: string) {
-    const filters = { name: { $autocomplete: searchQuery } } as ChannelFilters<StreamChatGenerics>;
+    const filters = {
+      members: { $in: [this.client.userID] },
+      name: { $autocomplete: searchQuery },
+    } as ChannelFilters<StreamChatGenerics>;
     const sort = {};
     const options = { limit: this.pageSize, offset: this.offset };
     const items = await this.client.queryChannels(filters, sort, options);
@@ -205,69 +236,50 @@ export class ChannelSearchSource<
   }
 }
 
-// export class ChannelByMessageSearchSource<
-//     StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-//   >
-//   extends BaseSearchSource<Channel<StreamChatGenerics>>
-//   implements SearchSource<Channel<StreamChatGenerics>> {
-//   readonly type = 'channelsByMessages';
-//   private client: StreamChat<StreamChatGenerics>;
-//
-//   constructor(
-//     client: StreamChat<StreamChatGenerics>,
-//     { pageSize = 10 }: { pageSize?: number } = {},
-//   ) {
-//     super(pageSize);
-//     this.client = client;
-//   }
-//
-//   protected async query(searchQuery: string) {
-//     const channelFilters = {};
-//     const messageFilters = searchQuery;
-//     const options = { limit: this.pageSize, next: this.next } as SearchOptions<StreamChatGenerics>;
-//
-//     const { next, results } = await this.client.search(channelFilters, messageFilters, options);
-//     const cids = results.map(({ message }) => message.cid);
-//     const items = await this.client.queryChannels(
-//       { cid: { $in: cids } } as ChannelFilters<StreamChatGenerics>,
-//       { last_message_at: -1 },
-//     );
-//
-//     return { items, next };
-//   }
-//
-//   protected filterQueryResults(items: Channel<StreamChatGenerics>[]) {
-//     return items;
-//   }
-// }
-
 export class MessageSearchSource<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > extends BaseSearchSource<MessageResponse<StreamChatGenerics>> {
   readonly type = 'messages';
   private client: StreamChat<StreamChatGenerics>;
 
-  constructor(
-    client: StreamChat<StreamChatGenerics>,
-    { pageSize = 10 }: { pageSize?: number } = {},
-  ) {
-    super(pageSize);
+  constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
+    super(options);
     this.client = client;
   }
 
   protected async query(searchQuery: string) {
-    const channelFilters = {};
+    if (!this.client.userID) return { items: [] };
+    // @ts-ignore
+    const channelFilters: ChannelFilters<StreamChatGenerics> = {
+      members: { $in: [this.client.userID] },
+    };
     const messageFilters = searchQuery;
-    const options = { limit: this.pageSize, next: this.next } as SearchOptions<StreamChatGenerics>;
+    const sort: SearchMessageSort<StreamChatGenerics> = { created_at: -1 };
+    const options = {
+      limit: this.pageSize,
+      next: this.next,
+      sort,
+    } as SearchOptions<StreamChatGenerics>;
 
     const { next, results } = await this.client.search(channelFilters, messageFilters, options);
     const items = results.map(({ message }) => message);
-    const cids = items
-      .map((message) => message.cid)
-      .filter((cid) => cid && !this.client.activeChannels[cid]); // prevent querying already loaded channels
-    await this.client.queryChannels({ cid: { $in: cids } } as ChannelFilters<StreamChatGenerics>, {
-      last_message_at: -1,
-    });
+    const cids = Array.from(
+      items.reduce((acc, message) => {
+        if (message.cid && !this.client.activeChannels[message.cid]) acc.add(message.cid);
+        return acc;
+      }, new Set<string>()), // keep the cids unique
+    );
+    const allChannelsLoadedLocally = cids.length === 0;
+    if (!allChannelsLoadedLocally) {
+      await this.client.queryChannels(
+        {
+          cid: { $in: cids },
+        } as ChannelFilters<StreamChatGenerics>,
+        {
+          last_message_at: -1,
+        },
+      );
+    }
 
     return { items, next };
   }
@@ -328,52 +340,73 @@ SourceItemsRecord<[ChannelByMessageSearchSource]>
  */
 export type InferSearchQueryResult<T> = T extends BaseSearchSource<infer U> ? U : never;
 
-export type SourceItemsRecord<Sources extends SearchSource[]> = {
+export type SourceItemsRecord<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
   [K in Sources[number]['type']]: Array<
     InferSearchQueryResult<Extract<Sources[number], { type: K }>>
   >;
 };
 
-export type SearchControllerState<Sources extends SearchSource[] = DefaultSearchSources> = {
-  isActive: boolean;
-  items: SourceItemsRecord<Sources>;
-  queryInProgress: Array<Sources[number]['type']>;
+export type SearchControllerState<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
+  isActive: boolean; // todo: cancel query execution
+  queriesInProgress: Array<Sources[number]['type']>;
   searchQuery: string;
+  activeSource?: Sources[number];
   input?: HTMLInputElement;
 };
 
-export type SearchControllerOptions<Sources extends SearchSource[] = DefaultSearchSources> = {
+export type SearchControllerOptions<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
   sources?: Sources;
 };
 
-export class SearchController<Sources extends SearchSource[] = DefaultSearchSources> {
-  sources: SearchSource[] = [];
-  state: StateStore<SearchControllerState<Sources>>;
+// Helper type to create a record from an array of SearchSources
+export type SearchSourceRecord<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
+  [K in Sources[number]['type']]: Extract<Sources[number], { type: K }>;
+};
 
-  constructor({ sources }: SearchControllerOptions<Sources> = {}) {
-    this.state = new StateStore<SearchControllerState<Sources>>({
+export class SearchController<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> {
+  sources: SearchSourceRecord<StreamChatGenerics, Sources> = {} as SearchSourceRecord<
+    StreamChatGenerics,
+    Sources
+  >;
+  state: StateStore<SearchControllerState<StreamChatGenerics, Sources>>;
+
+  constructor({ sources }: SearchControllerOptions<StreamChatGenerics, Sources> = {}) {
+    this.state = new StateStore<SearchControllerState<StreamChatGenerics, Sources>>({
       isActive: false,
-      items: {} as SourceItemsRecord<Sources>,
-      queryInProgress: [],
+      queriesInProgress: [],
       searchQuery: '',
     });
-    sources?.forEach(this.addSource);
+    sources?.forEach((source) => this.addSource(source));
+  }
+  get hasMore() {
+    return Object.values(this.sources).some((source) => (source as Sources[number]).hasMore);
   }
 
-  get hasMore() {
-    return this.sources.some((source) => source.hasMore);
+  get activeSource() {
+    return this.state.getLatestValue().activeSource;
   }
 
   get isActive() {
     return this.state.getLatestValue().isActive;
   }
 
-  get queryInProgress() {
-    return this.state.getLatestValue().queryInProgress;
-  }
-
-  get items() {
-    return this.state.getLatestValue().items;
+  get queriesInProgress() {
+    return this.state.getLatestValue().queriesInProgress;
   }
 
   get searchQuery() {
@@ -381,148 +414,93 @@ export class SearchController<Sources extends SearchSource[] = DefaultSearchSour
   }
 
   get searchSourceTypes(): Array<Sources[number]['type']> {
-    return Object.keys(this.items);
+    return Object.keys(this.sources) as Sources[number]['type'][];
   }
 
   get isLoading() {
-    return this.state.getLatestValue().queryInProgress.length > 0;
+    return this.state.getLatestValue().queriesInProgress.length > 0;
   }
 
-  isLoadingSource(sourceType: Sources[number]['type']) {
-    return this.queryInProgress.findIndex((s) => s === sourceType) > -1;
+  get searchedSources() {
+    return this.activeSource
+      ? [this.activeSource]
+      : (Object.values(this.sources) as Sources[number][]);
   }
 
-  setInputElement(input: HTMLInputElement) {
+  isLoadingSource = (sourceType: Sources[number]['type']) =>
+    this.queriesInProgress.findIndex((s) => s === sourceType) > -1;
+
+  setInputElement = (input: HTMLInputElement) => {
     this.state.partialNext({ input });
-  }
+  };
 
-  addSource(source: Sources[number]) {
-    this.sources.push(source);
-    this.state.partialNext({
-      items: {
-        ...this.state.getLatestValue().items,
-        [source.type]: [],
-      },
-    });
-  }
+  addSource = (source: Sources[number]) => {
+    const sourceType = source.type;
+    this.sources = {
+      ...this.sources,
+      [sourceType]: source,
+    } as SearchSourceRecord<StreamChatGenerics, Sources>;
+  };
 
-  removeSource(sourceType: Sources[number]['type']) {
-    const originalSourcesLength = this.sources.length;
-    const newSources = this.sources.filter((source) => source.type === sourceType);
-    if (originalSourcesLength === newSources.length) return;
-    this.sources = newSources;
-    this.state.next((prev) => {
-      const newItems = { ...prev.items };
-      delete newItems[sourceType];
-      return {
-        ...prev,
-        items: newItems,
-      };
-    });
-  }
+  setActiveSource = (
+    sourceType: Sources[number]['type'] | undefined,
+    sourceStateOverride?: Partial<SearchSourceState>,
+  ) => {
+    const activeSource = sourceType && this.sources[sourceType];
+    this.state.partialNext({ activeSource });
+    if (sourceStateOverride) {
+      activeSource?.state.partialNext(sourceStateOverride);
+    }
+  };
 
-  activate() {
+  removeSource = (sourceType: Sources[number]['type']) => {
+    if (!this.sources[sourceType as keyof SearchSourceRecord<StreamChatGenerics, Sources>]) return;
+    const {
+      [sourceType as keyof SearchSourceRecord<StreamChatGenerics, Sources>]: _,
+      ...rest
+    } = this.sources;
+    this.sources = rest as SearchSourceRecord<StreamChatGenerics, Sources>;
+  };
+
+  activate = () => {
     this.state.partialNext({ isActive: true });
-  }
+  };
 
-  async search(searchQuery: string) {
-    this.state.partialNext({ queryInProgress: this.searchSourceTypes });
-    await Promise.all(this.sources.map((source) => source.search(searchQuery)));
+  search = async (searchQuery?: string) => {
+    const searchedSources = this.searchedSources;
     this.state.partialNext({
-      items: Object.fromEntries(
-        this.sources.map((source) => [source.type, source.items]),
-      ) as SourceItemsRecord<Sources>,
-      queryInProgress: [],
+      queriesInProgress: searchedSources.map((s) => s.type),
       searchQuery,
     });
-  }
-
-  async loadMore() {
-    this.state.partialNext({ queryInProgress: this.searchSourceTypes });
-    await Promise.all(this.sources.map((source) => source.loadMore()));
+    const activeSource = this.activeSource;
+    if (activeSource) {
+      Object.values(this.sources).forEach((s) => {
+        if ((s as SearchSource).type !== activeSource.type) {
+          (s as SearchSource).state.partialNext({ searchQuery });
+        }
+      });
+    }
+    await Promise.all(searchedSources.map((source) => source.search(searchQuery)));
     this.state.partialNext({
-      items: Object.fromEntries(
-        this.sources.map((source) => [source.type, source.items]),
-      ) as SourceItemsRecord<Sources>,
-      queryInProgress: [],
+      queriesInProgress: [],
     });
-  }
+  };
 
-  resetState(state?: Partial<SearchControllerState<Sources>>) {
-    this.sources.forEach((source) => source.resetState());
-    this.state.next({
+  cancelSearchQueries = () => {
+    console.log('XXX CANCEL', this.searchedSources);
+    this.searchedSources.forEach((s) => s.searchDebounced.cancel());
+  };
+
+  resetState = (state?: Partial<SearchControllerState<StreamChatGenerics, Sources>>) => {
+    Object.values(this.sources).forEach((source) => (source as Sources[number]).resetState());
+    this.state.next((prev) => ({
+      ...prev,
       isActive: false,
-      items: (Object.fromEntries(
-        this.sources.map((source) => [source.type, []]),
-      ) as unknown) as SourceItemsRecord<Sources>,
-      queryInProgress: [],
+      queriesInProgress: [],
       searchQuery: '',
       ...state,
-    });
-  }
-
-  getSource(sourceType: string) {
-    return this.sources.find((s) => s.type === sourceType);
-  }
-
-  sourceLastQueryError(sourceType: Sources[number]['type']) {
-    return this.getSource(sourceType)?.lastQueryError;
-  }
-
-  async searchSource(sourceType: string, searchQuery: string) {
-    const source = this.getSource(sourceType);
-    if (!source || this.isLoadingSource(sourceType)) return;
-
-    this.state.next((prev) => ({
-      ...prev,
-      queryInProgress: [...prev.queryInProgress, sourceType],
     }));
-    await source.search(searchQuery);
-    this.state.next((prev: SearchControllerState<Sources>) => ({
-      ...prev,
-      items: {
-        ...prev.items,
-        [sourceType]: source.items,
-      },
-      queryInProgress: prev.queryInProgress.filter((s) => s !== sourceType),
-    }));
-  }
-
-  async loadMoreSource(sourceType: string) {
-    const source = this.getSource(sourceType);
-    if (!source || this.isLoadingSource(sourceType)) return;
-
-    this.state.next((prev) => ({
-      ...prev,
-      queryInProgress: [...prev.queryInProgress, sourceType],
-    }));
-    await source.loadMore();
-    this.state.next((prev: SearchControllerState<Sources>) => ({
-      ...prev,
-      items: {
-        ...prev.items,
-        [sourceType]: source.items,
-      },
-      queryInProgress: prev.queryInProgress.filter((s) => s !== sourceType),
-    }));
-  }
-
-  // setSourceQueryParams() {}
-
-  // resetStateSource(sourceType: string, state?: Partial<SearchControllerState<Sources>>) {
-  //   const source = this.getSource(sourceType);
-  //   if (!source) return;
-  //   source.resetState();
-  //   this.state.next((prev) => ({
-  //     ...prev,
-  //     items: (Object.fromEntries(
-  //       this.sources.map((source) => [source.type, []]),
-  //     ) as unknown) as SourceItemsRecord<Sources>,
-  //     queryInProgress: undefined,
-  //     searchQuery: '',
-  //     ...state,
-  //   }));
-  // }
+  };
 }
 
 // Usage example:

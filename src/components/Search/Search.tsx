@@ -2,19 +2,22 @@ import clsx from 'clsx';
 import React from 'react';
 
 import { DefaultSearchSources, SearchControllerState, SearchSource } from './SearchController';
-import { SearchBar } from './SearchBar/SearchBar';
-import { SearchResults } from './SearchResults/SearchResults';
-import { SearchContextProvider, useChatContext } from '../../context';
+import { SearchBar as DefaultSearchBar } from './SearchBar/SearchBar';
+import { SearchResults as DefaultSearchResults } from './SearchResults/SearchResults';
+import { SearchContextProvider, useChatContext, useComponentContext } from '../../context';
 import { useStateStore } from '../../store';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 type SearchControllerStateSelectorReturnValue = {
   isActive: boolean;
 };
 
-const searchControllerStateSelector = <Sources extends SearchSource[]>(
-  nextValue: SearchControllerState<Sources>,
+const searchControllerStateSelector = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>(
+  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
 // todo: rename all search components to Search only
@@ -24,58 +27,54 @@ export type SearchProps = {
   /** Clear search state / results on every click outside the search input, defaults to true */
   exitSearchOnInputBlur?: boolean;
   /** Callback invoked with every search input change handler */
-  onSearch?: React.ChangeEventHandler<HTMLInputElement>;
+  inputOnChangeHandler?: React.ChangeEventHandler<HTMLInputElement>;
   /** Callback invoked when the search UI is deactivated */
   onSearchExit?: () => void;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
-  /** The number of milliseconds to debounce the search query. The default interval is 200ms. */
-  searchDebounceIntervalMs?: number;
-  SearchResults?: React.ComponentType;
   userToUserCreatedChannelType?: string;
 };
 
 export const Search = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
->(
-  props: SearchProps,
-) => {
+>({
+  disabled,
+  exitSearchOnInputBlur,
+  inputOnChangeHandler,
+  onSearchExit,
+  placeholder,
+  userToUserCreatedChannelType = 'messaging',
+}: SearchProps) => {
   const {
-    disabled,
-    exitSearchOnInputBlur,
-    onSearch,
-    onSearchExit,
-    placeholder,
-    searchDebounceIntervalMs,
-    userToUserCreatedChannelType = 'messaging',
-  } = props;
+    SearchBar = DefaultSearchBar,
+    SearchResults = DefaultSearchResults,
+  } = useComponentContext();
 
   const { searchController } = useChatContext<StreamChatGenerics, Sources>();
 
   const { isActive } = useStateStore<
-    SearchControllerState<Sources>,
+    SearchControllerState<StreamChatGenerics, Sources>,
     SearchControllerStateSelectorReturnValue
   >(searchController.state, searchControllerStateSelector);
 
   return (
-    <SearchContextProvider<Sources>
+    <SearchContextProvider<StreamChatGenerics, Sources>
       value={{
         disabled,
         exitSearchOnInputBlur,
-        onSearch,
+        inputOnChangeHandler,
         onSearchExit,
         placeholder,
         searchController,
-        searchDebounceIntervalMs,
         userToUserCreatedChannelType,
       }}
     >
       <div
-        className={clsx('str-chat__channel-search', {
-          'str-chat__channel-search--active': isActive,
+        className={clsx('str-chat__search', {
+          'str-chat__search--active': isActive,
         })}
-        data-testid='channel-search'
+        data-testid='search'
       >
         <SearchBar />
         <SearchResults />
