@@ -5,7 +5,7 @@ import {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
-  ChannelSearchProps,
+  ChannelAvatarProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
@@ -36,6 +36,7 @@ import {
   ReactionSelectorProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
+  SearchProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
   SuggestionItemProps,
@@ -55,14 +56,16 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import { SearchSourceResultsProps } from '../components/Search/SearchResults/SearchSourceResults';
-import { SearchResultsHeaderProps } from '../components/Search/SearchResults/SearchResultsHeader';
 import type { DefaultSearchSources, SearchSource } from '../components/Search/SearchController';
+import { SearchSourceEmptyResultsProps } from '../components/Search/SearchResults/SearchSourceEmptyResults';
+import { SearchSourceResultListProps } from '../components/Search/SearchResults/SearchSourceResultList';
+import { SearchSourceResultsPresearchProps } from '../components/Search/SearchResults/SearchSourceResultsPresearch';
+import { SearchSourceResultsErrorProps } from '../components/Search/SearchResults/SearchSourceResultsError';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
@@ -82,24 +85,8 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
-  // todo: decide the naming for the 2 different searches
-  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
-  ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
-  // ChannelSearchBar?: React.ComponentType;
-  // /** Custom UI component to display empty search results */
-  // ChannelSearchEmptyResultsList?: React.ComponentType;
-  // ChannelSearchInput?: React.ComponentType;
-  // /** Custom UI component to display the search loading state */
-  // /** Custom UI component to display a search result list item, defaults to and accepts the same props as: [DefaultSearchResultItems](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
-  // ChannelSearchLoading?: React.ComponentType;
-  // ChannelSearchResultItem?: React.ComponentType<ChannelSearchResultItemProps<StreamChatGenerics>>;
-  // ChannelSearchResults?: React.ComponentType;
-  // /** Custom UI component to display the search results header */
-  // ChannelSearchResultsHeader?: React.ComponentType<
-  //   ChannelSearchResultsListProps<StreamChatGenerics>
-  // >;
-  // /** Custom UI component to display all the search results, defaults to and accepts the same props as: [DefaultSearchResultsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
-  // ChannelSearchResultsList?: React.ComponentType;
+  /** Custom UI component to display channel avatar that may be different from a simple user avatar, defaults to and accepts same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
+  ChannelAvatar?: React.ComponentType<ChannelAvatarProps>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
@@ -183,10 +170,34 @@ export type ComponentContextValue<
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
+  /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
+  Search?: React.ComponentType<SearchProps>;
+  /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */
+  SearchBar?: React.ComponentType;
+  /** Custom component for the search UI dedicated to display the results area, defaults to and accepts same props as: [SearchResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResults.tsx) */
+  SearchResults?: React.ComponentType;
   /** Custom UI component to display header of search results pane, defaults to and accepts same props as: [SearchResultsHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResultsHeader.tsx) */
-  SearchResultsHeader?: React.ComponentType<SearchResultsHeaderProps<SearchSources>>;
-  /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResultsProps](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
-  SearchSourceResults?: React.ComponentType<SearchSourceResultsProps<SearchSources>>;
+  SearchResultsHeader?: React.ComponentType;
+  /** Custom component to display the search source results UI with 0 items found, defaults to and accepts same props as: [SearchSourceEmptyResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceEmptyResults.tsx) */
+  SearchSourceEmptyResults?: React.ComponentType<
+    SearchSourceEmptyResultsProps<StreamChatGenerics, SearchSources>
+  >;
+  /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceLoadingResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceLoadingResults.tsx) */
+  SearchSourceLoadingResults?: React.ComponentType<
+    SearchSourceEmptyResultsProps<StreamChatGenerics, SearchSources>
+  >;
+  /** Custom component to display the search source items results, defaults to and accepts same props as: [SearchSourceResultList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultList.tsx) */
+  SearchSourceResultList?: React.ComponentType<
+    SearchSourceResultListProps<StreamChatGenerics, SearchSources>
+  >;
+  /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
+  SearchSourceResults?: React.ComponentType;
+  /** Custom UI component to display error produced by search query, defaults to and accepts same props as: [SearchSourceResultsError](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsError.tsx) */
+  SearchSourceResultsError?: React.ComponentType<SearchSourceResultsErrorProps>;
+  /** Custom component to display search results pane before emitting the first search query for a given source, defaults to and accepts same props as: [SearchSourceResultsPresearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsPresearch.tsx) */
+  SearchSourceResultsPresearch?: React.ComponentType<
+    SearchSourceResultsPresearchProps<StreamChatGenerics, SearchSources>
+  >;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
@@ -236,7 +247,7 @@ export const ComponentProvider = <
 export const useComponentContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >(
   /**
    * @deprecated

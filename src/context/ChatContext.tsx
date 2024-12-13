@@ -30,7 +30,7 @@ type ChannelCID = string; // e.g.: "messaging:general"
 
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
   /**
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
@@ -42,7 +42,7 @@ export type ChatContextValue<
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
   /** Instance of SearchController class that allows to control all the search operations. */
-  searchController: SearchController<SearchSources>;
+  searchController: SearchController<StreamChatGenerics, SearchSources>;
   /**
    * Sets active channel to be rendered within Channel component.
    * @param newChannel

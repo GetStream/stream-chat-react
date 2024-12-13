@@ -12,10 +12,9 @@ import { WithComponents } from '../../context';
 import type { StreamChat } from 'stream-chat';
 
 import type { ChannelPropsForwardedToComponentContext } from '../Channel';
-import type { ChannelListPropsForwardedToComponentContext } from '../ChannelList';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 import {
   ChannelSearchSource,
   DefaultSearchSources,
@@ -25,10 +24,29 @@ import {
   UserSearchSource,
 } from '../Search/SearchController';
 
+export type ChatPropsForwardedToComponentContext<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  V extends CustomTrigger = CustomTrigger,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = Pick<
+  ComponentContextValue<StreamChatGenerics, V, SearchSources>,
+  | 'ChannelAvatar'
+  | 'Search'
+  | 'SearchBar'
+  | 'SearchResults'
+  | 'SearchResultsHeader'
+  | 'SearchSourceEmptyResults'
+  | 'SearchSourceLoadingResults'
+  | 'SearchSourceResultList'
+  | 'SearchSourceResults'
+  | 'SearchSourceResultsPresearch'
+>;
+
 export type ChatProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources
-> = ChannelListPropsForwardedToComponentContext<StreamChatGenerics> &
+  V extends CustomTrigger = CustomTrigger,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = ChatPropsForwardedToComponentContext<StreamChatGenerics, V, SearchSources> &
   ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
     /** The StreamChat client object */
     client: StreamChat<StreamChatGenerics>;
@@ -41,7 +59,7 @@ export type ChatProps<
     /** Initial status of mobile navigation */
     initialNavOpen?: boolean;
     /** Instance of SearchController class that allows to control all the search operations. */
-    searchController?: SearchController<SearchSources>;
+    searchController?: SearchController<StreamChatGenerics, SearchSources>;
     /** Used for injecting className/s to the Channel and ChannelList components */
     theme?: string;
     /**
@@ -60,9 +78,10 @@ export type ChatProps<
  */
 export const Chat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  V extends CustomTrigger = CustomTrigger,
   SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >(
-  props: PropsWithChildren<ChatProps<StreamChatGenerics, SearchSources>>,
+  props: PropsWithChildren<ChatProps<StreamChatGenerics, V, SearchSources>>,
 ) => {
   const {
     children,
@@ -92,7 +111,7 @@ export const Chat = <
 
   const searchController = useMemo(() => {
     if (customChannelSearchController) return customChannelSearchController;
-    return new SearchController<SearchSources>({
+    return new SearchController<StreamChatGenerics, SearchSources>({
       sources: ([
         new UserSearchSource<StreamChatGenerics>(client),
         new ChannelSearchSource<StreamChatGenerics>(client),
@@ -130,14 +149,7 @@ export const Chat = <
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
       Avatar: props.Avatar,
       BaseImage: props.BaseImage,
-      ChannelSearchBar: props?.ChannelSearchBar,
-      ChannelSearchEmptyResultsList: props?.ChannelSearchEmptyResultsList,
-      ChannelSearchInput: props?.ChannelSearchInput,
-      ChannelSearchLoading: props?.ChannelSearchLoading,
-      ChannelSearchResultItem: props?.ChannelSearchResultItem,
-      ChannelSearchResults: props?.ChannelSearchResults,
-      ChannelSearchResultsHeader: props?.ChannelSearchResultsHeader,
-      ChannelSearchResultsList: props?.ChannelSearchResultsList,
+      ChannelAvatar: props.ChannelAvatar,
       CooldownTimer: props.CooldownTimer,
       CustomMessageActionsList: props.CustomMessageActionsList,
       DateSeparator: props.DateSeparator,
@@ -175,6 +187,15 @@ export const Chat = <
       reactionOptions: props.reactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
+      Search: props.Search,
+      SearchBar: props.SearchBar,
+      SearchResults: props.SearchResults,
+      SearchResultsHeader: props.SearchResultsHeader,
+      SearchSourceEmptyResults: props.SearchSourceEmptyResults,
+      SearchSourceLoadingResults: props.SearchSourceLoadingResults,
+      SearchSourceResultList: props.SearchSourceResultList,
+      SearchSourceResults: props.SearchSourceResults,
+      SearchSourceResultsPresearch: props.SearchSourceResultsPresearch,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       ThreadHead: props.ThreadHead,
@@ -197,18 +218,7 @@ export const Chat = <
       props.AutocompleteSuggestionList,
       props.Avatar,
       props.BaseImage,
-      // props?.ClearInputIcon,
-      // props?.ExitSearchIcon,
-      // props?.MenuIcon,
-      props?.ChannelSearchBar,
-      props?.ChannelSearchEmptyResultsList,
-      // props?.SearchInputIcon,
-      props?.ChannelSearchInput,
-      props?.ChannelSearchLoading,
-      props?.ChannelSearchResultItem,
-      props?.ChannelSearchResults,
-      props?.ChannelSearchResultsHeader,
-      props?.ChannelSearchResultsList,
+      props.ChannelAvatar,
       props.CooldownTimer,
       props.CustomMessageActionsList,
       props.DateSeparator,
@@ -244,6 +254,15 @@ export const Chat = <
       props.QuotedPoll,
       props.ReactionSelector,
       props.ReactionsList,
+      props.Search,
+      props.SearchBar,
+      props.SearchResults,
+      props.SearchResultsHeader,
+      props.SearchSourceEmptyResults,
+      props.SearchSourceLoadingResults,
+      props.SearchSourceResultList,
+      props.SearchSourceResults,
+      props.SearchSourceResultsPresearch,
       props.SendButton,
       props.StartRecordingAudioButton,
       props.ThreadHead,
