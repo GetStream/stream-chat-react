@@ -140,7 +140,6 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
     const stateUpdate: Partial<SearchSourceState<T>> = {};
     try {
       const results = await this.query(queryToSearch);
-      console.log('XXX', results);
       if (!results) return;
       const { items, next } = results;
 
@@ -487,7 +486,6 @@ export class SearchController<
   };
 
   cancelSearchQueries = () => {
-    console.log('XXX CANCEL', this.searchedSources);
     this.searchedSources.forEach((s) => s.searchDebounced.cancel());
   };
 

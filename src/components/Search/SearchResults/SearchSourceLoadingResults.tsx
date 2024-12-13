@@ -1,14 +1,21 @@
 import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { DefaultSearchSources, SearchSource } from '../SearchController';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type SearchSourceLoadingResultsProps<Sources extends SearchSource[]> = {
-  searchSource: Sources[number]['type'];
+export type SearchSourceLoadingResultsProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
+  searchSource: Sources[number];
 };
 
-export const SearchSourceLoadingResults = <Sources extends SearchSource[] = DefaultSearchSources>({
+export const SearchSourceLoadingResults = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>({
   searchSource,
-}: SearchSourceLoadingResultsProps<Sources>) => {
+}: SearchSourceLoadingResultsProps<StreamChatGenerics, Sources>) => {
   const { t } = useTranslationContext();
 
   return (
@@ -16,7 +23,7 @@ export const SearchSourceLoadingResults = <Sources extends SearchSource[] = Defa
       className='str-chat__channel-search-container-searching'
       data-testid='search-in-progress-indicator'
     >
-      {t<string>(`Searching for ${searchSource}...`)}
+      {t<string>(`Searching for ${searchSource.type}...`)}
     </div>
   );
 };

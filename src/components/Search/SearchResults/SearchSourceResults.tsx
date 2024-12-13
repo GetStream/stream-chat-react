@@ -1,48 +1,58 @@
-import React, { useCallback } from 'react';
-import { SearchSourceEmptyResults } from './SearchSourceEmptyResults';
-import { SearchSourceLoadingResults } from './SearchSourceLoadingResults';
-import { PresearchSourceSearchResults } from './PresearchSourceSearchResults';
-import { SearchSourceResultList } from './SearchSourceResultList';
-import { DefaultSearchSources, SearchControllerState, SearchSource } from '../SearchController';
+import React from 'react';
+import { SearchSourceEmptyResults as DefaultSearchSourceEmptyResults } from './SearchSourceEmptyResults';
+import { SearchSourceResultsError as DefaultSearchSourceResultsError } from './SearchSourceResultsError';
+import { SearchSourceResultsPresearch as DefaultSearchSourceResultsPresearch } from './SearchSourceResultsPresearch';
+import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
+import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
+import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { useSearchContext } from '../../../context';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type SearchSourceResultsProps<Sources extends SearchSource[] = DefaultSearchSources> = {
-  searchSource: Sources[number]['type'];
-};
+const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
+  isLoading: nextValue.isLoading,
+  items: nextValue.items,
+  lastQueryError: nextValue.lastQueryError,
+});
 
-export const SearchSourceResults = <Sources extends SearchSource[] = DefaultSearchSources>({
+export type SearchSourceResultsProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = { searchSource: SearchSources[number] };
+export const SearchSourceResults = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>({
   searchSource,
-}: SearchSourceResultsProps<Sources>) => {
-  const { searchController } = useSearchContext<Sources>();
-
-  const searchControllerStateSelector = useCallback(
-    (nextValue: SearchControllerState<Sources>) => ({
-      isLoading: nextValue.queryInProgress.findIndex((s) => s === searchSource) > -1,
-      items: nextValue.items[searchSource],
-    }),
-    [searchSource],
+}: SearchSourceResultsProps<StreamChatGenerics, SearchSources>) => {
+  const {
+    SearchSourceEmptyResults = DefaultSearchSourceEmptyResults,
+    SearchSourceResultsError = DefaultSearchSourceResultsError,
+    SearchSourceResultList = DefaultSearchSourceResultList,
+    SearchSourceResultsPresearch = DefaultSearchSourceResultsPresearch,
+  } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
+  const { isLoading, items, lastQueryError } = useStateStore(
+    searchSource.state,
+    searchSourceStateSelector,
   );
 
-  const { isLoading, items } = useStateStore(searchController.state, searchControllerStateSelector);
+  const isPresearchState = !searchSource.hasResults && !isLoading && !searchSource.searchQuery;
 
-  if (isLoading) {
-    return <SearchSourceLoadingResults searchSource={searchSource} />;
+  if (isPresearchState) {
+    return <SearchSourceResultsPresearch searchSource={searchSource} />;
   }
 
-  if (!Array.isArray(items)) {
-    return <PresearchSourceSearchResults searchSource={searchSource} />;
-  }
+  const isBeforeFirstPageLoad = !searchSource.hasResults && !isLoading;
 
-  if (items.length === 0) {
-    return <SearchSourceEmptyResults searchSource={searchSource} />;
-  }
+  if (isBeforeFirstPageLoad) return null;
 
   return (
-    <SearchSourceResultList
-      items={items}
-      lastQueryError={searchController.sourceLastQueryError(searchSource)}
-      searchSource={searchSource}
-    />
+    <>
+      {lastQueryError && <SearchSourceResultsError error={lastQueryError} />}
+      {items?.length || isLoading ? (
+        <SearchSourceResultList isLoading={isLoading} items={items} searchSource={searchSource} />
+      ) : (
+        <SearchSourceEmptyResults searchSource={searchSource} />
+      )}
+    </>
   );
 };

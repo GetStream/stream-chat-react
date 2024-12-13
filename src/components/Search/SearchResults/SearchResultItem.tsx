@@ -2,7 +2,11 @@ import uniqBy from 'lodash.uniqby';
 import React, { ComponentType, useCallback, useMemo } from 'react';
 import { Channel, MessageResponse, User } from 'stream-chat';
 import { Avatar } from '../../Avatar';
-import { ChannelPreview, ChannelPreviewMessenger } from '../../ChannelPreview';
+import {
+  ChannelPreview,
+  ChannelPreviewMessenger,
+  useChannelPreviewInfo,
+} from '../../ChannelPreview';
 import { useChannelListContext, useChatContext, useSearchContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type {
@@ -30,13 +34,7 @@ export const ChannelSearchResultItem = <
     setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
   }, [item, setActiveChannel, setChannels]);
 
-  return (
-    <ChannelPreview
-      channel={item}
-      className='str-chat__channel-search-result'
-      onSelect={onSelect}
-    />
-  );
+  return <ChannelPreview channel={item} className='str-chat__search-result' onSelect={onSelect} />;
 };
 
 export type ChannelByMessageSearchResultItemProps<
@@ -56,8 +54,9 @@ export const MessageSearchResultItem = <
 
   const channel = useMemo(() => {
     const { channel: channelData } = item;
-    if (!channelData) return;
-    return client.channel(channelData.type, channelData.id);
+    const type = channelData?.type ?? 'unknown';
+    const id = channelData?.id ?? 'unknown';
+    return client.channel(type, id);
   }, [client, item]);
 
   const onSelect = useCallback(() => {
@@ -68,12 +67,19 @@ export const MessageSearchResultItem = <
     // todo: jumpToMessage
   }, [channel, setActiveChannel, setChannels]);
 
+  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
+    channel,
+  });
+
   if (!channel) return;
 
   return (
     <ChannelPreviewMessenger
       channel={channel}
-      className='str-chat__channel-search-result'
+      className='str-chat__search-result'
+      displayImage={displayImage}
+      displayTitle={displayTitle}
+      groupChannelDisplayInfo={groupChannelDisplayInfo}
       latestMessagePreview={item.text}
       onSelect={onSelect}
     />
@@ -94,7 +100,7 @@ export const UserSearchResultItem = <
 }: UserSearchResultItemProps<StreamChatGenerics>) => {
   const { client, setActiveChannel } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
-  const { userToUserCreatedChannelType } = useSearchContext<Sources>();
+  const { userToUserCreatedChannelType } = useSearchContext<StreamChatGenerics, Sources>();
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(userToUserCreatedChannelType, {
@@ -108,8 +114,8 @@ export const UserSearchResultItem = <
   return (
     <button
       aria-label={`Select User Channel: ${item.name || ''}`}
-      className='str-chat__channel-search-result'
-      data-testid='channel-search-result-user'
+      className='str-chat__search-result'
+      data-testid='search-result-user'
       onClick={onClick}
       role='option'
     >
@@ -119,7 +125,7 @@ export const UserSearchResultItem = <
         name={item.name || item.id}
         user={item}
       />
-      <div className='str-chat__channel-search-result--display-name'>{item.name || item.id}</div>
+      <div className='str-chat__search-result--display-name'>{item.name || item.id}</div>
     </button>
   );
 };

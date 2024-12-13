@@ -1,17 +1,23 @@
 import React from 'react';
 import { DefaultSearchSources, SearchSource } from '../SearchController';
-import { useSearchContext, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type SearchSourceEmptyResultsProps<Sources extends SearchSource[] = DefaultSearchSources> = {
-  searchSource: Sources[number]['type'];
+export type SearchSourceEmptyResultsProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+> = {
+  searchSource: Sources[number];
 };
 
-export const SearchSourceEmptyResults = <Sources extends SearchSource[] = DefaultSearchSources>({
+export const SearchSourceEmptyResults = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>({
   searchSource,
-}: SearchSourceEmptyResultsProps<Sources>) => {
+}: SearchSourceEmptyResultsProps<StreamChatGenerics, Sources>) => {
   const { t } = useTranslationContext();
-  const { searchController } = useSearchContext<Sources>();
-  if (searchController.sourceLastQueryError(searchSource)) {
+  if (searchSource?.lastQueryError) {
     return <div>{t<string>('Failed to load search results')}</div>;
   }
 
