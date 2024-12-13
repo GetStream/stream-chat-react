@@ -30,17 +30,30 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { NullComponent } from '../UtilityComponents';
 
-import { ChannelListContextProvider } from '../../context';
+import { ChannelListContextProvider, useComponentContext } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
 import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
+import { useStateStore } from '../../store';
+import {
+  DefaultSearchSources,
+  SearchControllerState,
+  SearchSource,
+} from '../Search/SearchController';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
+
+const searchControllerStateSelector = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>(
+  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+) => ({ searchIsActive: nextValue.isActive });
 
 export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -207,11 +220,13 @@ const UnMemoizedChannelList = <
     closeMobileNav,
     customClasses,
     navOpen = false,
+    searchController,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
-
+  const { Search } = useComponentContext();
+  const { searchIsActive } = useStateStore(searchController.state, searchControllerStateSelector);
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
@@ -364,18 +379,29 @@ const UnMemoizedChannelList = <
     },
   );
 
-  const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
+  const showChannelList =
+    (!searchActive && !searchIsActive) || additionalChannelSearchProps?.popupResults;
   return (
     <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
-        {showChannelSearch && (
-          <ChannelSearch
-            onSearch={onSearch}
-            onSearchExit={onSearchExit}
-            setChannels={setChannels}
-            {...additionalChannelSearchProps}
-          />
-        )}
+        {showChannelSearch &&
+          (Search ? (
+            <Search
+              disabled={additionalChannelSearchProps?.disabled}
+              exitSearchOnInputBlur={additionalChannelSearchProps?.clearSearchOnClickOutside}
+              inputOnChangeHandler={onSearch}
+              onSearchExit={onSearchExit}
+              placeholder={additionalChannelSearchProps?.placeholder}
+              userToUserCreatedChannelType={additionalChannelSearchProps?.channelType}
+            />
+          ) : (
+            <ChannelSearch
+              onSearch={onSearch}
+              onSearchExit={onSearchExit}
+              setChannels={setChannels}
+              {...additionalChannelSearchProps}
+            />
+          ))}
         {showChannelList && (
           <List
             error={channelsQueryState.error}
