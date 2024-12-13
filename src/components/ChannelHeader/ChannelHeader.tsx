@@ -10,6 +10,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useComponentContext } from '../../context';
 
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
@@ -33,7 +34,7 @@ export const ChannelHeader = <
   props: ChannelHeaderProps,
 ) => {
   const {
-    Avatar = DefaultAvatar,
+    Avatar: SimpleAvatar = DefaultAvatar,
     MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
@@ -48,6 +49,9 @@ export const ChannelHeader = <
     overrideImage,
     overrideTitle,
   });
+
+  const { ChannelAvatar } = useComponentContext();
+  const Avatar = ChannelAvatar ?? SimpleAvatar;
 
   const { member_count, subtitle } = channel?.data || {};
 

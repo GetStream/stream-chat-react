@@ -4,6 +4,7 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useComponentContext } from '../../context';
 
 const UnMemoizedChannelPreviewMessenger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -12,7 +13,7 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar = DefaultAvatar,
+    Avatar: SimpleAvatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
@@ -25,6 +26,7 @@ const UnMemoizedChannelPreviewMessenger = <
     watchers,
   } = props;
 
+  const { ChannelAvatar } = useComponentContext();
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
   const avatarName =
@@ -40,6 +42,8 @@ const UnMemoizedChannelPreviewMessenger = <
       channelPreviewButton.current.blur();
     }
   };
+
+  const Avatar = ChannelAvatar ?? SimpleAvatar;
 
   return (
     <button
