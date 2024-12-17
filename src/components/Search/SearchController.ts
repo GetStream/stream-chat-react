@@ -1,3 +1,5 @@
+import debounce from 'lodash.debounce';
+import { ChannelOptions, ChannelSort, StateStore, UserOptions } from 'stream-chat';
 import type {
   Channel,
   ChannelFilters,
@@ -10,15 +12,15 @@ import type {
   UserResponse,
   UserSort,
 } from 'stream-chat';
-import { StateStore } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
-import debounce from 'lodash.debounce';
 import type { DebouncedFunc } from 'lodash';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchSourceType = 'channels' | 'users' | 'messages' | (string & {});
 export type QueryReturnValue<T> = { items: T[]; next?: string };
-
+export type DebounceOptions = {
+  debounceMs: number;
+};
 type DebouncedExecQueryFunction = DebouncedFunc<(searchString?: string) => Promise<void>>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,14 +30,13 @@ export interface SearchSource<T = any> {
   readonly isLoading: boolean;
   readonly items: T[] | undefined;
   readonly lastQueryError: Error | undefined;
-  // loadMore(): Promise<void>;
   readonly next: string | undefined;
   readonly offset: number | undefined;
   resetState(): void;
   search(text?: string): Promise<void>;
   searchDebounced: DebouncedExecQueryFunction;
   readonly searchQuery: string;
-  setDebounceOptions(debounceMs: number): void;
+  setDebounceOptions(options: DebounceOptions): void;
   readonly state: StateStore<SearchSourceState<T>>;
   readonly type: SearchSourceType;
 }
@@ -118,7 +119,7 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
 
   protected abstract filterQueryResults(items: T[]): T[] | Promise<T[]>;
 
-  setDebounceOptions = (debounceMs: number) => {
+  setDebounceOptions = ({ debounceMs }: DebounceOptions) => {
     this.searchDebounced = debounce(this.executeQuery, debounceMs);
   };
 
@@ -188,6 +189,9 @@ export class UserSearchSource<
 > extends BaseSearchSource<UserResponse<StreamChatGenerics>> {
   readonly type = 'users';
   private client: StreamChat<StreamChatGenerics>;
+  filters: UserFilters<StreamChatGenerics> | undefined;
+  sort: UserSort<StreamChatGenerics> | undefined;
+  searchOptions: Omit<UserOptions, 'limit' | 'offset'> | undefined;
 
   constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
     super(options);
@@ -197,9 +201,10 @@ export class UserSearchSource<
   protected async query(searchQuery: string) {
     const filters = {
       $or: [{ id: { $autocomplete: searchQuery } }, { name: { $autocomplete: searchQuery } }],
+      ...this.filters,
     } as UserFilters<StreamChatGenerics>;
-    const sort = { id: 1 } as UserSort<StreamChatGenerics>;
-    const options = { limit: this.pageSize, offset: this.offset };
+    const sort = { id: 1, ...this.sort } as UserSort<StreamChatGenerics>;
+    const options = { ...this.searchOptions, limit: this.pageSize, offset: this.offset };
     const { users } = await this.client.queryUsers(filters, sort, options);
     return { items: users };
   }
@@ -214,6 +219,9 @@ export class ChannelSearchSource<
 > extends BaseSearchSource<Channel<StreamChatGenerics>> {
   readonly type = 'channels';
   private client: StreamChat<StreamChatGenerics>;
+  filters: ChannelFilters<StreamChatGenerics> | undefined;
+  sort: ChannelSort<StreamChatGenerics> | undefined;
+  searchOptions: Omit<ChannelOptions, 'limit' | 'offset'> | undefined;
 
   constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
     super(options);
@@ -224,9 +232,10 @@ export class ChannelSearchSource<
     const filters = {
       members: { $in: [this.client.userID] },
       name: { $autocomplete: searchQuery },
+      ...this.filters,
     } as ChannelFilters<StreamChatGenerics>;
-    const sort = {};
-    const options = { limit: this.pageSize, offset: this.offset };
+    const sort = this.sort ?? {};
+    const options = { ...this.searchOptions, limit: this.pageSize, offset: this.offset };
     const items = await this.client.queryChannels(filters, sort, options);
     return { items };
   }
@@ -241,6 +250,12 @@ export class MessageSearchSource<
 > extends BaseSearchSource<MessageResponse<StreamChatGenerics>> {
   readonly type = 'messages';
   private client: StreamChat<StreamChatGenerics>;
+  messageSearchChannelFilters: ChannelFilters<StreamChatGenerics> | undefined;
+  messageSearchFilters: MessageFilters<StreamChatGenerics> | undefined;
+  messageSearchSort: SearchMessageSort<StreamChatGenerics> | undefined;
+  channelQueryFilters: ChannelFilters<StreamChatGenerics> | undefined;
+  channelQuerySort: ChannelSort<StreamChatGenerics> | undefined;
+  channelQueryOptions: Omit<ChannelOptions, 'limit' | 'offset'> | undefined;
 
   constructor(client: StreamChat<StreamChatGenerics>, options?: SearchSourceOptions) {
     super(options);
@@ -252,14 +267,19 @@ export class MessageSearchSource<
 
     const channelFilters: ChannelFilters<StreamChatGenerics> = {
       members: { $in: [this.client.userID] },
+      ...this.messageSearchChannelFilters,
     } as ChannelFilters<StreamChatGenerics>;
 
     const messageFilters: MessageFilters<StreamChatGenerics> = {
       text: searchQuery,
-      type: 'regular', // todo: type: 'reply'
+      type: 'regular', // todo: type: 'reply' resp. do not filter by type and allow to jump to a message in a thread
+      ...this.messageSearchFilters,
     } as MessageFilters<StreamChatGenerics>;
 
-    const sort: SearchMessageSort<StreamChatGenerics> = { created_at: -1 };
+    const sort: SearchMessageSort<StreamChatGenerics> = {
+      created_at: -1,
+      ...this.messageSearchSort,
+    };
 
     const options = {
       limit: this.pageSize,
@@ -269,6 +289,7 @@ export class MessageSearchSource<
 
     const { next, results } = await this.client.search(channelFilters, messageFilters, options);
     const items = results.map(({ message }) => message);
+
     const cids = Array.from(
       items.reduce((acc, message) => {
         if (message.cid && !this.client.activeChannels[message.cid]) acc.add(message.cid);
@@ -280,10 +301,13 @@ export class MessageSearchSource<
       await this.client.queryChannels(
         {
           cid: { $in: cids },
+          ...this.channelQueryFilters,
         } as ChannelFilters<StreamChatGenerics>,
         {
           last_message_at: -1,
+          ...this.channelQuerySort,
         },
+        this.channelQueryOptions,
       );
     }
 
