@@ -21,8 +21,6 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type ChannelPreviewUIComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = ChannelPreviewProps<StreamChatGenerics> & {
-  /** If the component's channel is the active (selected) Channel */
-  active?: boolean;
   /** Image of Channel to display */
   displayImage?: string;
   /** Title of Channel to display */
@@ -46,6 +44,8 @@ export type ChannelPreviewProps<
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<StreamChatGenerics>;
+  /** If the component's channel is the active (selected) Channel */
+  active?: boolean;
   /** Current selected channel object */
   activeChannel?: Channel<StreamChatGenerics>;
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
@@ -77,6 +77,7 @@ export const ChannelPreview = <
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
   const {
+    active,
     channel,
     Preview = ChannelPreviewMessenger,
     channelUpdateCount,
@@ -99,7 +100,7 @@ export const ChannelPreview = <
     lastMessage,
   });
 
-  const isActive = activeChannel?.cid === channel.cid;
+  const isActive = typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
