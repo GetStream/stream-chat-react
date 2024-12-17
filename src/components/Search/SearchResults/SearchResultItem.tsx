@@ -2,11 +2,7 @@ import uniqBy from 'lodash.uniqby';
 import React, { ComponentType, useCallback, useMemo } from 'react';
 import { Channel, MessageResponse, User } from 'stream-chat';
 import { Avatar } from '../../Avatar';
-import {
-  ChannelPreview,
-  ChannelPreviewMessenger,
-  useChannelPreviewInfo,
-} from '../../ChannelPreview';
+import { ChannelPreview } from '../../ChannelPreview';
 import { useChannelListContext, useChatContext, useSearchContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type {
@@ -14,6 +10,7 @@ import type {
   InferSearchQueryResult,
   SearchSource,
 } from '../SearchController';
+import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 
 export type ChannelSearchResultItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -44,12 +41,13 @@ export type ChannelByMessageSearchResultItemProps<
 };
 
 export const MessageSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >({
   item,
 }: ChannelByMessageSearchResultItemProps<StreamChatGenerics>) => {
-  const { client } = useChatContext<StreamChatGenerics>();
-  const { setActiveChannel } = useChatContext<StreamChatGenerics>();
+  const { client, searchController } = useChatContext<StreamChatGenerics, SearchSources>();
+  const { channel: activeChannel, setActiveChannel } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
 
   const channel = useMemo(() => {
@@ -59,28 +57,29 @@ export const MessageSearchResultItem = <
     return client.channel(type, id);
   }, [client, item]);
 
-  const onSelect = useCallback(() => {
+  const onSelect = useCallback(async () => {
     if (!channel) return;
-
+    await channel.state.loadMessageIntoState(item.id, undefined, DEFAULT_JUMP_TO_PAGE_SIZE);
+    // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
+    searchController.state.partialNext({ focusedMessage: item });
     setActiveChannel(channel);
     setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
-    // todo: jumpToMessage
-  }, [channel, setActiveChannel, setChannels]);
+  }, [channel, item, searchController, setActiveChannel, setChannels]);
 
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const getLatestMessagePreview = useCallback(() => item.text!, [item]);
 
   if (!channel) return;
 
   return (
-    <ChannelPreviewMessenger
+    <ChannelPreview
+      active={
+        channel.cid === activeChannel?.cid &&
+        item.id === searchController.state.getLatestValue().focusedMessage?.id
+      }
       channel={channel}
       className='str-chat__search-result'
-      displayImage={displayImage}
-      displayTitle={displayTitle}
-      groupChannelDisplayInfo={groupChannelDisplayInfo}
-      latestMessagePreview={item.text}
+      getLatestMessagePreview={getLatestMessagePreview}
       onSelect={onSelect}
     />
   );

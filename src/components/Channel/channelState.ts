@@ -24,7 +24,7 @@ export type ChannelStateReducerAction<
       type: 'copyStateFromChannelOnEvent';
     }
   | {
-      hasMoreNewer: boolean;
+      channel: Channel<StreamChatGenerics>;
       highlightedMessageId: string;
       type: 'jumpToMessageFinished';
     }
@@ -160,8 +160,9 @@ export const channelReducer = <
     case 'jumpToMessageFinished': {
       return {
         ...state,
-        hasMoreNewer: action.hasMoreNewer,
+        hasMoreNewer: action.channel.state.messagePagination.hasNext,
         highlightedMessageId: action.highlightedMessageId,
+        messages: action.channel.state.messages,
       };
     }
 

@@ -98,6 +98,19 @@ import {
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useThreadContext } from '../Threads';
 import { CHANNEL_CONTAINER_ID } from './constants';
+import {
+  DefaultSearchSources,
+  SearchControllerState,
+  SearchSource,
+} from '../Search/SearchController';
+import { useStateStore } from '../../store';
+
+const searchControllerStateSelector = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+>(
+  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+) => ({ jumpToMessageFromSearch: nextValue.focusedMessage });
 
 export type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -363,6 +376,7 @@ const ChannelInner = <
     customClasses,
     latestMessageDatesByChannels,
     mutes,
+    searchController,
   } = useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
@@ -387,11 +401,18 @@ const ChannelInner = <
     },
   );
 
+  const { jumpToMessageFromSearch } = useStateStore(
+    searchController.state,
+    searchControllerStateSelector,
+  );
+
   const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
   const lastRead = useRef<Date | undefined>();
   const online = useRef(true);
+
+  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
 
@@ -632,6 +653,38 @@ const ChannelInner = <
     if (message) dispatch({ message, type: 'setThread' });
   }, [state.messages, state.thread]);
 
+  const handleHighlightedMessageChange = useCallback(
+    ({
+      highlightDuration,
+      highlightedMessageId,
+    }: {
+      highlightedMessageId: string;
+      highlightDuration?: number;
+    }) => {
+      dispatch({
+        channel,
+        highlightedMessageId,
+        type: 'jumpToMessageFinished',
+      });
+      if (clearHighlightedMessageTimeoutId.current) {
+        clearTimeout(clearHighlightedMessageTimeoutId.current);
+      }
+      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+        if (searchController.state.getLatestValue().focusedMessage) {
+          searchController.state.partialNext({ focusedMessage: undefined });
+        }
+        clearHighlightedMessageTimeoutId.current = null;
+        dispatch({ type: 'clearHighlightedMessage' });
+      }, highlightDuration ?? DEFAULT_HIGHLIGHT_DURATION);
+    },
+    [channel, searchController],
+  );
+
+  useEffect(() => {
+    if (!jumpToMessageFromSearch?.id) return;
+    handleHighlightedMessageChange({ highlightedMessageId: jumpToMessageFromSearch.id });
+  }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
+
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
@@ -718,8 +771,6 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] = useCallback(
     async (
       messageId,
@@ -730,22 +781,9 @@ const ChannelInner = <
       await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
       loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-      dispatch({
-        hasMoreNewer: channel.state.messagePagination.hasNext,
-        highlightedMessageId: messageId,
-        type: 'jumpToMessageFinished',
-      });
-
-      if (clearHighlightedMessageTimeoutId.current) {
-        clearTimeout(clearHighlightedMessageTimeoutId.current);
-      }
-
-      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        clearHighlightedMessageTimeoutId.current = null;
-        dispatch({ type: 'clearHighlightedMessage' });
-      }, highlightDuration);
+      handleHighlightedMessageChange({ highlightDuration, highlightedMessageId: messageId });
     },
-    [channel, loadMoreFinished],
+    [channel, handleHighlightedMessageChange, loadMoreFinished],
   );
 
   const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] = useCallback(async () => {
@@ -864,23 +902,19 @@ const ChannelInner = <
           first_unread_message_id: firstUnreadMessageId,
           last_read_message_id: lastReadMessageId,
         });
-
-      dispatch({
-        hasMoreNewer: channel.state.messagePagination.hasNext,
+      handleHighlightedMessageChange({
+        highlightDuration,
         highlightedMessageId: firstUnreadMessageId,
-        type: 'jumpToMessageFinished',
       });
-
-      if (clearHighlightedMessageTimeoutId.current) {
-        clearTimeout(clearHighlightedMessageTimeoutId.current);
-      }
-
-      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        clearHighlightedMessageTimeoutId.current = null;
-        dispatch({ type: 'clearHighlightedMessage' });
-      }, highlightDuration);
     },
-    [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
+    [
+      addNotification,
+      channel,
+      handleHighlightedMessageChange,
+      loadMoreFinished,
+      t,
+      channelUnreadUiState,
+    ],
   );
 
   const deleteMessage = useCallback(

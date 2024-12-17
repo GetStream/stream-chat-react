@@ -1,7 +1,7 @@
-import { StateStore } from 'stream-chat';
 import type {
   Channel,
   ChannelFilters,
+  MessageFilters,
   MessageResponse,
   SearchMessageSort,
   SearchOptions,
@@ -10,6 +10,7 @@ import type {
   UserResponse,
   UserSort,
 } from 'stream-chat';
+import { StateStore } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 import debounce from 'lodash.debounce';
 import type { DebouncedFunc } from 'lodash';
@@ -248,12 +249,18 @@ export class MessageSearchSource<
 
   protected async query(searchQuery: string) {
     if (!this.client.userID) return { items: [] };
-    // @ts-ignore
+
     const channelFilters: ChannelFilters<StreamChatGenerics> = {
       members: { $in: [this.client.userID] },
-    };
-    const messageFilters = searchQuery;
+    } as ChannelFilters<StreamChatGenerics>;
+
+    const messageFilters: MessageFilters<StreamChatGenerics> = {
+      text: searchQuery,
+      type: 'regular', // todo: type: 'reply'
+    } as MessageFilters<StreamChatGenerics>;
+
     const sort: SearchMessageSort<StreamChatGenerics> = { created_at: -1 };
+
     const options = {
       limit: this.pageSize,
       next: this.next,
@@ -352,10 +359,13 @@ export type SearchControllerState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
-  isActive: boolean; // todo: cancel query execution
+  isActive: boolean;
   queriesInProgress: Array<Sources[number]['type']>;
   searchQuery: string;
   activeSource?: Sources[number];
+  // FIXME: focusedMessage should live in a MessageListController class that does not exist yet.
+  //  This state prop should be then removed
+  focusedMessage?: MessageResponse<StreamChatGenerics>;
   input?: HTMLInputElement;
 };
 
