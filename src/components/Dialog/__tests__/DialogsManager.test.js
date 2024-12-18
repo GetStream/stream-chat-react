@@ -8,6 +8,7 @@ describe('DialogManager', () => {
     const dialogManager = new DialogManager({ id });
     expect(dialogManager.id).toBe(id);
   });
+
   it('initiates with default options', () => {
     const mockedId = '12345';
     const spy = jest.spyOn(Date.prototype, 'getTime').mockReturnValueOnce(mockedId);
@@ -15,6 +16,7 @@ describe('DialogManager', () => {
     expect(dialogManager.id).toBe(mockedId);
     spy.mockRestore();
   });
+
   it('creates a new closed dialog', () => {
     const dialogManager = new DialogManager();
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
@@ -139,6 +141,35 @@ describe('DialogManager', () => {
     dialogManager.getOrCreate({ id: dialogId });
     dialogManager.open({ id: dialogId });
     dialogManager.remove('xxx');
+    expect(dialogManager.openDialogCount).toBe(1);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
+  });
+
+  it('marks dialog for removal', () => {
+    jest.useFakeTimers();
+
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+
+    jest.runAllTimers();
+
+    expect(dialogManager.openDialogCount).toBe(0);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
+  });
+
+  it('cancels dialog removal if it is referenced again quickly', () => {
+    jest.useFakeTimers();
+
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+    dialogManager.getOrCreate({ id: dialogId });
+
+    jest.runAllTimers();
+
     expect(dialogManager.openDialogCount).toBe(1);
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
   });
