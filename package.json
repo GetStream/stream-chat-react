@@ -257,7 +257,7 @@
     "react-dom": "^18.1.0",
     "react-test-renderer": "^18.1.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "^8.46.1",
+    "stream-chat": "^8.47.1",
     "ts-jest": "^29.1.4",
     "typescript": "^5.4.5"
   },
