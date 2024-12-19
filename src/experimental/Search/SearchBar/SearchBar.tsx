@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
-import { useSearchContext, useTranslationContext } from '../../../context';
+import { useSearchContext } from '../SearchContext';
+import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { SearchControllerState } from '../SearchController';
 

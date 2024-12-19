@@ -22,7 +22,7 @@ import {
   SearchController,
   SearchSource,
   UserSearchSource,
-} from '../Search/SearchController';
+} from '../../experimental/Search/SearchController';
 
 export type ChatPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -38,8 +38,9 @@ export type ChatPropsForwardedToComponentContext<
   | 'SearchSourceEmptyResults'
   | 'SearchSourceLoadingResults'
   | 'SearchSourceResultList'
+  | 'SearchSourceResultListEnd'
   | 'SearchSourceResults'
-  | 'SearchSourceResultsPresearch'
+  | 'SearchResultsPresearch'
 >;
 
 export type ChatProps<
@@ -112,6 +113,7 @@ export const Chat = <
   const searchController = useMemo(() => {
     if (customChannelSearchController) return customChannelSearchController;
     return new SearchController<StreamChatGenerics, SearchSources>({
+      config: { keepSingleActiveSource: false },
       sources: ([
         new UserSearchSource<StreamChatGenerics>(client),
         new ChannelSearchSource<StreamChatGenerics>(client),
@@ -191,11 +193,12 @@ export const Chat = <
       SearchBar: props.SearchBar,
       SearchResults: props.SearchResults,
       SearchResultsHeader: props.SearchResultsHeader,
+      SearchResultsPresearch: props.SearchResultsPresearch,
       SearchSourceEmptyResults: props.SearchSourceEmptyResults,
       SearchSourceLoadingResults: props.SearchSourceLoadingResults,
       SearchSourceResultList: props.SearchSourceResultList,
+      SearchSourceResultListEnd: props.SearchSourceResultListEnd,
       SearchSourceResults: props.SearchSourceResults,
-      SearchSourceResultsPresearch: props.SearchSourceResultsPresearch,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       ThreadHead: props.ThreadHead,
@@ -261,8 +264,9 @@ export const Chat = <
       props.SearchSourceEmptyResults,
       props.SearchSourceLoadingResults,
       props.SearchSourceResultList,
+      props.SearchSourceResultListEnd,
       props.SearchSourceResults,
-      props.SearchSourceResultsPresearch,
+      props.SearchResultsPresearch,
       props.SendButton,
       props.StartRecordingAudioButton,
       props.ThreadHead,

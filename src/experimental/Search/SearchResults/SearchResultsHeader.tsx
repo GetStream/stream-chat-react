@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 import { DefaultSearchSources, SearchControllerState, SearchSource } from '../SearchController';
-import { useSearchContext, useTranslationContext } from '../../../context';
+import { useSearchContext } from '../SearchContext';
+import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultStreamChatGenerics } from '../../../types';
 

@@ -78,6 +78,8 @@ import {
 } from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
+import { useStateStore } from '../../store';
+import { CHANNEL_CONTAINER_ID } from './constants';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -97,13 +99,11 @@ import {
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useThreadContext } from '../Threads';
-import { CHANNEL_CONTAINER_ID } from './constants';
-import {
+import type {
   DefaultSearchSources,
   SearchControllerState,
   SearchSource,
-} from '../Search/SearchController';
-import { useStateStore } from '../../store';
+} from '../../experimental/Search/SearchController';
 
 const searchControllerStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

@@ -1,9 +1,10 @@
 import uniqBy from 'lodash.uniqby';
 import React, { ComponentType, useCallback, useMemo } from 'react';
 import { Channel, MessageResponse, User } from 'stream-chat';
-import { Avatar } from '../../Avatar';
-import { ChannelPreview } from '../../ChannelPreview';
-import { useChannelListContext, useChatContext, useSearchContext } from '../../../context';
+import { useSearchContext } from '../SearchContext';
+import { Avatar } from '../../../components/Avatar';
+import { ChannelPreview } from '../../../components/ChannelPreview';
+import { useChannelListContext, useChatContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type {
   DefaultSearchSources,

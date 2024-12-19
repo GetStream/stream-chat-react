@@ -1,10 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import {
-  DefaultSearchSources,
-  SearchController,
-  SearchSource,
-} from '../components/Search/SearchController';
-import type { DefaultStreamChatGenerics } from '../types';
+import { DefaultSearchSources, SearchController, SearchSource } from './SearchController';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 export type SearchContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

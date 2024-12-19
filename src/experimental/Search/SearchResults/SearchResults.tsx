@@ -8,7 +8,8 @@ import type {
   SearchControllerState,
   SearchSource,
 } from '../SearchController';
-import { useComponentContext, useSearchContext, useTranslationContext } from '../../../context';
+import { useSearchContext } from '../SearchContext';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultStreamChatGenerics } from '../../../types';
 

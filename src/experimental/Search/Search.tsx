@@ -4,7 +4,8 @@ import React from 'react';
 import { DefaultSearchSources, SearchControllerState, SearchSource } from './SearchController';
 import { SearchBar as DefaultSearchBar } from './SearchBar/SearchBar';
 import { SearchResults as DefaultSearchResults } from './SearchResults/SearchResults';
-import { SearchContextProvider, useChatContext, useComponentContext } from '../../context';
+import { SearchContextProvider } from './SearchContext';
+import { useChatContext, useComponentContext } from '../../context';
 import { useStateStore } from '../../store';
 
 import type { DefaultStreamChatGenerics } from '../../types';

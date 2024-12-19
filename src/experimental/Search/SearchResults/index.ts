@@ -5,4 +5,5 @@ export * from './SearchResultsPresearch';
 export * from './SearchSourceEmptyResults';
 export * from './SearchSourceLoadingResults';
 export * from './SearchSourceResultList';
+export * from './SearchSourceResultListEnd';
 export * from './SearchSourceResults';

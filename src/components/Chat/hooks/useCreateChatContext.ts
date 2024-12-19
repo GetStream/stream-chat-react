@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import type { DefaultSearchSources, SearchSource } from '../../Search/SearchController';
+import type {
+  DefaultSearchSources,
+  SearchSource,
+} from '../../../experimental/Search/SearchController';
 
 export const useCreateChatContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

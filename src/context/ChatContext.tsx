@@ -10,7 +10,7 @@ import {
   DefaultSearchSources,
   SearchController,
   SearchSource,
-} from '../components/Search/SearchController';
+} from '../experimental/Search/SearchController';
 
 type CSSClasses =
   | 'chat'

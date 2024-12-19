@@ -36,10 +36,6 @@ import {
   ReactionSelectorProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
-  SearchProps,
-  SearchResultsPresearchProps,
-  SearchSourceEmptyResultsProps,
-  SearchSourceResultListProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
   SuggestionItemProps,
@@ -53,13 +49,21 @@ import {
   UnreadMessagesSeparatorProps,
 } from '../components';
 
+import {
+  SearchProps,
+  SearchResultsPresearchProps,
+  SearchSourceEmptyResultsProps,
+  SearchSourceResultListEndProps,
+  SearchSourceResultListProps,
+} from '../experimental';
+
 import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import type { DefaultSearchSources, SearchSource } from '../components/Search/SearchController';
+import type { DefaultSearchSources, SearchSource } from '../experimental/Search/SearchController';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -189,6 +193,8 @@ export type ComponentContextValue<
   SearchSourceResultList?: React.ComponentType<
     SearchSourceResultListProps<StreamChatGenerics, SearchSources>
   >;
+  /** Custom component to indicate the end of the last page for a searched source, defaults to and accepts same props as: [SearchSourceResultListEnd](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultListEnd.tsx) */
+  SearchSourceResultListEnd?: React.ComponentType<SearchSourceResultListEndProps>;
   /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
   SearchSourceResults?: React.ComponentType;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */

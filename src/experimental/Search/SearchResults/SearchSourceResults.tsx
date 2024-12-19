@@ -7,6 +7,7 @@ import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../S
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
+  hasMore: nextValue.hasMore,
   isLoading: nextValue.isLoading,
   items: nextValue.items,
 });
@@ -22,10 +23,18 @@ export const SearchSourceResults = <
     SearchSourceEmptyResults = DefaultSearchSourceEmptyResults,
     SearchSourceResultList = DefaultSearchSourceResultList,
   } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
-  const { isLoading, items } = useStateStore(searchSource.state, searchSourceStateSelector);
+  const { hasMore, isLoading, items } = useStateStore(
+    searchSource.state,
+    searchSourceStateSelector,
+  );
 
   return !items && !isLoading ? null : items?.length || isLoading ? (
-    <SearchSourceResultList isLoading={isLoading} items={items} searchSource={searchSource} />
+    <SearchSourceResultList
+      hasMore={hasMore}
+      isLoading={isLoading}
+      items={items}
+      searchSource={searchSource}
+    />
   ) : (
     <SearchSourceEmptyResults searchSource={searchSource} />
   );

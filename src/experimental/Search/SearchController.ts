@@ -1,14 +1,17 @@
 import debounce from 'lodash.debounce';
-import { ChannelOptions, ChannelSort, StateStore, UserOptions } from 'stream-chat';
+import { StateStore } from 'stream-chat';
 import type {
   Channel,
   ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
   MessageFilters,
   MessageResponse,
   SearchMessageSort,
   SearchOptions,
   StreamChat,
   UserFilters,
+  UserOptions,
   UserResponse,
   UserSort,
 } from 'stream-chat';
@@ -176,7 +179,7 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
     }
   }
 
-  async search(searchQuery?: string) {
+  search = async (searchQuery?: string) => {
     if (!this.isActive) return;
     const hasNewSearchQuery = typeof searchQuery !== 'undefined';
     const preventLoadMore =
@@ -194,9 +197,9 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
 
     await new Promise((resolve) => {
       this.resolveDebouncedSearch = resolve;
-      this.searchDebounced(searchQuery);
+      this.searchDebounced(searchQuery ?? this.searchQuery);
     });
-  }
+  };
 
   resetState(stateOverrides?: Partial<SearchSourceState<T>>) {
     this.state.next({
