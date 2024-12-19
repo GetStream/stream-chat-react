@@ -10,7 +10,7 @@ export type SearchSourceResultListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
-  searchSource: Sources[number];
+  searchSource: SearchSource;
   isLoading?: boolean;
   items?: SourceItemsRecord<StreamChatGenerics, Sources>[Sources[number]['type']];
   SearchResultItems?: SearchResultItemComponents<Sources>;

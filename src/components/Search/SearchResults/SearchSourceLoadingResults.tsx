@@ -1,21 +1,12 @@
 import React from 'react';
 import { useTranslationContext } from '../../../context';
-import { DefaultSearchSources, SearchSource } from '../SearchController';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import { SearchSource } from '../SearchController';
 
-export type SearchSourceLoadingResultsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = {
-  searchSource: Sources[number];
+export type SearchSourceLoadingResultsProps = {
+  searchSource: SearchSource;
 };
 
-export const SearchSourceLoadingResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
->({
-  searchSource,
-}: SearchSourceLoadingResultsProps<StreamChatGenerics, Sources>) => {
+export const SearchSourceLoadingResults = ({ searchSource }: SearchSourceLoadingResultsProps) => {
   const { t } = useTranslationContext();
 
   return (

@@ -27,8 +27,7 @@ export const SearchBar = () => {
   );
 
   const exitSearch = useCallback(() => {
-    searchController.cancelSearchQueries();
-    searchController.resetState();
+    searchController.exit();
     onSearchExit?.();
   }, [searchController, onSearchExit]);
 
@@ -59,17 +58,14 @@ export const SearchBar = () => {
           className='str-chat__search-input'
           data-testid='search-input'
           disabled={disabled}
-          onBlur={(e) => {
-            e.stopPropagation();
+          onBlur={() => {
             if (exitSearchOnInputBlur) exitSearch();
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            event.preventDefault();
             if (event.target.value) {
               searchController.search(event.target.value);
             } else if (!event.target.value) {
-              searchController.cancelSearchQueries();
-              searchController.resetState({ isActive: true });
+              searchController.clear();
             }
           }}
           onFocus={searchController.activate}
@@ -84,9 +80,8 @@ export const SearchBar = () => {
             data-testid='clear-input-button'
             disabled={queriesInProgress.length > 0} // prevent user from clearing the input while query is in progress and avoid out-of-sync UX
             onClick={() => {
+              searchController.clear();
               input?.focus();
-              searchController.cancelSearchQueries();
-              searchController.resetState({ isActive: true });
             }}
           >
             <div className='str-chat__search-input--clear-button-icon' />

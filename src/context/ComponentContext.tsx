@@ -59,7 +59,7 @@ import type {
 import type { DefaultSearchSources, SearchSource } from '../components/Search/SearchController';
 import { SearchSourceEmptyResultsProps } from '../components/Search/SearchResults/SearchSourceEmptyResults';
 import { SearchSourceResultListProps } from '../components/Search/SearchResults/SearchSourceResultList';
-import { SearchSourceResultsPresearchProps } from '../components/Search/SearchResults/SearchSourceResultsPresearch';
+import { SearchResultsPresearchProps } from '../components/Search/SearchResults/SearchResultsPresearch';
 import { SearchSourceResultsErrorProps } from '../components/Search/SearchResults/SearchSourceResultsError';
 
 export type ComponentContextValue<
@@ -178,14 +178,14 @@ export type ComponentContextValue<
   SearchResults?: React.ComponentType;
   /** Custom UI component to display header of search results pane, defaults to and accepts same props as: [SearchResultsHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResultsHeader.tsx) */
   SearchResultsHeader?: React.ComponentType;
+  /** Custom component to display search results pane before emitting the first search query for a given source, defaults to and accepts same props as: [SearchResultsPresearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsPresearch.tsx) */
+  SearchResultsPresearch?: React.ComponentType<
+    SearchResultsPresearchProps<StreamChatGenerics, SearchSources>
+  >;
   /** Custom component to display the search source results UI with 0 items found, defaults to and accepts same props as: [SearchSourceEmptyResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceEmptyResults.tsx) */
-  SearchSourceEmptyResults?: React.ComponentType<
-    SearchSourceEmptyResultsProps<StreamChatGenerics, SearchSources>
-  >;
+  SearchSourceEmptyResults?: React.ComponentType<SearchSourceEmptyResultsProps>;
   /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceLoadingResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceLoadingResults.tsx) */
-  SearchSourceLoadingResults?: React.ComponentType<
-    SearchSourceEmptyResultsProps<StreamChatGenerics, SearchSources>
-  >;
+  SearchSourceLoadingResults?: React.ComponentType<SearchSourceEmptyResultsProps>;
   /** Custom component to display the search source items results, defaults to and accepts same props as: [SearchSourceResultList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultList.tsx) */
   SearchSourceResultList?: React.ComponentType<
     SearchSourceResultListProps<StreamChatGenerics, SearchSources>
@@ -194,10 +194,6 @@ export type ComponentContextValue<
   SearchSourceResults?: React.ComponentType;
   /** Custom UI component to display error produced by search query, defaults to and accepts same props as: [SearchSourceResultsError](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsError.tsx) */
   SearchSourceResultsError?: React.ComponentType<SearchSourceResultsErrorProps>;
-  /** Custom component to display search results pane before emitting the first search query for a given source, defaults to and accepts same props as: [SearchSourceResultsPresearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsPresearch.tsx) */
-  SearchSourceResultsPresearch?: React.ComponentType<
-    SearchSourceResultsPresearchProps<StreamChatGenerics, SearchSources>
-  >;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
