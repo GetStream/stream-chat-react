@@ -41,6 +41,7 @@ const CONTAINER_MAP = {
   media: MediaContainer,
   unsupported: UnsupportedAttachmentContainer,
   voiceRecording: VoiceRecordingContainer,
+  // geolocation: () => <div></div>,
 } as const;
 
 export const ATTACHMENT_GROUPS_ORDER = [
