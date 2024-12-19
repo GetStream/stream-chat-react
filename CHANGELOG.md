@@ -1,3 +1,10 @@
+## [12.8.1](https://github.com/GetStream/stream-chat-react/compare/v12.8.0...v12.8.1) (2024-12-19)
+
+
+### Bug Fixes
+
+* do not clear dialog state immediately on useDialog unmount ([#2584](https://github.com/GetStream/stream-chat-react/issues/2584)) ([a8755ec](https://github.com/GetStream/stream-chat-react/commit/a8755ec8112f69dd44e95c34d176e00436cbeee5)), closes [#2583](https://github.com/GetStream/stream-chat-react/issues/2583)
+
 ## [12.8.0](https://github.com/GetStream/stream-chat-react/compare/v12.7.1...v12.8.0) (2024-12-12)
 
 
