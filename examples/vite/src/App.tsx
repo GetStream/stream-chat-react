@@ -1,4 +1,9 @@
-import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  LiveLocationManagerConstructorParameters,
+} from 'stream-chat';
 import {
   AIStateIndicator,
   Channel,
@@ -13,6 +18,9 @@ import {
   useCreateChatClient,
   ThreadList,
   ChatView,
+  useChatContext,
+  useLiveLocationSharingManager,
+  Attachment,
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
@@ -64,12 +72,66 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const ShareLiveLocation = () => {
+  const { channel } = useChatContext();
+
+  return (
+    <button
+      onClick={() => {
+        console.log('trying to fetch location');
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log('got location ', position);
+            channel?.startLiveLocationSharing({
+              latitude,
+              longitude,
+              end_time: new Date(Date.now() + 1 * 1000 * 3600 * 24).toISOString(),
+            });
+          },
+          console.warn,
+          { timeout: 200 },
+        );
+      }}
+    >
+      location
+    </button>
+  );
+};
+
+const watchLocationNormal: LiveLocationManagerConstructorParameters['watchLocation'] = (
+  watcher,
+) => {
+  const watch = navigator.geolocation.watchPosition((position) => {
+    watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+  });
+
+  return () => navigator.geolocation.clearWatch(watch);
+};
+
+const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocation'] = (watcher) => {
+  const timer = setInterval(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+    });
+  }, 5000);
+
+  return () => clearInterval(timer);
+};
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
   });
+
+  const manager = useLiveLocationSharingManager({
+    client: chatClient ?? undefined,
+    watchLocation: watchLocationTimed,
+  });
+
+  // const s = useStateStore(manager?.state)
 
   if (!chatClient) return <>Loading...</>;
 
@@ -86,12 +148,27 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel>
+          <Channel
+            Attachment={(props) => {
+              const [attachment] = props.attachments ?? [];
+
+              if (attachment?.type === 'live_location') {
+                return (
+                  <div style={{ padding: 25 }}>
+                    lat: {attachment.latitude}, lng: {attachment.longitude}
+                  </div>
+                );
+              }
+
+              return <Attachment {...props} />;
+            }}
+          >
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <AIStateIndicator />
               <MessageInput focus />
+              <ShareLiveLocation />
             </Window>
             <Thread virtualized />
           </Channel>
