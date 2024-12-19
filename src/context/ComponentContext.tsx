@@ -37,6 +37,9 @@ import {
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
   SearchProps,
+  SearchResultsPresearchProps,
+  SearchSourceEmptyResultsProps,
+  SearchSourceResultListProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
   SuggestionItemProps,
@@ -57,10 +60,6 @@ import type {
   UnknownType,
 } from '../types/types';
 import type { DefaultSearchSources, SearchSource } from '../components/Search/SearchController';
-import { SearchSourceEmptyResultsProps } from '../components/Search/SearchResults/SearchSourceEmptyResults';
-import { SearchSourceResultListProps } from '../components/Search/SearchResults/SearchSourceResultList';
-import { SearchResultsPresearchProps } from '../components/Search/SearchResults/SearchResultsPresearch';
-import { SearchSourceResultsErrorProps } from '../components/Search/SearchResults/SearchSourceResultsError';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -192,8 +191,6 @@ export type ComponentContextValue<
   >;
   /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
   SearchSourceResults?: React.ComponentType;
-  /** Custom UI component to display error produced by search query, defaults to and accepts same props as: [SearchSourceResultsError](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsError.tsx) */
-  SearchSourceResultsError?: React.ComponentType<SearchSourceResultsErrorProps>;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
