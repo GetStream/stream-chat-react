@@ -6,6 +6,9 @@ import type { Channel, Event } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+/**
+ * @deprecated Use `useChannelListShape` instead.
+ */
 export const useChannelUpdatedListener = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(

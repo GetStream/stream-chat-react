@@ -3,6 +3,9 @@ import type { Channel, ChannelState, ExtendableGenerics } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 
+/**
+ * @deprecated Use `useChannelListShape` instead.
+ */
 export const useChannelMembershipState = <SCG extends ExtendableGenerics>(
   channel?: Channel<SCG>,
 ) => {
