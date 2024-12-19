@@ -74,7 +74,7 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
   protected pageSize: number;
   abstract readonly type: SearchSourceType;
   searchDebounced: DebouncedExecQueryFunction;
-  // todo: hold filters, sort, options attributes and allow to change them
+  private resolveDebouncedSearch?: (value?: unknown) => void;
 
   protected constructor(options?: SearchSourceOptions) {
     const finalOptions = { ...DEFAULT_SEARCH_SOURCE_OPTIONS, ...options };
@@ -172,6 +172,7 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
         isLoading: false,
         items: [...(prev.items ?? []), ...(stateUpdate.items || [])],
       }));
+      this.resolveDebouncedSearch?.();
     }
   }
 
@@ -191,7 +192,10 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
       this.state.partialNext({ isLoading: true });
     }
 
-    await this.searchDebounced(searchQuery);
+    await new Promise((resolve) => {
+      this.resolveDebouncedSearch = resolve;
+      this.searchDebounced(searchQuery);
+    });
   }
 
   resetState(stateOverrides?: Partial<SearchSourceState<T>>) {
@@ -297,7 +301,7 @@ export class MessageSearchSource<
 
     const messageFilters: MessageFilters<StreamChatGenerics> = {
       text: searchQuery,
-      type: 'regular', // todo: type: 'reply' resp. do not filter by type and allow to jump to a message in a thread
+      type: 'regular', // FIXME: type: 'reply' resp. do not filter by type and allow to jump to a message in a thread - missing support
       ...this.messageSearchFilters,
     } as MessageFilters<StreamChatGenerics>;
 
