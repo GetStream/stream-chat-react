@@ -141,7 +141,7 @@ export type SearchSourceOptions = {
 };
 
 const DEFAULT_SEARCH_SOURCE_OPTIONS: Required<SearchSourceOptions> = {
-  debounceMs: 5000,
+  debounceMs: 300,
   isActive: false,
   pageSize: 10,
 } as const;
@@ -224,19 +224,21 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
     this.state.partialNext({ isActive: false });
   };
 
-  async executeQuery(searchQuery: string) {
-    const hasNewSearchQuery = typeof searchQuery !== 'undefined';
-    if (!this.isActive || this.isLoading || !this.hasMore || !searchQuery) return;
+  async executeQuery(newSearchString?: string) {
+    const hasNewSearchQuery = typeof newSearchString !== 'undefined';
+    const searchString = newSearchString ?? this.searchQuery;
+    if (!this.isActive || this.isLoading || (!this.hasMore && !hasNewSearchQuery) || !searchString)
+      return;
 
     if (hasNewSearchQuery) {
-      this.resetState({ isActive: this.isActive, isLoading: true, searchQuery });
+      this.resetState({ isActive: this.isActive, isLoading: true, searchQuery: newSearchString });
     } else {
       this.state.partialNext({ isLoading: true });
     }
 
     const stateUpdate: Partial<SearchSourceState<T>> = {};
     try {
-      const results = await this.query(searchQuery);
+      const results = await this.query(searchString);
       if (!results) return;
       const { items, next } = results;
 
@@ -265,7 +267,7 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
   search = async (searchQuery?: string) => {
     await new Promise((resolve) => {
       this.resolveDebouncedSearch = resolve;
-      this.searchDebounced(searchQuery ?? this.searchQuery);
+      this.searchDebounced(searchQuery);
     });
   };
 
