@@ -183,8 +183,6 @@ export type ComponentContextValue<
   SearchResultsPresearch?: React.ComponentType<
     SearchResultsPresearchProps<StreamChatGenerics, SearchSources>
   >;
-  /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceLoadingResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceLoadingResults.tsx) */
-  SearchSourceLoadingResults?: React.ComponentType;
   /** Custom component to display the search source items results, defaults to and accepts same props as: [SearchSourceResultList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultList.tsx) */
   SearchSourceResultList?: React.ComponentType<
     SearchSourceResultListProps<StreamChatGenerics, SearchSources>
@@ -197,6 +195,8 @@ export type ComponentContextValue<
   SearchSourceResultsEmpty?: React.ComponentType;
   /** Custom component to display the header content for a given search source results, no default component is provided. */
   SearchSourceResultsHeader?: React.ComponentType;
+  /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceResultsLoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsLoadingIndicator.tsx) */
+  SearchSourceResultsLoadingIndicator?: React.ComponentType;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
