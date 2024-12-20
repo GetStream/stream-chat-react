@@ -1,4 +1,3 @@
-import debounce from 'lodash.debounce';
 import { StateStore } from 'stream-chat';
 import type {
   Channel,
@@ -16,7 +15,82 @@ import type {
   UserSort,
 } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
-import type { DebouncedFunc } from 'lodash';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface DebouncedFunc<T extends (...args: any[]) => any> {
+  /**
+   * Call the original function, but applying the debounce rules.
+   *
+   * If the debounced function can be run immediately, this calls it and returns its return
+   * value.
+   *
+   * Otherwise, it returns the return value of the last invocation, or undefined if the debounced
+   * function was not invoked yet.
+   */
+  (...args: Parameters<T>): ReturnType<T> | undefined;
+
+  /**
+   * Throw away any pending invocation of the debounced function.
+   */
+  cancel(): void;
+
+  /**
+   * If there is a pending invocation of the debounced function, invoke it immediately and return
+   * its return value.
+   *
+   * Otherwise, return the value from the last invocation, or undefined if the debounced function
+   * was never invoked.
+   */
+  flush(): ReturnType<T> | undefined;
+}
+
+// works exactly the same as lodash.debounce
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const debounce = <T extends (...args: any[]) => any>(
+  fn: T,
+  timeout = 0,
+  { leading = false, trailing = true }: { leading?: boolean; trailing?: boolean } = {},
+): DebouncedFunc<T> => {
+  let runningTimeout: null | NodeJS.Timeout = null;
+  let argsForTrailingExecution: Parameters<T> | null = null;
+  let lastResult: ReturnType<T> | undefined;
+
+  const debouncedFn = (...args: Parameters<T>) => {
+    if (runningTimeout) {
+      clearTimeout(runningTimeout);
+    } else if (leading) {
+      lastResult = fn(...args);
+    }
+    if (trailing) argsForTrailingExecution = args;
+
+    const timeoutHandler = () => {
+      if (argsForTrailingExecution) {
+        lastResult = fn(...argsForTrailingExecution);
+        argsForTrailingExecution = null;
+      }
+      runningTimeout = null;
+    };
+
+    runningTimeout = setTimeout(timeoutHandler, timeout);
+    return lastResult;
+  };
+
+  debouncedFn.cancel = () => {
+    if (runningTimeout) clearTimeout(runningTimeout);
+  };
+
+  debouncedFn.flush = () => {
+    if (runningTimeout) {
+      clearTimeout(runningTimeout);
+      runningTimeout = null;
+      if (argsForTrailingExecution) {
+        lastResult = fn(...argsForTrailingExecution);
+      }
+    }
+    return lastResult;
+  };
+  return debouncedFn;
+};
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchSourceType = 'channels' | 'users' | 'messages' | (string & {});
@@ -67,7 +141,7 @@ export type SearchSourceOptions = {
 };
 
 const DEFAULT_SEARCH_SOURCE_OPTIONS: Required<SearchSourceOptions> = {
-  debounceMs: 300,
+  debounceMs: 5000,
   isActive: false,
   pageSize: 10,
 } as const;
@@ -151,6 +225,15 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
   };
 
   async executeQuery(searchQuery: string) {
+    const hasNewSearchQuery = typeof searchQuery !== 'undefined';
+    if (!this.isActive || this.isLoading || !this.hasMore || !searchQuery) return;
+
+    if (hasNewSearchQuery) {
+      this.resetState({ isActive: this.isActive, isLoading: true, searchQuery });
+    } else {
+      this.state.partialNext({ isLoading: true });
+    }
+
     const stateUpdate: Partial<SearchSourceState<T>> = {};
     try {
       const results = await this.query(searchQuery);
@@ -180,21 +263,6 @@ export abstract class BaseSearchSource<T> implements SearchSource<T> {
   }
 
   search = async (searchQuery?: string) => {
-    if (!this.isActive) return;
-    const hasNewSearchQuery = typeof searchQuery !== 'undefined';
-    const preventLoadMore =
-      (!hasNewSearchQuery && !this.hasMore) ||
-      this.isLoading ||
-      (!hasNewSearchQuery && !this.searchQuery);
-    const preventSearchStart = hasNewSearchQuery && this.isLoading;
-    if (preventLoadMore || preventSearchStart) return;
-
-    if (hasNewSearchQuery) {
-      this.resetState({ isActive: this.isActive, isLoading: true, searchQuery });
-    } else {
-      this.state.partialNext({ isLoading: true });
-    }
-
     await new Promise((resolve) => {
       this.resolveDebouncedSearch = resolve;
       this.searchDebounced(searchQuery ?? this.searchQuery);
@@ -416,7 +484,6 @@ export type SearchControllerState<
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
   isActive: boolean;
-  queriesInProgress: Array<Sources[number]['type']>;
   searchQuery: string;
   sources: Sources;
   // FIXME: focusedMessage should live in a MessageListController class that does not exist yet.
@@ -448,7 +515,6 @@ export class SearchController<
   constructor({ config, sources }: SearchControllerOptions<StreamChatGenerics, Sources> = {}) {
     this.state = new StateStore<SearchControllerState<StreamChatGenerics, Sources>>({
       isActive: false,
-      queriesInProgress: [],
       searchQuery: '',
       sources: sources ?? (([] as unknown) as Sources),
     });
@@ -470,24 +536,12 @@ export class SearchController<
     return this.state.getLatestValue().isActive;
   }
 
-  get queriesInProgress() {
-    return this.state.getLatestValue().queriesInProgress;
-  }
-
   get searchQuery() {
     return this.state.getLatestValue().searchQuery;
   }
 
   get searchSourceTypes(): Array<Sources[number]['type']> {
     return this.sources.map((s) => s.type) as Sources[number]['type'][];
-  }
-
-  get isCleared() {
-    return this.activeSources.every((s) => !s.hasResults && !s.isLoading && !s.searchQuery);
-  }
-
-  get isLoading() {
-    return this.state.getLatestValue().queriesInProgress.length > 0;
   }
 
   setInputElement = (input: HTMLInputElement) => {
@@ -558,13 +612,9 @@ export class SearchController<
   search = async (searchQuery?: string) => {
     const searchedSources = this.activeSources;
     this.state.partialNext({
-      queriesInProgress: searchedSources.map((s) => s.type),
       searchQuery,
     });
     await Promise.all(searchedSources.map((source) => source.search(searchQuery)));
-    this.state.partialNext({
-      queriesInProgress: [],
-    });
   };
 
   cancelSearchQueries = () => {
