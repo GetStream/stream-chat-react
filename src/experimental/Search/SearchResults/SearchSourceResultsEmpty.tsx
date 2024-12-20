@@ -2,13 +2,13 @@ import React from 'react';
 import { SearchSource } from '../SearchController';
 import { useTranslationContext } from '../../../context';
 
-export type SearchSourceEmptyResultsProps = {
+export type SearchSourceResultsEmptyProps = {
   searchSource: SearchSource;
 };
 
-export const SearchSourceEmptyResults = () => {
+export const SearchSourceResultsEmpty = () => {
   const { t } = useTranslationContext();
   return (
-    <div className='str-chat__search-source-empty-results'>{t<string>('No results found')}</div>
+    <div className='str-chat__search-source-results-empty'>{t<string>('No results found')}</div>
   );
 };

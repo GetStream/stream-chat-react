@@ -1,8 +1,7 @@
 import React, { ComponentType, useCallback } from 'react';
 import { InfiniteScrollPaginator } from '../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { DefaultSearchResultItems, SearchResultItemComponents } from './SearchResultItem';
-import { SearchSourceLoadingResults as DefaultSearchSourceLoadingResults } from './SearchSourceLoadingResults';
-import { SearchSourceResultListEnd as DefaultSearchSourceResultListEnd } from './SearchSourceResultListEnd';
+import { SearchSourceResultListFooter as DefaultSearchSourceResultListFooter } from './SearchSourceResultListFooter';
 import { useComponentContext } from '../../../context';
 import type { DefaultSearchSources, SearchSource, SourceItemsRecord } from '../SearchController';
 import type { DefaultStreamChatGenerics } from '../../../types';
@@ -11,10 +10,10 @@ export type SearchSourceResultListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 > = {
-  hasMore: boolean;
   searchSource: SearchSource;
-  isLoading?: boolean;
   items?: SourceItemsRecord<StreamChatGenerics, Sources>[Sources[number]['type']];
+  loadMoreDebounceMs?: number;
+  loadMoreThresholdPx?: number;
   SearchResultItems?: SearchResultItemComponents<Sources>;
 };
 
@@ -22,15 +21,14 @@ export const SearchSourceResultList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >({
-  hasMore,
-  isLoading,
   items,
+  loadMoreThresholdPx = 80,
+  loadMoreDebounceMs = 100,
   searchSource,
   SearchResultItems = DefaultSearchResultItems as SearchResultItemComponents<SearchSources>,
 }: SearchSourceResultListProps<StreamChatGenerics, SearchSources>) => {
   const {
-    SearchSourceLoadingResults = DefaultSearchSourceLoadingResults,
-    SearchSourceResultListEnd = DefaultSearchSourceResultListEnd,
+    SearchSourceResultListFooter = DefaultSearchSourceResultListFooter,
   } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
   const loadMore = useCallback(() => searchSource.search(), [searchSource]);
   const SearchResultItem = SearchResultItems[
@@ -41,12 +39,15 @@ export const SearchSourceResultList = <
 
   return (
     <div className='str-chat__search-source-result-list'>
-      <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
+      <InfiniteScrollPaginator
+        loadNextDebounceMs={loadMoreDebounceMs}
+        loadNextOnScrollToBottom={loadMore}
+        threshold={loadMoreThresholdPx}
+      >
         {items?.map((item, i) => (
-          <SearchResultItem item={item} key={`source-search-result-${searchSource}-${i}`} />
+          <SearchResultItem item={item} key={`source-search-result-${searchSource.type}-${i}`} />
         ))}
-        {isLoading && <SearchSourceLoadingResults searchSource={searchSource} />}
-        {!hasMore && <SearchSourceResultListEnd searchSource={searchSource} />}
+        <SearchSourceResultListFooter searchSource={searchSource} />
       </InfiniteScrollPaginator>
     </div>
   );

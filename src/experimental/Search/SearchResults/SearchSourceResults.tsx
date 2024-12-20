@@ -1,6 +1,7 @@
 import React from 'react';
-import { SearchSourceEmptyResults as DefaultSearchSourceEmptyResults } from './SearchSourceEmptyResults';
 import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
+import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './SearchSourceResultsEmpty';
+import { SearchSourceResultsHeader as DefaultSearchSourceResultsHeader } from './SearchSourceResultsHeader';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
@@ -20,22 +21,21 @@ export const SearchSourceResults = <
   searchSource,
 }: SearchSourceResultsProps) => {
   const {
-    SearchSourceEmptyResults = DefaultSearchSourceEmptyResults,
     SearchSourceResultList = DefaultSearchSourceResultList,
+    SearchSourceResultsEmpty = DefaultSearchSourceResultsEmpty,
+    SearchSourceResultsHeader = DefaultSearchSourceResultsHeader,
   } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
-  const { hasMore, isLoading, items } = useStateStore(
-    searchSource.state,
-    searchSourceStateSelector,
-  );
+  const { isLoading, items } = useStateStore(searchSource.state, searchSourceStateSelector);
 
-  return !items && !isLoading ? null : items?.length || isLoading ? (
-    <SearchSourceResultList
-      hasMore={hasMore}
-      isLoading={isLoading}
-      items={items}
-      searchSource={searchSource}
-    />
-  ) : (
-    <SearchSourceEmptyResults searchSource={searchSource} />
+  if (!items && !isLoading) return null;
+  return (
+    <div className='str-chat__search-source-results'>
+      <SearchSourceResultsHeader searchSource={searchSource} />
+      {items?.length || isLoading ? (
+        <SearchSourceResultList items={items} searchSource={searchSource} />
+      ) : (
+        <SearchSourceResultsEmpty searchSource={searchSource} />
+      )}
+    </div>
   );
 };

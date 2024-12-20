@@ -35,10 +35,11 @@ export type ChatPropsForwardedToComponentContext<
   | 'SearchBar'
   | 'SearchResults'
   | 'SearchResultsHeader'
-  | 'SearchSourceEmptyResults'
+  | 'SearchSourceResultsEmpty'
+  | 'SearchSourceResultsHeader'
   | 'SearchSourceLoadingResults'
   | 'SearchSourceResultList'
-  | 'SearchSourceResultListEnd'
+  | 'SearchSourceResultListFooter'
   | 'SearchSourceResults'
   | 'SearchResultsPresearch'
 >;
@@ -194,11 +195,12 @@ export const Chat = <
       SearchResults: props.SearchResults,
       SearchResultsHeader: props.SearchResultsHeader,
       SearchResultsPresearch: props.SearchResultsPresearch,
-      SearchSourceEmptyResults: props.SearchSourceEmptyResults,
       SearchSourceLoadingResults: props.SearchSourceLoadingResults,
       SearchSourceResultList: props.SearchSourceResultList,
-      SearchSourceResultListEnd: props.SearchSourceResultListEnd,
+      SearchSourceResultListFooter: props.SearchSourceResultListFooter,
       SearchSourceResults: props.SearchSourceResults,
+      SearchSourceResultsEmpty: props.SearchSourceResultsEmpty,
+      SearchSourceResultsHeader: props.SearchSourceResultsHeader,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       ThreadHead: props.ThreadHead,
@@ -261,12 +263,13 @@ export const Chat = <
       props.SearchBar,
       props.SearchResults,
       props.SearchResultsHeader,
-      props.SearchSourceEmptyResults,
+      props.SearchResultsPresearch,
       props.SearchSourceLoadingResults,
       props.SearchSourceResultList,
-      props.SearchSourceResultListEnd,
+      props.SearchSourceResultListFooter,
       props.SearchSourceResults,
-      props.SearchResultsPresearch,
+      props.SearchSourceResultsEmpty,
+      props.SearchSourceResultsHeader,
       props.SendButton,
       props.StartRecordingAudioButton,
       props.ThreadHead,

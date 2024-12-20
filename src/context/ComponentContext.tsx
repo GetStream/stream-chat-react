@@ -52,9 +52,9 @@ import {
 import {
   SearchProps,
   SearchResultsPresearchProps,
-  SearchSourceEmptyResultsProps,
-  SearchSourceResultListEndProps,
+  SearchSourceResultListFooterProps,
   SearchSourceResultListProps,
+  SearchSourceResultsEmptyProps,
 } from '../experimental';
 
 import type {
@@ -64,6 +64,7 @@ import type {
   UnknownType,
 } from '../types/types';
 import type { DefaultSearchSources, SearchSource } from '../experimental/Search/SearchController';
+import { SearchSourceResultsHeaderProps } from '../experimental/Search/SearchResults/SearchSourceResultsHeader';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -185,18 +186,20 @@ export type ComponentContextValue<
   SearchResultsPresearch?: React.ComponentType<
     SearchResultsPresearchProps<StreamChatGenerics, SearchSources>
   >;
-  /** Custom component to display the search source results UI with 0 items found, defaults to and accepts same props as: [SearchSourceEmptyResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceEmptyResults.tsx) */
-  SearchSourceEmptyResults?: React.ComponentType<SearchSourceEmptyResultsProps>;
   /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceLoadingResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceLoadingResults.tsx) */
-  SearchSourceLoadingResults?: React.ComponentType<SearchSourceEmptyResultsProps>;
+  SearchSourceLoadingResults?: React.ComponentType<SearchSourceResultsEmptyProps>;
   /** Custom component to display the search source items results, defaults to and accepts same props as: [SearchSourceResultList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultList.tsx) */
   SearchSourceResultList?: React.ComponentType<
     SearchSourceResultListProps<StreamChatGenerics, SearchSources>
   >;
-  /** Custom component to indicate the end of the last page for a searched source, defaults to and accepts same props as: [SearchSourceResultListEnd](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultListEnd.tsx) */
-  SearchSourceResultListEnd?: React.ComponentType<SearchSourceResultListEndProps>;
+  /** Custom component to indicate the end of the last page for a searched source, defaults to and accepts same props as: [SearchSourceResultListFooter](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultListFooter.tsx) */
+  SearchSourceResultListFooter?: React.ComponentType<SearchSourceResultListFooterProps>;
   /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
   SearchSourceResults?: React.ComponentType;
+  /** Custom component to display the search source results UI with 0 items found, defaults to and accepts same props as: [SearchSourceResultsEmpty](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsEmpty.tsx) */
+  SearchSourceResultsEmpty?: React.ComponentType<SearchSourceResultsEmptyProps>;
+  /** Custom component to display the header content for a given search source results, no default component is provided. */
+  SearchSourceResultsHeader?: React.ComponentType<SearchSourceResultsHeaderProps>;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
