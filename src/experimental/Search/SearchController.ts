@@ -649,14 +649,3 @@ export class SearchController<
     }));
   };
 }
-
-// Usage example:
-// const controller = new SearchController<
-//   [
-//     UserSearchSource<DefaultStreamChatGenerics>,
-//     ChannelSearchSource<DefaultStreamChatGenerics>,
-//     ChannelByMessageSearchSource<DefaultStreamChatGenerics>,
-//   ]
-// >();
-//
-// const items = controller.items;
