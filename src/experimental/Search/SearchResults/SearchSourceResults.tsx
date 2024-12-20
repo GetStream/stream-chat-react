@@ -2,6 +2,7 @@ import React from 'react';
 import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
 import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './SearchSourceResultsEmpty';
 import { SearchSourceResultsHeader as DefaultSearchSourceResultsHeader } from './SearchSourceResultsHeader';
+import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
@@ -14,6 +15,7 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
 });
 
 export type SearchSourceResultsProps = { searchSource: SearchSource };
+
 export const SearchSourceResults = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
@@ -28,14 +30,13 @@ export const SearchSourceResults = <
   const { isLoading, items } = useStateStore(searchSource.state, searchSourceStateSelector);
 
   if (!items && !isLoading) return null;
+
   return (
-    <div className='str-chat__search-source-results'>
-      <SearchSourceResultsHeader searchSource={searchSource} />
-      {items?.length || isLoading ? (
-        <SearchSourceResultList items={items} searchSource={searchSource} />
-      ) : (
-        <SearchSourceResultsEmpty searchSource={searchSource} />
-      )}
-    </div>
+    <SearchSourceResultsContextProvider value={{ searchSource }}>
+      <div className='str-chat__search-source-results'>
+        <SearchSourceResultsHeader />
+        {items?.length || isLoading ? <SearchSourceResultList /> : <SearchSourceResultsEmpty />}
+      </div>
+    </SearchSourceResultsContextProvider>
   );
 };

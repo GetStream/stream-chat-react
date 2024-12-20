@@ -1,10 +1,5 @@
 import React from 'react';
-import { SearchSource } from '../SearchController';
 import { useTranslationContext } from '../../../context';
-
-export type SearchSourceResultsEmptyProps = {
-  searchSource: SearchSource;
-};
 
 export const SearchSourceResultsEmpty = () => {
   const { t } = useTranslationContext();

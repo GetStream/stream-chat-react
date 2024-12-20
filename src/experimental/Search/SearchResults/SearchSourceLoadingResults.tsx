@@ -1,14 +1,10 @@
 import React from 'react';
 import { useTranslationContext } from '../../../context';
-import { SearchSource } from '../SearchController';
+import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 
-export type SearchSourceLoadingResultsProps = {
-  searchSource: SearchSource;
-};
-
-export const SearchSourceLoadingResults = ({ searchSource }: SearchSourceLoadingResultsProps) => {
+export const SearchSourceLoadingResults = () => {
   const { t } = useTranslationContext();
-
+  const { searchSource } = useSearchSourceResultsContext();
   return (
     <div
       className='str-chat__channel-search-container-searching'

@@ -30,7 +30,7 @@ export type SearchContextValue<
 export const SearchContext = createContext<SearchContextValue | undefined>(undefined);
 
 /**
- * Context provider for components rendered within the `ChannelSearch`
+ * Context provider for components rendered within the `Search` component
  */
 export const SearchContextProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -51,14 +51,5 @@ export const useSearchContext = <
   Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
 >() => {
   const contextValue = useContext(SearchContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useChannelSearchContext hook was called outside of the ChannelSearchContext provider. Make sure this hook is called within the ChannelSearch component.`,
-    );
-
-    return {} as SearchContextValue<StreamChatGenerics, Sources>;
-  }
-
   return (contextValue as unknown) as SearchContextValue<StreamChatGenerics, Sources>;
 };
