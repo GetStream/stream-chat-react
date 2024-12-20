@@ -530,7 +530,7 @@ export class SearchController<
   deactivateSource = (sourceType: Sources[number]['type']) => {
     const source = this.getSource(sourceType);
     if (!source?.isActive) return;
-    if (this.activeSources.length === 1 && this.config.keepSingleActiveSource) return;
+    if (this.activeSources.length === 1) return;
     source.deactivate();
     this.state.partialNext({ sources: [...this.sources] as Sources });
   };
