@@ -17,6 +17,7 @@ import {
   CardContainer,
   FileContainer,
   GalleryContainer,
+  GeolocationContainer,
   ImageContainer,
   MediaContainer,
   UnsupportedAttachmentContainer,
@@ -38,10 +39,10 @@ const CONTAINER_MAP = {
   audio: AudioContainer,
   card: CardContainer,
   file: FileContainer,
+  geolocation: GeolocationContainer,
   media: MediaContainer,
   unsupported: UnsupportedAttachmentContainer,
   voiceRecording: VoiceRecordingContainer,
-  // geolocation: () => <div></div>,
 } as const;
 
 export const ATTACHMENT_GROUPS_ORDER = [
@@ -52,6 +53,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'audio',
   'voiceRecording',
   'file',
+  'geolocation',
   'unsupported',
 ] as const;
 
@@ -72,6 +74,9 @@ export type AttachmentProps<
   File?: React.ComponentType<FileAttachmentProps<StreamChatGenerics>>;
   /** Custom UI component for displaying a gallery of image type attachments, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
   Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
+  Geolocation?: React.ComponentType<{
+    attachment: StreamAttachment<StreamChatGenerics>;
+  }>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
   /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
@@ -145,6 +150,7 @@ const renderGroupedAttachments = <
         image: [],
         // eslint-disable-next-line sort-keys
         gallery: [],
+        geolocation: [],
         voiceRecording: [],
       },
     );
@@ -184,6 +190,8 @@ const getAttachmentType = <
     return 'voiceRecording';
   } else if (isFileAttachment(attachment)) {
     return 'file';
+  } else if (attachment.type === 'live_location' || attachment.type === 'static_location') {
+    return 'geolocation';
   }
 
   return 'unsupported';

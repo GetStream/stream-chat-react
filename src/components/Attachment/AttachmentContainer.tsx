@@ -11,6 +11,7 @@ import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Ga
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
+import { Geolocation as DefaultGeolocation } from './Geolocation';
 import {
   AttachmentComponentType,
   GalleryAttachment,
@@ -317,6 +318,17 @@ export const MediaContainer = <
     </AttachmentWithinContainer>
   );
 };
+
+export const GeolocationContainer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  attachment,
+  Geolocation = DefaultGeolocation,
+}: RenderAttachmentProps<StreamChatGenerics>) => (
+  <>
+    <Geolocation attachment={attachment} />
+  </>
+);
 
 export const UnsupportedAttachmentContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

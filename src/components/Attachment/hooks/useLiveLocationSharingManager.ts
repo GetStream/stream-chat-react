@@ -1,21 +1,23 @@
 import { LiveLocationManager } from 'stream-chat';
-import type { LiveLocationManagerConstructorParameters } from 'stream-chat';
 import { useEffect, useMemo } from 'react';
+import type {
+  ExtendableGenerics,
+  LiveLocationManagerConstructorParameters,
+  StreamChat,
+} from 'stream-chat';
 
-type PartialKeys<T, K extends keyof T> = {
-  [L in keyof T]: L extends K ? T[L] | undefined : T[L];
-};
-
-export const useLiveLocationSharingManager = ({
+export const useLiveLocationSharingManager = <SCG extends ExtendableGenerics>({
   client,
   retrieveAndDeserialize,
   serializeAndStore,
   watchLocation,
-}: PartialKeys<LiveLocationManagerConstructorParameters, 'client'>) => {
+}: Omit<LiveLocationManagerConstructorParameters<SCG>, 'client'> & {
+  client?: StreamChat<SCG> | null;
+}) => {
   const manager = useMemo(() => {
     if (!client) return null;
 
-    return new LiveLocationManager({
+    return new LiveLocationManager<SCG>({
       client,
       retrieveAndDeserialize,
       serializeAndStore,

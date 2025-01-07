@@ -20,7 +20,6 @@ import {
   ChatView,
   useChatContext,
   useLiveLocationSharingManager,
-  Attachment,
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
@@ -90,7 +89,7 @@ const ShareLiveLocation = () => {
             });
           },
           console.warn,
-          { timeout: 200 },
+          { timeout: 2000 },
         );
       }}
     >
@@ -116,7 +115,10 @@ const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocatio
     });
   }, 5000);
 
-  return () => clearInterval(timer);
+  return () => {
+    clearInterval(timer);
+    console.log('cleanup');
+  };
 };
 
 const App = () => {
@@ -126,12 +128,10 @@ const App = () => {
     userData: { id: userId },
   });
 
-  const manager = useLiveLocationSharingManager({
-    client: chatClient ?? undefined,
-    watchLocation: watchLocationTimed,
+  useLiveLocationSharingManager({
+    client: chatClient,
+    watchLocation: watchLocationNormal,
   });
-
-  // const s = useStateStore(manager?.state)
 
   if (!chatClient) return <>Loading...</>;
 
@@ -148,21 +148,7 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel
-            Attachment={(props) => {
-              const [attachment] = props.attachments ?? [];
-
-              if (attachment?.type === 'live_location') {
-                return (
-                  <div style={{ padding: 25 }}>
-                    lat: {attachment.latitude}, lng: {attachment.longitude}
-                  </div>
-                );
-              }
-
-              return <Attachment {...props} />;
-            }}
-          >
+          <Channel>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
