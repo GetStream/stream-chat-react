@@ -373,3 +373,35 @@ export function isDateSeparatorMessage<
 >(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
   return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
 }
+
+export const getIsFirstUnreadMessage = ({
+  firstUnreadMessageId,
+  isFirstMessage,
+  lastReadDate,
+  lastReadMessageId,
+  message,
+  previousMessage,
+  unreadMessageCount = 0,
+}: {
+  isFirstMessage: boolean;
+  message: StreamMessage;
+  firstUnreadMessageId?: string;
+  lastReadDate?: Date;
+  lastReadMessageId?: string;
+  previousMessage?: StreamMessage;
+  unreadMessageCount?: number;
+}) => {
+  const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
+  const lastReadTimestamp = lastReadDate?.getTime();
+
+  const messageIsUnread =
+    !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
+
+  const previousMessageIsLastRead =
+    !!lastReadMessageId && lastReadMessageId === previousMessage?.id;
+
+  return (
+    firstUnreadMessageId === message.id ||
+    (!!unreadMessageCount && messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
+  );
+};

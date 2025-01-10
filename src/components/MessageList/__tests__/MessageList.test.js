@@ -527,7 +527,7 @@ describe('MessageList', () => {
           },
         });
       });
-      expect(screen.queryByTestId('unread-messages-separator')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('unread-messages-separator')).toBeInTheDocument();
     });
 
     it('should display custom unread messages separator when channel is marked unread', async () => {
@@ -583,7 +583,7 @@ describe('MessageList', () => {
           },
         });
       });
-      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).toBeInTheDocument();
     });
 
     describe('notification', () => {

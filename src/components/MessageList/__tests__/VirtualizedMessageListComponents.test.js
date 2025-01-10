@@ -435,51 +435,18 @@ describe('VirtualizedMessageComponents', () => {
           );
         };
 
-        it('should be rendered below the last read message if unread count is non-zero', async () => {
+        it('should be rendered above the first unread message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
+              lastReadDate: new Date(messages[0].created_at),
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 1,
-              UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
-            },
-          });
-          expect(container).toMatchInlineSnapshot(`
-            <div>
-              <div
-                class="message-component"
-              />
-              <div
-                class="str-chat__unread-messages-separator-wrapper"
-              >
-                <div
-                  class="str-chat__unread-messages-separator"
-                  data-testid="unread-messages-separator"
-                >
-                  Unread messages
-                </div>
-              </div>
-            </div>
-          `);
-        });
-
-        it('should be rendered above the last first unread message', async () => {
-          const { container } = await renderMarkUnread({
-            virtuosoContext: {
-              lastReadDate: new Date(1),
-              lastReceivedMessageId: messages[1].id,
-              Message,
-              messageGroupStyles: {},
-              numItemsPrepended,
-              ownMessagesReadByOthers: {},
-              processedMessages: messages,
-              unreadMessageCount: messages.length,
               UnreadMessagesSeparator,
               virtuosoRef: { current: {} },
             },
@@ -506,6 +473,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
+              lastReadDate: new Date(messages[1].created_at),
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
               Message,
@@ -527,7 +495,7 @@ describe('VirtualizedMessageComponents', () => {
           `);
         });
 
-        it('should be rendered if unread count is falsy and first unread message is known', async () => {
+        it('should be rendered if unread count is falsy and the first unread message is known', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
               firstUnreadMessageId: messages[1].id,
@@ -535,7 +503,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 0,
@@ -546,9 +514,6 @@ describe('VirtualizedMessageComponents', () => {
           expect(container).toMatchInlineSnapshot(`
             <div>
               <div
-                class="message-component"
-              />
-              <div
                 class="str-chat__unread-messages-separator-wrapper"
               >
                 <div
@@ -558,6 +523,9 @@ describe('VirtualizedMessageComponents', () => {
                   Unread messages
                 </div>
               </div>
+              <div
+                class="message-component"
+              />
             </div>
           `);
         });
@@ -569,7 +537,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 0,
@@ -593,7 +561,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended: 1,
+              numItemsPrepended: 0,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 1,
