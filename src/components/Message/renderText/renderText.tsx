@@ -32,6 +32,13 @@ export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji'
   'pre',
   'blockquote',
   'del',
+  'table',
+  'thead',
+  'tbody',
+  'th',
+  'tr',
+  'td',
+  'tfoot',
   // custom types (tagNames)
   'emoji',
   'mention',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
@@ -34,6 +34,7 @@ import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -55,6 +56,7 @@ const MessageSimpleWithContext = <
     handleOpenThread,
     handleRetry,
     highlighted,
+    isMessageAIGenerated,
     isMyMessage,
     message,
     onUserClick,
@@ -81,11 +83,16 @@ const MessageSimpleWithContext = <
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionsList = DefaultReactionList,
+    StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
+  const isAIGenerated = useMemo(() => isMessageAIGenerated?.(message), [
+    isMessageAIGenerated,
+    message,
+  ]);
 
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
@@ -99,7 +106,7 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
-  const isEdited = isMessageEdited(message);
+  const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   let handleClick: (() => void) | undefined = undefined;
 
@@ -185,7 +192,11 @@ const MessageSimpleWithContext = <
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
-              <MessageText message={message} renderText={renderText} />
+              {isAIGenerated ? (
+                <StreamedMessageText message={message} renderText={renderText} />
+              ) : (
+                <MessageText message={message} renderText={renderText} />
+              )}
               {message.mml && (
                 <MML
                   actionHandler={handleAction}

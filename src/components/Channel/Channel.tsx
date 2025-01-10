@@ -161,6 +161,8 @@ type ChannelPropsForwardedToComponentContext<
   | 'UnreadMessagesNotification'
   | 'UnreadMessagesSeparator'
   | 'VirtualMessage'
+  | 'StopAIGenerationButton'
+  | 'StreamedMessageText'
 >;
 
 const isUserResponseArray = <
@@ -1273,6 +1275,8 @@ const ChannelInner = <
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
+      StopAIGenerationButton: props.StopAIGenerationButton,
+      StreamedMessageText: props.StreamedMessageText,
       ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
@@ -1339,6 +1343,8 @@ const ChannelInner = <
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
       props.VirtualMessage,
+      props.StopAIGenerationButton,
+      props.StreamedMessageText,
       props.emojiSearchIndex,
       props.reactionOptions,
     ],

@@ -21,10 +21,11 @@ const PREVIEW_TEST_ID = 'channel-preview-button';
 
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
+
   let chatClient;
   let channel;
   const renderComponent = (props) => (
-    <ChatProvider value={{ client: { user: { id: 'id' } } }}>
+    <ChatProvider value={{ client: chatClient }}>
       <div aria-label='Select Channel' role='listbox'>
         <ChannelPreviewMessenger
           channel={channel}
@@ -78,7 +79,9 @@ describe('ChannelPreviewMessenger', () => {
       expect(setActiveChannel).toHaveBeenCalledTimes(1);
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });
-    const results = await axe(container);
+
+    const results = await axe(container.firstChild.firstChild);
+
     expect(results).toHaveNoViolations();
   });
 

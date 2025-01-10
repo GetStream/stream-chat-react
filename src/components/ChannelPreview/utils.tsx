@@ -7,6 +7,7 @@ import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stre
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { ChatContextValue } from '../../context';
 
 export const renderPreviewText = (text: string) => <ReactMarkdown skipHtml>{text}</ReactMarkdown>;
 
@@ -32,6 +33,7 @@ export const getLatestMessagePreview = <
   channel: Channel<StreamChatGenerics>,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
+  isMessageAIGenerated?: ChatContextValue<StreamChatGenerics>['isMessageAIGenerated'],
 ): string | JSX.Element => {
   const latestMessage = channel.state.latestMessages[channel.state.latestMessages.length - 1];
 
@@ -77,7 +79,9 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    return renderPreviewText(previewTextToRender);
+    return isMessageAIGenerated?.(latestMessage)
+      ? previewTextToRender
+      : renderPreviewText(previewTextToRender);
   }
 
   if (latestMessage.command) {

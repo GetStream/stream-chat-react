@@ -1,3 +1,31 @@
+## [12.8.1](https://github.com/GetStream/stream-chat-react/compare/v12.8.0...v12.8.1) (2024-12-19)
+
+
+### Bug Fixes
+
+* do not clear dialog state immediately on useDialog unmount ([#2584](https://github.com/GetStream/stream-chat-react/issues/2584)) ([a8755ec](https://github.com/GetStream/stream-chat-react/commit/a8755ec8112f69dd44e95c34d176e00436cbeee5)), closes [#2583](https://github.com/GetStream/stream-chat-react/issues/2583)
+
+## [12.8.0](https://github.com/GetStream/stream-chat-react/compare/v12.7.1...v12.8.0) (2024-12-12)
+
+
+### Features
+
+* per-user channel pinning/archiving ([#2555](https://github.com/GetStream/stream-chat-react/issues/2555)) ([a51fad0](https://github.com/GetStream/stream-chat-react/commit/a51fad067bdc0ee94fce6fff49c5085196dcc186))
+
+## [12.7.1](https://github.com/GetStream/stream-chat-react/compare/v12.7.0...v12.7.1) (2024-12-05)
+
+
+### Bug Fixes
+
+* add support for custom resolution of whether a message is ai generated ([#2572](https://github.com/GetStream/stream-chat-react/issues/2572)) ([54640ac](https://github.com/GetStream/stream-chat-react/commit/54640ac4ec89bb3ddd73b9641d3a2ffc0d3ea924))
+
+## [12.7.0](https://github.com/GetStream/stream-chat-react/compare/v12.6.2...v12.7.0) (2024-12-04)
+
+
+### Features
+
+* add support for ai generated messages ([#2570](https://github.com/GetStream/stream-chat-react/issues/2570)) ([fb1bfdd](https://github.com/GetStream/stream-chat-react/commit/fb1bfddd3ccfae10ef907c5c853791240fc83a35))
+
 ## [12.6.2](https://github.com/GetStream/stream-chat-react/compare/v12.6.1...v12.6.2) (2024-12-03)
 
 
