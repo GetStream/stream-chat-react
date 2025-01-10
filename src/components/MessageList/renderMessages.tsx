@@ -2,7 +2,7 @@ import React, { Fragment, ReactNode } from 'react';
 
 import type { UserResponse } from 'stream-chat';
 
-import { GroupStyle, isDateSeparatorMessage } from './utils';
+import { getIsFirstUnreadMessage, GroupStyle, isDateSeparatorMessage } from './utils';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
@@ -75,6 +75,7 @@ export function defaultRenderMessages<
 
   const renderedMessages = [];
   let firstMessage;
+  let previousMessage = undefined;
   for (let index = 0; index < messages.length; index++) {
     const message = messages[index];
     if (isDateSeparatorMessage(message)) {
@@ -106,34 +107,19 @@ export function defaultRenderMessages<
       const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
       const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
-      const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
-      const lastReadTimestamp = channelUnreadUiState?.last_read.getTime();
-      const isFirstMessage = firstMessage?.id && firstMessage.id === message.id;
-      const isNewestMessage = index === messages.length - 1;
-
-      const isLastReadMessage =
-        channelUnreadUiState?.last_read_message_id === message.id ||
-        (!channelUnreadUiState?.unread_messages && createdAtTimestamp === lastReadTimestamp);
-
-      const isFirstUnreadMessage =
-        channelUnreadUiState?.first_unread_message_id === message.id ||
-        (!!channelUnreadUiState?.unread_messages &&
-          !!createdAtTimestamp &&
-          !!lastReadTimestamp &&
-          createdAtTimestamp > lastReadTimestamp &&
-          isFirstMessage);
-
-      const showUnreadSeparatorAbove =
-        !channelUnreadUiState?.last_read_message_id && isFirstUnreadMessage;
-
-      const showUnreadSeparatorBelow =
-        isLastReadMessage &&
-        !isNewestMessage &&
-        (channelUnreadUiState?.first_unread_message_id || !!channelUnreadUiState?.unread_messages); // this part has to be here as we do not mark channel read when sending a message
+      const isFirstUnreadMessage = getIsFirstUnreadMessage({
+        firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
+        isFirstMessage: !!firstMessage?.id && firstMessage.id === message.id,
+        lastReadDate: channelUnreadUiState?.last_read,
+        lastReadMessageId: channelUnreadUiState?.last_read_message_id,
+        message,
+        previousMessage,
+        unreadMessageCount: channelUnreadUiState?.unread_messages,
+      });
 
       renderedMessages.push(
         <Fragment key={message.id || (message.created_at as string)}>
-          {showUnreadSeparatorAbove && UnreadMessagesSeparator && (
+          {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
               <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
             </li>
@@ -147,13 +133,9 @@ export function defaultRenderMessages<
               {...messageProps}
             />
           </li>
-          {showUnreadSeparatorBelow && UnreadMessagesSeparator && (
-            <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-              <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
-            </li>
-          )}
         </Fragment>,
       );
+      previousMessage = message;
     }
   }
   return renderedMessages;
