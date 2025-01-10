@@ -9,7 +9,11 @@ export const useDialog = ({ id }: GetOrCreateDialogParams) => {
 
   useEffect(
     () => () => {
-      dialogManager.remove(id);
+      // Since this cleanup can run even if the component is still mounted
+      // and dialog id is unchanged (e.g. in <StrictMode />), it's safer to
+      // mark state as unused and only remove it after a timeout, rather than
+      // to remove it immediately.
+      dialogManager.markForRemoval(id);
     },
     [dialogManager, id],
   );

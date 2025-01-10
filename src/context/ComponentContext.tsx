@@ -5,6 +5,7 @@ import {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
+  ChannelPreviewActionButtonsProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
@@ -37,6 +38,7 @@ import {
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
+  StreamedMessageTextProps,
   SuggestionItemProps,
   SuggestionListProps,
   ThreadHeaderProps,
@@ -54,6 +56,7 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
+import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -77,6 +80,10 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
+  /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
+  ChannelPreviewActionButtons?: React.ComponentType<
+    ChannelPreviewActionButtonsProps<StreamChatGenerics>
+  >;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
@@ -164,6 +171,8 @@ export type ComponentContextValue<
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
+  StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
+  StreamedMessageText?: React.ComponentType<StreamedMessageTextProps>;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */

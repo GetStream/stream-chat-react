@@ -76,7 +76,7 @@ const MessageWithContext = <
     userRoles,
   } = props;
 
-  const { client } = useChatContext('Message');
+  const { client, isMessageAIGenerated } = useChatContext('Message');
   const { read } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext<StreamChatGenerics>('Message');
 
@@ -159,6 +159,7 @@ const MessageWithContext = <
     editing,
     getMessageActions: messageActionsHandler,
     handleEdit: setEdit,
+    isMessageAIGenerated,
     isMyMessage: () => isMyMessage,
     messageIsUnread,
     onUserClick,
