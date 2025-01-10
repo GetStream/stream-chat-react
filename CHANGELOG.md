@@ -1,3 +1,11 @@
+## [12.8.2](https://github.com/GetStream/stream-chat-react/compare/v12.8.1...v12.8.2) (2025-01-10)
+
+
+### Bug Fixes
+
+* show unread messages indicators for target channel only ([#2597](https://github.com/GetStream/stream-chat-react/issues/2597)) ([2af5f0a](https://github.com/GetStream/stream-chat-react/commit/2af5f0a22d48ffa29ddca3eb7032f1da4dc9429a))
+* show unread msg banner above unread msg only ([#2596](https://github.com/GetStream/stream-chat-react/issues/2596)) ([b9eb846](https://github.com/GetStream/stream-chat-react/commit/b9eb846f5e56d84b639fe0cf1099b1333660b000))
+
 ## [12.8.1](https://github.com/GetStream/stream-chat-react/compare/v12.8.0...v12.8.1) (2024-12-19)
 
 
