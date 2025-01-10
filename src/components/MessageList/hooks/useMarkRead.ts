@@ -35,7 +35,7 @@ export const useMarkRead = <
 }: UseMarkReadParams) => {
   const { client } = useChatContext<StreamChatGenerics>('useMarkRead');
   const { markRead, setChannelUnreadUiState } = useChannelActionContext('useMarkRead');
-  const { channel } = useChannelStateContext('useMarkRead');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useMarkRead');
   const previousRenderMessageListScrolledToBottom = useRef(isMessageListScrolledToBottom);
 
   useEffect(() => {
@@ -51,7 +51,6 @@ export const useMarkRead = <
     };
 
     const handleMessageNew = (event: Event<StreamChatGenerics>) => {
-      const newMessageToCurrentChannel = event.cid === channel.cid;
       const isOwnMessage = event.user?.id && event.user.id === client.user?.id;
       const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
       if (isOwnMessage) return;
@@ -72,16 +71,12 @@ export const useMarkRead = <
             unread_messages: previousUnreadCount + 1,
           };
         });
-      } else if (
-        newMessageToCurrentChannel &&
-        mainChannelUpdated &&
-        shouldMarkRead(channel.countUnread())
-      ) {
+      } else if (mainChannelUpdated && shouldMarkRead(channel.countUnread())) {
         markRead();
       }
     };
 
-    client.on('message.new', handleMessageNew);
+    channel.on('message.new', handleMessageNew);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     const hasScrolledToBottom =
@@ -92,7 +87,7 @@ export const useMarkRead = <
     previousRenderMessageListScrolledToBottom.current = isMessageListScrolledToBottom;
 
     return () => {
-      client.off('message.new', handleMessageNew);
+      channel.off('message.new', handleMessageNew);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [
