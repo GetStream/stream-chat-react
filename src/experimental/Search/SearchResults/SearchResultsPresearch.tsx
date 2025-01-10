@@ -1,13 +1,9 @@
 import React from 'react';
-import { DefaultSearchSources, SearchSource } from '../SearchController';
+import { SearchSource } from '../SearchController';
 import { useTranslationContext } from '../../../context';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type SearchResultsPresearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = {
-  activeSources: Array<Sources[number]>;
+export type SearchResultsPresearchProps = {
+  activeSources: SearchSource[];
 };
 
 export const SearchResultsPresearch = () => {

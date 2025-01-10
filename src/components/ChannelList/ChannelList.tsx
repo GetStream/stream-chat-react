@@ -16,6 +16,7 @@ import { useNotificationRemovedFromChannelListener } from './hooks/useNotificati
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
+import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
@@ -35,24 +36,18 @@ import { useChatContext } from '../../context/ChatContext';
 import { useStateStore } from '../../store';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
-import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
-import type {
-  DefaultSearchSources,
-  SearchControllerState,
-  SearchSource,
-} from '../../experimental/Search/SearchController';
+import type { SearchControllerState } from '../../experimental/Search/SearchController';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+  nextValue: SearchControllerState<StreamChatGenerics>,
 ) => ({ searchIsActive: nextValue.isActive });
 
 export type ChannelListProps<

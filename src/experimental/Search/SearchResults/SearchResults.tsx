@@ -3,21 +3,16 @@ import React from 'react';
 import { SearchSourceResults as DefaultSourceSearchResults } from './SearchSourceResults';
 import { SearchResultsHeader as DefaultSearchResultsHeader } from './SearchResultsHeader';
 import { SearchResultsPresearch as DefaultSearchResultsPresearch } from './SearchResultsPresearch';
-import type {
-  DefaultSearchSources,
-  SearchControllerState,
-  SearchSource,
-} from '../SearchController';
+import type { SearchControllerState } from '../SearchController';
 import { useSearchContext } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  nextValue: SearchControllerState<StreamChatGenerics, SearchSources>,
+  nextValue: SearchControllerState<StreamChatGenerics>,
 ) => ({
   activeSources: nextValue.sources.filter((s) => s.isActive),
   isSearchActive: nextValue.isActive,
@@ -25,16 +20,15 @@ const searchControllerStateSelector = <
 });
 
 export const SearchResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { t } = useTranslationContext('ResultsContainer');
   const {
     SearchResultsHeader = DefaultSearchResultsHeader,
     SearchSourceResults = DefaultSourceSearchResults,
     SearchResultsPresearch = DefaultSearchResultsPresearch,
-  } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
-  const { searchController } = useSearchContext<StreamChatGenerics, SearchSources>();
+  } = useComponentContext<StreamChatGenerics>();
+  const { searchController } = useSearchContext<StreamChatGenerics>();
   const { activeSources, isSearchActive, searchQuery } = useStateStore(
     searchController.state,
     searchControllerStateSelector,

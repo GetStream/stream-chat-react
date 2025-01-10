@@ -1,9 +1,9 @@
 import React from 'react';
-import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
 import { SearchSourceResultsLoadingIndicator as DefaultSearchSourceResultsLoadingIndicator } from './SearchSourceResultsLoadingIndicator';
 import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import type { SearchSourceState } from '../SearchController';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (value: SearchSourceState) => ({
@@ -12,13 +12,12 @@ const searchSourceStateSelector = (value: SearchSourceState) => ({
 });
 
 export const SearchSourceResultListFooter = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { t } = useTranslationContext();
   const {
     SearchSourceResultsLoadingIndicator = DefaultSearchSourceResultsLoadingIndicator,
-  } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
+  } = useComponentContext<StreamChatGenerics>();
   const { searchSource } = useSearchSourceResultsContext();
   const { hasMore, isLoading } = useStateStore(searchSource.state, searchSourceStateSelector);
 

@@ -1,12 +1,11 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { DefaultSearchSources, SearchController, SearchSource } from './SearchController';
+import { SearchController } from './SearchController';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export type SearchContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  searchController: SearchController<StreamChatGenerics, Sources>;
+  searchController: SearchController<StreamChatGenerics>;
   /** The type of channel to create on user result select, defaults to `messaging` */
   userToUserCreatedChannelType: string;
   /** Sets the input element into disabled state */
@@ -33,13 +32,12 @@ export const SearchContext = createContext<SearchContextValue | undefined>(undef
  * Context provider for components rendered within the `Search` component
  */
 export const SearchContextProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: SearchContextValue<StreamChatGenerics, Sources>;
+  value: SearchContextValue<StreamChatGenerics>;
 }>) => (
   <SearchContext.Provider value={(value as unknown) as SearchContextValue}>
     {children}
@@ -47,9 +45,8 @@ export const SearchContextProvider = <
 );
 
 export const useSearchContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const contextValue = useContext(SearchContext);
-  return (contextValue as unknown) as SearchContextValue<StreamChatGenerics, Sources>;
+  return (contextValue as unknown) as SearchContextValue<StreamChatGenerics>;
 };

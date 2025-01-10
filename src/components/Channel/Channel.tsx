@@ -62,6 +62,7 @@ import {
   WithComponents,
 } from '../../context';
 
+import { CHANNEL_CONTAINER_ID } from './constants';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
   DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
@@ -77,9 +78,9 @@ import {
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
+import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import { useStateStore } from '../../store';
-import { CHANNEL_CONTAINER_ID } from './constants';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -98,18 +99,12 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import { useThreadContext } from '../Threads';
-import type {
-  DefaultSearchSources,
-  SearchControllerState,
-  SearchSource,
-} from '../../experimental/Search/SearchController';
+import type { SearchControllerState } from '../../experimental/Search/SearchController';
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+  nextValue: SearchControllerState<StreamChatGenerics>,
 ) => ({ jumpToMessageFromSearch: nextValue.focusedMessage });
 
 export type ChannelPropsForwardedToComponentContext<

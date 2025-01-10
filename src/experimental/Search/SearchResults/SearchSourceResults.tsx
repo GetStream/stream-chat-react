@@ -5,7 +5,7 @@ import { SearchSourceResultsHeader as DefaultSearchSourceResultsHeader } from '.
 import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
+import type { SearchSource, SearchSourceState } from '../SearchController';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
@@ -17,8 +17,7 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
 export type SearchSourceResultsProps = { searchSource: SearchSource };
 
 export const SearchSourceResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   searchSource,
 }: SearchSourceResultsProps) => {
@@ -26,7 +25,7 @@ export const SearchSourceResults = <
     SearchSourceResultList = DefaultSearchSourceResultList,
     SearchSourceResultsEmpty = DefaultSearchSourceResultsEmpty,
     SearchSourceResultsHeader = DefaultSearchSourceResultsHeader,
-  } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
+  } = useComponentContext<StreamChatGenerics>();
   const { isLoading, items } = useStateStore(searchSource.state, searchSourceStateSelector);
 
   if (!items && !isLoading) return null;

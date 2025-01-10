@@ -6,11 +6,6 @@ import { Avatar } from '../../../components/Avatar';
 import { ChannelPreview } from '../../../components/ChannelPreview';
 import { useChannelListContext, useChatContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
-import type {
-  DefaultSearchSources,
-  InferSearchQueryResult,
-  SearchSource,
-} from '../SearchController';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 
 export type ChannelSearchResultItemProps<
@@ -42,12 +37,11 @@ export type ChannelByMessageSearchResultItemProps<
 };
 
 export const MessageSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   item,
 }: ChannelByMessageSearchResultItemProps<StreamChatGenerics>) => {
-  const { client, searchController } = useChatContext<StreamChatGenerics, SearchSources>();
+  const { client, searchController } = useChatContext<StreamChatGenerics>();
   const { channel: activeChannel, setActiveChannel } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
 
@@ -93,14 +87,13 @@ export type UserSearchResultItemProps<
 };
 
 export const UserSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   item,
 }: UserSearchResultItemProps<StreamChatGenerics>) => {
   const { client, setActiveChannel } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
-  const { userToUserCreatedChannelType } = useSearchContext<StreamChatGenerics, Sources>();
+  const { userToUserCreatedChannelType } = useSearchContext<StreamChatGenerics>();
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(userToUserCreatedChannelType, {
@@ -130,11 +123,8 @@ export const UserSearchResultItem = <
   );
 };
 
-export type SearchResultItemComponents<Sources extends SearchSource[] = DefaultSearchSources> = {
-  [K in Sources[number]['type']]?: ComponentType<{
-    item: InferSearchQueryResult<Extract<Sources[number], { type: K }>>;
-  }>;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SearchResultItemComponents = Record<string, ComponentType<{ item: any }>>;
 
 export const DefaultSearchResultItems: SearchResultItemComponents = {
   channels: ChannelSearchResultItem,

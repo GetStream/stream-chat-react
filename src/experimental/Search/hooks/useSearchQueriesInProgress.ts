@@ -1,40 +1,32 @@
-import {
-  DefaultSearchSources,
-  SearchController,
-  SearchControllerState,
-  SearchSource,
-} from '../SearchController';
 import { useEffect, useState } from 'react';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import { SearchController, SearchControllerState, SearchSource } from '../SearchController';
 import { useStateStore } from '../../../store';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  value: SearchControllerState<StreamChatGenerics, Sources>,
+  value: SearchControllerState<StreamChatGenerics>,
 ) => ({
   sources: value.sources,
 });
 
 export type UseSearchQueriesInProgressParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  searchController: SearchController<StreamChatGenerics, Sources>;
+  searchController: SearchController<StreamChatGenerics>;
 };
 
 export const useSearchQueriesInProgress = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  searchController: SearchController<StreamChatGenerics, Sources>,
+  searchController: SearchController<StreamChatGenerics>,
 ) => {
   const [queriesInProgress, setQueriesInProgress] = useState<string[]>([]);
   const { sources } = useStateStore(searchController.state, searchControllerStateSelector);
 
   useEffect(() => {
-    const subscriptions = sources.map((source) =>
+    const subscriptions = sources.map((source: SearchSource) =>
       source.state.subscribeWithSelector(
         (value) => ({ isLoading: value.isLoading }),
         ({ isLoading }) => {

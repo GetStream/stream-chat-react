@@ -2,16 +2,11 @@ import { useMemo } from 'react';
 
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import type {
-  DefaultSearchSources,
-  SearchSource,
-} from '../../../experimental/Search/SearchController';
 
 export const useCreateChatContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  value: ChatContextValue<StreamChatGenerics, SearchSources>,
+  value: ChatContextValue<StreamChatGenerics>,
 ) => {
   const {
     channel,
@@ -39,7 +34,7 @@ export const useCreateChatContext = <
   ${client.user?.id}`;
   const mutedUsersLength = mutes.length;
 
-  const chatContext: ChatContextValue<StreamChatGenerics, SearchSources> = useMemo(
+  const chatContext: ChatContextValue<StreamChatGenerics> = useMemo(
     () => ({
       channel,
       channelsQueryState,

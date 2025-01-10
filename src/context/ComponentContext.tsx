@@ -61,12 +61,10 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import type { DefaultSearchSources, SearchSource } from '../experimental/Search/SearchController';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  V extends CustomTrigger = CustomTrigger
 > = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
@@ -180,13 +178,9 @@ export type ComponentContextValue<
   /** Custom UI component to display header of search results pane, defaults to and accepts same props as: [SearchResultsHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResultsHeader.tsx) */
   SearchResultsHeader?: React.ComponentType;
   /** Custom component to display search results pane before emitting the first search query for a given source, defaults to and accepts same props as: [SearchResultsPresearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsPresearch.tsx) */
-  SearchResultsPresearch?: React.ComponentType<
-    SearchResultsPresearchProps<StreamChatGenerics, SearchSources>
-  >;
+  SearchResultsPresearch?: React.ComponentType<SearchResultsPresearchProps>;
   /** Custom component to display the search source items results, defaults to and accepts same props as: [SearchSourceResultList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultList.tsx) */
-  SearchSourceResultList?: React.ComponentType<
-    SearchSourceResultListProps<StreamChatGenerics, SearchSources>
-  >;
+  SearchSourceResultList?: React.ComponentType<SearchSourceResultListProps>;
   /** Custom component to indicate the end of the last page for a searched source, defaults to and accepts same props as: [SearchSourceResultListFooter](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultListFooter.tsx) */
   SearchSourceResultListFooter?: React.ComponentType;
   /** Custom UI component to display search results items for a given search source pane, defaults to and accepts same props as: [SearchSourceResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SourceSearchResults.tsx) */
@@ -245,20 +239,14 @@ export const ComponentProvider = <
 
 export const useComponentContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  V extends CustomTrigger = CustomTrigger
 >(
   /**
    * @deprecated
    */
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   _componentName?: string,
-) =>
-  (useContext(ComponentContext) as unknown) as ComponentContextValue<
-    StreamChatGenerics,
-    V,
-    SearchSources
-  >;
+) => (useContext(ComponentContext) as unknown) as ComponentContextValue<StreamChatGenerics, V>;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext

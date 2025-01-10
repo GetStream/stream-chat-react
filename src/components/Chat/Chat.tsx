@@ -6,30 +6,27 @@ import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
-import type { ComponentContextValue } from '../../context';
 import { WithComponents } from '../../context';
+import {
+  ChannelSearchSource,
+  MessageSearchSource,
+  SearchController,
+  UserSearchSource,
+} from '../../experimental/Search/SearchController';
 
 import type { StreamChat } from 'stream-chat';
 
 import type { ChannelPropsForwardedToComponentContext } from '../Channel';
+import type { ComponentContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
-import {
-  ChannelSearchSource,
-  DefaultSearchSources,
-  MessageSearchSource,
-  SearchController,
-  SearchSource,
-  UserSearchSource,
-} from '../../experimental/Search/SearchController';
 
 export type ChatPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  V extends CustomTrigger = CustomTrigger
 > = Pick<
-  ComponentContextValue<StreamChatGenerics, V, SearchSources>,
+  ComponentContextValue<StreamChatGenerics, V>,
   | 'ChannelAvatar'
   | 'Search'
   | 'SearchBar'
@@ -46,9 +43,8 @@ export type ChatPropsForwardedToComponentContext<
 
 export type ChatProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = ChatPropsForwardedToComponentContext<StreamChatGenerics, V, SearchSources> &
+  V extends CustomTrigger = CustomTrigger
+> = ChatPropsForwardedToComponentContext<StreamChatGenerics, V> &
   ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
     /** The StreamChat client object */
     client: StreamChat<StreamChatGenerics>;
@@ -61,7 +57,7 @@ export type ChatProps<
     /** Initial status of mobile navigation */
     initialNavOpen?: boolean;
     /** Instance of SearchController class that allows to control all the search operations. */
-    searchController?: SearchController<StreamChatGenerics, SearchSources>;
+    searchController?: SearchController<StreamChatGenerics>;
     /** Used for injecting className/s to the Channel and ChannelList components */
     theme?: string;
     /**
@@ -80,10 +76,9 @@ export type ChatProps<
  */
 export const Chat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  V extends CustomTrigger = CustomTrigger
 >(
-  props: PropsWithChildren<ChatProps<StreamChatGenerics, V, SearchSources>>,
+  props: PropsWithChildren<ChatProps<StreamChatGenerics, V>>,
 ) => {
   const {
     children,
@@ -113,17 +108,16 @@ export const Chat = <
 
   const searchController = useMemo(() => {
     if (customChannelSearchController) return customChannelSearchController;
-    return new SearchController<StreamChatGenerics, SearchSources>({
-      config: { keepSingleActiveSource: false },
-      sources: ([
-        new UserSearchSource<StreamChatGenerics>(client),
+    return new SearchController<StreamChatGenerics>({
+      sources: [
         new ChannelSearchSource<StreamChatGenerics>(client),
+        new UserSearchSource<StreamChatGenerics>(client),
         new MessageSearchSource<StreamChatGenerics>(client),
-      ] as unknown) as SearchSources,
+      ],
     });
   }, [client, customChannelSearchController]);
 
-  const chatContextValue = useCreateChatContext<StreamChatGenerics, SearchSources>({
+  const chatContextValue = useCreateChatContext<StreamChatGenerics>({
     channel,
     channelsQueryState,
     client,

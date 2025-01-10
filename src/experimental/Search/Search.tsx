@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import { DefaultSearchSources, SearchControllerState, SearchSource } from './SearchController';
+import { SearchControllerState } from './SearchController';
 import { SearchBar as DefaultSearchBar } from './SearchBar/SearchBar';
 import { SearchResults as DefaultSearchResults } from './SearchResults/SearchResults';
 import { SearchContextProvider } from './SearchContext';
@@ -15,10 +15,9 @@ type SearchControllerStateSelectorReturnValue = {
 };
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+  nextValue: SearchControllerState<StreamChatGenerics>,
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
 // todo: rename all search components to Search only
@@ -37,8 +36,7 @@ export type SearchProps = {
 };
 
 export const Search = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   disabled,
   exitSearchOnInputBlur,
@@ -52,15 +50,15 @@ export const Search = <
     SearchResults = DefaultSearchResults,
   } = useComponentContext();
 
-  const { searchController } = useChatContext<StreamChatGenerics, Sources>();
+  const { searchController } = useChatContext<StreamChatGenerics>();
 
   const { isActive } = useStateStore<
-    SearchControllerState<StreamChatGenerics, Sources>,
+    SearchControllerState<StreamChatGenerics>,
     SearchControllerStateSelectorReturnValue
   >(searchController.state, searchControllerStateSelector);
 
   return (
-    <SearchContextProvider<StreamChatGenerics, Sources>
+    <SearchContextProvider<StreamChatGenerics>
       value={{
         disabled,
         exitSearchOnInputBlur,

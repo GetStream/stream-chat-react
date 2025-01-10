@@ -1,16 +1,15 @@
 import clsx from 'clsx';
 import React from 'react';
-import { DefaultSearchSources, SearchControllerState, SearchSource } from '../SearchController';
+import { SearchControllerState } from '../SearchController';
 import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  nextValue: SearchControllerState<StreamChatGenerics, Sources>,
+  nextValue: SearchControllerState<StreamChatGenerics>,
 ) => ({
   activeSourceTypes: nextValue.sources.reduce<string[]>((acc, s) => {
     if (s.isActive) {
@@ -21,11 +20,10 @@ const searchControllerStateSelector = <
 });
 
 export const SearchResultsHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { t } = useTranslationContext();
-  const { searchController } = useSearchContext<StreamChatGenerics, Sources>();
+  const { searchController } = useSearchContext<StreamChatGenerics>();
   const { activeSourceTypes } = useStateStore(
     searchController.state,
     searchControllerStateSelector,

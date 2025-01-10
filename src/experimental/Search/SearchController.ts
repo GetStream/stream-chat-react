@@ -472,22 +472,12 @@ SourceItemsRecord<[ChannelByMessageSearchSource]>
  */
 export type InferSearchQueryResult<T> = T extends BaseSearchSource<infer U> ? U : never;
 
-export type SourceItemsRecord<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = {
-  [K in Sources[number]['type']]: Array<
-    InferSearchQueryResult<Extract<Sources[number], { type: K }>>
-  >;
-};
-
 export type SearchControllerState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   isActive: boolean;
   searchQuery: string;
-  sources: Sources;
+  sources: SearchSource[];
   // FIXME: focusedMessage should live in a MessageListController class that does not exist yet.
   //  This state prop should be then removed
   focusedMessage?: MessageResponse<StreamChatGenerics>;
@@ -495,35 +485,31 @@ export type SearchControllerState<
 };
 
 export type SearchControllerConfig = {
-  // The controller will make sure there is always exactly one active source
+  // The controller will make sure there is always exactly one active source. Enabled by default.
   keepSingleActiveSource: boolean;
 };
 
-export type SearchControllerOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = {
+export type SearchControllerOptions = {
   config?: Partial<SearchControllerConfig>;
-  sources?: Sources;
+  sources?: SearchSource[];
 };
 
 export class SearchController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > {
-  state: StateStore<SearchControllerState<StreamChatGenerics, Sources>>;
+  state: StateStore<SearchControllerState<StreamChatGenerics>>;
   config: SearchControllerConfig;
 
-  constructor({ config, sources }: SearchControllerOptions<StreamChatGenerics, Sources> = {}) {
-    this.state = new StateStore<SearchControllerState<StreamChatGenerics, Sources>>({
+  constructor({ config, sources }: SearchControllerOptions = {}) {
+    this.state = new StateStore<SearchControllerState<StreamChatGenerics>>({
       isActive: false,
       searchQuery: '',
-      sources: sources ?? (([] as unknown) as Sources),
+      sources: sources ?? [],
     });
-    this.config = { keepSingleActiveSource: false, ...config };
+    this.config = { keepSingleActiveSource: true, ...config };
   }
   get hasMore() {
-    return this.sources.some((source) => (source as Sources[number]).hasMore);
+    return this.sources.some((source) => source.hasMore);
   }
 
   get sources() {
@@ -542,31 +528,30 @@ export class SearchController<
     return this.state.getLatestValue().searchQuery;
   }
 
-  get searchSourceTypes(): Array<Sources[number]['type']> {
-    return this.sources.map((s) => s.type) as Sources[number]['type'][];
+  get searchSourceTypes(): Array<SearchSource['type']> {
+    return this.sources.map((s) => s.type);
   }
 
   setInputElement = (input: HTMLInputElement) => {
     this.state.partialNext({ input });
   };
 
-  addSource = (source: Sources[number]) => {
+  addSource = (source: SearchSource) => {
     this.state.partialNext({
-      sources: [...this.sources, source] as Sources,
+      sources: [...this.sources, source],
     });
   };
 
-  getSource = (sourceType: Sources[number]['type']) =>
-    this.sources.find((s) => s.type === sourceType);
+  getSource = (sourceType: SearchSource['type']) => this.sources.find((s) => s.type === sourceType);
 
-  removeSource = (sourceType: Sources[number]['type']) => {
+  removeSource = (sourceType: SearchSource['type']) => {
     const newSources = this.sources.filter((s) => s.type !== sourceType);
     if (newSources.length === this.sources.length) return;
-    this.state.partialNext({ sources: newSources as Sources });
+    this.state.partialNext({ sources: newSources });
   };
 
   activateSource = (
-    sourceType: Sources[number]['type'],
+    sourceType: SearchSource['type'],
     sourceStateOverride?: Partial<SearchSourceState>,
   ) => {
     const source = this.getSource(sourceType);
@@ -580,24 +565,24 @@ export class SearchController<
     }
     source.activate(sourceStateOverride);
     if (this.searchQuery && !source.items?.length) source.search(this.searchQuery);
-    this.state.partialNext({ sources: [...this.sources] as Sources });
+    this.state.partialNext({ sources: [...this.sources] });
   };
 
-  deactivateSource = (sourceType: Sources[number]['type']) => {
+  deactivateSource = (sourceType: SearchSource['type']) => {
     const source = this.getSource(sourceType);
     if (!source?.isActive) return;
     if (this.activeSources.length === 1) return;
     source.deactivate();
-    this.state.partialNext({ sources: [...this.sources] as Sources });
+    this.state.partialNext({ sources: [...this.sources] });
   };
 
   setActiveSources = (
-    sourceTypes: Array<Sources[number]['type']>,
+    sourceTypes: Array<SearchSource['type']>,
     sourceStateOverride?: Partial<SearchSourceState>,
   ) => {
     if (sourceTypes.length > 1 && this.config.keepSingleActiveSource) return;
     sourceTypes.forEach((sourceType) => this.getSource(sourceType)?.activate(sourceStateOverride));
-    this.state.partialNext({ sources: this.activeSources as Sources });
+    this.state.partialNext({ sources: this.activeSources });
   };
 
   activate = () => {
@@ -625,9 +610,7 @@ export class SearchController<
 
   clear = () => {
     this.cancelSearchQueries();
-    this.sources.forEach((source) =>
-      (source as Sources[number]).resetState({ isActive: source.isActive }),
-    );
+    this.sources.forEach((source) => source.resetState({ isActive: source.isActive }));
     this.state.next((prev) => ({
       ...prev,
       isActive: true,
@@ -638,9 +621,7 @@ export class SearchController<
 
   exit = () => {
     this.cancelSearchQueries();
-    this.sources.forEach((source) =>
-      (source as Sources[number]).resetState({ isActive: source.isActive }),
-    );
+    this.sources.forEach((source) => source.resetState({ isActive: source.isActive }));
     this.state.next((prev) => ({
       ...prev,
       isActive: false,

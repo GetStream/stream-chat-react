@@ -5,33 +5,29 @@ import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { InfiniteScrollPaginator } from '../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { DefaultSearchSources, SearchSource, SearchSourceState } from '../SearchController';
+import type { SearchSourceState, SearchSourceType } from '../SearchController';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   items: nextValue.items,
 });
 
-export type SearchSourceResultListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  Sources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
-> = {
+export type SearchSourceResultListProps = {
   loadMoreDebounceMs?: number;
   loadMoreThresholdPx?: number;
-  SearchResultItems?: SearchResultItemComponents<Sources>;
+  SearchResultItems?: SearchResultItemComponents;
 };
 
 export const SearchSourceResultList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  SearchSources extends SearchSource[] = DefaultSearchSources<StreamChatGenerics>
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   loadMoreThresholdPx = 80,
   loadMoreDebounceMs = 100,
-  SearchResultItems = DefaultSearchResultItems as SearchResultItemComponents<SearchSources>,
-}: SearchSourceResultListProps<StreamChatGenerics, SearchSources>) => {
+  SearchResultItems = DefaultSearchResultItems,
+}: SearchSourceResultListProps) => {
   const {
     SearchSourceResultListFooter = DefaultSearchSourceResultListFooter,
-  } = useComponentContext<StreamChatGenerics, NonNullable<unknown>, SearchSources>();
+  } = useComponentContext<StreamChatGenerics>();
 
   const { searchSource } = useSearchSourceResultsContext();
   const { items } = useStateStore(searchSource.state, searchSourceStateSelector);
@@ -39,7 +35,7 @@ export const SearchSourceResultList = <
   const loadMore = useCallback(() => searchSource.search(), [searchSource]);
 
   const SearchResultItem = SearchResultItems[
-    searchSource.type as SearchSources[number]['type']
+    searchSource.type as SearchSourceType
   ] as ComponentType<{ item: unknown }>;
 
   if (!SearchResultItem) return null;
