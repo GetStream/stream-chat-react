@@ -5,6 +5,7 @@ import { Channel, Event, ExtendableGenerics } from 'stream-chat';
 import uniqBy from 'lodash.uniqby';
 
 import {
+  extractSortValue,
   findLastPinnedChannelIndex,
   isChannelArchived,
   isChannelPinned,
@@ -56,7 +57,7 @@ type HandleNotificationAddedToChannelParameters<
 
 type HandleMemberUpdatedParameters<SCG extends ExtendableGenerics> = BaseParameters<SCG> & {
   lockChannelOrder: boolean;
-} & Required<Pick<ChannelListProps<SCG>, 'sort'>>;
+} & Required<Pick<ChannelListProps<SCG>, 'sort' | 'filters'>>;
 
 type HandleChannelDeletedParameters<SCG extends ExtendableGenerics> = BaseParameters<SCG> &
   RepeatedParameters<SCG>;
@@ -124,9 +125,9 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
 
         if (
-          // target channel is archived
-          (isTargetChannelArchived && considerArchivedChannels) ||
-          // target channel is pinned
+          // target channel is archived, filter is defined and is set to false
+          (isTargetChannelArchived && considerArchivedChannels && !filters.archived) ||
+          // target channel is pinned, sort is defined
           (isTargetChannelPinned && considerPinnedChannels) ||
           // list order is locked
           lockChannelOrder ||
@@ -182,7 +183,7 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
       });
 
       const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
-      if (isChannelArchived(channel) && considerArchivedChannels) {
+      if (isChannelArchived(channel) && considerArchivedChannels && !filters.archived) {
         return;
       }
 
@@ -208,26 +209,38 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
       customHandler,
       event,
       setChannels,
+      sort,
     }: HandleNotificationAddedToChannelParameters<SCG>) => {
       if (typeof customHandler === 'function') {
         return customHandler(setChannels, event);
       }
 
-      if (allowNewMessagesFromUnfilteredChannels && event.channel?.type) {
-        const channel = await getChannel({
-          client,
-          id: event.channel.id,
-          members: event.channel.members?.reduce<string[]>((acc, { user, user_id }) => {
-            const userId = user_id || user?.id;
-            if (userId) {
-              acc.push(userId);
-            }
-            return acc;
-          }, []),
-          type: event.channel.type,
-        });
-        setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
+      if (!event.channel || !allowNewMessagesFromUnfilteredChannels) {
+        return;
       }
+
+      const channel = await getChannel({
+        client,
+        id: event.channel.id,
+        members: event.channel.members?.reduce<string[]>((newMembers, { user, user_id }) => {
+          const userId = user_id || user?.id;
+
+          if (userId) newMembers.push(userId);
+
+          return newMembers;
+        }, []),
+        type: event.channel.type,
+      });
+
+      // membership has been reset (target channel shouldn't be pinned nor archived)
+      setChannels((channels) =>
+        moveChannelUpwards({
+          channels,
+          channelToMove: channel,
+          channelToMoveIndexWithinChannels: -1,
+          sort,
+        }),
+      );
     },
     [client],
   );
@@ -248,7 +261,13 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
   );
 
   const handleMemberUpdated = useCallback(
-    ({ event, lockChannelOrder, setChannels, sort }: HandleMemberUpdatedParameters<SCG>) => {
+    ({
+      event,
+      filters,
+      lockChannelOrder,
+      setChannels,
+      sort,
+    }: HandleMemberUpdatedParameters<SCG>) => {
       if (!event.member?.user || event.member.user.id !== client.userID || !event.channel_type) {
         return;
       }
@@ -258,9 +277,9 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
       const channelId = event.channel_id;
 
       const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
+      const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
 
-      // TODO: extract this and consider single property sort object too
-      const pinnedAtSort = Array.isArray(sort) ? sort[0]?.pinned_at ?? null : null;
+      const pinnedAtSort = extractSortValue({ atIndex: 0, sort, targetKey: 'pinned_at' });
 
       setChannels((currentChannels) => {
         const targetChannel = client.channel(channelType, channelId);
@@ -278,7 +297,11 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         }
 
         // handle archiving (remove channel)
-        if (typeof member.archived_at === 'string') {
+        if (
+          considerArchivedChannels &&
+          ((typeof member.archived_at === 'string' && !filters.archived) ||
+            (!member.archived_at && filters.archived))
+        ) {
           return newChannels;
         }
 
@@ -553,6 +576,7 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
       case 'member.updated':
         defaults.handleMemberUpdated({
           event,
+          filters,
           lockChannelOrder,
           setChannels,
           sort,

@@ -1,5 +1,5 @@
 import uniqBy from 'lodash.uniqby';
-import type { Channel, ChannelSort, ExtendableGenerics } from 'stream-chat';
+import type { Channel, ChannelSort, ChannelSortBase, ExtendableGenerics } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ChannelListProps } from './ChannelList';
@@ -118,20 +118,51 @@ export const moveChannelUpwards = <
 };
 
 /**
- * Returns true only if `{ pinned_at: -1 }` or `{ pinned_at: 1 }` option is first within the `sort` array.
+ * Returns `true` only if `{ pinned_at: -1 }` or `{ pinned_at: 1 }` option is first within the `sort` array or if `pinned_at` key of the `sort` object gets picked first when using `for...in`.
  */
 export const shouldConsiderPinnedChannels = <SCG extends ExtendableGenerics>(
   sort: ChannelListProps<SCG>['sort'],
 ) => {
-  if (!sort) return false;
+  const value = extractSortValue<SCG>({ atIndex: 0, sort, targetKey: 'pinned_at' });
 
-  if (!Array.isArray(sort)) return false;
+  if (typeof value !== 'number') return false;
 
-  const [option] = sort;
+  return Math.abs(value) === 1;
+};
 
-  if (!option?.pinned_at) return false;
+export const extractSortValue = <SCG extends ExtendableGenerics>({
+  atIndex,
+  sort,
+  targetKey,
+}: {
+  atIndex: number;
+  targetKey: keyof ChannelSortBase<SCG>;
+  sort?: ChannelListProps<SCG>['sort'];
+}) => {
+  if (!sort) return null;
+  let option: null | ChannelSort<SCG> = null;
 
-  return Math.abs(option.pinned_at) === 1;
+  if (Array.isArray(sort)) {
+    option = sort[atIndex] ?? null;
+  } else {
+    let index = 0;
+    for (const key in sort) {
+      if (index !== atIndex) {
+        index++;
+        continue;
+      }
+
+      if (key !== targetKey) {
+        return null;
+      }
+
+      option = sort;
+
+      break;
+    }
+  }
+
+  return option?.[targetKey] ?? null;
 };
 
 /**
@@ -142,7 +173,7 @@ export const shouldConsiderArchivedChannels = <SCG extends ExtendableGenerics>(
 ) => {
   if (!filters) return false;
 
-  return !filters.archived;
+  return typeof filters.archived === 'boolean';
 };
 
 export const isChannelPinned = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
