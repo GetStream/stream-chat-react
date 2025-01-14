@@ -34,7 +34,7 @@ export const ChannelHeader = <
   props: ChannelHeaderProps,
 ) => {
   const {
-    Avatar: SimpleAvatar = DefaultAvatar,
+    Avatar: PropAvatar = DefaultAvatar,
     MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
@@ -51,7 +51,7 @@ export const ChannelHeader = <
   });
 
   const { ChannelAvatar } = useComponentContext();
-  const Avatar = ChannelAvatar ?? SimpleAvatar;
+  const Avatar = ChannelAvatar ?? PropAvatar;
 
   const { member_count, subtitle } = channel?.data || {};
 
