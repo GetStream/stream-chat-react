@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
+import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -120,6 +121,7 @@ describe('ChannelList', () => {
             client: chatClient,
             closeMobileNav,
             navOpen: true,
+            searchController: new SearchController(),
           }}
         >
           <ChannelList {...props} />
@@ -150,6 +152,7 @@ describe('ChannelList', () => {
             client: chatClient,
             closeMobileNav,
             navOpen: false,
+            searchController: new SearchController(),
           }}
         >
           <ChannelList {...props} />
@@ -508,6 +511,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -539,6 +543,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -568,6 +573,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -635,6 +641,7 @@ describe('ChannelList', () => {
           <ChatContext.Provider
             value={{
               channelsQueryState: channelsQueryStateMock,
+              searchController: new SearchController(),
               setActiveChannel,
               ...chatContext,
             }}
@@ -1289,6 +1296,7 @@ describe('ChannelList', () => {
             value={{
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
+              searchController: new SearchController(),
               setActiveChannel,
             }}
           >
@@ -1355,6 +1363,7 @@ describe('ChannelList', () => {
             value={{
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
+              searchController: new SearchController(),
               setActiveChannel,
             }}
           >

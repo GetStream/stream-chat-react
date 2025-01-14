@@ -1,4 +1,5 @@
 import React from 'react';
+import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -65,6 +66,7 @@ const defaultChatContext = {
   getAppSettings: jest.fn(),
   latestMessageDatesByChannels: {},
   mutes: [],
+  searchController: new SearchController(),
 };
 
 const cooldown = 30;
