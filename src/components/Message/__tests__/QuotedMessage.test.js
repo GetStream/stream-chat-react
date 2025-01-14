@@ -129,7 +129,7 @@ describe('QuotedMessage', () => {
       customProps: { message },
     });
     expect(queryByTestId(quotedAttachmentListTestId)).toBeInTheDocument();
-    expect(queryByTestId(quotedMessageTextTestId)).toBeEmptyDOMElement();
+    expect(queryByTestId(quotedMessageTextTestId)).toHaveTextContent('');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

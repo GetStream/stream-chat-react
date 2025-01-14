@@ -86,7 +86,7 @@ export const QuotedMessagePreview = <
               <Attachment attachments={quotedMessageAttachment} isQuoted />
             )}
             <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
-              <p>{quotedMessageText}</p>
+              <p className='str-chat__quoted-message-text-value'>{quotedMessageText}</p>
             </div>
           </>
         )}
