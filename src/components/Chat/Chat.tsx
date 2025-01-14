@@ -1,4 +1,10 @@
 import React, { PropsWithChildren, useMemo } from 'react';
+import {
+  ChannelSearchSource,
+  MessageSearchSource,
+  SearchController,
+  UserSearchSource,
+} from 'stream-chat';
 
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
@@ -7,15 +13,8 @@ import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 import { WithComponents } from '../../context';
-import {
-  ChannelSearchSource,
-  MessageSearchSource,
-  SearchController,
-  UserSearchSource,
-} from '../../experimental/Search/SearchController';
 
 import type { StreamChat } from 'stream-chat';
-
 import type { ChannelPropsForwardedToComponentContext } from '../Channel';
 import type { ComponentContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
@@ -106,16 +105,18 @@ export const Chat = <
 
   const channelsQueryState = useChannelsQueryState();
 
-  const searchController = useMemo(() => {
-    if (customChannelSearchController) return customChannelSearchController;
-    return new SearchController<StreamChatGenerics>({
-      sources: [
-        new ChannelSearchSource<StreamChatGenerics>(client),
-        new UserSearchSource<StreamChatGenerics>(client),
-        new MessageSearchSource<StreamChatGenerics>(client),
-      ],
-    });
-  }, [client, customChannelSearchController]);
+  const searchController = useMemo(
+    () =>
+      customChannelSearchController ??
+      new SearchController<StreamChatGenerics>({
+        sources: [
+          new ChannelSearchSource<StreamChatGenerics>(client),
+          new UserSearchSource<StreamChatGenerics>(client),
+          new MessageSearchSource<StreamChatGenerics>(client),
+        ],
+      }),
+    [client, customChannelSearchController],
+  );
 
   const chatContextValue = useCreateChatContext<StreamChatGenerics>({
     channel,

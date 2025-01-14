@@ -13,23 +13,6 @@ import React, {
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import {
-  APIErrorResponse,
-  ChannelAPIResponse,
-  ChannelMemberResponse,
-  ChannelQueryOptions,
-  ChannelState,
-  ErrorFromResponse,
-  Event,
-  EventAPIResponse,
-  Message,
-  MessageResponse,
-  SendMessageAPIResponse,
-  Channel as StreamChannel,
-  StreamChat,
-  UpdatedMessage,
-  UserResponse,
-} from 'stream-chat';
 import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
@@ -82,8 +65,25 @@ import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import { useStateStore } from '../../store';
 
+import type {
+  APIErrorResponse,
+  ChannelAPIResponse,
+  ChannelMemberResponse,
+  ChannelQueryOptions,
+  ChannelState,
+  ErrorFromResponse,
+  Event,
+  EventAPIResponse,
+  Message,
+  MessageResponse,
+  SearchControllerState,
+  SendMessageAPIResponse,
+  Channel as StreamChannel,
+  StreamChat,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
-
 import type {
   ChannelUnreadUiState,
   CustomTrigger,
@@ -99,7 +99,6 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import type { SearchControllerState } from '../../experimental/Search/SearchController';
 
 const searchControllerStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

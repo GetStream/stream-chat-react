@@ -35,10 +35,16 @@ import { ChannelListContextProvider, useComponentContext } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useStateStore } from '../../store';
 
-import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
+import type {
+  Channel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  Event,
+  SearchControllerState,
+} from 'stream-chat';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
-import type { SearchControllerState } from '../../experimental/Search/SearchController';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};

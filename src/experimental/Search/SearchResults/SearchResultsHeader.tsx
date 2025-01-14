@@ -1,9 +1,11 @@
 import clsx from 'clsx';
 import React from 'react';
-import { SearchControllerState } from '../SearchController';
+
 import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+
+import type { SearchControllerState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <

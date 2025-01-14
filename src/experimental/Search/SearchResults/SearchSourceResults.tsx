@@ -1,11 +1,13 @@
 import React from 'react';
+
 import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
 import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './SearchSourceResultsEmpty';
 import { SearchSourceResultsHeader as DefaultSearchSourceResultsHeader } from './SearchSourceResultsHeader';
 import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { SearchSource, SearchSourceState } from '../SearchController';
+
+import type { SearchSource, SearchSourceState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({

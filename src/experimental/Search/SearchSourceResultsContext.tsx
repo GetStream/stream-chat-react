@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { SearchSource } from './SearchController';
+import type { SearchSource } from 'stream-chat';
 
 export type SearchSourceResultsContextValue = {
   searchSource: SearchSource;

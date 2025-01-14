@@ -1,9 +1,8 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
-
 import { getDisplayName } from './utils/getDisplayName';
-import { SearchController } from '../experimental/Search/SearchController';
+
+import type { AppSettingsAPIResponse, Channel, Mute, SearchController } from 'stream-chat';
 import type { ChatProps } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';

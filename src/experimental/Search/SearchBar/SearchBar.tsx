@@ -1,10 +1,12 @@
 import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
+
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { SearchControllerState } from '../SearchController';
+
+import type { SearchControllerState } from 'stream-chat';
 
 const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   input: nextValue.input,

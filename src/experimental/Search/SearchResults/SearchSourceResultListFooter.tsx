@@ -1,9 +1,11 @@
 import React from 'react';
+
 import { SearchSourceResultsLoadingIndicator as DefaultSearchSourceResultsLoadingIndicator } from './SearchSourceResultsLoadingIndicator';
 import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { SearchSourceState } from '../SearchController';
+
+import type { SearchSourceState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (value: SearchSourceState) => ({

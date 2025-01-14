@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { SearchController, SearchControllerState, SearchSource } from '../SearchController';
+
 import { useStateStore } from '../../../store';
+
+import type { SearchController, SearchControllerState, SearchSource } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <

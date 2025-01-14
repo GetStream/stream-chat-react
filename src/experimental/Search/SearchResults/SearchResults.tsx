@@ -1,12 +1,14 @@
 import clsx from 'clsx';
 import React from 'react';
+
 import { SearchSourceResults as DefaultSourceSearchResults } from './SearchSourceResults';
 import { SearchResultsHeader as DefaultSearchResultsHeader } from './SearchResultsHeader';
 import { SearchResultsPresearch as DefaultSearchResultsPresearch } from './SearchResultsPresearch';
-import type { SearchControllerState } from '../SearchController';
 import { useSearchContext } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+
+import type { SearchControllerState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = <
