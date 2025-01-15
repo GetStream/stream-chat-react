@@ -111,8 +111,7 @@ export const ChannelPreview = <
 
     client.on('notification.mark_read', handleEvent);
     return () => client.off('notification.mark_read', handleEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channel, client]);
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
