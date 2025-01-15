@@ -41,7 +41,7 @@ export const SearchSourceResultList = <
   if (!SearchResultItem) return null;
 
   return (
-    <div className='str-chat__search-source-result-list'>
+    <div className='str-chat__search-source-result-list' data-testid='search-source-result-list'>
       <InfiniteScrollPaginator
         loadNextDebounceMs={loadMoreDebounceMs}
         loadNextOnScrollToBottom={searchSource.search}

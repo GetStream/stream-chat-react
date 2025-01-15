@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React from 'react';
 
 import { SearchSourceResults as DefaultSourceSearchResults } from './SearchSourceResults';
@@ -17,7 +16,7 @@ const searchControllerStateSelector = <
   nextValue: SearchControllerState<StreamChatGenerics>,
 ) => ({
   activeSources: nextValue.sources.filter((s) => s.isActive),
-  isSearchActive: nextValue.isActive,
+  isActive: nextValue.isActive,
   searchQuery: nextValue.searchQuery,
 });
 
@@ -31,13 +30,13 @@ export const SearchResults = <
     SearchResultsPresearch = DefaultSearchResultsPresearch,
   } = useComponentContext<StreamChatGenerics>();
   const { searchController } = useSearchContext<StreamChatGenerics>();
-  const { activeSources, isSearchActive, searchQuery } = useStateStore(
+  const { activeSources, isActive, searchQuery } = useStateStore(
     searchController.state,
     searchControllerStateSelector,
   );
 
-  return !isSearchActive ? null : (
-    <div aria-label={t('aria/Search results')} className={clsx(`str-chat__search-results`)}>
+  return !isActive ? null : (
+    <div aria-label={t('aria/Search results')} className='str-chat__search-results'>
       <SearchResultsHeader />
       {!searchQuery ? (
         <SearchResultsPresearch activeSources={activeSources} />

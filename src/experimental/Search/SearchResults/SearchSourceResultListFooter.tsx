@@ -24,7 +24,7 @@ export const SearchSourceResultListFooter = <
   const { hasMore, isLoading } = useStateStore(searchSource.state, searchSourceStateSelector);
 
   return (
-    <div className='str-chat__search-source-result-list__footer'>
+    <div className='str-chat__search-source-result-list__footer' data-testid='search-footer'>
       {isLoading ? (
         <SearchSourceResultsLoadingIndicator />
       ) : !hasMore ? (

@@ -44,8 +44,12 @@ export const MessageSearchResultItem = <
 >({
   item,
 }: ChannelByMessageSearchResultItemProps<StreamChatGenerics>) => {
-  const { client, searchController } = useChatContext<StreamChatGenerics>();
-  const { channel: activeChannel, setActiveChannel } = useChatContext<StreamChatGenerics>();
+  const {
+    channel: activeChannel,
+    client,
+    searchController,
+    setActiveChannel,
+  } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
 
   const channel = useMemo(() => {

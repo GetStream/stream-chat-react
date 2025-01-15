@@ -34,7 +34,7 @@ export const SearchSourceResults = <
 
   return (
     <SearchSourceResultsContextProvider value={{ searchSource }}>
-      <div className='str-chat__search-source-results'>
+      <div className='str-chat__search-source-results' data-testid='search-source-results'>
         <SearchSourceResultsHeader />
         {items?.length || isLoading ? <SearchSourceResultList /> : <SearchSourceResultsEmpty />}
       </div>
