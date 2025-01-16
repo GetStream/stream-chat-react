@@ -42,7 +42,7 @@ const t = jest.fn((key) => key);
 const renderComponentBase = ({ channel, client, componentOverrides, props }) =>
   render(
     <ChatProvider value={{ channel, client }}>
-      <ComponentProvider value={componentOverrides}>
+      <ComponentProvider value={componentOverrides ?? {}}>
         <ChannelStateProvider value={{ channel }}>
           <TranslationProvider value={{ t }}>
             <ChannelHeader {...props} />
@@ -57,7 +57,7 @@ async function renderComponent({
   channelType = 'messaging',
   componentOverrides,
   props,
-}) {
+} = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */

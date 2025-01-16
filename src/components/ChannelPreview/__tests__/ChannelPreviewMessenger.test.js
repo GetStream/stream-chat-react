@@ -23,7 +23,7 @@ describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
   let chatClient;
   let channel;
-  const renderComponent = (props, componentOverrides) => (
+  const renderComponent = (props, componentOverrides = {}) => (
     <ChatProvider value={{ client: { user: { id: 'id' } } }}>
       <ComponentProvider value={componentOverrides}>
         <div aria-label='Select Channel' role='listbox'>
