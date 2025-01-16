@@ -15,14 +15,15 @@ jest.mock('../hooks', () => ({
   useSearchQueriesInProgress: jest.fn().mockReturnValue([]),
 }));
 
+const INPUT_TEST_ID = 'search-input';
+
 describe('SearchBar', () => {
   const mockSearchController = {
     activate: jest.fn(),
     clear: jest.fn(),
     exit: jest.fn(),
     search: jest.fn(),
-    setInputElement: jest.fn(),
-    state: { value: { input: null, isActive: false, searchQuery: '' } },
+    state: { value: { isActive: false, searchQuery: '' } },
   };
 
   const defaultProps = {
@@ -37,7 +38,6 @@ describe('SearchBar', () => {
     useSearchContext.mockReturnValue(defaultProps);
     useTranslationContext.mockReturnValue({ t: (key) => key });
     useStateStore.mockReturnValue({
-      input: null,
       isActive: false,
       searchQuery: '',
     });
@@ -79,7 +79,6 @@ describe('SearchBar', () => {
 
   it('clears search when input is emptied', () => {
     useStateStore.mockReturnValue({
-      input: null,
       isActive: true,
       searchQuery: 'test',
     });
@@ -94,7 +93,6 @@ describe('SearchBar', () => {
 
   it('shows clear button when there is a search query', () => {
     useStateStore.mockReturnValue({
-      input: null,
       isActive: true,
       searchQuery: 'test',
     });
@@ -105,24 +103,21 @@ describe('SearchBar', () => {
   });
 
   it('handles clear button click', () => {
-    const mockInput = { focus: jest.fn() };
-    useStateStore.mockReturnValue({
-      input: mockInput,
+    const state = {
       isActive: true,
       searchQuery: 'test',
-    });
+    };
+    useStateStore.mockReturnValue(state);
 
     render(<SearchBar />);
-
+    expect(screen.getByTestId(INPUT_TEST_ID)).toHaveValue(state.searchQuery);
     fireEvent.click(screen.getByTestId('clear-input-button'));
 
     expect(mockSearchController.clear).toHaveBeenCalledWith();
-    expect(mockInput.focus).toHaveBeenCalledWith();
   });
 
   it('shows cancel button when search is active', () => {
     useStateStore.mockReturnValue({
-      input: null,
       isActive: true,
       searchQuery: '',
     });
@@ -134,9 +129,7 @@ describe('SearchBar', () => {
   });
 
   it('handles cancel button click', () => {
-    const mockInput = { blur: jest.fn() };
     useStateStore.mockReturnValue({
-      input: mockInput,
       isActive: true,
       searchQuery: '',
     });
@@ -145,14 +138,11 @@ describe('SearchBar', () => {
 
     fireEvent.click(screen.getByTestId('search-bar-button'));
 
-    expect(mockInput.blur).toHaveBeenCalledWith();
     expect(mockSearchController.exit).toHaveBeenCalledWith();
   });
 
   it('handles escape key press', () => {
-    const mockInput = { blur: jest.fn() };
     useStateStore.mockReturnValue({
-      input: mockInput,
       isActive: true,
       searchQuery: 'test',
     });
@@ -161,7 +151,6 @@ describe('SearchBar', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(mockInput.blur).toHaveBeenCalledWith();
     expect(mockSearchController.exit).toHaveBeenCalledWith();
   });
 

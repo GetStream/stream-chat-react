@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
@@ -9,7 +9,6 @@ import { useStateStore } from '../../../store';
 import type { SearchControllerState } from 'stream-chat';
 
 const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
-  input: nextValue.input,
   isActive: nextValue.isActive,
   searchQuery: nextValue.searchQuery,
 });
@@ -19,7 +18,8 @@ export const SearchBar = () => {
   const { disabled, exitSearchOnInputBlur, placeholder, searchController } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
 
-  const { input, isActive, searchQuery } = useStateStore(
+  const [input, setInput] = useState<HTMLInputElement | null>(null);
+  const { isActive, searchQuery } = useStateStore(
     searchController.state,
     searchControllerStateSelector,
   );
@@ -63,7 +63,7 @@ export const SearchBar = () => {
           }}
           onFocus={searchController.activate}
           placeholder={placeholder ?? t('Search')}
-          ref={searchController.setInputElement}
+          ref={setInput}
           type='text'
           value={searchQuery}
         />
