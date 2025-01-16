@@ -13,7 +13,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
-import { ChatProvider } from '../../../context';
+import { ChatProvider, ComponentProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -23,19 +23,21 @@ describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
   let chatClient;
   let channel;
-  const renderComponent = (props) => (
+  const renderComponent = (props, componentOverrides) => (
     <ChatProvider value={{ client: { user: { id: 'id' } } }}>
-      <div aria-label='Select Channel' role='listbox'>
-        <ChannelPreviewMessenger
-          channel={channel}
-          displayImage='https://randomimage.com/src.jpg'
-          displayTitle='Channel name'
-          latestMessagePreview='Latest message!'
-          setActiveChannel={jest.fn()}
-          unread={10}
-          {...props}
-        />
-      </div>
+      <ComponentProvider value={componentOverrides}>
+        <div aria-label='Select Channel' role='listbox'>
+          <ChannelPreviewMessenger
+            channel={channel}
+            displayImage='https://randomimage.com/src.jpg'
+            displayTitle='Channel name'
+            latestMessagePreview='Latest message!'
+            setActiveChannel={jest.fn()}
+            unread={10}
+            {...props}
+          />
+        </div>
+      </ComponentProvider>
     </ChatProvider>
   );
 
@@ -56,6 +58,23 @@ describe('ChannelPreviewMessenger', () => {
   it('should render correctly', () => {
     const tree = renderer.create(renderComponent()).toJSON();
     expect(tree).toMatchSnapshot();
+  });
+
+  it('gives preference to ChannelAvatar from component context over the props Avatar component', () => {
+    const channelAvatarTestID = 'custom-channel-avatar';
+    const propsAvatarTestID = 'props-avatar';
+    const ChannelAvatar = () => <div data-testid={channelAvatarTestID} />;
+    const PropsAvatar = () => <div data-testid={propsAvatarTestID} />;
+    render(
+      renderComponent(
+        {
+          Avatar: PropsAvatar,
+        },
+        { ChannelAvatar },
+      ),
+    );
+    expect(screen.queryByTestId(propsAvatarTestID)).not.toBeInTheDocument();
+    expect(screen.getByTestId(channelAvatarTestID)).toBeInTheDocument();
   });
 
   it('should call setActiveChannel on click', async () => {

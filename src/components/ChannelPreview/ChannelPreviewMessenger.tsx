@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
 import clsx from 'clsx';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { useComponentContext } from '../../context';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { useComponentContext } from '../../context';
 
 const UnMemoizedChannelPreviewMessenger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -13,7 +13,7 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar: SimpleAvatar = DefaultAvatar,
+    Avatar: PropsAvatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
@@ -43,7 +43,7 @@ const UnMemoizedChannelPreviewMessenger = <
     }
   };
 
-  const Avatar = ChannelAvatar ?? SimpleAvatar;
+  const Avatar = ChannelAvatar ?? PropsAvatar;
 
   return (
     <button
