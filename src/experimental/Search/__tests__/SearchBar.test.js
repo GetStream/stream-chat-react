@@ -28,7 +28,6 @@ describe('SearchBar', () => {
   const defaultProps = {
     disabled: false,
     exitSearchOnInputBlur: false,
-    onSearchExit: jest.fn(),
     placeholder: 'Custom placeholder',
     searchController: mockSearchController,
   };
@@ -148,7 +147,6 @@ describe('SearchBar', () => {
 
     expect(mockInput.blur).toHaveBeenCalledWith();
     expect(mockSearchController.exit).toHaveBeenCalledWith();
-    expect(defaultProps.onSearchExit).toHaveBeenCalledWith();
   });
 
   it('handles escape key press', () => {
@@ -165,7 +163,6 @@ describe('SearchBar', () => {
 
     expect(mockInput.blur).toHaveBeenCalledWith();
     expect(mockSearchController.exit).toHaveBeenCalledWith();
-    expect(defaultProps.onSearchExit).toHaveBeenCalledWith();
   });
 
   it('handles blur when exitSearchOnInputBlur is true', () => {
@@ -181,7 +178,6 @@ describe('SearchBar', () => {
     fireEvent.blur(input);
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
-    expect(defaultProps.onSearchExit).toHaveBeenCalledWith();
   });
 
   it('disables input when disabled prop is true', () => {

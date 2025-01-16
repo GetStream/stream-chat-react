@@ -227,10 +227,12 @@ const UnMemoizedChannelList = <
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
   const { Search } = useComponentContext();
-  const { searchIsActive } = useStateStore(searchController.state, searchControllerStateSelector);
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
+
+  // Indicator relevant when Search component that relies on SearchController is used
+  const { searchIsActive } = useStateStore(searchController.state, searchControllerStateSelector);
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
@@ -388,12 +390,10 @@ const UnMemoizedChannelList = <
         {showChannelSearch &&
           (Search ? (
             <Search
+              directMessagingChannelType={additionalChannelSearchProps?.channelType}
               disabled={additionalChannelSearchProps?.disabled}
               exitSearchOnInputBlur={additionalChannelSearchProps?.clearSearchOnClickOutside}
-              inputOnChangeHandler={onSearch}
-              onSearchExit={onSearchExit}
               placeholder={additionalChannelSearchProps?.placeholder}
-              userToUserCreatedChannelType={additionalChannelSearchProps?.channelType}
             />
           ) : (
             <ChannelSearch

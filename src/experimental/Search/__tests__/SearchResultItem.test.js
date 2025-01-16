@@ -22,7 +22,7 @@ const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-preview-button';
 
 const mockSetActiveChannel = jest.fn().mockImplementation();
 const mockSetChannels = jest.fn().mockImplementation();
-const userToUserCreatedChannelType = 'X';
+const directMessagingChannelType = 'X';
 
 const renderComponent = async ({
   activeChannel,
@@ -63,7 +63,7 @@ const renderComponent = async ({
       }}
     >
       <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
-        <SearchContextProvider value={{ userToUserCreatedChannelType }}>
+        <SearchContextProvider value={{ directMessagingChannelType }}>
           <SearchResultItemComponent item={item} />
         </SearchContextProvider>
       </ChannelListContextProvider>

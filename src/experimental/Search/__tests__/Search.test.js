@@ -24,12 +24,10 @@ describe('Search', () => {
   };
 
   const defaultProps = {
+    directMessagingChannelType: 'messaging',
     disabled: false,
     exitSearchOnInputBlur: true,
-    inputOnChangeHandler: jest.fn(),
-    onSearchExit: jest.fn(),
     placeholder: 'Search',
-    userToUserCreatedChannelType: 'messaging',
   };
 
   beforeEach(() => {
@@ -180,12 +178,12 @@ describe('Search', () => {
     expect(screen.getByTestId(SEARCH_TEST_ID)).toHaveClass('str-chat__search--active');
   });
 
-  it('uses default userToUserCreatedChannelType when not provided', () => {
-    const { userToUserCreatedChannelType, ...propsWithoutChannelType } = defaultProps;
+  it('uses default directMessagingChannelType when not provided', () => {
+    const { directMessagingChannelType, ...propsWithoutChannelType } = defaultProps;
 
     const ContextConsumer = () => {
       const context = React.useContext(jest.requireActual('../SearchContext').SearchContext);
-      return <div data-testid='channel-type'>{context.userToUserCreatedChannelType}</div>;
+      return <div data-testid='channel-type'>{context.directMessagingChannelType}</div>;
     };
     const SearchBar = () => <ContextConsumer />;
     useComponentContext.mockReturnValue({

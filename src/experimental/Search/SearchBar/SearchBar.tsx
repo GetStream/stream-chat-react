@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
@@ -16,13 +16,7 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
-  const {
-    disabled,
-    exitSearchOnInputBlur,
-    onSearchExit,
-    placeholder,
-    searchController,
-  } = useSearchContext();
+  const { disabled, exitSearchOnInputBlur, placeholder, searchController } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
 
   const { input, isActive, searchQuery } = useStateStore(
@@ -30,17 +24,12 @@ export const SearchBar = () => {
     searchControllerStateSelector,
   );
 
-  const exitSearch = useCallback(() => {
-    searchController.exit();
-    onSearchExit?.();
-  }, [searchController, onSearchExit]);
-
   useEffect(() => {
     if (!input) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         input.blur();
-        exitSearch();
+        searchController.exit();
       }
     };
 
@@ -48,7 +37,7 @@ export const SearchBar = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [exitSearch, input]);
+  }, [searchController, input]);
 
   return (
     <div className='str-chat__search-bar' data-testid='search-bar'>
@@ -63,7 +52,7 @@ export const SearchBar = () => {
           data-testid='search-input'
           disabled={disabled}
           onBlur={() => {
-            if (exitSearchOnInputBlur) exitSearch();
+            if (exitSearchOnInputBlur) searchController.exit();
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             if (event.target.value) {
@@ -98,7 +87,7 @@ export const SearchBar = () => {
           data-testid='search-bar-button'
           onClick={() => {
             input?.blur();
-            exitSearch();
+            searchController.exit();
           }}
         >
           {t<string>('Cancel')}

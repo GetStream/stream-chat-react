@@ -22,28 +22,22 @@ const searchControllerStateSelector = <
 
 // todo: rename all search components to Search only
 export type SearchProps = {
+  directMessagingChannelType?: string;
   /** Sets the input element into disabled state */
   disabled?: boolean;
   /** Clear search state / results on every click outside the search input, defaults to true */
   exitSearchOnInputBlur?: boolean;
-  /** Callback invoked with every search input change handler */
-  inputOnChangeHandler?: React.ChangeEventHandler<HTMLInputElement>;
-  /** Callback invoked when the search UI is deactivated */
-  onSearchExit?: () => void;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
-  userToUserCreatedChannelType?: string;
 };
 
 export const Search = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
+  directMessagingChannelType = 'messaging',
   disabled,
   exitSearchOnInputBlur,
-  inputOnChangeHandler,
-  onSearchExit,
   placeholder,
-  userToUserCreatedChannelType = 'messaging',
 }: SearchProps) => {
   const {
     SearchBar = DefaultSearchBar,
@@ -60,13 +54,11 @@ export const Search = <
   return (
     <SearchContextProvider<StreamChatGenerics>
       value={{
+        directMessagingChannelType,
         disabled,
         exitSearchOnInputBlur,
-        inputOnChangeHandler,
-        onSearchExit,
         placeholder,
         searchController,
-        userToUserCreatedChannelType,
       }}
     >
       <div

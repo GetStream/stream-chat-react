@@ -100,16 +100,16 @@ export const UserSearchResultItem = <
 }: UserSearchResultItemProps<StreamChatGenerics>) => {
   const { client, setActiveChannel } = useChatContext<StreamChatGenerics>();
   const { setChannels } = useChannelListContext<StreamChatGenerics>();
-  const { userToUserCreatedChannelType } = useSearchContext<StreamChatGenerics>();
+  const { directMessagingChannelType } = useSearchContext<StreamChatGenerics>();
 
   const onClick = useCallback(() => {
-    const newChannel = client.channel(userToUserCreatedChannelType, {
+    const newChannel = client.channel(directMessagingChannelType, {
       members: [client.userID as string, item.id],
     });
     newChannel.watch();
     setActiveChannel(newChannel);
     setChannels?.((channels) => uniqBy([newChannel, ...channels], 'cid'));
-  }, [client, item, setActiveChannel, setChannels, userToUserCreatedChannelType]);
+  }, [client, item, setActiveChannel, setChannels, directMessagingChannelType]);
 
   return (
     <button
