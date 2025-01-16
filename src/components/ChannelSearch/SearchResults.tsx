@@ -160,7 +160,7 @@ export type AdditionalSearchResultsProps<
   SearchEmpty?: React.ComponentType;
   /** Custom UI component to display the search loading state */
   SearchLoading?: React.ComponentType;
-  /** Custom UI component to display a search result list item, defaults to and accepts the same props as: [DefaultSearchResultItems](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
+  /** Custom UI component to display a search result list item, defaults to and accepts the same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
   SearchResultItem?: React.ComponentType<SearchResultItemProps<StreamChatGenerics>>;
   /** Custom UI component to display the search results header */
   SearchResultsHeader?: React.ComponentType;
@@ -190,7 +190,6 @@ export const SearchResults = <
   } = props;
 
   const { t } = useTranslationContext('SearchResults');
-  // fixme: logic to control focused item shoud be moved to SearchResultsList
   const [focusedResult, setFocusedResult] = useState<number>();
 
   const handleKeyDown = useCallback(
