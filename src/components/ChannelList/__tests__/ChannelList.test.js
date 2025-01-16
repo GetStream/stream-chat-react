@@ -304,6 +304,23 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('renders Search component if searchController state indicates active search', async () => {
+    const searchController = new SearchController();
+    const searchTestId = 'search-test-id';
+    const Search = () => <div data-testid={searchTestId} />;
+    const client = await getTestClientWithUser({ id: 'userId' });
+
+    render(
+      <Chat client={client} Search={Search} searchController={searchController}>
+        <ChannelList showChannelSearch />
+      </Chat>,
+    );
+    await act(() => {
+      searchController.activate();
+    });
+    expect(screen.getByTestId(searchTestId)).toBeInTheDocument();
+  });
+
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
     useMockedApis(chatClient, [erroredPostApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
