@@ -20,7 +20,6 @@ const searchControllerStateSelector = <
   nextValue: SearchControllerState<StreamChatGenerics>,
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
-// todo: rename all search components to Search only
 export type SearchProps = {
   directMessagingChannelType?: string;
   /** Sets the input element into disabled state */

@@ -12,12 +12,6 @@ export type SearchContextValue<
   disabled?: boolean;
   // /** Clear search state / results on every click outside the search input, defaults to true */
   exitSearchOnInputBlur?: boolean;
-  // todo: document this is not available - better override search result item
-  /** Custom handler function to run on search result item selection */
-  // onSelectResult?: (
-  //   params: ChannelSearchFunctionParams<StreamChatGenerics>,
-  //   result: ChannelOrUserResponse<StreamChatGenerics>,
-  // ) => Promise<void> | void;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
 };
