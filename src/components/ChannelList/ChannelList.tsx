@@ -2,20 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
-import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
-import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
-import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
-import { useChannelUpdatedListener } from './hooks/useChannelUpdatedListener';
-import { useChannelVisibleListener } from './hooks/useChannelVisibleListener';
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
-import { useMessageNewListener } from './hooks/useMessageNewListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
-import { useNotificationAddedToChannelListener } from './hooks/useNotificationAddedToChannelListener';
-import { useNotificationMessageNewListener } from './hooks/useNotificationMessageNewListener';
-import { useNotificationRemovedFromChannelListener } from './hooks/useNotificationRemovedFromChannelListener';
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
-import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
+import { useChannelListShape, usePrepareShapeHandlers } from './hooks/useChannelListShape';
+import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
 import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
@@ -31,7 +22,7 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { NullComponent } from '../UtilityComponents';
 
-import { ChannelListContextProvider, useComponentContext } from '../../context';
+import { ChannelListContextProvider, ChatContextValue, useComponentContext } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useStateStore } from '../../store';
 
@@ -76,6 +67,7 @@ export type ChannelListProps<
   ) => Array<Channel<StreamChatGenerics>>;
   /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
+  // FIXME: how is this even legal (WHY IS IT STRING?!)
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
   /** Custom function that handles the channel pagination. Has to build query filters, sort and options and query and append channels to the current channels state and update the hasNext pagination flag after each query. */
@@ -89,6 +81,7 @@ export type ChannelListProps<
     channel: Channel<StreamChatGenerics>,
     t: TranslationContextValue['t'],
     userLanguage: TranslationContextValue['userLanguage'],
+    isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
   ) => string | JSX.Element;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
@@ -173,26 +166,24 @@ export type ChannelListProps<
   watchers?: { limit?: number; offset?: number };
 };
 
-const UnMemoizedChannelList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ChannelListProps<StreamChatGenerics>,
+const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+  props: ChannelListProps<SCG>,
 ) => {
   const {
     additionalChannelSearchProps,
     Avatar = DefaultAvatar,
-    allowNewMessagesFromUnfilteredChannels,
+    allowNewMessagesFromUnfilteredChannels = true,
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
-    filters,
+    filters = {},
     getLatestMessagePreview,
     LoadingErrorIndicator = NullComponent,
     LoadingIndicator = LoadingChannels,
     List = ChannelListMessenger,
-    lockChannelOrder,
+    lockChannelOrder = false,
     onAddedToChannel,
     onChannelDeleted,
     onChannelHidden,
@@ -225,7 +216,7 @@ const UnMemoizedChannelList = <
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
-  } = useChatContext<StreamChatGenerics>('ChannelList');
+  } = useChatContext<SCG>('ChannelList');
   const { Search } = useComponentContext();
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
@@ -238,14 +229,15 @@ const UnMemoizedChannelList = <
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
    */
   const activeChannelHandler = async (
-    channels: Array<Channel<StreamChatGenerics>>,
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    channels: Array<Channel<SCG>>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<SCG>>>>,
   ) => {
     if (!channels.length || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
       return;
     }
 
     if (customActiveChannel) {
+      // FIXME: this is wrong...
       let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
 
       if (!customActiveChannelObject) {
@@ -256,10 +248,10 @@ const UnMemoizedChannelList = <
       if (customActiveChannelObject) {
         setActiveChannel(customActiveChannelObject, watchers);
 
-        const newChannels = moveChannelUp({
-          activeChannel: customActiveChannelObject,
+        const newChannels = moveChannelUpwards({
           channels,
-          cid: customActiveChannelObject.cid,
+          channelToMove: customActiveChannelObject,
+          sort,
         });
 
         setChannels(newChannels);
@@ -277,17 +269,12 @@ const UnMemoizedChannelList = <
    * For some events, inner properties on the channel will update but the shallow comparison will not
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
-  const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), [
-    setChannelUpdateCount,
-  ]);
+  const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), []);
 
   const onSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!event.target.value) {
-        setSearchActive(false);
-      } else {
-        setSearchActive(true);
-      }
+      setSearchActive(!!event.target.value);
+
       additionalChannelSearchProps?.onSearch?.(event);
     },
     [additionalChannelSearchProps],
@@ -312,33 +299,32 @@ const UnMemoizedChannelList = <
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  useMessageNewListener(
-    setChannels,
-    onMessageNewHandler,
+  const { customHandler, defaultHandler } = usePrepareShapeHandlers<SCG>({
+    allowNewMessagesFromUnfilteredChannels,
+    filters,
     lockChannelOrder,
-    allowNewMessagesFromUnfilteredChannels,
-  );
-  useNotificationMessageNewListener(
-    setChannels,
-    onMessageNew,
-    allowNewMessagesFromUnfilteredChannels,
-  );
-  useNotificationAddedToChannelListener(
-    setChannels,
     onAddedToChannel,
-    allowNewMessagesFromUnfilteredChannels,
-  );
-  useNotificationRemovedFromChannelListener(setChannels, onRemovedFromChannel);
-  useChannelDeletedListener(setChannels, onChannelDeleted);
-  useChannelHiddenListener(setChannels, onChannelHidden);
-  useChannelVisibleListener(setChannels, onChannelVisible);
-  useChannelTruncatedListener(setChannels, onChannelTruncated, forceUpdate);
-  useChannelUpdatedListener(setChannels, onChannelUpdated, forceUpdate);
+    onChannelDeleted,
+    onChannelHidden,
+    onChannelTruncated,
+    onChannelUpdated,
+    onChannelVisible,
+    onMessageNew,
+    onMessageNewHandler,
+    onRemovedFromChannel,
+    setChannels,
+    sort,
+    // TODO: implement
+    // customHandleChannelListShape
+  });
+
+  useChannelListShape<SCG>(customHandler ?? defaultHandler);
+
+  // TODO: maybe move this too
   useConnectionRecoveredListener(forceUpdate);
-  useUserPresenceChangedListener(setChannels);
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event<SCG>) => {
       if (event.cid === channel?.cid) {
         setActiveChannel();
       }
@@ -354,7 +340,7 @@ const UnMemoizedChannelList = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel?.cid]);
 
-  const renderChannel = (item: Channel<StreamChatGenerics>) => {
+  const renderChannel = (item: Channel<SCG>) => {
     const previewProps = {
       activeChannel: channel,
       Avatar,

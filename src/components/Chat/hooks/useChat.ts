@@ -7,7 +7,6 @@ import {
   Streami18n,
   SupportedTranslations,
 } from '../../../i18n';
-import { version } from '../../../version';
 
 import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
 
@@ -62,7 +61,8 @@ export const useChat = <
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {
       // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-      client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
+      // the upper-case text between double underscores is replaced with the actual semantic version of the library
+      client.setUserAgent(`stream-chat-react-__STREAM_CHAT_REACT_VERSION__-${userAgent}`);
     }
 
     client.threads.registerSubscriptions();

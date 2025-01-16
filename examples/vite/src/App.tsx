@@ -1,5 +1,6 @@
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
+  AIStateIndicator,
   Channel,
   ChannelAvatar,
   ChannelHeader,
@@ -34,9 +35,10 @@ const userId = parseUserIdFromToken(userToken);
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
+  archived: false,
 };
-const options: ChannelOptions = { limit: 3, presence: true, state: true };
-const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+const options: ChannelOptions = { limit: 5, presence: true, state: true };
+const sort: ChannelSort = [{ pinned_at: 1 }, { last_message_at: -1 }, { updated_at: -1 }];
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
@@ -72,7 +74,7 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <Chat client={chatClient}>
+    <Chat client={chatClient} isMessageAIGenerated={(message) => !!message?.ai_generated}>
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
@@ -88,6 +90,7 @@ const App = () => {
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
+              <AIStateIndicator />
               <MessageInput focus />
             </Window>
             <Thread virtualized />

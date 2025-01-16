@@ -27,7 +27,7 @@ import {
   queryChannelsApi,
   queryUsersApi,
   useMockedApis,
-} from 'mock-builders';
+} from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';

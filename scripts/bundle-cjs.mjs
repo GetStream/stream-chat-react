@@ -3,6 +3,8 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import { replace } from 'esbuild-plugin-replace';
+import getPackageVersion from "./getPackageVersion.mjs";
 
 // import.meta.dirname is not available before Node 20
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,6 +46,7 @@ const cjsBundleConfig = {
   sourcemap: 'linked',
 };
 
+
 // We build two CJS bundles: for browser and for node. The latter one can be
 // used e.g. during SSR (although it makes little sence to SSR chat, but still
 // nice for import not to break on server).
@@ -52,6 +55,11 @@ const bundles = ['browser', 'node'].map((platform) =>
     ...cjsBundleConfig,
     entryNames: `[dir]/[name].${platform}`,
     platform,
+    plugins: [
+        replace({
+          '__STREAM_CHAT_REACT_VERSION__': getPackageVersion(),
+        }),
+    ],
   }),
 );
 await Promise.all(bundles);

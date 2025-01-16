@@ -11,6 +11,7 @@ export type Dialog = {
   id: DialogId;
   isOpen: boolean | undefined;
   open: (zIndex?: number) => void;
+  removalTimeout: NodeJS.Timeout | undefined;
   remove: () => void;
   toggle: (closeAll?: boolean) => void;
 };
@@ -64,6 +65,7 @@ export class DialogManager {
         open: () => {
           this.open({ id });
         },
+        removalTimeout: undefined,
         remove: () => {
           this.remove(id);
         },
@@ -76,6 +78,23 @@ export class DialogManager {
         ...{ dialogsById: { ...current.dialogsById, [id]: dialog } },
       }));
     }
+
+    if (dialog.removalTimeout) {
+      clearTimeout(dialog.removalTimeout);
+      this.state.next((current) => ({
+        ...current,
+        ...{
+          dialogsById: {
+            ...current.dialogsById,
+            [id]: {
+              ...dialog,
+              removalTimeout: undefined,
+            },
+          },
+        },
+      }));
+    }
+
     return dialog;
   }
 
@@ -117,6 +136,10 @@ export class DialogManager {
     const dialog = state.dialogsById[id];
     if (!dialog) return;
 
+    if (dialog.removalTimeout) {
+      clearTimeout(dialog.removalTimeout);
+    }
+
     this.state.next((current) => {
       const newDialogs = { ...current.dialogsById };
       delete newDialogs[id];
@@ -125,5 +148,31 @@ export class DialogManager {
         dialogsById: newDialogs,
       };
     });
+  }
+
+  /**
+   * Marks the dialog state as unused. If the dialog id is referenced again quickly,
+   * the state will not be removed. Otherwise, the state will be removed after
+   * a short timeout.
+   */
+  markForRemoval(id: DialogId) {
+    const dialog = this.state.getLatestValue().dialogsById[id];
+
+    if (!dialog) {
+      return;
+    }
+
+    this.state.next((current) => ({
+      ...current,
+      dialogsById: {
+        ...current.dialogsById,
+        [id]: {
+          ...dialog,
+          removalTimeout: setTimeout(() => {
+            this.remove(id);
+          }, 16),
+        },
+      },
+    }));
   }
 }

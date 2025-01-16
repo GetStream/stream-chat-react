@@ -15,6 +15,7 @@ export const useCreateChatContext = <
     closeMobileNav,
     customClasses,
     getAppSettings,
+    isMessageAIGenerated,
     latestMessageDatesByChannels,
     mutes,
     navOpen,
@@ -42,6 +43,7 @@ export const useCreateChatContext = <
       closeMobileNav,
       customClasses,
       getAppSettings,
+      isMessageAIGenerated,
       latestMessageDatesByChannels,
       mutes,
       navOpen,
@@ -61,6 +63,7 @@ export const useCreateChatContext = <
       searchController,
       mutedUsersLength,
       navOpen,
+      isMessageAIGenerated,
     ],
   );
 

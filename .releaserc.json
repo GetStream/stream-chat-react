@@ -72,6 +72,10 @@
       }
     ],
     [
+      "@semantic-release/exec", {
+      "prepareCmd": "NEXT_VERSION=${nextRelease.version} npm run build"
+    }],
+    [
       "@semantic-release/changelog",
       {
         "changelogFile": "./CHANGELOG.md"

@@ -20,6 +20,7 @@ import type { ComponentContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { MessageContextValue } from '../../context';
 
 export type ChatPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -67,7 +68,7 @@ export type ChatProps<
      * Note: requires importing `stream-chat-react/css/v2/emoji-replacement.css` style sheet
      */
     useImageFlagEmojisOnWindows?: boolean;
-  };
+  } & Partial<Pick<MessageContextValue<StreamChatGenerics>, 'isMessageAIGenerated'>>;
 
 /**
  * Wrapper component for a StreamChat application. Chat needs to be placed around any other chat components
@@ -86,6 +87,7 @@ export const Chat = <
     defaultLanguage,
     i18nInstance,
     initialNavOpen = true,
+    isMessageAIGenerated,
     searchController: customChannelSearchController,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
@@ -125,6 +127,7 @@ export const Chat = <
     closeMobileNav,
     customClasses,
     getAppSettings,
+    isMessageAIGenerated,
     latestMessageDatesByChannels,
     mutes,
     navOpen,

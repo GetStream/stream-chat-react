@@ -83,9 +83,12 @@ export const ChannelPreview = <
     channelUpdateCount,
     getLatestMessagePreview = defaultGetLatestMessagePreview,
   } = props;
-  const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
-    'ChannelPreview',
-  );
+  const {
+    channel: activeChannel,
+    client,
+    isMessageAIGenerated,
+    setActiveChannel,
+  } = useChatContext<StreamChatGenerics>('ChannelPreview');
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -162,7 +165,12 @@ export const ChannelPreview = <
 
   if (!Preview) return null;
 
-  const latestMessagePreview = getLatestMessagePreview(channel, t, userLanguage);
+  const latestMessagePreview = getLatestMessagePreview(
+    channel,
+    t,
+    userLanguage,
+    isMessageAIGenerated,
+  );
 
   return (
     <Preview

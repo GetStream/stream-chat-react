@@ -58,7 +58,8 @@ export type ChatContextValue<
    */
   customClasses?: CustomClasses;
   navOpen?: boolean;
-} & Required<Pick<ChatProps<StreamChatGenerics>, 'theme' | 'client'>>;
+} & Partial<Pick<ChatProps<StreamChatGenerics>, 'isMessageAIGenerated'>> &
+  Required<Pick<ChatProps<StreamChatGenerics>, 'theme' | 'client'>>;
 
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
