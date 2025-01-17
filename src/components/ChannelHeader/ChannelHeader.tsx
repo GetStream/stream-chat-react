@@ -5,7 +5,6 @@ import { MenuIcon as DefaultMenuIcon } from './icons';
 import { ChannelAvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 
-import { useComponentContext } from '../../context';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -34,7 +33,7 @@ export const ChannelHeader = <
   props: ChannelHeaderProps,
 ) => {
   const {
-    Avatar: PropAvatar = DefaultAvatar,
+    Avatar = DefaultAvatar,
     MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
@@ -49,9 +48,6 @@ export const ChannelHeader = <
     overrideImage,
     overrideTitle,
   });
-
-  const { ChannelAvatar } = useComponentContext();
-  const Avatar = ChannelAvatar ?? PropAvatar;
 
   const { member_count, subtitle } = channel?.data || {};
 

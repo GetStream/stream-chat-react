@@ -21,7 +21,6 @@ import {
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
-import { ComponentProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -39,25 +38,18 @@ const defaultChannelState = {
 
 const t = jest.fn((key) => key);
 
-const renderComponentBase = ({ channel, client, componentOverrides, props }) =>
+const renderComponentBase = ({ channel, client, props }) =>
   render(
     <ChatProvider value={{ channel, client }}>
-      <ComponentProvider value={componentOverrides ?? {}}>
-        <ChannelStateProvider value={{ channel }}>
-          <TranslationProvider value={{ t }}>
-            <ChannelHeader {...props} />
-          </TranslationProvider>
-        </ChannelStateProvider>
-      </ComponentProvider>
+      <ChannelStateProvider value={{ channel }}>
+        <TranslationProvider value={{ t }}>
+          <ChannelHeader {...props} />
+        </TranslationProvider>
+      </ChannelStateProvider>
     </ChatProvider>,
   );
 
-async function renderComponent({
-  channelData,
-  channelType = 'messaging',
-  componentOverrides,
-  props,
-} = {}) {
+async function renderComponent({ channelData, channelType = 'messaging', props } = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
@@ -65,7 +57,7 @@ async function renderComponent({
   const channel = client.channel(channelType, testChannel1.id, channelData);
   await channel.query();
 
-  return renderComponentBase({ channel, client, componentOverrides, props });
+  return renderComponentBase({ channel, client, props });
 }
 
 afterEach(cleanup); // eslint-disable-line
@@ -209,21 +201,6 @@ describe('ChannelHeader', () => {
     await waitFor(() =>
       expect(screen.getByTestId('avatar-img')).toHaveAttribute('src', updatedAttribute.image),
     );
-  });
-
-  it('prefers the ChannelAvatar provided over component context', async () => {
-    const channelAvatarTestID = 'custom-channel-avatar';
-    const propsAvatarTestID = 'props-avatar';
-    const ChannelAvatar = () => <div data-testid={channelAvatarTestID} />;
-    const PropsAvatar = () => <div data-testid={propsAvatarTestID} />;
-
-    await renderComponent({
-      componentOverrides: { ChannelAvatar },
-      props: { Avatar: PropsAvatar },
-    });
-
-    expect(screen.queryByTestId(propsAvatarTestID)).not.toBeInTheDocument();
-    expect(screen.getByTestId(channelAvatarTestID)).toBeInTheDocument();
   });
 
   describe('group channel', () => {
