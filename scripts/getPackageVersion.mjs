@@ -1,5 +1,6 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 
 // import.meta.dirname is not available before Node 20
 const __dirname = dirname(fileURLToPath(import.meta.url));
