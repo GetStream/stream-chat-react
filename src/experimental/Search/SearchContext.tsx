@@ -7,10 +7,11 @@ export type SearchContextValue<
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   directMessagingChannelType: string;
+  /** Instance of the search controller that handles the data management */
   searchController: SearchController<StreamChatGenerics>;
   /** Sets the input element into disabled state */
   disabled?: boolean;
-  // /** Clear search state / results on every click outside the search input, defaults to true */
+  /** Clear search state / results on every click outside the search input, defaults to true */
   exitSearchOnInputBlur?: boolean;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
