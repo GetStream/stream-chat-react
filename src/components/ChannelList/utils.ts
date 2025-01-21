@@ -67,9 +67,6 @@ type MoveChannelUpwardsParams<SCG extends DefaultStreamChatGenerics = DefaultStr
   channelToMoveIndexWithinChannels?: number;
 };
 
-/**
- * This function should not be used to move pinned already channels.
- */
 export const moveChannelUpwards = <
   SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
@@ -90,8 +87,11 @@ export const moveChannelUpwards = <
   // receive messages and are not pinned should move upwards but only under the last pinned channel
   // in the list
   const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
+  const isTargetChannelPinned = isChannelPinned(channelToMove);
 
-  if (targetChannelAlreadyAtTheTop) return channels;
+  if (targetChannelAlreadyAtTheTop || (considerPinnedChannels && isTargetChannelPinned)) {
+    return channels;
+  }
 
   const newChannels = [...channels];
 
@@ -118,7 +118,9 @@ export const moveChannelUpwards = <
 };
 
 /**
- * Returns `true` only if `{ pinned_at: -1 }` or `{ pinned_at: 1 }` option is first within the `sort` array or if `pinned_at` key of the `sort` object gets picked first when using `for...in`.
+ * Returns `true` only if object with `pinned_at` property is first within the `sort` array
+ * or if `pinned_at` key of the `sort` object gets picked first when using `for...in` looping mechanism
+ * and value of the `pinned_at` is either `1` or `-1`.
  */
 export const shouldConsiderPinnedChannels = <SCG extends ExtendableGenerics>(
   sort: ChannelListProps<SCG>['sort'],
@@ -166,7 +168,7 @@ export const extractSortValue = <SCG extends ExtendableGenerics>({
 };
 
 /**
- * Returns `true` only if `archived` property is set to `false` within `filters`.
+ * Returns `true` only if `archived` property is of type `boolean` within `filters` object.
  */
 export const shouldConsiderArchivedChannels = <SCG extends ExtendableGenerics>(
   filters: ChannelListProps<SCG>['filters'],
@@ -176,18 +178,24 @@ export const shouldConsiderArchivedChannels = <SCG extends ExtendableGenerics>(
   return typeof filters.archived === 'boolean';
 };
 
+/**
+ * Returns `true` only if `pinned_at` property is of type `string` within `membership` object.
+ */
 export const isChannelPinned = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
   if (!channel) return false;
 
-  const member = channel.state.membership;
+  const membership = channel.state.membership;
 
-  return !!member?.pinned_at;
+  return typeof membership.pinned_at === 'string';
 };
 
+/**
+ * Returns `true` only if `archived_at` property is of type `string` within `membership` object.
+ */
 export const isChannelArchived = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
   if (!channel) return false;
 
-  const member = channel.state.membership;
+  const membership = channel.state.membership;
 
-  return !!member?.archived_at;
+  return typeof membership.archived_at === 'string';
 };
