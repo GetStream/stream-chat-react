@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 export const useMobileNavigation = (
-  channelListRef: React.RefObject<HTMLDivElement>,
+  channelListRef: React.RefObject<HTMLDivElement | null>,
   navOpen: boolean,
   closeMobileNav?: () => void,
 ) => {

@@ -20,7 +20,7 @@ export const useScrollToBottomOnNewMessage = <
 }: UseScrollToBottomOnNewMessageParams<StreamChatGenerics>) => {
   const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = useState(false);
 
-  const scrollToBottomIfConfigured = useRef<(e: Event) => void>();
+  const scrollToBottomIfConfigured = useRef<(e: Event) => void>(undefined);
 
   scrollToBottomIfConfigured.current = (event: Event) => {
     if (

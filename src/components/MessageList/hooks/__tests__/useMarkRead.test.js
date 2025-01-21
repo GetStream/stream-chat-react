@@ -9,7 +9,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../../mock-builders';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 const visibilityChangeScenario = 'visibilitychange event';
 const markRead = jest.fn();

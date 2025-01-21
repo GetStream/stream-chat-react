@@ -70,7 +70,11 @@ const UnMemoizedGallery = <
           })`,
           ...image.style,
         }}
-        {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
+        {...(innerRefs?.current && {
+          ref: (r) => {
+            innerRefs.current[i] = r;
+          },
+        })}
       >
         <p>
           {t<string>('{{ imageCount }} more', {
@@ -90,7 +94,11 @@ const UnMemoizedGallery = <
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
           title={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
-          {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
+          {...(innerRefs?.current && {
+            ref: (r) => {
+              innerRefs.current[i] = r;
+            },
+          })}
         />
       </button>
     ),

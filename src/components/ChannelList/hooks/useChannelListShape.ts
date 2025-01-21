@@ -478,9 +478,9 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
 }: UseDefaultHandleChannelListShapeParameters<SCG>) => {
   const defaults = useChannelListShapeDefaults<SCG>();
 
-  const defaultHandleChannelListShapeRef = useRef<(e: Event<SCG>) => void>();
+  const defaultHandleChannelListShapeRef = useRef<(e: Event<SCG>) => void>(undefined);
 
-  const customHandleChannelListShapeRef = useRef<(e: Event<SCG>) => void>();
+  const customHandleChannelListShapeRef = useRef<(e: Event<SCG>) => void>(undefined);
 
   customHandleChannelListShapeRef.current = (event: Event<SCG>) => {
     // @ts-expect-error can't use ReturnType<typeof useChannelListShapeDefaults<SCG>> until we upgrade prettier to at least v2.7.0

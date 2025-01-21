@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import { CustomMessageActionsList } from '../CustomMessageActionsList';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 describe('CustomMessageActionsList', () => {
   it('should render custom list of actions', () => {

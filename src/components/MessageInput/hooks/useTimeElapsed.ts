@@ -7,7 +7,7 @@ type UseTimeElapsedParams = {
 // todo: provide start timestamp
 export const useTimeElapsed = ({ startOnMount }: UseTimeElapsedParams = {}) => {
   const [secondsElapsed, setSecondsElapsed] = useState<number>(0);
-  const updateInterval = useRef<ReturnType<typeof setInterval>>();
+  const updateInterval = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const startCounter = useCallback(() => {
     if (updateInterval.current) return;

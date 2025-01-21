@@ -47,7 +47,7 @@ export type SearchBarController = {
   /** Flag determining whether the search input is focused */
   inputIsFocused: boolean;
   /** Ref object for the input wrapper in the SearchBar */
-  searchBarRef: React.RefObject<HTMLDivElement>;
+  searchBarRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export type AdditionalSearchBarProps = {

@@ -43,11 +43,12 @@ export const ModalGallery = <
           source: imageSrc,
         };
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [images],
+    [images, t],
   );
 
   return (
+    // ignore the TS error as react-image-gallery was on @types/react@18 while stream-chat-react being upgraded to React 19 (https://github.com/xiaolin/react-image-gallery/issues/809)
+    // @ts-expect-error
     <ImageGallery
       items={formattedArray}
       renderItem={renderItem}

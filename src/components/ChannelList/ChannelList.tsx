@@ -204,7 +204,7 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     useImageFlagEmojisOnWindows,
   } = useChatContext<SCG>('ChannelList');
 
-  const channelListRef = useRef<HTMLDivElement>(null);
+  const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
   /**
@@ -336,7 +336,7 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
       watchers,
     };
 
-    return <ChannelPreview {...previewProps} />;
+    return <ChannelPreview<SCG> {...previewProps} />;
   };
 
   const baseClass = 'str-chat__channel-list';
