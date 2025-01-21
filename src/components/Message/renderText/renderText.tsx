@@ -1,10 +1,10 @@
 import React, { ComponentType } from 'react';
-import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
+import Markdown, { defaultUrlTransform, Options } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
 
-import type { PluggableList } from 'react-markdown/lib/react-markdown';
+import type { PluggableList } from 'unified';
 import type { UserResponse } from 'stream-chat';
 
 import { Anchor, Emoji, Mention, MentionProps } from './componentRenderers';
@@ -60,7 +60,7 @@ function encodeDecode(url: string) {
   }
 }
 
-const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
+const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : defaultUrlTransform(uri));
 
 const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) => plugins;
 
@@ -71,7 +71,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 };
 
 export type RenderTextOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   // eslint-disable-next-line @typescript-eslint/ban-types
   allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})>;
@@ -85,7 +85,7 @@ export type RenderTextOptions<
 };
 
 export const renderText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   text?: string,
   mentionedUsers?: UserResponse<StreamChatGenerics>[],
@@ -168,7 +168,7 @@ export const renderText = <
 
   return (
     <ErrorBoundary fallback={<>{text}</>}>
-      <ReactMarkdown
+      <Markdown
         allowedElements={allowedTagNames}
         components={{
           ...markDownRenderers,
@@ -177,11 +177,11 @@ export const renderText = <
         rehypePlugins={getRehypePlugins(rehypePlugins)}
         remarkPlugins={getRemarkPlugins(remarkPlugins)}
         skipHtml
-        transformLinkUri={urlTransform}
         unwrapDisallowed
+        urlTransform={urlTransform}
       >
         {newText}
-      </ReactMarkdown>
+      </Markdown>
     </ErrorBoundary>
   );
 };
