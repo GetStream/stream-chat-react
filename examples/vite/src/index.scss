@@ -12,6 +12,12 @@ body,
   height: 100%;
 }
 
+@layer stream, emoji-replacement;
+
+@import url('stream-chat-react/css/v2/index.css') layer(stream);
+// use in combination with useImageFlagEmojisOnWindows prop on Chat component
+// @import url('stream-chat-react/css/v2/emoji-replacement.css') layer(emoji-replacement);
+
 #root {
   display: flex;
   height: 100%;
