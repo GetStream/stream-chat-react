@@ -1,6 +1,5 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import renderer from 'react-test-renderer';
 import { CustomMessageActionsList } from '../CustomMessageActionsList';
 import { act } from 'react';
 
@@ -13,29 +12,27 @@ describe('CustomMessageActionsList', () => {
       key1: () => {},
     };
 
-    const tree = renderer.create(
+    const { container } = render(
       <CustomMessageActionsList customMessageActions={actions} message={message} />,
     );
 
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      [
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <button
           aria-selected="false"
-          className="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
-          onClick={[Function]}
+          class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
           role="option"
         >
           key0
-        </button>,
+        </button>
         <button
           aria-selected="false"
-          className="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
-          onClick={[Function]}
+          class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
           role="option"
         >
           key1
-        </button>,
-      ]
+        </button>
+      </div>
     `);
   });
 

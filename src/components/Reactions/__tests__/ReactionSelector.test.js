@@ -103,7 +103,7 @@ describe('ReactionSelector', () => {
         image: alice.image,
         name: alice.name,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -143,7 +143,7 @@ describe('ReactionSelector', () => {
         image: alice.image,
         name: alice.name,
       }),
-      {},
+      undefined,
     );
 
     const avatarEl = getByTestId('avatar');

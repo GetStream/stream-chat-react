@@ -1,187 +1,187 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<MessageText /> should render with a custom inner class when one is set 1`] = `
-<div
-  className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
->
+<div>
   <div
-    className="str-chat__message-inner"
-    data-testid="message-inner"
+    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
   >
-    <div />
     <div
-      className="str-chat__message-reactions-host"
-    />
-    <div
-      className="str-chat__message-bubble"
+      class="str-chat__message-inner"
+      data-testid="message-inner"
     >
+      <div />
       <div
-        className="str-chat__message-text"
-        tabIndex={0}
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-bubble"
       >
         <div
-          className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          class="str-chat__message-text"
+          tabindex="0"
         >
-          <div>
-            <p>
-              hi mate
-            </p>
+          <div
+            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            data-testid="message-text-inner-wrapper"
+          >
+            <div>
+              <p>
+                hi mate
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="str-chat__message-error-icon"
-      >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__message-error-icon"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            data-testid="error"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+              fill="black"
+              id="background"
+            />
+            <path
+              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+              fill="white"
+            />
+          </svg>
+        </div>
       </div>
     </div>
+    <div
+      class="str-chat__message-metadata"
+    />
   </div>
-  <div
-    className="str-chat__message-metadata"
-  />
 </div>
 `;
 
 exports[`<MessageText /> should render with a custom wrapper class when one is set 1`] = `
-<div
-  className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
->
+<div>
   <div
-    className="str-chat__message-inner"
-    data-testid="message-inner"
+    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
   >
-    <div />
     <div
-      className="str-chat__message-reactions-host"
-    />
-    <div
-      className="str-chat__message-bubble"
+      class="str-chat__message-inner"
+      data-testid="message-inner"
     >
+      <div />
       <div
-        className="str-chat__message-text"
-        tabIndex={0}
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-bubble"
       >
         <div
-          className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          class="str-chat__message-text"
+          tabindex="0"
         >
-          <div>
-            <p>
-              hello world
-            </p>
+          <div
+            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            data-testid="message-text-inner-wrapper"
+          >
+            <div>
+              <p>
+                hello world
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="str-chat__message-error-icon"
-      >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__message-error-icon"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            data-testid="error"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+              fill="black"
+              id="background"
+            />
+            <path
+              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+              fill="white"
+            />
+          </svg>
+        </div>
       </div>
     </div>
+    <div
+      class="str-chat__message-metadata"
+    />
   </div>
-  <div
-    className="str-chat__message-metadata"
-  />
 </div>
 `;
 
 exports[`<MessageText /> should render with custom theme identifier in generated css classes when theme is set 1`] = `
-<div
-  className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
->
+<div>
   <div
-    className="str-chat__message-inner"
-    data-testid="message-inner"
+    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
   >
-    <div />
     <div
-      className="str-chat__message-reactions-host"
-    />
-    <div
-      className="str-chat__message-bubble"
+      class="str-chat__message-inner"
+      data-testid="message-inner"
     >
+      <div />
       <div
-        className="str-chat__message-text"
-        tabIndex={0}
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-bubble"
       >
         <div
-          className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          class="str-chat__message-text"
+          tabindex="0"
         >
-          <div>
-            <p>
-              whatup?!
-            </p>
+          <div
+            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            data-testid="message-text-inner-wrapper"
+          >
+            <div>
+              <p>
+                whatup?!
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="str-chat__message-error-icon"
-      >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__message-error-icon"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            data-testid="error"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+              fill="black"
+              id="background"
+            />
+            <path
+              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+              fill="white"
+            />
+          </svg>
+        </div>
       </div>
     </div>
+    <div
+      class="str-chat__message-metadata"
+    />
   </div>
-  <div
-    className="str-chat__message-metadata"
-  />
 </div>
 `;

@@ -83,13 +83,13 @@ describe('<FixedHeightMessage />', () => {
     const attachments = [image, image, image];
     const message = generateMessage({ attachments, user: alice });
     await renderMsg(message);
-    expect(GalleryMock).toHaveBeenCalledWith({ images: attachments }, {});
+    expect(GalleryMock).toHaveBeenCalledWith({ images: attachments }, undefined);
   });
 
   it('should render user avatar', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(AvatarMock).toHaveBeenCalledWith(expect.objectContaining(aliceProfile), {});
+    expect(AvatarMock).toHaveBeenCalledWith(expect.objectContaining(aliceProfile), undefined);
   });
 
   it('should render MML', async () => {
@@ -98,14 +98,17 @@ describe('<FixedHeightMessage />', () => {
     await renderMsg(message);
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
-      {},
+      undefined,
     );
   });
 
   it('should render message action for owner', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(MessageActionsMock).toHaveBeenCalledWith(expect.objectContaining({ message }), {});
+    expect(MessageActionsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ message }),
+      undefined,
+    );
     expect(MessageActionsMock).toHaveReturnedWith(['delete']);
   });
 

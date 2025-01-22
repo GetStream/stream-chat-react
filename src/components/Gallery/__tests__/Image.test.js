@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import renderer from 'react-test-renderer';
+
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import '@testing-library/jest-dom';
@@ -19,14 +19,12 @@ describe('Image', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const tree = renderer
-      .create(
-        <ComponentProvider value={{}}>
-          <ImageComponent images={mockImageAssets} />
-        </ComponentProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      <ComponentProvider value={{}}>
+        <ImageComponent images={mockImageAssets} />
+      </ComponentProvider>,
+    );
+    expect(container).toMatchSnapshot();
   });
 
   describe('it should prevent unsafe image uri protocols in the rendered image src', () => {

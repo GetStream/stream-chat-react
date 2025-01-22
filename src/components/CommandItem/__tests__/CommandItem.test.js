@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -9,21 +9,23 @@ afterEach(cleanup); // eslint-disable-line
 
 describe('commandItem', () => {
   it('should render component with empty entity', () => {
-    const tree = renderer.create(<CommandItem entity={{}} />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__slash-command"
-      >
-        <span
-          className="str-chat__slash-command-header"
+    const { container } = render(<CommandItem entity={{}} />);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat__slash-command"
         >
-          <strong />
-           
-        </span>
-        <br />
-        <span
-          className="str-chat__slash-command-description"
-        />
+          <span
+            class="str-chat__slash-command-header"
+          >
+            <strong />
+             
+          </span>
+          <br />
+          <span
+            class="str-chat__slash-command-description"
+          />
+        </div>
       </div>
     `);
   });
@@ -37,26 +39,28 @@ describe('commandItem', () => {
     expect(getByText(entity.args)).toBeInTheDocument();
     expect(getByText(entity.description)).toBeInTheDocument();
 
-    const tree = renderer.create(Component).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__slash-command"
-      >
-        <span
-          className="str-chat__slash-command-header"
+    const { container } = render(Component);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat__slash-command"
         >
-          <strong>
-            name
-          </strong>
-           
-          args
-        </span>
-        <br />
-        <span
-          className="str-chat__slash-command-description"
-        >
-          description
-        </span>
+          <span
+            class="str-chat__slash-command-header"
+          >
+            <strong>
+              name
+            </strong>
+             
+            args
+          </span>
+          <br />
+          <span
+            class="str-chat__slash-command-description"
+          >
+            description
+          </span>
+        </div>
       </div>
     `);
   });

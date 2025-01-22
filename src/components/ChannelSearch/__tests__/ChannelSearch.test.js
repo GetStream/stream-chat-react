@@ -109,7 +109,7 @@ describe('ChannelSearch', () => {
   });
 
   it('removes "searching" flag upon setting search results', async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     const client = await getTestClientWithUser(user);
     useMockedApis(client, [queryUsersApi([user])]);
     const { typeText } = await renderSearch({ client });
@@ -117,7 +117,11 @@ describe('ChannelSearch', () => {
       typeText(typedText);
     });
     expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).toBeInTheDocument();
-    jest.advanceTimersByTime(1000);
+
+    await act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
     await waitFor(() => {
       expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
     });

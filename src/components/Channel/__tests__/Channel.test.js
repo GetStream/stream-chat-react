@@ -423,7 +423,7 @@ describe('Channel', () => {
         expect.objectContaining({
           error: watchError,
         }),
-        expect.any(Object),
+        undefined,
       ),
     );
   });

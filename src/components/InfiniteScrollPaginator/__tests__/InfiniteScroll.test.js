@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import renderer from 'react-test-renderer';
 
 import { InfiniteScroll } from '../';
 
@@ -112,24 +111,25 @@ describe('InfiniteScroll', () => {
 
   describe('Rendering loader', () => {
     const getRenderResult = () =>
-      renderer
-        .create(
-          <InfiniteScroll
-            isLoading
-            loader={<div key='loader'>loader</div>}
-            loadPreviousPage={loadPreviousPage}
-          >
-            Content
-          </InfiniteScroll>,
-        )
-        .toJSON();
+      render(
+        <InfiniteScroll
+          isLoading
+          loader={<div key='loader'>loader</div>}
+          loadPreviousPage={loadPreviousPage}
+        >
+          Content
+        </InfiniteScroll>,
+      );
     it('should render the loader in the right place if isLoading is true', () => {
-      expect(getRenderResult()).toMatchInlineSnapshot(`
+      const { container } = getRenderResult();
+      expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
-            loader
+            <div>
+              loader
+            </div>
+            Content
           </div>
-          Content
         </div>
       `);
     });

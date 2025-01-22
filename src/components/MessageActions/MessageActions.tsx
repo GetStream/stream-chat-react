@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ElementRef, PropsWithChildren, useCallback, useRef } from 'react';
+import React, { PropsWithChildren, useCallback, useRef } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -98,7 +98,7 @@ export const MessageActions = <
     messageActions,
   });
 
-  const actionsBoxButtonRef = useRef<ElementRef<'button'>>(null);
+  const actionsBoxButtonRef = useRef<HTMLButtonElement | null>(null);
 
   if (!renderMessageActions) return null;
 

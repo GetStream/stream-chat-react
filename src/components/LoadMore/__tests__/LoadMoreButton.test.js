@@ -1,6 +1,5 @@
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import { LoadMoreButton } from '../LoadMoreButton';
@@ -11,26 +10,24 @@ describe('LoadMoreButton', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const tree = renderer
-      .create(
-        <TranslationProvider value={mockTranslationContext}>
-          <LoadMoreButton isLoading={false} onClick={() => null} />
-        </TranslationProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__load-more-button"
-      >
-        <button
-          aria-label="Load More Channels"
-          className="str-chat__load-more-button__button str-chat__cta-button"
-          data-testid="load-more-button"
-          disabled={false}
-          onClick={[Function]}
+    const { container } = render(
+      <TranslationProvider value={mockTranslationContext}>
+        <LoadMoreButton isLoading={false} onClick={() => null} />
+      </TranslationProvider>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat__load-more-button"
         >
-          Load more
-        </button>
+          <button
+            aria-label="Load More Channels"
+            class="str-chat__load-more-button__button str-chat__cta-button"
+            data-testid="load-more-button"
+          >
+            Load more
+          </button>
+        </div>
       </div>
     `);
   });

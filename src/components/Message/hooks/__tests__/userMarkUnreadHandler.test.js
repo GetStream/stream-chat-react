@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
 import { ChannelStateProvider, TranslationProvider } from '../../../../context';
 import { generateMessage } from '../../../../mock-builders';

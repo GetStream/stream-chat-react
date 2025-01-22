@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -18,12 +18,12 @@ describe('LoadingErrorIndicator', () => {
   });
 
   it('should render when an error is passed', () => {
-    const tree = renderer
-      .create(<LoadingErrorIndicator error={{ message: 'this is an error' }} />)
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
+    const { container } = render(<LoadingErrorIndicator error={{ message: 'this is an error' }} />);
+    expect(container).toMatchInlineSnapshot(`
       <div>
-        Error: {{ errorMessage }}
+        <div>
+          Error: {{ errorMessage }}
+        </div>
       </div>
     `);
   });
