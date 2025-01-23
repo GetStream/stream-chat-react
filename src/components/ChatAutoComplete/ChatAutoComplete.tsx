@@ -96,6 +96,8 @@ export type SuggestionListProps<
 >;
 
 export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
+  /** Override the default disabled state of the underlying `textarea` component. */
+  disabled?: boolean;
   /** Function to override the default submit handler on the underlying `textarea` component */
   handleSubmit?: (event: React.BaseSyntheticEvent) => void;
   /** Function to run on blur of the underlying `textarea` component */
@@ -167,7 +169,7 @@ const UnMemoizedChatAutoComplete = <
       closeCommandsList={messageInput.closeCommandsList}
       closeMentionsList={messageInput.closeMentionsList}
       containerClassName='str-chat__textarea str-chat__message-textarea-react-host'
-      disabled={disabled || !!cooldownRemaining}
+      disabled={(props.disabled ?? disabled) || !!cooldownRemaining}
       disableMentions={messageInput.disableMentions}
       grow={messageInput.grow}
       handleSubmit={props.handleSubmit || messageInput.handleSubmit}
