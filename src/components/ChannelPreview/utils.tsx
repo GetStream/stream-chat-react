@@ -1,6 +1,6 @@
 import React from 'react';
 
-import ReactMarkdown from 'react-markdown';
+import Markdown from 'react-markdown';
 
 import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stream-chat';
 
@@ -9,10 +9,10 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import { ChatContextValue } from '../../context';
 
-export const renderPreviewText = (text: string) => <ReactMarkdown skipHtml>{text}</ReactMarkdown>;
+export const renderPreviewText = (text: string) => <Markdown skipHtml>{text}</Markdown>;
 
 const getLatestPollVote = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   latestVotesByOption: Record<string, PollVote<StreamChatGenerics>[]>,
 ) => {
@@ -28,7 +28,7 @@ const getLatestPollVote = <
 };
 
 export const getLatestMessagePreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel: Channel<StreamChatGenerics>,
   t: TranslationContextValue['t'],
@@ -98,7 +98,7 @@ export const getLatestMessagePreview = <
 export type GroupChannelDisplayInfo = { image?: string; name?: string }[];
 
 export const getGroupChannelDisplayInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel: Channel<StreamChatGenerics>,
 ): GroupChannelDisplayInfo | undefined => {
@@ -116,7 +116,7 @@ export const getGroupChannelDisplayInfo = <
 };
 
 const getChannelDisplayInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   info: 'name' | 'image',
   channel: Channel<StreamChatGenerics>,
@@ -130,14 +130,14 @@ const getChannelDisplayInfo = <
 };
 
 export const getDisplayTitle = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel: Channel<StreamChatGenerics>,
   currentUser?: UserResponse<StreamChatGenerics>,
 ) => getChannelDisplayInfo('name', channel, currentUser);
 
 export const getDisplayImage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel: Channel<StreamChatGenerics>,
   currentUser?: UserResponse<StreamChatGenerics>,
