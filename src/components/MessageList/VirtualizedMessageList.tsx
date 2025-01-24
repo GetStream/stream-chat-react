@@ -60,6 +60,7 @@ import {
 } from '../../context/ChannelStateContext';
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
+import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
 
 import type { Channel, ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
@@ -439,7 +440,7 @@ const VirtualizedMessageListWithContext = <
     : 'virtualized-message-list-dialog-manager';
 
   return (
-    <>
+    <VirtualizedMessageListContextProvider value={{ scrollToBottom }}>
       <MessageListMainPanel>
         <DialogManagerProvider id={dialogManagerId}>
           {!threadList && showUnreadMessagesNotification && (
@@ -524,7 +525,7 @@ const VirtualizedMessageListWithContext = <
         unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
-    </>
+    </VirtualizedMessageListContextProvider>
   );
 };
 
