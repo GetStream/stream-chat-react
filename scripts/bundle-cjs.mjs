@@ -4,7 +4,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { replace } from 'esbuild-plugin-replace';
-import getPackageVersion from "./getPackageVersion.mjs";
+import getPackageVersion from './getPackageVersion.mjs';
+import packageJson from '../package.json' with { type: 'json' };
 
 // import.meta.dirname is not available before Node 20
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -25,12 +26,9 @@ const bundledDeps = [
   'remark-gfm',
 ];
 
-const packageJson = await import(resolve(__dirname, '../package.json'), {
-  assert: { type: 'json' },
-});
 const deps = Object.keys({
-  ...packageJson.default.dependencies,
-  ...packageJson.default.peerDependencies,
+  ...packageJson.dependencies,
+  ...packageJson.peerDependencies,
 });
 const external = deps.filter((dep) => !bundledDeps.includes(dep));
 
@@ -46,7 +44,6 @@ const cjsBundleConfig = {
   sourcemap: 'linked',
 };
 
-
 // We build two CJS bundles: for browser and for node. The latter one can be
 // used e.g. during SSR (although it makes little sence to SSR chat, but still
 // nice for import not to break on server).
@@ -56,9 +53,9 @@ const bundles = ['browser', 'node'].map((platform) =>
     entryNames: `[dir]/[name].${platform}`,
     platform,
     plugins: [
-        replace({
-          '__STREAM_CHAT_REACT_VERSION__': getPackageVersion(),
-        }),
+      replace({
+        __STREAM_CHAT_REACT_VERSION__: getPackageVersion(),
+      }),
     ],
   }),
 );
