@@ -49,6 +49,7 @@ const UnMemoizedReactionsList = <
 ) => {
   const {
     handleFetchReactions,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reactionDetailsSort,
     reverse = false,
     sortReactionDetails,

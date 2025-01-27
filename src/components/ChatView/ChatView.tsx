@@ -10,10 +10,10 @@ import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
 import clsx from 'clsx';
 
-const availableChatViews = ['channels', 'threads'] as const;
+type ChatView = 'channels' | 'threads';
 
 type ChatViewContextValue = {
-  activeChatView: typeof availableChatViews[number];
+  activeChatView: ChatView;
   setActiveChatView: (cv: ChatViewContextValue['activeChatView']) => void;
 };
 

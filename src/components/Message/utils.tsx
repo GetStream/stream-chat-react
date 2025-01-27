@@ -25,9 +25,8 @@ export const validateAndGetMessage = <T extends unknown[]>(
 
   // below is due to tests passing a single argument
   // rather than an array.
-  if (!(args instanceof Array)) {
-    // @ts-expect-error
-    args = [args];
+  if (!Array.isArray(args)) {
+    args = [args] as unknown as T;
   }
 
   const returnValue = func(...args);

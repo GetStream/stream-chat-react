@@ -80,7 +80,6 @@ export type AttachmentSelectorActionProps = {
 
 export type AttachmentSelectorAction = {
   ActionButton: React.ComponentType<AttachmentSelectorActionProps>;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   type: 'uploadFile' | 'createPoll' | (string & {});
   ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
 };

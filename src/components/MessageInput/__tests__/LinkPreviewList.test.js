@@ -950,6 +950,7 @@ describe('Link preview', () => {
   it('submit new message with skip_url_enrich:false if no link previews managed to get loaded', async () => {
     const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')
@@ -987,6 +988,7 @@ describe('Link preview', () => {
 
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')

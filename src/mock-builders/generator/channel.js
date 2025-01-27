@@ -4,6 +4,7 @@ export const generateChannel = (options = { channel: {} }) => {
   const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
 
   return {

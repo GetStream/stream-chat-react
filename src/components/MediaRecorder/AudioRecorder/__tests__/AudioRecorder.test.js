@@ -307,6 +307,7 @@ describe('MessageInput', () => {
     });
 
     expect(doFileUploadRequest).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { localMetadata, ...uploadedRecordingAtt } = recording;
     expect(sendMessage.mock.calls[0][0]).toStrictEqual({
       attachments: [uploadedRecordingAtt],

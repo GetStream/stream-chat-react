@@ -86,6 +86,7 @@ export const searchLocalUsers = <
 
     if (useMentionsTransliteration) {
       (async () => {
+        // eslint-disable-next-line import/no-extraneous-dependencies
         const { default: transliterate } = await import('@stream-io/transliterate');
         updatedName = transliterate(user.name || '').toLowerCase();
         updatedQuery = transliterate(query).toLowerCase();

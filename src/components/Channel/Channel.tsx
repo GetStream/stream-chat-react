@@ -1010,7 +1010,7 @@ const ChannelInner = <
         });
 
         thread?.upsertReplyLocally({
-          // @ts-expect-error
+          // @ts-expect-error message type mismatch
           message: {
             ...message,
             error: parsedError,
@@ -1049,7 +1049,7 @@ const ChannelInner = <
     };
 
     thread?.upsertReplyLocally({
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       message: messagePreview,
     });
 
@@ -1226,7 +1226,7 @@ const ChannelInner = <
     ],
   );
 
-  // @ts-expect-error
+  // @ts-expect-error message type mismatch
   const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({
       Attachment: props.Attachment,

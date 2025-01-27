@@ -68,7 +68,7 @@ export const useUserTrigger = <
     throttle(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         try {
-          // @ts-expect-error
+          // @ts-expect-error valid query
           const response = await channel.queryMembers({
             name: { $autocomplete: query },
           });
@@ -100,7 +100,7 @@ export const useUserTrigger = <
 
     try {
       const { users } = await client.queryUsers(
-        // @ts-expect-error
+        // @ts-expect-error valid query
         {
           $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
           ...(typeof mentionQueryParams.filters === 'function'

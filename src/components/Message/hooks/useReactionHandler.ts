@@ -94,7 +94,7 @@ export const useReactionHandler = <
 
     try {
       updateMessage(tempMessage);
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
@@ -106,7 +106,7 @@ export const useReactionHandler = <
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message });
     }
   }, 1000);

@@ -1,4 +1,3 @@
-/* eslint-disable typescript-sort-keys/interface */
 import React, { useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 import Picker from '@emoji-mart/react';

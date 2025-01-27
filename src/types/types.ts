@@ -156,7 +156,6 @@ export type UpdateMessageOptions = {
 
 export type Readable<T> = {
   [key in keyof T]: T[key];
-  // eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
 
 export type ValuesType<T> = T[keyof T];

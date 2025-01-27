@@ -206,6 +206,7 @@ describe('Channel', () => {
   it('should render empty channel container if channel does not have cid', async () => {
     const { channel } = await initClient();
     const childrenContent = 'Channel children';
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { cid, ...channelWithoutCID } = channel;
     const { asFragment } = render(
       <ChatProvider
@@ -1482,6 +1483,7 @@ describe('Channel', () => {
       });
       describe('delete message', () => {
         it('should throw error instead of calling default client.deleteMessage() function', async () => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
           const { channel, chatClient } = await initClient();
           const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
@@ -1509,6 +1511,7 @@ describe('Channel', () => {
         });
 
         it('should throw error instead of calling custom doDeleteMessageRequest function', async () => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
           const { channel, chatClient } = await initClient();
           const clientDeleteMessageSpy = jest

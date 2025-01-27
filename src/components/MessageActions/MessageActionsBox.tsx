@@ -47,6 +47,7 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mine,
     open,
     ...restDivProps
