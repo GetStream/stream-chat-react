@@ -78,7 +78,7 @@ export const QuotedMessage = <
                 className='str-chat__quoted-message-bubble__text'
                 data-testid='quoted-message-text'
               >
-                {quotedMessageText}
+                <p className='str-chat__quoted-message-text-value'>{quotedMessageText}</p>
               </div>
             </>
           )}
