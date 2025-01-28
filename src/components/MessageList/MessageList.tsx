@@ -131,7 +131,6 @@ const MessageListWithContext = <
   useMarkRead({
     isMessageListScrolledToBottom,
     messageListIsThread: threadList,
-    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
     wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
   });
 
