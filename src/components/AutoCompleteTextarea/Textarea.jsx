@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
-import { isValidElementType } from 'react-is';
 import clsx from 'clsx';
 
 import { List as DefaultSuggestionList } from './List';
@@ -360,10 +359,6 @@ export class ReactTextareaAutocomplete extends React.Component {
 
       if (!Array.isArray(data)) {
         throw new Error('Trigger provider has to provide an array!');
-      }
-
-      if (!isValidElementType(component)) {
-        throw new Error('Component should be defined!');
       }
 
       // throw away if we resolved old trigger
