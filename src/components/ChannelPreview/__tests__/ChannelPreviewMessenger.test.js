@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import {
@@ -55,8 +54,8 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   it('should render correctly', () => {
-    const tree = renderer.create(renderComponent()).toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(renderComponent());
+    expect(container).toMatchSnapshot();
   });
 
   it('should call setActiveChannel on click', async () => {

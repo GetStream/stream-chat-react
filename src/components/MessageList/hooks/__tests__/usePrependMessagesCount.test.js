@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { usePrependedMessagesCount } from '../VirtualizedMessageList';
 import { generateMessage } from '../../../../mock-builders';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -9,13 +9,10 @@ import { MessageProvider } from '../../../context/MessageContext';
 
 afterEach(cleanup); // eslint-disable-line
 
-const renderComponent = async (
-  { chatCtx = {}, messageCtx = {}, mmlProps },
-  _renderer = renderer.create,
-) => {
+const renderComponent = async ({ chatCtx = {}, messageCtx = {}, mmlProps }) => {
   let result;
   await act(() => {
-    result = _renderer(
+    result = render(
       <ChatProvider value={chatCtx}>
         <MessageProvider value={messageCtx}>
           <MML {...mmlProps} />
@@ -28,53 +25,52 @@ const renderComponent = async (
 
 describe('MML', () => {
   it('should render mml form without any source', async () => {
-    const tree = await renderComponent({ mmlProps: { source: '' } });
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="mml-container  mml-align-right"
-        data-testid="mml-container"
-      >
-        <form
-          className="mml-wrap"
-          data-testid="mml-form"
-          onSubmit={[Function]}
-        />
+    const { container } = await renderComponent({ mmlProps: { source: '' } });
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="mml-container  mml-align-right"
+          data-testid="mml-container"
+        >
+          <form
+            class="mml-wrap"
+            data-testid="mml-form"
+          />
+        </div>
       </div>
     `);
   }, 10000);
 
   it('should render a basic mml', async () => {
-    const tree = await renderComponent({
+    const { container } = await renderComponent({
       mmlProps: { source: '<mml>Some Text</mml>' },
     });
 
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="mml-container  mml-align-right"
-        data-testid="mml-container"
-      >
-        <form
-          className="mml-wrap"
-          data-testid="mml-form"
-          onSubmit={[Function]}
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="mml-container  mml-align-right"
+          data-testid="mml-container"
         >
-          <div
-            className="mml-text"
+          <form
+            class="mml-wrap"
+            data-testid="mml-form"
           >
-            Some Text
-          </div>
-        </form>
+            <div
+              class="mml-text"
+            >
+              Some Text
+            </div>
+          </form>
+        </div>
       </div>
     `);
   });
 
   it('should render with different align prop', async () => {
-    const { rerender } = await renderComponent(
-      {
-        mmlProps: { align: 'left', source: '<mml></mml>' },
-      },
-      render,
-    );
+    const { rerender } = await renderComponent({
+      mmlProps: { align: 'left', source: '<mml></mml>' },
+    });
 
     expect(screen.getByTestId('mml-container')).toHaveClass('mml-align-left');
 
@@ -89,25 +85,19 @@ describe('MML', () => {
   });
 
   it('should pass down themes from chat context', async () => {
-    await renderComponent(
-      {
-        chatCtx: { theme: 'team dark' },
-        mmlProps: { source: '<mml></mml>' },
-      },
-      render,
-    );
+    await renderComponent({
+      chatCtx: { theme: 'team dark' },
+      mmlProps: { source: '<mml></mml>' },
+    });
 
     expect(screen.getByTestId('mml-container')).toHaveClass('team-dark');
   });
 
   it('actionHandler should be called', async () => {
     const handler = jest.fn();
-    await renderComponent(
-      {
-        mmlProps: { actionHandler: handler, source: '<mml></mml>' },
-      },
-      render,
-    );
+    await renderComponent({
+      mmlProps: { actionHandler: handler, source: '<mml></mml>' },
+    });
 
     expect(handler).toHaveBeenCalledTimes(0);
     act(() => {
@@ -122,15 +112,12 @@ describe('MML', () => {
 
   it('actionHandler should be called with data', async () => {
     const handler = jest.fn();
-    await renderComponent(
-      {
-        mmlProps: {
-          actionHandler: handler,
-          source: "<mml name='mml_number'><number name='no' value='100'/></mml>",
-        },
+    await renderComponent({
+      mmlProps: {
+        actionHandler: handler,
+        source: "<mml name='mml_number'><number name='no' value='100'/></mml>",
       },
-      render,
-    );
+    });
 
     expect(handler).toHaveBeenCalledTimes(0);
     act(() => {

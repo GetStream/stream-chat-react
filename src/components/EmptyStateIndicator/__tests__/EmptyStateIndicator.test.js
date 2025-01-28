@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -10,11 +10,13 @@ afterEach(cleanup); // eslint-disable-line
 describe('EmptyStateIndicator', () => {
   it('should render with default props', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => null);
-    const tree = renderer.create(<EmptyStateIndicator />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <p>
-        No items exist
-      </p>
+    const { container } = render(<EmptyStateIndicator />);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          No items exist
+        </p>
+      </div>
     `);
   });
 

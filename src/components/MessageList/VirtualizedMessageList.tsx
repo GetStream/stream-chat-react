@@ -110,7 +110,7 @@ export type VirtuosoContext<
     /** The original message list enriched with date separators, omitted deleted messages or giphy previews. */
     processedMessages: StreamMessage<StreamChatGenerics>[];
     /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
-    virtuosoRef: RefObject<VirtuosoHandle>;
+    virtuosoRef: RefObject<VirtuosoHandle | null>;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId?: string;
     lastReadDate?: Date;

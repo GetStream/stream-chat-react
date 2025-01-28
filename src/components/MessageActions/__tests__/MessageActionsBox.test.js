@@ -435,8 +435,8 @@ describe('MessageActionsBox', () => {
         messageProps: { message },
       });
       await toggleOpenMessageActions();
+
       await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(channel.markUnread).toHaveBeenCalledWith(
@@ -462,7 +462,6 @@ describe('MessageActionsBox', () => {
       });
       await toggleOpenMessageActions();
       await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(getMarkMessageUnreadSuccessNotification).toHaveBeenCalledWith(
@@ -488,7 +487,6 @@ describe('MessageActionsBox', () => {
       });
       await toggleOpenMessageActions();
       await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(getMarkMessageUnreadErrorNotification).toHaveBeenCalledWith(

@@ -82,11 +82,11 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   const hasNextPageFlag = hasNextPage || hasMoreNewer;
   const hasPreviousPageFlag = hasPreviousPage || hasMore;
 
-  const scrollComponent = useRef<HTMLElement>();
-  const previousOffset = useRef<number | undefined>();
-  const previousReverseOffset = useRef<number | undefined>();
+  const scrollComponent = useRef<HTMLElement>(undefined);
+  const previousOffset = useRef<number | undefined>(undefined);
+  const previousReverseOffset = useRef<number | undefined>(undefined);
 
-  const scrollListenerRef = useRef<() => void>();
+  const scrollListenerRef = useRef<() => void>(undefined);
   scrollListenerRef.current = () => {
     const element = scrollComponent.current;
 

@@ -1,4 +1,3 @@
-import type { Reducer } from 'react';
 import type { Channel, MessageResponse, ChannelState as StreamChannelState } from 'stream-chat';
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
@@ -85,13 +84,9 @@ export type ChannelStateReducerAction<
       type: 'jumpToLatestMessage';
     };
 
-export type ChannelStateReducer<
+export const makeChannelReducer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Reducer<ChannelState<StreamChatGenerics>, ChannelStateReducerAction<StreamChatGenerics>>;
-
-export const channelReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
+>() => (
   state: ChannelState<StreamChatGenerics>,
   action: ChannelStateReducerAction<StreamChatGenerics>,
 ) => {

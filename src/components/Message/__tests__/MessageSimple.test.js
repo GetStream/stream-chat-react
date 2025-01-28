@@ -221,7 +221,7 @@ describe('<MessageSimple />', () => {
         Input: CustomEditMessageInput,
         message,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -290,7 +290,7 @@ describe('<MessageSimple />', () => {
         onClose: clearEditingState,
         open: true,
       }),
-      {},
+      undefined,
     );
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -298,7 +298,7 @@ describe('<MessageSimple />', () => {
         Input: EditMessageForm,
         message,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -471,7 +471,7 @@ describe('<MessageSimple />', () => {
         onMouseOver: expect.any(Function),
         user: expect.any(Object),
       },
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -512,7 +512,7 @@ describe('<MessageSimple />', () => {
     const { container } = await renderMessageSimple({ message });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'right', source: mml }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -527,7 +527,7 @@ describe('<MessageSimple />', () => {
     });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

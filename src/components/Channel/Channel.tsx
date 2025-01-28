@@ -33,7 +33,7 @@ import {
 import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
-import { channelReducer, ChannelStateReducer, initialState } from './channelState';
+import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
@@ -378,7 +378,9 @@ const ChannelInner = <
 
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
-  const [state, dispatch] = useReducer<ChannelStateReducer<StreamChatGenerics>>(
+  const channelReducer = useMemo(() => makeChannelReducer<StreamChatGenerics>(), []);
+
+  const [state, dispatch] = useReducer(
     channelReducer,
     // channel.initialized === false if client.channel().query() was not called, e.g. ChannelList is not used
     // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
@@ -392,7 +394,7 @@ const ChannelInner = <
   const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
-  const lastRead = useRef<Date | undefined>();
+  const lastRead = useRef<Date | undefined>(undefined);
   const online = useRef(true);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];

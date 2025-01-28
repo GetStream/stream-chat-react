@@ -20,7 +20,7 @@ export const useMessageInputText = <
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>(undefined);
 
   // Focus
   useEffect(() => {
@@ -30,7 +30,7 @@ export const useMessageInputText = <
   }, [focus]);
 
   // Text + cursor position
-  const newCursorPosition = useRef<number>();
+  const newCursorPosition = useRef<number>(undefined);
 
   const insertText = useCallback(
     (textToInsert: string) => {

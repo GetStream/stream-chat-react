@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -9,17 +9,19 @@ afterEach(cleanup); // eslint-disable-line
 
 describe('EmoticonItem', () => {
   it('should render component with empty entity', () => {
-    const tree = renderer.create(<EmoticonItem entity={{}} />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__emoji-item"
-      >
-        <span
-          className="str-chat__emoji-item--entity"
-        />
-        <span
-          className="str-chat__emoji-item--name"
-        />
+    const { container } = render(<EmoticonItem entity={{}} />);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat__emoji-item"
+        >
+          <span
+            class="str-chat__emoji-item--entity"
+          />
+          <span
+            class="str-chat__emoji-item--name"
+          />
+        </div>
       </div>
     `);
   });
@@ -37,30 +39,32 @@ describe('EmoticonItem', () => {
       expect(getByText(entity.native)).toBeInTheDocument();
     });
 
-    const tree = renderer.create(Component).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__emoji-item"
-      >
-        <span
-          className="str-chat__emoji-item--entity"
-        >
-          native
-        </span>
-        <span
-          className="str-chat__emoji-item--name"
+    const { container } = render(Component);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat__emoji-item"
         >
           <span
-            className="str-chat__emoji-item--highlight"
+            class="str-chat__emoji-item--entity"
           >
-            n
+            native
           </span>
           <span
-            className="str-chat__emoji-item--part"
+            class="str-chat__emoji-item--name"
           >
-            ame
+            <span
+              class="str-chat__emoji-item--highlight"
+            >
+              n
+            </span>
+            <span
+              class="str-chat__emoji-item--part"
+            >
+              ame
+            </span>
           </span>
-        </span>
+        </div>
       </div>
     `);
   });

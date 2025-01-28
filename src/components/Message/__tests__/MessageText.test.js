@@ -1,9 +1,7 @@
-/* eslint-disable jest-dom/prefer-to-have-class */
 import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
-import testRenderer from 'react-test-renderer';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -56,7 +54,6 @@ function generateAliceMessage(messageOptions) {
 async function renderMessageText({
   customProps = {},
   channelConfigOverrides = {},
-  renderer = render,
   channelCapabilitiesOverrides = {},
 } = {}) {
   const client = await getTestClientWithUser(alice);
@@ -68,7 +65,7 @@ async function renderMessageText({
   const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
-  return renderer(
+  return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
@@ -131,7 +128,9 @@ describe('<MessageText />', () => {
       attachments: [attachment, attachment, attachment],
     });
     const { container, getByTestId } = await renderMessageText({ customProps: { message } });
-    expect(getByTestId(messageTextTestId).className).toContain('--has-attachment');
+    expect(getByTestId(messageTextTestId)).toHaveClass(
+      'str-chat__message-simple-text-inner--has-attachment',
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -139,7 +138,9 @@ describe('<MessageText />', () => {
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
     const { container, getByTestId } = await renderMessageText({ customProps: { message } });
-    expect(getByTestId(messageTextTestId).className).toContain('--is-emoji');
+    expect(getByTestId(messageTextTestId)).toHaveClass(
+      'str-chat__message-simple-text-inner--is-emoji',
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -290,29 +291,26 @@ describe('<MessageText />', () => {
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
-    const tree = await renderMessageText({
+    const { container } = await renderMessageText({
       customProps: { customWrapperClass, message },
-      renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const tree = await renderMessageText({
+    const { container } = await renderMessageText({
       customProps: { customInnerClass, message },
-      renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
-    const tree = await renderMessageText({
+    const { container } = await renderMessageText({
       customProps: { message, theme: 'custom' },
-      renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 });

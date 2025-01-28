@@ -141,7 +141,7 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(EmptyStateIndicatorMock).toHaveBeenCalledWith(
         expect.objectContaining({ listType: 'message' }),
-        expect.any(Object),
+        undefined,
       );
     });
   });

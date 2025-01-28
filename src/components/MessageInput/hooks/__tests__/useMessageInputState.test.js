@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useMessageInputState } from '../useMessageInputState';
 import {
   generateAudioAttachment,
@@ -315,20 +315,14 @@ describe('useMessageInputState', () => {
             await act(async () => {
               await result.current.uploadAttachment(attachment);
             });
-
-            expect(result.all).toHaveLength(3);
-            expect(result.all[0].attachments).toHaveLength(0);
-            expect(result.all[1].attachments).toHaveLength(1);
-            expect(result.all[2].attachments).toHaveLength(1);
-            // cannot test result.all[1].attachments[0].localMetadata.uploadState === 'uploading'
-            // as the value is getting overridden by the current result
-            expect(result.all[2].attachments[0].localMetadata.uploadState).toBe('finished');
+            expect(result.current.attachments).toHaveLength(1);
+            expect(result.current.attachments[0].localMetadata.uploadState).toBe('finished');
 
             if (type === 'image') {
-              expect(result.all[2].attachments[0].image_url).toBe(assetUrl);
-              expect(result.all[2].attachments[0].localMetadata.previewUri).toBeUndefined();
+              expect(result.current.attachments[0].image_url).toBe(assetUrl);
+              expect(result.current.attachments[0].localMetadata.previewUri).toBeUndefined();
             } else {
-              expect(result.all[2].attachments[0].asset_url).toBe(assetUrl);
+              expect(result.current.attachments[0].asset_url).toBe(assetUrl);
             }
           });
 
@@ -372,10 +366,7 @@ describe('useMessageInputState', () => {
               await result.current.uploadAttachment(attachment);
             });
 
-            expect(result.all).toHaveLength(3);
-            expect(result.all[0].attachments).toHaveLength(0);
-            expect(result.all[1].attachments).toHaveLength(1);
-            expect(result.all[2].attachments).toHaveLength(0);
+            expect(result.current.attachments).toHaveLength(0);
           });
 
           const errMsg = 'Went wrong';

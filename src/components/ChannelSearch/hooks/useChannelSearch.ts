@@ -113,11 +113,11 @@ export const useChannelSearch = <
   const searchQueryPromiseInProgress = useRef<
     | Promise<UsersAPIResponse<StreamChatGenerics>>
     | Promise<[Channel<StreamChatGenerics>[], UsersAPIResponse<StreamChatGenerics>]>
-  >();
+  >(undefined);
   const shouldIgnoreQueryResults = useRef(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const searchBarRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const searchBarRef = useRef<HTMLDivElement | null>(null);
 
   const clearState = useCallback(() => {
     setQuery('');

@@ -1,5 +1,3 @@
-import { isValidElementType } from 'react-is';
-
 export const DEFAULT_CARET_POSITION = 'next';
 
 export function defaultScrollToItem(container, item) {
@@ -42,11 +40,7 @@ export const triggerPropsCheck = ({ trigger }) => {
     // $FlowFixMe
     const triggerSetting = settings;
 
-    const { callback, component, dataProvider, output } = triggerSetting;
-
-    if (!isValidElementType(component)) {
-      return Error('Invalid prop trigger: component should be defined.');
-    }
+    const { callback, dataProvider, output } = triggerSetting;
 
     if (!dataProvider || typeof dataProvider !== 'function') {
       return Error('Invalid prop trigger: dataProvider should be defined.');

@@ -13,8 +13,10 @@ export function usePrependedMessagesCount<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
   const firstRealMessageIndex = hasDateSeparator ? 1 : 0;
-  const firstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>();
-  const previousFirstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>();
+  const firstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>(undefined);
+  const previousFirstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>(
+    undefined,
+  );
   const previousNumItemsPrepended = useRef(0);
 
   const numItemsPrepended = useMemo(() => {

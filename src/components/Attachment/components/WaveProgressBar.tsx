@@ -41,7 +41,7 @@ export const WaveProgressBar = ({
     barWidth: number;
     gap: number;
   }>();
-  const lastRootWidth = useRef<number>();
+  const lastRootWidth = useRef<number>(undefined);
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();

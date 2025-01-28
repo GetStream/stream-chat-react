@@ -35,7 +35,7 @@ export const useAudioController = ({
   const [canPlayRecord, setCanPlayRecord] = useState(true);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [playbackRateIndex, setPlaybackRateIndex] = useState<number>(0);
-  const playTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const playTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const registerError = useCallback(

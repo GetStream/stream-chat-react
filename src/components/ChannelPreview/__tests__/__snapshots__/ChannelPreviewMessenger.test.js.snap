@@ -1,105 +1,101 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelPreviewMessenger should render correctly 1`] = `
-<div
-  aria-label="Select Channel"
-  role="listbox"
->
+<div>
   <div
-    className="str-chat__channel-preview-container"
+    aria-label="Select Channel"
+    role="listbox"
   >
     <div
-      className="str-chat__channel-preview__action-buttons"
+      class="str-chat__channel-preview-container"
     >
-      <button
-        aria-label="Pin"
-        className="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--pin"
-        onClick={[Function]}
-        title="Pin"
+      <div
+        class="str-chat__channel-preview__action-buttons"
       >
-        <svg
-          className="str-chat__icon str-chat__icon--pin"
-          fill="currentColor"
-          viewBox="0 0 384 512"
-          xmlns="http://www.w3.org/2000/svg"
+        <button
+          aria-label="Pin"
+          class="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--pin"
+          title="Pin"
         >
-          <path
-            d="M32 32C32 14.3 46.3 0 64 0L320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-29.5 0 11.4 148.2c36.7 19.9 65.7 53.2 79.5 94.7l1 3c3.3 9.8 1.6 20.5-4.4 28.8s-15.7 13.3-26 13.3L32 352c-10.3 0-19.9-4.9-26-13.3s-7.7-19.1-4.4-28.8l1-3c13.8-41.5 42.8-74.8 79.5-94.7L93.5 64 64 64C46.3 64 32 49.7 32 32zM160 384l64 0 0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96z"
-          />
-        </svg>
-      </button>
+          <svg
+            class="str-chat__icon str-chat__icon--pin"
+            fill="currentColor"
+            viewBox="0 0 384 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M32 32C32 14.3 46.3 0 64 0L320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-29.5 0 11.4 148.2c36.7 19.9 65.7 53.2 79.5 94.7l1 3c3.3 9.8 1.6 20.5-4.4 28.8s-15.7 13.3-26 13.3L32 352c-10.3 0-19.9-4.9-26-13.3s-7.7-19.1-4.4-28.8l1-3c13.8-41.5 42.8-74.8 79.5-94.7L93.5 64 64 64C46.3 64 32 49.7 32 32zM160 384l64 0 0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96z"
+            />
+          </svg>
+        </button>
+        <button
+          aria-label="Archive"
+          class="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--archive"
+          title="Archive"
+        >
+          <svg
+            class="str-chat__icon str-chat__icon--archive-box"
+            fill="currentColor"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M32 32l448 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96L0 64C0 46.3 14.3 32 32 32zm0 128l448 0 0 256c0 35.3-28.7 64-64 64L96 480c-35.3 0-64-28.7-64-64l0-256zm128 80c0 8.8 7.2 16 16 16l160 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-160 0c-8.8 0-16 7.2-16 16z"
+            />
+          </svg>
+        </button>
+      </div>
       <button
-        aria-label="Archive"
-        className="str-chat__channel-preview__action-button str-chat__channel-preview__action-button--archive"
-        onClick={[Function]}
-        title="Archive"
+        aria-label="Select Channel: Channel name"
+        class="str-chat__channel-preview-messenger str-chat__channel-preview str-chat__channel-preview-messenger--unread"
+        data-testid="channel-preview-button"
+        role="option"
       >
-        <svg
-          className="str-chat__icon str-chat__icon--archive-box"
-          fill="currentColor"
-          viewBox="0 0 512 512"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__channel-preview-messenger--left"
         >
-          <path
-            d="M32 32l448 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96L0 64C0 46.3 14.3 32 32 32zm0 128l448 0 0 256c0 35.3-28.7 64-64 64L96 480c-35.3 0-64-28.7-64-64l0-256zm128 80c0 8.8 7.2 16 16 16l160 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-160 0c-8.8 0-16 7.2-16 16z"
-          />
-        </svg>
+          <div
+            class="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--channel-preview str-chat__avatar--one-letter"
+            data-testid="avatar"
+            role="button"
+            title="Channel name"
+          >
+            <img
+              alt="C"
+              class="str-chat__avatar-image"
+              data-testid="avatar-img"
+              src="https://randomimage.com/src.jpg"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__channel-preview-end"
+        >
+          <div
+            class="str-chat__channel-preview-end-first-row"
+          >
+            <div
+              class="str-chat__channel-preview-messenger--name"
+            >
+              <span>
+                Channel name
+              </span>
+            </div>
+            <div
+              class="str-chat__channel-preview-unread-badge"
+              data-testid="unread-badge"
+            >
+              10
+            </div>
+          </div>
+          <div
+            class="str-chat__channel-preview-messenger--last-message"
+          >
+            Latest message!
+          </div>
+        </div>
       </button>
     </div>
-    <button
-      aria-label="Select Channel: Channel name"
-      className="str-chat__channel-preview-messenger str-chat__channel-preview str-chat__channel-preview-messenger--unread"
-      data-testid="channel-preview-button"
-      onClick={[Function]}
-      role="option"
-    >
-      <div
-        className="str-chat__channel-preview-messenger--left"
-      >
-        <div
-          className="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--channel-preview str-chat__avatar--one-letter"
-          data-testid="avatar"
-          onClick={[Function]}
-          onMouseOver={[Function]}
-          role="button"
-          title="Channel name"
-        >
-          <img
-            alt="C"
-            className="str-chat__avatar-image"
-            data-testid="avatar-img"
-            onError={[Function]}
-            src="https://randomimage.com/src.jpg"
-          />
-        </div>
-      </div>
-      <div
-        className="str-chat__channel-preview-end"
-      >
-        <div
-          className="str-chat__channel-preview-end-first-row"
-        >
-          <div
-            className="str-chat__channel-preview-messenger--name"
-          >
-            <span>
-              Channel name
-            </span>
-          </div>
-          <div
-            className="str-chat__channel-preview-unread-badge"
-            data-testid="unread-badge"
-          >
-            10
-          </div>
-        </div>
-        <div
-          className="str-chat__channel-preview-messenger--last-message"
-        >
-          Latest message!
-        </div>
-      </div>
-    </button>
   </div>
 </div>
 `;

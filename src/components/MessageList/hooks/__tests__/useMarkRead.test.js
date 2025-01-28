@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useMarkRead } from '../useMarkRead';
 import { ChannelActionProvider, ChannelStateProvider, ChatProvider } from '../../../../context';
 import {
@@ -9,7 +9,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../../mock-builders';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 const visibilityChangeScenario = 'visibilitychange event';
 const markRead = jest.fn();

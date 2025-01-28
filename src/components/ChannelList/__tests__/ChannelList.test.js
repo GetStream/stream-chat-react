@@ -630,31 +630,34 @@ describe('ChannelList', () => {
         ]);
       });
 
-      const renderComponents = (chatContext = {}, channeListProps) =>
-        render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              setActiveChannel,
-              ...chatContext,
-            }}
-          >
-            <TranslationContext.Provider value={mockTranslationContext}>
-              <ChannelList
-                filters={{}}
-                options={{ presence: true, state: true }}
-                showChannelSearch
-                {...channeListProps}
-              />
-            </TranslationContext.Provider>
-          </ChatContext.Provider>,
+      const renderComponents = async (chatContext = {}, channeListProps) =>
+        await act(
+          async () =>
+            await render(
+              <ChatContext.Provider
+                value={{
+                  channelsQueryState: channelsQueryStateMock,
+                  setActiveChannel,
+                  ...chatContext,
+                }}
+              >
+                <TranslationContext.Provider value={mockTranslationContext}>
+                  <ChannelList
+                    filters={{}}
+                    options={{ presence: true, state: true }}
+                    showChannelSearch
+                    {...channeListProps}
+                  />
+                </TranslationContext.Provider>
+              </ChatContext.Provider>,
+            ),
         );
 
       it("should not render search results on input focus if user haven't started to type", async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
-        await act(() => {
-          fireEvent.focus(input);
+        await act(async () => {
+          await fireEvent.focus(input);
         });
 
         await waitFor(() => {
@@ -668,8 +671,8 @@ describe('ChannelList', () => {
           { additionalChannelSearchProps: { popupResults: true } },
         );
         const input = screen.queryByTestId('search-input');
-        await act(() => {
-          fireEvent.change(input, {
+        await act(async () => {
+          await fireEvent.change(input, {
             target: {
               value: inputText,
             },
@@ -688,8 +691,8 @@ describe('ChannelList', () => {
           { additionalChannelSearchProps: { popupResults: false } },
         );
         const input = screen.queryByTestId('search-input');
-        await act(() => {
-          fireEvent.change(input, {
+        await act(async () => {
+          await fireEvent.change(input, {
             target: {
               value: inputText,
             },
@@ -716,8 +719,8 @@ describe('ChannelList', () => {
             { additionalChannelSearchProps: { clearSearchOnClickOutside } },
           );
           const input = screen.getByTestId('search-input');
-          await act(() => {
-            fireEvent.change(input, {
+          await act(async () => {
+            await fireEvent.change(input, {
               target: {
                 value: inputText,
               },
@@ -728,8 +731,8 @@ describe('ChannelList', () => {
           });
           const searchResults = screen.queryAllByTestId('channel-search-result-user');
           useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
-          await act(() => {
-            fireEvent.click(searchResults[0]);
+          await act(async () => {
+            await fireEvent.click(searchResults[0]);
           });
 
           await waitFor(() => {
@@ -746,18 +749,18 @@ describe('ChannelList', () => {
       it('should unmount search results if user cleared the input', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
-        await act(() => {
+        await act(async () => {
           input.focus();
-          fireEvent.change(input, {
+          await fireEvent.change(input, {
             target: {
               value: inputText,
             },
           });
         });
 
-        await act(() => {
+        await act(async () => {
           const clearButton = screen.queryByTestId('clear-input-button');
-          fireEvent.click(clearButton);
+          await fireEvent.click(clearButton);
         });
         await waitFor(() => {
           expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
@@ -772,9 +775,9 @@ describe('ChannelList', () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
 
-        await act(() => {
+        await act(async () => {
           input.focus();
-          fireEvent.change(input, {
+          await fireEvent.change(input, {
             target: {
               value: inputText,
             },
@@ -782,8 +785,8 @@ describe('ChannelList', () => {
         });
 
         const returnIcon = screen.queryByTestId('return-icon');
-        await act(() => {
-          fireEvent.click(returnIcon);
+        await act(async () => {
+          await fireEvent.click(returnIcon);
         });
         await waitFor(() => {
           expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
@@ -795,16 +798,18 @@ describe('ChannelList', () => {
       it('should add the selected result to the top of the channel list', async () => {
         jest.useFakeTimers('modern');
         jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
-        await render(
-          <Chat client={client}>
-            <ChannelList
-              additionalChannelSearchProps={{ searchForChannels: true }}
-              filters={{}}
-              options={{ presence: true, state: true }}
-              showChannelSearch
-            />
-          </Chat>,
-        );
+        await act(async () => {
+          await render(
+            <Chat client={client}>
+              <ChannelList
+                additionalChannelSearchProps={{ searchForChannels: true }}
+                filters={{}}
+                options={{ presence: true, state: true }}
+                showChannelSearch
+              />
+            </Chat>,
+          );
+        });
 
         const channelNotInTheList = generateChannel({
           channel: { name: 'channel-not-loaded-yet' },
@@ -831,8 +836,8 @@ describe('ChannelList', () => {
 
         const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
         expect(targetChannelPreview).toBeInTheDocument();
-        await act(() => {
-          fireEvent.click(targetChannelPreview);
+        await act(async () => {
+          await fireEvent.click(targetChannelPreview);
         });
 
         await waitFor(() => {
@@ -853,7 +858,7 @@ describe('ChannelList', () => {
       Preview: ChannelPreviewComponent,
       renderChannels,
     };
-    const { container, getByRole } = render(
+    const { container, getByRole } = await render(
       <Chat client={chatClient}>
         <ChannelList {...channelListProps} />
       </Chat>,
@@ -894,7 +899,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list', async () => {
-        const { container, getAllByRole, getByRole, getByText } = render(
+        const { container, getAllByRole, getByRole, getByText } = await render(
           <Chat client={chatClient}>
             <ChannelList {...props} />
           </Chat>,
@@ -920,7 +925,7 @@ describe('ChannelList', () => {
       });
 
       it('should not alter order if `lockChannelOrder` prop is true', async () => {
-        const { container, getAllByRole, getByRole, getByText } = render(
+        const { container, getAllByRole, getByRole, getByText } = await render(
           <Chat client={chatClient}>
             <ChannelList {...props} lockChannelOrder />
           </Chat>,
@@ -973,7 +978,7 @@ describe('ChannelList', () => {
       it('should move channel to top of the list by default', async () => {
         useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
 
-        const { container, getAllByRole, getByRole, getByTestId } = render(
+        const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList
               filters={{}}
@@ -1011,7 +1016,7 @@ describe('ChannelList', () => {
 
         useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList
               filters={{}}
@@ -1054,7 +1059,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list by default', async () => {
-        const { container, getAllByRole, getByRole, getByTestId } = render(
+        const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1084,7 +1089,7 @@ describe('ChannelList', () => {
 
       it('should call `onAddedToChannel` function prop, if provided', async () => {
         const onAddedToChannel = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onAddedToChannel={onAddedToChannel} />
           </Chat>,
@@ -1117,7 +1122,7 @@ describe('ChannelList', () => {
       });
 
       it('should remove the channel from list by default', async () => {
-        const { container, getByRole, getByTestId } = render(
+        const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1139,7 +1144,7 @@ describe('ChannelList', () => {
 
       it('should call `onRemovedFromChannel` function prop, if provided', async () => {
         const onRemovedFromChannel = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onRemovedFromChannel={onRemovedFromChannel} />
           </Chat>,
@@ -1171,7 +1176,7 @@ describe('ChannelList', () => {
       });
 
       it('should update the channel in list, by default', async () => {
-        const { container, getByRole, getByText } = render(
+        const { container, getByRole, getByText } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1199,7 +1204,7 @@ describe('ChannelList', () => {
 
       it('should call `onChannelUpdated` function prop, if provided', async () => {
         const onChannelUpdated = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelUpdated={onChannelUpdated} />
           </Chat>,
@@ -1239,7 +1244,7 @@ describe('ChannelList', () => {
       });
 
       it('should remove channel from list, by default', async () => {
-        const { container, getByRole, getByTestId } = render(
+        const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1262,7 +1267,7 @@ describe('ChannelList', () => {
 
       it('should call `onChannelDeleted` function prop, if provided', async () => {
         const onChannelDeleted = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelDeleted={onChannelDeleted} />
           </Chat>,
@@ -1284,7 +1289,7 @@ describe('ChannelList', () => {
 
       it('should unset activeChannel if it was deleted', async () => {
         const setActiveChannel = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <ChatContext.Provider
             value={{
               channelsQueryState: channelsQueryStateMock,
@@ -1327,7 +1332,7 @@ describe('ChannelList', () => {
       });
 
       it('should remove channel from list, by default', async () => {
-        const { container, getByRole, getByTestId } = render(
+        const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1350,7 +1355,7 @@ describe('ChannelList', () => {
 
       it('should unset activeChannel if it was hidden', async () => {
         const setActiveChannel = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <ChatContext.Provider
             value={{
               channelsQueryState: channelsQueryStateMock,
@@ -1395,7 +1400,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list by default', async () => {
-        const { container, getAllByRole, getByRole, getByTestId } = render(
+        const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1425,7 +1430,7 @@ describe('ChannelList', () => {
 
       it('should call `onChannelVisible` function prop, if provided', async () => {
         const onChannelVisible = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelVisible={onChannelVisible} />
           </Chat>,
@@ -1458,7 +1463,7 @@ describe('ChannelList', () => {
 
         useMockedApis(chatClient, [queryChannelsApi([channel1])]);
 
-        const { container, getByRole, getByTestId } = render(
+        const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1505,7 +1510,7 @@ describe('ChannelList', () => {
 
       it('should call `onChannelTruncated` function prop, if provided', async () => {
         const onChannelTruncated = jest.fn();
-        const { container, getByRole } = render(
+        const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelTruncated={onChannelTruncated} />
           </Chat>,

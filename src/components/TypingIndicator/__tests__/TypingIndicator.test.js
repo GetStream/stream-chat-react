@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -44,37 +44,33 @@ describe('TypingIndicator', () => {
 
   it('should render null without proper context values', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const tree = renderer
-      .create(
-        <ChatProvider value={{}}>
-          <ChannelStateProvider value={{}}>
-            <ComponentProvider value={{}}>
-              <TypingIndicator />
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChatProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`null`);
+    const { container } = render(
+      <ChatProvider value={{}}>
+        <ChannelStateProvider value={{}}>
+          <ComponentProvider value={{}}>
+            <TypingIndicator />
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render hidden indicator with empty typing', async () => {
     const client = await getTestClientWithUser(me);
-    const tree = renderer
-      .create(
-        <ChatProvider value={{ client }}>
-          <ChannelStateProvider value={{}}>
-            <ComponentProvider value={{}}>
-              <TypingProvider value={{ typing: {} }}>
-                <TypingIndicator />
-              </TypingProvider>
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChatProvider>,
-      )
-      .toJSON();
+    const { container } = render(
+      <ChatProvider value={{ client }}>
+        <ChannelStateProvider value={{}}>
+          <ComponentProvider value={{}}>
+            <TypingProvider value={{ typing: {} }}>
+              <TypingIndicator />
+            </TypingProvider>
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
 
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("should not render TypingIndicator when it's just you typing", async () => {
@@ -139,21 +135,19 @@ describe('TypingIndicator', () => {
     const channelConfig = { typing_events: false };
     await channel.watch();
 
-    const tree = renderer
-      .create(
-        <ChatProvider value={{ client }}>
-          <ChannelStateProvider value={{ channel, channelConfig }}>
-            <ComponentProvider value={{}}>
-              <TypingProvider value={{ typing: {} }}>
-                <TypingIndicator />
-              </TypingProvider>
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChatProvider>,
-      )
-      .toJSON();
+    const { container } = render(
+      <ChatProvider value={{ client }}>
+        <ChannelStateProvider value={{ channel, channelConfig }}>
+          <ComponentProvider value={{}}>
+            <TypingProvider value={{ typing: {} }}>
+              <TypingIndicator />
+            </TypingProvider>
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
 
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(container).toBeEmptyDOMElement();
   });
 
   describe('TypingIndicator in thread', () => {

@@ -42,7 +42,7 @@ export function useMessageListScrollManager<
     offsetHeight: 0,
     scrollHeight: 0,
   });
-  const messages = useRef<StreamMessage<StreamChatGenerics>[]>();
+  const messages = useRef<StreamMessage<StreamChatGenerics>[]>(undefined);
   const scrollTop = useRef(0);
 
   useLayoutEffect(() => {

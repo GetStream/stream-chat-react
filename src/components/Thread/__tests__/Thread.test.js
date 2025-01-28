@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
-import renderer from 'react-test-renderer';
 
 import {
   ChannelActionProvider,
@@ -131,7 +130,7 @@ describe('Thread', () => {
         threadList: true,
         ...additionalMessageListProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -163,7 +162,7 @@ describe('Thread', () => {
         threadList: true,
         ...additionalMessageListProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -185,7 +184,7 @@ describe('Thread', () => {
         publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -211,7 +210,7 @@ describe('Thread', () => {
         publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -235,7 +234,7 @@ describe('Thread', () => {
         publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -254,7 +253,7 @@ describe('Thread', () => {
           closeThread: channelActionContextMock.closeThread,
           thread: parentMessage,
         }),
-        {},
+        undefined,
       );
     });
   });
@@ -280,7 +279,7 @@ describe('Thread', () => {
       expect.objectContaining({
         messageActions,
       }),
-      expect.anything(), // refOrContext
+      undefined,
     );
   });
 
@@ -323,14 +322,12 @@ describe('Thread', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const tree = renderer
-      .create(
-        <ChannelStateProvider value={{ ...channelStateContextMock, channel, channelConfig }}>
-          <Thread />
-        </ChannelStateProvider>,
-      )
-      .toJSON();
+    const { container } = render(
+      <ChannelStateProvider value={{ ...channelStateContextMock, channel, channelConfig }}>
+        <Thread />
+      </ChannelStateProvider>,
+    );
 
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(container).toBeEmptyDOMElement();
   });
 });
