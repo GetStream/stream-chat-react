@@ -44,13 +44,18 @@ type CommonVirtuosoComponentProps = {
 };
 // using 'display: inline-block'
 // traps CSS margins of the item elements, preventing incorrect item measurements
-export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
+export const Item = ({
+  context,
+  ...props
+}: ItemProps<unknown> & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
-  const message =
-    context.processedMessages[
-      calculateItemIndex(props['data-item-index'], context.numItemsPrepended)
-    ];
+  // Due to a bug in Virtuoso (https://github.com/petyosi/react-virtuoso/issues/1157),
+  // it's possible that an item will be rendered with an out-of-bounds index.
+  // Thankfully, this is fixed in subsequent re-render, so we can ignore it when it happens.
+  let clampedIndex = calculateItemIndex(props['data-item-index'], context.numItemsPrepended);
+  clampedIndex = Math.min(Math.max(clampedIndex, 0), context.processedMessages.length - 1);
+  const message = context.processedMessages[clampedIndex];
   const groupStyles: GroupStyle = context.messageGroupStyles[message.id];
 
   return (

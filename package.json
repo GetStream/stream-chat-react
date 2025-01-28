@@ -92,7 +92,7 @@
     "react-markdown": "^9.0.3",
     "react-player": "2.10.1",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "^2.16.5",
+    "react-virtuoso": "^4.12.3",
     "remark-gfm": "^4.0.1",
     "ts-pattern": "^5.9.0",
     "tslib": "^2.6.2",
