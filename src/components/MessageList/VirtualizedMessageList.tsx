@@ -420,11 +420,21 @@ const VirtualizedMessageListWithContext = <
 
   const computeItemKey = useCallback<
     ComputeItemKey<UnknownType, VirtuosoContext<StreamChatGenerics>>
-  >(
-    (index, _, { numItemsPrepended, processedMessages }) =>
-      processedMessages[calculateItemIndex(index, numItemsPrepended)].id,
-    [],
-  );
+  >((index, _, { numItemsPrepended, processedMessages }) => {
+    // Due to a bug in Virtuoso (https://github.com/petyosi/react-virtuoso/issues/1157),
+    // it's possible that an item key will be requested with an out-of-bounds index.
+    // Thankfully, this is fixed in subsequent re-render, so we can ignore it when it happens.
+    const prependedIndex = calculateItemIndex(index, numItemsPrepended);
+    const clampedIndex = Math.min(Math.max(prependedIndex, 0), processedMessages.length - 1);
+    const key = processedMessages[clampedIndex].id;
+
+    // To avoid duplicate keys
+    if (prependedIndex !== clampedIndex) {
+      return `${key}-${prependedIndex}`;
+    }
+
+    return key;
+  }, []);
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
