@@ -38,14 +38,14 @@ describe('SearchSourceResultListFooter', () => {
     });
 
     useStateStore.mockReturnValue({
-      hasMore: true,
+      hasNext: true,
       isLoading: false,
     });
   });
 
   it('renders loading indicator when isLoading is true', () => {
     useStateStore.mockReturnValue({
-      hasMore: true,
+      hasNext: true,
       isLoading: true,
     });
 
@@ -55,9 +55,9 @@ describe('SearchSourceResultListFooter', () => {
     expect(screen.queryByText('All results loaded')).not.toBeInTheDocument();
   });
 
-  it('renders "All results loaded" message when hasMore is false', () => {
+  it('renders "All results loaded" message when hasNext is false', () => {
     useStateStore.mockReturnValue({
-      hasMore: false,
+      hasNext: false,
       isLoading: false,
     });
 
@@ -69,7 +69,7 @@ describe('SearchSourceResultListFooter', () => {
 
   it('renders only the footer wrapper when not loading and has more results', () => {
     useStateStore.mockReturnValue({
-      hasMore: true,
+      hasNext: true,
       isLoading: false,
     });
 
@@ -90,7 +90,7 @@ describe('SearchSourceResultListFooter', () => {
     });
 
     useStateStore.mockReturnValue({
-      hasMore: true,
+      hasNext: true,
       isLoading: true,
     });
 
@@ -105,7 +105,7 @@ describe('SearchSourceResultListFooter', () => {
     useTranslationContext.mockReturnValue({ t: mockTranslate });
 
     useStateStore.mockReturnValue({
-      hasMore: false,
+      hasNext: false,
       isLoading: false,
     });
 
@@ -119,7 +119,7 @@ describe('SearchSourceResultListFooter', () => {
     const { rerender } = render(<SearchSourceResultListFooter />);
 
     useStateStore.mockReturnValue({
-      hasMore: false,
+      hasNext: false,
       isLoading: false,
     });
 
@@ -127,7 +127,7 @@ describe('SearchSourceResultListFooter', () => {
     expect(screen.getByText('All results loaded')).toBeInTheDocument();
 
     useStateStore.mockReturnValue({
-      hasMore: true,
+      hasNext: true,
       isLoading: true,
     });
 

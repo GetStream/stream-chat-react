@@ -9,7 +9,7 @@ import type { SearchSourceState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (value: SearchSourceState) => ({
-  hasMore: value.hasMore,
+  hasNext: value.hasNext,
   isLoading: value.isLoading,
 });
 
@@ -21,13 +21,13 @@ export const SearchSourceResultListFooter = <
     SearchSourceResultsLoadingIndicator = DefaultSearchSourceResultsLoadingIndicator,
   } = useComponentContext<StreamChatGenerics>();
   const { searchSource } = useSearchSourceResultsContext();
-  const { hasMore, isLoading } = useStateStore(searchSource.state, searchSourceStateSelector);
+  const { hasNext, isLoading } = useStateStore(searchSource.state, searchSourceStateSelector);
 
   return (
     <div className='str-chat__search-source-result-list__footer' data-testid='search-footer'>
       {isLoading ? (
         <SearchSourceResultsLoadingIndicator />
-      ) : !hasMore ? (
+      ) : !hasNext ? (
         <div className='str-chat__search-source-results---empty'>
           {t<string>('All results loaded')}
         </div>

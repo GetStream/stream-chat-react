@@ -11,7 +11,6 @@ import type { SearchSource, SearchSourceState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
-  hasMore: nextValue.hasMore,
   isLoading: nextValue.isLoading,
   items: nextValue.items,
 });
