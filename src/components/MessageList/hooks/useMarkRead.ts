@@ -14,9 +14,9 @@ const hasReadLastMessage = <
   channel: Channel<StreamChatGenerics>,
   userId: string,
 ) => {
-  const lastMessageIdInCurrentMessageSet = channel.state.messages.slice(-1)[0]?.id;
+  const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
   const lastReadMessageIdServer = channel.state.read[userId]?.last_read_message_id;
-  return lastMessageIdInCurrentMessageSet === lastReadMessageIdServer;
+  return latestMessageIdInChannel === lastReadMessageIdServer;
 };
 
 type UseMarkReadParams = {
