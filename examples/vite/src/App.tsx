@@ -14,7 +14,6 @@ import {
   ThreadList,
   ChatView,
 } from 'stream-chat-react';
-import 'stream-chat-react/css/v2/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -38,7 +37,7 @@ const filters: ChannelFilters = {
   archived: false,
 };
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
-const sort: ChannelSort = [{ pinned_at: 1 }, { last_message_at: -1 }, { updated_at: -1 }];
+const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
