@@ -1,3 +1,15 @@
+## [12.10.0](https://github.com/GetStream/stream-chat-react/compare/v12.9.0...v12.10.0) (2025-01-28)
+
+
+### Bug Fixes
+
+* mark channel read for all incoming unread messages ([#2622](https://github.com/GetStream/stream-chat-react/issues/2622)) ([893e407](https://github.com/GetStream/stream-chat-react/commit/893e4076083ac0e79894a2d2691373c7ef667e26))
+
+
+### Features
+
+* add VirtualizedMessageListContext ([#2619](https://github.com/GetStream/stream-chat-react/issues/2619)) ([e3838d6](https://github.com/GetStream/stream-chat-react/commit/e3838d62b9c979b7c87199e4e1961f96c722fc53))
+
 ## [12.9.0](https://github.com/GetStream/stream-chat-react/compare/v12.8.2...v12.9.0) (2025-01-27)
 
 
