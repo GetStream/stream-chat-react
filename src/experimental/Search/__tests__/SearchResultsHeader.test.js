@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchResultsHeader } from '../SearchResults';
@@ -11,15 +12,32 @@ jest.mock('../../../context');
 jest.mock('../../../store');
 
 describe('SearchResultsHeader', () => {
+  const mockSources = {
+    channels: { items: [], search: jest.fn(), state: {}, type: 'channels' },
+    messages: { items: ['message1'], search: jest.fn(), state: {}, type: 'messages' },
+    users: { items: [], search: jest.fn(), state: {}, type: 'users' },
+  };
+
   const mockSearchController = {
     activateSource: jest.fn(),
     deactivateSource: jest.fn(),
-    searchSourceTypes: ['users', 'channels', 'messages'],
-    state: {},
+    searchQuery: 'test query',
+    get sources() {
+      return Object.entries(mockSources).map(([type, source]) => ({
+        type,
+        ...source,
+      }));
+    },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset mock sources
+    Object.values(mockSources).forEach((source) => {
+      source.items = source.type === 'messages' ? ['message1'] : [];
+      source.search.mockClear();
+    });
 
     useSearchContext.mockReturnValue({
       searchController: mockSearchController,
@@ -29,100 +47,114 @@ describe('SearchResultsHeader', () => {
       t: (key) => key,
     });
 
-    useStateStore.mockReturnValue({
-      activeSourceTypes: ['users', 'messages'],
+    useStateStore.mockReturnValue({ isActive: false });
+  });
+
+  describe('rendering', () => {
+    it('renders container with correct classes and structure', () => {
+      render(<SearchResultsHeader />);
+      expect(screen.getByTestId('search-results-header')).toHaveClass(
+        'str-chat__search-results-header',
+      );
+      expect(screen.getByTestId('filter-source-buttons')).toHaveClass(
+        'str-chat__search-results-header__filter-source-buttons',
+      );
+    });
+
+    it('renders a button for each source type', () => {
+      render(<SearchResultsHeader />);
+      const buttons = screen.getAllByRole('button');
+      expect(buttons).toHaveLength(3);
+
+      expect(
+        screen.getByText('search-results-header-filter-source-button-label--channels'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('search-results-header-filter-source-button-label--messages'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('search-results-header-filter-source-button-label--users'),
+      ).toBeInTheDocument();
+    });
+
+    it('applies correct aria-labels to all buttons', () => {
+      render(<SearchResultsHeader />);
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach((button) => {
+        expect(button).toHaveAttribute('aria-label', 'aria/Search results header filter button');
+      });
     });
   });
 
-  it('renders filter source buttons for each source type', () => {
-    render(<SearchResultsHeader />);
-    expect(
-      screen.getAllByRole('button', {
-        name: 'aria/Search results header filter button',
-      }),
-    ).toHaveLength(3);
-  });
+  describe('button states and styling', () => {
+    it('applies active class to button when source is active', () => {
+      useStateStore.mockReturnValue({ isActive: true });
+      render(<SearchResultsHeader />);
 
-  it('applies active class to active source type buttons', () => {
-    render(<SearchResultsHeader />);
-
-    const buttons = screen.getAllByRole('button');
-
-    buttons.forEach((button) => {
-      const buttonClasses = button.className;
-      if (
-        button.textContent === 'search-results-header-filter-source-button-label--users' ||
-        button.textContent === 'search-results-header-filter-source-button-label--messages'
-      ) {
-        expect(buttonClasses).toContain(
-          'str-chat__search-results-header__filter-source-button--active',
-        );
-      } else {
-        expect(buttonClasses).not.toContain(
-          'str-chat__search-results-header__filter-source-button--active',
-        );
-      }
+      const button = screen.getByText('search-results-header-filter-source-button-label--messages');
+      expect(button).toHaveClass('str-chat__search-results-header__filter-source-button--active');
     });
-  });
 
-  it('deactivates source when clicking active source button', () => {
-    render(<SearchResultsHeader />);
+    it('does not apply active class when source is inactive', () => {
+      useStateStore.mockReturnValue({ isActive: false });
+      render(<SearchResultsHeader />);
 
-    const usersButton = screen.getByText('search-results-header-filter-source-button-label--users');
-    fireEvent.click(usersButton);
-
-    expect(mockSearchController.deactivateSource).toHaveBeenCalledWith('users');
-    expect(mockSearchController.activateSource).not.toHaveBeenCalled();
-  });
-
-  it('activates source when clicking inactive source button', () => {
-    render(<SearchResultsHeader />);
-
-    const channelsButton = screen.getByText(
-      'search-results-header-filter-source-button-label--channels',
-    );
-    fireEvent.click(channelsButton);
-
-    expect(mockSearchController.activateSource).toHaveBeenCalledWith('channels');
-    expect(mockSearchController.deactivateSource).not.toHaveBeenCalled();
-  });
-
-  it('translates button labels correctly', () => {
-    const mockTranslate = jest.fn((key) => `Translated ${key}`);
-    useTranslationContext.mockReturnValue({ t: mockTranslate });
-
-    render(<SearchResultsHeader />);
-
-    expect(mockTranslate).toHaveBeenCalledWith('aria/Search results header filter button');
-    mockSearchController.searchSourceTypes.forEach((sourceType) => {
-      expect(mockTranslate).toHaveBeenCalledWith(
-        `search-results-header-filter-source-button-label--${sourceType}`,
+      const button = screen.getByText('search-results-header-filter-source-button-label--messages');
+      expect(button).not.toHaveClass(
+        'str-chat__search-results-header__filter-source-button--active',
       );
     });
   });
 
-  it('handles state updates correctly', () => {
-    const { rerender } = render(<SearchResultsHeader />);
+  describe('button interactions', () => {
+    it('deactivates source when clicking active source button', () => {
+      Object.values(mockSources).forEach((source) => {
+        if (source.type !== 'messages') return;
+        source.isActive = true;
+      });
+      render(<SearchResultsHeader />);
 
-    // Update active sources
-    useStateStore.mockReturnValue({
-      activeSourceTypes: ['channels'],
+      fireEvent.click(
+        screen.getByText('search-results-header-filter-source-button-label--messages'),
+      );
+      expect(mockSearchController.deactivateSource).toHaveBeenCalledWith('messages');
+      expect(mockSearchController.activateSource).not.toHaveBeenCalled();
+
+      Object.values(mockSources).forEach((source) => {
+        if (source.type !== 'messages') return;
+        source.isActive = undefined;
+      });
     });
 
-    rerender(<SearchResultsHeader />);
+    it('activates and searches source with no items', () => {
+      render(<SearchResultsHeader />);
+      fireEvent.click(
+        screen.getByText('search-results-header-filter-source-button-label--channels'),
+      );
 
-    const buttons = screen.getAllByRole('button');
-    buttons.forEach((button) => {
-      const buttonClasses = button.className;
-      if (button.textContent === 'search-results-header-filter-source-button-label--channels') {
-        expect(buttonClasses).toContain(
-          'str-chat__search-results-header__filter-source-button--active',
-        );
-      } else {
-        expect(buttonClasses).not.toContain(
-          'str-chat__search-results-header__filter-source-button--active',
-        );
-      }
+      expect(mockSearchController.activateSource).toHaveBeenCalledWith('channels');
+      expect(mockSources.channels.search).toHaveBeenCalledWith('test query');
+    });
+
+    it('only performs search upon activation if it does not have items loaded', () => {
+      render(<SearchResultsHeader />);
+      fireEvent.click(
+        screen.getByText('search-results-header-filter-source-button-label--messages'),
+      );
+
+      expect(mockSearchController.activateSource).toHaveBeenCalledWith('messages');
+      expect(mockSources.messages.search).not.toHaveBeenCalled();
+    });
+
+    it('does not perform search upon activation if it search query is empty', () => {
+      mockSearchController.searchQuery = '';
+      render(<SearchResultsHeader />);
+
+      fireEvent.click(
+        screen.getByText('search-results-header-filter-source-button-label--channels'),
+      );
+      expect(mockSearchController.activateSource).toHaveBeenCalledWith('channels');
+      expect(mockSources.channels.search).not.toHaveBeenCalled();
     });
   });
 });
