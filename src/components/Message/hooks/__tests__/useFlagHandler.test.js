@@ -38,7 +38,9 @@ async function renderUseHandleFlagHook(
       </ChannelStateProvider>
     </ChatProvider>
   );
-  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), { wrapper });
+  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), {
+    wrapper,
+  });
   return result.current;
 }
 describe('useHandleFlag custom hook', () => {

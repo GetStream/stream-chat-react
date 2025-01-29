@@ -26,7 +26,10 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
+import {
+  InfiniteScroll,
+  InfiniteScrollProps,
+} from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
@@ -46,12 +49,12 @@ import {
 } from '../../constants/limits';
 
 type MessageListWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<ChannelStateContextValue<StreamChatGenerics>, 'members' | 'mutes' | 'watchers'> &
   MessageListProps<StreamChatGenerics>;
 
 const MessageListWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageListWithContextProps<StreamChatGenerics>,
 ) => {
@@ -60,36 +63,36 @@ const MessageListWithContext = <
     channelUnreadUiState,
     disableDateSeparator = false,
     groupStyles,
+    hasMoreNewer = false,
+    headerPosition,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
+    highlightedMessageId,
     internalInfiniteScrollProps: {
       threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
       ...restInternalInfiniteScrollProps
     } = {},
+    jumpToLatestMessage = () => Promise.resolve(),
+    loadMore: loadMoreCallback,
+    loadMoreNewer: loadMoreNewerCallback, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
+    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages = [],
-    notifications,
     noGroupByUser = false,
-    pinPermissions = defaultPinPermissions, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-    returnAllReadData = false,
-    threadList = false,
-    unsafeHTML = false,
-    headerPosition,
+    notifications,
+    pinPermissions = defaultPinPermissions,
+    reactionDetailsSort,
     read,
     renderMessages = defaultRenderMessages,
+    returnAllReadData = false,
     reviewProcessedMessage,
-    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-    loadMore: loadMoreCallback,
-    loadMoreNewer: loadMoreNewerCallback,
-    hasMoreNewer = false,
-    reactionDetailsSort,
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
     suppressAutoscroll,
-    highlightedMessageId,
-    jumpToLatestMessage = () => Promise.resolve(),
+    threadList = false,
+    unsafeHTML = false,
   } = props;
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
@@ -100,11 +103,11 @@ const MessageListWithContext = <
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
+    MessageListMainPanel = DefaultMessageListMainPanel,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-    MessageListMainPanel = DefaultMessageListMainPanel,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
   const {
@@ -160,7 +163,8 @@ const MessageListWithContext = <
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMarkMessageUnreadErrorNotification: props.getMarkMessageUnreadErrorNotification,
-      getMarkMessageUnreadSuccessNotification: props.getMarkMessageUnreadSuccessNotification,
+      getMarkMessageUnreadSuccessNotification:
+        props.getMarkMessageUnreadSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
       getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
@@ -213,7 +217,9 @@ const MessageListWithContext = <
 
   React.useLayoutEffect(() => {
     if (highlightedMessageId) {
-      const element = ulElement?.querySelector(`[data-message-id='${highlightedMessageId}']`);
+      const element = ulElement?.querySelector(
+        `[data-message-id='${highlightedMessageId}']`,
+      );
       element?.scrollIntoView({ block: 'center' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -228,7 +234,9 @@ const MessageListWithContext = <
       <MessageListMainPanel>
         <DialogManagerProvider id={dialogManagerId}>
           {!threadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unread_messages}
+            />
           )}
           <div
             className={clsx(messageListClass, customClasses?.threadList)}
@@ -312,7 +320,7 @@ type PropsDrilledToMessage =
   | 'unsafeHTML';
 
 export type MessageListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
@@ -388,15 +396,12 @@ export type MessageListProps<
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageListProps<StreamChatGenerics>,
 ) => {
-  const {
-    jumpToLatestMessage,
-    loadMore,
-    loadMoreNewer,
-  } = useChannelActionContext<StreamChatGenerics>('MessageList');
+  const { jumpToLatestMessage, loadMore, loadMoreNewer } =
+    useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars

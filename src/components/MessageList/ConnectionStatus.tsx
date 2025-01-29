@@ -7,7 +7,7 @@ import { useChatContext, useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedConnectionStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { client } = useChatContext<StreamChatGenerics>('ConnectionStatus');
   const { t } = useTranslationContext('ConnectionStatus');
@@ -15,7 +15,9 @@ const UnMemoizedConnectionStatus = <
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    const connectionChanged = ({ online: onlineStatus = false }: Event<StreamChatGenerics>) => {
+    const connectionChanged = ({
+      online: onlineStatus = false,
+    }: Event<StreamChatGenerics>) => {
       if (online !== onlineStatus) {
         setOnline(onlineStatus);
       }

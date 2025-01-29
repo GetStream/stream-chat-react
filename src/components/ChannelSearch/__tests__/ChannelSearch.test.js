@@ -85,7 +85,9 @@ describe('ChannelSearch', () => {
 
   it('starts with "searching" flag disabled', async () => {
     await renderSearch();
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).not.toBeInTheDocument();
   });
 
   it('sets "searching" flag on first typing stroke', async () => {
@@ -93,7 +95,9 @@ describe('ChannelSearch', () => {
     await act(() => {
       typeText(typedText);
     });
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).toBeInTheDocument();
   });
 
   it('removes "searching" flag upon deleting the last character', async () => {
@@ -101,11 +105,15 @@ describe('ChannelSearch', () => {
     await act(() => {
       typeText(typedText);
     });
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).toBeInTheDocument();
     await act(() => {
       typeText('');
     });
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).not.toBeInTheDocument();
   });
 
   it('removes "searching" flag upon setting search results', async () => {
@@ -116,14 +124,18 @@ describe('ChannelSearch', () => {
     await act(() => {
       typeText(typedText);
     });
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).toBeInTheDocument();
 
     await act(() => {
       jest.advanceTimersByTime(1000);
     });
 
     await waitFor(() => {
-      expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+      ).not.toBeInTheDocument();
     });
     jest.useRealTimers();
   });
@@ -146,7 +158,10 @@ describe('ChannelSearch', () => {
 
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
-        $or: [{ id: { $autocomplete: typedText } }, { name: { $autocomplete: typedText } }],
+        $or: [
+          { id: { $autocomplete: typedText } },
+          { name: { $autocomplete: typedText } },
+        ],
       }),
       { id: 1 },
       { limit },
@@ -169,7 +184,10 @@ describe('ChannelSearch', () => {
     jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [...otherUsers, user] });
     jest.spyOn(client, 'queryChannels').mockResolvedValue([channelResponseData]);
 
-    const { typeText } = await renderSearch({ client, props: { searchForChannels: true } });
+    const { typeText } = await renderSearch({
+      client,
+      props: { searchForChannels: true },
+    });
     await act(() => {
       typeText(typedText);
     });
@@ -276,8 +294,12 @@ describe('ChannelSearch', () => {
     });
 
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId(TEST_ID.CHANNEL_SEARCH_RESULTS_HEADER)).not.toBeInTheDocument();
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.CHANNEL_SEARCH_RESULTS_HEADER),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).not.toBeInTheDocument();
     jest.useRealTimers();
   });
 
@@ -300,8 +322,12 @@ describe('ChannelSearch', () => {
     });
 
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId(TEST_ID.CHANNEL_SEARCH_RESULTS_HEADER)).not.toBeInTheDocument();
-    expect(screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.CHANNEL_SEARCH_RESULTS_HEADER),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(TEST_ID.SEARCH_IN_PROGRESS_INDICATOR),
+    ).not.toBeInTheDocument();
     jest.useRealTimers();
   });
 
@@ -333,7 +359,10 @@ describe('ChannelSearch', () => {
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
-        $or: [{ id: { $autocomplete: textToQuery } }, { name: { $autocomplete: textToQuery } }],
+        $or: [
+          { id: { $autocomplete: textToQuery } },
+          { name: { $autocomplete: textToQuery } },
+        ],
       }),
       { id: 1 },
       { limit: 8 },
@@ -373,7 +402,10 @@ describe('ChannelSearch', () => {
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
-        $or: [{ id: { $autocomplete: textToQuery } }, { name: { $autocomplete: textToQuery } }],
+        $or: [
+          { id: { $autocomplete: textToQuery } },
+          { name: { $autocomplete: textToQuery } },
+        ],
       }),
       { id: 1 },
       { limit: 8 },

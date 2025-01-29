@@ -12,12 +12,12 @@ export type CooldownTimerState = {
 };
 
 export const useCooldownTimer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): CooldownTimerState => {
-  const { client, latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>(
-    'useCooldownTimer',
-  );
-  const { channel, messages = [] } = useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
+  const { client, latestMessageDatesByChannels } =
+    useChatContext<StreamChatGenerics>('useCooldownTimer');
+  const { channel, messages = [] } =
+    useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
   const { cooldown: cooldownInterval = 0, own_capabilities } = (channel.data ||
@@ -29,7 +29,9 @@ export const useCooldownTimer = <
     () =>
       latestMessageDatesByChannels[channel.cid] ??
       [...messages]
-        .sort((a, b) => (b.created_at as Date)?.getTime() - (a.created_at as Date)?.getTime())
+        .sort(
+          (a, b) => (b.created_at as Date)?.getTime() - (a.created_at as Date)?.getTime(),
+        )
         .find((v) => v.user?.id === client.user?.id)?.created_at,
     [messages, client.user?.id, latestMessageDatesByChannels, channel.cid],
   ) as Date;

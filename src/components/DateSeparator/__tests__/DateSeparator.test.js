@@ -12,7 +12,7 @@ import { Streami18n } from '../../../i18n';
 
 Dayjs.extend(calendar);
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 const DATE_SEPARATOR_TEST_ID = 'date-separator';
 const dateMock = 'the date';
@@ -106,7 +106,8 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
@@ -144,7 +145,8 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },

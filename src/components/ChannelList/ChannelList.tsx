@@ -4,11 +4,17 @@ import clsx from 'clsx';
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
-import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
+import {
+  CustomQueryChannelsFn,
+  usePaginatedChannels,
+} from './hooks/usePaginatedChannels';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
+import {
+  ChannelPreview,
+  ChannelPreviewUIComponentProps,
+} from '../ChannelPreview/ChannelPreview';
 import {
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
@@ -24,21 +30,33 @@ import { NullComponent } from '../UtilityComponents';
 import { ChannelListContextProvider, ChatContextValue } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
-import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
+import type {
+  Channel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  Event,
+} from 'stream-chat';
 import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
-import { useChannelListShape, usePrepareShapeHandlers } from './hooks/useChannelListShape';
+import {
+  useChannelListShape,
+  usePrepareShapeHandlers,
+} from './hooks/useChannelListShape';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 export type ChannelListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
+  additionalChannelSearchProps?: Omit<
+    ChannelSearchProps<StreamChatGenerics>,
+    'setChannels'
+  >;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -153,13 +171,15 @@ export type ChannelListProps<
   watchers?: { limit?: number; offset?: number };
 };
 
-const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+const UnMemoizedChannelList = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
   props: ChannelListProps<SCG>,
 ) => {
   const {
     additionalChannelSearchProps,
-    Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels = true,
+    Avatar = DefaultAvatar,
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
@@ -167,9 +187,9 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters = {},
     getLatestMessagePreview,
+    List = ChannelListMessenger,
     LoadingErrorIndicator = NullComponent,
     LoadingIndicator = LoadingChannels,
-    List = ChannelListMessenger,
     lockChannelOrder = false,
     onAddedToChannel,
     onChannelDeleted,
@@ -215,17 +235,24 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     channels: Array<Channel<SCG>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<SCG>>>>,
   ) => {
-    if (!channels.length || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
+    if (
+      !channels.length ||
+      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
+    ) {
       return;
     }
 
     if (customActiveChannel) {
       // FIXME: this is wrong...
-      let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
+      let customActiveChannelObject = channels.find(
+        (chan) => chan.id === customActiveChannel,
+      );
 
       if (!customActiveChannelObject) {
-        //@ts-expect-error
-        [customActiveChannelObject] = await client.queryChannels({ id: customActiveChannel });
+        //@ts-expect-error valid query
+        [customActiveChannelObject] = await client.queryChannels({
+          id: customActiveChannel,
+        });
       }
 
       if (customActiveChannelObject) {
@@ -277,7 +304,9 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     customQueryChannels,
   );
 
-  const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
+  const loadedChannels = channelRenderFilterFn
+    ? channelRenderFilterFn(channels)
+    : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
@@ -345,7 +374,8 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     theme,
     customClasses?.channelList ?? `${baseClass} ${baseClass}-react`,
     {
-      'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
+      'str-chat--windows-flags':
+        useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
       [`${baseClass}--open`]: navOpen,
     },
   );
@@ -397,4 +427,6 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
 /**
  * Renders a preview list of Channels, allowing you to select the Channel you want to open
  */
-export const ChannelList = React.memo(UnMemoizedChannelList) as typeof UnMemoizedChannelList;
+export const ChannelList = React.memo(
+  UnMemoizedChannelList,
+) as typeof UnMemoizedChannelList;

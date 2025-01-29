@@ -18,7 +18,9 @@ export const VirtualizedMessageListContextProvider = ({
 }: PropsWithChildren<{
   value: VirtualizedMessageListContextValue;
 }>) => (
-  <VirtualizedMessageListContext.Provider value={value as VirtualizedMessageListContextValue}>
+  <VirtualizedMessageListContext.Provider
+    value={value as VirtualizedMessageListContextValue}
+  >
     {children}
   </VirtualizedMessageListContext.Provider>
 );

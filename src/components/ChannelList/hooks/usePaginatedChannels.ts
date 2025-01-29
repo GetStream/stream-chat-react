@@ -3,7 +3,13 @@ import uniqBy from 'lodash.uniqby';
 
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
-import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  StreamChat,
+} from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 
@@ -14,10 +20,13 @@ import { DEFAULT_INITIAL_CHANNEL_PAGE_SIZE } from '../../../constants/limits';
 const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
 const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
 
-type AllowedQueryType = Extract<ChannelsQueryState['queryInProgress'], 'reload' | 'load-more'>;
+type AllowedQueryType = Extract<
+  ChannelsQueryState['queryInProgress'],
+  'reload' | 'load-more'
+>;
 
 export type CustomQueryChannelParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   currentChannels: Array<Channel<StreamChatGenerics>>;
   queryType: AllowedQueryType;
@@ -26,11 +35,11 @@ export type CustomQueryChannelParams<
 };
 
 export type CustomQueryChannelsFn<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (params: CustomQueryChannelParams<StreamChatGenerics>) => Promise<void>;
 
 export const usePaginatedChannels = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   client: StreamChat<StreamChatGenerics>,
   filters: ChannelFilters<StreamChatGenerics>,
@@ -53,7 +62,7 @@ export const usePaginatedChannels = <
   const recoveryThrottleInterval =
     recoveryThrottleIntervalMs < MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
       ? MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
-      : recoveryThrottleIntervalMs ?? RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS;
+      : (recoveryThrottleIntervalMs ?? RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
   // memoize props
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
@@ -85,7 +94,11 @@ export const usePaginatedChannels = <
           ...options,
         };
 
-        const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
+        const channelQueryResponse = await client.queryChannels(
+          filters,
+          sort || {},
+          newOptions,
+        );
 
         const newChannels =
           queryType === 'reload'
@@ -115,7 +128,11 @@ export const usePaginatedChannels = <
       ? now - lastRecoveryTimestamp.current
       : 0;
 
-    if (!isFirstRecovery && timeElapsedSinceLastRecoveryMs < recoveryThrottleInterval && !error) {
+    if (
+      !isFirstRecovery &&
+      timeElapsedSinceLastRecoveryMs < recoveryThrottleInterval &&
+      !error
+    ) {
       return;
     }
 

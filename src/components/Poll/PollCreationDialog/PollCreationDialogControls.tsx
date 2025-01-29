@@ -1,6 +1,10 @@
 import React from 'react';
 import { VALID_MAX_VOTES_VALUE_REGEX } from '../constants';
-import { useChatContext, useMessageInputContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useMessageInputContext,
+  useTranslationContext,
+} from '../../../context';
 import type { PollFormState } from './types';
 
 export type PollCreationDialogControlsProps = {
@@ -29,7 +33,8 @@ export const PollCreationDialogControls = ({
 
     const validMaxVotesAllowed =
       state.max_votes_allowed === '' ||
-      (!!maxVotesAllowedNumber && (2 <= maxVotesAllowedNumber || maxVotesAllowedNumber <= 10));
+      (!!maxVotesAllowedNumber &&
+        (2 <= maxVotesAllowedNumber || maxVotesAllowedNumber <= 10));
 
     const noErrors = errors.length === 0;
 
@@ -55,7 +60,9 @@ export const PollCreationDialogControls = ({
               max_votes_allowed: state.max_votes_allowed
                 ? parseInt(state.max_votes_allowed)
                 : undefined,
-              options: state.options?.filter((o) => o.text).map((o) => ({ text: o.text })),
+              options: state.options
+                ?.filter((o) => o.text)
+                .map((o) => ({ text: o.text })),
             });
             pollId = poll.id;
           } catch (e) {

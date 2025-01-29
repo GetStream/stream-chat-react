@@ -1,7 +1,11 @@
 import React, { ElementRef, useRef } from 'react';
 import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types';
 import type { IconProps } from '../../types/types';
 
@@ -15,13 +19,15 @@ type ReactionSelectorWithButtonProps = {
  * cluttering the parent component.
  */
 export const ReactionSelectorWithButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('MessageOptions');
-  const { ReactionSelector = DefaultReactionSelector } = useComponentContext('MessageOptions');
+  const { isMyMessage, message } =
+    useMessageContext<StreamChatGenerics>('MessageOptions');
+  const { ReactionSelector = DefaultReactionSelector } =
+    useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
   const dialogId = `reaction-selector--${message.id}`;
   const dialog = useDialog({ id: dialogId });

@@ -97,7 +97,8 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const parentElement = element.parentElement!;
 
-    const offset = element.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
+    const offset =
+      element.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
     const reverseOffset = parentElement.scrollTop;
 
     if (listenToScroll) {
@@ -105,7 +106,10 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     }
 
     if (isLoading) return;
-    if (previousOffset.current === offset && previousReverseOffset.current === reverseOffset)
+    if (
+      previousOffset.current === offset &&
+      previousReverseOffset.current === reverseOffset
+    )
       return;
     previousOffset.current = offset;
     previousReverseOffset.current = reverseOffset;
@@ -119,7 +123,11 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       loadPreviousPageFn();
     }
 
-    if (offset < Number(threshold) && typeof loadNextPageFn === 'function' && hasNextPageFlag) {
+    if (
+      offset < Number(threshold) &&
+      typeof loadNextPageFn === 'function' &&
+      hasNextPageFlag
+    ) {
       loadNextPageFn();
     }
   };

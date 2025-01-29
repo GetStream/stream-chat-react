@@ -21,7 +21,7 @@ import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type CustomMessageActions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   [key: string]: (
     message: StreamMessage<StreamChatGenerics>,
@@ -30,7 +30,7 @@ export type CustomMessageActions<
 };
 
 export type MessageContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
@@ -65,7 +65,10 @@ export type MessageContextValue<
   /** Function to pin a Message in a Channel */
   handlePin: ReactEventHandler;
   /** Function to post a reaction on a Message */
-  handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
+  handleReaction: (
+    reactionType: string,
+    event: React.BaseSyntheticEvent,
+  ) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Function that returns whether the Message belongs to the current user */
@@ -140,25 +143,27 @@ export type MessageContextValue<
   unsafeHTML?: boolean;
 };
 
-export const MessageContext = React.createContext<MessageContextValue | undefined>(undefined);
+export const MessageContext = React.createContext<MessageContextValue | undefined>(
+  undefined,
+);
 
 export const MessageProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: MessageContextValue<StreamChatGenerics>;
 }>) => (
-  <MessageContext.Provider value={(value as unknown) as MessageContextValue}>
+  <MessageContext.Provider value={value as unknown as MessageContextValue}>
     {children}
   </MessageContext.Provider>
 );
 
 export const useMessageContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => {
   const contextValue = useContext(MessageContext);
@@ -167,7 +172,7 @@ export const useMessageContext = <
     return {} as MessageContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as MessageContextValue<StreamChatGenerics>;
+  return contextValue as unknown as MessageContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -177,7 +182,7 @@ export const useMessageContext = <
  */
 export const withMessageContext = <
   P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   Component: React.ComponentType<P>,
 ) => {

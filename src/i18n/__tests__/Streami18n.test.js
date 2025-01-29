@@ -9,11 +9,15 @@ import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
 
 const customDayjsLocaleConfig = {
-  months: 'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
-    '_',
-  ),
+  months:
+    'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
+      '_',
+    ),
   monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
-  weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split('_'),
+  weekdays:
+    'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split(
+      '_',
+    ),
   weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),
   weekdaysMin: 'su_má_tý_mi_hó_fr_le'.split('_'),
   formats: {
@@ -87,7 +91,10 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+        if (
+          (key.includes('{{') && key.includes('}}')) ||
+          typeof nlTranslations[key] !== 'string'
+        ) {
           continue;
         }
 
@@ -111,7 +118,10 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+        if (
+          (key.includes('{{') && key.includes('}}')) ||
+          typeof nlTranslations[key] !== 'string'
+        ) {
           continue;
         }
 
@@ -140,7 +150,9 @@ describe('Streami18n instance - with built-in langauge', () => {
       for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
         if (localeConfig[key]) {
           expect(
-            typeof localeConfig[key] === 'function' ? localeConfig[key]() : localeConfig[key],
+            typeof localeConfig[key] === 'function'
+              ? localeConfig[key]()
+              : localeConfig[key],
           ).toStrictEqual(streami18nOptions.dayjsLocaleConfigForLanguage[key]);
         }
       }
@@ -209,7 +221,9 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     for (const key in customDayjsLocaleConfig) {
       if (localeConfig[key]) {
         expect(customDayjsLocaleConfig[key]).toStrictEqual(
-          typeof localeConfig[key] === 'function' ? localeConfig[key]() : localeConfig[key],
+          typeof localeConfig[key] === 'function'
+            ? localeConfig[key]()
+            : localeConfig[key],
         );
       }
     }
@@ -225,7 +239,10 @@ describe('setLanguage - switch to french', () => {
 
     const { t: _t } = await streami18n.getTranslators();
     for (const key in frTranslations) {
-      if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+      if (
+        (key.includes('{{') && key.includes('}}')) ||
+        typeof nlTranslations[key] !== 'string'
+      ) {
         continue;
       }
 
@@ -242,13 +259,20 @@ describe('Streami18n timezone', () => {
     it('is by default the local timezone', () => {
       const streamI18n = new Streami18n({ DateTimeParser: module });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(date.getHours().toString());
+      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(
+        date.getHours().toString(),
+      );
     });
 
     it('can be set to different timezone on init', () => {
-      const streamI18n = new Streami18n({ DateTimeParser: module, timezone: 'Europe/Prague' });
+      const streamI18n = new Streami18n({
+        DateTimeParser: module,
+        timezone: 'Europe/Prague',
+      });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(date.getHours().toString());
+      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(
+        date.getHours().toString(),
+      );
       expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(
         (date.getUTCHours() - 2).toString(),
       );
@@ -258,9 +282,14 @@ describe('Streami18n timezone', () => {
       const tz = module.tz;
       delete module.tz;
 
-      const streamI18n = new Streami18n({ DateTimeParser: module, timezone: 'Europe/Prague' });
+      const streamI18n = new Streami18n({
+        DateTimeParser: module,
+        timezone: 'Europe/Prague',
+      });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(date.getHours().toString());
+      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(
+        date.getHours().toString(),
+      );
 
       module.tz = tz;
     });

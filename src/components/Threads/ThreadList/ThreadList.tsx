@@ -44,8 +44,8 @@ export const useThreadList = () => {
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
   const {
-    ThreadListItem = DefaultThreadListItem,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
+    ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();

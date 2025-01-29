@@ -15,9 +15,13 @@ import { ErrorBoundary } from '../../UtilityComponents';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
+export type RenderTextPluginConfigurator = (
+  defaultPlugins: PluggableList,
+) => PluggableList;
 
-export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention'> = [
+export const defaultAllowedTagNames: Array<
+  keyof JSX.IntrinsicElements | 'emoji' | 'mention'
+> = [
   'html',
   'text',
   'br',
@@ -60,9 +64,11 @@ function encodeDecode(url: string) {
   }
 }
 
-const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
+const urlTransform = (uri: string) =>
+  uri.startsWith('app://') ? uri : uriTransformer(uri);
 
-const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) => plugins;
+const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) =>
+  plugins;
 
 export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
   a: Anchor,
@@ -71,7 +77,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 };
 
 export type RenderTextOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   allowedTagNames?: Array<
     keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})
@@ -86,7 +92,7 @@ export type RenderTextOptions<
 };
 
 export const renderText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   text?: string,
   mentionedUsers?: UserResponse<StreamChatGenerics>[],
@@ -120,7 +126,9 @@ export const renderText = <
 
           if (!strippedHref || !strippedText) return false;
 
-          return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
+          return (
+            strippedHref.includes(strippedText) || strippedText.includes(strippedHref)
+          );
         });
 
       if (noParsingNeeded.length > 0 || linkIsInBlock) return;
@@ -133,12 +141,15 @@ export const renderText = <
         if (type === 'email' && mentionedUsers) {
           const emailMatchesWithName = mentionedUsers.some((u) => u.name === value);
           if (emailMatchesWithName) {
-            newText = newText.replace(new RegExp(escapeRegExp(value), 'g'), (match, position) => {
-              const isMention = newText.charAt(position - 1) === '@';
-              // in case of mention, we leave the match in its original form,
-              // and we let `mentionsMarkdownPlugin` to do its job
-              return isMention ? match : `[${match}](${encodeDecode(href)})`;
-            });
+            newText = newText.replace(
+              new RegExp(escapeRegExp(value), 'g'),
+              (match, position) => {
+                const isMention = newText.charAt(position - 1) === '@';
+                // in case of mention, we leave the match in its original form,
+                // and we let `mentionsMarkdownPlugin` to do its job
+                return isMention ? match : `[${match}](${encodeDecode(href)})`;
+              },
+            );
 
             return;
           }

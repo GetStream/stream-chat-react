@@ -35,8 +35,7 @@ const Controls = () => {
                 type: 'image',
               },
             ],
-            text:
-              'chat: https://getstream.io/chat/\nactivity-feeds: https://getstream.io/activity-feeds/',
+            text: 'chat: https://getstream.io/chat/\nactivity-feeds: https://getstream.io/activity-feeds/',
           })
         }
       >
@@ -49,7 +48,10 @@ const Controls = () => {
 // Sort in reverse order to avoid auto-selecting unread channel
 const sort: ChannelSort = { last_updated: 1 };
 
-const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
+const WrappedConnectedUser = ({
+  token,
+  userId,
+}: Omit<ConnectedUserProps, 'children'>) => (
   <ConnectedUser token={token} userId={userId}>
     <ChannelList
       filters={{ id: { $eq: 'edit-message-channel' }, members: { $in: [userId] } }}

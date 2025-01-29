@@ -109,7 +109,9 @@ describe('TypingIndicator', () => {
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
-    expect(screen.getByText('{{ users }} and {{ user }} are typing...')).toBeInTheDocument();
+    expect(
+      screen.getByText('{{ users }} and {{ user }} are typing...'),
+    ).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -196,11 +198,15 @@ describe('TypingIndicator', () => {
     });
 
     it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
-      const { container } = await renderComponent({ [otherUserId]: { user: otherUserId } }, true, {
-        channel,
-        client,
-        thread: { id: parent_id },
-      });
+      const { container } = await renderComponent(
+        { [otherUserId]: { user: otherUserId } },
+        true,
+        {
+          channel,
+          client,
+          thread: { id: parent_id },
+        },
+      );
 
       expect(container).toBeEmptyDOMElement();
     });

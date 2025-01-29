@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import { CommandItem } from '../CommandItem';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('commandItem', () => {
   it('should render component with empty entity', () => {

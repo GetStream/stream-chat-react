@@ -8,7 +8,10 @@ export type ProgressBarProps = {
 
 export const ProgressBar = ({ className, onClick, progress }: ProgressBarProps) => (
   <div
-    className={clsx('str-chat__message-attachment-audio-widget--progress-track', className)}
+    className={clsx(
+      'str-chat__message-attachment-audio-widget--progress-track',
+      className,
+    )}
     data-progress={progress}
     data-testid='audio-progress'
     onClick={onClick}

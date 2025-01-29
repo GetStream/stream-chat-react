@@ -54,7 +54,9 @@ describe('CooldownTimer', () => {
 
     rerender(<CooldownTimer {...props2} />);
 
-    expect(screen.queryByTestId(TIMER_TEST_ID)).toHaveTextContent(cooldownRemaining2.toString());
+    expect(screen.queryByTestId(TIMER_TEST_ID)).toHaveTextContent(
+      cooldownRemaining2.toString(),
+    );
     act(() => {
       jest.runAllTimers();
     });

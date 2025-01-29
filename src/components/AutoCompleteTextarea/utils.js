@@ -11,11 +11,13 @@ export function defaultScrollToItem(container, item) {
   const actualScrollTop = container.scrollTop;
   const itemOffsetTop = item.offsetTop;
 
-  if (itemOffsetTop < actualScrollTop + containerHight && actualScrollTop < itemOffsetTop) {
+  if (
+    itemOffsetTop < actualScrollTop + containerHight &&
+    actualScrollTop < itemOffsetTop
+  ) {
     return;
   }
 
-  // eslint-disable-next-line
   container.scrollTop = itemOffsetTop;
 }
 
@@ -34,7 +36,9 @@ export const triggerPropsCheck = ({ trigger }) => {
     const [triggerChar, settings] = triggers[i];
 
     if (typeof triggerChar !== 'string' || triggerChar.length !== 1) {
-      return Error('Invalid prop trigger. Keys of the object has to be string / one character.');
+      return Error(
+        'Invalid prop trigger. Keys of the object has to be string / one character.',
+      );
     }
 
     // $FlowFixMe

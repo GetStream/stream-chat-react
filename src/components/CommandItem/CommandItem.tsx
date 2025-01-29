@@ -25,4 +25,6 @@ const UnMemoizedCommandItem = (props: PropsWithChildren<CommandItemProps>) => {
   );
 };
 
-export const CommandItem = React.memo(UnMemoizedCommandItem) as typeof UnMemoizedCommandItem;
+export const CommandItem = React.memo(
+  UnMemoizedCommandItem,
+) as typeof UnMemoizedCommandItem;

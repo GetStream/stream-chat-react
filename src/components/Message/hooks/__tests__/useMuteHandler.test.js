@@ -43,7 +43,9 @@ async function renderUseHandleMuteHook(
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useMuteHandler(message, notificationOpts), { wrapper });
+  const { result } = renderHook(() => useMuteHandler(message, notificationOpts), {
+    wrapper,
+  });
   return result.current;
 }
 

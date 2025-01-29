@@ -60,7 +60,7 @@ export const calculateLevenshtein = (query: string, name: string) => {
 };
 
 export type SearchLocalUserParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   ownUserId: string | undefined;
   query: string;
@@ -70,7 +70,7 @@ export type SearchLocalUserParams<
 };
 
 export const searchLocalUsers = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: SearchLocalUserParams<StreamChatGenerics>,
 ): UserResponse<StreamChatGenerics>[] => {
@@ -99,7 +99,10 @@ export const searchLocalUsers = <
 
     if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
-      if (updatedName.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits)) {
+      if (
+        updatedName.includes(updatedQuery) ||
+        (levenshtein <= maxDistance && lastDigits)
+      ) {
         return true;
       }
     }
@@ -113,7 +116,7 @@ export const searchLocalUsers = <
 };
 
 type CheckUploadPermissionsParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   addNotification: ChannelActionContextValue<StreamChatGenerics>['addNotification'];
   file: File;
@@ -123,7 +126,7 @@ type CheckUploadPermissionsParams<
 };
 
 export const checkUploadPermissions = async <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: CheckUploadPermissionsParams<StreamChatGenerics>,
 ) => {
@@ -145,7 +148,9 @@ export const checkUploadPermissions = async <
 
   const sendNotAllowedErrorNotification = () =>
     addNotification(
-      t(`Upload type: "{{ type }}" is not allowed`, { type: file.type || 'unknown type' }),
+      t(`Upload type: "{{ type }}" is not allowed`, {
+        type: file.type || 'unknown type',
+      }),
       'error',
     );
 
@@ -210,7 +215,10 @@ export const checkUploadPermissions = async <
 
 export function prettifyFileSize(bytes: number, precision = 3) {
   const units = ['B', 'kB', 'MB', 'GB'];
-  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const exponent = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
   const mantissa = bytes / 1024 ** exponent;
   const formattedMantissa =
     precision === 0 ? Math.round(mantissa).toString() : mantissa.toPrecision(precision);

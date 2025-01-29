@@ -34,16 +34,22 @@ type LinkPreviewProps = {
 
 const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { dismissLinkPreview } = useMessageInputContext();
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLDivElement>();
+  const { handleEnter, handleLeave, tooltipVisible } =
+    useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
   return (
     <div
       className={clsx('str-chat__link-preview-card', {
-        'str-chat__link-preview-card--loading': linkPreview.state === LinkPreviewState.LOADING,
+        'str-chat__link-preview-card--loading':
+          linkPreview.state === LinkPreviewState.LOADING,
       })}
       data-testid='link-preview-card'
     >
-      <PopperTooltip offset={[0, 5]} referenceElement={referenceElement} visible={tooltipVisible}>
+      <PopperTooltip
+        offset={[0, 5]}
+        referenceElement={referenceElement}
+        visible={tooltipVisible}
+      >
         {linkPreview.og_scrape_url}
       </PopperTooltip>
       <div
@@ -55,8 +61,12 @@ const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
         <LinkIcon />
       </div>
       <div className='str-chat__link-preview-card__content'>
-        <div className='str-chat__link-preview-card__content-title'>{linkPreview.title}</div>
-        <div className='str-chat__link-preview-card__content-description'>{linkPreview.text}</div>
+        <div className='str-chat__link-preview-card__content-title'>
+          {linkPreview.title}
+        </div>
+        <div className='str-chat__link-preview-card__content-description'>
+          {linkPreview.text}
+        </div>
       </div>
       <button
         className='str-chat__link-preview-card__dismiss-button'

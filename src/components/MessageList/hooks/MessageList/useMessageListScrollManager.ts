@@ -12,7 +12,7 @@ export type ContainerMeasures = {
 };
 
 export type UseMessageListScrollManagerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   loadMoreScrollThreshold: number;
   messages: StreamMessage<StreamChatGenerics>[];
@@ -25,7 +25,7 @@ export type UseMessageListScrollManagerParams<
 
 // FIXME: change this generic name to something like useAdjustScrollPositionToListSize
 export function useMessageListScrollManager<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
   const {
     loadMoreScrollThreshold,
@@ -80,7 +80,8 @@ export function useMessageListScrollManager<
       // message list length didn't change, but check if last message had reaction/reply update
       else {
         const hasNewReactions =
-          lastPrevMessage?.latest_reactions?.length !== lastNewMessage.latest_reactions?.length;
+          lastPrevMessage?.latest_reactions?.length !==
+          lastNewMessage.latest_reactions?.length;
         const hasNewReplies = lastPrevMessage?.reply_count !== lastNewMessage.reply_count;
 
         if ((hasNewReactions || hasNewReplies) && wasAtBottom) {

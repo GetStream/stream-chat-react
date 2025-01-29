@@ -15,7 +15,7 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { MessageProps } from '../Message';
 
 export interface RenderMessagesOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   components: ComponentContextValue<StreamChatGenerics>;
   lastReceivedMessageId: string | null;
@@ -39,11 +39,11 @@ export interface RenderMessagesOptions<
 }
 
 export type SharedMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
 
 export type MessageRenderer<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = (options: RenderMessagesOptions<StreamChatGenerics>) => Array<ReactNode>;
 
 type MessagePropsToOmit =
@@ -55,7 +55,7 @@ type MessagePropsToOmit =
   | 'readBy';
 
 export function defaultRenderMessages<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channelUnreadUiState,
   components,
@@ -96,7 +96,10 @@ export function defaultRenderMessages<
       );
     } else if (message.type === 'system') {
       renderedMessages.push(
-        <li data-message-id={message.id} key={message.id || (message.created_at as string)}>
+        <li
+          data-message-id={message.id}
+          key={message.id || (message.created_at as string)}
+        >
           <MessageSystem message={message} />
         </li>,
       );
@@ -105,7 +108,8 @@ export function defaultRenderMessages<
         firstMessage = message;
       }
       const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
-      const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
+      const messageClass =
+        customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
       const isFirstUnreadMessage = getIsFirstUnreadMessage({
         firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
@@ -121,10 +125,16 @@ export function defaultRenderMessages<
         <Fragment key={message.id || (message.created_at as string)}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-              <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
+              <UnreadMessagesSeparator
+                unreadCount={channelUnreadUiState?.unread_messages}
+              />
             </li>
           )}
-          <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
+          <li
+            className={messageClass}
+            data-message-id={message.id}
+            data-testid={messageClass}
+          >
             <Message
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
               lastReceivedId={lastReceivedId}

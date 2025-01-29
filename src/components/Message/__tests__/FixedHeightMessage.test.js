@@ -89,7 +89,10 @@ describe('<FixedHeightMessage />', () => {
   it('should render user avatar', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(AvatarMock).toHaveBeenCalledWith(expect.objectContaining(aliceProfile), undefined);
+    expect(AvatarMock).toHaveBeenCalledWith(
+      expect.objectContaining(aliceProfile),
+      undefined,
+    );
   });
 
   it('should render MML', async () => {

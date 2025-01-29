@@ -1,7 +1,11 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useMarkRead } from '../useMarkRead';
-import { ChannelActionProvider, ChannelStateProvider, ChatProvider } from '../../../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+} from '../../../../context';
 import {
   dispatchMessageNewEvent,
   generateChannel,
@@ -342,7 +346,9 @@ describe('useMarkRead', () => {
       });
 
       let channelUnreadUiStateCb;
-      setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+      setChannelUnreadUiState.mockImplementationOnce(
+        (cb) => (channelUnreadUiStateCb = cb),
+      );
       await act(() => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
@@ -372,7 +378,9 @@ describe('useMarkRead', () => {
       });
 
       let channelUnreadUiStateCb;
-      setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+      setChannelUnreadUiState.mockImplementationOnce(
+        (cb) => (channelUnreadUiStateCb = cb),
+      );
       await act(() => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
@@ -478,7 +486,9 @@ describe('useMarkRead', () => {
     describe('update unread UI state unread_messages', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -504,7 +514,9 @@ describe('useMarkRead', () => {
 
       it('should be performed when channel was marked unread and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -530,7 +542,9 @@ describe('useMarkRead', () => {
 
       it('should be performed when document is hidden and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -542,7 +556,9 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        const docHiddenSpy = jest
+          .spyOn(document, 'hidden', 'get')
+          .mockReturnValueOnce(true);
         await act(() => {
           dispatchMessageNewEvent(client, generateMessage(), channel);
         });
@@ -557,7 +573,9 @@ describe('useMarkRead', () => {
     describe('update unread UI state last_read', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const channelsData = [
           generateChannel({ messages: Array.from({ length: 2 }, generateMessage) }),
         ];
@@ -652,7 +670,9 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        const docHiddenSpy = jest
+          .spyOn(document, 'hidden', 'get')
+          .mockReturnValueOnce(true);
         await act(async () => {
           await dispatchMessageNewEvent(client, generateMessage(), channel);
         });

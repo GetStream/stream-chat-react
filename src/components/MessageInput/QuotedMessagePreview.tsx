@@ -15,9 +15,10 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessagePreviewHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
-  const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('QuotedMessagePreview');
+  const { setQuotedMessage } =
+    useChannelActionContext<StreamChatGenerics>('QuotedMessagePreview');
   const { t } = useTranslationContext('QuotedMessagePreview');
 
   return (
@@ -37,21 +38,19 @@ export const QuotedMessagePreviewHeader = <
 };
 
 export type QuotedMessagePreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   quotedMessage: StreamMessage<StreamChatGenerics>;
 };
 
 export const QuotedMessagePreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
   const { client } = useChatContext();
-  const {
-    Attachment = DefaultAttachment,
-    Avatar = DefaultAvatar,
-  } = useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
+  const { Attachment = DefaultAttachment, Avatar = DefaultAvatar } =
+    useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 
   const quotedMessageText =
@@ -68,7 +67,10 @@ export const QuotedMessagePreview = <
   const poll = quotedMessage.poll_id && client.polls.fromState(quotedMessage.poll_id);
 
   return (
-    <div className='str-chat__quoted-message-preview' data-testid='quoted-message-preview'>
+    <div
+      className='str-chat__quoted-message-preview'
+      data-testid='quoted-message-preview'
+    >
       {quotedMessage.user && (
         <Avatar
           className='str-chat__avatar--quoted-message-sender'
@@ -85,7 +87,10 @@ export const QuotedMessagePreview = <
             {!!quotedMessageAttachment.length && (
               <Attachment attachments={quotedMessageAttachment} isQuoted />
             )}
-            <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
+            <div
+              className='str-chat__quoted-message-text'
+              data-testid='quoted-message-text'
+            >
               <p>{quotedMessageText}</p>
             </div>
           </>

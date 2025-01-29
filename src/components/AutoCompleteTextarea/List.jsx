@@ -47,7 +47,9 @@ export const List = ({
 
   const findItemIndex = useCallback(
     (item) =>
-      values.findIndex((value) => (value.id ? value.id === item.id : value.name === item.name)),
+      values.findIndex((value) =>
+        value.id ? value.id === item.id : value.name === item.name,
+      ),
     [values],
   );
 
@@ -98,7 +100,10 @@ export const List = ({
         });
       }
 
-      if ((event.key === 'Enter' || event.key === 'Tab') && selectedItemIndex !== undefined) {
+      if (
+        (event.key === 'Enter' || event.key === 'Tab') &&
+        selectedItemIndex !== undefined
+      ) {
         handleClick(event, values[selectedItemIndex]);
       }
 
@@ -134,7 +139,10 @@ export const List = ({
     [propValue, selectionEnd, currentTrigger],
   );
 
-  const restructuredValues = useMemo(() => values.map(restructureItem), [values, restructureItem]);
+  const restructuredValues = useMemo(
+    () => values.map(restructureItem),
+    [values, restructureItem],
+  );
 
   return (
     <ul className={clsx('str-chat__suggestion-list', className)} style={style}>

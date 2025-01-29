@@ -7,7 +7,7 @@ import type { Channel, Event } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useNotificationRemovedFromChannelListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   customHandler?: (
@@ -24,7 +24,9 @@ export const useNotificationRemovedFromChannelListener = <
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else {
-        setChannels((channels) => channels.filter((channel) => channel.cid !== event.channel?.cid));
+        setChannels((channels) =>
+          channels.filter((channel) => channel.cid !== event.channel?.cid),
+        );
       }
     };
 

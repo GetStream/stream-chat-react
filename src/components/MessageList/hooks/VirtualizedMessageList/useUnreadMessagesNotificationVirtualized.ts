@@ -21,7 +21,7 @@ export type UseUnreadMessagesNotificationParams = {
  * @param unreadCount
  */
 export const useUnreadMessagesNotificationVirtualized = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   lastRead,
   showAlways,
@@ -37,13 +37,17 @@ export const useUnreadMessagesNotificationVirtualized = <
       if (!(firstRenderedMessage && lastRenderedMessage)) return;
       const scrolledBelowSeparator =
         !!lastRead &&
-        new Date(firstRenderedMessage.created_at as string | Date).getTime() > lastRead.getTime();
+        new Date(firstRenderedMessage.created_at as string | Date).getTime() >
+          lastRead.getTime();
       const scrolledAboveSeparator =
         !!lastRead &&
-        new Date(lastRenderedMessage.created_at as string | Date).getTime() < lastRead.getTime();
+        new Date(lastRenderedMessage.created_at as string | Date).getTime() <
+          lastRead.getTime();
 
       setShow(
-        showAlways ? scrolledBelowSeparator || scrolledAboveSeparator : scrolledBelowSeparator,
+        showAlways
+          ? scrolledBelowSeparator || scrolledAboveSeparator
+          : scrolledBelowSeparator,
       );
     },
     [lastRead, showAlways, unreadCount],

@@ -9,7 +9,7 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type UseLastReadDataParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   messages: StreamMessage<StreamChatGenerics>[];
   returnAllReadData: boolean;
@@ -18,7 +18,7 @@ type UseLastReadDataParams<
 };
 
 export const useLastReadData = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: UseLastReadDataParams<StreamChatGenerics>,
 ) => {

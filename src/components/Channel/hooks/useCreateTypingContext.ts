@@ -4,7 +4,7 @@ import type { TypingContextValue } from '../../../context/TypingContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateTypingContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   value: TypingContextValue<StreamChatGenerics>,
 ) => {

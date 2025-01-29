@@ -29,7 +29,7 @@ import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
@@ -58,11 +58,12 @@ export type ThreadProps<
  */
 export const Thread = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: ThreadProps<StreamChatGenerics, V>,
 ) => {
-  const { channel, channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('Thread');
+  const { channel, channelConfig, thread } =
+    useChannelStateContext<StreamChatGenerics>('Thread');
   const threadInstance = useThreadContext();
 
   if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
@@ -70,7 +71,10 @@ export const Thread = <
   // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
     // FIXME: TS is having trouble here as at least one of the two would always be defined
-    <ThreadInner {...props} key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`} />
+    <ThreadInner
+      {...props}
+      key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`}
+    />
   );
 };
 
@@ -83,7 +87,7 @@ const selector = (nextValue: ThreadState) => ({
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: ThreadProps<StreamChatGenerics, V> & { key: string },
 ) => {
@@ -111,13 +115,14 @@ const ThreadInner = <
     threadMessages = [],
     threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
-  const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
+  const { closeThread, loadMoreThread } =
+    useChannelActionContext<StreamChatGenerics>('Thread');
   const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
-    ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
+    ThreadInput: ContextInput,
     VirtualMessage,
   } = useComponentContext<StreamChatGenerics>('Thread');
 
@@ -135,7 +140,6 @@ const ThreadInner = <
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [thread, loadMoreThread]);
 
   const threadProps: Pick<
@@ -192,7 +196,9 @@ const ThreadInner = <
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList
         {...threadProps}
-        {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
+        {...(virtualized
+          ? additionalVirtualizedMessageListProps
+          : additionalMessageListProps)}
       />
       <MessageInput
         focus={autoFocus}

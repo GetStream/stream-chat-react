@@ -16,7 +16,7 @@ const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
 > = {};
 
 type GetChannelParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   client: StreamChat<StreamChatGenerics>;
   channel?: Channel<StreamChatGenerics>;
@@ -35,7 +35,7 @@ type GetChannelParams<
  * @param channel
  */
 export const getChannel = async <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channel,
   client,
@@ -56,11 +56,13 @@ export const getChannel = async <
   const originalCid = theChannel?.id
     ? theChannel.cid
     : members && members.length
-    ? generateChannelTempCid(theChannel.type, members)
-    : undefined;
+      ? generateChannelTempCid(theChannel.type, members)
+      : undefined;
 
   if (!originalCid) {
-    throw new Error('Channel ID or channel members array have to be provided to query a channel.');
+    throw new Error(
+      'Channel ID or channel members array have to be provided to query a channel.',
+    );
   }
 
   const queryPromise = WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];

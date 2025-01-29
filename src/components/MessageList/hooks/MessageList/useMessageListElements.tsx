@@ -9,11 +9,14 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../../../types/types';
+import type {
+  ChannelUnreadUiState,
+  DefaultStreamChatGenerics,
+} from '../../../../types/types';
 import { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
 type UseMessageListElementsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
   internalMessageProps: SharedMessageProps<StreamChatGenerics>;
@@ -26,7 +29,7 @@ type UseMessageListElementsProps<
 };
 
 export const useMessageListElements = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: UseMessageListElementsProps<StreamChatGenerics>,
 ) => {
@@ -41,7 +44,9 @@ export const useMessageListElements = <
     threadList,
   } = props;
 
-  const { client, customClasses } = useChatContext<StreamChatGenerics>('useMessageListElements');
+  const { client, customClasses } = useChatContext<StreamChatGenerics>(
+    'useMessageListElements',
+  );
   const components = useComponentContext<StreamChatGenerics>('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
@@ -52,9 +57,10 @@ export const useMessageListElements = <
     userID: client.userID,
   });
 
-  const lastReceivedMessageId = useMemo(() => getLastReceived(enrichedMessages), [
-    enrichedMessages,
-  ]);
+  const lastReceivedMessageId = useMemo(
+    () => getLastReceived(enrichedMessages),
+    [enrichedMessages],
+  );
 
   const elements: React.ReactNode[] = useMemo(
     () =>

@@ -1,7 +1,11 @@
 import React from 'react';
 
 import clsx from 'clsx';
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { isMessageEdited } from './utils';
 
@@ -9,13 +13,13 @@ import type { DefaultStreamChatGenerics } from '../../types';
 import type { MessageTimestampProps } from './MessageTimestamp';
 
 export type MessageEditedTimestampProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = MessageTimestampProps<StreamChatGenerics> & {
   open: boolean;
 };
 
 export function MessageEditedTimestamp<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   message: propMessage,
   open,

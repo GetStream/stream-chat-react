@@ -18,7 +18,7 @@ export const AIStates = {
  * @returns {{ aiState: AIState }} The current AI state for the given channel.
  */
 export const useAIState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel?: Channel<StreamChatGenerics>,
 ): { aiState: AIState } => {

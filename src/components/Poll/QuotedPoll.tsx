@@ -5,9 +5,12 @@ import { useStateStore } from '../../store';
 import type { PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorQuotedPollReturnValue = { is_closed: boolean | undefined; name: string };
+type PollStateSelectorQuotedPollReturnValue = {
+  is_closed: boolean | undefined;
+  name: string;
+};
 const pollStateSelectorQuotedPoll = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorQuotedPollReturnValue => ({
@@ -16,7 +19,7 @@ const pollStateSelectorQuotedPoll = <
 });
 
 export const QuotedPoll = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { poll } = usePollContext<StreamChatGenerics>();
   const { is_closed, name } = useStateStore(poll.state, pollStateSelectorQuotedPoll);

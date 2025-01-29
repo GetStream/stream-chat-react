@@ -52,7 +52,8 @@ const renderComponent = async (
   messageInputContextOverrides = {},
   activeChannel = channel,
 ) => {
-  const placeholderText = props.placeholder === null ? null : props.placeholder || 'placeholder';
+  const placeholderText =
+    props.placeholder === null ? null : props.placeholder || 'placeholder';
 
   const OverrideMessageInputContext = ({ children }) => {
     const currentContext = useMessageInputContext();
@@ -61,7 +62,9 @@ const renderComponent = async (
       ...messageInputContextOverrides,
     };
     return (
-      <MessageInputContextProvider value={withOverrides}>{children}</MessageInputContextProvider>
+      <MessageInputContextProvider value={withOverrides}>
+        {children}
+      </MessageInputContextProvider>
     );
   };
 
@@ -147,7 +150,10 @@ describe('ChatAutoComplete', () => {
   });
 
   it('should give preference to cooldown value over the prop disabled', async () => {
-    await renderComponent({ disabled: false, placeholder: null }, { cooldownRemaining: 10 });
+    await renderComponent(
+      { disabled: false, placeholder: null },
+      { cooldownRemaining: 10 },
+    );
     expect(screen.queryByPlaceholderText('Placeholder')).not.toBeInTheDocument();
     const textarea = screen.getByTestId('message-input');
     expect(textarea).toBeDisabled();
@@ -236,7 +242,6 @@ describe('ChatAutoComplete', () => {
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
 
-    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(userText).toHaveLength(0);
   });
 

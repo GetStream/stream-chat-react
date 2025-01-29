@@ -1,11 +1,15 @@
-import type { Channel, MessageResponse, ChannelState as StreamChannelState } from 'stream-chat';
+import type {
+  Channel,
+  MessageResponse,
+  ChannelState as StreamChannelState,
+} from 'stream-chat';
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelStateReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > =
   | {
       type: 'closeThread';
@@ -44,7 +48,9 @@ export type ChannelStateReducerAction<
     }
   | {
       threadHasMore: boolean;
-      threadMessages: Array<ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>>;
+      threadMessages: Array<
+        ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
+      >;
       type: 'loadMoreThreadFinished';
     }
   | {
@@ -84,183 +90,189 @@ export type ChannelStateReducerAction<
       type: 'jumpToLatestMessage';
     };
 
-export const makeChannelReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => (
-  state: ChannelState<StreamChatGenerics>,
-  action: ChannelStateReducerAction<StreamChatGenerics>,
-) => {
-  switch (action.type) {
-    case 'closeThread': {
-      return {
-        ...state,
-        thread: null,
-        threadLoadingMore: false,
-        threadMessages: [],
-      };
-    }
+export const makeChannelReducer =
+  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>() =>
+  (
+    state: ChannelState<StreamChatGenerics>,
+    action: ChannelStateReducerAction<StreamChatGenerics>,
+  ) => {
+    switch (action.type) {
+      case 'closeThread': {
+        return {
+          ...state,
+          thread: null,
+          threadLoadingMore: false,
+          threadMessages: [],
+        };
+      }
 
-    case 'copyMessagesFromChannel': {
-      const { channel, parentId } = action;
-      return {
-        ...state,
-        messages: [...channel.state.messages],
-        pinnedMessages: [...channel.state.pinnedMessages],
-        // copying messages from channel happens with new message - this resets the suppressAutoscroll
-        suppressAutoscroll: false,
-        threadMessages: parentId
-          ? { ...channel.state.threads }[parentId] || []
-          : state.threadMessages,
-      };
-    }
+      case 'copyMessagesFromChannel': {
+        const { channel, parentId } = action;
+        return {
+          ...state,
+          messages: [...channel.state.messages],
+          pinnedMessages: [...channel.state.pinnedMessages],
+          // copying messages from channel happens with new message - this resets the suppressAutoscroll
+          suppressAutoscroll: false,
+          threadMessages: parentId
+            ? { ...channel.state.threads }[parentId] || []
+            : state.threadMessages,
+        };
+      }
 
-    case 'copyStateFromChannelOnEvent': {
-      const { channel } = action;
-      return {
-        ...state,
-        members: { ...channel.state.members },
-        messages: [...channel.state.messages],
-        pinnedMessages: [...channel.state.pinnedMessages],
-        read: { ...channel.state.read },
-        watcherCount: channel.state.watcher_count,
-        watchers: { ...channel.state.watchers },
-      };
-    }
+      case 'copyStateFromChannelOnEvent': {
+        const { channel } = action;
+        return {
+          ...state,
+          members: { ...channel.state.members },
+          messages: [...channel.state.messages],
+          pinnedMessages: [...channel.state.pinnedMessages],
+          read: { ...channel.state.read },
+          watcherCount: channel.state.watcher_count,
+          watchers: { ...channel.state.watchers },
+        };
+      }
 
-    case 'initStateFromChannel': {
-      const { channel, hasMore } = action;
-      return {
-        ...state,
-        hasMore,
-        loading: false,
-        members: { ...channel.state.members },
-        messages: [...channel.state.messages],
-        pinnedMessages: [...channel.state.pinnedMessages],
-        read: { ...channel.state.read },
-        watcherCount: channel.state.watcher_count,
-        watchers: { ...channel.state.watchers },
-      };
-    }
+      case 'initStateFromChannel': {
+        const { channel, hasMore } = action;
+        return {
+          ...state,
+          hasMore,
+          loading: false,
+          members: { ...channel.state.members },
+          messages: [...channel.state.messages],
+          pinnedMessages: [...channel.state.pinnedMessages],
+          read: { ...channel.state.read },
+          watcherCount: channel.state.watcher_count,
+          watchers: { ...channel.state.watchers },
+        };
+      }
 
-    case 'jumpToLatestMessage': {
-      return {
-        ...state,
-        hasMoreNewer: false,
-        highlightedMessageId: undefined,
-        loading: false,
-        suppressAutoscroll: false,
-      };
-    }
+      case 'jumpToLatestMessage': {
+        return {
+          ...state,
+          hasMoreNewer: false,
+          highlightedMessageId: undefined,
+          loading: false,
+          suppressAutoscroll: false,
+        };
+      }
 
-    case 'jumpToMessageFinished': {
-      return {
-        ...state,
-        hasMoreNewer: action.hasMoreNewer,
-        highlightedMessageId: action.highlightedMessageId,
-      };
-    }
+      case 'jumpToMessageFinished': {
+        return {
+          ...state,
+          hasMoreNewer: action.hasMoreNewer,
+          highlightedMessageId: action.highlightedMessageId,
+        };
+      }
 
-    case 'clearHighlightedMessage': {
-      return {
-        ...state,
-        highlightedMessageId: undefined,
-      };
-    }
+      case 'clearHighlightedMessage': {
+        return {
+          ...state,
+          highlightedMessageId: undefined,
+        };
+      }
 
-    case 'loadMoreFinished': {
-      const { hasMore, messages } = action;
-      return {
-        ...state,
-        hasMore,
-        loadingMore: false,
-        messages,
-        suppressAutoscroll: false,
-      };
-    }
+      case 'loadMoreFinished': {
+        const { hasMore, messages } = action;
+        return {
+          ...state,
+          hasMore,
+          loadingMore: false,
+          messages,
+          suppressAutoscroll: false,
+        };
+      }
 
-    case 'loadMoreNewerFinished': {
-      const { hasMoreNewer, messages } = action;
-      return {
-        ...state,
-        hasMoreNewer,
-        loadingMoreNewer: false,
-        messages,
-      };
-    }
+      case 'loadMoreNewerFinished': {
+        const { hasMoreNewer, messages } = action;
+        return {
+          ...state,
+          hasMoreNewer,
+          loadingMoreNewer: false,
+          messages,
+        };
+      }
 
-    case 'loadMoreThreadFinished': {
-      const { threadHasMore, threadMessages } = action;
-      return {
-        ...state,
-        threadHasMore,
-        threadLoadingMore: false,
-        threadMessages,
-      };
-    }
+      case 'loadMoreThreadFinished': {
+        const { threadHasMore, threadMessages } = action;
+        return {
+          ...state,
+          threadHasMore,
+          threadLoadingMore: false,
+          threadMessages,
+        };
+      }
 
-    case 'openThread': {
-      const { channel, message } = action;
-      return {
-        ...state,
-        thread: message,
-        threadHasMore: true,
-        threadMessages: message.id ? { ...channel.state.threads }[message.id] || [] : [],
-        threadSuppressAutoscroll: false,
-      };
-    }
+      case 'openThread': {
+        const { channel, message } = action;
+        return {
+          ...state,
+          thread: message,
+          threadHasMore: true,
+          threadMessages: message.id
+            ? { ...channel.state.threads }[message.id] || []
+            : [],
+          threadSuppressAutoscroll: false,
+        };
+      }
 
-    case 'setError': {
-      const { error } = action;
-      return { ...state, error };
-    }
+      case 'setError': {
+        const { error } = action;
+        return { ...state, error };
+      }
 
-    case 'setLoadingMore': {
-      const { loadingMore } = action;
-      // suppress the autoscroll behavior
-      return { ...state, loadingMore, suppressAutoscroll: loadingMore };
-    }
+      case 'setLoadingMore': {
+        const { loadingMore } = action;
+        // suppress the autoscroll behavior
+        return { ...state, loadingMore, suppressAutoscroll: loadingMore };
+      }
 
-    case 'setLoadingMoreNewer': {
-      const { loadingMoreNewer } = action;
-      return { ...state, loadingMoreNewer };
-    }
+      case 'setLoadingMoreNewer': {
+        const { loadingMoreNewer } = action;
+        return { ...state, loadingMoreNewer };
+      }
 
-    case 'setThread': {
-      const { message } = action;
-      return { ...state, thread: message };
-    }
+      case 'setThread': {
+        const { message } = action;
+        return { ...state, thread: message };
+      }
 
-    case 'setTyping': {
-      const { channel } = action;
-      return {
-        ...state,
-        typing: { ...channel.state.typing },
-      };
-    }
+      case 'setTyping': {
+        const { channel } = action;
+        return {
+          ...state,
+          typing: { ...channel.state.typing },
+        };
+      }
 
-    case 'startLoadingThread': {
-      return {
-        ...state,
-        threadLoadingMore: true,
-        threadSuppressAutoscroll: true,
-      };
-    }
+      case 'startLoadingThread': {
+        return {
+          ...state,
+          threadLoadingMore: true,
+          threadSuppressAutoscroll: true,
+        };
+      }
 
-    case 'updateThreadOnEvent': {
-      const { channel, message } = action;
-      if (!state.thread) return state;
-      return {
-        ...state,
-        thread:
-          message?.id === state.thread.id ? channel.state.formatMessage(message) : state.thread,
-        threadMessages: state.thread?.id ? { ...channel.state.threads }[state.thread.id] || [] : [],
-      };
-    }
+      case 'updateThreadOnEvent': {
+        const { channel, message } = action;
+        if (!state.thread) return state;
+        return {
+          ...state,
+          thread:
+            message?.id === state.thread.id
+              ? channel.state.formatMessage(message)
+              : state.thread,
+          threadMessages: state.thread?.id
+            ? { ...channel.state.threads }[state.thread.id] || []
+            : [],
+        };
+      }
 
-    default:
-      return state;
-  }
-};
+      default:
+        return state;
+    }
+  };
 
 export const initialState = {
   error: null,

@@ -17,8 +17,8 @@ export function useSelectedChannelState<SCG extends ExtendableGenerics, O>(_: {
 }): O | undefined;
 export function useSelectedChannelState<SCG extends ExtendableGenerics, O>({
   channel,
-  stateChangeEventKeys = ['all'],
   selector,
+  stateChangeEventKeys = ['all'],
 }: {
   selector: (channel: Channel<SCG>) => O;
   channel?: Channel<SCG>;

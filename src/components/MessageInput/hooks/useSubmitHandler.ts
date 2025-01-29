@@ -6,7 +6,10 @@ import { LinkPreviewState } from '../types';
 
 import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 
-import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
+import type {
+  MessageInputReducerAction,
+  MessageInputState,
+} from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
 import type {
@@ -18,7 +21,7 @@ import type { EnrichURLsController } from './useLinkPreviews';
 
 export const useSubmitHandler = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
@@ -26,15 +29,20 @@ export const useSubmitHandler = <
   numberOfUploads: number,
   enrichURLsController: EnrichURLsController,
 ) => {
-  const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
+  const {
+    clearEditingState,
+    message,
+    overrideSubmitHandler,
+    parent,
+    publishTypingEvent,
+  } = props;
 
   const { attachments, linkPreviews, mentioned_users, text } = state;
 
   const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
-  const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
-    'useSubmitHandler',
-  );
+  const { addNotification, editMessage, sendMessage } =
+    useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
 
   const textReference = useRef({ hasChanged: false, initialText: text });
@@ -87,6 +95,7 @@ export const useSubmitHandler = <
           (findAndEnqueueURLsToEnrich && !att.og_scrape_url), // filter out all the attachments scraped before the message was edited
       )
       .map((localAttachment) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { localMetadata: _, ...attachment } = localAttachment;
         return attachment as Attachment;
       });
@@ -96,8 +105,9 @@ export const useSubmitHandler = <
     if (findAndEnqueueURLsToEnrich) {
       // prevent showing link preview in MessageInput after the message has been sent
       cancelURLEnrichment();
-      const someLinkPreviewsLoading = Array.from(linkPreviews.values()).some((linkPreview) =>
-        [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
+      const someLinkPreviewsLoading = Array.from(linkPreviews.values()).some(
+        (linkPreview) =>
+          [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
       );
       const someLinkPreviewsDismissed = Array.from(linkPreviews.values()).some(
         (linkPreview) => linkPreview.state === LinkPreviewState.DISMISSED,
@@ -110,11 +120,16 @@ export const useSubmitHandler = <
               (linkPreview) =>
                 linkPreview.state === LinkPreviewState.LOADED &&
                 !attachmentsFromUploads.find(
-                  (attFromUpload) => attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
+                  (attFromUpload) =>
+                    attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
                 ),
             )
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            .map(({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment);
+
+            .map(
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              ({ state: linkPreviewState, ...ogAttachment }) =>
+                ogAttachment as Attachment,
+            );
 
       // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
       sendOptions.skip_enrich_url =
@@ -146,11 +161,11 @@ export const useSubmitHandler = <
 
       try {
         await editMessage(
-          ({
+          {
             ...message,
             ...updatedMessage,
             ...customMessageData,
-          } as unknown) as UpdatedMessage<StreamChatGenerics>,
+          } as unknown as UpdatedMessage<StreamChatGenerics>,
           sendOptions,
         );
 

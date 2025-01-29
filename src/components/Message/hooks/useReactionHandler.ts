@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { Reaction, ReactionResponse } from 'stream-chat';
@@ -15,15 +18,15 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
 ) => {
   const thread = useThreadContext();
-  const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useReactionHandler');
-  const { channel, channelCapabilities } = useChannelStateContext<StreamChatGenerics>(
-    'useReactionHandler',
-  );
+  const { updateMessage } =
+    useChannelActionContext<StreamChatGenerics>('useReactionHandler');
+  const { channel, channelCapabilities } =
+    useChannelStateContext<StreamChatGenerics>('useReactionHandler');
   const { client } = useChatContext<StreamChatGenerics>('useReactionHandler');
 
   const createMessagePreview = useCallback(
@@ -39,7 +42,10 @@ export const useReactionHandler = <
       if (add) {
         const timestamp = new Date().toISOString();
         newReactionGroups[reactionType] = hasReaction
-          ? { ...newReactionGroups[reactionType], count: newReactionGroups[reactionType].count + 1 }
+          ? {
+              ...newReactionGroups[reactionType],
+              count: newReactionGroups[reactionType].count + 1,
+            }
           : {
               count: 1,
               first_reaction_at: timestamp,
@@ -89,7 +95,9 @@ export const useReactionHandler = <
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
     if (!message || !channelCapabilities['send-reaction']) return;
 
-    const newReaction = createReactionPreview(type) as ReactionResponse<StreamChatGenerics>;
+    const newReaction = createReactionPreview(
+      type,
+    ) as ReactionResponse<StreamChatGenerics>;
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
@@ -120,13 +128,17 @@ export const useReactionHandler = <
       return console.warn(reactionHandlerWarning);
     }
 
-    let userExistingReaction = (null as unknown) as ReactionResponse<StreamChatGenerics>;
+    let userExistingReaction = null as unknown as ReactionResponse<StreamChatGenerics>;
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
         // own user should only ever contain the current user id
         // just in case we check to prevent bugs with message updates from breaking reactions
-        if (reaction.user && client.userID === reaction.user.id && reaction.type === reactionType) {
+        if (
+          reaction.user &&
+          client.userID === reaction.user.id &&
+          reaction.type === reactionType
+        ) {
           userExistingReaction = reaction;
         } else if (reaction.user && client.userID !== reaction.user.id) {
           console.warn(

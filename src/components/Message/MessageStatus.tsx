@@ -32,7 +32,7 @@ export type MessageStatusProps = {
 };
 
 const UnMemoizedMessageStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageStatusProps,
 ) => {
@@ -45,17 +45,14 @@ const UnMemoizedMessageStatus = <
     tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
 
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
+  const { handleEnter, handleLeave, tooltipVisible } =
+    useEnterLeaveHandlers<HTMLSpanElement>();
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
-  const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
-  const {
-    isMyMessage,
-    lastReceivedId,
-    message,
-    readBy,
-    threadList,
-  } = useMessageContext<StreamChatGenerics>('MessageStatus');
+  const { Avatar: contextAvatar } =
+    useComponentContext<StreamChatGenerics>('MessageStatus');
+  const { isMyMessage, lastReceivedId, message, readBy, threadList } =
+    useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
@@ -67,7 +64,8 @@ const UnMemoizedMessageStatus = <
   const rootClassName = `str-chat__message-${messageType}-status str-chat__message-status`;
 
   const sending = message.status === 'sending';
-  const delivered = message.status === 'received' && message.id === lastReceivedId && !threadList;
+  const delivered =
+    message.status === 'received' && message.id === lastReceivedId && !threadList;
   const deliveredAndRead = !!(readBy?.length && !threadList && !justReadByMe);
 
   const readersWithoutOwnUser = deliveredAndRead
@@ -154,4 +152,6 @@ const UnMemoizedMessageStatus = <
   );
 };
 
-export const MessageStatus = React.memo(UnMemoizedMessageStatus) as typeof UnMemoizedMessageStatus;
+export const MessageStatus = React.memo(
+  UnMemoizedMessageStatus,
+) as typeof UnMemoizedMessageStatus;

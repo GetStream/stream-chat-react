@@ -37,7 +37,9 @@ const handleReactionMock = jest.fn();
 const renderComponent = (props) =>
   render(
     <DialogManagerProvider>
-      <ComponentProvider value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}>
+      <ComponentProvider
+        value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}
+      >
         <MessageProvider value={{ message: generateMessage() }}>
           <ReactionSelector handleReaction={handleReactionMock} {...props} />
         </MessageProvider>

@@ -9,7 +9,7 @@ type PollStateSelectorReturnValue = {
   vote_counts_by_option: Record<string, number>;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({
@@ -22,13 +22,16 @@ export type PollResultOptionVoteCounterProps = {
 };
 
 export const PollResultOptionVoteCounter = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   optionId,
 }: PollResultOptionVoteCounterProps) => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext<StreamChatGenerics>();
-  const { maxVotedOptionIds, vote_counts_by_option } = useStateStore(poll.state, pollStateSelector);
+  const { maxVotedOptionIds, vote_counts_by_option } = useStateStore(
+    poll.state,
+    pollStateSelector,
+  );
 
   return (
     <div className='str-chat__poll-result-option-vote-counter'>
@@ -43,13 +46,13 @@ export const PollResultOptionVoteCounter = <
 };
 
 export type PollOptionWithVotesHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   option: PollOption<StreamChatGenerics>;
 };
 
 export const PollOptionWithVotesHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   option,
 }: PollOptionWithVotesHeaderProps<StreamChatGenerics>) => (

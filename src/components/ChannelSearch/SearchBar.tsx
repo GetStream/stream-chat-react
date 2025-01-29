@@ -65,7 +65,9 @@ export type AdditionalSearchBarProps = {
   SearchInputIcon?: React.ComponentType;
 };
 
-export type SearchBarProps = AdditionalSearchBarProps & SearchBarController & SearchInputProps;
+export type SearchBarProps = AdditionalSearchBarProps &
+  SearchBarController &
+  SearchInputProps;
 
 // todo: add context menu control logic
 export const SearchBar = (props: SearchBarProps) => {
@@ -142,7 +144,11 @@ export const SearchBar = (props: SearchBarProps) => {
   const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);
 
   return (
-    <div className='str-chat__channel-search-bar' data-testid='search-bar' ref={searchBarRef}>
+    <div
+      className='str-chat__channel-search-bar'
+      data-testid='search-bar'
+      ref={searchBarRef}
+    >
       {inputIsFocused ? (
         <SearchBarButton
           className='str-chat__channel-search-bar-button--exit-search'

@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import { LoadingChannels } from '../LoadingChannels';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('LoadingChannels', () => {
   it('should render component with default props', () => {

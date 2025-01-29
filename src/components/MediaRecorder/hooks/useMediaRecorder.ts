@@ -10,7 +10,7 @@ import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type RecordingController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   completeRecording: () => void;
   permissionState?: PermissionState;
@@ -20,7 +20,7 @@ export type RecordingController<
 };
 
 type UseMediaRecorderParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<
   MessageInputContextValue<StreamChatGenerics>,
   'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
@@ -31,7 +31,7 @@ type UseMediaRecorderParams<
 };
 
 export const useMediaRecorder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   asyncMessagesMultiSendEnabled,
   enabled,
@@ -42,7 +42,8 @@ export const useMediaRecorder = <
 }: UseMediaRecorderParams<StreamChatGenerics>): RecordingController<StreamChatGenerics> => {
   const { t } = useTranslationContext('useMediaRecorder');
 
-  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment<StreamChatGenerics>>();
+  const [recording, setRecording] =
+    useState<LocalVoiceRecordingAttachment<StreamChatGenerics>>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
   const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
@@ -81,8 +82,10 @@ export const useMediaRecorder = <
     if (!recorder) return;
     recorder.permission.watch();
     const recordingSubscription = recorder.recording.subscribe(setRecording);
-    const recordingStateSubscription = recorder.recordingState.subscribe(setRecordingState);
-    const permissionStateSubscription = recorder.permission.state.subscribe(setPermissionState);
+    const recordingStateSubscription =
+      recorder.recordingState.subscribe(setRecordingState);
+    const permissionStateSubscription =
+      recorder.permission.state.subscribe(setPermissionState);
 
     return () => {
       recorder.cancel();

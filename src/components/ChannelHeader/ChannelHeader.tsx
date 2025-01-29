@@ -28,19 +28,20 @@ export type ChannelHeaderProps = {
  * The ChannelHeader component renders some basic information about a Channel.
  */
 export const ChannelHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelHeaderProps,
 ) => {
   const {
     Avatar = DefaultAvatar,
-    MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
+    MenuIcon = DefaultMenuIcon,
     title: overrideTitle,
   } = props;
 
-  const { channel, watcher_count } = useChannelStateContext<StreamChatGenerics>('ChannelHeader');
+  const { channel, watcher_count } =
+    useChannelStateContext<StreamChatGenerics>('ChannelHeader');
   const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
@@ -70,7 +71,9 @@ export const ChannelHeader = <
         <p className='str-chat__channel-header-title'>
           {displayTitle}{' '}
           {live && (
-            <span className='str-chat__header-livestream-livelabel'>{t<string>('live')}</span>
+            <span className='str-chat__header-livestream-livelabel'>
+              {t<string>('live')}
+            </span>
           )}
         </p>
         {subtitle && <p className='str-chat__channel-header-subtitle'>{subtitle}</p>}

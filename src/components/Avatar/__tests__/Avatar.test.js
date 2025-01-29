@@ -9,7 +9,7 @@ const AVATAR_ROOT_TEST_ID = 'avatar';
 const AVATAR_FALLBACK_TEST_ID = 'avatar-fallback';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('Avatar', () => {
   it('should render component with default props', () => {
@@ -61,7 +61,9 @@ describe('Avatar', () => {
 
   it('should render initials as alt and title', () => {
     const name = 'Cherry Blossom';
-    const { getByAltText, getByTitle } = render(<Avatar image='randomImage' name={name} />);
+    const { getByAltText, getByTitle } = render(
+      <Avatar image='randomImage' name={name} />,
+    );
 
     expect(getByTitle(name)).toBeInTheDocument();
     expect(getByAltText(name[0])).toBeInTheDocument();
@@ -94,7 +96,9 @@ describe('Avatar', () => {
   });
 
   it('should render fallback initials on img error', () => {
-    const { getByTestId, queryByTestId } = render(<Avatar image='randomImage' name='Olive' />);
+    const { getByTestId, queryByTestId } = render(
+      <Avatar image='randomImage' name='Olive' />,
+    );
     const img = getByTestId(AVATAR_IMG_TEST_ID);
 
     expect(img).toBeInTheDocument();
@@ -105,7 +109,9 @@ describe('Avatar', () => {
   });
 
   it('should render new img on props change for errored img', () => {
-    const { getByTestId, queryByTestId, rerender } = render(<Avatar image='randomImage' />);
+    const { getByTestId, queryByTestId, rerender } = render(
+      <Avatar image='randomImage' />,
+    );
 
     fireEvent.error(getByTestId(AVATAR_IMG_TEST_ID));
     expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();

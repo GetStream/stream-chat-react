@@ -6,14 +6,14 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type CustomMessageActionsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   message: StreamMessage<StreamChatGenerics>;
   customMessageActions?: CustomMessageActions<StreamChatGenerics>;
 };
 
 export const CustomMessageActionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: CustomMessageActionsListProps<StreamChatGenerics>,
 ) => {

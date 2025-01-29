@@ -16,7 +16,8 @@ export interface ChannelsQueryState {
 
 export const useChannelsQueryState = (): ChannelsQueryState => {
   const [error, setError] = useState<ErrorFromResponse<APIErrorResponse> | null>(null);
-  const [queryInProgress, setQueryInProgress] = useState<ChannelQueryState>('uninitialized');
+  const [queryInProgress, setQueryInProgress] =
+    useState<ChannelQueryState>('uninitialized');
 
   return {
     error,

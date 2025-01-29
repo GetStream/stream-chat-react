@@ -9,7 +9,7 @@ import { getWholeChar } from '../../utils';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AvatarProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Custom root element class that will be merged with the default class */
   className?: string;
@@ -29,7 +29,7 @@ export type AvatarProps<
  * A round avatar image with fallback to username's first letter
  */
 export const Avatar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: AvatarProps<StreamChatGenerics>,
 ) => {
@@ -75,7 +75,10 @@ export const Avatar = <
       ) : (
         <>
           {!!initials.length && (
-            <div className={clsx('str-chat__avatar-fallback')} data-testid='avatar-fallback'>
+            <div
+              className={clsx('str-chat__avatar-fallback')}
+              data-testid='avatar-fallback'
+            >
               {initials}
             </div>
           )}

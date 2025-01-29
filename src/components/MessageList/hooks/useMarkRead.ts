@@ -9,7 +9,7 @@ import type { Channel, Event, MessageResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const hasReadLastMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   channel: Channel<StreamChatGenerics>,
   userId: string,
@@ -35,7 +35,7 @@ type UseMarkReadParams = {
  * @param wasChannelMarkedUnread
  */
 export const useMarkRead = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   isMessageListScrolledToBottom,
   messageListIsThread,
@@ -59,7 +59,8 @@ export const useMarkRead = <
     };
 
     const handleMessageNew = (event: Event<StreamChatGenerics>) => {
-      const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
+      const mainChannelUpdated =
+        !event.message?.parent_id || event.message?.show_in_channel;
 
       if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
         setChannelUnreadUiState((prev) => {
@@ -106,8 +107,11 @@ export const useMarkRead = <
 };
 
 function getPreviousLastMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(messages: StreamMessage<StreamChatGenerics>[], newMessage?: MessageResponse<StreamChatGenerics>) {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
+  messages: StreamMessage<StreamChatGenerics>[],
+  newMessage?: MessageResponse<StreamChatGenerics>,
+) {
   if (!newMessage) return;
   let previousLastMessage;
   for (let i = messages.length - 1; i >= 0; i--) {

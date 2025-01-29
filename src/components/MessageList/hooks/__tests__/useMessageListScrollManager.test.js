@@ -190,7 +190,8 @@ describe('useMessageListScrollManager', () => {
     const messages = generateMessages(20);
     const { rerender } = render(
       <ChatProvider value={{ client }}>
-        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />,
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
+        ,
       </ChatProvider>,
     );
 

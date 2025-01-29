@@ -12,14 +12,19 @@ import { DefaultStreamChatGenerics } from '../../types/types';
 import { ReactionSort } from 'stream-chat';
 
 type ReactionsListModalProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ModalProps &
   Partial<
-    Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions' | 'reactionDetailsSort'>
+    Pick<
+      MessageContextValue<StreamChatGenerics>,
+      'handleFetchReactions' | 'reactionDetailsSort'
+    >
   > & {
     reactions: ReactionSummary[];
     selectedReactionType: ReactionType<StreamChatGenerics>;
-    onSelectedReactionTypeChange?: (reactionType: ReactionType<StreamChatGenerics>) => void;
+    onSelectedReactionTypeChange?: (
+      reactionType: ReactionType<StreamChatGenerics>,
+    ) => void;
     sort?: ReactionSort<StreamChatGenerics>;
     /** @deprecated use `sort` instead */
     sortReactionDetails?: ReactionDetailsComparator<StreamChatGenerics>;
@@ -28,7 +33,7 @@ type ReactionsListModalProps<
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
 export function ReactionsListModal<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   handleFetchReactions,
   onSelectedReactionTypeChange,
@@ -49,15 +54,13 @@ export function ReactionsListModal<
   const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
-  const {
-    isLoading: areReactionsLoading,
-    reactions: reactionDetails,
-  } = useFetchReactions<StreamChatGenerics>({
-    handleFetchReactions,
-    reactionType: selectedReactionType,
-    shouldFetch: modalProps.open,
-    sort: reactionDetailsSort,
-  });
+  const { isLoading: areReactionsLoading, reactions: reactionDetails } =
+    useFetchReactions<StreamChatGenerics>({
+      handleFetchReactions,
+      reactionType: selectedReactionType,
+      shouldFetch: modalProps.open,
+      sort: reactionDetailsSort,
+    });
 
   const reactionDetailsWithLegacyFallback = useMemo(
     () =>
@@ -72,7 +75,10 @@ export function ReactionsListModal<
       {...modalProps}
       className={clsx('str-chat__message-reactions-details-modal', modalProps.className)}
     >
-      <div className='str-chat__message-reactions-details' data-testid='reactions-list-modal'>
+      <div
+        className='str-chat__message-reactions-details'
+        data-testid='reactions-list-modal'
+      >
         <div className='str-chat__message-reactions-details-reaction-types'>
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
@@ -85,14 +91,18 @@ export function ReactionsListModal<
                   data-testid={`reaction-details-selector-${reactionType}`}
                   key={reactionType}
                   onClick={() =>
-                    onSelectedReactionTypeChange?.(reactionType as ReactionType<StreamChatGenerics>)
+                    onSelectedReactionTypeChange?.(
+                      reactionType as ReactionType<StreamChatGenerics>,
+                    )
                   }
                 >
                   <span className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
                     <EmojiComponent />
                   </span>
                   &nbsp;
-                  <span className='str-chat__message-reaction-count'>{reactionCount}</span>
+                  <span className='str-chat__message-reaction-count'>
+                    {reactionCount}
+                  </span>
                 </div>
               ),
           )}
@@ -110,14 +120,20 @@ export function ReactionsListModal<
             <LoadingIndicator />
           ) : (
             reactionDetailsWithLegacyFallback.map(({ user }) => (
-              <div className='str-chat__message-reactions-details-reacting-user' key={user?.id}>
+              <div
+                className='str-chat__message-reactions-details-reacting-user'
+                key={user?.id}
+              >
                 <Avatar
                   className='stream-chat__avatar--reaction'
                   data-testid='avatar'
                   image={user?.image as string | undefined}
                   name={user?.name || user?.id}
                 />
-                <span className='str-chat__user-item--name' data-testid='reaction-user-username'>
+                <span
+                  className='str-chat__user-item--name'
+                  data-testid='reaction-user-username'
+                >
                   {user?.name || user?.id}
                 </span>
               </div>

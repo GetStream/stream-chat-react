@@ -5,7 +5,7 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useConnectionRecoveredListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   forceUpdate?: () => void,
 ) => {

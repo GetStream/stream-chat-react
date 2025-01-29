@@ -7,7 +7,7 @@ import { MML } from '../MML';
 import { ChatProvider } from '../../../context/ChatContext';
 import { MessageProvider } from '../../../context/MessageContext';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 const renderComponent = async ({ chatCtx = {}, messageCtx = {}, mmlProps }) => {
   let result;

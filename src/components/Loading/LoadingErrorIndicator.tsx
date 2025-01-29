@@ -16,9 +16,7 @@ const UnMemoizedLoadingErrorIndicator = ({ error }: LoadingErrorIndicatorProps) 
   if (!error) return null;
 
   return (
-    <div>
-      {t<string>('Error: {{ errorMessage }}', { errorMessage: error.message })}
-    </div>
+    <div>{t<string>('Error: {{ errorMessage }}', { errorMessage: error.message })}</div>
   );
 };
 

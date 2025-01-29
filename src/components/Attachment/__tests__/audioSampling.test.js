@@ -15,7 +15,9 @@ describe('amplitude sampling', () => {
     });
 
     it('should return original values if the original sample size equals the target', () => {
-      expect(upSample(originalSample, originalSample.length)).toHaveLength(originalSample.length);
+      expect(upSample(originalSample, originalSample.length)).toHaveLength(
+        originalSample.length,
+      );
     });
 
     it('should fill each bucket to reach the target sample size', () => {
@@ -35,7 +37,9 @@ describe('amplitude sampling', () => {
     });
 
     it('should return original values if the original sample size equals the target', () => {
-      expect(downSample(originalSample, originalSample.length)).toHaveLength(originalSample.length);
+      expect(downSample(originalSample, originalSample.length)).toHaveLength(
+        originalSample.length,
+      );
     });
 
     it('should return a mean of original values if the target output size is 1', () => {

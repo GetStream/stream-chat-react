@@ -52,7 +52,9 @@ export const useAudioController = ({
     clearTimeout(playTimeout.current);
     playTimeout.current = undefined;
     if (mimeType && !audioRef.current.canPlayType(mimeType)) {
-      registerError(new Error(t('Recording format is not supported and cannot be reproduced')));
+      registerError(
+        new Error(t('Recording format is not supported and cannot be reproduced')),
+      );
       setCanPlayRecord(false);
       return;
     }
@@ -149,7 +151,9 @@ export const useAudioController = ({
     playbackError,
     playbackRate: playbackRates[playbackRateIndex],
     progress:
-      audioRef.current && secondsElapsed ? (secondsElapsed / audioRef.current.duration) * 100 : 0,
+      audioRef.current && secondsElapsed
+        ? (secondsElapsed / audioRef.current.duration) * 100
+        : 0,
     secondsElapsed,
     seek,
     togglePlay,

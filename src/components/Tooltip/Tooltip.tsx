@@ -21,8 +21,8 @@ export type PopperTooltipProps<T extends HTMLElement> = React.PropsWithChildren<
 export const PopperTooltip = <T extends HTMLElement>({
   children,
   offset = [0, 10],
-  referenceElement,
   placement = 'top',
+  referenceElement,
   visible = false,
 }: PopperTooltipProps<T>) => {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);

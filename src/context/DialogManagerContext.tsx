@@ -10,7 +10,10 @@ const DialogManagerProviderContext = React.createContext<
   DialogManagerProviderContextValue | undefined
 >(undefined);
 
-export const DialogManagerProvider = ({ children, id }: PropsWithChildren<{ id?: string }>) => {
+export const DialogManagerProvider = ({
+  children,
+  id,
+}: PropsWithChildren<{ id?: string }>) => {
   const [dialogManager] = useState<DialogManager>(() => new DialogManager({ id }));
 
   return (

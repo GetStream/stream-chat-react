@@ -12,10 +12,10 @@ export const generateChannel = (options = { channel: {} }) => {
     messages: [],
     pinnedMessages: [],
     ...optionsBesidesChannel,
-    // eslint-disable-next-line sort-keys
+
     channel: {
       cid: `${type}:${id}`,
-      // eslint-disable-next-line sort-keys
+
       config: {
         automod: 'disabled',
         automod_behavior: 'flag',

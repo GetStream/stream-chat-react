@@ -6,7 +6,9 @@ import { useChatContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamChatGenerics> = {
+export type ChannelPreviewInfoParams<
+  StreamChatGenerics extends DefaultStreamChatGenerics,
+> = {
   channel: Channel<StreamChatGenerics>;
   /** Manually set the image to render, defaults to the Channel image */
   overrideImage?: string;
@@ -15,7 +17,7 @@ export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamCha
 };
 
 export const useChannelPreviewInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewInfoParams<StreamChatGenerics>,
 ) => {

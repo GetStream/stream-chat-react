@@ -50,7 +50,9 @@ describe('MessageDeleted component', () => {
 
   it('should not set specific css class when message is not from current user', async () => {
     const { queryByTestId } = await renderComponent(generateMessage({ user: bob }));
-    expect(queryByTestId(messageDeletedTestId).className).not.toContain(ownMessageCssClass);
+    expect(queryByTestId(messageDeletedTestId).className).not.toContain(
+      ownMessageCssClass,
+    );
   });
 
   it('should set specific css class based on message type', async () => {

@@ -8,7 +8,12 @@ export type ConfirmationDialogProps = {
   title?: string;
 };
 
-export const PromptDialog = ({ actions, className, prompt, title }: ConfirmationDialogProps) => (
+export const PromptDialog = ({
+  actions,
+  className,
+  prompt,
+  title,
+}: ConfirmationDialogProps) => (
   <div className={clsx('str-chat__dialog str-chat__dialog--prompt', className)}>
     <div className='str-chat__dialog__body'>
       {title && <div className='str-chat__dialog__title'>{title}</div>}

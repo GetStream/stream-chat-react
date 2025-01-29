@@ -18,7 +18,7 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const useEnrichedMessages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(args: {
   channel: Channel<StreamChatGenerics>;
   disableDateSeparator: boolean;
@@ -51,7 +51,8 @@ export const useEnrichedMessages = <
   } = args;
 
   const { client } = useChatContext<StreamChatGenerics>('useEnrichedMessages');
-  const { HeaderComponent } = useComponentContext<StreamChatGenerics>('useEnrichedMessages');
+  const { HeaderComponent } =
+    useComponentContext<StreamChatGenerics>('useEnrichedMessages');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 

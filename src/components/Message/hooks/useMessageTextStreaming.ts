@@ -4,7 +4,7 @@ import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { StreamedMessageTextProps } from '../StreamedMessageText';
 
 export type UseMessageTextStreamingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<
   StreamedMessageTextProps<StreamChatGenerics>,
   'streamingLetterIntervalMs' | 'renderingLetterCount'
@@ -22,10 +22,10 @@ const DEFAULT_RENDERING_LETTER_COUNT = 2;
  * @returns {{ streamedMessageText: string }} - A substring of the text property, up until we've finished rendering the typewriter animation.
  */
 export const useMessageTextStreaming = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
-  streamingLetterIntervalMs = DEFAULT_LETTER_INTERVAL,
   renderingLetterCount = DEFAULT_RENDERING_LETTER_COUNT,
+  streamingLetterIntervalMs = DEFAULT_LETTER_INTERVAL,
   text,
 }: UseMessageTextStreamingProps<StreamChatGenerics>): { streamedMessageText: string } => {
   const [streamedMessageText, setStreamedMessageText] = useState<string>(text);

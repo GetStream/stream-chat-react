@@ -7,7 +7,9 @@ export type CustomNotificationProps = {
   className?: string;
 };
 
-const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificationProps>) => {
+const UnMemoizedCustomNotification = (
+  props: PropsWithChildren<CustomNotificationProps>,
+) => {
   const { active, children, className, type } = props;
 
   if (!active) return null;

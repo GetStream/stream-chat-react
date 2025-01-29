@@ -36,7 +36,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
         options: [{ id: nanoid(), text: '' }],
         user_id: client.user?.id,
         voting_visibility: 'public',
-      } as PollFormState),
+      }) as PollFormState,
   );
 
   return (
@@ -123,13 +123,19 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                     id='max_votes_allowed'
                     onChange={(e) => {
                       const isValidValue =
-                        !e.target.value || e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX);
+                        !e.target.value ||
+                        e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX);
                       if (!isValidValue) {
-                        setMultipleAnswerCountError(t<string>('Type a number from 2 to 10'));
+                        setMultipleAnswerCountError(
+                          t<string>('Type a number from 2 to 10'),
+                        );
                       } else if (multipleAnswerCountError) {
                         setMultipleAnswerCountError(undefined);
                       }
-                      setState((prev) => ({ ...prev, max_votes_allowed: e.target.value }));
+                      setState((prev) => ({
+                        ...prev,
+                        max_votes_allowed: e.target.value,
+                      }));
                     }}
                     placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
                     type='number'
@@ -146,7 +152,9 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             onChange={(e) =>
               setState((prev) => ({
                 ...prev,
-                voting_visibility: (e.target.checked ? 'anonymous' : 'public') as VotingVisibility,
+                voting_visibility: (e.target.checked
+                  ? 'anonymous'
+                  : 'public') as VotingVisibility,
               }))
             }
           />
@@ -155,14 +163,19 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             id='allow_user_suggested_options'
             labelText={t<string>('Allow option suggestion')}
             onChange={(e) =>
-              setState((prev) => ({ ...prev, allow_user_suggested_options: e.target.checked }))
+              setState((prev) => ({
+                ...prev,
+                allow_user_suggested_options: e.target.checked,
+              }))
             }
           />
           <SimpleSwitchField
             checked={state.allow_answers}
             id='allow_answers'
             labelText={t<string>('Allow comments')}
-            onChange={(e) => setState((prev) => ({ ...prev, allow_answers: e.target.checked }))}
+            onChange={(e) =>
+              setState((prev) => ({ ...prev, allow_answers: e.target.checked }))
+            }
           />
         </form>
       </div>

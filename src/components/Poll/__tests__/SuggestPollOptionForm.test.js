@@ -60,7 +60,9 @@ describe('SuggestPollOptionForm', () => {
     });
 
     await waitFor(() => {
-      expect(createPollOptionSpy).toHaveBeenCalledWith(poll.id, { text: newlyTypedValue });
+      expect(createPollOptionSpy).toHaveBeenCalledWith(poll.id, {
+        text: newlyTypedValue,
+      });
       expect(castVoteSpy).toHaveBeenCalledWith(createdPollOptionId, messageId);
     });
   });

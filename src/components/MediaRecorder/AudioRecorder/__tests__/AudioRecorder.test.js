@@ -59,7 +59,9 @@ const DEFAULT_RENDER_PARAMS = {
 
 window.ResizeObserver = ResizeObserverMock;
 
-jest.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 120 });
+jest
+  .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
+  .mockReturnValue({ width: 120 });
 
 const renderComponent = async ({
   channelActionCtx,
@@ -80,12 +82,18 @@ const renderComponent = async ({
           ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
         }}
       >
-        <ComponentProvider value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}>
+        <ComponentProvider
+          value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
+        >
           <ChannelActionProvider
             value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
           >
             <ChannelStateProvider
-              value={{ channel, ...DEFAULT_RENDER_PARAMS.channelStateCtx, ...channelStateCtx }}
+              value={{
+                channel,
+                ...DEFAULT_RENDER_PARAMS.channelStateCtx,
+                ...channelStateCtx,
+              }}
             >
               <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
             </ChannelStateProvider>
@@ -116,13 +124,10 @@ window.navigator.permissions = {
   query: jest.fn(),
 };
 
-// eslint-disable-next-line
 window.MediaRecorder = MediaRecorderMock;
 
-// eslint-disable-next-line
 window.AudioContext = AudioContextMock;
 
-// eslint-disable-next-line
 window.AnalyserNode = AnalyserNodeMock;
 
 const fileObjectURL = 'fileObjectURL';
@@ -141,13 +146,17 @@ describe('MessageInput', () => {
 
   it('does not render start recording button if disabled', async () => {
     await renderComponent({ props: { audioRecordingEnabled: false } });
-    expect(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('does not render start recording button if navigator.mediaDevices is undefined', async () => {
     window.navigator.mediaDevices = undefined;
     await renderComponent();
-    expect(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('renders start recording button when enabled and message input is empty', async () => {
@@ -201,7 +210,11 @@ describe('MessageInput', () => {
     expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
   });
 
-  it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING, MediaRecordingState.STOPPED])(
+  it.each([
+    MediaRecordingState.PAUSED,
+    MediaRecordingState.RECORDING,
+    MediaRecordingState.STOPPED,
+  ])(
     'renders message composer when recording cancelled while recording in state %s',
     async (state) => {
       const { container } = await renderComponent();
@@ -374,7 +387,9 @@ const renderAudioRecorder = (controller = {}) =>
   render(
     <ChannelActionProvider value={{}}>
       <MessageInputContextProvider
-        value={{ recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller } }}
+        value={{
+          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+        }}
       >
         <AudioRecorder />
       </MessageInputContextProvider>
@@ -426,7 +441,9 @@ describe('AudioRecorder', () => {
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({
-      recording: generateVoiceRecordingAttachment({ localMetadata: { uploadState: 'uploading' } }),
+      recording: generateVoiceRecordingAttachment({
+        localMetadata: { uploadState: 'uploading' },
+      }),
       recordingState: MediaRecordingState.STOPPED,
     });
     expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();

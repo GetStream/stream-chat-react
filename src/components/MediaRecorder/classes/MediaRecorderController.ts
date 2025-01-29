@@ -80,7 +80,7 @@ export enum RecordingAttachmentType {
 }
 
 export class MediaRecorderController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
@@ -101,9 +101,9 @@ export class MediaRecorderController<
     | undefined;
 
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
-  recording = new BehaviorSubject<LocalVoiceRecordingAttachment<StreamChatGenerics> | undefined>(
-    undefined,
-  );
+  recording = new BehaviorSubject<
+    LocalVoiceRecordingAttachment<StreamChatGenerics> | undefined
+  >(undefined);
   error = new Subject<Error | undefined>();
   notification = new Subject<{ text: string; type: 'success' | 'error' } | undefined>();
 
@@ -243,7 +243,10 @@ export class MediaRecorderController<
     this.amplitudeRecorder?.close();
     if (this.mediaRecorder) {
       disposeOfMediaStream(this.mediaRecorder.stream);
-      this.mediaRecorder.removeEventListener('dataavailable', this.handleDataavailableEvent);
+      this.mediaRecorder.removeEventListener(
+        'dataavailable',
+        this.handleDataavailableEvent,
+      );
       this.mediaRecorder.removeEventListener('error', this.handleErrorEvent);
     }
   };
@@ -349,9 +352,11 @@ export class MediaRecorderController<
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
     }
-    const result = new Promise<LocalVoiceRecordingAttachment<StreamChatGenerics>>((res) => {
-      this.signalRecordingReady = res;
-    });
+    const result = new Promise<LocalVoiceRecordingAttachment<StreamChatGenerics>>(
+      (res) => {
+        this.signalRecordingReady = res;
+      },
+    );
     this.mediaRecorder?.stop();
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.STOPPED);

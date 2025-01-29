@@ -46,7 +46,10 @@ describe(`renderText`, () => {
 
   it('renders custom mention', () => {
     const CustomMention = (props) => (
-      <span className='my-mention' data-node-mentioned-user-id={props.node.mentionedUser.id}>
+      <span
+        className='my-mention'
+        data-node-mentioned-user-id={props.node.mentionedUser.id}
+      >
         {props.children}
       </span>
     );
@@ -156,7 +159,8 @@ describe(`renderText`, () => {
   });
 
   it('allows to merge custom rehype plugins followed by default rehype plugins', () => {
-    const customPlugin = () => (tree) => findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
+    const customPlugin = () => (tree) =>
+      findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
     const Markdown = renderText(
       '@username@email.com',
@@ -182,7 +186,8 @@ describe(`renderText`, () => {
   });
 
   it('allows to merge default rehype plugins followed by custom rehype plugins', () => {
-    const customPlugin = () => (tree) => findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
+    const customPlugin = () => (tree) =>
+      findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [...defaultPlugins, customPlugin];
     const Markdown = renderText(
       '@username@email.com',
@@ -237,15 +242,23 @@ describe(`renderText`, () => {
     const customPlugin = () => (tree) =>
       findAndReplace(tree, [new RegExp(strikeThroughText), replace]);
 
-    const getRemarkPluginsFirstCustom = (defaultPlugins) => [customPlugin, ...defaultPlugins];
-    const getRemarkPluginsFirstDefault = (defaultPlugins) => [...defaultPlugins, customPlugin];
-    [getRemarkPluginsFirstCustom, getRemarkPluginsFirstDefault].forEach((getRemarkPlugins) => {
-      const Markdown = renderText(strikeThroughText, [], {
-        getRemarkPlugins,
-      });
-      const { container } = render(Markdown);
-      expect(container.innerHTML).toBe('<p><del>xxx</del></p>');
-    });
+    const getRemarkPluginsFirstCustom = (defaultPlugins) => [
+      customPlugin,
+      ...defaultPlugins,
+    ];
+    const getRemarkPluginsFirstDefault = (defaultPlugins) => [
+      ...defaultPlugins,
+      customPlugin,
+    ];
+    [getRemarkPluginsFirstCustom, getRemarkPluginsFirstDefault].forEach(
+      (getRemarkPlugins) => {
+        const Markdown = renderText(strikeThroughText, [], {
+          getRemarkPlugins,
+        });
+        const { container } = render(Markdown);
+        expect(container.innerHTML).toBe('<p><del>xxx</del></p>');
+      },
+    );
   });
 
   it('allows to render custom elements', () => {

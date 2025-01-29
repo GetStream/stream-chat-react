@@ -57,10 +57,7 @@ export default tseslint.config(
       'object-shorthand': 'warn',
       'prefer-const': 'warn',
       'require-await': 'error',
-      "sort-destructure-keys/sort-destructure-keys": [
-      	"error",
-      	{ caseSensitive: false },
-      ],
+      'sort-destructure-keys/sort-destructure-keys': ['error', { caseSensitive: false }],
       'sort-imports': [
         'error',
         {

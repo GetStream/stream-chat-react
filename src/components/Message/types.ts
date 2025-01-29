@@ -20,7 +20,7 @@ export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<voi
 
 export type MessageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
@@ -41,17 +41,29 @@ export type MessageProps<
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
-  getDeleteMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getDeleteMessageErrorNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when loading message reactions fails */
-  getFetchReactionsErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getFetchReactionsErrorNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
-  getFlagMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getFlagMessageErrorNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
-  getFlagMessageSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getFlagMessageSuccessNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when mark channel messages unread request fails */
-  getMarkMessageUnreadErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getMarkMessageUnreadErrorNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when mark channel messages unread request succeeds */
-  getMarkMessageUnreadSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getMarkMessageUnreadSuccessNotification?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => string;
   /** Function that returns the notification text to be displayed when a mute user request fails */
   getMuteUserErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request succeeds */
@@ -113,11 +125,11 @@ export type MessageProps<
 };
 
 export type MessageUIComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<MessageContextValue<StreamChatGenerics>>;
 
 export type PinIndicatorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   message?: StreamMessage<StreamChatGenerics>;
   t?: TFunction;

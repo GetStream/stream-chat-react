@@ -16,9 +16,12 @@ export interface ReactionSummary {
 export type ReactionsComparator = (a: ReactionSummary, b: ReactionSummary) => number;
 
 export type ReactionDetailsComparator<
-  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
-> = (a: ReactionResponse<StreamChatGenerics>, b: ReactionResponse<StreamChatGenerics>) => number;
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics,
+> = (
+  a: ReactionResponse<StreamChatGenerics>,
+  b: ReactionResponse<StreamChatGenerics>,
+) => number;
 
 export type ReactionType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ReactionResponse<StreamChatGenerics>['type'];

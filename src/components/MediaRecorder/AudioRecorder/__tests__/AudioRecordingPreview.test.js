@@ -9,7 +9,8 @@ const PLAY_ICON_TEST_ID = 'str-chat__play-icon';
 const PAUSE_ICON_TEST_ID = 'str-chat__pause-icon';
 const WAVE_PROGRESS_BAR_TEST_ID = 'wave-progress-bar-track';
 const TIMER_CLASS_SELECTOR = '.str-chat__recording-timer';
-const WAVE_PROGRESS_BAR_INDICATOR_SELECTOR = '.str-chat__wave-progress-bar__progress-indicator';
+const WAVE_PROGRESS_BAR_INDICATOR_SELECTOR =
+  '.str-chat__wave-progress-bar__progress-indicator';
 
 const togglePlay = async () => {
   await act(async () => {

@@ -5,16 +5,20 @@ import '@testing-library/jest-dom';
 
 import { CustomNotification } from '../CustomNotification';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('CustomNotification', () => {
   it('should render nothing if active is false', () => {
-    const { container } = render(<CustomNotification active={false}>test</CustomNotification>);
+    const { container } = render(
+      <CustomNotification active={false}>test</CustomNotification>,
+    );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should render children when active', () => {
-    const { container } = render(<CustomNotification active={true}>children</CustomNotification>);
+    const { container } = render(
+      <CustomNotification active={true}>children</CustomNotification>,
+    );
     expect(container).toMatchInlineSnapshot(`
       <div>
         <div

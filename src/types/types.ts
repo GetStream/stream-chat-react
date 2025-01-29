@@ -41,7 +41,7 @@ export type DefaultChannelType = UnknownType & {
 };
 
 export type DefaultMessageType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = UnknownType & {
   customType?: CustomMessageType;
   date?: string | Date;
@@ -57,7 +57,7 @@ export type DefaultUserTypeInternal = {
 };
 
 export type DefaultUserType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = UnknownType &
   DefaultUserTypeInternal & {
     mutes?: Array<Mute<StreamChatGenerics>>;
@@ -135,7 +135,7 @@ export type VideoAttachmentSizeHandler = (
 ) => VideoAttachmentConfiguration;
 
 export type ChannelUnreadUiState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
 
 // todo: fix export from stream-chat - for some reason not exported

@@ -48,7 +48,6 @@ describe('AttachmentActions', () => {
     fireEvent.click(getByTestId(actions[1].name));
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(actionHandler).toHaveBeenCalledTimes(2);
     });
   });

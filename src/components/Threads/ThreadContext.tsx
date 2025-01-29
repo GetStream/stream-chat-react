@@ -15,7 +15,10 @@ export const useThreadContext = () => {
   return thread ?? undefined;
 };
 
-export const ThreadProvider = ({ children, thread }: PropsWithChildren<{ thread?: Thread }>) => (
+export const ThreadProvider = ({
+  children,
+  thread,
+}: PropsWithChildren<{ thread?: Thread }>) => (
   <ThreadContext.Provider value={thread}>
     <Channel channel={thread?.channel}>{children}</Channel>
   </ThreadContext.Provider>

@@ -15,14 +15,17 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 
 export type ReactionSelectorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
   /** If true, shows the user's avatar with the reaction */
   detailedView?: boolean;
   /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
-  handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
+  handleReaction?: (
+    reactionType: string,
+    event: React.BaseSyntheticEvent,
+  ) => Promise<void>;
   /** An array of the reaction objects to display in the list */
   latest_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An array of the own reaction objects to distinguish own reactions visually */
@@ -44,7 +47,7 @@ export type ReactionSelectorProps<
 };
 
 const UnMemoizedReactionSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ReactionSelectorProps<StreamChatGenerics>,
 ) => {
@@ -106,7 +109,9 @@ const UnMemoizedReactionSelector = <
     const tooltip = tooltipRef.current?.getBoundingClientRect();
     const target = targetRef.current?.getBoundingClientRect();
 
-    const container = isMutableRef(rootRef) ? rootRef.current?.getBoundingClientRect() : null;
+    const container = isMutableRef(rootRef)
+      ? rootRef.current?.getBoundingClientRect()
+      : null;
 
     if (!tooltip || !target || !container) return;
 
@@ -179,9 +184,8 @@ const UnMemoizedReactionSelector = <
                 className={clsx(
                   'str-chat__message-reactions-list-item str-chat__message-reactions-option',
                   {
-                    'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
-                      reactionType,
-                    ),
+                    'str-chat__message-reactions-option-selected':
+                      iHaveReactedWithReaction(reactionType),
                   },
                 )}
                 data-testid='select-reaction-button'
