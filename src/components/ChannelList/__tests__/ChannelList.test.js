@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
+import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -23,6 +24,8 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  initClientWithChannels,
+  mockTranslationContext,
   queryChannelsApi,
   queryUsersApi,
   useMockedApis,
@@ -41,9 +44,9 @@ import {
   TranslationContext,
   useChannelListContext,
   useChatContext,
+  WithComponents,
 } from '../../../context';
 import { ChannelListMessenger } from '../ChannelListMessenger';
-import { initClientWithChannels, mockTranslationContext } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
@@ -124,6 +127,7 @@ describe('ChannelList', () => {
             client: chatClient,
             closeMobileNav,
             navOpen: true,
+            searchController: new SearchController(),
           }}
         >
           <ChannelList {...props} />
@@ -154,6 +158,7 @@ describe('ChannelList', () => {
             client: chatClient,
             closeMobileNav,
             navOpen: false,
+            searchController: new SearchController(),
           }}
         >
           <ChannelList {...props} />
@@ -305,6 +310,25 @@ describe('ChannelList', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('renders Search component if searchController state indicates active search', async () => {
+    const searchController = new SearchController();
+    const searchTestId = 'search-test-id';
+    const Search = () => <div data-testid={searchTestId} />;
+    const client = await getTestClientWithUser({ id: 'userId' });
+
+    render(
+      <Chat client={client} searchController={searchController}>
+        <WithComponents overrides={{ Search }}>
+          <ChannelList showChannelSearch />
+        </WithComponents>
+      </Chat>,
+    );
+    await act(() => {
+      searchController.activate();
+    });
+    expect(screen.getByTestId(searchTestId)).toBeInTheDocument();
   });
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
@@ -518,6 +542,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -549,6 +574,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -578,6 +604,7 @@ describe('ChannelList', () => {
           value={{
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
+            searchController: new SearchController(),
             setActiveChannel,
           }}
         >
@@ -647,6 +674,7 @@ describe('ChannelList', () => {
               <ChatContext.Provider
                 value={{
                   channelsQueryState: channelsQueryStateMock,
+                  searchController: new SearchController(),
                   setActiveChannel,
                   ...chatContext,
                 }}
@@ -1339,6 +1367,7 @@ describe('ChannelList', () => {
             value={{
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
+              searchController: new SearchController(),
               setActiveChannel,
             }}
           >
@@ -1405,6 +1434,7 @@ describe('ChannelList', () => {
             value={{
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
+              searchController: new SearchController(),
               setActiveChannel,
             }}
           >

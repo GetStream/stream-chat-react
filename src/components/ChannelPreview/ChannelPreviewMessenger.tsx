@@ -4,8 +4,9 @@ import clsx from 'clsx';
 import { ChannelPreviewActionButtons as DefaultChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useComponentContext } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedChannelPreviewMessenger = <
   SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -14,7 +15,7 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar = DefaultAvatar,
+    Avatar: PropsAvatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
@@ -27,8 +28,10 @@ const UnMemoizedChannelPreviewMessenger = <
     watchers,
   } = props;
 
-  const { ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons } =
-    useComponentContext<SCG>();
+  const {
+    ChannelAvatar,
+    ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons,
+  } = useComponentContext<SCG>();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -45,6 +48,8 @@ const UnMemoizedChannelPreviewMessenger = <
       channelPreviewButton.current.blur();
     }
   };
+
+  const Avatar = ChannelAvatar ?? PropsAvatar;
 
   return (
     <div className='str-chat__channel-preview-container'>

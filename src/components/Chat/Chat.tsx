@@ -1,4 +1,11 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useMemo } from 'react';
+import type { StreamChat } from 'stream-chat';
+import {
+  ChannelSearchSource,
+  MessageSearchSource,
+  SearchController,
+  UserSearchSource,
+} from 'stream-chat';
 
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
@@ -7,12 +14,10 @@ import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 
-import type { StreamChat } from 'stream-chat';
-
+import type { MessageContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { MessageContextValue } from '../../context';
 
 export type ChatProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -27,6 +32,8 @@ export type ChatProps<
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
   initialNavOpen?: boolean;
+  /** Instance of SearchController class that allows to control all the search operations. */
+  searchController?: SearchController<StreamChatGenerics>;
   /** Used for injecting className/s to the Channel and ChannelList components */
   theme?: string;
   /**
@@ -56,6 +63,7 @@ export const Chat = <
     i18nInstance,
     initialNavOpen = true,
     isMessageAIGenerated,
+    searchController: customChannelSearchController,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
   } = props;
@@ -74,7 +82,20 @@ export const Chat = <
 
   const channelsQueryState = useChannelsQueryState();
 
-  const chatContextValue = useCreateChatContext({
+  const searchController = useMemo(
+    () =>
+      customChannelSearchController ??
+      new SearchController<StreamChatGenerics>({
+        sources: [
+          new ChannelSearchSource<StreamChatGenerics>(client),
+          new UserSearchSource<StreamChatGenerics>(client),
+          new MessageSearchSource<StreamChatGenerics>(client),
+        ],
+      }),
+    [client, customChannelSearchController],
+  );
+
+  const chatContextValue = useCreateChatContext<StreamChatGenerics>({
     channel,
     channelsQueryState,
     client,
@@ -86,6 +107,7 @@ export const Chat = <
     mutes,
     navOpen,
     openMobileNav,
+    searchController,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,

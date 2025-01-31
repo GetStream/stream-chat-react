@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
+import { SearchController } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -181,6 +182,7 @@ describe('Channel', () => {
             setQueryInProgress: jest.fn(),
           },
           client: chatClient,
+          searchController: new SearchController(),
         }}
       >
         <Channel channel={channel}>{childrenContent}</Channel>

@@ -19,6 +19,7 @@ export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
     distanceFromTop: number,
     threshold: number,
   ) => void;
+  loadNextDebounceMs?: number;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
   /** Offset from when to start the loadNextPage call */
@@ -33,6 +34,7 @@ export const InfiniteScrollPaginator = (
     children,
     className,
     listenToScroll,
+    loadNextDebounceMs = 500,
     loadNextOnScrollToBottom,
     loadNextOnScrollToTop,
     threshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
@@ -67,8 +69,14 @@ export const InfiniteScrollPaginator = (
         if (distanceFromBottom < Number(threshold)) {
           loadNextOnScrollToBottom?.();
         }
-      }, 500),
-    [listenToScroll, loadNextOnScrollToBottom, loadNextOnScrollToTop, threshold],
+      }, loadNextDebounceMs),
+    [
+      listenToScroll,
+      loadNextDebounceMs,
+      loadNextOnScrollToBottom,
+      loadNextOnScrollToTop,
+      threshold,
+    ],
   );
 
   useEffect(() => {

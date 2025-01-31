@@ -8,6 +8,10 @@ import {
   CustomQueryChannelsFn,
   usePaginatedChannels,
 } from './hooks/usePaginatedChannels';
+import {
+  useChannelListShape,
+  usePrepareShapeHandlers,
+} from './hooks/useChannelListShape';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -27,8 +31,13 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { NullComponent } from '../UtilityComponents';
 
-import { ChannelListContextProvider, ChatContextValue } from '../../context';
+import {
+  ChannelListContextProvider,
+  ChatContextValue,
+  useComponentContext,
+} from '../../context';
 import { useChatContext } from '../../context/ChatContext';
+import { useStateStore } from '../../store';
 
 import type {
   Channel,
@@ -36,18 +45,19 @@ import type {
   ChannelOptions,
   ChannelSort,
   Event,
+  SearchControllerState,
 } from 'stream-chat';
 import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
-import {
-  useChannelListShape,
-  usePrepareShapeHandlers,
-} from './hooks/useChannelListShape';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
+
+const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
+  searchIsActive: nextValue.isActive,
+});
 
 export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -219,14 +229,21 @@ const UnMemoizedChannelList = <
     closeMobileNav,
     customClasses,
     navOpen = false,
+    searchController,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext<SCG>('ChannelList');
-
+  const { Search } = useComponentContext<SCG>(); // FIXME: us component context to retrieve ChannelPreview UI components too
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
+
+  // Indicator relevant when Search component that relies on SearchController is used
+  const { searchIsActive } = useStateStore(
+    searchController.state,
+    searchControllerStateSelector,
+  );
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
@@ -281,18 +298,19 @@ const UnMemoizedChannelList = <
    */
   const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), []);
 
-  const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchActive(!!event.target.value);
+  const onSearch = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchActive(!!event.target.value);
 
-    additionalChannelSearchProps?.onSearch?.(event);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      additionalChannelSearchProps?.onSearch?.(event);
+    },
+    [additionalChannelSearchProps],
+  );
 
   const onSearchExit = useCallback(() => {
     setSearchActive(false);
     additionalChannelSearchProps?.onSearchExit?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [additionalChannelSearchProps]);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
@@ -380,18 +398,29 @@ const UnMemoizedChannelList = <
     },
   );
 
-  const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
+  const showChannelList =
+    (!searchActive && !searchIsActive) || additionalChannelSearchProps?.popupResults;
   return (
     <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
-        {showChannelSearch && (
-          <ChannelSearch
-            onSearch={onSearch}
-            onSearchExit={onSearchExit}
-            setChannels={setChannels}
-            {...additionalChannelSearchProps}
-          />
-        )}
+        {showChannelSearch &&
+          (Search ? (
+            <Search
+              directMessagingChannelType={additionalChannelSearchProps?.channelType}
+              disabled={additionalChannelSearchProps?.disabled}
+              exitSearchOnInputBlur={
+                additionalChannelSearchProps?.clearSearchOnClickOutside
+              }
+              placeholder={additionalChannelSearchProps?.placeholder}
+            />
+          ) : (
+            <ChannelSearch
+              onSearch={onSearch}
+              onSearchExit={onSearchExit}
+              setChannels={setChannels}
+              {...additionalChannelSearchProps}
+            />
+          ))}
         {showChannelList && (
           <List
             error={channelsQueryState.error}
