@@ -215,7 +215,7 @@ const UnMemoizedChannelList = <SCG extends DefaultStreamChatGenerics = DefaultSt
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext<SCG>('ChannelList');
-  const { Search } = useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
+  const { Search } = useComponentContext<SCG>(); // FIXME: us component context to retrieve ChannelPreview UI components too
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);

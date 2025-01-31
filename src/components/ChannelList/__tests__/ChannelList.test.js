@@ -24,6 +24,8 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  initClientWithChannels,
+  mockTranslationContext,
   queryChannelsApi,
   queryUsersApi,
   useMockedApis,
@@ -42,9 +44,9 @@ import {
   TranslationContext,
   useChannelListContext,
   useChatContext,
+  WithComponents,
 } from '../../../context';
 import { ChannelListMessenger } from '../ChannelListMessenger';
-import { initClientWithChannels, mockTranslationContext } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
@@ -311,8 +313,10 @@ describe('ChannelList', () => {
     const client = await getTestClientWithUser({ id: 'userId' });
 
     render(
-      <Chat client={client} Search={Search} searchController={searchController}>
-        <ChannelList showChannelSearch />
+      <Chat client={client} searchController={searchController}>
+        <WithComponents overrides={{ Search }}>
+          <ChannelList showChannelSearch />
+        </WithComponents>
       </Chat>,
     );
     await act(() => {
