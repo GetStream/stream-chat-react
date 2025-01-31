@@ -14,7 +14,7 @@ export const useSearchFocusedMessage = <
 >() => {
   const { searchController } = useChatContext<StreamChatGenerics>('Channel');
   const { focusedMessage } = useStateStore(
-    searchController.internalState,
+    searchController._internalState,
     searchControllerStateSelector,
   );
 

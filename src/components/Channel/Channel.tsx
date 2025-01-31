@@ -667,8 +667,8 @@ const ChannelInner = <
         clearTimeout(clearHighlightedMessageTimeoutId.current);
       }
       clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        if (searchController.internalState.getLatestValue().focusedMessage) {
-          searchController.internalState.partialNext({ focusedMessage: undefined });
+        if (searchController._internalState.getLatestValue().focusedMessage) {
+          searchController._internalState.partialNext({ focusedMessage: undefined });
         }
         clearHighlightedMessageTimeoutId.current = null;
         dispatch({ type: 'clearHighlightedMessage' });

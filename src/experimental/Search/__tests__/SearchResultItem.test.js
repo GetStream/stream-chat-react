@@ -126,7 +126,7 @@ describe('SearchResultItem Components', () => {
       });
 
       expect(
-        searchController.internalState.getLatestValue().focusedMessage,
+        searchController._internalState.getLatestValue().focusedMessage,
       ).toStrictEqual(messageResponseData);
       expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(
         messageResponseData.channel.id,
