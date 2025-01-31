@@ -187,6 +187,56 @@ describe('ChannelSearch', () => {
     jest.useRealTimers();
   });
 
+  it('search is performed on channels only', async () => {
+    const limit = 8;
+    const otherUsers = Array.from({ length: limit }, generateUser);
+    jest.useFakeTimers('modern');
+    const client = await getTestClientWithUser(user);
+    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [...otherUsers, user] });
+    jest.spyOn(client, 'queryChannels').mockResolvedValue([channelResponseData]);
+
+    const { typeText } = await renderSearch({
+      client,
+      props: { searchForChannels: true, searchForUsers: false },
+    });
+    await act(() => {
+      typeText(typedText);
+    });
+
+    await act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(client.queryUsers).not.toHaveBeenCalled();
+    expect(client.queryChannels).toHaveBeenCalledTimes(1);
+    jest.useRealTimers();
+  });
+
+  it('search is not performed on channels neither users', async () => {
+    const limit = 8;
+    const otherUsers = Array.from({ length: limit }, generateUser);
+    jest.useFakeTimers('modern');
+    const client = await getTestClientWithUser(user);
+    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [...otherUsers, user] });
+    jest.spyOn(client, 'queryChannels').mockResolvedValue([channelResponseData]);
+
+    const { typeText } = await renderSearch({
+      client,
+      props: { searchForChannels: false, searchForUsers: false },
+    });
+    await act(() => {
+      typeText(typedText);
+    });
+
+    await act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(client.queryUsers).not.toHaveBeenCalled();
+    expect(client.queryChannels).not.toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
   it('does not perform search queries when the search is disabled', async () => {
     jest.useFakeTimers('modern');
     const client = await getTestClientWithUser(user);
