@@ -17,13 +17,13 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 });
 
 export const SearchResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { t } = useTranslationContext('ResultsContainer');
   const {
     SearchResultsHeader = DefaultSearchResultsHeader,
-    SearchSourceResults = DefaultSourceSearchResults,
     SearchResultsPresearch = DefaultSearchResultsPresearch,
+    SearchSourceResults = DefaultSourceSearchResults,
   } = useComponentContext<StreamChatGenerics>();
   const { searchController } = useSearchContext<StreamChatGenerics>();
   const { activeSources, isActive, searchQuery } = useStateStore(

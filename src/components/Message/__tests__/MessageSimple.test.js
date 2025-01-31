@@ -20,7 +20,11 @@ import { MML as MMLMock } from '../../MML';
 import { Modal as ModalMock } from '../../Modal';
 import { defaultReactionOptions } from '../../Reactions';
 
-import { ChannelActionProvider, ChannelStateProvider, ComponentProvider } from '../../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ComponentProvider,
+} from '../../../context';
 import {
   countReactions,
   generateChannel,
@@ -45,7 +49,9 @@ jest.mock('../../MessageInput', () => ({
   EditMessageForm: jest.fn(() => <div data-testid='edit-message-form' />),
   MessageInput: jest.fn(() => <div data-testid='message-input' />),
 }));
-jest.mock('../../Modal', () => ({ Modal: jest.fn((props) => <div>{props.children}</div>) }));
+jest.mock('../../Modal', () => ({
+  Modal: jest.fn((props) => <div>{props.children}</div>),
+}));
 
 const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
@@ -55,11 +61,11 @@ const retrySendMessageMock = jest.fn();
 const removeMessageMock = jest.fn();
 
 async function renderMessageSimple({
+  channelCapabilities = { 'send-reaction': true },
+  channelConfigOverrides = { replies: true },
+  components = {},
   message,
   props = {},
-  channelConfigOverrides = { replies: true },
-  channelCapabilities = { 'send-reaction': true },
-  components = {},
   renderer = render,
 }) {
   const channel = generateChannel({
@@ -85,7 +91,7 @@ async function renderMessageSimple({
             <ComponentProvider
               value={{
                 Attachment: AttachmentMock,
-                // eslint-disable-next-line react/display-name
+
                 Message: () => <MessageSimple {...props} />,
                 reactionOptions: defaultReactionOptions,
                 ...components,
@@ -135,7 +141,9 @@ describe('<MessageSimple />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
-    const { container, getByTestId } = await renderMessageSimple({ message: deletedMessage });
+    const { container, getByTestId } = await renderMessageSimple({
+      message: deletedMessage,
+    });
     expect(getByTestId('message-deleted-component')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -145,7 +153,9 @@ describe('<MessageSimple />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-25T03:24:00'),
     });
-    const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
+    const CustomMessageDeletedComponent = () => (
+      <p data-testid='custom-message-deleted'>Gone!</p>
+    );
     const { container, getByTestId } = await renderMessageSimple({
       components: {
         MessageDeleted: CustomMessageDeletedComponent,
@@ -175,7 +185,9 @@ describe('<MessageSimple />', () => {
 
   it('should render message with custom replies count button when one is given', async () => {
     const message = generateAliceMessage({ reply_count: 1 });
-    const CustomRepliesCount = () => <div data-testid='custom-message-replies-count'>Replies</div>;
+    const CustomRepliesCount = () => (
+      <div data-testid='custom-message-replies-count'>Replies</div>
+    );
     const { container, getByTestId } = await renderMessageSimple({
       components: {
         MessageRepliesCountButton: CustomRepliesCount,
@@ -221,7 +233,7 @@ describe('<MessageSimple />', () => {
         Input: CustomEditMessageInput,
         message,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -290,7 +302,7 @@ describe('<MessageSimple />', () => {
         onClose: clearEditingState,
         open: true,
       }),
-      {},
+      undefined,
     );
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -298,7 +310,7 @@ describe('<MessageSimple />', () => {
         Input: EditMessageForm,
         message,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -342,7 +354,10 @@ describe('<MessageSimple />', () => {
   });
 
   it('should keep rendering the "received" status for already read message that was updated', async () => {
-    const message = generateAliceMessage({ created_at: new Date('1970-1-2'), status: 'received' });
+    const message = generateAliceMessage({
+      created_at: new Date('1970-1-2'),
+      status: 'received',
+    });
     const returnAllReadData = false;
     const read = {
       [bob.id]: {
@@ -379,7 +394,10 @@ describe('<MessageSimple />', () => {
   });
 
   it('should keep rendering the "read by" status for already read message that was updated', async () => {
-    const message = generateAliceMessage({ created_at: new Date('1970-2-1'), status: 'received' });
+    const message = generateAliceMessage({
+      created_at: new Date('1970-2-1'),
+      status: 'received',
+    });
     const returnAllReadData = false;
     const read = {
       [bob.id]: {
@@ -471,7 +489,7 @@ describe('<MessageSimple />', () => {
         onMouseOver: expect.any(Function),
         user: expect.any(Object),
       },
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -500,7 +518,7 @@ describe('<MessageSimple />', () => {
         handleOpenThread: jest.fn(),
       },
     });
-    // eslint-disable-next-line jest/prefer-called-with
+
     expect(MessageOptionsMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -512,7 +530,7 @@ describe('<MessageSimple />', () => {
     const { container } = await renderMessageSimple({ message });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'right', source: mml }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -527,7 +545,7 @@ describe('<MessageSimple />', () => {
     });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -556,7 +574,7 @@ describe('<MessageSimple />', () => {
         unsafeHTML,
       },
     });
-    // eslint-disable-next-line jest/prefer-called-with
+
     expect(MessageTextMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -727,7 +745,9 @@ describe('<MessageSimple />', () => {
 
     it('should use overriden modal content text', async () => {
       const message = generateAliceMessage(bouncedMessageOptions);
-      const CustomMessageBouncePrompt = () => <MessageBouncePrompt>Overriden</MessageBouncePrompt>;
+      const CustomMessageBouncePrompt = () => (
+        <MessageBouncePrompt>Overriden</MessageBouncePrompt>
+      );
       const { getByTestId, queryByText } = await renderMessageSimple({
         components: {
           MessageBouncePrompt: CustomMessageBouncePrompt,

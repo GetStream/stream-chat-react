@@ -22,7 +22,9 @@ const renderComponent = (props = {}) =>
 describe('ModalGallery', () => {
   it('uses BaseImage component to display images', () => {
     const { container } = renderComponent({ images });
-    expect(container.querySelectorAll('.str-chat__base-image')).toHaveLength(images.length);
+    expect(container.querySelectorAll('.str-chat__base-image')).toHaveLength(
+      images.length,
+    );
   });
   it('displays image fallback on error', () => {
     const { container } = renderComponent({ images });

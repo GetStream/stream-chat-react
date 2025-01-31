@@ -20,7 +20,7 @@ import type { Streami18n } from '../../i18n/Streami18n';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChatProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The StreamChat client object */
   client: StreamChat<StreamChatGenerics>;
@@ -51,7 +51,7 @@ export type ChatProps<
  * as it provides the ChatContext.
  */
 export const Chat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: PropsWithChildren<ChatProps<StreamChatGenerics>>,
 ) => {

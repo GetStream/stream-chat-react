@@ -4,17 +4,19 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
-const STATUSES_EXCLUDED_FROM_PREPEND = ({
+const STATUSES_EXCLUDED_FROM_PREPEND = {
   failed: true,
   sending: true,
-} as const) as Record<string, boolean>;
+} as const as Record<string, boolean>;
 
 export function usePrependedMessagesCount<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
   const firstRealMessageIndex = hasDateSeparator ? 1 : 0;
-  const firstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>();
-  const previousFirstMessageOnFirstLoadedPage = useRef<StreamMessage<StreamChatGenerics>>();
+  const firstMessageOnFirstLoadedPage =
+    useRef<StreamMessage<StreamChatGenerics>>(undefined);
+  const previousFirstMessageOnFirstLoadedPage =
+    useRef<StreamMessage<StreamChatGenerics>>(undefined);
   const previousNumItemsPrepended = useRef(0);
 
   const numItemsPrepended = useMemo(() => {
@@ -40,7 +42,8 @@ export function usePrependedMessagesCount<
     // at non-existent index. Therefore, we ignore messages of status "sending" / "failed" in order they are
     // not considered as prepended messages.
     const firstMsgMovedAfterMessagesInExcludedStatus = !!(
-      currentFirstMessage?.status && STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessage.status]
+      currentFirstMessage?.status &&
+      STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessage.status]
     );
 
     if (noNewMessages || firstMsgMovedAfterMessagesInExcludedStatus) {

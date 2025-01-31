@@ -5,7 +5,7 @@ import { DefaultStreamChatGenerics } from '../../../types/types';
 import { ReactionType } from '../types';
 
 export interface FetchReactionsOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > {
   reactionType: ReactionType<StreamChatGenerics>;
   shouldFetch: boolean;
@@ -14,11 +14,10 @@ export interface FetchReactionsOptions<
 }
 
 export function useFetchReactions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(options: FetchReactionsOptions<StreamChatGenerics>) {
-  const {
-    handleFetchReactions: contextHandleFetchReactions,
-  } = useMessageContext<StreamChatGenerics>('useFetchReactions');
+  const { handleFetchReactions: contextHandleFetchReactions } =
+    useMessageContext<StreamChatGenerics>('useFetchReactions');
   const [reactions, setReactions] = useState<ReactionResponse<StreamChatGenerics>[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,

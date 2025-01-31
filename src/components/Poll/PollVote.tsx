@@ -9,7 +9,8 @@ import type { DefaultStreamChatGenerics } from '../../types';
 
 const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
   const { t } = useTranslationContext();
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
+  const { handleEnter, handleLeave, tooltipVisible } =
+    useEnterLeaveHandlers<HTMLSpanElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
   const timestampDate = new Date(timestamp);
   return (
@@ -33,19 +34,20 @@ const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
 };
 
 type PollVoteProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   vote: PollVoteType<StreamChatGenerics>;
 };
 
 const PollVoteAuthor = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   vote,
 }: PollVoteProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
+  const { handleEnter, handleLeave, tooltipVisible } =
+    useEnterLeaveHandlers<HTMLSpanElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
   const displayName =
     client.user?.id && client.user.id === vote.user?.id
@@ -81,7 +83,7 @@ const PollVoteAuthor = <
 };
 
 export const PollVote = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   vote,
 }: PollVoteProps<StreamChatGenerics>) => (
@@ -92,13 +94,13 @@ export const PollVote = <
 );
 
 export type PollVoteListingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   votes: PollVoteType<StreamChatGenerics>[];
 };
 
 export const PollVoteListing = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   votes,
 }: PollVoteListingProps<StreamChatGenerics>) => (

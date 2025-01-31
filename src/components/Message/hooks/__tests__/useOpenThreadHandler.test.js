@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import { useOpenThreadHandler } from '../useOpenThreadHandler';
 
@@ -11,7 +11,10 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-function renderUseOpenThreadHandlerHook(message = generateMessage(), openThread = openThreadMock) {
+function renderUseOpenThreadHandlerHook(
+  message = generateMessage(),
+  openThread = openThreadMock,
+) {
   const wrapper = ({ children }) => (
     <ChannelActionProvider value={{ openThread }}>{children}</ChannelActionProvider>
   );

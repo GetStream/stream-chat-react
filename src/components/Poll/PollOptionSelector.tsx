@@ -34,11 +34,13 @@ export const AmountBar = ({ amount, className }: AmountBarProps) => (
 export type CheckmarkProps = { checked?: boolean };
 
 export const Checkmark = ({ checked }: CheckmarkProps) => (
-  <div className={clsx('str-chat__checkmark', { 'str-chat__checkmark--checked': checked })} />
+  <div
+    className={clsx('str-chat__checkmark', { 'str-chat__checkmark--checked': checked })}
+  />
 );
 
 type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   is_closed: boolean | undefined;
   latest_votes_by_option: Record<string, PollVote<StreamChatGenerics>[]>;
@@ -48,7 +50,7 @@ type PollStateSelectorReturnValue<
   voting_visibility: VotingVisibility | undefined;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue<StreamChatGenerics> => ({
@@ -61,7 +63,7 @@ const pollStateSelector = <
 });
 
 export type PollOptionSelectorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   option: PollOption<StreamChatGenerics>;
   displayAvatarCount?: number;
@@ -69,16 +71,15 @@ export type PollOptionSelectorProps<
 };
 
 export const PollOptionSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   displayAvatarCount,
   option,
   voteCountVerbose,
 }: PollOptionSelectorProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext();
-  const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
-    'PollOptionsShortlist',
-  );
+  const { channelCapabilities = {} } =
+    useChannelStateContext<StreamChatGenerics>('PollOptionsShortlist');
   const { message } = useMessageContext();
 
   const { poll } = usePollContext<StreamChatGenerics>();
@@ -91,7 +92,9 @@ export const PollOptionSelector = <
     voting_visibility,
   } = useStateStore(poll.state, pollStateSelector);
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
-  const winningOptionCount = maxVotedOptionIds[0] ? vote_counts_by_option[maxVotedOptionIds[0]] : 0;
+  const winningOptionCount = maxVotedOptionIds[0]
+    ? vote_counts_by_option[maxVotedOptionIds[0]]
+    : 0;
 
   const toggleVote = useMemo(
     () =>
@@ -133,17 +136,22 @@ export const PollOptionSelector = <
         )}
         <div className='str-chat__poll-option-vote-count'>
           {voteCountVerbose
-            ? t<string>('{{count}} votes', { count: vote_counts_by_option[option.id] ?? 0 })
-            : vote_counts_by_option[option.id] ?? 0}
+            ? t<string>('{{count}} votes', {
+                count: vote_counts_by_option[option.id] ?? 0,
+              })
+            : (vote_counts_by_option[option.id] ?? 0)}
         </div>
       </div>
       <AmountBar
         amount={
-          (winningOptionCount && (vote_counts_by_option[option.id] ?? 0) / winningOptionCount) * 100
+          (winningOptionCount &&
+            (vote_counts_by_option[option.id] ?? 0) / winningOptionCount) * 100
         }
         className={clsx('str-chat__poll-option__votes-bar', {
           'str-chat__poll-option__votes-bar--winner':
-            is_closed && maxVotedOptionIds.length === 1 && maxVotedOptionIds[0] === option.id,
+            is_closed &&
+            maxVotedOptionIds.length === 1 &&
+            maxVotedOptionIds[0] === option.id,
         })}
       />
     </div>

@@ -25,7 +25,7 @@ type PropsDrilledToMessageActionsBox =
   | 'handlePin';
 
 export type MessageActionsBoxProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<MessageContextValue<StreamChatGenerics>, PropsDrilledToMessageActionsBox> & {
   isUserMuted: () => boolean;
   mine: boolean;
@@ -33,7 +33,7 @@ export type MessageActionsBoxProps<
 } & ComponentProps<'div'>;
 
 const UnMemoizedMessageActionsBox = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageActionsBoxProps<StreamChatGenerics>,
 ) => {
@@ -47,18 +47,18 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mine,
     open,
     ...restDivProps
   } = props;
 
-  const {
-    CustomMessageActionsList = DefaultCustomMessageActionsList,
-  } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
-  const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, threadList } = useMessageContext<StreamChatGenerics>(
-    'MessageActionsBox',
-  );
+  const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
+    useComponentContext<StreamChatGenerics>('MessageActionsBox');
+  const { setQuotedMessage } =
+    useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
+  const { customMessageActions, message, threadList } =
+    useMessageContext<StreamChatGenerics>('MessageActionsBox');
 
   const { t } = useTranslationContext('MessageActionsBox');
 
@@ -91,7 +91,10 @@ const UnMemoizedMessageActionsBox = <
         className='str-chat__message-actions-list'
         role='listbox'
       >
-        <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
+        <CustomMessageActionsList
+          customMessageActions={customMessageActions}
+          message={message}
+        />
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
           <button
             aria-selected='false'
@@ -112,16 +115,18 @@ const UnMemoizedMessageActionsBox = <
             {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
           </button>
         )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 && !threadList && !!message.id && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleMarkUnread}
-            role='option'
-          >
-            {t<string>('Mark as unread')}
-          </button>
-        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
+          !threadList &&
+          !!message.id && (
+            <button
+              aria-selected='false'
+              className={buttonClassName}
+              onClick={handleMarkUnread}
+              role='option'
+            >
+              {t<string>('Mark as unread')}
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button
             aria-selected='false'

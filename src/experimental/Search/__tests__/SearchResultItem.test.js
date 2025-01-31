@@ -78,7 +78,10 @@ describe('SearchResultItem Components', () => {
     afterEach(jest.clearAllMocks);
 
     it('renders channel preview', async () => {
-      await renderComponent({ channelSearchData: generateChannel(), SearchResultItemComponent });
+      await renderComponent({
+        channelSearchData: generateChannel(),
+        SearchResultItemComponent,
+      });
 
       expect(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID)).toBeInTheDocument();
     });
@@ -100,7 +103,10 @@ describe('SearchResultItem Components', () => {
     afterEach(jest.clearAllMocks);
 
     it('renders message preview', async () => {
-      await renderComponent({ messageResponseData: generateChannel(), SearchResultItemComponent });
+      await renderComponent({
+        messageResponseData: generateChannel(),
+        SearchResultItemComponent,
+      });
 
       expect(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID)).toBeInTheDocument();
     });
@@ -119,10 +125,12 @@ describe('SearchResultItem Components', () => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      expect(searchController.internalState.getLatestValue().focusedMessage).toStrictEqual(
-        messageResponseData,
+      expect(
+        searchController.internalState.getLatestValue().focusedMessage,
+      ).toStrictEqual(messageResponseData);
+      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(
+        messageResponseData.channel.id,
       );
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
     });
 

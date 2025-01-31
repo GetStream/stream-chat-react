@@ -81,7 +81,10 @@ describe('SearchResultsHeader', () => {
       render(<SearchResultsHeader />);
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
-        expect(button).toHaveAttribute('aria-label', 'aria/Search results header filter button');
+        expect(button).toHaveAttribute(
+          'aria-label',
+          'aria/Search results header filter button',
+        );
       });
     });
   });
@@ -91,15 +94,21 @@ describe('SearchResultsHeader', () => {
       useStateStore.mockReturnValue({ isActive: true });
       render(<SearchResultsHeader />);
 
-      const button = screen.getByText('search-results-header-filter-source-button-label--messages');
-      expect(button).toHaveClass('str-chat__search-results-header__filter-source-button--active');
+      const button = screen.getByText(
+        'search-results-header-filter-source-button-label--messages',
+      );
+      expect(button).toHaveClass(
+        'str-chat__search-results-header__filter-source-button--active',
+      );
     });
 
     it('does not apply active class when source is inactive', () => {
       useStateStore.mockReturnValue({ isActive: false });
       render(<SearchResultsHeader />);
 
-      const button = screen.getByText('search-results-header-filter-source-button-label--messages');
+      const button = screen.getByText(
+        'search-results-header-filter-source-button-label--messages',
+      );
       expect(button).not.toHaveClass(
         'str-chat__search-results-header__filter-source-button--active',
       );

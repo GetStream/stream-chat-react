@@ -21,11 +21,11 @@ const DefaultSearchEmpty = () => {
 };
 
 export type SearchResultsHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<SearchResultsProps<StreamChatGenerics>, 'results'>;
 
 const DefaultSearchResultsHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   results,
 }: SearchResultsHeaderProps<StreamChatGenerics>) => {
@@ -43,15 +43,18 @@ const DefaultSearchResultsHeader = <
 };
 
 export type SearchResultsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Required<
-  Pick<SearchResultsProps<StreamChatGenerics>, 'results' | 'SearchResultItem' | 'selectResult'>
+  Pick<
+    SearchResultsProps<StreamChatGenerics>,
+    'results' | 'SearchResultItem' | 'selectResult'
+  >
 > & {
   focusedUser?: number;
 };
 
 const DefaultSearchResultsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultsListProps<StreamChatGenerics>,
 ) => {
@@ -74,7 +77,7 @@ const DefaultSearchResultsList = <
 
 // fixme: index and focusedUser should be changed for className with default value "str-chat__channel-search-result--focused"
 export type SearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<SearchResultsProps<StreamChatGenerics>, 'selectResult'> & {
   index: number;
   result: ChannelOrUserResponse<StreamChatGenerics>;
@@ -82,7 +85,7 @@ export type SearchResultItemProps<
 };
 
 const DefaultSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultItemProps<StreamChatGenerics>,
 ) => {
@@ -136,7 +139,10 @@ const ResultsContainer = ({
   return (
     <div
       aria-label={t('aria/Channel search results')}
-      className={clsx(`str-chat__channel-search-result-list`, popupResults ? 'popup' : 'inline')}
+      className={clsx(
+        `str-chat__channel-search-result-list`,
+        popupResults ? 'popup' : 'inline',
+      )}
     >
       {children}
     </div>
@@ -144,15 +150,17 @@ const ResultsContainer = ({
 };
 
 export type SearchResultsController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   results: Array<ChannelOrUserResponse<StreamChatGenerics>>;
   searching: boolean;
-  selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
+  selectResult: (
+    result: ChannelOrUserResponse<StreamChatGenerics>,
+  ) => Promise<void> | void;
 };
 
 export type AdditionalSearchResultsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
@@ -169,22 +177,23 @@ export type AdditionalSearchResultsProps<
 };
 
 export type SearchResultsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AdditionalSearchResultsProps<StreamChatGenerics> & SearchResultsController<StreamChatGenerics>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+> = AdditionalSearchResultsProps<StreamChatGenerics> &
+  SearchResultsController<StreamChatGenerics>;
 
 export const SearchResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SearchResultsProps<StreamChatGenerics>,
 ) => {
   const {
     popupResults,
     results,
-    searching,
     SearchEmpty = DefaultSearchEmpty,
-    SearchResultsHeader = DefaultSearchResultsHeader,
+    searching,
     SearchLoading,
     SearchResultItem = DefaultSearchResultItem,
+    SearchResultsHeader = DefaultSearchResultsHeader,
     SearchResultsList = DefaultSearchResultsList,
     selectResult,
   } = props;

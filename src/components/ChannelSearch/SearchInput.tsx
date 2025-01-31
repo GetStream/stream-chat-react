@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 export type SearchInputController = {
   /** Clears the channel search state */
   clearState: () => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   /** Search input change handler */
   onSearch: React.ChangeEventHandler<HTMLInputElement>;
   /** Current search string */

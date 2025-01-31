@@ -98,7 +98,6 @@ describe('ChannelPreview', () => {
     [c0, c1] = await client.queryChannels({}, {});
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it('should mark channel as read, when set as active channel', async () => {
     // Mock the countUnread function on channel, to return 10.
     c0.countUnread = () => 10;
@@ -700,8 +699,14 @@ describe('ChannelPreview', () => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
           expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-          expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-          expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+          expect(avatarImages[1]).toHaveAttribute(
+            'src',
+            channelState.members[1].user.image,
+          );
+          expect(avatarImages[2]).toHaveAttribute(
+            'src',
+            channelState.members[2].user.image,
+          );
         });
 
         act(() => {
@@ -711,8 +716,14 @@ describe('ChannelPreview', () => {
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages[0]).toHaveAttribute('src', updatedAttribute.image);
-          expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-          expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+          expect(avatarImages[1]).toHaveAttribute(
+            'src',
+            channelState.members[1].user.image,
+          );
+          expect(avatarImages[2]).toHaveAttribute(
+            'src',
+            channelState.members[2].user.image,
+          );
         });
       });
 
@@ -732,8 +743,14 @@ describe('ChannelPreview', () => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
           expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-          expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-          expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+          expect(avatarImages[1]).toHaveAttribute(
+            'src',
+            channelState.members[1].user.image,
+          );
+          expect(avatarImages[2]).toHaveAttribute(
+            'src',
+            channelState.members[2].user.image,
+          );
         });
 
         act(() => {
@@ -743,7 +760,10 @@ describe('ChannelPreview', () => {
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-          expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
+          expect(avatarImages[1]).toHaveAttribute(
+            'src',
+            channelState.members[1].user.image,
+          );
           expect(avatarImages[2]).toHaveAttribute('src', updatedAttribute.image);
         });
       });

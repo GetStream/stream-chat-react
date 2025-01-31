@@ -7,13 +7,14 @@ import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types
 
 export const EditMessageForm = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >() => {
   const { t } = useTranslationContext('EditMessageForm');
 
-  const { clearEditingState, handleSubmit } = useMessageInputContext<StreamChatGenerics, V>(
-    'EditMessageForm',
-  );
+  const { clearEditingState, handleSubmit } = useMessageInputContext<
+    StreamChatGenerics,
+    V
+  >('EditMessageForm');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -25,7 +26,11 @@ export const EditMessageForm = <
   }, [clearEditingState]);
 
   return (
-    <form autoComplete='off' className='str-chat__edit-message-form' onSubmit={handleSubmit}>
+    <form
+      autoComplete='off'
+      className='str-chat__edit-message-form'
+      onSubmit={handleSubmit}
+    >
       <MessageInputFlat />
       <div className='str-chat__edit-message-form-options'>
         <button

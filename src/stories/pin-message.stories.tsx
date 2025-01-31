@@ -18,9 +18,7 @@ const PinnedMessagesList = () => {
 
   return (
     <ul data-testid='pinned-messages-list'>
-      {pinnedMessages?.map((pm) => (
-        <li key={pm.id}>{pm.text}</li>
-      ))}
+      {pinnedMessages?.map((pm) => <li key={pm.id}>{pm.text}</li>)}
     </ul>
   );
 };

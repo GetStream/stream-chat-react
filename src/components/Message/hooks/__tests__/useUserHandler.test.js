@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { generateMessage, generateUser } from 'mock-builders';
 import { useUserHandler } from '../useUserHandler';
 

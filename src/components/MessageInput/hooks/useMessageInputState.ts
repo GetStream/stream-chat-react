@@ -1,14 +1,20 @@
 import React, { Reducer, useCallback, useReducer, useState } from 'react';
 import { nanoid } from 'nanoid';
 
-import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
 
 import { useAttachments } from './useAttachments';
 import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
+import {
+  RecordingController,
+  useMediaRecorder,
+} from '../../MediaRecorder/hooks/useMediaRecorder';
 import type { LinkPreviewMap, LocalAttachment } from '../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
@@ -23,7 +29,7 @@ import type {
 import { mergeDeep } from '../../../utils/mergeDeep';
 
 export type MessageInputState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachments: LocalAttachment<StreamChatGenerics>[];
   linkPreviews: LinkPreviewMap;
@@ -33,7 +39,7 @@ export type MessageInputState<
 };
 
 type UpsertAttachmentsAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   attachments: LocalAttachment<StreamChatGenerics>[];
   type: 'upsertAttachments';
@@ -60,14 +66,14 @@ type SetLinkPreviewsAction = {
 };
 
 type AddMentionedUserAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   type: 'addMentionedUser';
   user: UserResponse<StreamChatGenerics>;
 };
 
 export type MessageInputReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > =
   | SetTextAction
   | ClearAction
@@ -77,7 +83,7 @@ export type MessageInputReducerAction<
   | RemoveAttachmentsAction;
 
 export type MessageInputHookProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
@@ -104,7 +110,7 @@ export type MessageInputHookProps<
 };
 
 const makeEmptyMessageInputState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): MessageInputState<StreamChatGenerics> => ({
   attachments: [],
   linkPreviews: new Map(),
@@ -117,9 +123,12 @@ const makeEmptyMessageInputState = <
  * Initializes the state. Empty if the message prop is falsy.
  */
 const initState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
-  message?: Pick<StreamMessage<StreamChatGenerics>, 'attachments' | 'mentioned_users' | 'text'>,
+  message?: Pick<
+    StreamMessage<StreamChatGenerics>,
+    'attachments' | 'mentioned_users' | 'text'
+  >,
 ): MessageInputState<StreamChatGenerics> => {
   if (!message) {
     return makeEmptyMessageInputState();
@@ -143,7 +152,7 @@ const initState = <
           ({
             ...att,
             localMetadata: { id: nanoid() },
-          } as LocalAttachment<StreamChatGenerics>),
+          }) as LocalAttachment<StreamChatGenerics>,
       ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
@@ -161,7 +170,7 @@ const initState = <
  * MessageInput state reducer
  */
 const messageInputReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: MessageInputState<StreamChatGenerics>,
   action: MessageInputReducerAction<StreamChatGenerics>,
@@ -178,7 +187,8 @@ const messageInputReducer = <
       action.attachments.forEach((actionAttachment) => {
         const attachmentIndex = state.attachments.findIndex(
           (att) =>
-            att.localMetadata?.id && att.localMetadata?.id === actionAttachment.localMetadata?.id,
+            att.localMetadata?.id &&
+            att.localMetadata?.id === actionAttachment.localMetadata?.id,
         );
 
         if (attachmentIndex === -1) {
@@ -201,7 +211,9 @@ const messageInputReducer = <
     case 'removeAttachments': {
       return {
         ...state,
-        attachments: state.attachments.filter((att) => !action.ids.includes(att.localMetadata?.id)),
+        attachments: state.attachments.filter(
+          (att) => !action.ids.includes(att.localMetadata?.id),
+        ),
       };
     }
 
@@ -213,16 +225,19 @@ const messageInputReducer = <
           linkPreviews.delete(key);
         });
       } else {
-        Array.from(action.linkPreviews.values()).reduce<LinkPreviewMap>((acc, linkPreview) => {
-          const existingPreview = acc.get(linkPreview.og_scrape_url);
-          const alreadyEnqueued =
-            linkPreview.state === LinkPreviewState.QUEUED &&
-            existingPreview?.state !== LinkPreviewState.FAILED;
+        Array.from(action.linkPreviews.values()).reduce<LinkPreviewMap>(
+          (acc, linkPreview) => {
+            const existingPreview = acc.get(linkPreview.og_scrape_url);
+            const alreadyEnqueued =
+              linkPreview.state === LinkPreviewState.QUEUED &&
+              existingPreview?.state !== LinkPreviewState.FAILED;
 
-          if (existingPreview && alreadyEnqueued) return acc;
-          acc.set(linkPreview.og_scrape_url, linkPreview);
-          return acc;
-        }, linkPreviews);
+            if (existingPreview && alreadyEnqueued) return acc;
+            acc.set(linkPreview.og_scrape_url, linkPreview);
+            return acc;
+          },
+          linkPreviews,
+        );
 
         if (action.mode === SetLinkPreviewMode.SET) {
           Array.from(state.linkPreviews.keys()).forEach((key) => {
@@ -265,7 +280,7 @@ export type MentionsListState = {
  */
 export const useMessageInputState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
 ): MessageInputState<StreamChatGenerics> &
@@ -292,7 +307,9 @@ export const useMessageInputState = <
     message ||
     ((Array.isArray(defaultValue)
       ? { text: defaultValue.join('') }
-      : { text: defaultValue?.toString() }) as Partial<StreamMessage<StreamChatGenerics>>);
+      : { text: defaultValue?.toString() }) as Partial<
+      StreamMessage<StreamChatGenerics>
+    >);
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<
@@ -311,12 +328,10 @@ export const useMessageInputState = <
       urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<StreamChatGenerics, V>(
-    props,
-    state,
-    dispatch,
-    enrichURLsController.findAndEnqueueURLsToEnrich,
-  );
+  const { handleChange, insertText, textareaRef } = useMessageInputText<
+    StreamChatGenerics,
+    V
+  >(props, state, dispatch, enrichURLsController.findAndEnqueueURLsToEnrich);
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);

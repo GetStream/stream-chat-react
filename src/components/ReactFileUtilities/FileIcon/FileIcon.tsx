@@ -29,7 +29,14 @@ export function mimeTypeToIcon(type: IconType = 'standard', mimeType?: string) {
 }
 
 export const FileIcon = (props: FileIconProps) => {
-  const { big = false, mimeType, size = 50, sizeSmall = 20, type = 'standard', ...rest } = props;
+  const {
+    big = false,
+    mimeType,
+    size = 50,
+    sizeSmall = 20,
+    type = 'standard',
+    ...rest
+  } = props;
 
   const Icon = mimeTypeToIcon(type, mimeType);
 

@@ -8,11 +8,10 @@ import type { ModalProps } from '../Modal';
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
 export function MessageBouncePrompt<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({ children, onClose }: MessageBouncePromptProps) {
-  const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext<StreamChatGenerics>(
-    'MessageBouncePrompt',
-  );
+  const { handleDelete, handleEdit, handleRetry } =
+    useMessageBounceContext<StreamChatGenerics>('MessageBouncePrompt');
   const { t } = useTranslationContext('MessageBouncePrompt');
 
   function createHandler(

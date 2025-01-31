@@ -25,7 +25,7 @@ export function calculateFirstItemIndex(numItemsPrepended: number) {
 }
 
 export const makeItemsRenderedHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   renderedItemsActions: Array<(msg: StreamMessage<StreamChatGenerics>[]) => void>,
   processedMessages: StreamMessage<StreamChatGenerics>[],
@@ -43,14 +43,14 @@ export const makeItemsRenderedHandler = <
   }, 200);
 
 type CommonVirtuosoComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   context?: VirtuosoContext<StreamChatGenerics>;
 };
 // using 'display: inline-block'
 // traps CSS margins of the item elements, preventing incorrect item measurements
 export const Item = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   context,
   ...props
@@ -76,13 +76,12 @@ export const Item = <
   );
 };
 export const Header = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   context,
 }: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext<StreamChatGenerics>(
-    'VirtualizedMessageListHeader',
-  );
+  const { LoadingIndicator = DefaultLoadingIndicator } =
+    useComponentContext<StreamChatGenerics>('VirtualizedMessageListHeader');
 
   return (
     <>
@@ -96,13 +95,12 @@ export const Header = <
   );
 };
 export const EmptyPlaceholder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   context,
 }: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const {
-    EmptyStateIndicator = DefaultEmptyStateIndicator,
-  } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
+    useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
   return (
     <>
       {EmptyStateIndicator && (
@@ -113,7 +111,7 @@ export const EmptyPlaceholder = <
 };
 
 export const messageRenderer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   virtuosoIndex: number,
   _data: UnknownType,
@@ -159,7 +157,9 @@ export const messageRenderer = <
   if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
   if (isDateSeparatorMessage(message)) {
-    return DateSeparator ? <DateSeparator date={message.date} unread={message.unread} /> : null;
+    return DateSeparator ? (
+      <DateSeparator date={message.date} unread={message.unread} />
+    ) : null;
   }
 
   if (message.type === 'system') {

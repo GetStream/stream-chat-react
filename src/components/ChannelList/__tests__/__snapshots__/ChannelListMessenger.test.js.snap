@@ -1,19 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelListMessenger by default, children should be rendered 1`] = `
-<div
-  className="str-chat__channel-list-messenger str-chat__channel-list-messenger-react"
->
+<div>
   <div
-    aria-label="Channel list"
-    className="str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main"
-    role="listbox"
+    class="str-chat__channel-list-messenger str-chat__channel-list-messenger-react"
   >
-    <div>
-      children 1
-    </div>
-    <div>
-      children 2
+    <div
+      aria-label="Channel list"
+      class="str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main"
+      role="listbox"
+    >
+      <div>
+        children 1
+      </div>
+      <div>
+        children 2
+      </div>
     </div>
   </div>
 </div>
@@ -21,12 +23,16 @@ exports[`ChannelListMessenger by default, children should be rendered 1`] = `
 
 exports[`ChannelListMessenger when \`error\` prop is true, \`LoadingErrorIndicator\` should be rendered 1`] = `
 <div>
-  Loading Error Indicator
+  <div>
+    Loading Error Indicator
+  </div>
 </div>
 `;
 
 exports[`ChannelListMessenger when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
 <div>
-  Loading Indicator
+  <div>
+    Loading Indicator
+  </div>
 </div>
 `;

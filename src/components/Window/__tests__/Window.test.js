@@ -21,18 +21,21 @@ describe('Window', () => {
   it.each([
     ['add', thread],
     ['', undefined],
-  ])('should %s class str-chat__main-panel--thread-open when thread is open', (_, thread) => {
-    const { container } = renderComponent({
-      channelStateContextMock: {
-        thread,
-      },
-    });
-    if (thread) {
-      expect(container.firstChild).toHaveClass(THREAD_OPEN_CLASS_NAME);
-    } else {
-      expect(container.firstChild).not.toHaveClass(THREAD_OPEN_CLASS_NAME);
-    }
-  });
+  ])(
+    'should %s class str-chat__main-panel--thread-open when thread is open',
+    (_, thread) => {
+      const { container } = renderComponent({
+        channelStateContextMock: {
+          thread,
+        },
+      });
+      if (thread) {
+        expect(container.firstChild).toHaveClass(THREAD_OPEN_CLASS_NAME);
+      } else {
+        expect(container.firstChild).not.toHaveClass(THREAD_OPEN_CLASS_NAME);
+      }
+    },
+  );
 
   it.each([
     ['add', thread],

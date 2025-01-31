@@ -55,7 +55,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
 ] as const;
 
 export type AttachmentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
   attachments: StreamAttachment<StreamChatGenerics>[];
@@ -87,14 +87,17 @@ export type AttachmentProps<
  * A component used for rendering message attachments. By default, the component supports: AttachmentActions, Audio, Card, File, Gallery, Image, and Video
  */
 export const Attachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: AttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachments } = props;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const groupedAttachments = useMemo(() => renderGroupedAttachments(props), [attachments]);
+  const groupedAttachments = useMemo(
+    () => renderGroupedAttachments(props),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [attachments],
+  );
 
   return (
     <div className='str-chat__attachment-list'>
@@ -107,13 +110,13 @@ export const Attachment = <
 };
 
 const renderGroupedAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachments,
   ...rest
 }: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
-  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments.filter((attachment) =>
-    isUploadedImage(attachment),
+  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments.filter(
+    (attachment) => isUploadedImage(attachment),
   );
 
   const containers = attachments
@@ -169,7 +172,7 @@ const renderGroupedAttachments = <
 };
 
 const getAttachmentType = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
 ): keyof typeof CONTAINER_MAP => {

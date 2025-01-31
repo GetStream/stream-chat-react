@@ -38,9 +38,11 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
     const client = new StreamChat<SCG>(apiKey, undefined, cachedOptions);
     let didUserConnectInterrupt = false;
 
-    const connectionPromise = client.connectUser(cachedUserData, tokenOrProvider).then(() => {
-      if (!didUserConnectInterrupt) setChatClient(client);
-    });
+    const connectionPromise = client
+      .connectUser(cachedUserData, tokenOrProvider)
+      .then(() => {
+        if (!didUserConnectInterrupt) setChatClient(client);
+      });
 
     return () => {
       didUserConnectInterrupt = true;

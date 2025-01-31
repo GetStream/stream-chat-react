@@ -4,13 +4,13 @@ import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: InternalSearchControllerState<StreamChatGenerics>,
 ) => ({ focusedMessage: nextValue.focusedMessage });
 
 export const useSearchFocusedMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { searchController } = useChatContext<StreamChatGenerics>('Channel');
   const { focusedMessage } = useStateStore(

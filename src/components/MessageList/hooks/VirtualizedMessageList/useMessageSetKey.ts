@@ -3,13 +3,13 @@ import { StreamMessage } from '../../../../context';
 import { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type UseMessageSetKeyParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   messages?: StreamMessage<StreamChatGenerics>[];
 };
 
 export const useMessageSetKey = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   messages,
 }: UseMessageSetKeyParams<StreamChatGenerics>) => {
@@ -17,10 +17,12 @@ export const useMessageSetKey = <
    * Logic to update the key of the virtuoso component when the list jumps to a new location.
    */
   const [messageSetKey, setMessageSetKey] = useState(+new Date());
-  const firstMessageId = useRef<string | undefined>();
+  const firstMessageId = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
+    const continuousSet = messages?.find(
+      (message) => message.id === firstMessageId.current,
+    );
     if (!continuousSet) {
       setMessageSetKey(+new Date());
     }

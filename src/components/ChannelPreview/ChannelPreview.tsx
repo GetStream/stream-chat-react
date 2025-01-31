@@ -8,7 +8,10 @@ import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './uti
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { MessageDeliveryStatus, useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import {
+  MessageDeliveryStatus,
+  useMessageDeliveryStatus,
+} from './hooks/useMessageDeliveryStatus';
 
 import type { Channel, Event } from 'stream-chat';
 
@@ -19,7 +22,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelPreviewUIComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ChannelPreviewProps<StreamChatGenerics> & {
   /** Image of Channel to display */
   displayImage?: string;
@@ -40,7 +43,7 @@ export type ChannelPreviewUIComponentProps<
 };
 
 export type ChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<StreamChatGenerics>;
@@ -72,16 +75,16 @@ export type ChannelPreviewProps<
 };
 
 export const ChannelPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
   const {
     active,
     channel,
-    Preview = ChannelPreviewMessenger,
     channelUpdateCount,
     getLatestMessagePreview = defaultGetLatestMessagePreview,
+    Preview = ChannelPreviewMessenger,
   } = props;
   const {
     channel: activeChannel,
@@ -103,7 +106,8 @@ export const ChannelPreview = <
     lastMessage,
   });
 
-  const isActive = typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
+  const isActive =
+    typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
@@ -144,7 +148,9 @@ export const ChannelPreview = <
     refreshUnreadCount();
 
     const handleEvent = () => {
-      setLastMessage(channel.state.latestMessages[channel.state.latestMessages.length - 1]);
+      setLastMessage(
+        channel.state.latestMessages[channel.state.latestMessages.length - 1],
+      );
       refreshUnreadCount();
     };
 

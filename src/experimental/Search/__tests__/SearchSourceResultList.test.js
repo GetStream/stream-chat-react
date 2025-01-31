@@ -45,7 +45,9 @@ describe('SearchSourceResultList', () => {
     type: 'users',
   };
 
-  const MockResultItem = ({ item }) => <div data-testid='mock-result-item'>{item.name}</div>;
+  const MockResultItem = ({ item }) => (
+    <div data-testid='mock-result-item'>{item.name}</div>
+  );
 
   const DefaultSearchResultItems = {
     channels: MockResultItem,
@@ -78,19 +80,25 @@ describe('SearchSourceResultList', () => {
 
     render(<SearchSourceResultList SearchResultItems={DefaultSearchResultItems} />);
 
-    expect(screen.queryByTestId(INFINITE_SCROLL_PAGINATOR_MOCK_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(INFINITE_SCROLL_PAGINATOR_MOCK_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('renders list with items and footer', () => {
     render(<SearchSourceResultList SearchResultItems={DefaultSearchResultItems} />);
 
-    expect(screen.getByTestId(INFINITE_SCROLL_PAGINATOR_MOCK_TEST_ID)).toBeInTheDocument();
+    expect(
+      screen.getByTestId(INFINITE_SCROLL_PAGINATOR_MOCK_TEST_ID),
+    ).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-result-item')).toHaveLength(mockItems.length);
     expect(screen.getByTestId('mock-footer')).toBeInTheDocument();
   });
 
   it('uses custom SearchResultItems when provided', () => {
-    const CustomResultItem = ({ item }) => <div data-testid='custom-result-item'>{item.name}</div>;
+    const CustomResultItem = ({ item }) => (
+      <div data-testid='custom-result-item'>{item.name}</div>
+    );
 
     const customSearchResultItems = {
       users: CustomResultItem,
@@ -115,8 +123,14 @@ describe('SearchSourceResultList', () => {
 
     const infiniteScroll = screen.getByTestId(INFINITE_SCROLL_PAGINATOR_MOCK_TEST_ID);
     expect(infiniteScroll).toBeInTheDocument();
-    expect(infiniteScroll).toHaveAttribute('data-debounce-ms', customLoadMoreDebounceMs.toString());
-    expect(infiniteScroll).toHaveAttribute('data-threshold', customLoadMoreThresholdPx.toString());
+    expect(infiniteScroll).toHaveAttribute(
+      'data-debounce-ms',
+      customLoadMoreDebounceMs.toString(),
+    );
+    expect(infiniteScroll).toHaveAttribute(
+      'data-threshold',
+      customLoadMoreThresholdPx.toString(),
+    );
   });
 
   it('handles empty items array', () => {

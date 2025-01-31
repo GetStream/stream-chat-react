@@ -2,7 +2,10 @@ import { find } from 'linkifyjs';
 import { Dispatch, useCallback, useEffect, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { useChannelStateContext, useChatContext } from '../../../context';
-import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
+import type {
+  MessageInputReducerAction,
+  MessageInputState,
+} from './useMessageInputState';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { LinkPreview, LinkPreviewMap } from '../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';
@@ -20,7 +23,7 @@ export type URLEnrichmentConfig = {
 };
 
 type UseEnrichURLsParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = URLEnrichmentConfig & {
   dispatch: Dispatch<MessageInputReducerAction<StreamChatGenerics>>;
   linkPreviews: MessageInputState<StreamChatGenerics>['linkPreviews'];
@@ -32,11 +35,13 @@ export type EnrichURLsController = {
   /** Function called when a single link preview is dismissed. */
   dismissLinkPreview: (linkPreview: LinkPreview) => void;
   /** Function that triggers the search for URLs and their enrichment. */
-  findAndEnqueueURLsToEnrich?: DebouncedFunc<(text: string, mode?: SetLinkPreviewMode) => void>;
+  findAndEnqueueURLsToEnrich?: DebouncedFunc<
+    (text: string, mode?: SetLinkPreviewMode) => void
+  >;
 };
 
 export const useLinkPreviews = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   debounceURLEnrichmentMs: debounceURLEnrichmentMsInputContext,
   dispatch,
@@ -174,6 +179,8 @@ export const useLinkPreviews = <
     cancelURLEnrichment,
     dismissLinkPreview,
     findAndEnqueueURLsToEnrich:
-      channelConfig?.url_enrichment && enrichURLForPreview ? findAndEnqueueURLsToEnrich : undefined,
+      channelConfig?.url_enrichment && enrichURLForPreview
+        ? findAndEnqueueURLsToEnrich
+        : undefined,
   };
 };

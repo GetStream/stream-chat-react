@@ -13,7 +13,7 @@ import type { CustomTrigger, DefaultStreamChatGenerics } from '../types/types';
 
 export type MessageInputContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = MessageInputState<StreamChatGenerics> &
   MessageInputHookProps<StreamChatGenerics> &
   Omit<MessageInputProps<StreamChatGenerics, V>, 'Input'> &
@@ -28,7 +28,7 @@ export const MessageInputContext = createContext<
 
 export const MessageInputContextProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >({
   children,
   value,
@@ -42,7 +42,7 @@ export const MessageInputContextProvider = <
 
 export const useMessageInputContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   componentName?: string,
 ) => {

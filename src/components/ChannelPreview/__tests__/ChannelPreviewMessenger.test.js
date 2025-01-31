@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import {
@@ -57,8 +56,8 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   it('should render correctly', () => {
-    const tree = renderer.create(renderComponent()).toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(renderComponent());
+    expect(container).toMatchSnapshot();
   });
 
   it('gives preference to ChannelAvatar from component context over the props Avatar component', () => {
@@ -94,7 +93,6 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(setActiveChannel).toHaveBeenCalledTimes(1);
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });

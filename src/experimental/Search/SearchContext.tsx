@@ -3,7 +3,7 @@ import type { SearchController } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export type SearchContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   directMessagingChannelType: string;
@@ -23,21 +23,21 @@ export const SearchContext = createContext<SearchContextValue | undefined>(undef
  * Context provider for components rendered within the `Search` component
  */
 export const SearchContextProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: SearchContextValue<StreamChatGenerics>;
 }>) => (
-  <SearchContext.Provider value={(value as unknown) as SearchContextValue}>
+  <SearchContext.Provider value={value as unknown as SearchContextValue}>
     {children}
   </SearchContext.Provider>
 );
 
 export const useSearchContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const contextValue = useContext(SearchContext);
-  return (contextValue as unknown) as SearchContextValue<StreamChatGenerics>;
+  return contextValue as unknown as SearchContextValue<StreamChatGenerics>;
 };

@@ -18,8 +18,9 @@ const visitor: Visitor = (node, index, parent) => {
   const countTruncatedLineBreaks = ownStartLine - prevEndLine - 1;
   if (countTruncatedLineBreaks < 1) return;
 
-  const lineBreaks = Array.from<unknown, Break>({ length: countTruncatedLineBreaks }, () =>
-    u('break', { tagName: 'br' }),
+  const lineBreaks = Array.from<unknown, Break>(
+    { length: countTruncatedLineBreaks },
+    () => u('break', { tagName: 'br' }),
   );
 
   parent.children = [

@@ -21,15 +21,14 @@ export type SearchSourceResultListProps = {
 };
 
 export const SearchSourceResultList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
-  loadMoreThresholdPx = 80,
   loadMoreDebounceMs = 100,
+  loadMoreThresholdPx = 80,
   SearchResultItems = DefaultSearchResultItems,
 }: SearchSourceResultListProps) => {
-  const {
-    SearchSourceResultListFooter = DefaultSearchSourceResultListFooter,
-  } = useComponentContext<StreamChatGenerics>();
+  const { SearchSourceResultListFooter = DefaultSearchSourceResultListFooter } =
+    useComponentContext<StreamChatGenerics>();
 
   const { searchSource } = useSearchSourceResultsContext();
   const { items } = useStateStore(searchSource.state, searchSourceStateSelector);
@@ -41,14 +40,20 @@ export const SearchSourceResultList = <
   if (!SearchResultItem) return null;
 
   return (
-    <div className='str-chat__search-source-result-list' data-testid='search-source-result-list'>
+    <div
+      className='str-chat__search-source-result-list'
+      data-testid='search-source-result-list'
+    >
       <InfiniteScrollPaginator
         loadNextDebounceMs={loadMoreDebounceMs}
         loadNextOnScrollToBottom={searchSource.search}
         threshold={loadMoreThresholdPx}
       >
         {items?.map((item, i) => (
-          <SearchResultItem item={item} key={`source-search-result-${searchSource.type}-${i}`} />
+          <SearchResultItem
+            item={item}
+            key={`source-search-result-${searchSource.type}-${i}`}
+          />
         ))}
         <SearchSourceResultListFooter />
       </InfiniteScrollPaginator>

@@ -29,17 +29,15 @@ export type SearchProps = {
 };
 
 export const Search = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   directMessagingChannelType = 'messaging',
   disabled,
   exitSearchOnInputBlur,
   placeholder,
 }: SearchProps) => {
-  const {
-    SearchBar = DefaultSearchBar,
-    SearchResults = DefaultSearchResults,
-  } = useComponentContext();
+  const { SearchBar = DefaultSearchBar, SearchResults = DefaultSearchResults } =
+    useComponentContext();
 
   const { searchController } = useChatContext<StreamChatGenerics>();
 

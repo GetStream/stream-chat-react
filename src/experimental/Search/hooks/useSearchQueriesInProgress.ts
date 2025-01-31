@@ -10,18 +10,21 @@ const searchControllerStateSelector = (value: SearchControllerState) => ({
 });
 
 export type UseSearchQueriesInProgressParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   searchController: SearchController<StreamChatGenerics>;
 };
 
 export const useSearchQueriesInProgress = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   searchController: SearchController<StreamChatGenerics>,
 ) => {
   const [queriesInProgress, setQueriesInProgress] = useState<string[]>([]);
-  const { sources } = useStateStore(searchController.state, searchControllerStateSelector);
+  const { sources } = useStateStore(
+    searchController.state,
+    searchControllerStateSelector,
+  );
 
   useEffect(() => {
     const subscriptions = sources.map((source: SearchSource) =>

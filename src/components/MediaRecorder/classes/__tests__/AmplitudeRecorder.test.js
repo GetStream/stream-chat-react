@@ -5,7 +5,6 @@ import {
 } from '../AmplitudeRecorder';
 import { AudioContextMock } from '../../../../mock-builders/browser';
 
-// eslint-disable-next-line
 window.AudioContext = AudioContextMock;
 
 const intervalID = 1;
@@ -14,7 +13,9 @@ jest.spyOn(window, 'setInterval').mockReturnValue(intervalID);
 describe('AmplitudeRecorder', () => {
   it('is initiated with defaults', () => {
     const ar = new AmplitudeRecorder({ stream: {} });
-    expect(ar.config).toStrictEqual(expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG));
+    expect(ar.config).toStrictEqual(
+      expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
+    );
   });
   it('is initiated with custom config', () => {
     const customConfig = {
@@ -35,7 +36,9 @@ describe('AmplitudeRecorder', () => {
 
     let ar = new AmplitudeRecorder({ config: customConfig });
     expect(ar.config).toStrictEqual(expect.objectContaining(customConfig));
-    ar = new AmplitudeRecorder({ config: { analyserConfig: customConfig.analyserConfig } });
+    ar = new AmplitudeRecorder({
+      config: { analyserConfig: customConfig.analyserConfig },
+    });
     expect(ar.config).toStrictEqual(expect.objectContaining(mixedConfig));
   });
 
@@ -43,7 +46,9 @@ describe('AmplitudeRecorder', () => {
     it('throws error if MediaStream is not available', () => {
       const ar = new AmplitudeRecorder({ stream: {} });
       ar.stream = undefined;
-      expect(ar.start).toThrow('Missing MediaStream instance. Cannot to start amplitude recording');
+      expect(ar.start).toThrow(
+        'Missing MediaStream instance. Cannot to start amplitude recording',
+      );
     });
 
     it('initiates the recorder state', () => {

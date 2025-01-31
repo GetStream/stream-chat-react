@@ -9,14 +9,14 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type ImageAttachmentPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>
+  CustomLocalMetadata = Record<string, unknown>,
 > = AttachmentPreviewProps<
   LocalImageAttachment<StreamChatGenerics, CustomLocalMetadata>,
   StreamChatGenerics
 >;
 
 export const ImageAttachmentPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
   handleRetry,

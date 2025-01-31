@@ -7,7 +7,9 @@ export type MessageListContextValue = {
   scrollToBottom: () => void;
 };
 
-export const MessageListContext = createContext<MessageListContextValue | undefined>(undefined);
+export const MessageListContext = createContext<MessageListContextValue | undefined>(
+  undefined,
+);
 
 /**
  * Context provider for components rendered within the `MessageList`

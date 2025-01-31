@@ -1,5 +1,8 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
 
 import type React from 'react';
 
@@ -17,11 +20,10 @@ export const handleActionWarning = `Action handler was called, but it is missing
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export function useActionHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(message?: StreamMessage<StreamChatGenerics>): ActionHandlerReturnType {
-  const { removeMessage, updateMessage } = useChannelActionContext<StreamChatGenerics>(
-    'useActionHandler',
-  );
+  const { removeMessage, updateMessage } =
+    useChannelActionContext<StreamChatGenerics>('useActionHandler');
   const { channel } = useChannelStateContext<StreamChatGenerics>('useActionHandler');
 
   return async (dataOrName, value, event) => {

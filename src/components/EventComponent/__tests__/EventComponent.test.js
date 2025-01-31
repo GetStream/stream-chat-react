@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { act, cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -37,8 +37,8 @@ describe('EventComponent', () => {
   };
 
   it('should render null for empty message', () => {
-    const tree = renderer.create(<EventComponent message={{}} />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`null`);
+    const { container } = render(<EventComponent message={{}} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render system events', async () => {
@@ -79,7 +79,9 @@ describe('EventComponent', () => {
   describe('timestamp formatting', () => {
     it('should format date with default formatting rules provided by i18n service', async () => {
       await renderComponent();
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('Friday 03/13/2020');
+      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
+        'Friday 03/13/2020',
+      );
     });
 
     it('should format date with custom formatting rules provided by i18n service', async () => {
@@ -87,7 +89,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(format: "YYYY") }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(format: "YYYY") }}',
             },
           }),
         },
@@ -100,7 +103,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(calendar: true) }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(calendar: true) }}',
             },
           }),
         },
@@ -140,7 +144,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(calendar: false) }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(calendar: false) }}',
             },
           }),
         },
@@ -172,7 +177,9 @@ describe('EventComponent', () => {
           },
         },
       });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('Friday 03/13/2020');
+      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
+        'Friday 03/13/2020',
+      );
     });
   });
 
@@ -187,28 +194,30 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const tree = renderer.create(<EventComponent message={message} />).toJSON();
-      expect(tree).toMatchInlineSnapshot(`
-        <div
-          className="str-chat__event-component__channel-event"
-        >
-          <img
-            data-testid="avatar"
-            name="user_id"
-            src="image_url"
-          />
+      const { container } = render(<EventComponent message={message} />);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
           <div
-            className="str-chat__event-component__channel-event__content"
+            class="str-chat__event-component__channel-event"
           >
-            <em
-              className="str-chat__event-component__channel-event__sentence"
-            >
-              user_id has joined the chat
-            </em>
+            <img
+              data-testid="avatar"
+              name="user_id"
+              src="image_url"
+            />
             <div
-              className="str-chat__event-component__channel-event__date"
+              class="str-chat__event-component__channel-event__content"
             >
-              6:18 PM
+              <em
+                class="str-chat__event-component__channel-event__sentence"
+              >
+                user_id has joined the chat
+              </em>
+              <div
+                class="str-chat__event-component__channel-event__date"
+              >
+                6:18 PM
+              </div>
             </div>
           </div>
         </div>
@@ -225,28 +234,30 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const tree = renderer.create(<EventComponent message={message} />).toJSON();
-      expect(tree).toMatchInlineSnapshot(`
-        <div
-          className="str-chat__event-component__channel-event"
-        >
-          <img
-            data-testid="avatar"
-            name="user_id"
-            src="image_url"
-          />
+      const { container } = render(<EventComponent message={message} />);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
           <div
-            className="str-chat__event-component__channel-event__content"
+            class="str-chat__event-component__channel-event"
           >
-            <em
-              className="str-chat__event-component__channel-event__sentence"
-            >
-              user_id was removed from the chat
-            </em>
+            <img
+              data-testid="avatar"
+              name="user_id"
+              src="image_url"
+            />
             <div
-              className="str-chat__event-component__channel-event__date"
+              class="str-chat__event-component__channel-event__content"
             >
-              6:18 PM
+              <em
+                class="str-chat__event-component__channel-event__sentence"
+              >
+                user_id was removed from the chat
+              </em>
+              <div
+                class="str-chat__event-component__channel-event__date"
+              >
+                6:18 PM
+              </div>
             </div>
           </div>
         </div>

@@ -4,7 +4,11 @@ import React from 'react';
 
 import { Search } from '../Search';
 // import { useSearchContext } from '../SearchContext';
-import { useChatContext, useComponentContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../context';
 import { useStateStore } from '../../../store';
 
 // jest.mock('../SearchContext');
@@ -15,8 +19,12 @@ const SEARCH_TEST_ID = 'search';
 const SEARCH_BAR_TEST_ID = 'search-bar';
 const SEARCH_RESULTS_ARIA_LABEL = 'aria/Search results';
 
-const CustomSearchBar = () => <div data-testid='custom-search-bar'>Custom Search Bar</div>;
-const CustomSearchResults = () => <div data-testid='custom-search-results'>Custom Results</div>;
+const CustomSearchBar = () => (
+  <div data-testid='custom-search-bar'>Custom Search Bar</div>
+);
+const CustomSearchResults = () => (
+  <div data-testid='custom-search-results'>Custom Results</div>
+);
 
 describe('Search', () => {
   const mockSearchController = {
@@ -94,12 +102,16 @@ describe('Search', () => {
 
     render(<Search {...defaultProps} />);
 
-    expect(screen.getByTestId(SEARCH_TEST_ID)).not.toHaveClass('str-chat__search--active');
+    expect(screen.getByTestId(SEARCH_TEST_ID)).not.toHaveClass(
+      'str-chat__search--active',
+    );
   });
 
   it('provides search context to children', () => {
     const ContextConsumer = () => {
-      const context = React.useContext(jest.requireActual('../SearchContext').SearchContext);
+      const context = React.useContext(
+        jest.requireActual('../SearchContext').SearchContext,
+      );
       return <div data-testid='context-consumer'>{context.placeholder}</div>;
     };
 
@@ -128,7 +140,9 @@ describe('Search', () => {
     };
 
     const ContextConsumer = () => {
-      const context = React.useContext(jest.requireActual('../SearchContext').SearchContext);
+      const context = React.useContext(
+        jest.requireActual('../SearchContext').SearchContext,
+      );
       return (
         <div data-testid='context-consumer'>
           <div data-testid='disabled'>{String(context.disabled)}</div>
@@ -167,7 +181,9 @@ describe('Search', () => {
 
     const { rerender } = render(<Search {...defaultProps} />);
 
-    expect(screen.getByTestId(SEARCH_TEST_ID)).not.toHaveClass('str-chat__search--active');
+    expect(screen.getByTestId(SEARCH_TEST_ID)).not.toHaveClass(
+      'str-chat__search--active',
+    );
 
     useStateStore.mockReturnValue({
       isActive: true,
@@ -179,10 +195,13 @@ describe('Search', () => {
   });
 
   it('uses default directMessagingChannelType when not provided', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { directMessagingChannelType, ...propsWithoutChannelType } = defaultProps;
 
     const ContextConsumer = () => {
-      const context = React.useContext(jest.requireActual('../SearchContext').SearchContext);
+      const context = React.useContext(
+        jest.requireActual('../SearchContext').SearchContext,
+      );
       return <div data-testid='channel-type'>{context.directMessagingChannelType}</div>;
     };
     const SearchBar = () => <ContextConsumer />;

@@ -1,21 +1,30 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import React from 'react';
 
 import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../../context/ChatContext';
-import { generateChannel, generateMessage, getTestClient } from '../../../../mock-builders';
+import {
+  generateChannel,
+  generateMessage,
+  getTestClient,
+} from '../../../../mock-builders';
 import { useReactionsFetcher } from '../useReactionsFetcher';
 
 function renderUseReactionsFetcherHook(client = getTestClient(), notificationOpts) {
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel: generateChannel() }}>{children}</ChannelStateProvider>
+      <ChannelStateProvider value={{ channel: generateChannel() }}>
+        {children}
+      </ChannelStateProvider>
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useReactionsFetcher(generateMessage(), notificationOpts), {
-    wrapper,
-  });
+  const { result } = renderHook(
+    () => useReactionsFetcher(generateMessage(), notificationOpts),
+    {
+      wrapper,
+    },
+  );
   return result.current;
 }
 

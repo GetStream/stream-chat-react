@@ -7,7 +7,7 @@ import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler'
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AttachmentActionsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Attachment<StreamChatGenerics> & {
   /** A list of actions */
   actions: Action[];
@@ -20,7 +20,7 @@ export type AttachmentActionsProps<
 };
 
 const UnMemoizedAttachmentActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: AttachmentActionsProps<StreamChatGenerics>,
 ) => {

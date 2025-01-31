@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { usePrependedMessagesCount } from '../VirtualizedMessageList';
 import { generateMessage } from '../../../../mock-builders';
 
@@ -22,13 +22,18 @@ const page1WithDateSeparator = messagesWithDateSeparator({ messages: page1 });
 const page2WithDateSeparator = messagesWithDateSeparator({ messages: page2 });
 
 const render = ({ hasDateSeparator, messages } = {}) =>
-  renderHook((props) => usePrependedMessagesCount(props.messages, props.hasDateSeparator), {
-    initialProps: { hasDateSeparator, messages },
-  });
+  renderHook(
+    (props) => usePrependedMessagesCount(props.messages, props.hasDateSeparator),
+    {
+      initialProps: { hasDateSeparator, messages },
+    },
+  );
 describe('usePrependMessagesCount', function () {
   it('is 0 when not messages are available', () => {
     const { result: resultMessagesUndefined } = render();
-    const { result: resultMessagesUndefinedHasDateSeparator } = render({ hasDateSeparator: true });
+    const { result: resultMessagesUndefinedHasDateSeparator } = render({
+      hasDateSeparator: true,
+    });
     const { result: resultMessagesEmpty } = render({ messages: [] });
     const { result: resultMessagesEmptyHasDateSeparator } = render({
       hasDateSeparator: true,

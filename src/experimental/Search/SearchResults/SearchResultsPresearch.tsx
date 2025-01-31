@@ -11,6 +11,8 @@ export type SearchResultsPresearchProps = {
 export const SearchResultsPresearch = () => {
   const { t } = useTranslationContext();
   return (
-    <div className='str-chat__search-results-presearch'>{t<string>('Start typing to search')}</div>
+    <div className='str-chat__search-results-presearch'>
+      {t<string>('Start typing to search')}
+    </div>
   );
 };

@@ -2,7 +2,10 @@
 import React from 'react';
 
 import { isUserMuted } from '../../components';
-import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../../components/Message/icons';
+import {
+  ReactionIcon as DefaultReactionIcon,
+  ThreadIcon,
+} from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import {
   useChannelActionContext,
@@ -139,17 +142,41 @@ const DefaultMessageActionComponents = {
 
 export const defaultMessageActionSet: MessageActionSetItem[] = [
   // { placement: 'dropdown', type: 'block' },
-  { Component: DefaultMessageActionComponents.quick.Reply, placement: 'quick', type: 'reply' },
-  { Component: DefaultMessageActionComponents.quick.React, placement: 'quick', type: 'react' },
+  {
+    Component: DefaultMessageActionComponents.quick.Reply,
+    placement: 'quick',
+    type: 'reply',
+  },
+  {
+    Component: DefaultMessageActionComponents.quick.React,
+    placement: 'quick',
+    type: 'react',
+  },
   {
     Component: DefaultMessageActionComponents.dropdown.Delete,
     placement: 'dropdown',
     type: 'delete',
   },
-  { Component: DefaultMessageActionComponents.dropdown.Edit, placement: 'dropdown', type: 'edit' },
-  { Component: DefaultMessageActionComponents.dropdown.Mute, placement: 'dropdown', type: 'mute' },
-  { Component: DefaultMessageActionComponents.dropdown.Flag, placement: 'dropdown', type: 'flag' },
-  { Component: DefaultMessageActionComponents.dropdown.Pin, placement: 'dropdown', type: 'pin' },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Edit,
+    placement: 'dropdown',
+    type: 'edit',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Mute,
+    placement: 'dropdown',
+    type: 'mute',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Flag,
+    placement: 'dropdown',
+    type: 'flag',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Pin,
+    placement: 'dropdown',
+    type: 'pin',
+  },
   {
     Component: DefaultMessageActionComponents.dropdown.Quote,
     placement: 'dropdown',

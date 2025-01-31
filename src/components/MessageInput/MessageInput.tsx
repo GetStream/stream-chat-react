@@ -6,7 +6,10 @@ import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
+import {
+  ComponentContextValue,
+  useComponentContext,
+} from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
@@ -35,12 +38,15 @@ export type EmojiSearchIndexResult = {
 export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
   search: (
     query: string,
-  ) => PromiseLike<Array<EmojiSearchIndexResult & T>> | Array<EmojiSearchIndexResult & T> | null;
+  ) =>
+    | PromiseLike<Array<EmojiSearchIndexResult & T>>
+    | Array<EmojiSearchIndexResult & T>
+    | null;
 }
 
 export type MessageInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = {
   /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -130,7 +136,7 @@ export type MessageInputProps<
 
 const MessageInputProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: PropsWithChildren<MessageInputProps<StreamChatGenerics, V>>,
 ) => {
@@ -154,17 +160,15 @@ const MessageInputProvider = <
 
 const UnMemoizedMessageInput = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
 ) => {
   const { Input: PropInput } = props;
 
   const { dragAndDropWindow } = useChannelStateContext<StreamChatGenerics>();
-  const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } = useComponentContext<
-    StreamChatGenerics,
-    V
-  >('MessageInput');
+  const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } =
+    useComponentContext<StreamChatGenerics, V>('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
@@ -194,4 +198,6 @@ const UnMemoizedMessageInput = <
 /**
  * A high level component that has provides all functionality to the Input it renders.
  */
-export const MessageInput = React.memo(UnMemoizedMessageInput) as typeof UnMemoizedMessageInput;
+export const MessageInput = React.memo(
+  UnMemoizedMessageInput,
+) as typeof UnMemoizedMessageInput;

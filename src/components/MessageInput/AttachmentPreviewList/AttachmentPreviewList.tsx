@@ -29,7 +29,7 @@ import { useMessageInputContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type AttachmentPreviewListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
@@ -42,7 +42,7 @@ export type AttachmentPreviewListProps<
 };
 
 export const AttachmentPreviewList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   AudioAttachmentPreview = DefaultFilePreview,
   FileAttachmentPreview = DefaultFilePreview,
@@ -51,11 +51,8 @@ export const AttachmentPreviewList = <
   VideoAttachmentPreview = DefaultFilePreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
 }: AttachmentPreviewListProps<StreamChatGenerics>) => {
-  const {
-    attachments,
-    removeAttachments,
-    uploadAttachment,
-  } = useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
+  const { attachments, removeAttachments, uploadAttachment } =
+    useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
 
   return (
     <div className='str-chat__attachment-preview-list'>

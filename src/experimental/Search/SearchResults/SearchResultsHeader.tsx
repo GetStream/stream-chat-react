@@ -17,7 +17,7 @@ type SearchSourceFilterButtonProps = {
 };
 
 const SearchSourceFilterButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   source,
 }: SearchSourceFilterButtonProps) => {
@@ -48,7 +48,7 @@ const SearchSourceFilterButton = <
 };
 
 export const SearchResultsHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { searchController } = useSearchContext<StreamChatGenerics>();
   return (

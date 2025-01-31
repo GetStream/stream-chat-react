@@ -47,10 +47,13 @@ export class DialogManager {
   }
 
   get openDialogCount() {
-    return Object.values(this.state.getLatestValue().dialogsById).reduce((count, dialog) => {
-      if (dialog.isOpen) return count + 1;
-      return count;
-    }, 0);
+    return Object.values(this.state.getLatestValue().dialogsById).reduce(
+      (count, dialog) => {
+        if (dialog.isOpen) return count + 1;
+        return count;
+      },
+      0,
+    );
   }
 
   getOrCreate({ id }: GetOrCreateDialogParams) {
@@ -120,7 +123,9 @@ export class DialogManager {
   }
 
   closeAll() {
-    Object.values(this.state.getLatestValue().dialogsById).forEach((dialog) => dialog.close());
+    Object.values(this.state.getLatestValue().dialogsById).forEach((dialog) =>
+      dialog.close(),
+    );
   }
 
   toggle(params: GetOrCreateDialogParams, closeAll = false) {

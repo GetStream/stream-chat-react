@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import renderer from 'react-test-renderer';
+
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -47,47 +47,39 @@ describe('Gallery', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const tree = renderer
-      .create(
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets.slice(0, 2)} />
-        </ComponentProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      <ComponentProvider value={{}}>
+        <Gallery images={mockGalleryAssets.slice(0, 2)} />
+      </ComponentProvider>,
+    );
+    expect(container).toMatchSnapshot();
   });
 
   it('should render component with 3 images', () => {
-    const tree = renderer
-      .create(
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets.slice(0, 3)} />
-        </ComponentProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      <ComponentProvider value={{}}>
+        <Gallery images={mockGalleryAssets.slice(0, 3)} />
+      </ComponentProvider>,
+    );
+    expect(container).toMatchSnapshot();
   });
 
   it('should render component with 4 images', () => {
-    const tree = renderer
-      .create(
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets.slice(0, 4)} />
-        </ComponentProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      <ComponentProvider value={{}}>
+        <Gallery images={mockGalleryAssets.slice(0, 4)} />
+      </ComponentProvider>,
+    );
+    expect(container).toMatchSnapshot();
   });
 
   it('should render component with 5 images', () => {
-    const tree = renderer
-      .create(
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets} />
-        </ComponentProvider>,
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      <ComponentProvider value={{}}>
+        <Gallery images={mockGalleryAssets} />
+      </ComponentProvider>,
+    );
+    expect(container).toMatchSnapshot();
   });
 
   it('should open modal on image click', async () => {
@@ -169,7 +161,9 @@ describe('Gallery', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels();
-    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    const CustomBaseImage = (props) => (
+      <img {...props} data-testid={'custom-base-image'} />
+    );
     const images = Array.from({ length: 2 }, (_, i) => ({
       fallback: `fallback-${i}`,
       image_url: `image_url-${i}`,

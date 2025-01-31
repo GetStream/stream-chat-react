@@ -23,7 +23,9 @@ describe('SearchSourceResults', () => {
     <div data-testid='default-empty-state'>No Results</div>
   );
 
-  const DefaultSearchSourceResultsHeader = () => <div data-testid='default-header'>Header</div>;
+  const DefaultSearchSourceResultsHeader = () => (
+    <div data-testid='default-header'>Header</div>
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -91,7 +93,9 @@ describe('SearchSourceResults', () => {
   });
 
   it('uses custom components when provided', () => {
-    const CustomResultList = () => <div data-testid='custom-result-list'>Custom List</div>;
+    const CustomResultList = () => (
+      <div data-testid='custom-result-list'>Custom List</div>
+    );
     const CustomEmpty = () => <div data-testid='custom-empty'>Custom Empty</div>;
     const CustomHeader = () => <div data-testid='custom-header'>Custom Header</div>;
 

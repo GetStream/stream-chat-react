@@ -19,7 +19,7 @@ export const SearchSourceResultsContextProvider = ({
   value: SearchSourceResultsContextValue;
 }>) => (
   <SearchSourceResultsContext.Provider
-    value={(value as unknown) as SearchSourceResultsContextValue}
+    value={value as unknown as SearchSourceResultsContextValue}
   >
     {children}
   </SearchSourceResultsContext.Provider>
@@ -27,5 +27,5 @@ export const SearchSourceResultsContextProvider = ({
 
 export const useSearchSourceResultsContext = () => {
   const contextValue = useContext(SearchSourceResultsContext);
-  return (contextValue as unknown) as SearchSourceResultsContextValue;
+  return contextValue as unknown as SearchSourceResultsContextValue;
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import renderer from 'react-test-renderer';
+
 import '@testing-library/jest-dom';
 
 import { SearchBar } from '../SearchBar';
@@ -43,7 +43,7 @@ describe('SearchBar', () => {
   beforeEach(async () => {
     const user = generateUser();
     client = await getTestClientWithUser({ id: user.id });
-    useMockedApis(client, [queryUsersApi([user])]); // eslint-disable-line react-hooks/rules-of-hooks
+    useMockedApis(client, [queryUsersApi([user])]);
   });
 
   it.each([
@@ -68,20 +68,18 @@ describe('SearchBar', () => {
   });
   it('should render default layout', () => {
     expect(
-      renderer
-        .create(
-          <SearchBar
-            activateSearch={jest.fn}
-            clearState={jest.fn}
-            exitSearch={jest.fn}
-            inputIsFocused={false}
-            inputRef={{ current: null }}
-            onSearch={jest.fn}
-            query=''
-            searchBarRef={{ current: null }}
-          />,
-        )
-        .toJSON(),
+      render(
+        <SearchBar
+          activateSearch={jest.fn}
+          clearState={jest.fn}
+          exitSearch={jest.fn}
+          inputIsFocused={false}
+          inputRef={{ current: null }}
+          onSearch={jest.fn}
+          query=''
+          searchBarRef={{ current: null }}
+        />,
+      ).container,
     ).toMatchSnapshot();
   });
   it.each([

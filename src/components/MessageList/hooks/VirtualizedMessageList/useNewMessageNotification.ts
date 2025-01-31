@@ -5,14 +5,15 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export function useNewMessageNotification<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
   currentUserId: string | undefined,
   hasMoreNewer?: boolean,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
-  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
+    useState(true);
   /**
    * use the flag to avoid the initial "new messages" quick blink
    */

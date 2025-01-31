@@ -15,7 +15,8 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
-  const { disabled, exitSearchOnInputBlur, placeholder, searchController } = useSearchContext();
+  const { disabled, exitSearchOnInputBlur, placeholder, searchController } =
+    useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
@@ -83,7 +84,9 @@ export const SearchBar = () => {
       </div>
       {isActive ? (
         <button
-          className={clsx('str-chat__search-bar-button str-chat__search-bar-button--exit-search')}
+          className={clsx(
+            'str-chat__search-bar-button str-chat__search-bar-button--exit-search',
+          )}
           data-testid='search-bar-button'
           onClick={() => {
             input?.blur();

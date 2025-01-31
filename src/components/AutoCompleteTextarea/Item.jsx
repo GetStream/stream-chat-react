@@ -13,7 +13,10 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
   } = props;
 
   const handleSelect = useCallback(() => onSelectHandler(item), [item, onSelectHandler]);
-  const handleClick = useCallback((event) => onClickHandler(event, item), [item, onClickHandler]);
+  const handleClick = useCallback(
+    (event) => onClickHandler(event, item),
+    [item, onClickHandler],
+  );
 
   return (
     <li

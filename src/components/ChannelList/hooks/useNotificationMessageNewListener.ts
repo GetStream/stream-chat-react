@@ -10,7 +10,7 @@ import type { Channel, Event } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useNotificationMessageNewListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   customHandler?: (
@@ -19,7 +19,9 @@ export const useNotificationMessageNewListener = <
   ) => void,
   allowNewMessagesFromUnfilteredChannels = true,
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>('useNotificationMessageNewListener');
+  const { client } = useChatContext<StreamChatGenerics>(
+    'useNotificationMessageNewListener',
+  );
 
   useEffect(() => {
     const handleEvent = async (event: Event<StreamChatGenerics>) => {

@@ -10,7 +10,7 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';
 
 export type ImageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   dimensions?: Dimensions;
   innerRef?: MutableRefObject<HTMLImageElement | null>;
@@ -32,16 +32,23 @@ export type ImageProps<
  * A simple component that displays an image.
  */
 export const ImageComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ImageProps<StreamChatGenerics>,
 ) => {
-  const { dimensions = {}, fallback, image_url, thumb_url, innerRef, previewUrl, style } = props;
+  const {
+    dimensions = {},
+    fallback,
+    image_url,
+    innerRef,
+    previewUrl,
+    style,
+    thumb_url,
+  } = props;
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
-    'ImageComponent',
-  );
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } =
+    useComponentContext('ImageComponent');
 
   const imageSrc = sanitizeUrl(previewUrl || image_url || thumb_url);
 

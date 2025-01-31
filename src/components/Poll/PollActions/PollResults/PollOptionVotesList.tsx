@@ -8,13 +8,13 @@ import type { PollOption, PollOptionVotesQueryParams } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
 
 export type PollOptionVotesListingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   option: PollOption<StreamChatGenerics>;
 };
 
 export const PollOptionVotesList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   option,
 }: PollOptionVotesListingProps<StreamChatGenerics>) => {
@@ -22,15 +22,10 @@ export const PollOptionVotesList = <
     () => ({ filter: { option_id: option.id } }),
     [option.id],
   );
-  const {
-    error,
-    hasNextPage,
-    loading,
-    loadMore,
-    votes,
-  } = usePollOptionVotesPagination<StreamChatGenerics>({
-    paginationParams,
-  });
+  const { error, hasNextPage, loading, loadMore, votes } =
+    usePollOptionVotesPagination<StreamChatGenerics>({
+      paginationParams,
+    });
 
   return (
     <div className='str-chat__poll-option str-chat__poll-option--full-vote-list'>

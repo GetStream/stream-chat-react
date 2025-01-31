@@ -18,7 +18,7 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
 export type SearchSourceResultsProps = { searchSource: SearchSource };
 
 export const SearchSourceResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   searchSource,
 }: SearchSourceResultsProps) => {
@@ -27,15 +27,25 @@ export const SearchSourceResults = <
     SearchSourceResultsEmpty = DefaultSearchSourceResultsEmpty,
     SearchSourceResultsHeader = DefaultSearchSourceResultsHeader,
   } = useComponentContext<StreamChatGenerics>();
-  const { isLoading, items } = useStateStore(searchSource.state, searchSourceStateSelector);
+  const { isLoading, items } = useStateStore(
+    searchSource.state,
+    searchSourceStateSelector,
+  );
 
   if (!items && !isLoading) return null;
 
   return (
     <SearchSourceResultsContextProvider value={{ searchSource }}>
-      <div className='str-chat__search-source-results' data-testid='search-source-results'>
+      <div
+        className='str-chat__search-source-results'
+        data-testid='search-source-results'
+      >
         <SearchSourceResultsHeader />
-        {items?.length || isLoading ? <SearchSourceResultList /> : <SearchSourceResultsEmpty />}
+        {items?.length || isLoading ? (
+          <SearchSourceResultList />
+        ) : (
+          <SearchSourceResultsEmpty />
+        )}
       </div>
     </SearchSourceResultsContextProvider>
   );

@@ -1,4 +1,4 @@
-/* eslint-disable sort-keys */
+ 
 const smallImageAttachment = [
   {
     type: 'image',

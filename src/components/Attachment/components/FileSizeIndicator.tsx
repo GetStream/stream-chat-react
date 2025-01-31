@@ -11,7 +11,10 @@ type FileSizeIndicatorProps = {
   maximumFractionDigits?: number;
 };
 
-export const FileSizeIndicator = ({ fileSize, maximumFractionDigits }: FileSizeIndicatorProps) => {
+export const FileSizeIndicator = ({
+  fileSize,
+  maximumFractionDigits,
+}: FileSizeIndicatorProps) => {
   if (!(fileSize && Number.isFinite(Number(fileSize)))) return null;
 
   return (

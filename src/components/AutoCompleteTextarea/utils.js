@@ -1,5 +1,3 @@
-import { isValidElementType } from 'react-is';
-
 export const DEFAULT_CARET_POSITION = 'next';
 
 export function defaultScrollToItem(container, item) {
@@ -13,11 +11,13 @@ export function defaultScrollToItem(container, item) {
   const actualScrollTop = container.scrollTop;
   const itemOffsetTop = item.offsetTop;
 
-  if (itemOffsetTop < actualScrollTop + containerHight && actualScrollTop < itemOffsetTop) {
+  if (
+    itemOffsetTop < actualScrollTop + containerHight &&
+    actualScrollTop < itemOffsetTop
+  ) {
     return;
   }
 
-  // eslint-disable-next-line
   container.scrollTop = itemOffsetTop;
 }
 
@@ -36,17 +36,15 @@ export const triggerPropsCheck = ({ trigger }) => {
     const [triggerChar, settings] = triggers[i];
 
     if (typeof triggerChar !== 'string' || triggerChar.length !== 1) {
-      return Error('Invalid prop trigger. Keys of the object has to be string / one character.');
+      return Error(
+        'Invalid prop trigger. Keys of the object has to be string / one character.',
+      );
     }
 
     // $FlowFixMe
     const triggerSetting = settings;
 
-    const { callback, component, dataProvider, output } = triggerSetting;
-
-    if (!isValidElementType(component)) {
-      return Error('Invalid prop trigger: component should be defined.');
-    }
+    const { callback, dataProvider, output } = triggerSetting;
 
     if (!dataProvider || typeof dataProvider !== 'function') {
       return Error('Invalid prop trigger: dataProvider should be defined.');

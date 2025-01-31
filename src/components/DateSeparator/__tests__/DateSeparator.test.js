@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import { act, cleanup, render, screen } from '@testing-library/react';
@@ -12,7 +12,7 @@ import { Streami18n } from '../../../i18n';
 
 Dayjs.extend(calendar);
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 const DATE_SEPARATOR_TEST_ID = 'date-separator';
 const dateMock = 'the date';
@@ -106,7 +106,8 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
@@ -144,7 +145,8 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
@@ -180,65 +182,85 @@ describe('DateSeparator', () => {
       <DateSeparator date={date} formatDate={formatDate} position={position} />
     );
 
-    const defaultPosition = renderer.create(renderWithPosition()).toJSON();
-
     it('should render correctly with position==="right", and it should match the default', () => {
-      const tree = renderer.create(renderWithPosition('right')).toJSON();
-      expect(tree).toMatchInlineSnapshot(`
-        <div
-          className="str-chat__date-separator"
-          data-testid="date-separator"
-        >
-          <hr
-            className="str-chat__date-separator-line"
-          />
+      const { container } = render(renderWithPosition('right'));
+      expect(container).toMatchInlineSnapshot(`
+        <div>
           <div
-            className="str-chat__date-separator-date"
+            class="str-chat__date-separator"
+            data-testid="date-separator"
           >
-            the date
+            <hr
+              class="str-chat__date-separator-line"
+            />
+            <div
+              class="str-chat__date-separator-date"
+            >
+              the date
+            </div>
           </div>
         </div>
       `);
-      expect(defaultPosition).toStrictEqual(tree);
+      expect(render(renderWithPosition()).container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__date-separator"
+            data-testid="date-separator"
+          >
+            <hr
+              class="str-chat__date-separator-line"
+            />
+            <div
+              class="str-chat__date-separator-date"
+            >
+              the date
+            </div>
+          </div>
+        </div>
+      `);
     });
 
     it('should render correctly with position==="left"', () => {
-      const tree = renderer.create(renderWithPosition('left')).toJSON();
-      expect(tree).toMatchInlineSnapshot(`
-        <div
-          className="str-chat__date-separator"
-          data-testid="date-separator"
-        >
+      const { container } = render(renderWithPosition('left'));
+      expect(container).toMatchInlineSnapshot(`
+        <div>
           <div
-            className="str-chat__date-separator-date"
+            class="str-chat__date-separator"
+            data-testid="date-separator"
           >
-            the date
+            <div
+              class="str-chat__date-separator-date"
+            >
+              the date
+            </div>
+            <hr
+              class="str-chat__date-separator-line"
+            />
           </div>
-          <hr
-            className="str-chat__date-separator-line"
-          />
         </div>
       `);
     });
 
     it('should render correctly with position==="center"', () => {
-      const tree = renderer.create(renderWithPosition('center')).toJSON();
-      expect(tree).toMatchInlineSnapshot(`
-        <div
-          className="str-chat__date-separator"
-          data-testid="date-separator"
-        >
-          <hr
-            className="str-chat__date-separator-line"
-          />
+      const { container } = render(renderWithPosition('center'));
+      expect(container).toMatchInlineSnapshot(`
+        <div>
           <div
-            className="str-chat__date-separator-date"
+            class="str-chat__date-separator"
+            data-testid="date-separator"
           >
-            the date
+            <hr
+              class="str-chat__date-separator-line"
+            />
+            <div
+              class="str-chat__date-separator-date"
+            >
+              the date
+            </div>
+            <hr
+              class="str-chat__date-separator-line"
+            />
           </div>
-          <hr
-            className="str-chat__date-separator-line"
-          />
         </div>
       `);
     });

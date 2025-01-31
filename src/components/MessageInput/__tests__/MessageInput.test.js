@@ -83,7 +83,8 @@ const mockUploadApi = () =>
     }),
   );
 
-const mockFaultyUploadApi = (cause) => jest.fn().mockImplementation(() => Promise.reject(cause));
+const mockFaultyUploadApi = (cause) =>
+  jest.fn().mockImplementation(() => Promise.reject(cause));
 
 const submitMock = jest.fn();
 const editMock = jest.fn();
@@ -113,64 +114,70 @@ function dropFile(file, formElement) {
   });
 }
 
-const makeRenderFn = (InputComponent) => async ({
-  channelProps = {},
-  channelData = [],
-  chatContextOverrides = {},
-  customChannel,
-  customClient,
-  customUser,
-  messageInputProps = {},
-  messageContextOverrides = {},
-  messageActionsBoxProps = {},
-} = {}) => {
-  let channel = customChannel;
-  let client = customClient;
-  if (!(channel || client)) {
-    const result = await initClientWithChannels({
-      channelsData: [{ ...mockedChannelData, ...channelData }],
-      customUser: customUser || user,
-    });
-    channel = result.channels[0];
-    client = result.client;
-  }
-  let renderResult;
+const makeRenderFn =
+  (InputComponent) =>
+  async ({
+    channelData = [],
+    channelProps = {},
+    chatContextOverrides = {},
+    customChannel,
+    customClient,
+    customUser,
+    messageActionsBoxProps = {},
+    messageContextOverrides = {},
+    messageInputProps = {},
+  } = {}) => {
+    let channel = customChannel;
+    let client = customClient;
+    if (!(channel || client)) {
+      const result = await initClientWithChannels({
+        channelsData: [{ ...mockedChannelData, ...channelData }],
+        customUser: customUser || user,
+      });
+      channel = result.channels[0];
+      client = result.client;
+    }
+    let renderResult;
 
-  const defaultMessageInputProps =
-    InputComponent.name === 'EditMessageForm' ? { message: mainListMessage } : {};
-  await act(() => {
-    renderResult = render(
-      <ChatProvider value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}>
-        <Channel
-          doSendMessageRequest={submitMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
+    const defaultMessageInputProps =
+      InputComponent.name === 'EditMessageForm' ? { message: mainListMessage } : {};
+    await act(() => {
+      renderResult = render(
+        <ChatProvider
+          value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
         >
-          <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
+          <Channel
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
+          >
+            <MessageProvider
+              value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+            >
+              <MessageActionsBox
+                {...messageActionsBoxProps}
+                getMessageActions={defaultMessageContextValue.getMessageActions}
+              />
+            </MessageProvider>
+            <MessageInput
+              Input={InputComponent}
+              {...{ ...defaultMessageInputProps, ...messageInputProps }}
             />
-          </MessageProvider>
-          <MessageInput
-            Input={InputComponent}
-            {...{ ...defaultMessageInputProps, ...messageInputProps }}
-          />
-        </Channel>
-      </ChatProvider>,
-    );
-  });
+          </Channel>
+        </ChatProvider>,
+      );
+    });
 
-  const submit = async () => {
-    const submitButton =
-      renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
-      renderResult.findByText('Send') ||
-      renderResult.findByTitle('Send');
-    fireEvent.click(await submitButton);
+    const submit = async () => {
+      const submitButton =
+        renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
+        renderResult.findByText('Send') ||
+        renderResult.findByTitle('Send');
+      fireEvent.click(await submitButton);
+    };
+
+    return { channel, client, submit, ...renderResult };
   };
-
-  return { channel, client, submit, ...renderResult };
-};
 
 const tearDown = () => {
   cleanup();
@@ -381,7 +388,9 @@ function axeNoViolations(container) {
           expect(screen.queryByTestId(IMAGE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
           expect(screen.queryByTestId(FILE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
           expect(screen.queryByText(filename)).not.toBeInTheDocument();
-          expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+          expect(
+            screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+          ).not.toBeInTheDocument();
           if (componentName === 'EditMessageForm') {
             expect(formElement.value.startsWith(pastedString)).toBeTruthy();
           } else {
@@ -481,7 +490,11 @@ function axeNoViolations(container) {
         });
 
         await waitFor(() => {
-          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-attachment', expect.any(Object));
+          expect(errorHandler).toHaveBeenCalledWith(
+            cause,
+            'upload-attachment',
+            expect.any(Object),
+          );
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
         await axeNoViolations(container);
@@ -505,7 +518,11 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         await waitFor(() => {
-          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-attachment', expect.any(Object));
+          expect(errorHandler).toHaveBeenCalledWith(
+            cause,
+            'upload-attachment',
+            expect.any(Object),
+          );
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
 
@@ -567,7 +584,9 @@ function axeNoViolations(container) {
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
 
-        await waitFor(() => expect(screen.queryByText(filename2)).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByText(filename2)).not.toBeInTheDocument(),
+        );
 
         await axeNoViolations(container);
       });
@@ -591,7 +610,9 @@ function axeNoViolations(container) {
 
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
-        await waitFor(() => expect(screen.queryByText(filename2)).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByText(filename2)).not.toBeInTheDocument(),
+        );
         await axeNoViolations(container);
       });
 
@@ -610,7 +631,9 @@ function axeNoViolations(container) {
         const formElement = await screen.findByPlaceholderText(inputPlaceholder);
         const file = getFile(filename1);
         await act(() => dropFile(file, formElement));
-        await waitFor(() => expect(screen.queryByText(filename1)).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByText(filename1)).not.toBeInTheDocument(),
+        );
 
         expect(mockAddNotification).toHaveBeenCalledTimes(1);
         expect(mockAddNotification.mock.calls[0][0]).toContain('File is too large');
@@ -676,7 +699,9 @@ function axeNoViolations(container) {
             message: {},
           },
         });
-        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+        ).not.toBeInTheDocument();
       });
 
       it('should not show attachment previews if no files uploaded and attachments available are only link previews', async () => {
@@ -685,7 +710,9 @@ function axeNoViolations(container) {
             message: { attachments: [generateScrapedDataAttachment()] },
           },
         });
-        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+        ).not.toBeInTheDocument();
       });
 
       it('should not show attachment preview list if only failed uploads are available', async () => {
@@ -704,7 +731,9 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         await waitFor(() => {
-          expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+          expect(
+            screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -851,7 +880,11 @@ function axeNoViolations(container) {
           const { handleChange, handleSubmit, value } = useMessageInputContext();
           return (
             <form>
-              <input onChange={handleChange} placeholder={inputPlaceholder} value={value} />
+              <input
+                onChange={handleChange}
+                placeholder={inputPlaceholder}
+                value={value}
+              />
               <button
                 onClick={(event) => {
                   handleSubmit(event, customMessageData);
@@ -937,11 +970,15 @@ function axeNoViolations(container) {
       });
 
       it('should not do anything if the message is empty and has no files', async () => {
-        const { container, submit } = await renderComponent({ messageInputProps: { message: {} } });
+        const { container, submit } = await renderComponent({
+          messageInputProps: { message: {} },
+        });
 
         await act(() => submit());
 
-        expect(componentName === 'EditMessageForm' ? editMock : submitMock).not.toHaveBeenCalled();
+        expect(
+          componentName === 'EditMessageForm' ? editMock : submitMock,
+        ).not.toHaveBeenCalled();
         await axeNoViolations(container);
       });
 
@@ -959,7 +996,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for image uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1003,7 +1040,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1049,7 +1086,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
-        // eslint-disable-next-line jest/prefer-called-with
+
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
         await act(() => submit());
@@ -1388,7 +1425,9 @@ function axeNoViolations(container) {
 
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
 
-      await waitFor(() => expect(screen.queryByText('Suggestion List')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('Suggestion List')).not.toBeInTheDocument(),
+      );
 
       act(() => {
         fireEvent.change(formElement, {
@@ -1397,8 +1436,8 @@ function axeNoViolations(container) {
       });
 
       if (componentName !== 'EditMessageForm') {
-        await waitFor(
-          () => expect(screen.getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
+        await waitFor(() =>
+          expect(screen.getByTestId('suggestion-list')).toBeInTheDocument(),
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -1493,7 +1532,9 @@ describe(`MessageInputFlat only`, () => {
   };
 
   const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-    await waitFor(() => expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+    );
     await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
   };
 
@@ -1540,11 +1581,16 @@ describe(`MessageInputFlat only`, () => {
       const { container } = await renderComponent({
         customChannel: channel,
         customClient: client,
-        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+        messageContextOverrides: {
+          ...defaultMessageContextValue,
+          message: messageWithPoll,
+        },
       });
 
       await initQuotedMessagePreview(messageWithPoll);
-      expect(container.querySelector('.str-chat__quoted-poll-preview')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__quoted-poll-preview'),
+      ).toBeInTheDocument();
     });
 
     it('renders custom quoted Poll component if message contains poll', async () => {
@@ -1563,7 +1609,10 @@ describe(`MessageInputFlat only`, () => {
         channelProps: { QuotedPoll },
         customChannel: channel,
         customClient: client,
-        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+        messageContextOverrides: {
+          ...defaultMessageContextValue,
+          message: messageWithPoll,
+        },
       });
 
       await initQuotedMessagePreview(messageWithPoll);
@@ -1649,7 +1698,9 @@ describe(`MessageInputFlat only`, () => {
     it('should be removed after cool-down period elapsed', async () => {
       jest.useFakeTimers();
       await renderWithActiveCooldown();
-      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
+      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(
+        cooldown.toString(),
+      );
       act(() => {
         jest.advanceTimersByTime(cooldown * 1000);
       });

@@ -40,7 +40,9 @@ describe('SearchResults', () => {
     <div data-testid={SOURCE_RESULTS_TEST_ID}>Results for {searchSource.type}</div>
   );
   const DefaultSearchResultsPresearch = ({ activeSources }) => (
-    <div data-testid={PRESEARCH_TEST_ID}>Presearch with {activeSources.length} sources</div>
+    <div data-testid={PRESEARCH_TEST_ID}>
+      Presearch with {activeSources.length} sources
+    </div>
   );
 
   beforeEach(() => {
@@ -131,8 +133,12 @@ describe('SearchResults', () => {
 
   it('uses custom components when provided', () => {
     const CustomHeader = () => <div data-testid='custom-header'>Custom Header</div>;
-    const CustomSourceResults = () => <div data-testid='custom-source-results'>Custom Results</div>;
-    const CustomPresearch = () => <div data-testid='custom-presearch'>Custom Presearch</div>;
+    const CustomSourceResults = () => (
+      <div data-testid='custom-source-results'>Custom Results</div>
+    );
+    const CustomPresearch = () => (
+      <div data-testid='custom-presearch'>Custom Presearch</div>
+    );
 
     useComponentContext.mockReturnValue({
       SearchResultsHeader: CustomHeader,

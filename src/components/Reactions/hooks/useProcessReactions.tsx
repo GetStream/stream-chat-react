@@ -27,7 +27,7 @@ export const defaultReactionsSort: ReactionsComparator = (a, b) => {
 };
 
 export const useProcessReactions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: UseProcessReactionsParams,
 ) => {
@@ -38,12 +38,10 @@ export const useProcessReactions = <
     reactions: propReactions,
     sortReactions: propSortReactions,
   } = params;
-  const { message, sortReactions: contextSortReactions } = useMessageContext<StreamChatGenerics>(
-    'useProcessReactions',
-  );
-  const {
-    reactionOptions: contextReactionOptions = defaultReactionOptions,
-  } = useComponentContext<StreamChatGenerics>('useProcessReactions');
+  const { message, sortReactions: contextSortReactions } =
+    useMessageContext<StreamChatGenerics>('useProcessReactions');
+  const { reactionOptions: contextReactionOptions = defaultReactionOptions } =
+    useComponentContext<StreamChatGenerics>('useProcessReactions');
 
   const reactionOptions = propReactionOptions ?? contextReactionOptions;
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
@@ -122,7 +120,8 @@ export const useProcessReactions = <
   const hasReactions = existingReactions.length > 0;
 
   const totalReactionCount = useMemo(
-    () => existingReactions.reduce((total, { reactionCount }) => total + reactionCount, 0),
+    () =>
+      existingReactions.reduce((total, { reactionCount }) => total + reactionCount, 0),
     [existingReactions],
   );
 

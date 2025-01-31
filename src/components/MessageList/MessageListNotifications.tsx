@@ -49,7 +49,9 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
         threadList={threadList}
         unreadCount={unreadCount}
       >
-        {isNotAtLatestMessageSet ? t<string>('Latest Messages') : t<string>('New Messages!')}
+        {isNotAtLatestMessageSet
+          ? t<string>('Latest Messages')
+          : t<string>('New Messages!')}
       </MessageNotification>
     </div>
   );

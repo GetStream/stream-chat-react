@@ -45,4 +45,6 @@ const UnMemoizedEmoticonItem = (props: EmoticonItemProps) => {
   );
 };
 
-export const EmoticonItem = React.memo(UnMemoizedEmoticonItem) as typeof UnMemoizedEmoticonItem;
+export const EmoticonItem = React.memo(
+  UnMemoizedEmoticonItem,
+) as typeof UnMemoizedEmoticonItem;

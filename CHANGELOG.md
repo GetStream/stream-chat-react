@@ -1,3 +1,28 @@
+## [12.10.0](https://github.com/GetStream/stream-chat-react/compare/v12.9.0...v12.10.0) (2025-01-28)
+
+
+### Bug Fixes
+
+* mark channel read for all incoming unread messages ([#2622](https://github.com/GetStream/stream-chat-react/issues/2622)) ([893e407](https://github.com/GetStream/stream-chat-react/commit/893e4076083ac0e79894a2d2691373c7ef667e26))
+
+
+### Features
+
+* add VirtualizedMessageListContext ([#2619](https://github.com/GetStream/stream-chat-react/issues/2619)) ([e3838d6](https://github.com/GetStream/stream-chat-react/commit/e3838d62b9c979b7c87199e4e1961f96c722fc53))
+
+## [12.9.0](https://github.com/GetStream/stream-chat-react/compare/v12.8.2...v12.9.0) (2025-01-27)
+
+
+### Bug Fixes
+
+* channel-pinning related improvements ([#2602](https://github.com/GetStream/stream-chat-react/issues/2602)) ([9f41a4c](https://github.com/GetStream/stream-chat-react/commit/9f41a4cae12abd36690b57e111ce49994dd8b409)), closes [/github.com/GetStream/stream-chat-react/issues/2595#issuecomment-2569118691](https://github.com/GetStream//github.com/GetStream/stream-chat-react/issues/2595/issues/issuecomment-2569118691)
+* import execSync ([#2616](https://github.com/GetStream/stream-chat-react/issues/2616)) ([3801375](https://github.com/GetStream/stream-chat-react/commit/38013759fbfb327acfb36ecbce0009450a93089e))
+
+
+### Features
+
+* add prop disabled to ChatAutoComplete props ([#2617](https://github.com/GetStream/stream-chat-react/issues/2617)) ([8b686fe](https://github.com/GetStream/stream-chat-react/commit/8b686fe636deeff8590bf3498b034bca5b8b2397))
+
 ## [12.8.2](https://github.com/GetStream/stream-chat-react/compare/v12.8.1...v12.8.2) (2025-01-10)
 
 

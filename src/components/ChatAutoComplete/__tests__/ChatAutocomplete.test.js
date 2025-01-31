@@ -52,7 +52,8 @@ const renderComponent = async (
   messageInputContextOverrides = {},
   activeChannel = channel,
 ) => {
-  const placeholderText = props.placeholder || 'placeholder';
+  const placeholderText =
+    props.placeholder === null ? null : props.placeholder || 'placeholder';
 
   const OverrideMessageInputContext = ({ children }) => {
     const currentContext = useMessageInputContext();
@@ -61,7 +62,9 @@ const renderComponent = async (
       ...messageInputContextOverrides,
     };
     return (
-      <MessageInputContextProvider value={withOverrides}>{children}</MessageInputContextProvider>
+      <MessageInputContextProvider value={withOverrides}>
+        {children}
+      </MessageInputContextProvider>
     );
   };
 
@@ -70,24 +73,32 @@ const renderComponent = async (
       <ChatAutoComplete {...props} placeholder={placeholderText} />
     </OverrideMessageInputContext>
   );
+  let renderResult;
+  await act(() => {
+    renderResult = render(
+      <Chat client={chatClient}>
+        <ActiveChannelSetter activeChannel={activeChannel} />
+        <Channel>
+          <MessageInput emojiSearchIndex={searchIndexMock} Input={AutoComplete} />
+        </Channel>
+      </Chat>,
+    );
+  });
 
-  const renderResult = render(
-    <Chat client={chatClient}>
-      <ActiveChannelSetter activeChannel={activeChannel} />
-      <Channel>
-        <MessageInput emojiSearchIndex={searchIndexMock} Input={AutoComplete} />
-      </Channel>
-    </Chat>,
-  );
-  const textarea = await waitFor(() => renderResult.getByPlaceholderText(placeholderText));
-  const typeText = (text) => {
-    fireEvent.change(textarea, {
-      target: {
-        selectionEnd: text.length,
-        value: text,
-      },
-    });
-  };
+  let textarea;
+  let typeText;
+  if (placeholderText !== null) {
+    textarea = await waitFor(() => renderResult.getByPlaceholderText(placeholderText));
+
+    typeText = (text) => {
+      fireEvent.change(textarea, {
+        target: {
+          selectionEnd: text.length,
+          value: text,
+        },
+      });
+    };
+  }
   return { ...renderResult, textarea, typeText };
 };
 
@@ -130,6 +141,23 @@ describe('ChatAutoComplete', () => {
     const { textarea } = await renderComponent({}, { disabled: true });
 
     expect(textarea).toBeDisabled();
+  });
+
+  it('should give preference to prop disabled over the MessageInputContext value', async () => {
+    const { textarea } = await renderComponent({ disabled: false }, { disabled: true });
+
+    expect(textarea).toBeEnabled();
+  });
+
+  it('should give preference to cooldown value over the prop disabled', async () => {
+    await renderComponent(
+      { disabled: false, placeholder: null },
+      { cooldownRemaining: 10 },
+    );
+    expect(screen.queryByPlaceholderText('Placeholder')).not.toBeInTheDocument();
+    const textarea = screen.getByTestId('message-input');
+    expect(textarea).toBeDisabled();
+    expect(textarea).toHaveProperty('placeholder', 'Slow Mode ON');
   });
 
   it('should let you select emojis when you type :<emoji>', async () => {
@@ -214,7 +242,6 @@ describe('ChatAutoComplete', () => {
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
 
-    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(userText).toHaveLength(0);
   });
 

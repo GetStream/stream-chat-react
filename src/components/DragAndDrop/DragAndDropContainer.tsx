@@ -22,8 +22,8 @@ export const DragAndDropContainer = ({
     dragStartIndex === null || dragOverIndex === null
       ? undefined
       : dragStartIndex <= dragOverIndex
-      ? 'down'
-      : 'up';
+        ? 'down'
+        : 'up';
 
   const childrenArray = React.Children.toArray(children);
 
@@ -115,7 +115,10 @@ export const DragAndDropContainer = ({
   }, [container, onSetNewOrder]);
 
   return (
-    <div className={clsx('str-chat__drag-and-drop-container', className)} ref={setContainer}>
+    <div
+      className={clsx('str-chat__drag-and-drop-container', className)}
+      ref={setContainer}
+    >
       {order.map((originalIndex, currentIndex) => {
         const child = childrenArray[originalIndex];
         return (
@@ -127,7 +130,9 @@ export const DragAndDropContainer = ({
                 moveDirection === 'down' && dragOverIndex === currentIndex,
             })}
             draggable={draggable}
-            key={React.isValidElement(child) ? child.key : `draggable-item-${originalIndex}`}
+            key={
+              React.isValidElement(child) ? child.key : `draggable-item-${originalIndex}`
+            }
           >
             {child}
           </div>

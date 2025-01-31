@@ -2,7 +2,6 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import renderer from 'react-test-renderer';
 import { nanoid } from 'nanoid';
 import { AttachmentActions } from '../AttachmentActions';
 
@@ -22,16 +21,14 @@ const actions = [
 
 describe('AttachmentActions', () => {
   it('should render AttachmentActions component', () => {
-    const tree = renderer
-      .create(
-        getComponent({
-          actionHandler: jest.fn(),
-          actions,
-          id: nanoid(),
-        }),
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(
+      getComponent({
+        actionHandler: jest.fn(),
+        actions,
+        id: nanoid(),
+      }),
+    );
+    expect(container).toMatchSnapshot();
   });
   it('should call actionHandler on click', async () => {
     const actionHandler = jest.fn();
@@ -51,7 +48,6 @@ describe('AttachmentActions', () => {
     fireEvent.click(getByTestId(actions[1].name));
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(actionHandler).toHaveBeenCalledTimes(2);
     });
   });

@@ -7,7 +7,10 @@ import { DragAndDropContainer } from '../../DragAndDrop/DragAndDropContainer';
 import { useTranslationContext } from '../../../context';
 import type { OptionErrors, PollFormState, PollOptionFormData } from './types';
 
-const VALIDATION_ERRORS = ({ 'Option already exists': true } as const) as Record<string, boolean>;
+const VALIDATION_ERRORS = { 'Option already exists': true } as const as Record<
+  string,
+  boolean
+>;
 
 export type OptionFieldSetProps = {
   errors: OptionErrors;
@@ -16,7 +19,12 @@ export type OptionFieldSetProps = {
   setState: (fn: (prev: PollFormState) => PollFormState) => void;
 };
 
-export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionFieldSetProps) => {
+export const OptionFieldSet = ({
+  errors,
+  options,
+  setErrors,
+  setState,
+}: OptionFieldSetProps) => {
   const { t } = useTranslationContext('OptionFieldSet');
 
   const findOptionDuplicate = (sourceOption: PollOptionFormData) => {
@@ -30,7 +38,10 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
 
   const onSetNewOrder = useCallback(
     (newOrder: number[]) => {
-      setState((prev) => ({ ...prev, options: newOrder.map((index) => prev.options[index]) }));
+      setState((prev) => ({
+        ...prev,
+        options: newOrder.map((index) => prev.options[index]),
+      }));
     },
     [setState],
   );
@@ -76,7 +87,9 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
                       (!prev.options ||
                         (prev.options.slice(i + 1).length === 0 && !!e.target.value));
                     const shouldRemoveOption =
-                      prev.options && prev.options.slice(i + 1).length > 0 && !e.target.value;
+                      prev.options &&
+                      prev.options.slice(i + 1).length > 0 &&
+                      !e.target.value;
 
                     const optionListHead = prev.options ? prev.options.slice(0, i) : [];
                     const optionListTail = shouldAddEmptyOption
@@ -98,7 +111,9 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
                       ...prev,
                       options: [
                         ...optionListHead,
-                        ...(shouldRemoveOption ? [] : [{ ...option, text: e.target.value }]),
+                        ...(shouldRemoveOption
+                          ? []
+                          : [{ ...option, text: e.target.value }]),
                         ...optionListTail,
                       ],
                     };

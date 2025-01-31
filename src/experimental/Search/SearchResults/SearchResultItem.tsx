@@ -12,13 +12,13 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type ChannelSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   item: Channel<StreamChatGenerics>;
 };
 
 export const ChannelSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   item,
 }: ChannelSearchResultItemProps<StreamChatGenerics>) => {
@@ -30,17 +30,23 @@ export const ChannelSearchResultItem = <
     setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
   }, [item, setActiveChannel, setChannels]);
 
-  return <ChannelPreview channel={item} className='str-chat__search-result' onSelect={onSelect} />;
+  return (
+    <ChannelPreview
+      channel={item}
+      className='str-chat__search-result'
+      onSelect={onSelect}
+    />
+  );
 };
 
 export type ChannelByMessageSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   item: MessageResponse<StreamChatGenerics>;
 };
 
 export const MessageSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   item,
 }: ChannelByMessageSearchResultItemProps<StreamChatGenerics>) => {
@@ -61,7 +67,11 @@ export const MessageSearchResultItem = <
 
   const onSelect = useCallback(async () => {
     if (!channel) return;
-    await channel.state.loadMessageIntoState(item.id, undefined, DEFAULT_JUMP_TO_PAGE_SIZE);
+    await channel.state.loadMessageIntoState(
+      item.id,
+      undefined,
+      DEFAULT_JUMP_TO_PAGE_SIZE,
+    );
     // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
     searchController.internalState.partialNext({ focusedMessage: item });
     setActiveChannel(channel);
@@ -88,13 +98,13 @@ export const MessageSearchResultItem = <
 };
 
 export type UserSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   item: User<StreamChatGenerics>;
 };
 
 export const UserSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   item,
 }: UserSearchResultItemProps<StreamChatGenerics>) => {

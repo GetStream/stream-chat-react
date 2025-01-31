@@ -28,7 +28,9 @@ const Media = (props) => <div data-testid='media-attachment'>{props.customTestId
 const AttachmentActions = () => <div data-testid='attachment-actions'></div>;
 const Image = (props) => <div data-testid='image-attachment'>{props.customTestId}</div>;
 const File = (props) => <div data-testid='file-attachment'>{props.customTestId}</div>;
-const Gallery = (props) => <div data-testid='gallery-attachment'>{props.customTestId}</div>;
+const Gallery = (props) => (
+  <div data-testid='gallery-attachment'>{props.customTestId}</div>
+);
 
 const ATTACHMENTS = {
   scraped: {
@@ -102,12 +104,15 @@ describe('attachment', () => {
       ${cases.file.attachments}    | ${cases.file.case}    | ${cases.file.renderedComponent}    | ${cases.file.testId}
       ${cases.gallery.attachments} | ${cases.gallery.case} | ${cases.gallery.renderedComponent} | ${cases.gallery.testId}
       ${cases.image.attachments}   | ${cases.image.case}   | ${cases.image.renderedComponent}   | ${cases.image.testId}
-    `('should  render $renderedComponent component for $case', async ({ attachments, testId }) => {
-      renderComponent({ attachments });
-      await waitFor(() => {
-        expect(screen.getByTestId(testId)).toBeInTheDocument();
-      });
-    });
+    `(
+      'should  render $renderedComponent component for $case',
+      async ({ attachments, testId }) => {
+        renderComponent({ attachments });
+        await waitFor(() => {
+          expect(screen.getByTestId(testId)).toBeInTheDocument();
+        });
+      },
+    );
 
     it.each(SUPPORTED_VIDEO_FORMATS.map((f) => [f]))(
       'should render Media component for video of %s mime-type attachment',
@@ -213,7 +218,6 @@ describe('attachment', () => {
         ],
       });
       await waitFor(() => {
-        /* eslint-disable jest-dom/prefer-in-document */
         const Card = queryAllByTestId('card-attachment');
 
         expect(Card).toHaveLength(3);

@@ -9,13 +9,12 @@ import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const useGiphyPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   separateGiphyPreview: boolean,
 ) => {
-  const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<
-    StreamMessage<StreamChatGenerics>
-  >();
+  const [giphyPreviewMessage, setGiphyPreviewMessage] =
+    useState<StreamMessage<StreamChatGenerics>>();
 
   const { client } = useChatContext<StreamChatGenerics>('useGiphyPreview');
 

@@ -63,7 +63,9 @@ describe('DialogManager', () => {
     const dialogManager = new DialogManager();
     dialogManager.getOrCreate({ id: dialogId });
     dialogManager.open({ id: dialogId });
-    expect(dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
+    expect(
+      dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen,
+    ).toBeTruthy();
     expect(dialogManager.openDialogCount).toBe(1);
   });
 
@@ -84,7 +86,9 @@ describe('DialogManager', () => {
     const dialogs = dialogManager.state.getLatestValue().dialogsById;
     expect(dialogs.xxx.isOpen).toBeFalsy();
     expect(dialogs.yyy.isOpen).toBeFalsy();
-    expect(dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
+    expect(
+      dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen,
+    ).toBeTruthy();
     expect(dialogManager.openDialogCount).toBe(1);
   });
 

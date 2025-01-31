@@ -4,7 +4,7 @@ import type { ChatContextValue } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateChatContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   value: ChatContextValue<StreamChatGenerics>,
 ) => {

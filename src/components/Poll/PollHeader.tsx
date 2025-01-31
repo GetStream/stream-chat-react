@@ -5,7 +5,7 @@ import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
@@ -14,7 +14,7 @@ type PollStateSelectorReturnValue<
   options: PollOption<StreamChatGenerics>[];
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue<StreamChatGenerics> => ({
@@ -26,15 +26,13 @@ const pollStateSelector = <
 });
 
 export const PollHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { t } = useTranslationContext('PollHeader');
 
   const { poll } = usePollContext<StreamChatGenerics>();
-  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } = useStateStore(
-    poll.state,
-    pollStateSelector,
-  );
+  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =
+    useStateStore(poll.state, pollStateSelector);
 
   const selectionInstructions = useMemo(() => {
     if (is_closed) return t<string>('Vote ended');

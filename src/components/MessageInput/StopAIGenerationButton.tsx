@@ -3,7 +3,10 @@ import { useTranslationContext } from '../../context';
 
 export type StopAIGenerationButtonProps = React.ComponentProps<'button'>;
 
-export const StopAIGenerationButton = ({ onClick, ...restProps }: StopAIGenerationButtonProps) => {
+export const StopAIGenerationButton = ({
+  onClick,
+  ...restProps
+}: StopAIGenerationButtonProps) => {
   const { t } = useTranslationContext();
   return (
     <button

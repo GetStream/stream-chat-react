@@ -14,17 +14,23 @@ const searchSourceStateSelector = (value: SearchSourceState) => ({
 });
 
 export const SearchSourceResultListFooter = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { t } = useTranslationContext();
   const {
     SearchSourceResultsLoadingIndicator = DefaultSearchSourceResultsLoadingIndicator,
   } = useComponentContext<StreamChatGenerics>();
   const { searchSource } = useSearchSourceResultsContext();
-  const { hasNext, isLoading } = useStateStore(searchSource.state, searchSourceStateSelector);
+  const { hasNext, isLoading } = useStateStore(
+    searchSource.state,
+    searchSourceStateSelector,
+  );
 
   return (
-    <div className='str-chat__search-source-result-list__footer' data-testid='search-footer'>
+    <div
+      className='str-chat__search-source-result-list__footer'
+      data-testid='search-footer'
+    >
       {isLoading ? (
         <SearchSourceResultsLoadingIndicator />
       ) : !hasNext ? (

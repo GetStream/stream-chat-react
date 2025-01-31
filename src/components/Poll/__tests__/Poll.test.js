@@ -10,7 +10,11 @@ import {
   MessageProvider,
   TranslationProvider,
 } from '../../../context';
-import { generateMessage, generatePoll, getTestClientWithUser } from '../../../mock-builders';
+import {
+  generateMessage,
+  generatePoll,
+  getTestClientWithUser,
+} from '../../../mock-builders';
 
 const POLL_ACTIONS__CLASS = '.str-chat__poll-actions';
 const POLL_OPTION_LIST__CLASS = '.str-chat__poll-option-list';
@@ -39,7 +43,9 @@ const renderComponent = async ({
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t }}>
         <ComponentProvider value={componentContext ?? {}}>
-          <ChannelStateProvider value={{ ...defaultChannelStateContext, ...channelStateContext }}>
+          <ChannelStateProvider
+            value={{ ...defaultChannelStateContext, ...channelStateContext }}
+          >
             <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
               <Poll {...props} />
             </MessageProvider>

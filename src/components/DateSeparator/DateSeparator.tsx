@@ -56,4 +56,6 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
 /**
  * A simple date separator between messages.
  */
-export const DateSeparator = React.memo(UnMemoizedDateSeparator) as typeof UnMemoizedDateSeparator;
+export const DateSeparator = React.memo(
+  UnMemoizedDateSeparator,
+) as typeof UnMemoizedDateSeparator;

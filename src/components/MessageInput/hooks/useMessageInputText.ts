@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { logChatPromiseExecution } from 'stream-chat';
-import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
+import type {
+  MessageInputReducerAction,
+  MessageInputState,
+} from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
@@ -9,7 +12,7 @@ import type { EnrichURLsController } from './useLinkPreviews';
 
 export const useMessageInputText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
@@ -20,7 +23,7 @@ export const useMessageInputText = <
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>(undefined);
 
   // Focus
   useEffect(() => {
@@ -30,7 +33,7 @@ export const useMessageInputText = <
   }, [focus]);
 
   // Text + cursor position
-  const newCursorPosition = useRef<number>();
+  const newCursorPosition = useRef<number>(undefined);
 
   const insertText = useCallback(
     (textToInsert: string) => {
@@ -55,7 +58,9 @@ export const useMessageInputText = <
       dispatch({
         getNewText: (prevText) => {
           const updatedText =
-            prevText.slice(0, selectionStart) + textToInsert + prevText.slice(selectionEnd);
+            prevText.slice(0, selectionStart) +
+            textToInsert +
+            prevText.slice(selectionEnd);
 
           if (maxLength && updatedText.length > maxLength) {
             return updatedText.slice(0, maxLength);

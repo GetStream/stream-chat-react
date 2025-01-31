@@ -10,11 +10,14 @@ describe('mockTranslatorFunction', () => {
     expect(result).toStrictEqual('test');
   });
   it('inserts multiple param values', () => {
-    const result = mockTranslatorFunction('{{ testKey1 }}, {{ testKey2 }}, and {{ testKey3 }}', {
-      testKey1: 'test1',
-      testKey2: 'test2',
-      testKey3: 'test3',
-    });
+    const result = mockTranslatorFunction(
+      '{{ testKey1 }}, {{ testKey2 }}, and {{ testKey3 }}',
+      {
+        testKey1: 'test1',
+        testKey2: 'test2',
+        testKey3: 'test3',
+      },
+    );
     expect(result).toStrictEqual('test1, test2, and test3');
   });
 });

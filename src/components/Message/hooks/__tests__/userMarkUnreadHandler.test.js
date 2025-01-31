@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
 import { ChannelStateProvider, TranslationProvider } from '../../../../context';
 import { generateMessage } from '../../../../mock-builders';
@@ -30,7 +30,9 @@ function renderUseMarkUnreadHandlerHook({ message, notifications } = {}) {
       </ChannelStateProvider>
     </TranslationProvider>
   );
-  const { result } = renderHook(() => useMarkUnreadHandler(message, notifications), { wrapper });
+  const { result } = renderHook(() => useMarkUnreadHandler(message, notifications), {
+    wrapper,
+  });
   return result.current;
 }
 describe('useMarkUnreadHandler', () => {
@@ -77,7 +79,10 @@ describe('useMarkUnreadHandler', () => {
       notifications: notificationsWithSuccess,
     });
     await handleMarkUnread(event);
-    expect(notificationsWithSuccess.notify).toHaveBeenCalledWith(customSuccessString, 'success');
+    expect(notificationsWithSuccess.notify).toHaveBeenCalledWith(
+      customSuccessString,
+      'success',
+    );
   });
 
   it('registers the default error notification if getErrorNotification is missing', async () => {
@@ -103,7 +108,10 @@ describe('useMarkUnreadHandler', () => {
       notifications: notificationsWithError,
     });
     await handleMarkUnread(event);
-    expect(notificationsWithError.notify).toHaveBeenCalledWith(customErrorString, 'error');
+    expect(notificationsWithError.notify).toHaveBeenCalledWith(
+      customErrorString,
+      'error',
+    );
   });
 
   it('does not register the custom error notification if available getErrorNotification does not generate one', async () => {

@@ -1,4 +1,3 @@
-/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -52,7 +51,10 @@ async function renderMessageOptions({
   customOptionsProps = {},
 }) {
   const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
+  const channel = generateChannel({
+    getConfig: () => channelConfig,
+    state: { membership: {} },
+  });
 
   return render(
     <ChatProvider value={{ client }}>
@@ -68,7 +70,7 @@ async function renderMessageOptions({
             <ComponentProvider
               value={{
                 Attachment,
-                // eslint-disable-next-line react/display-name
+
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -108,7 +110,9 @@ describe('<MessageOptions />', () => {
     'should not render message options when message is of %s %s and is from current user.',
     async (key, value) => {
       const message = generateAliceMessage({ [key]: value });
-      const { queryByTestId } = await renderMessageOptions({ customMessageProps: { message } });
+      const { queryByTestId } = await renderMessageOptions({
+        customMessageProps: { message },
+      });
       expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
     },
   );
@@ -142,7 +146,9 @@ describe('<MessageOptions />', () => {
   });
 
   it('should not display thread actions when channel does not have replies enabled', async () => {
-    const { queryByTestId } = await renderMessageOptions({ channelConfig: { replies: false } });
+    const { queryByTestId } = await renderMessageOptions({
+      channelConfig: { replies: false },
+    });
     expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
@@ -158,7 +164,7 @@ describe('<MessageOptions />', () => {
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
-    // eslint-disable-next-line jest/prefer-called-with
+
     expect(handleOpenThread).toHaveBeenCalled();
   });
 
@@ -261,7 +267,9 @@ describe('<MessageOptions />', () => {
 
   it('should render message actions', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
     });
 
     expect(queryByTestId(MESSAGE_ACTIONS_TEST_ID)).toBeInTheDocument();
@@ -269,7 +277,9 @@ describe('<MessageOptions />', () => {
 
   it('should not show message actions button if actions are disabled', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: { messageActions: [] },
     });
 
@@ -278,8 +288,13 @@ describe('<MessageOptions />', () => {
 
   it('should not show actions box for message in thread if only non-thread actions are available', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
-      customMessageProps: { messageActions: ACTIONS_NOT_WORKING_IN_THREAD, threadList: true },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
+      customMessageProps: {
+        messageActions: ACTIONS_NOT_WORKING_IN_THREAD,
+        threadList: true,
+      },
     });
 
     expect(queryByTestId(MESSAGE_ACTIONS_TEST_ID)).not.toBeInTheDocument();
@@ -287,7 +302,9 @@ describe('<MessageOptions />', () => {
 
   it('should show actions box for message in thread if not only non-thread actions are available', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         messageActions: [...ACTIONS_NOT_WORKING_IN_THREAD, MESSAGE_ACTIONS.delete],
         threadList: true,
@@ -299,7 +316,9 @@ describe('<MessageOptions />', () => {
 
   it('should show actions box for a message in thread if custom actions provided are non-thread', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         customMessageActions: ACTIONS_NOT_WORKING_IN_THREAD,
         messageActions: ACTIONS_NOT_WORKING_IN_THREAD,
@@ -311,7 +330,9 @@ describe('<MessageOptions />', () => {
 
   it('should not show actions box for message outside thread with single action "react"', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         messageActions: [MESSAGE_ACTIONS.react],
       },
@@ -321,7 +342,9 @@ describe('<MessageOptions />', () => {
 
   it('should show actions box for message outside thread with single action "react" if custom actions available', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         customMessageActions: [MESSAGE_ACTIONS.react],
         messageActions: [MESSAGE_ACTIONS.react],
@@ -333,7 +356,9 @@ describe('<MessageOptions />', () => {
 
   it('should not show actions box for message outside thread with single action "reply"', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         messageActions: [MESSAGE_ACTIONS.reply],
       },
@@ -344,7 +369,9 @@ describe('<MessageOptions />', () => {
 
   it('should show actions box for message outside thread with single action "reply" if custom actions available', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         customMessageActions: [MESSAGE_ACTIONS.reply],
         messageActions: [MESSAGE_ACTIONS.reply],
@@ -357,7 +384,9 @@ describe('<MessageOptions />', () => {
   it('should not show actions box for message outside thread with two actions "react" & "reply"', async () => {
     const actions = [MESSAGE_ACTIONS.react, MESSAGE_ACTIONS.reply];
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         messageActions: actions,
       },
@@ -369,7 +398,9 @@ describe('<MessageOptions />', () => {
   it('should show actions box for message outside thread with single actions "react" & "reply" if custom actions available', async () => {
     const actions = [MESSAGE_ACTIONS.react, MESSAGE_ACTIONS.reply];
     const { queryByTestId } = await renderMessageOptions({
-      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      channelStateOpts: {
+        channelCapabilities: minimumCapabilitiesToRenderMessageActions,
+      },
       customMessageProps: {
         customMessageActions: actions,
         messageActions: actions,

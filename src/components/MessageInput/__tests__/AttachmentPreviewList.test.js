@@ -1,5 +1,3 @@
-/* eslint-disable jest-dom/prefer-in-document */
-
 import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -56,40 +54,45 @@ describe('AttachmentPreviewList', () => {
 
     expect(attachmentList).toBeEmptyDOMElement();
   });
-  it.each(['uploading', 'failed', 'finished'])('renders previews with state "%s"', (state) => {
-    renderComponent({
-      contextValue: generateMessageInputContextValue({
-        attachments: [
-          generateAudioAttachment({
-            localMetadata: { id: 'audio-attachment-id', uploadState: state },
-            title: `audio-attachment-${state}`,
-          }),
-          generateVoiceRecordingAttachment({
-            localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
-            title: `voice-recording-attachment-${state}`,
-          }),
-          generateVideoAttachment({
-            localMetadata: { id: 'video-attachment-id', uploadState: state },
-            title: `video-attachment-${state}`,
-          }),
-          generateFileAttachment({
-            localMetadata: { id: 'file-attachment-id', uploadState: state },
-            title: `file-upload-${state}`,
-          }),
-          generateImageAttachment({
-            fallback: `image-upload-${state}`,
-            localMetadata: { id: 'image-attachment-id', uploadState: state },
-          }),
-        ],
-      }),
-    });
+  it.each(['uploading', 'failed', 'finished'])(
+    'renders previews with state "%s"',
+    (state) => {
+      renderComponent({
+        contextValue: generateMessageInputContextValue({
+          attachments: [
+            generateAudioAttachment({
+              localMetadata: { id: 'audio-attachment-id', uploadState: state },
+              title: `audio-attachment-${state}`,
+            }),
+            generateVoiceRecordingAttachment({
+              localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
+              title: `voice-recording-attachment-${state}`,
+            }),
+            generateVideoAttachment({
+              localMetadata: { id: 'video-attachment-id', uploadState: state },
+              title: `video-attachment-${state}`,
+            }),
+            generateFileAttachment({
+              localMetadata: { id: 'file-attachment-id', uploadState: state },
+              title: `file-upload-${state}`,
+            }),
+            generateImageAttachment({
+              fallback: `image-upload-${state}`,
+              localMetadata: { id: 'image-attachment-id', uploadState: state },
+            }),
+          ],
+        }),
+      });
 
-    expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`voice-recording-attachment-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
-  });
+      expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
+      expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
+      expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
+      expect(
+        screen.getByTitle(`voice-recording-attachment-${state}`),
+      ).toBeInTheDocument();
+      expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
+    },
+  );
 
   describe.each(['audio', 'file', 'image', 'unsupported', 'voiceRecording', 'video'])(
     '%s attachments rendering',
@@ -200,7 +203,9 @@ describe('AttachmentPreviewList', () => {
         renderComponent({ contextValue });
 
         fireEvent.click(
-          screen.getByTestId(type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID),
+          screen.getByTestId(
+            type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID,
+          ),
         );
 
         expect(contextValue.removeAttachments).toHaveBeenCalledWith([
