@@ -63,7 +63,6 @@ import {
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
-import { useStateStore } from '../../store';
 
 import type {
   APIErrorResponse,
@@ -76,7 +75,6 @@ import type {
   EventAPIResponse,
   Message,
   MessageResponse,
-  SearchControllerState,
   SendMessageAPIResponse,
   Channel as StreamChannel,
   StreamChat,
@@ -99,12 +97,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-
-const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: SearchControllerState<StreamChatGenerics>,
-) => ({ jumpToMessageFromSearch: nextValue.focusedMessage });
+import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 
 export type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -396,12 +389,7 @@ const ChannelInner = <
       loading: !channel.initialized,
     },
   );
-
-  const { jumpToMessageFromSearch } = useStateStore(
-    searchController.state,
-    searchControllerStateSelector,
-  );
-
+  const jumpToMessageFromSearch = useSearchFocusedMessage();
   const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
@@ -666,8 +654,8 @@ const ChannelInner = <
         clearTimeout(clearHighlightedMessageTimeoutId.current);
       }
       clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        if (searchController.state.getLatestValue().focusedMessage) {
-          searchController.state.partialNext({ focusedMessage: undefined });
+        if (searchController.internalState.getLatestValue().focusedMessage) {
+          searchController.internalState.partialNext({ focusedMessage: undefined });
         }
         clearHighlightedMessageTimeoutId.current = null;
         dispatch({ type: 'clearHighlightedMessage' });

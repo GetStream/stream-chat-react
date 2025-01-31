@@ -119,7 +119,7 @@ describe('SearchResultItem Components', () => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      expect(searchController.state.getLatestValue().focusedMessage).toStrictEqual(
+      expect(searchController.internalState.getLatestValue().focusedMessage).toStrictEqual(
         messageResponseData,
       );
       expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);

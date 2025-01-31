@@ -14,10 +14,8 @@ type SearchControllerStateSelectorReturnValue = {
   isActive: boolean;
 };
 
-const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: SearchControllerState<StreamChatGenerics>,
+const searchControllerStateSelector = (
+  nextValue: SearchControllerState,
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
 export type SearchProps = {
@@ -46,7 +44,7 @@ export const Search = <
   const { searchController } = useChatContext<StreamChatGenerics>();
 
   const { isActive } = useStateStore<
-    SearchControllerState<StreamChatGenerics>,
+    SearchControllerState,
     SearchControllerStateSelectorReturnValue
   >(searchController.state, searchControllerStateSelector);
 

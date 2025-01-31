@@ -10,11 +10,7 @@ import { useStateStore } from '../../../store';
 import type { SearchControllerState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
-const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: SearchControllerState<StreamChatGenerics>,
-) => ({
+const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   activeSources: nextValue.sources.filter((s) => s.isActive),
   isActive: nextValue.isActive,
   searchQuery: nextValue.searchQuery,

@@ -5,11 +5,7 @@ import { useStateStore } from '../../../store';
 import type { SearchController, SearchControllerState, SearchSource } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
-const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  value: SearchControllerState<StreamChatGenerics>,
-) => ({
+const searchControllerStateSelector = (value: SearchControllerState) => ({
   sources: value.sources,
 });
 

@@ -41,11 +41,9 @@ const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
-const searchControllerStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: SearchControllerState<StreamChatGenerics>,
-) => ({ searchIsActive: nextValue.isActive });
+const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
+  searchIsActive: nextValue.isActive,
+});
 
 export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

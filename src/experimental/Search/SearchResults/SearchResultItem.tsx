@@ -63,7 +63,7 @@ export const MessageSearchResultItem = <
     if (!channel) return;
     await channel.state.loadMessageIntoState(item.id, undefined, DEFAULT_JUMP_TO_PAGE_SIZE);
     // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
-    searchController.state.partialNext({ focusedMessage: item });
+    searchController.internalState.partialNext({ focusedMessage: item });
     setActiveChannel(channel);
     setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
   }, [channel, item, searchController, setActiveChannel, setChannels]);
@@ -77,7 +77,7 @@ export const MessageSearchResultItem = <
     <ChannelPreview
       active={
         channel.cid === activeChannel?.cid &&
-        item.id === searchController.state.getLatestValue().focusedMessage?.id
+        item.id === searchController.internalState.getLatestValue().focusedMessage?.id
       }
       channel={channel}
       className='str-chat__search-result'
