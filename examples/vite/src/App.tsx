@@ -1,4 +1,9 @@
-import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  LiveLocationManagerConstructorParameters,
+} from 'stream-chat';
 import {
   AIStateIndicator,
   Channel,
@@ -13,6 +18,8 @@ import {
   useCreateChatClient,
   ThreadList,
   ChatView,
+  useChatContext,
+  useLiveLocationSharingManager,
 } from 'stream-chat-react';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
@@ -63,11 +70,66 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const ShareLiveLocation = () => {
+  const { channel } = useChatContext();
+
+  return (
+    <button
+      onClick={() => {
+        console.log('trying to fetch location');
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log('got location ', position);
+            channel?.startLiveLocationSharing({
+              latitude,
+              longitude,
+              end_time: new Date(Date.now() + 1 * 1000 * 3600 * 24).toISOString(),
+            });
+          },
+          console.warn,
+          { timeout: 2000 },
+        );
+      }}
+    >
+      location
+    </button>
+  );
+};
+
+const watchLocationNormal: LiveLocationManagerConstructorParameters['watchLocation'] = (
+  watcher,
+) => {
+  const watch = navigator.geolocation.watchPosition((position) => {
+    watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+  });
+
+  return () => navigator.geolocation.clearWatch(watch);
+};
+
+const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocation'] = (watcher) => {
+  const timer = setInterval(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+    });
+  }, 5000);
+
+  return () => {
+    clearInterval(timer);
+    console.log('cleanup');
+  };
+};
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
+  });
+
+  useLiveLocationSharingManager({
+    client: chatClient,
+    watchLocation: watchLocationNormal,
   });
 
   if (!chatClient) return <>Loading...</>;
@@ -91,6 +153,7 @@ const App = () => {
               <MessageList returnAllReadData />
               <AIStateIndicator />
               <MessageInput focus />
+              <ShareLiveLocation />
             </Window>
             <Thread virtualized />
           </Channel>
