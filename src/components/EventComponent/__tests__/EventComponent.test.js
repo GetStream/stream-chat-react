@@ -79,7 +79,9 @@ describe('EventComponent', () => {
   describe('timestamp formatting', () => {
     it('should format date with default formatting rules provided by i18n service', async () => {
       await renderComponent();
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('Friday 03/13/2020');
+      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
+        'Friday 03/13/2020',
+      );
     });
 
     it('should format date with custom formatting rules provided by i18n service', async () => {
@@ -87,7 +89,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(format: "YYYY") }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(format: "YYYY") }}',
             },
           }),
         },
@@ -100,7 +103,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(calendar: true) }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(calendar: true) }}',
             },
           }),
         },
@@ -140,7 +144,8 @@ describe('EventComponent', () => {
         chatProps: {
           i18nInstance: new Streami18n({
             translationsForLanguage: {
-              'timestamp/SystemMessage': '{{ timestamp | timestampFormatter(calendar: false) }}',
+              'timestamp/SystemMessage':
+                '{{ timestamp | timestampFormatter(calendar: false) }}',
             },
           }),
         },
@@ -172,7 +177,9 @@ describe('EventComponent', () => {
           },
         },
       });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('Friday 03/13/2020');
+      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
+        'Friday 03/13/2020',
+      );
     });
   });
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -27,7 +26,12 @@ const renderComponent = ({ reaction_groups = {}, ...props }) => {
   return render(
     <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
       <MessageProvider value={{}}>
-        <ReactionsList reaction_groups={reaction_groups} reactions={reactions} {...props} />,
+        <ReactionsList
+          reaction_groups={reaction_groups}
+          reactions={reactions}
+          {...props}
+        />
+        ,
       </MessageProvider>
     </ComponentProvider>,
   );
@@ -123,15 +127,19 @@ describe('ReactionsList', () => {
     ];
 
     expect(
-      renderComponent({ reaction_groups, reactionOptions, reverse: true }).container.querySelector(
-        '.str-chat__reaction-list--reverse',
-      ),
+      renderComponent({
+        reaction_groups,
+        reactionOptions,
+        reverse: true,
+      }).container.querySelector('.str-chat__reaction-list--reverse'),
     ).toBeInTheDocument();
 
     expect(
-      renderComponent({ reaction_groups, reactionOptions, reverse: false }).container.querySelector(
-        '.str-chat__reaction-list--reverse',
-      ),
+      renderComponent({
+        reaction_groups,
+        reactionOptions,
+        reverse: false,
+      }).container.querySelector('.str-chat__reaction-list--reverse'),
     ).not.toBeInTheDocument();
   });
 
@@ -139,8 +147,14 @@ describe('ReactionsList', () => {
     const { getByTestId } = renderComponent({
       reaction_groups: {
         haha: { count: 2, first_reaction_at: new Date().toISOString() },
-        like: { count: 8, first_reaction_at: new Date(Date.now() + 60_000).toISOString() },
-        love: { count: 5, first_reaction_at: new Date(Date.now() + 120_000).toISOString() },
+        like: {
+          count: 8,
+          first_reaction_at: new Date(Date.now() + 60_000).toISOString(),
+        },
+        love: {
+          count: 5,
+          first_reaction_at: new Date(Date.now() + 120_000).toISOString(),
+        },
       },
     });
 

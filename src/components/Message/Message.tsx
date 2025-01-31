@@ -32,7 +32,11 @@ import { MessageSimple as DefaultMessage } from './MessageSimple';
 import type { MessageProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
+type MessagePropsToOmit =
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'openThread'
+  | 'retrySendMessage';
 
 type MessageContextPropsToPick =
   | 'handleAction'
@@ -53,7 +57,7 @@ type MessageContextPropsToPick =
   | 'sortReactionDetails';
 
 type MessageWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit> &
   Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick> & {
     canPin: boolean;
@@ -61,7 +65,7 @@ type MessageWithContextProps<
   };
 
 const MessageWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageWithContextProps<StreamChatGenerics>,
 ) => {
@@ -110,7 +114,8 @@ const MessageWithContext = <
         read &&
         (!read[client.user.id] ||
           (message?.created_at &&
-            new Date(message.created_at).getTime() > read[client.user.id].last_read.getTime()))
+            new Date(message.created_at).getTime() >
+              read[client.user.id].last_read.getTime()))
       ),
     [client, isMyMessage, message.created_at, read],
   );
@@ -185,7 +190,7 @@ const MemoizedMessage = React.memo(
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
 export const Message = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageProps<StreamChatGenerics>,
 ) => {
@@ -214,7 +219,8 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
-  const { highlightedMessageId, mutes } = useChannelStateContext<StreamChatGenerics>('Message');
+  const { highlightedMessageId, mutes } =
+    useChannelStateContext<StreamChatGenerics>('Message');
 
   const handleAction = useActionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);

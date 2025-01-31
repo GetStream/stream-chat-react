@@ -144,7 +144,8 @@ export const WaveProgressBar = ({
           key={`amplitude-${i}`}
           style={
             {
-              '--str-chat__voice-recording-amplitude-bar-width': trackAxisX?.barWidth + 'px',
+              '--str-chat__voice-recording-amplitude-bar-width':
+                trackAxisX?.barWidth + 'px',
               '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
                 ? amplitude * 100 + '%'
                 : '0%',

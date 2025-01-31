@@ -11,7 +11,10 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-function renderUseOpenThreadHandlerHook(message = generateMessage(), openThread = openThreadMock) {
+function renderUseOpenThreadHandlerHook(
+  message = generateMessage(),
+  openThread = openThreadMock,
+) {
   const wrapper = ({ children }) => (
     <ChannelActionProvider value={{ openThread }}>{children}</ChannelActionProvider>
   );

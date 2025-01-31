@@ -7,7 +7,7 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 type PollStateSelectorReturnValue = { ownAnswer: PollAnswer | undefined };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({ ownAnswer: nextValue.ownAnswer });
@@ -18,7 +18,7 @@ export type AddCommentFormProps = {
 };
 
 export const AddCommentForm = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   close,
   messageId,

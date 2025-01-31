@@ -1,4 +1,9 @@
-import { generateChannel, generateMember, generateMessage, generateUser } from './generator';
+import {
+  generateChannel,
+  generateMember,
+  generateMessage,
+  generateUser,
+} from './generator';
 import { getOrCreateChannelApi, getTestClientWithUser, useMockedApis } from './index';
 
 export async function createClientWithChannel(
@@ -45,11 +50,15 @@ export const initClientWithChannels = async ({ channelsData, customUser } = {}) 
         ...channelData,
       });
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-      const channel = client.channel(mockedChannelData.channel.type, mockedChannelData.channel.id);
+      const channel = client.channel(
+        mockedChannelData.channel.type,
+        mockedChannelData.channel.id,
+      );
       await channel.watch();
-      jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannelData.channel.config);
+      jest
+        .spyOn(channel, 'getConfig')
+        .mockImplementation(() => mockedChannelData.channel.config);
       return channel;
     }),
   );

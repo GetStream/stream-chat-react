@@ -12,17 +12,21 @@ import type { PollAnswer, PollAnswersQueryParams, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const paginationStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: CursorPaginatorState<PollVote<StreamChatGenerics>>,
-): [Error | undefined, boolean, boolean] => [state.error, state.hasNextPage, state.loading];
+): [Error | undefined, boolean, boolean] => [
+  state.error,
+  state.hasNextPage,
+  state.loading,
+];
 
 type UsePollAnswerPaginationParams = {
   paginationParams?: PollAnswersQueryParams;
 };
 
 export const usePollAnswerPagination = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({ paginationParams }: UsePollAnswerPaginationParams = {}) => {
   const { poll } = usePollContext<StreamChatGenerics>();
 
@@ -30,7 +34,9 @@ export const usePollAnswerPagination = <
     async (next) => {
       const { next: newNext, votes } = await poll.queryAnswers({
         filter: paginationParams?.filter,
-        options: !next ? paginationParams?.options : { ...paginationParams?.options, next },
+        options: !next
+          ? paginationParams?.options
+          : { ...paginationParams?.options, next },
         sort: { created_at: -1, ...paginationParams?.sort },
       });
       return { items: votes, next: newNext };
@@ -39,10 +45,10 @@ export const usePollAnswerPagination = <
   );
 
   const { cursorPaginatorState, loadMore } = useCursorPaginator(paginationFn, true);
-  const answers = useManagePollVotesRealtime<StreamChatGenerics, PollAnswer<StreamChatGenerics>>(
-    'answer',
-    cursorPaginatorState,
-  );
+  const answers = useManagePollVotesRealtime<
+    StreamChatGenerics,
+    PollAnswer<StreamChatGenerics>
+  >('answer', cursorPaginatorState);
   const [error, hasNextPage, loading] = useStateStore(
     cursorPaginatorState,
     paginationStateSelector,

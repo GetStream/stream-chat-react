@@ -3,7 +3,10 @@ import React from 'react';
 import { Avatar, AvatarProps } from './Avatar';
 import { GroupChannelDisplayInfo } from '../ChannelPreview';
 
-export type GroupAvatarProps = Pick<AvatarProps, 'className' | 'onClick' | 'onMouseOver'> & {
+export type GroupAvatarProps = Pick<
+  AvatarProps,
+  'className' | 'onClick' | 'onMouseOver'
+> & {
   /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
   groupChannelDisplayInfo: GroupChannelDisplayInfo;
 };

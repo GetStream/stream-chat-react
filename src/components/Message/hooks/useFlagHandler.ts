@@ -13,7 +13,7 @@ export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
 export type FlagMessageNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   getSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
@@ -21,7 +21,7 @@ export type FlagMessageNotifications<
 };
 
 export const useFlagHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message?: StreamMessage<StreamChatGenerics>,
   notifications: FlagMessageNotifications<StreamChatGenerics> = {},
@@ -47,7 +47,8 @@ export const useFlagHandler = <
       await client.flagMessage(message.id);
 
       const successMessage =
-        getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
+        getSuccessNotification &&
+        validateAndGetMessage(getSuccessNotification, [message]);
 
       notify(successMessage || t('Message has been successfully flagged'), 'success');
     } catch (e) {

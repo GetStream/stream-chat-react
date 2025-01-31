@@ -12,7 +12,7 @@ export enum MessageDeliveryStatus {
 }
 
 type UseMessageStatusParamsChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   channel: Channel<StreamChatGenerics>;
   /** The last message received in a channel */
@@ -20,7 +20,7 @@ type UseMessageStatusParamsChannelPreviewProps<
 };
 
 export const useMessageDeliveryStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channel,
   lastMessage,
@@ -45,12 +45,12 @@ export const useMessageDeliveryStatus = <
         ? new Date(lastMessage.created_at)
         : lastMessage.created_at;
 
-    const channelReadByOthersAfterLastMessageUpdate = Object.values(channel.state.read).some(
-      ({ last_read: channelLastMarkedReadDate, user }) => {
-        const ignoreOwnReadStatus = client.user && user.id !== client.user.id;
-        return ignoreOwnReadStatus && lastMessageCreatedAtDate < channelLastMarkedReadDate;
-      },
-    );
+    const channelReadByOthersAfterLastMessageUpdate = Object.values(
+      channel.state.read,
+    ).some(({ last_read: channelLastMarkedReadDate, user }) => {
+      const ignoreOwnReadStatus = client.user && user.id !== client.user.id;
+      return ignoreOwnReadStatus && lastMessageCreatedAtDate < channelLastMarkedReadDate;
+    });
 
     setMessageDeliveryStatus(
       channelReadByOthersAfterLastMessageUpdate
@@ -79,7 +79,8 @@ export const useMessageDeliveryStatus = <
   useEffect(() => {
     if (!isOwnMessage(lastMessage)) return;
     const handleMarkRead = (event: Event<StreamChatGenerics>) => {
-      if (event.user?.id !== client.user?.id) setMessageDeliveryStatus(MessageDeliveryStatus.READ);
+      if (event.user?.id !== client.user?.id)
+        setMessageDeliveryStatus(MessageDeliveryStatus.READ);
     };
     channel.on('message.read', handleMarkRead);
 

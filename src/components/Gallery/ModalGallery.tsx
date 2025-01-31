@@ -7,7 +7,7 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ModalGalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The images for the Carousel component */
   images: Attachment<StreamChatGenerics>[];
@@ -22,11 +22,16 @@ const onError: React.ReactEventHandler<HTMLImageElement> = (e) => {
 };
 
 const renderItem = ({ original, originalAlt }: ReactImageGalleryItem) => (
-  <BaseImage alt={originalAlt} className='image-gallery-image' onError={onError} src={original} />
+  <BaseImage
+    alt={originalAlt}
+    className='image-gallery-image'
+    onError={onError}
+    src={original}
+  />
 );
 
 export const ModalGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ModalGalleryProps<StreamChatGenerics>,
 ) => {
@@ -47,8 +52,7 @@ export const ModalGallery = <
   );
 
   return (
-    // ignore the TS error as react-image-gallery was on @types/react@18 while stream-chat-react being upgraded to React 19 (https://github.com/xiaolin/react-image-gallery/issues/809)
-    // @ts-expect-error
+    // @ts-expect-error ignore the TS error as react-image-gallery was on @types/react@18 while stream-chat-react being upgraded to React 19 (https://github.com/xiaolin/react-image-gallery/issues/809)
     <ImageGallery
       items={formattedArray}
       renderItem={renderItem}

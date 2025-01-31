@@ -16,7 +16,8 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => 
 
   useEffect(() => {
     if (!recorder?.amplitudeRecorder) return;
-    const amplitudesSubscription = recorder.amplitudeRecorder.amplitudes.subscribe(setAmplitudes);
+    const amplitudesSubscription =
+      recorder.amplitudeRecorder.amplitudes.subscribe(setAmplitudes);
     return () => {
       amplitudesSubscription.unsubscribe();
     };

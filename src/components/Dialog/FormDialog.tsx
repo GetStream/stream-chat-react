@@ -36,7 +36,9 @@ type FormValue<F extends Record<FieldId, FieldConfig>> = {
 };
 
 export const FormDialog = <
-  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<Record<FieldId, FieldConfig>>
+  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<
+    Record<FieldId, FieldConfig>
+  >,
 >({
   className,
   close,
@@ -55,7 +57,9 @@ export const FormDialog = <
     return acc as F;
   });
 
-  const handleChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>>(
+  const handleChange = useCallback<
+    ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+  >(
     (event) => {
       const fieldId = event.target.id;
       const fieldConfig = fields[fieldId];
@@ -113,7 +117,9 @@ export const FormDialog = <
             <div className='str-chat__dialog__field' key={`dialog-field-${id}`}>
               {fieldConfig.label && (
                 <label
-                  className={clsx(`str-chat__dialog__title str-chat__dialog__title--${id}`)}
+                  className={clsx(
+                    `str-chat__dialog__title str-chat__dialog__title--${id}`,
+                  )}
                   htmlFor={id}
                 >
                   {fieldConfig.label}
@@ -139,7 +145,9 @@ export const FormDialog = <
         </button>
         <button
           className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-          disabled={Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)}
+          disabled={
+            Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)
+          }
           onClick={handleSubmit}
           type='submit'
         >

@@ -17,7 +17,12 @@ const UnMemoizedLoadingIndicator = (props: LoadingIndicatorProps) => {
       data-testid='loading-indicator-wrapper'
       style={{ height: size, width: size }}
     >
-      <svg height={size} viewBox={`0 0 30 30`} width={size} xmlns='http://www.w3.org/2000/svg'>
+      <svg
+        height={size}
+        viewBox={`0 0 30 30`}
+        width={size}
+        xmlns='http://www.w3.org/2000/svg'
+      >
         <defs>
           <linearGradient id='a' x1='50%' x2='50%' y1='0%' y2='100%'>
             <stop offset='0%' stopColor='#FFF' stopOpacity='0' />

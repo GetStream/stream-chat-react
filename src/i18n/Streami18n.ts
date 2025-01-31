@@ -228,7 +228,15 @@ const en_locale = {
     'December',
   ],
   relativeTime: {},
-  weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  weekdays: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ],
 };
 
 type DateTimeParserModule = typeof Dayjs | typeof momentTimezone;
@@ -579,7 +587,8 @@ export class Streami18n {
 
     this.tDateTimeParser = (timestamp) => {
       const language =
-        finalOptions.disableDateTimeTranslations || !this.localeExists(this.currentLanguage)
+        finalOptions.disableDateTimeTranslations ||
+        !this.localeExists(this.currentLanguage)
           ? defaultLng
           : this.currentLanguage;
 
@@ -659,7 +668,10 @@ export class Streami18n {
   async getTranslators() {
     if (!this.initialized) {
       if (this.dayjsLocales[this.currentLanguage]) {
-        this.addOrUpdateLocale(this.currentLanguage, this.dayjsLocales[this.currentLanguage]);
+        this.addOrUpdateLocale(
+          this.currentLanguage,
+          this.dayjsLocales[this.currentLanguage],
+        );
       }
 
       return await this.init();
@@ -722,7 +734,10 @@ export class Streami18n {
     try {
       const t = await this.i18nInstance.changeLanguage(language);
       if (this.dayjsLocales[language]) {
-        this.addOrUpdateLocale(this.currentLanguage, this.dayjsLocales[this.currentLanguage]);
+        this.addOrUpdateLocale(
+          this.currentLanguage,
+          this.dayjsLocales[this.currentLanguage],
+        );
       }
 
       this.setLanguageCallback(t);

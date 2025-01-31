@@ -16,12 +16,10 @@ import type { TranslationLanguages } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
-  const {
-    Attachment = DefaultAttachment,
-    Avatar: ContextAvatar,
-  } = useComponentContext<StreamChatGenerics>('QuotedMessage');
+  const { Attachment = DefaultAttachment, Avatar: ContextAvatar } =
+    useComponentContext<StreamChatGenerics>('QuotedMessage');
   const { client } = useChatContext();
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
@@ -33,7 +31,8 @@ export const QuotedMessage = <
   if (!quoted_message) return null;
 
   const poll = quoted_message.poll_id && client.polls.fromState(quoted_message.poll_id);
-  const quotedMessageDeleted = quoted_message.deleted_at || quoted_message.type === 'deleted';
+  const quotedMessageDeleted =
+    quoted_message.deleted_at || quoted_message.type === 'deleted';
 
   const quotedMessageText = quotedMessageDeleted
     ? t('This message was deleted...')
@@ -66,7 +65,10 @@ export const QuotedMessage = <
             user={quoted_message.user}
           />
         )}
-        <div className='str-chat__quoted-message-bubble' data-testid='quoted-message-contents'>
+        <div
+          className='str-chat__quoted-message-bubble'
+          data-testid='quoted-message-contents'
+        >
           {poll ? (
             <Poll isQuoted poll={poll} />
           ) : (
@@ -84,7 +86,9 @@ export const QuotedMessage = <
           )}
         </div>
       </div>
-      {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+      {message.attachments?.length ? (
+        <Attachment attachments={message.attachments} />
+      ) : null}
     </>
   );
 };

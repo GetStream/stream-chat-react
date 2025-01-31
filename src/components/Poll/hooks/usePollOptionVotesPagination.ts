@@ -12,17 +12,21 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollOptionVotesQueryParams, PollVote } from 'stream-chat';
 
 const paginationStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   state: CursorPaginatorState<PollVote<StreamChatGenerics>>,
-): [Error | undefined, boolean, boolean] => [state.error, state.hasNextPage, state.loading];
+): [Error | undefined, boolean, boolean] => [
+  state.error,
+  state.hasNextPage,
+  state.loading,
+];
 
 type UsePollOptionVotesPaginationParams = {
   paginationParams: PollOptionVotesQueryParams;
 };
 
 export const usePollOptionVotesPagination = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   paginationParams,
 }: UsePollOptionVotesPaginationParams) => {
@@ -32,7 +36,9 @@ export const usePollOptionVotesPagination = <
     async (next) => {
       const { next: newNext, votes } = await poll.queryOptionVotes({
         filter: paginationParams.filter,
-        options: !next ? paginationParams?.options : { ...paginationParams?.options, next },
+        options: !next
+          ? paginationParams?.options
+          : { ...paginationParams?.options, next },
         sort: { created_at: -1, ...paginationParams?.sort },
       });
       return { items: votes, next: newNext };
@@ -41,11 +47,10 @@ export const usePollOptionVotesPagination = <
   );
 
   const { cursorPaginatorState, loadMore } = useCursorPaginator(paginationFn, true);
-  const votes = useManagePollVotesRealtime<StreamChatGenerics, PollVote<StreamChatGenerics>>(
-    'vote',
-    cursorPaginatorState,
-    paginationParams.filter.option_id,
-  );
+  const votes = useManagePollVotesRealtime<
+    StreamChatGenerics,
+    PollVote<StreamChatGenerics>
+  >('vote', cursorPaginatorState, paginationParams.filter.option_id);
   const [error, hasNextPage, loading] = useStateStore(
     cursorPaginatorState,
     paginationStateSelector,

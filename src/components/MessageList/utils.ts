@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -23,7 +22,7 @@ type ProcessMessagesContext = {
 };
 
 export type ProcessMessagesParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ProcessMessagesContext & {
   messages: StreamMessage<StreamChatGenerics>[];
   reviewProcessedMessage?: (params: {
@@ -61,7 +60,7 @@ export type ProcessMessagesParams<
  * @return {StreamMessage<StreamChatGenerics>[]} Transformed list of messages
  */
 export const processMessages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
@@ -86,7 +85,11 @@ export const processMessages = <
       continue;
     }
 
-    if (setGiphyPreviewMessage && message.type === 'ephemeral' && message.command === 'giphy') {
+    if (
+      setGiphyPreviewMessage &&
+      message.type === 'ephemeral' &&
+      message.command === 'giphy'
+    ) {
       ephemeralMessagePresent = true;
       setGiphyPreviewMessage(message);
       continue;
@@ -94,16 +97,25 @@ export const processMessages = <
 
     const changes: StreamMessage<StreamChatGenerics>[] = [];
     const messageDate =
-      (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
+      (message.created_at &&
+        isDate(message.created_at) &&
+        message.created_at.toDateString()) ||
+      '';
     const previousMessage = messages[i - 1];
     let prevMessageDate = messageDate;
 
-    if (enableDateSeparator && previousMessage?.created_at && isDate(previousMessage.created_at)) {
+    if (
+      enableDateSeparator &&
+      previousMessage?.created_at &&
+      isDate(previousMessage.created_at)
+    ) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
 
     if (!unread && !hideNewMessageSeparator) {
-      unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
+      unread =
+        (lastRead && message.created_at && new Date(lastRead) < message.created_at) ||
+        false;
 
       // do not show date separator for current user's messages
       if (enableDateSeparator && unread && message.user?.id !== userId) {
@@ -171,7 +183,7 @@ export const makeDateMessageId = (date?: string | Date) => {
 
 // fast since it usually iterates just the last few messages
 export const getLastReceived = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
 ) => {
@@ -185,7 +197,7 @@ export const getLastReceived = <
 };
 
 export const getReadStates = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
   read: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }> = {},
@@ -229,15 +241,15 @@ export const getReadStates = <
 };
 
 export const insertIntro = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   messages: StreamMessage<StreamChatGenerics>[],
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({
+  const intro = {
     customType: CUSTOM_MESSAGE_TYPE.intro,
-  } as unknown) as StreamMessage<StreamChatGenerics>;
+  } as unknown as StreamMessage<StreamChatGenerics>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -255,7 +267,9 @@ export const insertIntro = <
   for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
     const messageTime =
-      message.created_at && isDate(message.created_at) ? message.created_at.getTime() : null;
+      message.created_at && isDate(message.created_at)
+        ? message.created_at.getTime()
+        : null;
 
     const nextMessage = messages[i + 1];
     const nextMessageTime =
@@ -267,7 +281,8 @@ export const insertIntro = <
     if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
-        if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE_TYPE.date) continue;
+        if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE_TYPE.date)
+          continue;
         if (!nextMessageTime) {
           newMessages.push(intro);
           return newMessages;
@@ -285,7 +300,7 @@ export const insertIntro = <
 export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
 export const getGroupStyles = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   message: StreamMessage<StreamChatGenerics>,
   previousMessage: StreamMessage<StreamChatGenerics>,
@@ -312,7 +327,8 @@ export const getGroupStyles = <
     (maxTimeBetweenGroupedMessages !== undefined &&
       previousMessage.created_at &&
       message.created_at &&
-      new Date(message.created_at).getTime() - new Date(previousMessage.created_at).getTime() >
+      new Date(message.created_at).getTime() -
+        new Date(previousMessage.created_at).getTime() >
         maxTimeBetweenGroupedMessages);
 
   const isBottomMessage =
@@ -324,12 +340,14 @@ export const getGroupStyles = <
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.deleted_at ||
-    (nextMessage.reaction_groups && Object.keys(nextMessage.reaction_groups).length > 0) ||
+    (nextMessage.reaction_groups &&
+      Object.keys(nextMessage.reaction_groups).length > 0) ||
     isMessageEdited(message) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
       nextMessage.created_at &&
       message.created_at &&
-      new Date(nextMessage.created_at).getTime() - new Date(message.created_at).getTime() >
+      new Date(nextMessage.created_at).getTime() -
+        new Date(message.created_at).getTime() >
         maxTimeBetweenGroupedMessages);
 
   if (!isTopMessage && !isBottomMessage) {
@@ -368,10 +386,13 @@ type DateSeparatorMessage = {
 };
 
 export function isDateSeparatorMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-  // @ts-ignore
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
-  return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
+  return (
+    message.customType === CUSTOM_MESSAGE_TYPE.date &&
+    !!message.date &&
+    isDate(message.date)
+  );
 }
 
 export const getIsFirstUnreadMessage = ({
@@ -402,6 +423,8 @@ export const getIsFirstUnreadMessage = ({
 
   return (
     firstUnreadMessageId === message.id ||
-    (!!unreadMessageCount && messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
+    (!!unreadMessageCount &&
+      messageIsUnread &&
+      (isFirstMessage || previousMessageIsLastRead))
   );
 };

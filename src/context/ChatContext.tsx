@@ -24,7 +24,7 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 type ChannelCID = string; // e.g.: "messaging:general"
 
 export type ChatContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /**
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
@@ -62,20 +62,20 @@ export type ChatContextValue<
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
 export const ChatProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: ChatContextValue<StreamChatGenerics>;
 }>) => (
-  <ChatContext.Provider value={(value as unknown) as ChatContextValue}>
+  <ChatContext.Provider value={value as unknown as ChatContextValue}>
     {children}
   </ChatContext.Provider>
 );
 
 export const useChatContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   componentName?: string,
 ) => {
@@ -89,7 +89,7 @@ export const useChatContext = <
     return {} as ChatContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChatContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChatContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -99,11 +99,13 @@ export const useChatContext = <
  */
 export const withChatContext = <
   P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   Component: React.ComponentType<P>,
 ) => {
-  const WithChatContextComponent = (props: Omit<P, keyof ChatContextValue<StreamChatGenerics>>) => {
+  const WithChatContextComponent = (
+    props: Omit<P, keyof ChatContextValue<StreamChatGenerics>>,
+  ) => {
     const chatContext = useChatContext<StreamChatGenerics>();
 
     return <Component {...(props as P)} {...chatContext} />;

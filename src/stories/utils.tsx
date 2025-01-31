@@ -83,7 +83,8 @@ export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>(
     userData: { id: userId },
   });
 
-  if (!client) return <p>Waiting for connection to be established with user: {userId}...</p>;
+  if (!client)
+    return <p>Waiting for connection to be established with user: {userId}...</p>;
 
   return (
     <>

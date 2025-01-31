@@ -8,7 +8,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 const UnMemoizedChannelPreviewMessenger = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelPreviewUIComponentProps<SCG>,
 ) => {
@@ -27,9 +27,8 @@ const UnMemoizedChannelPreviewMessenger = <
     watchers,
   } = props;
 
-  const {
-    ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons,
-  } = useComponentContext<SCG>();
+  const { ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons } =
+    useComponentContext<SCG>();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -78,7 +77,10 @@ const UnMemoizedChannelPreviewMessenger = <
               <span>{displayTitle}</span>
             </div>
             {!!unread && (
-              <div className='str-chat__channel-preview-unread-badge' data-testid='unread-badge'>
+              <div
+                className='str-chat__channel-preview-unread-badge'
+                data-testid='unread-badge'
+              >
                 {unread}
               </div>
             )}

@@ -7,7 +7,7 @@ import type { ChannelStateContextValue } from '../../../context/ChannelStateCont
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   value: Omit<ChannelStateContextValue<StreamChatGenerics>, 'channelCapabilities'> & {
     channelCapabilitiesArray: string[];
@@ -19,17 +19,17 @@ export const useCreateChannelStateContext = <
     channel,
     channelCapabilitiesArray = [],
     channelConfig,
+    channelUnreadUiState,
     debounceURLEnrichmentMs,
     dragAndDropWindow,
     enrichURLForPreview,
-    giphyVersion,
     error,
     findURLFn,
+    giphyVersion,
     hasMore,
     hasMoreNewer,
-    imageAttachmentSizeHandler,
-    suppressAutoscroll,
     highlightedMessageId,
+    imageAttachmentSizeHandler,
     loading,
     loadingMore,
     maxNumberOfFiles,
@@ -44,14 +44,14 @@ export const useCreateChannelStateContext = <
     read = {},
     shouldGenerateVideoThumbnail,
     skipMessageDataMemoization,
+    suppressAutoscroll,
     thread,
     threadHasMore,
     threadLoadingMore,
     threadMessages = [],
-    channelUnreadUiState,
     videoAttachmentSizeHandler,
-    watcherCount,
     watcher_count,
+    watcherCount,
     watchers,
   } = value;
 
@@ -61,7 +61,9 @@ export const useCreateChannelStateContext = <
   const notificationsLength = notifications.length;
   const readUsers = Object.values(read);
   const readUsersLength = readUsers.length;
-  const readUsersLastReads = readUsers.map(({ last_read }) => last_read.toISOString()).join();
+  const readUsersLastReads = readUsers
+    .map(({ last_read }) => last_read.toISOString())
+    .join();
   const threadMessagesLength = threadMessages?.length;
 
   const channelCapabilities: Record<string, boolean> = {};
@@ -74,7 +76,15 @@ export const useCreateChannelStateContext = <
     ? messages
     : messages
         .map(
-          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at, user }) =>
+          ({
+            deleted_at,
+            latest_reactions,
+            pinned,
+            reply_count,
+            status,
+            updated_at,
+            user,
+          }) =>
             `${deleted_at}${
               latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
             }${pinned}${reply_count}${status}${

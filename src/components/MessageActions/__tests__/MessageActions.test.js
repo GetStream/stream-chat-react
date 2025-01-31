@@ -14,7 +14,11 @@ import {
   TranslationProvider,
 } from '../../../context';
 
-import { generateMessage, getTestClient, mockTranslationContext } from '../../../mock-builders';
+import {
+  generateMessage,
+  getTestClient,
+  mockTranslationContext,
+} from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -208,7 +212,10 @@ describe('<MessageActions /> component', () => {
     expect(document.removeEventListener).not.toHaveBeenCalled();
     await toggleOpenMessageActions();
     unmount();
-    expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'keyup',
+      expect.any(Function),
+    );
     removeEventListener.mockClear();
   });
 

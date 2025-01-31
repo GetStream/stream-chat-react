@@ -52,9 +52,9 @@ function generateAliceMessage(messageOptions) {
 }
 
 async function renderMessageText({
-  customProps = {},
-  channelConfigOverrides = {},
   channelCapabilitiesOverrides = {},
+  channelConfigOverrides = {},
+  customProps = {},
 } = {}) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
@@ -69,7 +69,10 @@ async function renderMessageText({
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
-          value={{ onMentionsClick: onMentionsClickMock, onMentionsHover: onMentionsHoverMock }}
+          value={{
+            onMentionsClick: onMentionsClickMock,
+            onMentionsHover: onMentionsHoverMock,
+          }}
         >
           <TranslationProvider
             value={{
@@ -81,7 +84,7 @@ async function renderMessageText({
             <ComponentProvider
               value={{
                 Attachment,
-                // eslint-disable-next-line react/display-name
+
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
@@ -127,7 +130,9 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { container, getByTestId } = await renderMessageText({ customProps: { message } });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
     expect(getByTestId(messageTextTestId)).toHaveClass(
       'str-chat__message-simple-text-inner--has-attachment',
     );
@@ -137,7 +142,9 @@ describe('<MessageText />', () => {
 
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
-    const { container, getByTestId } = await renderMessageText({ customProps: { message } });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
     expect(getByTestId(messageTextTestId)).toHaveClass(
       'str-chat__message-simple-text-inner--is-emoji',
     );
@@ -177,7 +184,9 @@ describe('<MessageText />', () => {
 
   it('should inform that message was not sent when message is has type "error"', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { container, getByText } = await renderMessageText({ customProps: { message } });
+    const { container, getByText } = await renderMessageText({
+      customProps: { message },
+    });
     expect(getByText('Error · Unsent')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -185,7 +194,9 @@ describe('<MessageText />', () => {
 
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { container, getByText } = await renderMessageText({ customProps: { message } });
+    const { container, getByText } = await renderMessageText({
+      customProps: { message },
+    });
     expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -209,7 +220,9 @@ describe('<MessageText />', () => {
   it('render message text', async () => {
     const text = 'Hello, world!';
     const message = generateAliceMessage({ text });
-    const { container, getByText } = await renderMessageText({ customProps: { message } });
+    const { container, getByText } = await renderMessageText({
+      customProps: { message },
+    });
     expect(getByText(text)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -222,7 +235,9 @@ describe('<MessageText />', () => {
       text,
     });
 
-    const { container, getByText } = await renderMessageText({ customProps: { message } });
+    const { container, getByText } = await renderMessageText({
+      customProps: { message },
+    });
 
     expect(getByText('hello')).toBeInTheDocument();
     const results = await axe(container);
@@ -282,7 +297,7 @@ describe('<MessageText />', () => {
         },
       },
     });
-    // eslint-disable-next-line jest/prefer-called-with
+
     expect(MessageOptionsMock).toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();

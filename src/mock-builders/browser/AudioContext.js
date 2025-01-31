@@ -4,6 +4,7 @@ class Connectable {
 }
 
 export class AudioContextMock {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   createAnalyser = jest.fn(() => new Connectable());

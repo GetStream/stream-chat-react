@@ -4,7 +4,11 @@ import { nanoid } from 'nanoid';
 import { checkUploadPermissions } from './utils';
 import { isLocalAttachment, isLocalImageAttachment } from '../../Attachment';
 import type { FileLike } from '../../ReactFileUtilities';
-import { createFileFromBlobs, generateFileName, isBlobButNotFile } from '../../ReactFileUtilities';
+import {
+  createFileFromBlobs,
+  generateFileName,
+  isBlobButNotFile,
+} from '../../ReactFileUtilities';
 
 import {
   useChannelActionContext,
@@ -14,7 +18,10 @@ import {
 } from '../../../context';
 
 import type { Attachment, SendFileAPIResponse } from 'stream-chat';
-import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
+import type {
+  MessageInputReducerAction,
+  MessageInputState,
+} from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 import type {
   AttachmentLoadingState,
@@ -38,7 +45,7 @@ const getAttachmentTypeFromMime = (mimeType: string) => {
 };
 
 const ensureIsLocalAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
 ): LocalAttachment<StreamChatGenerics> => {
@@ -57,7 +64,7 @@ const ensureIsLocalAttachment = <
 
 export const useAttachments = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
@@ -67,17 +74,18 @@ export const useAttachments = <
   const { doFileUploadRequest, doImageUploadRequest, errorHandler, noFiles } = props;
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
   const { t } = useTranslationContext('useAttachments');
-  const { addNotification } = useChannelActionContext<StreamChatGenerics>('useAttachments');
-  const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
-    'useAttachments',
-  );
+  const { addNotification } =
+    useChannelActionContext<StreamChatGenerics>('useAttachments');
+  const { channel, maxNumberOfFiles, multipleUploads } =
+    useChannelStateContext<StreamChatGenerics>('useAttachments');
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
   const maxFilesAllowed = !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
 
   const numberOfUploads = Object.values(state.attachments).filter(
-    ({ localMetadata }) => localMetadata.uploadState && localMetadata.uploadState !== 'failed',
+    ({ localMetadata }) =>
+      localMetadata.uploadState && localMetadata.uploadState !== 'failed',
   ).length;
 
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
@@ -91,7 +99,12 @@ export const useAttachments = <
   );
 
   const upsertAttachments = useCallback(
-    (attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[]) => {
+    (
+      attachments: (
+        | Attachment<StreamChatGenerics>
+        | LocalAttachment<StreamChatGenerics>
+      )[],
+    ) => {
       if (!attachments.length) return;
       dispatch({
         attachments: attachments.map(ensureIsLocalAttachment),
@@ -163,7 +176,10 @@ export const useAttachments = <
           response = await channel[isImage ? 'sendImage' : 'sendFile'](file);
         }
       } catch (error) {
-        let finalError: Error = { message: t('Error uploading attachment'), name: 'Error' };
+        let finalError: Error = {
+          message: t('Error uploading attachment'),
+          name: 'Error',
+        };
         if (typeof (error as Error).message === 'string') {
           finalError = error as Error;
         } else if (typeof error === 'object') {
@@ -184,7 +200,10 @@ export const useAttachments = <
         upsertAttachments([failedAttachment]);
 
         if (errorHandler) {
-          errorHandler(finalError as Error, 'upload-attachment', { ...file, id: localMetadata.id });
+          errorHandler(finalError as Error, 'upload-attachment', {
+            ...file,
+            id: localMetadata.id,
+          });
         }
 
         return failedAttachment;
@@ -240,7 +259,9 @@ export const useAttachments = <
 
   const uploadNewFiles = useCallback(
     (files: FileList | File[] | FileLike[]) => {
-      const filesToBeUploaded = noFiles ? Array.from(files).filter(isImageFile) : Array.from(files);
+      const filesToBeUploaded = noFiles
+        ? Array.from(files).filter(isImageFile)
+        : Array.from(files);
 
       filesToBeUploaded.slice(0, maxFilesLeft).forEach((fileLike) => {
         uploadAttachment({

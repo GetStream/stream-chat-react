@@ -25,13 +25,13 @@ export type ChannelNotifications = Array<{
 }>;
 
 export type StreamMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > =
   | ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
   | MessageResponse<StreamChatGenerics>;
 
 export type ChannelState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   suppressAutoscroll: boolean;
   error?: Error | null;
@@ -57,7 +57,7 @@ export type ChannelState<
 };
 
 export type ChannelStateContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Omit<ChannelState<StreamChatGenerics>, 'typing'> & {
   channel: Channel<StreamChatGenerics>;
   channelCapabilities: Record<string, boolean>;
@@ -80,25 +80,25 @@ export type ChannelStateContextValue<
   watcher_count?: number;
 };
 
-export const ChannelStateContext = React.createContext<ChannelStateContextValue | undefined>(
-  undefined,
-);
+export const ChannelStateContext = React.createContext<
+  ChannelStateContextValue | undefined
+>(undefined);
 
 export const ChannelStateProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: ChannelStateContextValue<StreamChatGenerics>;
 }>) => (
-  <ChannelStateContext.Provider value={(value as unknown) as ChannelStateContextValue}>
+  <ChannelStateContext.Provider value={value as unknown as ChannelStateContextValue}>
     {children}
   </ChannelStateContext.Provider>
 );
 
 export const useChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   componentName?: string,
 ) => {
@@ -112,7 +112,7 @@ export const useChannelStateContext = <
     return {} as ChannelStateContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChannelStateContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChannelStateContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -122,7 +122,7 @@ export const useChannelStateContext = <
  */
 export const withChannelStateContext = <
   P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   Component: React.ComponentType<P>,
 ) => {

@@ -8,12 +8,18 @@ import {
   SupportedTranslations,
 } from '../../../i18n';
 
-import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
+import type {
+  AppSettingsAPIResponse,
+  Channel,
+  Event,
+  Mute,
+  StreamChat,
+} from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UseChatParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   client: StreamChat<StreamChatGenerics>;
   defaultLanguage?: SupportedTranslations;
@@ -22,7 +28,7 @@ export type UseChatParams<
 };
 
 export const useChat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   client,
   defaultLanguage = 'en',
@@ -45,7 +51,9 @@ export const useChat = <
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
-  const appSettings = useRef<Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null>(null);
+  const appSettings = useRef<Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null>(
+    null,
+  );
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -91,7 +99,9 @@ export const useChat = <
 
     if (!userLanguage) {
       const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
-      userLanguage = isLanguageSupported(browserLanguage) ? browserLanguage : defaultLanguage;
+      userLanguage = isLanguageSupported(browserLanguage)
+        ? browserLanguage
+        : defaultLanguage;
     }
 
     const streami18n = i18nInstance || new Streami18n({ language: userLanguage });

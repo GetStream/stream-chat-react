@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import { ChannelSearchControllerParams, useChannelSearch } from './hooks/useChannelSearch';
+import {
+  ChannelSearchControllerParams,
+  useChannelSearch,
+} from './hooks/useChannelSearch';
 
 import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 import { SearchBar as DefaultSearchBar } from './SearchBar';
@@ -22,7 +25,7 @@ export type AdditionalChannelSearchProps = {
 };
 
 export type ChannelSearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = AdditionalSearchBarProps &
   AdditionalSearchInputProps &
   AdditionalSearchResultsProps<StreamChatGenerics> &
@@ -30,7 +33,7 @@ export type ChannelSearchProps<
   ChannelSearchControllerParams<StreamChatGenerics>;
 
 const UnMemoizedChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelSearchProps<StreamChatGenerics>,
 ) => {
@@ -44,11 +47,11 @@ const UnMemoizedChannelSearch = <
     SearchBar = DefaultSearchBar,
     SearchEmpty,
     SearchInput = DefaultSearchInput,
-    SearchLoading,
     SearchInputIcon,
+    SearchLoading,
     SearchResultItem,
-    SearchResultsList,
     SearchResultsHeader,
+    SearchResultsList,
     ...channelSearchParams
   } = props;
 
@@ -70,7 +73,9 @@ const UnMemoizedChannelSearch = <
     <div
       className={clsx(
         'str-chat__channel-search',
-        popupResults ? 'str-chat__channel-search--popup' : 'str-chat__channel-search--inline',
+        popupResults
+          ? 'str-chat__channel-search--popup'
+          : 'str-chat__channel-search--inline',
         {
           'str-chat__channel-search--with-results': results.length > 0,
         },
@@ -118,4 +123,6 @@ const UnMemoizedChannelSearch = <
  * Clicking on a list item will navigate you into a channel with the selected user. It can be used
  * on its own or added to the ChannelList component by setting the `showChannelSearch` prop to true.
  */
-export const ChannelSearch = React.memo(UnMemoizedChannelSearch) as typeof UnMemoizedChannelSearch;
+export const ChannelSearch = React.memo(
+  UnMemoizedChannelSearch,
+) as typeof UnMemoizedChannelSearch;

@@ -40,7 +40,11 @@ type WriteWaveHeaderParams = {
   // Number of samples per second, e.g. 44100Hz
   sampleRate: number;
 };
-const writeWavHeader = ({ arrayBuffer, channelCount, sampleRate }: WriteWaveHeaderParams) => {
+const writeWavHeader = ({
+  arrayBuffer,
+  channelCount,
+  sampleRate,
+}: WriteWaveHeaderParams) => {
   const byteRate = sampleRate * channelCount * BYTES_PER_SAMPLE; // bytes/sec
   const blockAlign = channelCount * BYTES_PER_SAMPLE;
 
@@ -95,7 +99,9 @@ export const readWavHeader = (dataView: DataView) => {
 };
 
 const splitDataByChannel = (audioBuffer: AudioBuffer) =>
-  Array.from({ length: audioBuffer.numberOfChannels }, (_, i) => audioBuffer.getChannelData(i));
+  Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
+    audioBuffer.getChannelData(i),
+  );
 
 type WriteAudioDataParams = {
   arrayBuffer: ArrayBuffer;
@@ -118,7 +124,9 @@ const writeWavAudioData = ({ arrayBuffer, dataByChannel }: WriteAudioDataParams)
     channelData.forEach((float32Value) => {
       dataView.setInt16(
         writeOffset,
-        float32Value < 0 ? Math.max(-1, float32Value) * 32768 : Math.min(1, float32Value) * 32767,
+        float32Value < 0
+          ? Math.max(-1, float32Value) * 32768
+          : Math.min(1, float32Value) * 32767,
         true,
       );
       writeOffset += channelCount * BYTES_PER_SAMPLE;
@@ -130,7 +138,8 @@ export const encodeToWaw = async (file: File, sampleRate: number) => {
   const audioBuffer = await renderAudio(await toAudioBuffer(file), sampleRate);
   const numberOfSamples = audioBuffer.duration * sampleRate;
   const fileSizeBytes =
-    numberOfSamples * audioBuffer.numberOfChannels * BYTES_PER_SAMPLE + WAV_HEADER_LENGTH_BYTES;
+    numberOfSamples * audioBuffer.numberOfChannels * BYTES_PER_SAMPLE +
+    WAV_HEADER_LENGTH_BYTES;
 
   const arrayBuffer = new ArrayBuffer(fileSizeBytes);
   writeWavHeader({ arrayBuffer, channelCount: audioBuffer.numberOfChannels, sampleRate });

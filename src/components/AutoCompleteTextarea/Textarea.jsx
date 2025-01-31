@@ -179,7 +179,11 @@ export class ReactTextareaAutocomplete extends React.Component {
       showCommandsList,
       showMentionsList,
     } = this.props;
-    const { currentTrigger: stateTrigger, selectionEnd, value: textareaValue } = this.state;
+    const {
+      currentTrigger: stateTrigger,
+      selectionEnd,
+      value: textareaValue,
+    } = this.state;
 
     const currentTrigger = showCommandsList ? '/' : showMentionsList ? '@' : stateTrigger;
 
@@ -194,7 +198,9 @@ export class ReactTextareaAutocomplete extends React.Component {
           return startToken + token.length;
         default:
           if (!Number.isInteger(position)) {
-            throw new Error('RTA: caretPosition should be "start", "next", "end" or number.');
+            throw new Error(
+              'RTA: caretPosition should be "start", "next", "end" or number.',
+            );
           }
 
           return position;
@@ -204,13 +210,14 @@ export class ReactTextareaAutocomplete extends React.Component {
     const textToModify = showCommandsList
       ? '/'
       : showMentionsList
-      ? '@'
-      : textareaValue.slice(0, selectionEnd);
+        ? '@'
+        : textareaValue.slice(0, selectionEnd);
 
     const startOfTokenPosition = textToModify.lastIndexOf(currentTrigger);
 
     // we add space after emoji is selected if a caret position is next
-    const newTokenString = newToken.caretPosition === 'next' ? `${newToken.text} ` : newToken.text;
+    const newTokenString =
+      newToken.caretPosition === 'next' ? `${newToken.text} ` : newToken.text;
 
     const newCaretPosition = computeCaretPosition(
       newToken.caretPosition,
@@ -450,7 +457,6 @@ export class ReactTextareaAutocomplete extends React.Component {
       'value',
     ];
 
-    // eslint-disable-next-line
     for (const prop in props) {
       if (notSafe.includes(prop)) delete props[prop];
     }
@@ -467,7 +473,8 @@ export class ReactTextareaAutocomplete extends React.Component {
   };
 
   _changeHandler = (e) => {
-    const { minChar, movePopupAsYouType, onCaretPositionChange, onChange, trigger } = this.props;
+    const { minChar, movePopupAsYouType, onCaretPositionChange, onChange, trigger } =
+      this.props;
     const { left, top } = this.state;
 
     const textarea = e.target;
@@ -499,7 +506,8 @@ export class ReactTextareaAutocomplete extends React.Component {
 
       lastToken = tokenMatch && tokenMatch[tokenMatch.length - 1].trim();
 
-      currentTrigger = (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) || null;
+      currentTrigger =
+        (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) || null;
     }
 
     /*
@@ -636,7 +644,9 @@ export class ReactTextareaAutocomplete extends React.Component {
 
       triggerProps.component = showCommandsList ? CommandItem : UserItem;
       triggerProps.currentTrigger = showCommandsList ? '/' : '@';
-      triggerProps.getTextToReplace = this._getTextToReplace(showCommandsList ? '/' : '@');
+      triggerProps.getTextToReplace = this._getTextToReplace(
+        showCommandsList ? '/' : '@',
+      );
       triggerProps.getSelectedItem = this._getItemOnSelect(showCommandsList ? '/' : '@');
       triggerProps.selectionEnd = 1;
       triggerProps.value = showCommandsList ? '/' : '@';

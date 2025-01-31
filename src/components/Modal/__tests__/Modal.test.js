@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { Modal } from '../Modal';
 
 describe('Modal', () => {
-  afterEach(cleanup); // eslint-disable-line
+  afterEach(cleanup);
 
   it('should be closed (null) if the `open` prop is set to false', () => {
     const { container } = render(<Modal onClose={() => {}} open={false} />);

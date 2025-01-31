@@ -15,7 +15,11 @@ import {
   generateVoiceRecordingAttachment,
   initClientWithChannels,
 } from '../../../../mock-builders';
-import { ChannelActionProvider, ChannelStateProvider, ChatProvider } from '../../../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+} from '../../../../context';
 
 const linkPreviewAttachments = Array.from({ length: 3 }, generateScrapedDataAttachment);
 const fileAttachment = generateFileAttachment();
@@ -38,7 +42,12 @@ const message = generateMessage({
 
 window.URL = { revokeObjectURL: jest.fn() };
 
-async function renderUseMessageInputStateHook({ channel, chatContext, client, props } = {}) {
+async function renderUseMessageInputStateHook({
+  channel,
+  chatContext,
+  client,
+  props,
+} = {}) {
   const {
     channels: [defaultChannel],
     client: defaultClient,
@@ -197,253 +206,276 @@ describe('useMessageInputState', () => {
         voiceRecording: generateVoiceRecordingAttachment,
       };
 
-      describe.each([['audio'], ['file'], ['image'], ['video'], ['voiceRecording'], ['custom']])(
-        'of type %s',
-        (type) => {
-          const data = generateAttachment[type]();
-          const fileDataOverrides = {
-            file: {
-              name: type === 'image' ? data.fallback : data.title,
-              type:
-                type === 'image' ? 'image/' + data.fallback.split('.')[1] : data.mime_type ?? '',
-            },
-          };
-          const attachment = {
-            ...(type === 'image'
-              ? generateLocalImageUploadAttachmentData(fileDataOverrides)
-              : generateLocalFileUploadAttachmentData(fileDataOverrides)),
-            ...data,
-          };
-          const getAppSettings = jest.fn();
+      describe.each([
+        ['audio'],
+        ['file'],
+        ['image'],
+        ['video'],
+        ['voiceRecording'],
+        ['custom'],
+      ])('of type %s', (type) => {
+        const data = generateAttachment[type]();
+        const fileDataOverrides = {
+          file: {
+            name: type === 'image' ? data.fallback : data.title,
+            type:
+              type === 'image'
+                ? 'image/' + data.fallback.split('.')[1]
+                : (data.mime_type ?? ''),
+          },
+        };
+        const attachment = {
+          ...(type === 'image'
+            ? generateLocalImageUploadAttachmentData(fileDataOverrides)
+            : generateLocalFileUploadAttachmentData(fileDataOverrides)),
+          ...data,
+        };
+        const getAppSettings = jest.fn();
 
-          it('does not upload attachment if file is missing', async () => {
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
-            const { result } = await renderUseMessageInputStateHook({
-              channel,
-              chatContext: { getAppSettings },
-              client,
-            });
-            const att = { ...attachment, localMetadata: { ...attachment.localMetadata } };
-            delete att.localMetadata.file;
-            await act(async () => {
-              await result.current.uploadAttachment(att);
-            });
-            expect(sendFileSpy).not.toHaveBeenCalled();
+        it('does not upload attachment if file is missing', async () => {
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
           });
+          const att = { ...attachment, localMetadata: { ...attachment.localMetadata } };
+          delete att.localMetadata.file;
+          await act(async () => {
+            await result.current.uploadAttachment(att);
+          });
+          expect(sendFileSpy).not.toHaveBeenCalled();
+        });
 
-          it.each([
-            [
-              'not among allowed file extensions',
-              {
-                allowed_file_extensions: [new Date().toISOString()],
-              },
-            ],
-            [
-              'uploading file with blocked extension',
-              {
-                blocked_file_extensions: attachment.localMetadata.file.type?.split('/').slice(-1),
-              },
-            ],
-            [
-              'mime_type not allowed',
-              {
-                allowed_mime_types: [new Date().toISOString()],
-              },
-            ],
-            [
-              'uploading file with blocked mime_type',
-              {
-                blocked_mime_types: [attachment.localMetadata.file.type],
-              },
-            ],
-            [
-              'file exceeds allowed size',
-              {
-                size_limit: attachment.localMetadata.file.size - 1,
-              },
-            ],
-          ])('does not upload attachment if %s in app config', async (_, appConfig) => {
-            getAppSettings.mockReturnValueOnce({
-              app: {
-                [type === 'image' ? 'image_upload_config' : 'file_upload_config']: appConfig,
-              },
-            });
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            const originalConsoleError = console.error;
-            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
-              if (args[0].message.match('Missing permissions to upload the attachment')) return;
+        it.each([
+          [
+            'not among allowed file extensions',
+            {
+              allowed_file_extensions: [new Date().toISOString()],
+            },
+          ],
+          [
+            'uploading file with blocked extension',
+            {
+              blocked_file_extensions: attachment.localMetadata.file.type
+                ?.split('/')
+                .slice(-1),
+            },
+          ],
+          [
+            'mime_type not allowed',
+            {
+              allowed_mime_types: [new Date().toISOString()],
+            },
+          ],
+          [
+            'uploading file with blocked mime_type',
+            {
+              blocked_mime_types: [attachment.localMetadata.file.type],
+            },
+          ],
+          [
+            'file exceeds allowed size',
+            {
+              size_limit: attachment.localMetadata.file.size - 1,
+            },
+          ],
+        ])('does not upload attachment if %s in app config', async (_, appConfig) => {
+          getAppSettings.mockReturnValueOnce({
+            app: {
+              [type === 'image' ? 'image_upload_config' : 'file_upload_config']:
+                appConfig,
+            },
+          });
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          const originalConsoleError = console.error;
+          const consoleErrorSpy = jest
+            .spyOn(console, 'error')
+            .mockImplementation((...args) => {
+              if (args[0].message.match('Missing permissions to upload the attachment'))
+                return;
               originalConsoleError(...args);
             });
-            const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
-            const { result } = await renderUseMessageInputStateHook({
-              channel,
-              chatContext: { getAppSettings },
-              client,
-            });
-            await act(async () => {
-              await result.current.uploadAttachment(attachment);
-            });
-            expect(sendFileSpy).not.toHaveBeenCalled();
-            consoleErrorSpy.mockRestore();
+          const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
+          });
+          await act(async () => {
+            await result.current.uploadAttachment(attachment);
+          });
+          expect(sendFileSpy).not.toHaveBeenCalled();
+          consoleErrorSpy.mockRestore();
+        });
+
+        it('marks attachment as being uploaded', async () => {
+          const assetUrl = 'asset-url';
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          jest
+            .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+            .mockResolvedValue({ file: assetUrl });
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
+          });
+          if (type === 'image') {
+            expect(attachment.localMetadata.previewUri).toBeDefined();
+          }
+
+          await act(async () => {
+            await result.current.uploadAttachment(attachment);
+          });
+          expect(result.current.attachments).toHaveLength(1);
+          expect(result.current.attachments[0].localMetadata.uploadState).toBe(
+            'finished',
+          );
+
+          if (type === 'image') {
+            expect(result.current.attachments[0].image_url).toBe(assetUrl);
+            expect(
+              result.current.attachments[0].localMetadata.previewUri,
+            ).toBeUndefined();
+          } else {
+            expect(result.current.attachments[0].asset_url).toBe(assetUrl);
+          }
+        });
+
+        it('uses custom upload function', async () => {
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          const customSendSpy = jest.fn();
+          const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
+            props: {
+              [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']:
+                customSendSpy,
+            },
+          });
+          await act(async () => {
+            await result.current.uploadAttachment(attachment);
+          });
+          expect(sendFileSpy).not.toHaveBeenCalled();
+          expect(customSendSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('removes attachment if upload response is falsy', async () => {
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          jest
+            .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+            .mockResolvedValue(undefined);
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
           });
 
-          it('marks attachment as being uploaded', async () => {
-            const assetUrl = 'asset-url';
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            jest
-              .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
-              .mockResolvedValue({ file: assetUrl });
-            const { result } = await renderUseMessageInputStateHook({
-              channel,
-              chatContext: { getAppSettings },
-              client,
-            });
-            if (type === 'image') {
-              expect(attachment.localMetadata.previewUri).toBeDefined();
-            }
-
-            await act(async () => {
-              await result.current.uploadAttachment(attachment);
-            });
-            expect(result.current.attachments).toHaveLength(1);
-            expect(result.current.attachments[0].localMetadata.uploadState).toBe('finished');
-
-            if (type === 'image') {
-              expect(result.current.attachments[0].image_url).toBe(assetUrl);
-              expect(result.current.attachments[0].localMetadata.previewUri).toBeUndefined();
-            } else {
-              expect(result.current.attachments[0].asset_url).toBe(assetUrl);
-            }
+          await act(async () => {
+            await result.current.uploadAttachment(attachment);
           });
 
-          it('uses custom upload function', async () => {
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            const customSendSpy = jest.fn();
-            const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
-            const { result } = await renderUseMessageInputStateHook({
-              channel,
-              chatContext: { getAppSettings },
-              client,
-              props: {
-                [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']: customSendSpy,
-              },
-            });
-            await act(async () => {
-              await result.current.uploadAttachment(attachment);
-            });
-            expect(sendFileSpy).not.toHaveBeenCalled();
-            expect(customSendSpy).toHaveBeenCalledTimes(1);
-          });
+          expect(result.current.attachments).toHaveLength(0);
+        });
 
-          it('removes attachment if upload response is falsy', async () => {
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            jest
-              .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
-              .mockResolvedValue(undefined);
-            const { result } = await renderUseMessageInputStateHook({
-              channel,
-              chatContext: { getAppSettings },
-              client,
-            });
+        const errMsg = 'Went wrong';
+        const errMsgCustom = 'Went wrong custom';
 
-            await act(async () => {
-              await result.current.uploadAttachment(attachment);
-            });
-
-            expect(result.current.attachments).toHaveLength(0);
-          });
-
-          const errMsg = 'Went wrong';
-          const errMsgCustom = 'Went wrong custom';
-
-          it('invokes custom error handler', async () => {
-            const {
-              channels: [channel],
-              client,
-            } = await initClientWithChannels();
-            jest.spyOn(channel, 'sendFile').mockRejectedValue(new Error(errMsg));
-            const originalConsoleError = console.error;
-            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
+        it('invokes custom error handler', async () => {
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          jest.spyOn(channel, 'sendFile').mockRejectedValue(new Error(errMsg));
+          const originalConsoleError = console.error;
+          const consoleErrorSpy = jest
+            .spyOn(console, 'error')
+            .mockImplementation((...args) => {
               if (args[0].message === errMsg) return;
               originalConsoleError(...args);
             });
-            const customSendSpy = jest.fn();
-            const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
+          const customSendSpy = jest.fn();
+          const sendFileSpy = jest.spyOn(channel, 'sendFile').mockResolvedValue({});
+          const { result } = await renderUseMessageInputStateHook({
+            channel,
+            chatContext: { getAppSettings },
+            client,
+            props: {
+              [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']:
+                customSendSpy,
+            },
+          });
+          await act(async () => {
+            await result.current.uploadAttachment(attachment);
+          });
+          expect(sendFileSpy).not.toHaveBeenCalled();
+          expect(customSendSpy).toHaveBeenCalledTimes(1);
+          consoleErrorSpy.mockRestore();
+        });
+
+        it.each([['default'], ['custom']])(
+          'marks attachment as failed on upload error of %s function',
+          async (scenario) => {
+            const {
+              channels: [channel],
+              client,
+            } = await initClientWithChannels();
+            const customSendSpy = jest.fn().mockRejectedValue(new Error(errMsgCustom));
+            jest
+              .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+              .mockRejectedValue(new Error(errMsg));
+            const originalConsoleError = console.error;
+            const consoleErrorSpy = jest
+              .spyOn(console, 'error')
+              .mockImplementation((...args) => {
+                if ([errMsg, errMsgCustom].includes(args[0].message)) return;
+                originalConsoleError(...args);
+              });
             const { result } = await renderUseMessageInputStateHook({
               channel,
               chatContext: { getAppSettings },
               client,
-              props: {
-                [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']: customSendSpy,
-              },
+              props:
+                scenario === 'custom'
+                  ? {
+                      [type === 'image' ? 'doImageUploadRequest' : 'doFileUploadRequest']:
+                        customSendSpy,
+                    }
+                  : {},
             });
+
             await act(async () => {
               await result.current.uploadAttachment(attachment);
             });
-            expect(sendFileSpy).not.toHaveBeenCalled();
-            expect(customSendSpy).toHaveBeenCalledTimes(1);
+
+            expect(result.current.attachments[0].localMetadata.uploadState).toBe(
+              'failed',
+            );
+            expect(consoleErrorSpy.mock.calls[0][0].message).toBe(
+              scenario === 'custom' ? errMsgCustom : errMsg,
+            );
             consoleErrorSpy.mockRestore();
-          });
-
-          it.each([['default'], ['custom']])(
-            'marks attachment as failed on upload error of %s function',
-            async (scenario) => {
-              const {
-                channels: [channel],
-                client,
-              } = await initClientWithChannels();
-              const customSendSpy = jest.fn().mockRejectedValue(new Error(errMsgCustom));
-              jest
-                .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
-                .mockRejectedValue(new Error(errMsg));
-              const originalConsoleError = console.error;
-              const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
-                if ([errMsg, errMsgCustom].includes(args[0].message)) return;
-                originalConsoleError(...args);
-              });
-              const { result } = await renderUseMessageInputStateHook({
-                channel,
-                chatContext: { getAppSettings },
-                client,
-                props:
-                  scenario === 'custom'
-                    ? {
-                        [type === 'image'
-                          ? 'doImageUploadRequest'
-                          : 'doFileUploadRequest']: customSendSpy,
-                      }
-                    : {},
-              });
-
-              await act(async () => {
-                await result.current.uploadAttachment(attachment);
-              });
-
-              expect(result.current.attachments[0].localMetadata.uploadState).toBe('failed');
-              expect(consoleErrorSpy.mock.calls[0][0].message).toBe(
-                scenario === 'custom' ? errMsgCustom : errMsg,
-              );
-              consoleErrorSpy.mockRestore();
-            },
-          );
-        },
-      );
+          },
+        );
+      });
     });
   });
 });

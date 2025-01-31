@@ -2,7 +2,11 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollCreationDialog } from '../PollCreationDialog';
-import { ChatProvider, MessageInputContextProvider, TranslationProvider } from '../../../context';
+import {
+  ChatProvider,
+  MessageInputContextProvider,
+  TranslationProvider,
+} from '../../../context';
 import { generateUser, getTestClientWithUser } from '../../../mock-builders';
 
 const NAME_FIELD_PLACEHOLDER = 'Ask a question';
@@ -16,7 +20,8 @@ const CANCEL_BUTTON_TEXT = 'Cancel';
 const CREATE_BUTTON_TEXT = 'Create';
 const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_INPUT_FIELD_ERROR_TEST_ID = 'poll-option-input-field-error';
-const MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID = 'poll-max-votes-allowed-input-field-error';
+const MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID =
+  'poll-max-votes-allowed-input-field-error';
 const REQUIRED_FIELD_ERROR_TEXT = 'The field is required';
 const DUPLICATE_OPTION_FIELD_ERROR_TEXT = 'Option already exists';
 const MAX_VOTE_COUNT_FIELD_ERROR_TEXT = 'Type a number from 2 to 10';
@@ -52,11 +57,15 @@ describe('PollCreationDialog', () => {
   it('initiates with default state', async () => {
     await renderComponent();
     expect(getNameInput()).toHaveValue('');
-    const optionFieldCount = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length;
+    const optionFieldCount = screen.getAllByPlaceholderText(
+      OPTION_FIELD_PLACEHOLDER,
+    ).length;
     expect(optionFieldCount).toBe(1);
     expect(getOptionInput()).toHaveValue('');
     expect(screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL)).not.toBeChecked();
-    expect(screen.queryByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER)).not.toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER),
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL)).not.toBeChecked();
     expect(screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL)).not.toBeChecked();
     expect(screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL)).not.toBeChecked();
@@ -166,7 +175,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.blur(optionFields[1]);
     });
     const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionErrors).toHaveLength(3);
     expect(optionErrors[1]).toHaveTextContent(DUPLICATE_OPTION_FIELD_ERROR_TEXT);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -196,7 +205,7 @@ describe('PollCreationDialog', () => {
     expect(optionFields[1]).toHaveValue(text);
     expect(optionFields[2]).toHaveValue('');
     const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionErrors).toHaveLength(3);
     expect(optionErrors[0]).not.toHaveTextContent();
     expect(optionErrors[1]).not.toHaveTextContent();
@@ -221,7 +230,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(optionFields[0], { target: { value: '' } });
     });
     optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+
     expect(optionFields).toHaveLength(1);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
@@ -283,8 +292,10 @@ describe('PollCreationDialog', () => {
       fireEvent.change(maxVoteCountInput, { target: { value: '1' } });
     });
 
-    const maxVoteCountErrors = screen.getAllByTestId(MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID);
-    // eslint-disable-next-line jest-dom/prefer-in-document
+    const maxVoteCountErrors = screen.getAllByTestId(
+      MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID,
+    );
+
     expect(maxVoteCountErrors).toHaveLength(1);
     expect(maxVoteCountErrors[0]).toHaveTextContent(MAX_VOTE_COUNT_FIELD_ERROR_TEXT);
     expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('1');
@@ -341,17 +352,21 @@ describe('PollCreationDialog', () => {
 
     const client = await getTestClientWithUser(user);
     let pollId;
-    const createPollSpy = jest.spyOn(client, 'createPoll').mockImplementationOnce((poll) => {
-      pollId = poll.id;
-      return Promise.resolve({ poll });
-    });
+    const createPollSpy = jest
+      .spyOn(client, 'createPoll')
+      .mockImplementationOnce((poll) => {
+        pollId = poll.id;
+        return Promise.resolve({ poll });
+      });
 
     await renderComponent({ client });
     act(() => {
       fireEvent.change(getNameInput(), { target: { value: formState.name } });
     });
     act(() => {
-      fireEvent.change(getOptionInput(), { target: { value: formState.options[0].text } });
+      fireEvent.change(getOptionInput(), {
+        target: { value: formState.options[0].text },
+      });
     });
     const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
     act(() => {
@@ -382,7 +397,9 @@ describe('PollCreationDialog', () => {
     });
 
     await waitFor(() => {
-      expect(createPollSpy).toHaveBeenCalledWith(expect.objectContaining(expectedPollPayload));
+      expect(createPollSpy).toHaveBeenCalledWith(
+        expect.objectContaining(expectedPollPayload),
+      );
       expect(close).toHaveBeenCalledTimes(1);
       expect(handleSubmit).toHaveBeenCalledWith(expect.any(Object), { poll_id: pollId });
     });

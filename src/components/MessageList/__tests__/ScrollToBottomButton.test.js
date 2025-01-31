@@ -49,7 +49,9 @@ describe.each([
     channel = result.channel;
     users = result.users;
     containerIsThread = containerMsgList === threadList;
-    anotherUser = Object.values(channel.state.members).find((u) => u.id !== client.user.id);
+    anotherUser = Object.values(channel.state.members).find(
+      (u) => u.id !== client.user.id,
+    );
     parentMsg = { ...Object.values(channel.state.messages)[0], reply_count: 0 };
     channelStateContext = {
       thread: containerIsThread ? parentMsg : null,
@@ -94,7 +96,6 @@ describe.each([
     });
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(onClick).toHaveBeenCalled();
     });
   });
@@ -248,7 +249,13 @@ describe.each([
     for (let i = 1; i <= 2; i++) {
       const newMessage = generateMessage({ user: anotherUser });
       await act(() => {
-        dispatchMessageEvents({ channel, client, newMessage, parentMsg, user: anotherUser });
+        dispatchMessageEvents({
+          channel,
+          client,
+          newMessage,
+          parentMsg,
+          user: anotherUser,
+        });
       });
       const counter = screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID);
       await waitFor(() => {
@@ -273,7 +280,10 @@ describe.each([
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
           <div id={mainListId}>
-            <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+            <ScrollToBottomButton
+              isMessageListScrolledToBottom={false}
+              onClick={onClick}
+            />
           </div>
           <div id={threadListId}>
             <ScrollToBottomButton
@@ -287,16 +297,27 @@ describe.each([
     );
 
     await act(() => {
-      dispatchMessageEvents({ channel, client, newMessage, parentMsg, user: anotherUser });
+      dispatchMessageEvents({
+        channel,
+        client,
+        newMessage,
+        parentMsg,
+        user: anotherUser,
+      });
     });
 
-    const [containerMsgListCounterSelector, otherMsgListCounterSelector] = containerIsThread
-      ? [threadListCounterSelector, mainListCounterSelector]
-      : [mainListCounterSelector, threadListCounterSelector];
+    const [containerMsgListCounterSelector, otherMsgListCounterSelector] =
+      containerIsThread
+        ? [threadListCounterSelector, mainListCounterSelector]
+        : [mainListCounterSelector, threadListCounterSelector];
 
     await waitFor(() => {
-      expect(container.querySelector(containerMsgListCounterSelector)).toBeInTheDocument();
-      expect(container.querySelector(otherMsgListCounterSelector)).not.toBeInTheDocument();
+      expect(
+        container.querySelector(containerMsgListCounterSelector),
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector(otherMsgListCounterSelector),
+      ).not.toBeInTheDocument();
     });
   });
 });

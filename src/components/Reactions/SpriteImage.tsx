@@ -47,8 +47,12 @@ export const SpriteImage = ({
             'calc(var(--str-chat__sprite-image-height) / var(--str-chat__sprite-item-height))',
           '--str-chat__sprite-item-height': `${spriteHeight / rows}`,
           '--str-chat__sprite-item-width': `${spriteWidth / columns}`,
-          ...(Number.isFinite(height) ? { '--str-chat__sprite-image-height': `${height}px` } : {}),
-          ...(Number.isFinite(width) ? { '--str-chat__sprite-image-width': `${width}px` } : {}),
+          ...(Number.isFinite(height)
+            ? { '--str-chat__sprite-image-height': `${height}px` }
+            : {}),
+          ...(Number.isFinite(width)
+            ? { '--str-chat__sprite-image-width': `${width}px` }
+            : {}),
           backgroundImage: `url('${spriteUrl}')`,
           backgroundPosition: `${x * (100 / (columns - 1))}% ${y * (100 / (rows - 1))}%`,
           backgroundSize: `${columns * 100}% ${rows * 100}%`,

@@ -100,7 +100,7 @@ import { useThreadContext } from '../Threads';
 import { CHANNEL_CONTAINER_ID } from './constants';
 
 type ChannelPropsForwardedToComponentContext<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<
   ComponentContextValue<StreamChatGenerics>,
   | 'Attachment'
@@ -166,7 +166,7 @@ type ChannelPropsForwardedToComponentContext<
 >;
 
 const isUserResponseArray = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   output: string[] | UserResponse<StreamChatGenerics>[],
 ): output is UserResponse<StreamChatGenerics>[] =>
@@ -174,7 +174,7 @@ const isUserResponseArray = <
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 > = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
   /** List of accepted file types */
   acceptedFiles?: string[];
@@ -255,7 +255,7 @@ export type ChannelProps<
 };
 
 const ChannelContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   className: additionalClassName,
@@ -275,7 +275,7 @@ const ChannelContainer = <
 
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
 ) => {
@@ -286,9 +286,8 @@ const UnMemoizedChannel = <
     LoadingIndicator = DefaultLoadingIndicator,
   } = props;
 
-  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
-    'Channel',
-  );
+  const { channel: contextChannel, channelsQueryState } =
+    useChatContext<StreamChatGenerics>('Channel');
 
   const channel = propsChannel || contextChannel;
 
@@ -317,7 +316,7 @@ const UnMemoizedChannel = <
 
 const ChannelInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+  V extends CustomTrigger = CustomTrigger,
 >(
   props: PropsWithChildren<
     ChannelProps<StreamChatGenerics, V> & {
@@ -360,12 +359,8 @@ const ChannelInner = <
     [propChannelQueryOptions],
   );
 
-  const {
-    client,
-    customClasses,
-    latestMessageDatesByChannels,
-    mutes,
-  } = useChatContext<StreamChatGenerics>('Channel');
+  const { client, customClasses, latestMessageDatesByChannels, mutes } =
+    useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
@@ -374,7 +369,8 @@ const ChannelInner = <
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
-  const [channelUnreadUiState, _setChannelUnreadUiState] = useState<ChannelUnreadUiState>();
+  const [channelUnreadUiState, _setChannelUnreadUiState] =
+    useState<ChannelUnreadUiState>();
 
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
@@ -457,7 +453,14 @@ const ChannelInner = <
         500,
         { leading: true, trailing: false },
       ),
-    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest, setChannelUnreadUiState, t],
+    [
+      activeUnreadHandler,
+      channel,
+      channelConfig,
+      doMarkReadRequest,
+      setChannelUnreadUiState,
+      t,
+    ],
   );
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
@@ -469,7 +472,8 @@ const ChannelInner = <
       });
     }
 
-    if (event.type === 'user.watching.start' || event.type === 'user.watching.stop') return;
+    if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
+      return;
 
     if (event.type === 'typing.start' || event.type === 'typing.stop') {
       return dispatch({ channel, type: 'setTyping' });
@@ -480,10 +484,15 @@ const ChannelInner = <
     }
 
     if (event.type === 'message.new') {
-      const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
+      const mainChannelUpdated =
+        !event.message?.parent_id || event.message?.show_in_channel;
 
       if (mainChannelUpdated) {
-        if (document.hidden && channelConfig?.read_events && !channel.muteStatus().muted) {
+        if (
+          document.hidden &&
+          channelConfig?.read_events &&
+          !channel.muteStatus().muted
+        ) {
           const unread = channel.countUnread(lastRead.current);
 
           if (activeUnreadHandler) {
@@ -560,7 +569,8 @@ const ChannelInner = <
               if (typeof member === 'string') {
                 userId = member;
               } else if (typeof member === 'object') {
-                const { user, user_id } = member as ChannelMemberResponse<StreamChatGenerics>;
+                const { user, user_id } =
+                  member as ChannelMemberResponse<StreamChatGenerics>;
                 userId = user_id || user?.id;
               }
               if (userId) {
@@ -658,13 +668,21 @@ const ChannelInner = <
   );
 
   const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (!online.current || !window.navigator.onLine || !channel.state.messagePagination.hasPrev)
+    if (
+      !online.current ||
+      !window.navigator.onLine ||
+      !channel.state.messagePagination.hasPrev
+    )
       return 0;
 
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
 
-    if (state.loadingMore || state.loadingMoreNewer || oldestMessage?.status !== 'received') {
+    if (
+      state.loadingMore ||
+      state.loadingMoreNewer ||
+      oldestMessage?.status !== 'received'
+    ) {
       return 0;
     }
 
@@ -691,7 +709,11 @@ const ChannelInner = <
   };
 
   const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (!online.current || !window.navigator.onLine || !channel.state.messagePagination.hasNext)
+    if (
+      !online.current ||
+      !window.navigator.onLine ||
+      !channel.state.messagePagination.hasNext
+    )
       return 0;
 
     const newestMessage = state?.messages?.[state?.messages?.length - 1];
@@ -722,170 +744,195 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] = useCallback(
-    async (
-      messageId,
-      messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
-      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
-    ) => {
-      dispatch({ loadingMore: true, type: 'setLoadingMore' });
-      await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
-
-      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-      dispatch({
-        hasMoreNewer: channel.state.messagePagination.hasNext,
-        highlightedMessageId: messageId,
-        type: 'jumpToMessageFinished',
-      });
-
-      if (clearHighlightedMessageTimeoutId.current) {
-        clearTimeout(clearHighlightedMessageTimeoutId.current);
-      }
-
-      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        clearHighlightedMessageTimeoutId.current = null;
-        dispatch({ type: 'clearHighlightedMessage' });
-      }, highlightDuration);
-    },
-    [channel, loadMoreFinished],
+  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
   );
 
-  const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] = useCallback(async () => {
-    await channel.state.loadMessageIntoState('latest');
-    loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-    dispatch({
-      type: 'jumpToLatestMessage',
-    });
-  }, [channel, loadMoreFinished]);
-
-  const jumpToFirstUnreadMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToFirstUnreadMessage'] = useCallback(
-    async (
-      queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
-      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
-    ) => {
-      if (!channelUnreadUiState?.unread_messages) return;
-      let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
-      let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
-      let isInCurrentMessageSet = false;
-
-      if (firstUnreadMessageId) {
-        const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
-        isInCurrentMessageSet = result.index !== -1;
-      } else if (lastReadMessageId) {
-        const result = findInMsgSetById(lastReadMessageId, channel.state.messages);
-        isInCurrentMessageSet = !!result.target;
-        firstUnreadMessageId =
-          result.index > -1 ? channel.state.messages[result.index + 1]?.id : undefined;
-      } else {
-        const lastReadTimestamp = channelUnreadUiState.last_read.getTime();
-        const { index: lastReadMessageIndex, target: lastReadMessage } = findInMsgSetByDate(
-          channelUnreadUiState.last_read,
-          channel.state.messages,
-          true,
-        );
-
-        if (lastReadMessage) {
-          firstUnreadMessageId = channel.state.messages[lastReadMessageIndex + 1]?.id;
-          isInCurrentMessageSet = !!firstUnreadMessageId;
-          lastReadMessageId = lastReadMessage.id;
-        } else {
-          dispatch({ loadingMore: true, type: 'setLoadingMore' });
-          let messages;
-          try {
-            messages = (
-              await channel.query(
-                {
-                  messages: {
-                    created_at_around: channelUnreadUiState.last_read.toISOString(),
-                    limit: queryMessageLimit,
-                  },
-                },
-                'new',
-              )
-            ).messages;
-          } catch (e) {
-            addNotification(t('Failed to jump to the first unread message'), 'error');
-            loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-            return;
-          }
-
-          const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
-          if (!firstMessageWithCreationDate) {
-            addNotification(t('Failed to jump to the first unread message'), 'error');
-            loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-            return;
-          }
-          const firstMessageTimestamp = new Date(
-            firstMessageWithCreationDate.created_at as string,
-          ).getTime();
-          if (lastReadTimestamp < firstMessageTimestamp) {
-            // whole channel is unread
-            firstUnreadMessageId = firstMessageWithCreationDate.id;
-          } else {
-            const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
-            lastReadMessageId = result.target?.id;
-          }
-          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-        }
-      }
-
-      if (!firstUnreadMessageId && !lastReadMessageId) {
-        addNotification(t('Failed to jump to the first unread message'), 'error');
-        return;
-      }
-
-      if (!isInCurrentMessageSet) {
+  const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] =
+    useCallback(
+      async (
+        messageId,
+        messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+        highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+      ) => {
         dispatch({ loadingMore: true, type: 'setLoadingMore' });
-        try {
-          const targetId = (firstUnreadMessageId ?? lastReadMessageId) as string;
-          await channel.state.loadMessageIntoState(targetId, undefined, queryMessageLimit);
-          /**
-           * if the index of the last read message on the page is beyond the half of the page,
-           * we have arrived to the oldest page of the channel
-           */
-          const indexOfTarget = channel.state.messages.findIndex(
-            (message) => message.id === targetId,
-          ) as number;
-          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-          firstUnreadMessageId =
-            firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
-        } catch (e) {
-          addNotification(t('Failed to jump to the first unread message'), 'error');
-          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-          return;
-        }
-      }
+        await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
-      if (!firstUnreadMessageId) {
-        addNotification(t('Failed to jump to the first unread message'), 'error');
-        return;
-      }
-      if (!channelUnreadUiState.first_unread_message_id)
-        _setChannelUnreadUiState({
-          ...channelUnreadUiState,
-          first_unread_message_id: firstUnreadMessageId,
-          last_read_message_id: lastReadMessageId,
+        loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
+        dispatch({
+          hasMoreNewer: channel.state.messagePagination.hasNext,
+          highlightedMessageId: messageId,
+          type: 'jumpToMessageFinished',
         });
 
+        if (clearHighlightedMessageTimeoutId.current) {
+          clearTimeout(clearHighlightedMessageTimeoutId.current);
+        }
+
+        clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+          clearHighlightedMessageTimeoutId.current = null;
+          dispatch({ type: 'clearHighlightedMessage' });
+        }, highlightDuration);
+      },
+      [channel, loadMoreFinished],
+    );
+
+  const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] =
+    useCallback(async () => {
+      await channel.state.loadMessageIntoState('latest');
+      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
       dispatch({
-        hasMoreNewer: channel.state.messagePagination.hasNext,
-        highlightedMessageId: firstUnreadMessageId,
-        type: 'jumpToMessageFinished',
+        type: 'jumpToLatestMessage',
       });
+    }, [channel, loadMoreFinished]);
 
-      if (clearHighlightedMessageTimeoutId.current) {
-        clearTimeout(clearHighlightedMessageTimeoutId.current);
-      }
+  const jumpToFirstUnreadMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToFirstUnreadMessage'] =
+    useCallback(
+      async (
+        queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+        highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+      ) => {
+        if (!channelUnreadUiState?.unread_messages) return;
+        let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
+        let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
+        let isInCurrentMessageSet = false;
 
-      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        clearHighlightedMessageTimeoutId.current = null;
-        dispatch({ type: 'clearHighlightedMessage' });
-      }, highlightDuration);
-    },
-    [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
-  );
+        if (firstUnreadMessageId) {
+          const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
+          isInCurrentMessageSet = result.index !== -1;
+        } else if (lastReadMessageId) {
+          const result = findInMsgSetById(lastReadMessageId, channel.state.messages);
+          isInCurrentMessageSet = !!result.target;
+          firstUnreadMessageId =
+            result.index > -1 ? channel.state.messages[result.index + 1]?.id : undefined;
+        } else {
+          const lastReadTimestamp = channelUnreadUiState.last_read.getTime();
+          const { index: lastReadMessageIndex, target: lastReadMessage } =
+            findInMsgSetByDate(
+              channelUnreadUiState.last_read,
+              channel.state.messages,
+              true,
+            );
+
+          if (lastReadMessage) {
+            firstUnreadMessageId = channel.state.messages[lastReadMessageIndex + 1]?.id;
+            isInCurrentMessageSet = !!firstUnreadMessageId;
+            lastReadMessageId = lastReadMessage.id;
+          } else {
+            dispatch({ loadingMore: true, type: 'setLoadingMore' });
+            let messages;
+            try {
+              messages = (
+                await channel.query(
+                  {
+                    messages: {
+                      created_at_around: channelUnreadUiState.last_read.toISOString(),
+                      limit: queryMessageLimit,
+                    },
+                  },
+                  'new',
+                )
+              ).messages;
+            } catch (e) {
+              addNotification(t('Failed to jump to the first unread message'), 'error');
+              loadMoreFinished(
+                channel.state.messagePagination.hasPrev,
+                channel.state.messages,
+              );
+              return;
+            }
+
+            const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
+            if (!firstMessageWithCreationDate) {
+              addNotification(t('Failed to jump to the first unread message'), 'error');
+              loadMoreFinished(
+                channel.state.messagePagination.hasPrev,
+                channel.state.messages,
+              );
+              return;
+            }
+            const firstMessageTimestamp = new Date(
+              firstMessageWithCreationDate.created_at as string,
+            ).getTime();
+            if (lastReadTimestamp < firstMessageTimestamp) {
+              // whole channel is unread
+              firstUnreadMessageId = firstMessageWithCreationDate.id;
+            } else {
+              const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
+              lastReadMessageId = result.target?.id;
+            }
+            loadMoreFinished(
+              channel.state.messagePagination.hasPrev,
+              channel.state.messages,
+            );
+          }
+        }
+
+        if (!firstUnreadMessageId && !lastReadMessageId) {
+          addNotification(t('Failed to jump to the first unread message'), 'error');
+          return;
+        }
+
+        if (!isInCurrentMessageSet) {
+          dispatch({ loadingMore: true, type: 'setLoadingMore' });
+          try {
+            const targetId = (firstUnreadMessageId ?? lastReadMessageId) as string;
+            await channel.state.loadMessageIntoState(
+              targetId,
+              undefined,
+              queryMessageLimit,
+            );
+            /**
+             * if the index of the last read message on the page is beyond the half of the page,
+             * we have arrived to the oldest page of the channel
+             */
+            const indexOfTarget = channel.state.messages.findIndex(
+              (message) => message.id === targetId,
+            ) as number;
+            loadMoreFinished(
+              channel.state.messagePagination.hasPrev,
+              channel.state.messages,
+            );
+            firstUnreadMessageId =
+              firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
+          } catch (e) {
+            addNotification(t('Failed to jump to the first unread message'), 'error');
+            loadMoreFinished(
+              channel.state.messagePagination.hasPrev,
+              channel.state.messages,
+            );
+            return;
+          }
+        }
+
+        if (!firstUnreadMessageId) {
+          addNotification(t('Failed to jump to the first unread message'), 'error');
+          return;
+        }
+        if (!channelUnreadUiState.first_unread_message_id)
+          _setChannelUnreadUiState({
+            ...channelUnreadUiState,
+            first_unread_message_id: firstUnreadMessageId,
+            last_read_message_id: lastReadMessageId,
+          });
+
+        dispatch({
+          hasMoreNewer: channel.state.messagePagination.hasNext,
+          highlightedMessageId: firstUnreadMessageId,
+          type: 'jumpToMessageFinished',
+        });
+
+        if (clearHighlightedMessageTimeoutId.current) {
+          clearTimeout(clearHighlightedMessageTimeoutId.current);
+        }
+
+        clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+          clearHighlightedMessageTimeoutId.current = null;
+          dispatch({ type: 'clearHighlightedMessage' });
+        }, highlightDuration);
+      },
+      [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
+    );
 
   const deleteMessage = useCallback(
     async (
@@ -911,7 +958,10 @@ const ChannelInner = <
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage as MessageResponse<StreamChatGenerics>, true);
+    channel.state.addMessageSorted(
+      updatedMessage as MessageResponse<StreamChatGenerics>,
+      true,
+    );
 
     dispatch({
       channel,
@@ -937,7 +987,8 @@ const ChannelInner = <
       id,
       mentioned_users: mentions,
       parent_id,
-      quoted_message_id: parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
+      quoted_message_id:
+        parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
     } as Message<StreamChatGenerics>;
@@ -960,7 +1011,9 @@ const ChannelInner = <
         }
       }
 
-      const responseTimestamp = new Date(messageResponse?.message?.updated_at || 0).getTime();
+      const responseTimestamp = new Date(
+        messageResponse?.message?.updated_at || 0,
+      ).getTime();
       const existingMessageTimestamp = existingMessage?.updated_at?.getTime() || 0;
       const responseIsTheNewest = responseTimestamp > existingMessageTimestamp;
 
@@ -977,13 +1030,14 @@ const ChannelInner = <
         });
       }
 
-      if (quotedMessage && parent_id === quotedMessage?.parent_id) setQuotedMessage(undefined);
+      if (quotedMessage && parent_id === quotedMessage?.parent_id)
+        setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
-      const parsedError = (stringError
-        ? JSON.parse(stringError)
-        : {}) as ErrorFromResponse<APIErrorResponse>;
+      const parsedError = (
+        stringError ? JSON.parse(stringError) : {}
+      ) as ErrorFromResponse<APIErrorResponse>;
 
       // Handle the case where the message already exists
       // (typically, when retrying to send a message).
@@ -1010,7 +1064,7 @@ const ChannelInner = <
         });
 
         thread?.upsertReplyLocally({
-          // @ts-expect-error
+          // @ts-expect-error message type mismatch
           message: {
             ...message,
             error: parsedError,
@@ -1049,7 +1103,7 @@ const ChannelInner = <
     };
 
     thread?.upsertReplyLocally({
-      // @ts-expect-error
+      // @ts-expect-error message type mismatch
       message: messagePreview,
     });
 
@@ -1067,7 +1121,9 @@ const ChannelInner = <
 
     if (message.attachments) {
       // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
-      message.attachments = message.attachments.filter((attachment) => !attachment.og_scrape_url);
+      message.attachments = message.attachments.filter(
+        (attachment) => !attachment.og_scrape_url,
+      );
     }
 
     await doSendMessage(message);
@@ -1110,7 +1166,9 @@ const ChannelInner = <
     debounce(
       (
         threadHasMore: boolean,
-        threadMessages: Array<ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>>,
+        threadMessages: Array<
+          ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>
+        >,
       ) => {
         dispatch({
           threadHasMore,
@@ -1144,7 +1202,10 @@ const ChannelInner = <
         limit,
       });
 
-      const threadHasMoreMessages = hasMoreMessagesProbably(queryResponse.messages.length, limit);
+      const threadHasMoreMessages = hasMoreMessagesProbably(
+        queryResponse.messages.length,
+        limit,
+      );
       const newThreadMessages = channel.state.threads[parentId] || [];
 
       // next set loadingMore to false so we can start asking for more data
@@ -1172,7 +1233,8 @@ const ChannelInner = <
     enrichURLForPreview: props.enrichURLForPreview,
     findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
-    imageAttachmentSizeHandler: props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
+    imageAttachmentSizeHandler:
+      props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
@@ -1180,59 +1242,62 @@ const ChannelInner = <
     onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
     quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
-    videoAttachmentSizeHandler: props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
+    videoAttachmentSizeHandler:
+      props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
     watcher_count: state.watcherCount,
   });
 
-  const channelActionContextValue: ChannelActionContextValue<StreamChatGenerics> = useMemo(
-    () => ({
-      addNotification,
-      closeThread,
-      deleteMessage,
-      dispatch,
-      editMessage,
-      jumpToFirstUnreadMessage,
-      jumpToLatestMessage,
-      jumpToMessage,
-      loadMore,
-      loadMoreNewer,
-      loadMoreThread,
-      markRead,
-      onMentionsClick: onMentionsHoverOrClick,
-      onMentionsHover: onMentionsHoverOrClick,
-      openThread,
-      removeMessage,
-      retrySendMessage,
-      sendMessage,
-      setChannelUnreadUiState,
-      setQuotedMessage,
-      skipMessageDataMemoization,
-      updateMessage,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      channel.cid,
-      deleteMessage,
-      enrichURLForPreviewConfig?.findURLFn,
-      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-      loadMore,
-      loadMoreNewer,
-      markRead,
-      quotedMessage,
-      jumpToFirstUnreadMessage,
-      jumpToMessage,
-      jumpToLatestMessage,
-      setChannelUnreadUiState,
-    ],
-  );
+  const channelActionContextValue: ChannelActionContextValue<StreamChatGenerics> =
+    useMemo(
+      () => ({
+        addNotification,
+        closeThread,
+        deleteMessage,
+        dispatch,
+        editMessage,
+        jumpToFirstUnreadMessage,
+        jumpToLatestMessage,
+        jumpToMessage,
+        loadMore,
+        loadMoreNewer,
+        loadMoreThread,
+        markRead,
+        onMentionsClick: onMentionsHoverOrClick,
+        onMentionsHover: onMentionsHoverOrClick,
+        openThread,
+        removeMessage,
+        retrySendMessage,
+        sendMessage,
+        setChannelUnreadUiState,
+        setQuotedMessage,
+        skipMessageDataMemoization,
+        updateMessage,
+      }),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [
+        channel.cid,
+        deleteMessage,
+        enrichURLForPreviewConfig?.findURLFn,
+        enrichURLForPreviewConfig?.onLinkPreviewDismissed,
+        loadMore,
+        loadMoreNewer,
+        markRead,
+        quotedMessage,
+        jumpToFirstUnreadMessage,
+        jumpToMessage,
+        jumpToLatestMessage,
+        setChannelUnreadUiState,
+      ],
+    );
 
-  // @ts-expect-error
+  // @ts-expect-error message type mismatch
   const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({
       Attachment: props.Attachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
       AttachmentSelector: props.AttachmentSelector,
-      AttachmentSelectorInitiationButtonContents: props.AttachmentSelectorInitiationButtonContents,
+      AttachmentSelectorInitiationButtonContents:
+        props.AttachmentSelectorInitiationButtonContents,
       AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -1388,7 +1453,9 @@ const ChannelInner = <
             <TypingProvider value={typingContextValue}>
               <div className={`${chatContainerClass}`}>
                 {dragAndDropWindow && (
-                  <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
+                  <DropzoneProvider {...optionalMessageInputProps}>
+                    {children}
+                  </DropzoneProvider>
                 )}
                 {!dragAndDropWindow && <>{children}</>}
               </div>

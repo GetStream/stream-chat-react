@@ -47,7 +47,9 @@ async function renderUseReactionHandlerHook(params = {}) {
           ...channelStateContextOverrides,
         }}
       >
-        <ChannelActionProvider value={{ updateMessage }}>{children}</ChannelActionProvider>
+        <ChannelActionProvider value={{ updateMessage }}>
+          {children}
+        </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>
   );

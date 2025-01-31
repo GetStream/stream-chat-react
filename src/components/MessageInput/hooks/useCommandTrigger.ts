@@ -10,14 +10,15 @@ import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type ValidCommand<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Required<Pick<CommandResponse<StreamChatGenerics>, 'name'>> &
   Omit<CommandResponse<StreamChatGenerics>, 'name'>;
 
 export const useCommandTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(): CommandTriggerSetting<StreamChatGenerics> => {
-  const { channelConfig } = useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
+  const { channelConfig } =
+    useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
   const { t } = useTranslationContext('useCommandTrigger');
 
   const commands = channelConfig?.commands;
@@ -28,7 +29,9 @@ export const useCommandTrigger = <
       if (text.indexOf('/') !== 0 || !commands) {
         return [];
       }
-      const selectedCommands = commands.filter((command) => command.name?.indexOf(query) !== -1);
+      const selectedCommands = commands.filter(
+        (command) => command.name?.indexOf(query) !== -1,
+      );
 
       // sort alphabetically unless you're matching the first char
       selectedCommands.sort((a, b) => {
@@ -58,7 +61,9 @@ export const useCommandTrigger = <
         onReady(
           result
             .filter(
-              (result): result is CommandResponse<StreamChatGenerics> & { name: string } =>
+              (
+                result,
+              ): result is CommandResponse<StreamChatGenerics> & { name: string } =>
                 result.name !== undefined,
             )
             .map((commandData) => {
@@ -71,9 +76,12 @@ export const useCommandTrigger = <
                   defaultValue: commandData.args,
                 });
               if (commandData.description)
-                translatedCommandData.description = t(`${commandData.name}-command-description`, {
-                  defaultValue: commandData.description,
-                });
+                translatedCommandData.description = t(
+                  `${commandData.name}-command-description`,
+                  {
+                    defaultValue: commandData.description,
+                  },
+                );
 
               return translatedCommandData;
             }),

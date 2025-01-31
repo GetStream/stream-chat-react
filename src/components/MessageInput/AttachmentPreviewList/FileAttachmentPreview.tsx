@@ -16,14 +16,17 @@ type FileLikeAttachment = {
 
 export type FileAttachmentPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>
+  CustomLocalMetadata = Record<string, unknown>,
 > = AttachmentPreviewProps<
-  LocalAttachmentCast<FileLikeAttachment, LocalAttachmentUploadMetadata & CustomLocalMetadata>,
+  LocalAttachmentCast<
+    FileLikeAttachment,
+    LocalAttachmentUploadMetadata & CustomLocalMetadata
+  >,
   StreamChatGenerics
 >;
 
 export const FileAttachmentPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
   handleRetry,
@@ -31,7 +34,10 @@ export const FileAttachmentPreview = <
 }: FileAttachmentPreviewProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext('FilePreview');
   return (
-    <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
+    <div
+      className='str-chat__attachment-preview-file'
+      data-testid='attachment-preview-file'
+    >
       <div className='str-chat__attachment-preview-file-icon'>
         <FileIcon filename={attachment.title} mimeType={attachment.mime_type} />
       </div>
@@ -42,7 +48,8 @@ export const FileAttachmentPreview = <
         data-testid='file-preview-item-delete-button'
         disabled={attachment.localMetadata?.uploadState === 'uploading'}
         onClick={() =>
-          attachment.localMetadata?.id && removeAttachments([attachment.localMetadata?.id])
+          attachment.localMetadata?.id &&
+          removeAttachments([attachment.localMetadata?.id])
         }
       >
         <CloseIcon />
@@ -62,19 +69,20 @@ export const FileAttachmentPreview = <
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
           {attachment.title}
         </div>
-        {attachment.localMetadata?.uploadState === 'finished' && !!attachment.asset_url && (
-          <a
-            aria-label={t('aria/Download attachment')}
-            className='str-chat__attachment-preview-file-download'
-            download
-            href={attachment.asset_url}
-            rel='noreferrer'
-            target='_blank'
-            title={t('Download attachment {{ name }}', { name: attachment.title })}
-          >
-            <DownloadIcon />
-          </a>
-        )}
+        {attachment.localMetadata?.uploadState === 'finished' &&
+          !!attachment.asset_url && (
+            <a
+              aria-label={t('aria/Download attachment')}
+              className='str-chat__attachment-preview-file-download'
+              download
+              href={attachment.asset_url}
+              rel='noreferrer'
+              target='_blank'
+              title={t('Download attachment {{ name }}', { name: attachment.title })}
+            >
+              <DownloadIcon />
+            </a>
+          )}
         {attachment.localMetadata?.uploadState === 'uploading' && (
           <LoadingIndicatorIcon size={17} />
         )}

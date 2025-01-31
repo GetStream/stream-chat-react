@@ -1,4 +1,3 @@
-/* eslint-disable typescript-sort-keys/interface */
 import React, { useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 import Picker from '@emoji-mart/react';
@@ -38,7 +37,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { insertText, textareaRef } = useMessageInputContext('EmojiPicker');
   const [displayPicker, setDisplayPicker] = useState(false);
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
+    null,
+  );
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { attributes, styles } = usePopper(referenceElement, popperElement, {
     placement: 'top-end',

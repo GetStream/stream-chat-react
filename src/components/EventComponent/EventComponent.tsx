@@ -10,7 +10,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type EventComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = TimestampFormatterOptions & {
   /** Message object */
   message: StreamMessage<StreamChatGenerics>;
@@ -22,11 +22,11 @@ export type EventComponentProps<
  * Component to display system and channel event messages
  */
 const UnMemoizedEventComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: EventComponentProps<StreamChatGenerics>,
 ) => {
-  const { calendar, calendarFormats, format, Avatar = DefaultAvatar, message } = props;
+  const { Avatar = DefaultAvatar, calendar, calendarFormats, format, message } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;
@@ -65,7 +65,9 @@ const UnMemoizedEventComponent = <
       <div className='str-chat__event-component__channel-event'>
         <Avatar image={event.user?.image} name={name} user={event.user} />
         <div className='str-chat__event-component__channel-event__content'>
-          <em className='str-chat__event-component__channel-event__sentence'>{sentence}</em>
+          <em className='str-chat__event-component__channel-event__sentence'>
+            {sentence}
+          </em>
           <div className='str-chat__event-component__channel-event__date'>
             {getDateString({ ...getDateOptions, format: 'LT' })}
           </div>

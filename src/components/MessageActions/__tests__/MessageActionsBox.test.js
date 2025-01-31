@@ -57,7 +57,10 @@ async function renderComponent(boxProps, messageContext = {}) {
                   message: boxProps.message,
                 }}
               >
-                <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
+                <MessageActionsBox
+                  {...boxProps}
+                  getMessageActions={getMessageActionsMock}
+                />
               </MessageProvider>
             </DialogManagerProvider>
           </ChannelActionProvider>
@@ -247,7 +250,9 @@ describe('MessageActionsBox', () => {
       } = await initClientWithChannels({
         channelsData: [
           {
-            channel: { own_capabilities: own_capabilities.filter((c) => c !== 'read-events') },
+            channel: {
+              own_capabilities: own_capabilities.filter((c) => c !== 'read-events'),
+            },
             messages: [message],
             read,
           },
@@ -399,8 +404,16 @@ describe('MessageActionsBox', () => {
           <Chat client={client}>
             <Channel channel={channel}>
               <DialogManagerProvider id='message-actions-box-dialog-manager'>
-                <Message lastReceivedId={otherMsg.id} message={message} threadList={false} />
-                <Message lastReceivedId={otherMsg.id} message={otherMsg} threadList={false} />
+                <Message
+                  lastReceivedId={otherMsg.id}
+                  message={message}
+                  threadList={false}
+                />
+                <Message
+                  lastReceivedId={otherMsg.id}
+                  message={otherMsg}
+                  threadList={false}
+                />
               </DialogManagerProvider>
             </Channel>
           </Chat>,
@@ -408,13 +421,13 @@ describe('MessageActionsBox', () => {
       });
       await toggleOpenMessageActions(0);
       let boxes = screen.getAllByTestId('message-actions-box');
-      // eslint-disable-next-line jest-dom/prefer-in-document
+
       expect(boxes).toHaveLength(1);
       expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
 
       await toggleOpenMessageActions(1);
       boxes = screen.getAllByTestId('message-actions-box');
-      // eslint-disable-next-line jest-dom/prefer-in-document
+
       expect(boxes).toHaveLength(1);
       expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
     });

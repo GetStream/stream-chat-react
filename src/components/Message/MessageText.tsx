@@ -4,7 +4,11 @@ import React, { useMemo } from 'react';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { isOnlyEmojis, messageHasAttachments } from './utils';
 
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { renderText as defaultRenderText } from './renderText';
 import { MessageErrorText } from './MessageErrorText';
 
@@ -13,7 +17,7 @@ import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageTextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /* Replaces the CSS class name placed on the component's inner `div` container */
   customInnerClass?: string;
@@ -26,7 +30,7 @@ export type MessageTextProps<
 } & Pick<MessageContextValue<StreamChatGenerics>, 'renderText'>;
 
 const UnMemoizedMessageTextComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageTextProps<StreamChatGenerics>,
 ) => {
@@ -38,9 +42,8 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<StreamChatGenerics>(
-    'MessageText',
-  );
+  const { QuotedMessage = DefaultQuotedMessage } =
+    useComponentContext<StreamChatGenerics>('MessageText');
 
   const {
     message: contextMessage,
@@ -57,17 +60,19 @@ const UnMemoizedMessageTextComponent = <
   const hasAttachment = messageHasAttachments(message);
 
   const messageTextToRender =
-    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message.text;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const messageText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
-    message.mentioned_users,
-    messageTextToRender,
-  ]);
+  const messageText = useMemo(
+    () => renderText(messageTextToRender, message.mentioned_users),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [message.mentioned_users, messageTextToRender],
+  );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
-    customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
+    customInnerClass ||
+    `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
   if (!messageTextToRender && !message.quoted_message) return null;
 

@@ -4,7 +4,7 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useImageFlagEmojisOnWindowsClass = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { useImageFlagEmojisOnWindows } = useChatContext<StreamChatGenerics>('Channel');
   return useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
@@ -12,10 +12,11 @@ export const useImageFlagEmojisOnWindowsClass = <
     : '';
 };
 
-export const getChatContainerClass = (customClass?: string) => customClass ?? 'str-chat__container';
+export const getChatContainerClass = (customClass?: string) =>
+  customClass ?? 'str-chat__container';
 
 export const useChannelContainerClasses = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   customClasses,
 }: Pick<ChatContextValue, 'customClasses'>) => {

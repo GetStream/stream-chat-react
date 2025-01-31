@@ -19,9 +19,9 @@ const float32ArrayToInt16Array = (float32Arr: Float32Array) => {
 };
 
 const splitDataByChannel = (audioBuffer: AudioBuffer) =>
-  Array.from({ length: audioBuffer.numberOfChannels }, (_, i) => audioBuffer.getChannelData(i)).map(
-    float32ArrayToInt16Array,
-  );
+  Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
+    audioBuffer.getChannelData(i),
+  ).map(float32ArrayToInt16Array);
 
 export async function encodeToMp3(file: File, sampleRate: number) {
   const lameJs = await import('@breezystack/lamejs');
@@ -40,7 +40,9 @@ export async function encodeToMp3(file: File, sampleRate: number) {
     const [leftChannelBlock, rightChannelBlock] = dataByChannel.map((channel) =>
       channel.subarray(i, i + COUNT_SAMPLES_PER_ENCODED_BLOCK),
     );
-    dataBuffer.push(new Int8Array(mp3Encoder.encodeBuffer(leftChannelBlock, rightChannelBlock)));
+    dataBuffer.push(
+      new Int8Array(mp3Encoder.encodeBuffer(leftChannelBlock, rightChannelBlock)),
+    );
     remaining -= COUNT_SAMPLES_PER_ENCODED_BLOCK;
   }
 

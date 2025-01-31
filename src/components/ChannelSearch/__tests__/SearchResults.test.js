@@ -6,7 +6,11 @@ import { SearchResults } from '../SearchResults';
 
 import { ChatProvider } from '../../../context/ChatContext';
 
-import { createClientWithChannel, generateChannel, generateUser } from '../../../mock-builders';
+import {
+  createClientWithChannel,
+  generateChannel,
+  generateUser,
+} from '../../../mock-builders';
 
 const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
 

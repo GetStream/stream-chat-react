@@ -140,7 +140,10 @@ const OtherUserControls = () => {
         <div style={{ display: 'none' }}>
           <ChannelList
             customActiveChannel={channelId}
-            filters={{ id: { $eq: channelId }, members: { $in: [theOtherUserCredentials.userId] } }}
+            filters={{
+              id: { $eq: channelId },
+              members: { $in: [theOtherUserCredentials.userId] },
+            }}
             setActiveChannelOnMount={true}
             sort={sort}
           />
@@ -157,7 +160,10 @@ const OtherUserControls = () => {
   );
 };
 
-const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
+const WrappedConnectedUser = ({
+  token,
+  userId,
+}: Omit<ConnectedUserProps, 'children'>) => (
   <div style={{ display: 'flex', flexDirection: 'column' }}>
     {/* FIXME: temporary fix for screenshot tests */}
     <style>{`

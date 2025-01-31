@@ -46,7 +46,9 @@ const renderComponent = async ({
   return render(
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t }}>
-        <ChannelStateProvider value={{ ...defaultChannelStateContext, ...channelStateContext }}>
+        <ChannelStateProvider
+          value={{ ...defaultChannelStateContext, ...channelStateContext }}
+        >
           <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
             <PollProvider poll={poll}>
               <PollActions {...props} />
@@ -86,21 +88,30 @@ describe('PollActions', () => {
   });
 
   it('shows "Suggest an option" action if poll is not closed and suggestions are allowed', async () => {
-    const pollData = generatePoll({ allow_user_suggested_options: true, is_closed: false });
+    const pollData = generatePoll({
+      allow_user_suggested_options: true,
+      is_closed: false,
+    });
     const poll = new Poll({ client: {}, poll: pollData });
     await renderComponent({ poll });
     expect(screen.getByText(SUGGEST_OPTION_ACTION_TEXT)).toBeInTheDocument();
   });
 
   it('hides "Suggest an option" action if poll is closed', async () => {
-    const pollData = generatePoll({ allow_user_suggested_options: true, is_closed: true });
+    const pollData = generatePoll({
+      allow_user_suggested_options: true,
+      is_closed: true,
+    });
     const poll = new Poll({ client: {}, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(SUGGEST_OPTION_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
   it('hides "Suggest an option" action if suggestions are not allowed', async () => {
-    const pollData = generatePoll({ allow_user_suggested_options: false, is_closed: false });
+    const pollData = generatePoll({
+      allow_user_suggested_options: false,
+      is_closed: false,
+    });
     const poll = new Poll({ client: {}, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(SUGGEST_OPTION_ACTION_TEXT)).not.toBeInTheDocument();
@@ -202,7 +213,9 @@ describe('PollActions', () => {
     const poll = new Poll({ client, poll: pollData });
 
     const PollOptionsFullList = () => <div data-testid='poll-options-full-list-custom' />;
-    const SuggestPollOptionForm = () => <div data-testid='suggest-poll-option-form-custom' />;
+    const SuggestPollOptionForm = () => (
+      <div data-testid='suggest-poll-option-form-custom' />
+    );
     const AddCommentForm = () => <div data-testid='add-comment-form-custom' />;
     const PollAnswerList = () => <div data-testid='poll-answer-list-custom' />;
     const PollResults = () => <div data-testid='poll-results-custom' />;

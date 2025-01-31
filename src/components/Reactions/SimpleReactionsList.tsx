@@ -33,7 +33,11 @@ const WithTooltip = ({
       <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
         {title}
       </PopperTooltip>
-      <span onMouseEnter={handleEnter} onMouseLeave={handleLeave} ref={setReferenceElement}>
+      <span
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        ref={setReferenceElement}
+      >
         {children}
       </span>
     </>
@@ -41,7 +45,7 @@ const WithTooltip = ({
 };
 
 export type SimpleReactionsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'handleReaction'>> & {
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
@@ -59,17 +63,17 @@ export type SimpleReactionsListProps<
 };
 
 const UnMemoizedSimpleReactionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: SimpleReactionsListProps<StreamChatGenerics>,
 ) => {
   const { handleReaction: propHandleReaction, ...rest } = props;
 
-  const { handleReaction: contextHandleReaction } = useMessageContext<StreamChatGenerics>(
-    'SimpleReactionsList',
-  );
+  const { handleReaction: contextHandleReaction } =
+    useMessageContext<StreamChatGenerics>('SimpleReactionsList');
 
-  const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
+  const { existingReactions, hasReactions, totalReactionCount } =
+    useProcessReactions(rest);
 
   const handleReaction = propHandleReaction || contextHandleReaction;
 

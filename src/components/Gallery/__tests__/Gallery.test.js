@@ -161,7 +161,9 @@ describe('Gallery', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels();
-    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    const CustomBaseImage = (props) => (
+      <img {...props} data-testid={'custom-base-image'} />
+    );
     const images = Array.from({ length: 2 }, (_, i) => ({
       fallback: `fallback-${i}`,
       image_url: `image_url-${i}`,

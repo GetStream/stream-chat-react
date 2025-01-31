@@ -28,7 +28,10 @@ const rootMeanSquare = (values: Uint8Array) =>
  * where 0 dB is the loudest possible sound, -10 dB is a 10th of that, etc.
  * The default value is -100 dB.
  */
-export type AmplitudeAnalyserConfig = Pick<AnalyserNode, 'fftSize' | 'maxDecibels' | 'minDecibels'>;
+export type AmplitudeAnalyserConfig = Pick<
+  AnalyserNode,
+  'fftSize' | 'maxDecibels' | 'minDecibels'
+>;
 export type AmplitudeRecorderConfig = {
   analyserConfig: AmplitudeAnalyserConfig;
   sampleCount: number;
@@ -96,7 +99,9 @@ export class AmplitudeRecorder {
   start = () => {
     if (this.state.value === AmplitudeRecorderState.CLOSED) return;
     if (!this.stream) {
-      throw new Error('Missing MediaStream instance. Cannot to start amplitude recording');
+      throw new Error(
+        'Missing MediaStream instance. Cannot to start amplitude recording',
+      );
     }
 
     if (this.state.value === AmplitudeRecorderState.RECORDING) this.stop();
@@ -109,7 +114,8 @@ export class AmplitudeRecorder {
     this.state.next(AmplitudeRecorderState.RECORDING);
 
     this.amplitudeSamplingInterval = setInterval(() => {
-      if (!(this.analyserNode && this.state.value === AmplitudeRecorderState.RECORDING)) return;
+      if (!(this.analyserNode && this.state.value === AmplitudeRecorderState.RECORDING))
+        return;
       const frequencyBins = new Uint8Array(this.analyserNode.frequencyBinCount);
       try {
         this.analyserNode.getByteFrequencyData(frequencyBins);
@@ -118,7 +124,8 @@ export class AmplitudeRecorder {
         this.error.next(e as Error);
         return;
       }
-      const normalizedSignalStrength = rootMeanSquare(frequencyBins) / MAX_FREQUENCY_AMPLITUDE;
+      const normalizedSignalStrength =
+        rootMeanSquare(frequencyBins) / MAX_FREQUENCY_AMPLITUDE;
       this.amplitudes.next([...this.amplitudes.value, normalizedSignalStrength]);
     }, this.config.samplingFrequencyMs);
   };

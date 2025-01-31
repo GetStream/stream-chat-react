@@ -14,7 +14,11 @@ const mousewheelListener = (event: Event) => {
 };
 
 export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
-  listenToScroll?: (distanceFromBottom: number, distanceFromTop: number, threshold: number) => void;
+  listenToScroll?: (
+    distanceFromBottom: number,
+    distanceFromTop: number,
+    threshold: number,
+  ) => void;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
   /** Offset from when to start the loadNextPage call */
@@ -22,15 +26,17 @@ export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
   useCapture?: boolean;
 };
 
-export const InfiniteScrollPaginator = (props: PropsWithChildren<InfiniteScrollPaginatorProps>) => {
+export const InfiniteScrollPaginator = (
+  props: PropsWithChildren<InfiniteScrollPaginatorProps>,
+) => {
   const {
     children,
+    className,
     listenToScroll,
     loadNextOnScrollToBottom,
     loadNextOnScrollToTop,
     threshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
     useCapture = false,
-    className,
     ...componentProps
   } = props;
 
@@ -46,7 +52,8 @@ export const InfiniteScrollPaginator = (props: PropsWithChildren<InfiniteScrollP
           return;
         }
 
-        const distanceFromBottom = child.scrollHeight - root.scrollTop - root.clientHeight;
+        const distanceFromBottom =
+          child.scrollHeight - root.scrollTop - root.clientHeight;
         const distanceFromTop = root.scrollTop;
 
         if (listenToScroll) {

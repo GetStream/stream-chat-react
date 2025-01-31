@@ -6,15 +6,22 @@ import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
-import type { ReactionDetailsComparator, ReactionsComparator, ReactionType } from './types';
+import type {
+  ReactionDetailsComparator,
+  ReactionsComparator,
+  ReactionType,
+} from './types';
 import { ReactionsListModal } from './ReactionsListModal';
 import { MessageContextValue, useTranslationContext } from '../../context';
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 export type ReactionsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<
-  Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions' | 'reactionDetailsSort'>
+  Pick<
+    MessageContextValue<StreamChatGenerics>,
+    'handleFetchReactions' | 'reactionDetailsSort'
+  >
 > & {
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
@@ -43,22 +50,22 @@ export type ReactionsListProps<
 };
 
 const UnMemoizedReactionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ReactionsListProps<StreamChatGenerics>,
 ) => {
   const {
     handleFetchReactions,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reactionDetailsSort,
     reverse = false,
     sortReactionDetails,
     ...rest
   } = props;
-  const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
-  const [
-    selectedReactionType,
-    setSelectedReactionType,
-  ] = useState<ReactionType<StreamChatGenerics> | null>(null);
+  const { existingReactions, hasReactions, totalReactionCount } =
+    useProcessReactions(rest);
+  const [selectedReactionType, setSelectedReactionType] =
+    useState<ReactionType<StreamChatGenerics> | null>(null);
   const { t } = useTranslationContext('ReactionsList');
 
   const handleReactionButtonClick = (reactionType: string) => {
@@ -135,4 +142,6 @@ const UnMemoizedReactionsList = <
 /**
  * Component that displays a list of reactions on a message.
  */
-export const ReactionsList = React.memo(UnMemoizedReactionsList) as typeof UnMemoizedReactionsList;
+export const ReactionsList = React.memo(
+  UnMemoizedReactionsList,
+) as typeof UnMemoizedReactionsList;

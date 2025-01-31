@@ -121,7 +121,8 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/MessageTimestamp':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
@@ -134,7 +135,8 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp': '{{ timestamp | timestampFormatter(format: h:mmA) }}',
+            'timestamp/MessageTimestamp':
+              '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),
       },
@@ -154,7 +156,8 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp': '{{ timestamp | timestampFormatter(format: h:mmA) }}',
+            'timestamp/MessageTimestamp':
+              '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),
       },
@@ -168,7 +171,8 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp': '{{ timestamp | timestampFormatter(calendar: false) }}',
+            'timestamp/MessageTimestamp':
+              '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
@@ -189,7 +193,8 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp': '{{ timestamp | timestampFormatter(format: h:mmA) }}',
+            'timestamp/MessageTimestamp':
+              '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),
       },

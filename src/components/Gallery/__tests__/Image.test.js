@@ -95,14 +95,20 @@ describe('Image', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels();
-    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    const CustomBaseImage = (props) => (
+      <img {...props} data-testid={'custom-base-image'} />
+    );
     let result;
     await act(() => {
       result = render(
         <Chat client={client}>
           <ActiveChannelSetter activeChannel={channel} />
           <Channel BaseImage={CustomBaseImage}>
-            <ImageComponent fallback='fallback' image_url='image_url' thumb_url='thumb_url' />
+            <ImageComponent
+              fallback='fallback'
+              image_url='image_url'
+              thumb_url='thumb_url'
+            />
           </Channel>
           ,
         </Chat>,

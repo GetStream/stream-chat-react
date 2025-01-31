@@ -9,7 +9,7 @@ export function useManagePollVotesRealtime<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   T extends
     | PollVote<StreamChatGenerics>
-    | PollAnswer<StreamChatGenerics> = PollVote<StreamChatGenerics>
+    | PollAnswer<StreamChatGenerics> = PollVote<StreamChatGenerics>,
 >(
   managedVoteType: 'answer' | 'vote',
   cursorPaginatorState?: CursorPaginatorStateStore<T>,
@@ -24,7 +24,8 @@ export function useManagePollVotesRealtime<
     () =>
       cursorPaginatorState?.subscribeWithSelector(
         (state) => [state.latestPageItems],
-        ([latestPageItems]) => setVotesInRealtime((prev) => [...prev, ...latestPageItems]),
+        ([latestPageItems]) =>
+          setVotesInRealtime((prev) => [...prev, ...latestPageItems]),
       ),
     [cursorPaginatorState],
   );
@@ -35,22 +36,29 @@ export function useManagePollVotesRealtime<
       const isAnswer = isVoteAnswer(event.poll_vote);
       if (
         (managedVoteType === 'answer' && !isAnswer) ||
-        (managedVoteType === 'vote' && (isAnswer || event.poll_vote.option_id !== optionId))
+        (managedVoteType === 'vote' &&
+          (isAnswer || event.poll_vote.option_id !== optionId))
       )
         return;
 
       if (event.type === 'poll.vote_removed') {
         setVotesInRealtime((prev) =>
-          event.poll_vote ? prev.filter((vote) => vote.id !== (event.poll_vote as T).id) : prev,
+          event.poll_vote
+            ? prev.filter((vote) => vote.id !== (event.poll_vote as T).id)
+            : prev,
         );
       }
       if (event.type === 'poll.vote_changed') {
         setVotesInRealtime((prev) =>
-          event.poll_vote ? prev.filter((vote) => vote.id !== (event.poll_vote as T).id) : prev,
+          event.poll_vote
+            ? prev.filter((vote) => vote.id !== (event.poll_vote as T).id)
+            : prev,
         );
       }
       if (['poll.vote_casted', 'poll.vote_changed'].includes(event.type)) {
-        setVotesInRealtime((prev) => (event.poll_vote ? [event.poll_vote as T, ...prev] : prev));
+        setVotesInRealtime((prev) =>
+          event.poll_vote ? [event.poll_vote as T, ...prev] : prev,
+        );
       }
     };
 

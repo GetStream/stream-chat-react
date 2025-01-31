@@ -1,13 +1,5 @@
 import { execSync } from 'node:child_process';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-// import.meta.dirname is not available before Node 20
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const packageJson = await import(resolve(__dirname, '../package.json'), {
-  assert: { type: 'json' },
-});
+import packageJson from '../package.json' with { type: 'json' };
 
 // Get the latest version so that magic string __STREAM_CHAT_REACT_VERSION__ can be replaced with it in the source code (used for reporting purposes)
 export default function getPackageVersion() {
@@ -23,7 +15,7 @@ export default function getPackageVersion() {
     } catch (error) {
       console.error(error);
       console.warn('Could not get latest version from git tags, falling back to package.json');
-      version = packageJson.default.version;
+      version = packageJson.version;
     }
   }
   console.log(`Determined the build package version to be ${version}`);

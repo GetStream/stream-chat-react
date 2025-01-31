@@ -10,14 +10,14 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type VoiceRecordingPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>
+  CustomLocalMetadata = Record<string, unknown>,
 > = AttachmentPreviewProps<
   LocalVoiceRecordingAttachment<StreamChatGenerics, CustomLocalMetadata>,
   StreamChatGenerics
 >;
 
 export const VoiceRecordingPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
   handleRetry,
@@ -33,7 +33,11 @@ export const VoiceRecordingPreview = <
       data-testid='attachment-preview-voice-recording'
     >
       <audio ref={audioRef}>
-        <source data-testid='audio-source' src={attachment.asset_url} type={attachment.mime_type} />
+        <source
+          data-testid='audio-source'
+          src={attachment.asset_url}
+          type={attachment.mime_type}
+        />
       </audio>
       <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 

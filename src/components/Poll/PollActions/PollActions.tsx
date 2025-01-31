@@ -1,12 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import { PollAction } from './PollAction';
-import { AddCommentFormProps, AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
+import {
+  AddCommentFormProps,
+  AddCommentForm as DefaultAddCommentForm,
+} from './AddCommentForm';
 import {
   SuggestPollOptionForm as DefaultSuggestPollOptionForm,
   SuggestPollOptionFormProps,
 } from './SuggestPollOptionForm';
-import { EndPollDialog as DefaultEndPollDialog, EndPollDialogProps } from './EndPollDialog';
-import { PollAnswerList as DefaultPollAnswerList, PollAnswerListProps } from './PollAnswerList';
+import {
+  EndPollDialog as DefaultEndPollDialog,
+  EndPollDialogProps,
+} from './EndPollDialog';
+import {
+  PollAnswerList as DefaultPollAnswerList,
+  PollAnswerListProps,
+} from './PollAnswerList';
 import {
   PollOptionsFullList as DefaultPollOptionsFullList,
   FullPollOptionsListingProps,
@@ -43,7 +52,7 @@ type PollStateSelectorReturnValue = {
   ownAnswer: PollAnswer | undefined;
 };
 const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorReturnValue => ({
@@ -66,7 +75,7 @@ export type PollActionsProps = {
 };
 
 export const PollActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   AddCommentForm = DefaultAddCommentForm,
   EndPollDialog = DefaultEndPollDialog,
@@ -77,7 +86,8 @@ export const PollActions = <
 }: PollActionsProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext('PollActions');
-  const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>('PollActions');
+  const { channelCapabilities = {} } =
+    useChannelStateContext<StreamChatGenerics>('PollActions');
   const { message } = useMessageContext('PollActions');
   const { poll } = usePollContext<StreamChatGenerics>();
   const {
@@ -109,21 +119,25 @@ export const PollActions = <
         </PollAction>
       )}
 
-      {!is_closed && allow_user_suggested_options && options.length < MAX_POLL_OPTIONS && (
-        <PollAction
-          buttonText={t<string>('Suggest an option')}
-          closeModal={closeModal}
-          modalClassName='str-chat__suggest-poll-option-modal'
-          modalIsOpen={modalOpen === 'suggest-option'}
-          openModal={() => setModalOpen('suggest-option')}
-        >
-          <SuggestPollOptionForm close={closeModal} messageId={message.id} />
-        </PollAction>
-      )}
+      {!is_closed &&
+        allow_user_suggested_options &&
+        options.length < MAX_POLL_OPTIONS && (
+          <PollAction
+            buttonText={t<string>('Suggest an option')}
+            closeModal={closeModal}
+            modalClassName='str-chat__suggest-poll-option-modal'
+            modalIsOpen={modalOpen === 'suggest-option'}
+            openModal={() => setModalOpen('suggest-option')}
+          >
+            <SuggestPollOptionForm close={closeModal} messageId={message.id} />
+          </PollAction>
+        )}
 
       {!is_closed && allow_answers && (
         <PollAction
-          buttonText={ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
+          buttonText={
+            ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')
+          }
           closeModal={closeModal}
           modalClassName='str-chat__add-poll-answer-modal'
           modalIsOpen={modalOpen === 'add-comment'}
@@ -141,7 +155,10 @@ export const PollActions = <
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
         >
-          <PollAnswerList close={closeModal} onUpdateOwnAnswerClick={onUpdateAnswerClick} />
+          <PollAnswerList
+            close={closeModal}
+            onUpdateOwnAnswerClick={onUpdateAnswerClick}
+          />
         </PollAction>
       )}
 

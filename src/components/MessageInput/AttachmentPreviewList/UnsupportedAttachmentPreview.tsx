@@ -8,14 +8,14 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type UnsupportedAttachmentPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>
+  CustomLocalMetadata = Record<string, unknown>,
 > = AttachmentPreviewProps<
   AnyLocalAttachment<StreamChatGenerics, CustomLocalMetadata>,
   StreamChatGenerics
 >;
 
 export const UnsupportedAttachmentPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   attachment,
   handleRetry,
@@ -37,7 +37,8 @@ export const UnsupportedAttachmentPreview = <
         data-testid='file-preview-item-delete-button'
         disabled={attachment.localMetadata?.uploadState === 'uploading'}
         onClick={() =>
-          attachment.localMetadata?.id && removeAttachments([attachment.localMetadata?.id])
+          attachment.localMetadata?.id &&
+          removeAttachments([attachment.localMetadata?.id])
         }
       >
         <CloseIcon />
@@ -57,17 +58,18 @@ export const UnsupportedAttachmentPreview = <
         <div className='str-chat__attachment-preview-title' title={title}>
           {title}
         </div>
-        {attachment.localMetadata?.uploadState === 'finished' && !!attachment.asset_url && (
-          <a
-            className='str-chat__attachment-preview-file-download'
-            download
-            href={attachment.asset_url}
-            rel='noreferrer'
-            target='_blank'
-          >
-            <DownloadIcon />
-          </a>
-        )}
+        {attachment.localMetadata?.uploadState === 'finished' &&
+          !!attachment.asset_url && (
+            <a
+              className='str-chat__attachment-preview-file-download'
+              download
+              href={attachment.asset_url}
+              rel='noreferrer'
+              target='_blank'
+            >
+              <DownloadIcon />
+            </a>
+          )}
         {attachment.localMetadata?.uploadState === 'uploading' && (
           <LoadingIndicatorIcon size={17} />
         )}

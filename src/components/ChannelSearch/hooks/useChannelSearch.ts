@@ -22,19 +22,23 @@ import type { SearchResultsController } from '../SearchResults';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type ChannelSearchFunctionParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
+  setResults: React.Dispatch<
+    React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>
+  >;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export type SearchController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = SearchInputController & SearchBarController & SearchResultsController<StreamChatGenerics>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+> = SearchInputController &
+  SearchBarController &
+  SearchResultsController<StreamChatGenerics>;
 
 export type SearchQueryParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   channelFilters?: {
     filters?: ChannelFilters<StreamChatGenerics>;
@@ -51,7 +55,7 @@ export type SearchQueryParams<
 };
 
 export type ChannelSearchParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
@@ -84,14 +88,14 @@ export type ChannelSearchParams<
 };
 
 export type ChannelSearchControllerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ChannelSearchParams<StreamChatGenerics> & {
   /** Set the array of channels displayed in the ChannelList */
   setChannels?: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
 };
 
 export const useChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   channelType = 'messaging',
   clearSearchOnClickOutside = true,
@@ -106,11 +110,14 @@ export const useChannelSearch = <
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
+  const { client, setActiveChannel } =
+    useChatContext<StreamChatGenerics>('useChannelSearch');
 
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<ChannelOrUserResponse<StreamChatGenerics>>>([]);
+  const [results, setResults] = useState<
+    Array<ChannelOrUserResponse<StreamChatGenerics>>
+  >([]);
   const [searching, setSearching] = useState(false);
 
   const searchQueryPromiseInProgress = useRef<boolean>(false);
@@ -154,7 +161,6 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, inputIsFocused, query, exitSearch, clearSearchOnClickOutside]);
 
   useEffect(() => {
@@ -191,7 +197,9 @@ export const useChannelSearch = <
         setActiveChannel(result);
         selectedChannel = result;
       } else {
-        const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
+        const newChannel = client.channel(channelType, {
+          members: [client.userID, result.id],
+        });
         await newChannel.watch();
 
         setActiveChannel(newChannel);
@@ -203,7 +211,14 @@ export const useChannelSearch = <
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [clearSearchOnClickOutside, client, exitSearch, onSelectResult, setActiveChannel, setChannels],
+    [
+      clearSearchOnClickOutside,
+      client,
+      exitSearch,
+      onSelectResult,
+      setActiveChannel,
+      setChannels,
+    ],
   );
 
   const getChannels = useCallback(
@@ -211,13 +226,14 @@ export const useChannelSearch = <
       if (!searchForChannels && !searchForUsers) return;
       let results: ChannelOrUserResponse<StreamChatGenerics>[] = [];
       const promises: Array<
-        Promise<Channel<StreamChatGenerics>[]> | Promise<UsersAPIResponse<StreamChatGenerics>>
+        | Promise<Channel<StreamChatGenerics>[]>
+        | Promise<UsersAPIResponse<StreamChatGenerics>>
       > = [];
       try {
         if (searchForChannels) {
           promises.push(
             client.queryChannels(
-              // @ts-expect-error
+              // @ts-expect-error valid query
               {
                 members: { $in: [client.userID] },
                 name: { $autocomplete: text },
@@ -232,7 +248,7 @@ export const useChannelSearch = <
         if (searchForUsers) {
           promises.push(
             client.queryUsers(
-              // @ts-expect-error
+              // @ts-expect-error valid query
               {
                 $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
                 ...searchQueryParams?.userFilters?.filters,
@@ -279,10 +295,10 @@ export const useChannelSearch = <
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const scheduleGetChannels = useCallback(debounce(getChannels, searchDebounceIntervalMs), [
-    getChannels,
-    searchDebounceIntervalMs,
-  ]);
+  const scheduleGetChannels = useCallback(
+    debounce(getChannels, searchDebounceIntervalMs),
+    [getChannels, searchDebounceIntervalMs],
+  );
 
   const onSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

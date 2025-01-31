@@ -23,7 +23,7 @@ type MessageContextPropsToPick =
   | 'message';
 
 export type MessageActionsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
   /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
   ActionsIcon?: React.ComponentType<IconProps>;
@@ -36,7 +36,7 @@ export type MessageActionsProps<
 };
 
 export const MessageActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: MessageActionsProps<StreamChatGenerics>,
 ) => {
@@ -70,7 +70,8 @@ export const MessageActions = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
 
-  const { CustomMessageActionsList } = useComponentContext<StreamChatGenerics>('MessageActions');
+  const { CustomMessageActionsList } =
+    useComponentContext<StreamChatGenerics>('MessageActions');
 
   const { t } = useTranslationContext('MessageActions');
 
@@ -147,7 +148,9 @@ export type MessageActionsWrapperProps = {
   toggleOpen?: () => void;
 };
 
-export const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
+export const MessageActionsWrapper = (
+  props: PropsWithChildren<MessageActionsWrapperProps>,
+) => {
   const { children, customWrapperClass, inline, toggleOpen } = props;
 
   const defaultWrapperClass = clsx(

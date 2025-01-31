@@ -36,7 +36,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import { AIStates, useAIState } from '../AIStateIndicator';
 
 export const MessageInputFlat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
   const { t } = useTranslationContext('MessageInputFlat');
   const {
@@ -59,17 +59,17 @@ export const MessageInputFlat = <
   } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
-    AudioRecorder = DefaultAudioRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     AttachmentSelector = message ? SimpleAttachmentSelector : DefaultAttachmentSelector,
+    AudioRecorder = DefaultAudioRecorder,
     CooldownTimer = DefaultCooldownTimer,
+    EmojiPicker,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
-    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
   const {
     acceptedFiles = [],
@@ -136,7 +136,8 @@ export const MessageInputFlat = <
 
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
-  const displayQuotedMessage = !message && quotedMessage && quotedMessage.parent_id === parent?.id;
+  const displayQuotedMessage =
+    !message && quotedMessage && quotedMessage.parent_id === parent?.id;
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
@@ -150,7 +151,8 @@ export const MessageInputFlat = <
       ? DefaultStopAIGenerationButton
       : StopAIGenerationButtonOverride;
   const shouldDisplayStopAIGeneration =
-    [AIStates.Thinking, AIStates.Generating].includes(aiState) && !!StopAIGenerationButton;
+    [AIStates.Thinking, AIStates.Generating].includes(aiState) &&
+    !!StopAIGenerationButton;
 
   return (
     <>
@@ -181,7 +183,9 @@ export const MessageInputFlat = <
         <div className='str-chat__message-input-inner'>
           <AttachmentSelector />
           <div className='str-chat__message-textarea-container'>
-            {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
+            {displayQuotedMessage && (
+              <QuotedMessagePreview quotedMessage={quotedMessage} />
+            )}
             {isUploadEnabled &&
               !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
                 <AttachmentPreviewList />

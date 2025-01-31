@@ -5,28 +5,30 @@ import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type TypingContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   typing?: StreamChannelState<StreamChatGenerics>['typing'];
 };
 
-export const TypingContext = React.createContext<TypingContextValue | undefined>(undefined);
+export const TypingContext = React.createContext<TypingContextValue | undefined>(
+  undefined,
+);
 
 export const TypingProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   children,
   value,
 }: PropsWithChildren<{
   value: TypingContextValue<StreamChatGenerics>;
 }>) => (
-  <TypingContext.Provider value={(value as unknown) as TypingContextValue}>
+  <TypingContext.Provider value={value as unknown as TypingContextValue}>
     {children}
   </TypingContext.Provider>
 );
 
 export const useTypingContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   componentName?: string,
 ) => {
@@ -50,7 +52,7 @@ export const useTypingContext = <
  */
 export const withTypingContext = <
   P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   Component: React.ComponentType<P>,
 ) => {

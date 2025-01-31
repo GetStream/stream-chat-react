@@ -51,7 +51,9 @@ export const useTranslationContext = (componentName?: string) => {
 export const withTranslationContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
-  const WithTranslationContextComponent = (props: Omit<P, keyof TranslationContextValue>) => {
+  const WithTranslationContextComponent = (
+    props: Omit<P, keyof TranslationContextValue>,
+  ) => {
     const translationContext = useTranslationContext();
 
     return <Component {...(props as P)} {...translationContext} />;

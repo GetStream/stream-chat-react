@@ -10,7 +10,7 @@ import type { Channel, Event } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useMessageNewListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   customHandler?: (
@@ -28,9 +28,14 @@ export const useMessageNewListener = <
         customHandler(setChannels, event);
       } else {
         setChannels((channels) => {
-          const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
+          const channelInList =
+            channels.filter((channel) => channel.cid === event.cid).length > 0;
 
-          if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
+          if (
+            !channelInList &&
+            allowNewMessagesFromUnfilteredChannels &&
+            event.channel_type
+          ) {
             const channel = client.channel(event.channel_type, event.channel_id);
             return uniqBy([channel, ...channels], 'cid');
           }

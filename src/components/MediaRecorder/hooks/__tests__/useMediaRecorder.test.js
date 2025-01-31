@@ -28,7 +28,9 @@ const render = async (params = {}) => {
   );
   let result;
   await act(() => {
-    result = renderHook(() => useMediaRecorder({ enabled: true, ...params }), { wrapper });
+    result = renderHook(() => useMediaRecorder({ enabled: true, ...params }), {
+      wrapper,
+    });
   });
   return result;
 };
@@ -119,7 +121,9 @@ describe('useMediaRecorder', () => {
         },
       } = await render({ handleSubmit, uploadAttachment });
       const recorderStopSpy = jest.spyOn(recorder, 'stop').mockResolvedValue(undefined);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await completeRecording();
       expect(recorderStopSpy).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).not.toHaveBeenCalledWith();
@@ -135,7 +139,9 @@ describe('useMediaRecorder', () => {
         },
       } = await render({ handleSubmit, uploadAttachment });
       jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await act(() => {
         completeRecording();
       });
@@ -150,9 +156,15 @@ describe('useMediaRecorder', () => {
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ asyncMessagesMultiSendEnabled: true, handleSubmit, uploadAttachment });
+      } = await render({
+        asyncMessagesMultiSendEnabled: true,
+        handleSubmit,
+        uploadAttachment,
+      });
       jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await act(() => {
         completeRecording();
       });

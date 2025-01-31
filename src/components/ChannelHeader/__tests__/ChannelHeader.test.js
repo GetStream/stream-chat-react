@@ -59,7 +59,7 @@ async function renderComponent(props, channelData, channelType = 'messaging') {
   return renderComponentBase({ channel, client, props });
 }
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('ChannelHeader', () => {
   it('should display live label when prop live is true', async () => {
@@ -69,7 +69,9 @@ describe('ChannelHeader', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(container.querySelector('.str-chat__header-livestream-livelabel')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__header-livestream-livelabel'),
+    ).toBeInTheDocument();
   });
 
   it("should display avatar with fallback image only if other user's name is available", async () => {
@@ -170,7 +172,9 @@ describe('ChannelHeader', () => {
     const updatedAttribute = { name: 'new-name' };
     await renderComponent();
 
-    await waitFor(() => expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument(),
+    );
     act(() => {
       dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
     });
@@ -190,7 +194,10 @@ describe('ChannelHeader', () => {
       dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
     });
     await waitFor(() =>
-      expect(screen.getByTestId('avatar-img')).toHaveAttribute('src', updatedAttribute.image),
+      expect(screen.getByTestId('avatar-img')).toHaveAttribute(
+        'src',
+        updatedAttribute.image,
+      ),
     );
   });
 
@@ -273,8 +280,14 @@ describe('ChannelHeader', () => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages).toHaveLength(3);
         expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-        expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-        expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+        expect(avatarImages[1]).toHaveAttribute(
+          'src',
+          channelState.members[1].user.image,
+        );
+        expect(avatarImages[2]).toHaveAttribute(
+          'src',
+          channelState.members[2].user.image,
+        );
       });
 
       act(() => {
@@ -284,8 +297,14 @@ describe('ChannelHeader', () => {
       await waitFor(() => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages[0]).toHaveAttribute('src', updatedAttribute.image);
-        expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-        expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+        expect(avatarImages[1]).toHaveAttribute(
+          'src',
+          channelState.members[1].user.image,
+        );
+        expect(avatarImages[2]).toHaveAttribute(
+          'src',
+          channelState.members[2].user.image,
+        );
       });
     });
 
@@ -305,8 +324,14 @@ describe('ChannelHeader', () => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages).toHaveLength(3);
         expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-        expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
-        expect(avatarImages[2]).toHaveAttribute('src', channelState.members[2].user.image);
+        expect(avatarImages[1]).toHaveAttribute(
+          'src',
+          channelState.members[1].user.image,
+        );
+        expect(avatarImages[2]).toHaveAttribute(
+          'src',
+          channelState.members[2].user.image,
+        );
       });
 
       act(() => {
@@ -316,7 +341,10 @@ describe('ChannelHeader', () => {
       await waitFor(() => {
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         expect(avatarImages[0]).toHaveAttribute('src', ownUser.image);
-        expect(avatarImages[1]).toHaveAttribute('src', channelState.members[1].user.image);
+        expect(avatarImages[1]).toHaveAttribute(
+          'src',
+          channelState.members[1].user.image,
+        );
         expect(avatarImages[2]).toHaveAttribute('src', updatedAttribute.image);
       });
     });

@@ -42,13 +42,14 @@ const useJoinTypingUsers = (names: string[]) => {
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
 const UnMemoizedTypingIndicator = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: TypingIndicatorProps,
 ) => {
   const { threadList } = props;
 
-  const { channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('TypingIndicator');
+  const { channelConfig, thread } =
+    useChannelStateContext<StreamChatGenerics>('TypingIndicator');
   const { client } = useChatContext<StreamChatGenerics>('TypingIndicator');
   const { typing = {} } = useTypingContext<StreamChatGenerics>('TypingIndicator');
 

@@ -11,17 +11,15 @@ import type { DefaultStreamChatGenerics } from '../../types';
 
 type PollStateSelectorPollContentReturnValue = { is_closed: boolean | undefined };
 const pollStateSelectorPollContent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   nextValue: PollState<StreamChatGenerics>,
 ): PollStateSelectorPollContentReturnValue => ({ is_closed: nextValue.is_closed });
 export const PollContent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >() => {
-  const {
-    PollHeader = DefaultPollHeader,
-    PollActions = DefaultPollActions,
-  } = useComponentContext<StreamChatGenerics>();
+  const { PollActions = DefaultPollActions, PollHeader = DefaultPollHeader } =
+    useComponentContext<StreamChatGenerics>();
   const { poll } = usePollContext<StreamChatGenerics>();
   const { is_closed } = useStateStore(poll.state, pollStateSelectorPollContent);
 
