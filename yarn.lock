@@ -12094,9 +12094,9 @@ statuses@2.0.1:
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
 stream-chat@^8.50.0:
-  version "8.52.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.52.1.tgz#8c73627937a55d24e66685db3e32653d4e8022ba"
-  integrity sha512-Z17M3xr3KYl/vdko20YiNA5uZ0iKjAut3GOEI8hQ3nNm/wqkPkS6f5zsgu0axrshXlkoOSETI9zvJm13RLXlYA==
+  version "8.54.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.54.1.tgz#61a7330c9b7401f3e176e55445b29317bca2b108"
+  integrity sha512-BmeN1nq/zbItJXayHz/kBDc36Xvs4rW5pol/ngPXs0Vl8tw7vCuYBI4aFvpthvFU9EhCIJzBn8ISqDlnfWyDkw==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "~9.0.0"
