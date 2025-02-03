@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 
@@ -16,7 +16,11 @@ import { defaultReactionOptions } from '../reactionOptions';
 
 const USER_ID = 'mark';
 
-const renderComponent = ({ reaction_groups = {}, ...props }) => {
+const renderComponent = ({
+  reaction_groups = {},
+  ReactionsListModal = undefined,
+  ...props
+}) => {
   const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
     Array.from({ length: count }, (_, i) =>
       generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
@@ -24,7 +28,9 @@ const renderComponent = ({ reaction_groups = {}, ...props }) => {
   );
 
   return render(
-    <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+    <ComponentProvider
+      value={{ reactionOptions: defaultReactionOptions, ReactionsListModal }}
+    >
       <MessageProvider value={{}}>
         <ReactionsList
           reaction_groups={reaction_groups}
@@ -42,6 +48,23 @@ describe('ReactionsList', () => {
 
   // disable warnings (unreachable context)
   jest.spyOn(console, 'warn').mockImplementation(null);
+
+  it('renders custom ReactionsListModal', async () => {
+    const CUSTOM_MODAL_TEST_ID = 'custom-reaction-list-modal';
+    const ReactionsListModal = () => <div data-testid={CUSTOM_MODAL_TEST_ID} />;
+    renderComponent({
+      reaction_groups: {
+        haha: { count: 2 },
+        love: { count: 5 },
+      },
+      ReactionsListModal,
+    });
+
+    await act(() => {
+      fireEvent.click(screen.getByTestId('reactions-list-button-haha'));
+    });
+    expect(screen.getByTestId(CUSTOM_MODAL_TEST_ID)).toBeInTheDocument();
+  });
 
   it('should render the total reaction count', async () => {
     const { container, getByText } = renderComponent({
