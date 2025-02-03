@@ -15,7 +15,7 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar: PropsAvatar = DefaultAvatar,
+    Avatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
@@ -28,10 +28,8 @@ const UnMemoizedChannelPreviewMessenger = <
     watchers,
   } = props;
 
-  const {
-    ChannelAvatar,
-    ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons,
-  } = useComponentContext<SCG>();
+  const { ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons } =
+    useComponentContext<SCG>();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -48,8 +46,6 @@ const UnMemoizedChannelPreviewMessenger = <
       channelPreviewButton.current.blur();
     }
   };
-
-  const Avatar = ChannelAvatar ?? PropsAvatar;
 
   return (
     <div className='str-chat__channel-preview-container'>

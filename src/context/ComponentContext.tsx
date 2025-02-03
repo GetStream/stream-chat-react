@@ -5,7 +5,6 @@ import {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
-  ChannelAvatarProps,
   ChannelPreviewActionButtonsProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
@@ -91,8 +90,6 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
-  /** Custom UI component to display channel avatar that may be different from a simple user avatar, defaults to and accepts same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
-  ChannelAvatar?: React.ComponentType<ChannelAvatarProps>;
   /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
   ChannelPreviewActionButtons?: React.ComponentType<
     ChannelPreviewActionButtonsProps<StreamChatGenerics>

@@ -60,23 +60,6 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('gives preference to ChannelAvatar from component context over the props Avatar component', () => {
-    const channelAvatarTestID = 'custom-channel-avatar';
-    const propsAvatarTestID = 'props-avatar';
-    const ChannelAvatar = () => <div data-testid={channelAvatarTestID} />;
-    const PropsAvatar = () => <div data-testid={propsAvatarTestID} />;
-    render(
-      renderComponent(
-        {
-          Avatar: PropsAvatar,
-        },
-        { ChannelAvatar },
-      ),
-    );
-    expect(screen.queryByTestId(propsAvatarTestID)).not.toBeInTheDocument();
-    expect(screen.getByTestId(channelAvatarTestID)).toBeInTheDocument();
-  });
-
   it('should call setActiveChannel on click', async () => {
     const setActiveChannel = jest.fn();
     const { container, getByTestId } = render(
