@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   AIStateIndicator,
@@ -9,11 +8,11 @@ import {
   Chat,
   ChatView,
   MessageInput,
-  VirtualizedMessageList as MessageList,
   StreamMessage,
   Thread,
   ThreadList,
   useCreateChatClient,
+  VirtualizedMessageList as MessageList,
   Window,
 } from 'stream-chat-react';
 
@@ -65,17 +64,15 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const isMessageAIGenerated = (message: StreamMessage<StreamChatGenerics>) =>
+  !!message?.ai_generated;
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
   });
-
-  const isMessageAIGenerated = useCallback(
-    (message: StreamMessage<StreamChatGenerics>) => !!message?.ai_generated,
-    [],
-  );
 
   if (!chatClient) return <>Loading...</>;
 
