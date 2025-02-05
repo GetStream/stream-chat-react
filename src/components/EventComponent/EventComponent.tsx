@@ -6,14 +6,12 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString } from '../../i18n/utils';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
-export type EventComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = TimestampFormatterOptions & {
+export type EventComponentProps = TimestampFormatterOptions & {
   /** Message object */
-  message: StreamMessage<StreamChatGenerics>;
+  message: StreamMessage;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
 };
@@ -21,14 +19,11 @@ export type EventComponentProps<
 /**
  * Component to display system and channel event messages
  */
-const UnMemoizedEventComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: EventComponentProps<StreamChatGenerics>,
-) => {
+const UnMemoizedEventComponent = (props: EventComponentProps) => {
   const { Avatar = DefaultAvatar, calendar, calendarFormats, format, message } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('EventComponent');
+  // @ts-expect-error <ADD_PROPERTY>event
   const { created_at = '', event, text, type } = message;
   const getDateOptions = { messageCreatedAt: created_at.toString(), tDateTimeParser };
 

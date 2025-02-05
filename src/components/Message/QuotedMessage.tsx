@@ -13,15 +13,11 @@ import { useChannelActionContext } from '../../context/ChannelActionContext';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export const QuotedMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const QuotedMessage = () => {
   const { Attachment = DefaultAttachment, Avatar: ContextAvatar } =
-    useComponentContext<StreamChatGenerics>('QuotedMessage');
+    useComponentContext('QuotedMessage');
   const { client } = useChatContext();
-  const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
+  const { isMyMessage, message } = useMessageContext('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
 
@@ -60,6 +56,7 @@ export const QuotedMessage = <
         {quoted_message.user && (
           <Avatar
             className='str-chat__avatar--quoted-message-sender'
+            // @ts-expect-error <ADD_PROPERTY>image
             image={quoted_message.user.image}
             name={quoted_message.user.name || quoted_message.user.id}
             user={quoted_message.user}

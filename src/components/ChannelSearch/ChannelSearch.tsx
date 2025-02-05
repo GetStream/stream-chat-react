@@ -15,8 +15,6 @@ import {
 } from './SearchInput';
 import { AdditionalSearchResultsProps, SearchResults } from './SearchResults';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
 export type AdditionalChannelSearchProps = {
   /** Custom UI component to display the search bar with text input */
   SearchBar?: React.ComponentType<SearchBarProps>;
@@ -24,19 +22,13 @@ export type AdditionalChannelSearchProps = {
   SearchInput?: React.ComponentType<SearchInputProps>;
 };
 
-export type ChannelSearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = AdditionalSearchBarProps &
+export type ChannelSearchProps = AdditionalSearchBarProps &
   AdditionalSearchInputProps &
-  AdditionalSearchResultsProps<StreamChatGenerics> &
+  AdditionalSearchResultsProps &
   AdditionalChannelSearchProps &
-  ChannelSearchControllerParams<StreamChatGenerics>;
+  ChannelSearchControllerParams;
 
-const UnMemoizedChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ChannelSearchProps<StreamChatGenerics>,
-) => {
+const UnMemoizedChannelSearch = (props: ChannelSearchProps) => {
   const {
     AppMenu,
     ClearInputIcon,
@@ -67,7 +59,7 @@ const UnMemoizedChannelSearch = <
     searchBarRef,
     searching,
     selectResult,
-  } = useChannelSearch<StreamChatGenerics>(channelSearchParams);
+  } = useChannelSearch(channelSearchParams);
 
   return (
     <div

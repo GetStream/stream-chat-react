@@ -3,7 +3,6 @@ import type { Channel, Event } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { StreamMessage } from '../../../context';
 
 export enum MessageDeliveryStatus {
@@ -11,28 +10,23 @@ export enum MessageDeliveryStatus {
   READ = 'read',
 }
 
-type UseMessageStatusParamsChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  channel: Channel<StreamChatGenerics>;
+type UseMessageStatusParamsChannelPreviewProps = {
+  channel: Channel;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage<StreamChatGenerics>;
+  lastMessage?: StreamMessage;
 };
 
-export const useMessageDeliveryStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useMessageDeliveryStatus = ({
   channel,
   lastMessage,
-}: UseMessageStatusParamsChannelPreviewProps<StreamChatGenerics>) => {
+}: UseMessageStatusParamsChannelPreviewProps) => {
   const { client } = useChatContext();
   const [messageDeliveryStatus, setMessageDeliveryStatus] = useState<
     MessageDeliveryStatus | undefined
   >();
 
   const isOwnMessage = useCallback(
-    (message?: StreamMessage<StreamChatGenerics>) =>
-      client.user && message?.user?.id === client.user.id,
+    (message?: StreamMessage) => client.user && message?.user?.id === client.user.id,
     [client],
   );
 
@@ -60,7 +54,7 @@ export const useMessageDeliveryStatus = <
   }, [channel.state.read, client, isOwnMessage, lastMessage]);
 
   useEffect(() => {
-    const handleMessageNew = (event: Event<StreamChatGenerics>) => {
+    const handleMessageNew = (event: Event) => {
       // the last message is not mine, so do not show the delivery status
       if (!isOwnMessage(event.message)) {
         return setMessageDeliveryStatus(undefined);
@@ -78,7 +72,7 @@ export const useMessageDeliveryStatus = <
 
   useEffect(() => {
     if (!isOwnMessage(lastMessage)) return;
-    const handleMarkRead = (event: Event<StreamChatGenerics>) => {
+    const handleMarkRead = (event: Event) => {
       if (event.user?.id !== client.user?.id)
         setMessageDeliveryStatus(MessageDeliveryStatus.READ);
     };

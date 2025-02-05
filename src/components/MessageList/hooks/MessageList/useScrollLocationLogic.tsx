@@ -4,24 +4,16 @@ import { useMessageListScrollManager } from './useMessageListScrollManager';
 
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export type UseScrollLocationLogicParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   loadMoreScrollThreshold: number;
   suppressAutoscroll: boolean;
-  messages?: StreamMessage<StreamChatGenerics>[];
+  messages?: StreamMessage[];
   scrolledUpThreshold?: number;
 };
 
-export const useScrollLocationLogic = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  params: UseScrollLocationLogicParams<StreamChatGenerics>,
-) => {
+export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => {
   const {
     hasMoreNewer,
     listElement,

@@ -2,17 +2,12 @@ import React from 'react';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
 type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
   vote_counts_by_option: Record<string, number>;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   maxVotedOptionIds: nextValue.maxVotedOptionIds,
   vote_counts_by_option: nextValue.vote_counts_by_option,
 });
@@ -21,13 +16,11 @@ export type PollResultOptionVoteCounterProps = {
   optionId: string;
 };
 
-export const PollResultOptionVoteCounter = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const PollResultOptionVoteCounter = ({
   optionId,
 }: PollResultOptionVoteCounterProps) => {
   const { t } = useTranslationContext();
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const { maxVotedOptionIds, vote_counts_by_option } = useStateStore(
     poll.state,
     pollStateSelector,
@@ -45,17 +38,11 @@ export const PollResultOptionVoteCounter = <
   );
 };
 
-export type PollOptionWithVotesHeaderProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  option: PollOption<StreamChatGenerics>;
+export type PollOptionWithVotesHeaderProps = {
+  option: PollOption;
 };
 
-export const PollOptionWithVotesHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  option,
-}: PollOptionWithVotesHeaderProps<StreamChatGenerics>) => (
+export const PollOptionWithVotesHeader = ({ option }: PollOptionWithVotesHeaderProps) => (
   <div className='str-chat__poll-option__header'>
     <div className='str-chat__poll-option__option-text'>{option.text}</div>
     <PollResultOptionVoteCounter optionId={option.id} />

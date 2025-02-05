@@ -6,14 +6,8 @@ import {
   useChatContext,
 } from '../../../context';
 import type { Channel, Event, MessageResponse } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
-const hasReadLastMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel: Channel<StreamChatGenerics>,
-  userId: string,
-) => {
+const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
   const lastReadMessageIdServer = channel.state.read[userId]?.last_read_message_id;
   return latestMessageIdInChannel === lastReadMessageIdServer;
@@ -34,16 +28,14 @@ type UseMarkReadParams = {
  * @param messageListIsThread
  * @param wasChannelMarkedUnread
  */
-export const useMarkRead = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useMarkRead = ({
   isMessageListScrolledToBottom,
   messageListIsThread,
   wasMarkedUnread,
 }: UseMarkReadParams) => {
-  const { client } = useChatContext<StreamChatGenerics>('useMarkRead');
+  const { client } = useChatContext('useMarkRead');
   const { markRead, setChannelUnreadUiState } = useChannelActionContext('useMarkRead');
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useMarkRead');
+  const { channel } = useChannelStateContext('useMarkRead');
 
   useEffect(() => {
     const shouldMarkRead = () =>
@@ -58,14 +50,14 @@ export const useMarkRead = <
       if (shouldMarkRead()) markRead();
     };
 
-    const handleMessageNew = (event: Event<StreamChatGenerics>) => {
+    const handleMessageNew = (event: Event) => {
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
 
       if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
         setChannelUnreadUiState((prev) => {
           const previousUnreadCount = prev?.unread_messages ?? 0;
-          const previousLastMessage = getPreviousLastMessage<StreamChatGenerics>(
+          const previousLastMessage = getPreviousLastMessage(
             channel.state.messages,
             event.message,
           );
@@ -106,12 +98,7 @@ export const useMarkRead = <
   ]);
 };
 
-function getPreviousLastMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  messages: StreamMessage<StreamChatGenerics>[],
-  newMessage?: MessageResponse<StreamChatGenerics>,
-) {
+function getPreviousLastMessage(messages: StreamMessage[], newMessage?: MessageResponse) {
   if (!newMessage) return;
   let previousLastMessage;
   for (let i = messages.length - 1; i >= 0; i--) {
