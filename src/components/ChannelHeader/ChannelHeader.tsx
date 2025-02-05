@@ -9,8 +9,6 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
@@ -27,11 +25,7 @@ export type ChannelHeaderProps = {
 /**
  * The ChannelHeader component renders some basic information about a Channel.
  */
-export const ChannelHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ChannelHeaderProps,
-) => {
+export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
     image: overrideImage,
@@ -40,9 +34,8 @@ export const ChannelHeader = <
     title: overrideTitle,
   } = props;
 
-  const { channel, watcher_count } =
-    useChannelStateContext<StreamChatGenerics>('ChannelHeader');
-  const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
+  const { channel, watcher_count } = useChannelStateContext('ChannelHeader');
+  const { openMobileNav } = useChatContext('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -50,6 +43,7 @@ export const ChannelHeader = <
     overrideTitle,
   });
 
+  // @ts-expect-error <ADD_PROPERTY>subtitle
   const { member_count, subtitle } = channel?.data || {};
 
   return (

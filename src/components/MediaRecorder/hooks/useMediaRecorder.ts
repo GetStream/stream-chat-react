@@ -7,22 +7,17 @@ import {
 } from '../classes';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type RecordingController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type RecordingController = {
   completeRecording: () => void;
   permissionState?: PermissionState;
   recorder?: MediaRecorderController;
-  recording?: LocalVoiceRecordingAttachment<StreamChatGenerics>;
+  recording?: LocalVoiceRecordingAttachment;
   recordingState?: MediaRecordingState;
 };
 
-type UseMediaRecorderParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<
-  MessageInputContextValue<StreamChatGenerics>,
+type UseMediaRecorderParams = Pick<
+  MessageInputContextValue,
   'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
 > & {
   enabled: boolean;
@@ -30,20 +25,17 @@ type UseMediaRecorderParams<
   recordingConfig?: CustomAudioRecordingConfig;
 };
 
-export const useMediaRecorder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useMediaRecorder = ({
   asyncMessagesMultiSendEnabled,
   enabled,
   generateRecordingTitle,
   handleSubmit,
   recordingConfig,
   uploadAttachment,
-}: UseMediaRecorderParams<StreamChatGenerics>): RecordingController<StreamChatGenerics> => {
+}: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
 
-  const [recording, setRecording] =
-    useState<LocalVoiceRecordingAttachment<StreamChatGenerics>>();
+  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
   const [isScheduledForSubmit, scheduleForSubmit] = useState(false);

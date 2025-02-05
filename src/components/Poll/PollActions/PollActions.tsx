@@ -32,7 +32,6 @@ import {
 import { useStateStore } from '../../../store';
 
 import type { PollAnswer, PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 type ModalName =
   | 'suggest-option'
@@ -51,11 +50,7 @@ type PollStateSelectorReturnValue = {
   options: PollOption[];
   ownAnswer: PollAnswer | undefined;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   allow_answers: nextValue.allow_answers,
   allow_user_suggested_options: nextValue.allow_user_suggested_options,
   answers_count: nextValue.answers_count,
@@ -74,9 +69,7 @@ export type PollActionsProps = {
   SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
 
-export const PollActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const PollActions = ({
   AddCommentForm = DefaultAddCommentForm,
   EndPollDialog = DefaultEndPollDialog,
   PollAnswerList = DefaultPollAnswerList,
@@ -86,10 +79,9 @@ export const PollActions = <
 }: PollActionsProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext('PollActions');
-  const { channelCapabilities = {} } =
-    useChannelStateContext<StreamChatGenerics>('PollActions');
+  const { channelCapabilities = {} } = useChannelStateContext('PollActions');
   const { message } = useMessageContext('PollActions');
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const {
     allow_answers,
     allow_user_suggested_options,

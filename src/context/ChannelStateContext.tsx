@@ -10,7 +10,6 @@ import type {
 
 import type {
   ChannelUnreadUiState,
-  DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
   UnknownType,
@@ -24,15 +23,11 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
-export type StreamMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> =
-  | ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
-  | MessageResponse<StreamChatGenerics>;
+export type StreamMessage =
+  | ReturnType<StreamChannelState['formatMessage']>
+  | MessageResponse;
 
-export type ChannelState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ChannelState = {
   suppressAutoscroll: boolean;
   error?: Error | null;
   hasMore?: boolean;
@@ -41,41 +36,39 @@ export type ChannelState<
   loading?: boolean;
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
-  members?: StreamChannelState<StreamChatGenerics>['members'];
-  messages?: StreamMessage<StreamChatGenerics>[];
-  pinnedMessages?: StreamMessage<StreamChatGenerics>[];
-  quotedMessage?: StreamMessage<StreamChatGenerics>;
-  read?: StreamChannelState<StreamChatGenerics>['read'];
-  thread?: StreamMessage<StreamChatGenerics> | null;
+  members?: StreamChannelState['members'];
+  messages?: StreamMessage[];
+  pinnedMessages?: StreamMessage[];
+  quotedMessage?: StreamMessage;
+  read?: StreamChannelState['read'];
+  thread?: StreamMessage | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
-  threadMessages?: StreamMessage<StreamChatGenerics>[];
+  threadMessages?: StreamMessage[];
   threadSuppressAutoscroll?: boolean;
-  typing?: StreamChannelState<StreamChatGenerics>['typing'];
+  typing?: StreamChannelState['typing'];
   watcherCount?: number;
-  watchers?: StreamChannelState<StreamChatGenerics>['watchers'];
+  watchers?: StreamChannelState['watchers'];
 };
 
-export type ChannelStateContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<ChannelState<StreamChatGenerics>, 'typing'> & {
-  channel: Channel<StreamChatGenerics>;
+export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
+  channel: Channel;
   channelCapabilities: Record<string, boolean>;
-  channelConfig: ChannelConfigWithInfo<StreamChatGenerics> | undefined;
+  channelConfig: ChannelConfigWithInfo | undefined;
   imageAttachmentSizeHandler: ImageAttachmentSizeHandler;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   acceptedFiles?: string[];
-  channelUnreadUiState?: ChannelUnreadUiState<StreamChatGenerics>;
+  channelUnreadUiState?: ChannelUnreadUiState;
   debounceURLEnrichmentMs?: URLEnrichmentConfig['debounceURLEnrichmentMs'];
   dragAndDropWindow?: boolean;
   enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
   findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
-  mutes?: Array<Mute<StreamChatGenerics>>;
+  mutes?: Array<Mute>;
   onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;
 };
@@ -84,24 +77,18 @@ export const ChannelStateContext = React.createContext<
   ChannelStateContextValue | undefined
 >(undefined);
 
-export const ChannelStateProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const ChannelStateProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: ChannelStateContextValue<StreamChatGenerics>;
+  value: ChannelStateContextValue;
 }>) => (
   <ChannelStateContext.Provider value={value as unknown as ChannelStateContextValue}>
     {children}
   </ChannelStateContext.Provider>
 );
 
-export const useChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  componentName?: string,
-) => {
+export const useChannelStateContext = (componentName?: string) => {
   const contextValue = useContext(ChannelStateContext);
 
   if (!contextValue) {
@@ -109,10 +96,10 @@ export const useChannelStateContext = <
       `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ChannelStateContextValue<StreamChatGenerics>;
+    return {} as ChannelStateContextValue;
   }
 
-  return contextValue as unknown as ChannelStateContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChannelStateContextValue;
 };
 
 /**
@@ -120,16 +107,13 @@ export const useChannelStateContext = <
  * typing is desired while using the HOC withChannelStateContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withChannelStateContext = <
-  P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const withChannelStateContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
   const WithChannelStateContextComponent = (
-    props: Omit<P, keyof ChannelStateContextValue<StreamChatGenerics>>,
+    props: Omit<P, keyof ChannelStateContextValue>,
   ) => {
-    const channelStateContext = useChannelStateContext<StreamChatGenerics>();
+    const channelStateContext = useChannelStateContext();
 
     return <Component {...(props as P)} {...channelStateContext} />;
   };

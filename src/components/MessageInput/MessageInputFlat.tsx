@@ -32,12 +32,9 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import { AIStates, useAIState } from '../AIStateIndicator';
 
-export const MessageInputFlat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const MessageInputFlat = () => {
   const { t } = useTranslationContext('MessageInputFlat');
   const {
     asyncMessagesMultiSendEnabled,
@@ -56,7 +53,7 @@ export const MessageInputFlat = <
     setCooldownRemaining,
     text,
     uploadNewFiles,
-  } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
+  } = useMessageInputContext('MessageInputFlat');
 
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
@@ -70,14 +67,14 @@ export const MessageInputFlat = <
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
-  } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
+  } = useComponentContext('MessageInputFlat');
   const {
     acceptedFiles = [],
     multipleUploads,
     quotedMessage,
-  } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
+  } = useChannelStateContext('MessageInputFlat');
   const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
-  const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
+  const { channel } = useChatContext('MessageInputFlat');
 
   const { aiState } = useAIState(channel);
 
@@ -114,7 +111,7 @@ export const MessageInputFlat = <
   });
 
   useEffect(() => {
-    const handleQuotedMessageUpdate = (e: Event<StreamChatGenerics>) => {
+    const handleQuotedMessageUpdate = (e: Event) => {
       if (e.message?.id !== quotedMessage?.id) return;
       if (e.type === 'message.deleted') {
         setQuotedMessage(undefined);

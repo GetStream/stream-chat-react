@@ -1,24 +1,20 @@
 import { useEffect, useState } from 'react';
 import { ReactionResponse, ReactionSort } from 'stream-chat';
 import { MessageContextValue, useMessageContext } from '../../../context';
-import { DefaultStreamChatGenerics } from '../../../types/types';
+
 import { ReactionType } from '../types';
 
-export interface FetchReactionsOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> {
-  reactionType: ReactionType<StreamChatGenerics>;
+export interface FetchReactionsOptions {
+  reactionType: ReactionType;
   shouldFetch: boolean;
-  handleFetchReactions?: MessageContextValue<StreamChatGenerics>['handleFetchReactions'];
-  sort?: ReactionSort<StreamChatGenerics>;
+  handleFetchReactions?: MessageContextValue['handleFetchReactions'];
+  sort?: ReactionSort;
 }
 
-export function useFetchReactions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(options: FetchReactionsOptions<StreamChatGenerics>) {
+export function useFetchReactions(options: FetchReactionsOptions) {
   const { handleFetchReactions: contextHandleFetchReactions } =
-    useMessageContext<StreamChatGenerics>('useFetchReactions');
-  const [reactions, setReactions] = useState<ReactionResponse<StreamChatGenerics>[]>([]);
+    useMessageContext('useFetchReactions');
+  const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,
     reactionType,

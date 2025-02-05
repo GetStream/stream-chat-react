@@ -33,18 +33,12 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
-type MessageSimpleWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = MessageContextValue<StreamChatGenerics>;
+type MessageSimpleWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageSimpleWithContextProps<StreamChatGenerics>,
-) => {
+const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
     clearEditingState,
@@ -85,7 +79,7 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
-  } = useComponentContext<StreamChatGenerics>('MessageSimple');
+  } = useComponentContext('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -93,7 +87,7 @@ const MessageSimpleWithContext = <
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-
+  // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
   }
@@ -104,6 +98,7 @@ const MessageSimpleWithContext = <
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
+  // @ts-expect-error <ADD_PROPERTY>errorStatusCode (StreamMessage)
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
@@ -132,6 +127,7 @@ const MessageSimpleWithContext = <
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
+        // @ts-expect-error <ADD_PROPERTY>errorStatusCode (StreamMessage)
         message?.status === 'failed' && message?.errorStatusCode !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
@@ -172,6 +168,7 @@ const MessageSimpleWithContext = <
           {PinIndicator && <PinIndicator />}
           {message.user && (
             <Avatar
+              // @ts-expect-error <ADD_PROPERTY>image
               image={message.user.image}
               name={message.user.name || message.user.id}
               onClick={onUserClick}
@@ -253,12 +250,8 @@ const MemoizedMessageSimple = React.memo(
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
-export const MessageSimple = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageUIComponentProps<StreamChatGenerics>,
-) => {
-  const messageContext = useMessageContext<StreamChatGenerics>('MessageSimple');
+export const MessageSimple = (props: MessageUIComponentProps) => {
+  const messageContext = useMessageContext('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

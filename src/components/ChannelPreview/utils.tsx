@@ -6,19 +6,14 @@ import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stre
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import { ChatContextValue } from '../../context';
 
 export const renderPreviewText = (text: string) => (
   <ReactMarkdown skipHtml>{text}</ReactMarkdown>
 );
 
-const getLatestPollVote = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  latestVotesByOption: Record<string, PollVote<StreamChatGenerics>[]>,
-) => {
-  let latestVote: PollVote<StreamChatGenerics> | undefined;
+const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
+  let latestVote: PollVote | undefined;
   for (const optionVotes of Object.values(latestVotesByOption)) {
     optionVotes.forEach((vote) => {
       if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
@@ -30,13 +25,11 @@ const getLatestPollVote = <
   return latestVote;
 };
 
-export const getLatestMessagePreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel: Channel<StreamChatGenerics>,
+export const getLatestMessagePreview = (
+  channel: Channel,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
-  isMessageAIGenerated?: ChatContextValue<StreamChatGenerics>['isMessageAIGenerated'],
+  isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
 ): ReactNode => {
   const latestMessage =
     channel.state.latestMessages[channel.state.latestMessages.length - 1];
@@ -65,8 +58,8 @@ export const getLatestMessagePreview = <
         pollName: poll.name,
       });
     } else {
-      const latestVote = getLatestPollVote<StreamChatGenerics>(
-        poll.latest_votes_by_option as Record<string, PollVote<StreamChatGenerics>[]>,
+      const latestVote = getLatestPollVote(
+        poll.latest_votes_by_option as Record<string, PollVote[]>,
       );
       const option =
         latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);
@@ -102,10 +95,8 @@ export const getLatestMessagePreview = <
 
 export type GroupChannelDisplayInfo = { image?: string; name?: string }[];
 
-export const getGroupChannelDisplayInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel: Channel<StreamChatGenerics>,
+export const getGroupChannelDisplayInfo = (
+  channel: Channel,
 ): GroupChannelDisplayInfo | undefined => {
   const members = Object.values(channel.state.members);
   if (members.length <= 2) return;
@@ -113,37 +104,31 @@ export const getGroupChannelDisplayInfo = <
   const info: GroupChannelDisplayInfo = [];
   for (let i = 0; i < members.length; i++) {
     const { user } = members[i];
+    // @ts-expect-error <ADD_PROPERTY>image
     if (!user?.name && !user?.image) continue;
+    // @ts-expect-error <ADD_PROPERTY>image
     info.push({ image: user.image, name: user.name });
     if (info.length === 4) break;
   }
   return info;
 };
 
-const getChannelDisplayInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+const getChannelDisplayInfo = (
   info: 'name' | 'image',
-  channel: Channel<StreamChatGenerics>,
-  currentUser?: UserResponse<StreamChatGenerics>,
+  channel: Channel,
+  currentUser?: UserResponse,
 ) => {
+  // @ts-expect-error <ADD_PROPERTY>name|image
   if (channel.data?.[info]) return channel.data[info];
   const members = Object.values(channel.state.members);
   if (members.length !== 2) return;
   const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
+  // @ts-expect-error <ADD_PROPERTY>name|image
   return otherMember?.user?.[info];
 };
 
-export const getDisplayTitle = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel: Channel<StreamChatGenerics>,
-  currentUser?: UserResponse<StreamChatGenerics>,
-) => getChannelDisplayInfo('name', channel, currentUser);
+export const getDisplayTitle = (channel: Channel, currentUser?: UserResponse) =>
+  getChannelDisplayInfo('name', channel, currentUser);
 
-export const getDisplayImage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel: Channel<StreamChatGenerics>,
-  currentUser?: UserResponse<StreamChatGenerics>,
-) => getChannelDisplayInfo('image', channel, currentUser);
+export const getDisplayImage = (channel: Channel, currentUser?: UserResponse) =>
+  getChannelDisplayInfo('image', channel, currentUser);

@@ -1,20 +1,15 @@
 import React from 'react';
 import { Avatar, AvatarProps, GroupAvatar, GroupAvatarProps } from './index';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-export type ChannelAvatarProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Partial<GroupAvatarProps> & AvatarProps<StreamChatGenerics>;
+export type ChannelAvatarProps = Partial<GroupAvatarProps> & AvatarProps;
 
-export const ChannelAvatar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const ChannelAvatar = ({
   groupChannelDisplayInfo,
   image,
   name,
   user,
   ...sharedProps
-}: ChannelAvatarProps<StreamChatGenerics>) => {
+}: ChannelAvatarProps) => {
   if (groupChannelDisplayInfo) {
     return (
       <GroupAvatar groupChannelDisplayInfo={groupChannelDisplayInfo} {...sharedProps} />

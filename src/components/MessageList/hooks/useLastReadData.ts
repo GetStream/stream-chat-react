@@ -6,22 +6,14 @@ import type { UserResponse } from 'stream-chat';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-type UseLastReadDataParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  messages: StreamMessage<StreamChatGenerics>[];
+type UseLastReadDataParams = {
+  messages: StreamMessage[];
   returnAllReadData: boolean;
   userID: string | undefined;
-  read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
+  read?: Record<string, { last_read: Date; user: UserResponse }>;
 };
 
-export const useLastReadData = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: UseLastReadDataParams<StreamChatGenerics>,
-) => {
+export const useLastReadData = (props: UseLastReadDataParams) => {
   const { messages, read, returnAllReadData, userID } = props;
 
   return useMemo(

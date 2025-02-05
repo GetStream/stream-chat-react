@@ -21,27 +21,19 @@ import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-cha
 
 import type { MessageInputProps } from '../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  SendMessageOptions,
-} from '../../../types/types';
+import type { CustomTrigger, SendMessageOptions } from '../../../types/types';
 import { mergeDeep } from '../../../utils/mergeDeep';
 
-export type MessageInputState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  attachments: LocalAttachment<StreamChatGenerics>[];
+export type MessageInputState = {
+  attachments: LocalAttachment[];
   linkPreviews: LinkPreviewMap;
-  mentioned_users: UserResponse<StreamChatGenerics>[];
+  mentioned_users: UserResponse[];
   setText: (text: string) => void;
   text: string;
 };
 
-type UpsertAttachmentsAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  attachments: LocalAttachment<StreamChatGenerics>[];
+type UpsertAttachmentsAction = {
+  attachments: LocalAttachment[];
   type: 'upsertAttachments';
 };
 
@@ -65,30 +57,24 @@ type SetLinkPreviewsAction = {
   type: 'setLinkPreviews';
 };
 
-type AddMentionedUserAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+type AddMentionedUserAction = {
   type: 'addMentionedUser';
-  user: UserResponse<StreamChatGenerics>;
+  user: UserResponse;
 };
 
-export type MessageInputReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> =
+export type MessageInputReducerAction =
   | SetTextAction
   | ClearAction
   | SetLinkPreviewsAction
-  | AddMentionedUserAction<StreamChatGenerics>
+  | AddMentionedUserAction
   | UpsertAttachmentsAction
   | RemoveAttachmentsAction;
 
-export type MessageInputHookProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = EnrichURLsController & {
+export type MessageInputHookProps = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
     event?: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
+    customMessageData?: Partial<Message>,
     options?: SendMessageOptions,
   ) => void;
   insertText: (textToInsert: string) => void;
@@ -96,22 +82,16 @@ export type MessageInputHookProps<
   maxFilesLeft: number;
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
-  recordingController: RecordingController<StreamChatGenerics>;
+  onSelectUser: (item: UserResponse) => void;
+  recordingController: RecordingController;
   removeAttachments: (ids: string[]) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
-  uploadAttachment: (
-    attachment: LocalAttachment<StreamChatGenerics>,
-  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
+  uploadAttachment: (attachment: LocalAttachment) => Promise<LocalAttachment | undefined>;
   uploadNewFiles: (files: FileList | File[]) => void;
-  upsertAttachments: (
-    attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[],
-  ) => void;
+  upsertAttachments: (attachments: (Attachment | LocalAttachment)[]) => void;
 };
 
-const makeEmptyMessageInputState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(): MessageInputState<StreamChatGenerics> => ({
+const makeEmptyMessageInputState = (): MessageInputState => ({
   attachments: [],
   linkPreviews: new Map(),
   mentioned_users: [],
@@ -122,14 +102,9 @@ const makeEmptyMessageInputState = <
 /**
  * Initializes the state. Empty if the message prop is falsy.
  */
-const initState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: Pick<
-    StreamMessage<StreamChatGenerics>,
-    'attachments' | 'mentioned_users' | 'text'
-  >,
-): MessageInputState<StreamChatGenerics> => {
+const initState = (
+  message?: Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
+): MessageInputState => {
   if (!message) {
     return makeEmptyMessageInputState();
   }
@@ -152,7 +127,7 @@ const initState = <
           ({
             ...att,
             localMetadata: { id: nanoid() },
-          }) as LocalAttachment<StreamChatGenerics>,
+          }) as LocalAttachment,
       ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
@@ -169,11 +144,9 @@ const initState = <
 /**
  * MessageInput state reducer
  */
-const messageInputReducer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: MessageInputState<StreamChatGenerics>,
-  action: MessageInputReducerAction<StreamChatGenerics>,
+const messageInputReducer = (
+  state: MessageInputState,
+  action: MessageInputReducerAction,
 ) => {
   switch (action.type) {
     case 'setText':
@@ -278,15 +251,9 @@ export type MentionsListState = {
 /**
  * hook for MessageInput state
  */
-export const useMessageInputState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
-): MessageInputState<StreamChatGenerics> &
-  MessageInputHookProps<StreamChatGenerics> &
-  CommandsListState &
-  MentionsListState => {
+export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
+): MessageInputState & MessageInputHookProps & CommandsListState & MentionsListState => {
   const {
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
@@ -300,22 +267,17 @@ export const useMessageInputState = <
   const {
     channelCapabilities = {},
     enrichURLForPreview: enrichURLForPreviewChannelContext,
-  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
+  } = useChannelStateContext('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
     message ||
     ((Array.isArray(defaultValue)
       ? { text: defaultValue.join('') }
-      : { text: defaultValue?.toString() }) as Partial<
-      StreamMessage<StreamChatGenerics>
-    >);
+      : { text: defaultValue?.toString() }) as Partial<StreamMessage>);
 
   const [state, dispatch] = useReducer(
-    messageInputReducer as Reducer<
-      MessageInputState<StreamChatGenerics>,
-      MessageInputReducerAction<StreamChatGenerics>
-    >,
+    messageInputReducer as Reducer<MessageInputState, MessageInputReducerAction>,
     initialStateValue,
     initState,
   );
@@ -328,10 +290,12 @@ export const useMessageInputState = <
       urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<
-    StreamChatGenerics,
-    V
-  >(props, state, dispatch, enrichURLsController.findAndEnqueueURLsToEnrich);
+  const { handleChange, insertText, textareaRef } = useMessageInputText<V>(
+    props,
+    state,
+    dispatch,
+    enrichURLsController.findAndEnqueueURLsToEnrich,
+  );
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);
@@ -363,9 +327,9 @@ export const useMessageInputState = <
     uploadAttachment,
     uploadNewFiles,
     upsertAttachments,
-  } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
+  } = useAttachments<V>(props, state, dispatch, textareaRef);
 
-  const { handleSubmit } = useSubmitHandler<StreamChatGenerics, V>(
+  const { handleSubmit } = useSubmitHandler<V>(
     props,
     state,
     dispatch,
@@ -389,7 +353,7 @@ export const useMessageInputState = <
     enrichURLsController.findAndEnqueueURLsToEnrich,
   );
 
-  const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
+  const onSelectUser = useCallback((item: UserResponse) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 

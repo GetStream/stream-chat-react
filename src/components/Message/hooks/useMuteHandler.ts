@@ -11,27 +11,21 @@ import type { UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-export type MuteUserNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
-  getSuccessNotification?: (user: UserResponse<StreamChatGenerics>) => string;
+export type MuteUserNotifications = {
+  getErrorNotification?: (user: UserResponse) => string;
+  getSuccessNotification?: (user: UserResponse) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const useMuteHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: StreamMessage<StreamChatGenerics>,
-  notifications: MuteUserNotifications<StreamChatGenerics> = {},
+export const useMuteHandler = (
+  message?: StreamMessage,
+  notifications: MuteUserNotifications = {},
 ): ReactEventHandler => {
-  const { mutes } = useChannelStateContext<StreamChatGenerics>('useMuteHandler');
-  const { client } = useChatContext<StreamChatGenerics>('useMuteHandler');
+  const { mutes } = useChannelStateContext('useMuteHandler');
+  const { client } = useChatContext('useMuteHandler');
   const { t } = useTranslationContext('useMuteHandler');
 
   return async (event) => {

@@ -11,26 +11,18 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type GalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type GalleryProps = {
   images: ((
     | {
         image_url?: string | undefined;
         thumb_url?: string | undefined;
       }
-    | Attachment<StreamChatGenerics>
+    | Attachment
   ) & { previewUrl?: string; style?: CSSProperties })[];
   innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
 };
 
-const UnMemoizedGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: GalleryProps<StreamChatGenerics>,
-) => {
+const UnMemoizedGallery = (props: GalleryProps) => {
   const { images, innerRefs } = props;
 
   const [index, setIndex] = useState(0);
@@ -89,12 +81,10 @@ const UnMemoizedGallery = <
         onClick={() => toggleModal(i)}
       >
         <BaseImage
-          alt={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
+          alt={(image as Attachment)?.fallback || imageFallbackTitle}
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
-          title={
-            (image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle
-          }
+          title={(image as Attachment)?.fallback || imageFallbackTitle}
           {...(innerRefs?.current && {
             ref: (r) => {
               innerRefs.current[i] = r;

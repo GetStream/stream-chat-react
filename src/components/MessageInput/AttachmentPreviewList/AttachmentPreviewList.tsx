@@ -26,33 +26,26 @@ import {
 } from '../../Attachment';
 import { useMessageInputContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types';
-
-export type AttachmentPreviewListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
-  ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps<StreamChatGenerics>>;
-  UnsupportedAttachmentPreview?: ComponentType<
-    UnsupportedAttachmentPreviewProps<StreamChatGenerics>
-  >;
+  ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
+  UnsupportedAttachmentPreview?: ComponentType<UnsupportedAttachmentPreviewProps>;
   VideoAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
-  VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps<StreamChatGenerics>>;
+  VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
 };
 
-export const AttachmentPreviewList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const AttachmentPreviewList = ({
   AudioAttachmentPreview = DefaultFilePreview,
   FileAttachmentPreview = DefaultFilePreview,
   ImageAttachmentPreview = DefaultImagePreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = DefaultFilePreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
-}: AttachmentPreviewListProps<StreamChatGenerics>) => {
-  const { attachments, removeAttachments, uploadAttachment } =
-    useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
+}: AttachmentPreviewListProps) => {
+  const { attachments, removeAttachments, uploadAttachment } = useMessageInputContext(
+    'AttachmentPreviewList',
+  );
 
   return (
     <div className='str-chat__attachment-preview-list'>

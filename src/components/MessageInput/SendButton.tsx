@@ -1,22 +1,14 @@
 import React from 'react';
 import { Message } from 'stream-chat';
 import { SendIcon } from './icons';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type SendButtonProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type SendButtonProps = {
   sendMessage: (
     event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
+    customMessageData?: Partial<Message>,
   ) => void;
 } & React.ComponentProps<'button'>;
-export const SendButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  sendMessage,
-  ...rest
-}: SendButtonProps<StreamChatGenerics>) => (
+export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => (
   <button
     aria-label='Send'
     className='str-chat__send-button'

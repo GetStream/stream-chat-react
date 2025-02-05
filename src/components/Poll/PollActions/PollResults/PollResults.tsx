@@ -6,20 +6,13 @@ import { ModalHeader } from '../../../Modal/ModalHeader';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+type PollStateSelectorReturnValue = {
   name: string;
-  options: PollOption<StreamChatGenerics>[];
+  options: PollOption[];
   vote_counts_by_option: Record<string, number>;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   name: nextValue.name,
   options: nextValue.options,
   vote_counts_by_option: nextValue.vote_counts_by_option,
@@ -29,18 +22,14 @@ export type PollResultsProps = {
   close?: () => void;
 };
 
-export const PollResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  close,
-}: PollResultsProps) => {
+export const PollResults = ({ close }: PollResultsProps) => {
   const { t } = useTranslationContext();
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const { name, options, vote_counts_by_option } = useStateStore(
     poll.state,
     pollStateSelector,
   );
-  const [optionToView, setOptionToView] = useState<PollOption<StreamChatGenerics>>();
+  const [optionToView, setOptionToView] = useState<PollOption>();
 
   const goBack = useCallback(() => setOptionToView(undefined), []);
 

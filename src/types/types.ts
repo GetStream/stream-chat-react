@@ -5,8 +5,6 @@ import type {
   Attachment,
   ErrorFromResponse,
   Event,
-  ExtendableGenerics,
-  LiteralStringForUnion,
   Mute,
   ChannelState as StreamChannelState,
 } from 'stream-chat';
@@ -40,14 +38,12 @@ export type DefaultChannelType = UnknownType & {
   subtitle?: string;
 };
 
-export type DefaultMessageType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = UnknownType & {
+export type DefaultMessageType = UnknownType & {
   customType?: CustomMessageType;
   date?: string | Date;
   error?: ErrorFromResponse<APIErrorResponse>;
   errorStatusCode?: number;
-  event?: Event<StreamChatGenerics>;
+  event?: Event;
   unread?: boolean;
 };
 
@@ -56,25 +52,10 @@ export type DefaultUserTypeInternal = {
   status?: string;
 };
 
-export type DefaultUserType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = UnknownType &
+export type DefaultUserType = UnknownType &
   DefaultUserTypeInternal & {
-    mutes?: Array<Mute<StreamChatGenerics>>;
+    mutes?: Array<Mute>;
   };
-
-export type DefaultStreamChatGenerics = ExtendableGenerics & {
-  attachmentType: DefaultAttachmentType;
-  channelType: DefaultChannelType;
-  commandType: LiteralStringForUnion;
-  eventType: UnknownType;
-  memberType: UnknownType;
-  messageType: DefaultMessageType;
-  pollOptionType: UnknownType;
-  pollType: UnknownType;
-  reactionType: UnknownType;
-  userType: DefaultUserType;
-};
 
 export type GiphyVersions =
   | 'original'
@@ -134,9 +115,7 @@ export type VideoAttachmentSizeHandler = (
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
 
-export type ChannelUnreadUiState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
+export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 // todo: fix export from stream-chat - for some reason not exported
 export type SendMessageOptions = {

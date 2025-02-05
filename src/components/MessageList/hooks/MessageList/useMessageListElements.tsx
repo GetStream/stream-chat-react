@@ -9,30 +9,21 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type {
-  ChannelUnreadUiState,
-  DefaultStreamChatGenerics,
-} from '../../../../types/types';
+import type { ChannelUnreadUiState } from '../../../../types/types';
 import { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
-type UseMessageListElementsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  enrichedMessages: StreamMessage<StreamChatGenerics>[];
-  internalMessageProps: SharedMessageProps<StreamChatGenerics>;
+type UseMessageListElementsProps = {
+  enrichedMessages: StreamMessage[];
+  internalMessageProps: SharedMessageProps;
   messageGroupStyles: Record<string, GroupStyle>;
-  renderMessages: MessageRenderer<StreamChatGenerics>;
+  renderMessages: MessageRenderer;
   returnAllReadData: boolean;
   threadList: boolean;
-  channelUnreadUiState?: ChannelUnreadUiState<StreamChatGenerics>;
-  read?: StreamChannelState<StreamChatGenerics>['read'];
+  channelUnreadUiState?: ChannelUnreadUiState;
+  read?: StreamChannelState['read'];
 };
 
-export const useMessageListElements = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: UseMessageListElementsProps<StreamChatGenerics>,
-) => {
+export const useMessageListElements = (props: UseMessageListElementsProps) => {
   const {
     channelUnreadUiState,
     enrichedMessages,
@@ -44,10 +35,8 @@ export const useMessageListElements = <
     threadList,
   } = props;
 
-  const { client, customClasses } = useChatContext<StreamChatGenerics>(
-    'useMessageListElements',
-  );
-  const components = useComponentContext<StreamChatGenerics>('useMessageListElements');
+  const { client, customClasses } = useChatContext('useMessageListElements');
+  const components = useComponentContext('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData({

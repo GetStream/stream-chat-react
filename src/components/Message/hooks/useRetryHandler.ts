@@ -3,15 +3,11 @@ import {
   useChannelActionContext,
 } from '../../../context/ChannelActionContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useRetryHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  customRetrySendMessage?: RetrySendMessage<StreamChatGenerics>,
-): RetrySendMessage<StreamChatGenerics> => {
+export const useRetryHandler = (
+  customRetrySendMessage?: RetrySendMessage,
+): RetrySendMessage => {
   const { retrySendMessage: contextRetrySendMessage } =
-    useChannelActionContext<StreamChatGenerics>('useRetryHandler');
+    useChannelActionContext('useRetryHandler');
 
   const retrySendMessage = customRetrySendMessage || contextRetrySendMessage;
 

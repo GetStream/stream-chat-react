@@ -24,21 +24,18 @@ import { useStateStore } from '../../store';
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { CustomTrigger } from '../../types/types';
 import type { ThreadState } from 'stream-chat';
 
-export type ThreadProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = {
+export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
+  additionalMessageInputProps?: MessageInputProps<V>;
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
-  additionalMessageListProps?: MessageListProps<StreamChatGenerics>;
+  additionalMessageListProps?: MessageListProps;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: Partial<MessageProps<StreamChatGenerics>>;
+  additionalParentMessageProps?: Partial<MessageProps>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
-  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
+  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
@@ -46,7 +43,7 @@ export type ThreadProps<
   /** Custom thread input UI component used to override the default `Input` value stored in `ComponentContext` or the [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default */
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
-  Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  Message?: React.ComponentType<MessageUIComponentProps>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
@@ -56,14 +53,10 @@ export type ThreadProps<
 /**
  * The Thread component renders a parent Message with a list of replies
  */
-export const Thread = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: ThreadProps<StreamChatGenerics, V>,
+export const Thread = <V extends CustomTrigger = CustomTrigger>(
+  props: ThreadProps<V>,
 ) => {
-  const { channel, channelConfig, thread } =
-    useChannelStateContext<StreamChatGenerics>('Thread');
+  const { channel, channelConfig, thread } = useChannelStateContext('Thread');
   const threadInstance = useThreadContext();
 
   if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
@@ -85,11 +78,8 @@ const selector = (nextValue: ThreadState) => ({
   replies: nextValue.replies,
 });
 
-const ThreadInner = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: ThreadProps<StreamChatGenerics, V> & { key: string },
+const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
+  props: ThreadProps<V> & { key: string },
 ) => {
   const {
     additionalMessageInputProps,
@@ -114,17 +104,16 @@ const ThreadInner = <
     threadLoadingMore,
     threadMessages = [],
     threadSuppressAutoscroll,
-  } = useChannelStateContext<StreamChatGenerics>('Thread');
-  const { closeThread, loadMoreThread } =
-    useChannelActionContext<StreamChatGenerics>('Thread');
-  const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
+  } = useChannelStateContext('Thread');
+  const { closeThread, loadMoreThread } = useChannelActionContext('Thread');
+  const { customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
     ThreadInput: ContextInput,
     VirtualMessage,
-  } = useComponentContext<StreamChatGenerics>('Thread');
+  } = useComponentContext('Thread');
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
@@ -143,7 +132,7 @@ const ThreadInner = <
   }, [thread, loadMoreThread]);
 
   const threadProps: Pick<
-    VirtualizedMessageListProps<StreamChatGenerics>,
+    VirtualizedMessageListProps,
     | 'hasMoreNewer'
     | 'loadMoreNewer'
     | 'loadingMoreNewer'

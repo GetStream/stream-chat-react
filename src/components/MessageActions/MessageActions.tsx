@@ -11,7 +11,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useComponentContext, useTranslationContext } from '../../context';
 
-import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
+import type { IconProps } from '../../types/types';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -22,9 +22,9 @@ type MessageContextPropsToPick =
   | 'handlePin'
   | 'message';
 
-export type MessageActionsProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
+export type MessageActionsProps = Partial<
+  Pick<MessageContextValue, MessageContextPropsToPick>
+> & {
   /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
   ActionsIcon?: React.ComponentType<IconProps>;
   /* Custom CSS class to be added to the `div` wrapping the component */
@@ -35,11 +35,7 @@ export type MessageActionsProps<
   mine?: () => boolean;
 };
 
-export const MessageActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageActionsProps<StreamChatGenerics>,
-) => {
+export const MessageActions = (props: MessageActionsProps) => {
   const {
     ActionsIcon = DefaultActionsIcon,
     customWrapperClass = '',
@@ -54,7 +50,7 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
+  const { mutes } = useChatContext('MessageActions');
 
   const {
     customMessageActions,
@@ -68,10 +64,9 @@ export const MessageActions = <
     message: contextMessage,
     setEditingState,
     threadList,
-  } = useMessageContext<StreamChatGenerics>('MessageActions');
+  } = useMessageContext('MessageActions');
 
-  const { CustomMessageActionsList } =
-    useComponentContext<StreamChatGenerics>('MessageActions');
+  const { CustomMessageActionsList } = useComponentContext('MessageActions');
 
   const { t } = useTranslationContext('MessageActions');
 
@@ -92,7 +87,7 @@ export const MessageActions = <
 
   const messageActions = getMessageActions();
 
-  const renderMessageActions = shouldRenderMessageActions<StreamChatGenerics>({
+  const renderMessageActions = shouldRenderMessageActions({
     customMessageActions,
     CustomMessageActionsList,
     inThread: threadList,

@@ -6,27 +6,23 @@ import React, {
   useMemo,
 } from 'react';
 import { useMessageContext } from './MessageContext';
-import { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../types/types';
+import { PropsWithChildrenOnly } from '../types/types';
 import { StreamMessage } from './ChannelStateContext';
 import { useChannelActionContext } from './ChannelActionContext';
 import { isMessageBounced } from '../components';
 
-export interface MessageBounceContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> {
+export interface MessageBounceContextValue {
   handleDelete: ReactEventHandler;
   handleEdit: ReactEventHandler;
   handleRetry: ReactEventHandler;
-  message: StreamMessage<StreamChatGenerics>;
+  message: StreamMessage;
 }
 
 const MessageBounceContext = createContext<MessageBounceContextValue | undefined>(
   undefined,
 );
 
-export function useMessageBounceContext<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(componentName?: string) {
+export function useMessageBounceContext(componentName?: string) {
   const contextValue = useContext(MessageBounceContext);
 
   if (!contextValue) {
@@ -34,20 +30,18 @@ export function useMessageBounceContext<
       `The useMessageBounceContext hook was called outside of the MessageBounceContext provider. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as MessageBounceContextValue<StreamChatGenerics>;
+    return {} as MessageBounceContextValue;
   }
 
   return contextValue;
 }
 
-export function MessageBounceProvider<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({ children }: PropsWithChildrenOnly) {
+export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   const {
     handleRetry: doHandleRetry,
     message,
     setEditingState,
-  } = useMessageContext<StreamChatGenerics>('MessageBounceProvider');
+  } = useMessageContext('MessageBounceProvider');
 
   if (!isMessageBounced(message)) {
     console.warn(

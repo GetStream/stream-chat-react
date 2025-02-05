@@ -1,18 +1,13 @@
 import { useMemo } from 'react';
 
 import type { TypingContextValue } from '../../../context/TypingContext';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export const useCreateTypingContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  value: TypingContextValue<StreamChatGenerics>,
-) => {
+export const useCreateTypingContext = (value: TypingContextValue) => {
   const { typing } = value;
 
   const typingValue = Object.keys(typing || {}).join();
 
-  const typingContext: TypingContextValue<StreamChatGenerics> = useMemo(
+  const typingContext: TypingContextValue = useMemo(
     () => ({
       typing,
     }),
