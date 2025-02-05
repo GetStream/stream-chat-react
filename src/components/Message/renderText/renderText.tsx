@@ -3,18 +3,15 @@ import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
+import type { Options } from 'react-markdown/lib';
+import type { UserResponse } from 'stream-chat';
+import type { PluggableList } from 'unified'; // A subdependency of react-markdown. The type is not declared or re-exported from anywhere else
 
 import { Anchor, Emoji, Mention, MentionProps } from './componentRenderers';
 import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 import { ErrorBoundary } from '../../UtilityComponents';
-
-import type { Options } from 'react-markdown/lib';
-import type { UserResponse } from 'stream-chat';
-import type { PluggableList } from 'unified'; // A subdependency of react-markdown. The type is not declared or re-exported from anywhere else
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type RenderTextPluginConfigurator = (
   defaultPlugins: PluggableList,
@@ -77,26 +74,22 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
   mention: Mention,
 };
 
-export type RenderTextOptions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type RenderTextOptions = {
   allowedTagNames?: Array<
     keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})
   >;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
       emoji: ComponentType;
-      mention: ComponentType<MentionProps<StreamChatGenerics>>;
+      mention: ComponentType<MentionProps>;
     }>;
   getRehypePlugins?: RenderTextPluginConfigurator;
   getRemarkPlugins?: RenderTextPluginConfigurator;
 };
 
-export const renderText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const renderText = (
   text?: string,
-  mentionedUsers?: UserResponse<StreamChatGenerics>[],
+  mentionedUsers?: UserResponse[],
   {
     allowedTagNames = defaultAllowedTagNames,
     customMarkDownRenderers,

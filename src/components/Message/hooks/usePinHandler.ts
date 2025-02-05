@@ -10,8 +10,6 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { ReactEventHandler } from '../types';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinEnabledUserRoles<T extends string = string> = Partial<
   Record<T, boolean>
@@ -39,27 +37,22 @@ export type PinPermissions<
   team?: PinEnabledUserRoles<U>;
 };
 
-export type PinMessageNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+export type PinMessageNotifications = {
+  getErrorNotification?: (message: StreamMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const usePinHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message: StreamMessage<StreamChatGenerics>,
+export const usePinHandler = (
+  message: StreamMessage,
   // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
-  notifications: PinMessageNotifications<StreamChatGenerics> = {},
+  notifications: PinMessageNotifications = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext<StreamChatGenerics>('usePinHandler');
-  const { channelCapabilities = {} } =
-    useChannelStateContext<StreamChatGenerics>('usePinHandler');
-  const { client } = useChatContext<StreamChatGenerics>('usePinHandler');
+  const { updateMessage } = useChannelActionContext('usePinHandler');
+  const { channelCapabilities = {} } = useChannelStateContext('usePinHandler');
+  const { client } = useChatContext('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
 
   const canPin = !!channelCapabilities['pin-message'];
@@ -71,7 +64,8 @@ export const usePinHandler = <
 
     if (!message.pinned) {
       try {
-        const optimisticMessage = {
+        // @ts-expect-error type mismatch
+        const optimisticMessage: StreamMessage = {
           ...message,
           pinned: true,
           pinned_at: new Date(),

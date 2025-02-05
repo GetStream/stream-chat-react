@@ -23,25 +23,21 @@ import {
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type {
-  DefaultStreamChatGenerics,
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
 import type { Attachment } from 'stream-chat';
+import { LocalAttachment } from '../MessageInput';
 
-export type AttachmentContainerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
+export type AttachmentContainerProps = {
+  attachment: Attachment | GalleryAttachment;
   componentType: AttachmentComponentType;
 };
-export const AttachmentWithinContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const AttachmentWithinContainer = ({
   attachment,
   children,
   componentType,
-}: PropsWithChildren<AttachmentContainerProps<StreamChatGenerics>>) => {
+}: PropsWithChildren<AttachmentContainerProps>) => {
   const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
 
@@ -69,13 +65,11 @@ export const AttachmentWithinContainer = <
   return <div className={classNames}>{children}</div>;
 };
 
-export const AttachmentActionsContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const AttachmentActionsContainer = ({
   actionHandler,
   attachment,
   AttachmentActions = DefaultAttachmentActions,
-}: RenderAttachmentProps<StreamChatGenerics>) => {
+}: RenderAttachmentProps) => {
   if (!attachment.actions?.length) return null;
 
   return (
@@ -83,7 +77,7 @@ export const AttachmentActionsContainer = <
       {...attachment}
       actionHandler={actionHandler}
       actions={attachment.actions}
-      id={attachment.id || ''}
+      id={(attachment as LocalAttachment).localMetadata?.id || ''}
       text={attachment.text || ''}
     />
   );
@@ -108,12 +102,10 @@ function getCssDimensionsVariables(url: string) {
   return cssVars;
 }
 
-export const GalleryContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const GalleryContainer = ({
   attachment,
   Gallery = DefaultGallery,
-}: RenderGalleryProps<StreamChatGenerics>) => {
+}: RenderGalleryProps) => {
   const imageElements = useRef<HTMLElement[]>([]);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
   const [attachmentConfigurations, setAttachmentConfigurations] = useState<
@@ -150,11 +142,7 @@ export const GalleryContainer = <
   );
 };
 
-export const ImageContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: RenderAttachmentProps<StreamChatGenerics>,
-) => {
+export const ImageContainer = (props: RenderAttachmentProps) => {
   const { attachment, Image = DefaultImage } = props;
   const componentType = 'image';
   const imageElement = useRef<HTMLImageElement>(null);
@@ -194,11 +182,7 @@ export const ImageContainer = <
   );
 };
 
-export const CardContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: RenderAttachmentProps<StreamChatGenerics>,
-) => {
+export const CardContainer = (props: RenderAttachmentProps) => {
   const { attachment, Card = DefaultCard } = props;
   const componentType = 'card';
 
@@ -220,12 +204,10 @@ export const CardContainer = <
   );
 };
 
-export const FileContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const FileContainer = ({
   attachment,
   File = DefaultFile,
-}: RenderAttachmentProps<StreamChatGenerics>) => {
+}: RenderAttachmentProps) => {
   if (!attachment.asset_url) return null;
 
   return (
@@ -234,12 +216,10 @@ export const FileContainer = <
     </AttachmentWithinContainer>
   );
 };
-export const AudioContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const AudioContainer = ({
   attachment,
   Audio = DefaultAudio,
-}: RenderAttachmentProps<StreamChatGenerics>) => (
+}: RenderAttachmentProps) => (
   <AttachmentWithinContainer attachment={attachment} componentType='audio'>
     <div className='str-chat__attachment'>
       <Audio og={attachment} />
@@ -247,13 +227,11 @@ export const AudioContainer = <
   </AttachmentWithinContainer>
 );
 
-export const VoiceRecordingContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const VoiceRecordingContainer = ({
   attachment,
   isQuoted,
   VoiceRecording = DefaultVoiceRecording,
-}: RenderAttachmentProps<StreamChatGenerics>) => (
+}: RenderAttachmentProps) => (
   <AttachmentWithinContainer attachment={attachment} componentType='voiceRecording'>
     <div className='str-chat__attachment'>
       <VoiceRecording attachment={attachment} isQuoted={isQuoted} />
@@ -261,11 +239,7 @@ export const VoiceRecordingContainer = <
   </AttachmentWithinContainer>
 );
 
-export const MediaContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: RenderAttachmentProps<StreamChatGenerics>,
-) => {
+export const MediaContainer = (props: RenderAttachmentProps) => {
   const { attachment, Media = ReactPlayer } = props;
   const componentType = 'media';
   const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } =
@@ -318,12 +292,10 @@ export const MediaContainer = <
   );
 };
 
-export const UnsupportedAttachmentContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const UnsupportedAttachmentContainer = ({
   attachment,
   UnsupportedAttachment = DefaultUnsupportedAttachment,
-}: RenderAttachmentProps<StreamChatGenerics>) => (
+}: RenderAttachmentProps) => (
   <>
     <UnsupportedAttachment attachment={attachment} />
   </>

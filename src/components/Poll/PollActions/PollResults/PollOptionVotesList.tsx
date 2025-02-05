@@ -5,27 +5,19 @@ import { LoadingIndicator } from '../../../Loading';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 import type { PollOption, PollOptionVotesQueryParams } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
-export type PollOptionVotesListingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  option: PollOption<StreamChatGenerics>;
+export type PollOptionVotesListingProps = {
+  option: PollOption;
 };
 
-export const PollOptionVotesList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  option,
-}: PollOptionVotesListingProps<StreamChatGenerics>) => {
+export const PollOptionVotesList = ({ option }: PollOptionVotesListingProps) => {
   const paginationParams = useMemo<PollOptionVotesQueryParams>(
     () => ({ filter: { option_id: option.id } }),
     [option.id],
   );
-  const { error, hasNextPage, loading, loadMore, votes } =
-    usePollOptionVotesPagination<StreamChatGenerics>({
-      paginationParams,
-    });
+  const { error, hasNextPage, loading, loadMore, votes } = usePollOptionVotesPagination({
+    paginationParams,
+  });
 
   return (
     <div className='str-chat__poll-option str-chat__poll-option--full-vote-list'>

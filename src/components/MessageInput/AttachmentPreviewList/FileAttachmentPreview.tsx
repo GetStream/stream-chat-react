@@ -5,33 +5,25 @@ import { useTranslationContext } from '../../../context';
 
 import type { AttachmentPreviewProps } from './types';
 import { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import { Attachment } from 'stream-chat';
 
-type FileLikeAttachment = {
-  asset_url?: string;
-  file_size?: number;
-  mime_type?: string;
-  title?: string;
-};
+type FileLikeAttachment = Partial<
+  Pick<Attachment, 'title' | 'file_size' | 'asset_url' | 'mime_type'>
+>;
 
-export type FileAttachmentPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>,
-> = AttachmentPreviewProps<
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type FileAttachmentPreviewProps<CustomLocalMetadata = {}> = AttachmentPreviewProps<
   LocalAttachmentCast<
     FileLikeAttachment,
     LocalAttachmentUploadMetadata & CustomLocalMetadata
-  >,
-  StreamChatGenerics
+  >
 >;
 
-export const FileAttachmentPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const FileAttachmentPreview = ({
   attachment,
   handleRetry,
   removeAttachments,
-}: FileAttachmentPreviewProps<StreamChatGenerics>) => {
+}: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
   return (
     <div

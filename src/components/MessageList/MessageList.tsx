@@ -42,22 +42,18 @@ import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import {
   DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
 } from '../../constants/limits';
 
-type MessageListWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<ChannelStateContextValue<StreamChatGenerics>, 'members' | 'mutes' | 'watchers'> &
-  MessageListProps<StreamChatGenerics>;
+type MessageListWithContextProps = Omit<
+  ChannelStateContextValue,
+  'members' | 'mutes' | 'watchers'
+> &
+  MessageListProps;
 
-const MessageListWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageListWithContextProps<StreamChatGenerics>,
-) => {
+const MessageListWithContext = (props: MessageListWithContextProps) => {
   const {
     channel,
     channelUnreadUiState,
@@ -98,7 +94,7 @@ const MessageListWithContext = <
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
-  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
+  const { customClasses } = useChatContext('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -108,7 +104,7 @@ const MessageListWithContext = <
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-  } = useComponentContext<StreamChatGenerics>('MessageList');
+  } = useComponentContext('MessageList');
 
   const {
     hasNewMessages,
@@ -319,16 +315,14 @@ type PropsDrilledToMessage =
   | 'sortReactionDetails'
   | 'unsafeHTML';
 
-export type MessageListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
+export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
-    message: StreamMessage<StreamChatGenerics>,
-    previousMessage: StreamMessage<StreamChatGenerics>,
-    nextMessage: StreamMessage<StreamChatGenerics>,
+    message: StreamMessage,
+    previousMessage: StreamMessage,
+    nextMessage: StreamMessage,
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
@@ -359,18 +353,18 @@ export type MessageListProps<
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
-  messages?: StreamMessage<StreamChatGenerics>[];
+  messages?: StreamMessage[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
   /** Overrides the way MessageList renders messages */
-  renderMessages?: MessageRenderer<StreamChatGenerics>;
+  renderMessages?: MessageRenderer;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
   returnAllReadData?: boolean;
   /**
    * Allows to review changes introduced to messages array on per message basis (e.g. date separator injection before a message).
    * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
    */
-  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
+  reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
   /**
    * The pixel threshold under which the message list is considered to be so near to the bottom,
    * so that if a new message is delivered, the list will be scrolled to the absolute bottom.
@@ -395,23 +389,19 @@ export type MessageListProps<
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
-export const MessageList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageListProps<StreamChatGenerics>,
-) => {
+export const MessageList = (props: MessageListProps) => {
   const { jumpToLatestMessage, loadMore, loadMoreNewer } =
-    useChannelActionContext<StreamChatGenerics>('MessageList');
+    useChannelActionContext('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...restChannelStateContext
-  } = useChannelStateContext<StreamChatGenerics>('MessageList');
+  } = useChannelStateContext('MessageList');
 
   return (
-    <MessageListWithContext<StreamChatGenerics>
+    <MessageListWithContext
       jumpToLatestMessage={jumpToLatestMessage}
       loadMore={loadMore}
       loadMoreNewer={loadMoreNewer}

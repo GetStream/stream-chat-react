@@ -14,8 +14,6 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
 export type MessageStatusProps = {
   /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
   Avatar?: React.ComponentType<AvatarProps>;
@@ -31,11 +29,7 @@ export type MessageStatusProps = {
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
-const UnMemoizedMessageStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageStatusProps,
-) => {
+const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const {
     Avatar: propAvatar,
     MessageDeliveredStatus,
@@ -48,11 +42,10 @@ const UnMemoizedMessageStatus = <
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
-  const { Avatar: contextAvatar } =
-    useComponentContext<StreamChatGenerics>('MessageStatus');
+  const { client } = useChatContext('MessageStatus');
+  const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
   const { isMyMessage, lastReceivedId, message, readBy, threadList } =
-    useMessageContext<StreamChatGenerics>('MessageStatus');
+    useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
@@ -133,6 +126,7 @@ const UnMemoizedMessageStatus = <
 
             <Avatar
               className='str-chat__avatar--message-status'
+              // @ts-expect-error <ADD_PROPERTY>image
               image={lastReadUser.image}
               name={lastReadUser.name || lastReadUser.id}
               user={lastReadUser}

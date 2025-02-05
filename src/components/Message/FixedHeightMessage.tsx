@@ -20,8 +20,6 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},${dark ? '50%' : '85%'}, ${dark ? '75%' : '55%'})`;
@@ -38,27 +36,21 @@ const hashUserId = (userId: string) => {
 const getUserColor = (theme: string, userId: string) =>
   selectColor(hashUserId(userId), theme.includes('dark'));
 
-export type FixedHeightMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type FixedHeightMessageProps = {
   groupedByUser?: boolean;
-  message?: StreamMessage<StreamChatGenerics>;
+  message?: StreamMessage;
 };
 
-const UnMemoizedFixedHeightMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: FixedHeightMessageProps<StreamChatGenerics>,
-) => {
+const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
   const { groupedByUser: propGroupedByUser, message: propMessage } = props;
 
-  const { theme } = useChatContext<StreamChatGenerics>('FixedHeightMessage');
+  const { theme } = useChatContext('FixedHeightMessage');
 
   const { groupedByUser: contextGroupedByUser, message: contextMessage } =
-    useMessageContext<StreamChatGenerics>('FixedHeightMessage');
+    useMessageContext('FixedHeightMessage');
 
   const { MessageDeleted = DefaultMessageDeleted } =
-    useComponentContext<StreamChatGenerics>('FixedHeightMessage');
+    useComponentContext('FixedHeightMessage');
 
   const { userLanguage } = useTranslationContext('FixedHeightMessage');
 
@@ -98,6 +90,7 @@ const UnMemoizedFixedHeightMessage = <
     >
       {message.user && (
         <Avatar
+          // @ts-expect-error <ADD_PROPERTY>image
           image={message.user.image}
           name={message.user.name || message.user.id}
           user={message.user}

@@ -9,41 +9,33 @@ import type {
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../types/types';
+import type { CustomTrigger } from '../types/types';
 
-export type MessageInputContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = MessageInputState<StreamChatGenerics> &
-  MessageInputHookProps<StreamChatGenerics> &
-  Omit<MessageInputProps<StreamChatGenerics, V>, 'Input'> &
-  CooldownTimerState & {
-    autocompleteTriggers?: TriggerSettings<StreamChatGenerics, V>;
-  } & CommandsListState &
-  MentionsListState;
+export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
+  MessageInputState &
+    MessageInputHookProps &
+    Omit<MessageInputProps<V>, 'Input'> &
+    CooldownTimerState & {
+      autocompleteTriggers?: TriggerSettings<V>;
+    } & CommandsListState &
+    MentionsListState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined
 >(undefined);
 
-export const MessageInputContextProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->({
+export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrigger>({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageInputContextValue<StreamChatGenerics, V>;
+  value: MessageInputContextValue<V>;
 }>) => (
   <MessageInputContext.Provider value={value as MessageInputContextValue}>
     {children}
   </MessageInputContext.Provider>
 );
 
-export const useMessageInputContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
+export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
@@ -53,8 +45,8 @@ export const useMessageInputContext = <
       `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as MessageInputContextValue<StreamChatGenerics, V>;
+    return {} as MessageInputContextValue<V>;
   }
 
-  return contextValue as MessageInputContextValue<StreamChatGenerics, V>;
+  return contextValue as MessageInputContextValue<V>;
 };

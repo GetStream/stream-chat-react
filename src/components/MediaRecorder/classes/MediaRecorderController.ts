@@ -20,7 +20,6 @@ import { defaultTranslatorFunction } from '../../../i18n';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 export const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -72,9 +71,7 @@ export enum RecordingAttachmentType {
   VOICE_RECORDING = 'voiceRecording',
 }
 
-export class MediaRecorderController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> {
+export class MediaRecorderController {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
   amplitudeRecorder: AmplitudeRecorder | undefined;
@@ -89,14 +86,10 @@ export class MediaRecorderController<
   recordingUri: string | undefined;
   mediaType: RecordedMediaType;
 
-  signalRecordingReady:
-    | ((r: LocalVoiceRecordingAttachment<StreamChatGenerics>) => void)
-    | undefined;
+  signalRecordingReady: ((r: LocalVoiceRecordingAttachment) => void) | undefined;
 
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
-  recording = new BehaviorSubject<
-    LocalVoiceRecordingAttachment<StreamChatGenerics> | undefined
-  >(undefined);
+  recording = new BehaviorSubject<LocalVoiceRecordingAttachment | undefined>(undefined);
   error = new Subject<Error | undefined>();
   notification = new Subject<{ text: string; type: 'success' | 'error' } | undefined>();
 
@@ -349,11 +342,9 @@ export class MediaRecorderController<
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
     }
-    const result = new Promise<LocalVoiceRecordingAttachment<StreamChatGenerics>>(
-      (res) => {
-        this.signalRecordingReady = res;
-      },
-    );
+    const result = new Promise<LocalVoiceRecordingAttachment>((res) => {
+      this.signalRecordingReady = res;
+    });
     this.mediaRecorder?.stop();
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.STOPPED);

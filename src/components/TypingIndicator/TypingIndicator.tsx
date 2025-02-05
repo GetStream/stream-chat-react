@@ -6,8 +6,6 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
 export type TypingIndicatorProps = {
   /** Whether the typing indicator is in a thread */
   threadList?: boolean;
@@ -41,17 +39,12 @@ const useJoinTypingUsers = (names: string[]) => {
 /**
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
-const UnMemoizedTypingIndicator = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: TypingIndicatorProps,
-) => {
+const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { threadList } = props;
 
-  const { channelConfig, thread } =
-    useChannelStateContext<StreamChatGenerics>('TypingIndicator');
-  const { client } = useChatContext<StreamChatGenerics>('TypingIndicator');
-  const { typing = {} } = useTypingContext<StreamChatGenerics>('TypingIndicator');
+  const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
+  const { client } = useChatContext('TypingIndicator');
+  const { typing = {} } = useTypingContext('TypingIndicator');
 
   const typingInChannel = !threadList
     ? Object.values(typing).filter(
