@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 export const Icon = {
   ArchiveBox: (props: ComponentPropsWithoutRef<'svg'>) => (

@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import React, { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
+import React from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
+import type { MessageContextValue } from '../../context';
 import {
-  MessageContextValue,
   useChannelActionContext,
   useComponentContext,
   useMessageContext,

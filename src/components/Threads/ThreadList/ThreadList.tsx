@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
+import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
 
 import type { Thread, ThreadManagerState } from 'stream-chat';
 

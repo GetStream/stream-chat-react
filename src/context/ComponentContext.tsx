@@ -1,6 +1,7 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useContext } from 'react';
 
-import {
+import type {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,

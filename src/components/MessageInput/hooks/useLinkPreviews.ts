@@ -1,5 +1,6 @@
 import { find } from 'linkifyjs';
-import { Dispatch, useCallback, useEffect, useRef } from 'react';
+import type { Dispatch } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import type {

@@ -1,7 +1,6 @@
-// const defaults = useChannelListShapeDefaults();
-
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Channel, Event } from 'stream-chat';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { Channel, Event } from 'stream-chat';
+import type { Dispatch, SetStateAction } from 'react';
 
 import {
   extractSortValue,
@@ -14,7 +13,7 @@ import {
 } from '../utils';
 import { useChatContext } from '../../../context';
 import { getChannel } from '../../../utils';
-import { ChannelListProps } from '../ChannelList';
+import type { ChannelListProps } from '../ChannelList';
 
 type SetChannels = Dispatch<SetStateAction<Channel[]>>;
 

@@ -1,5 +1,8 @@
-import React, { PropsWithChildren, useContext } from 'react';
-import { ComponentContext, ComponentContextValue } from './ComponentContext';
+import React, { useContext } from 'react';
+import type { PropsWithChildren } from 'react';
+
+import { ComponentContext } from './ComponentContext';
+import type { ComponentContextValue } from './ComponentContext';
 
 export function WithComponents({
   children,

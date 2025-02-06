@@ -1,6 +1,4 @@
 import React, {
-  ComponentProps,
-  PropsWithChildren,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,36 +7,54 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
+import { nanoid } from 'nanoid';
+import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import { nanoid } from 'nanoid';
-import clsx from 'clsx';
+import type { ComponentProps, PropsWithChildren } from 'react';
+import type {
+  APIErrorResponse,
+  ChannelAPIResponse,
+  ChannelMemberResponse,
+  ChannelQueryOptions,
+  ChannelState,
+  ErrorFromResponse,
+  Event,
+  EventAPIResponse,
+  Message,
+  MessageResponse,
+  SendMessageAPIResponse,
+  Channel as StreamChannel,
+  StreamChat,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
-import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
+import type { OnMentionAction } from './hooks/useMentionsHandlers';
+import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import {
-  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
-  LoadingErrorIndicatorProps,
-} from '../Loading';
+import type { LoadingErrorIndicatorProps } from '../Loading';
+import { LoadingErrorIndicator as DefaultLoadingErrorIndicator } from '../Loading';
 import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
 import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
-import {
+import type {
   ChannelActionContextValue,
-  ChannelActionProvider,
   ChannelNotifications,
-  ChannelStateProvider,
   ComponentContextValue,
   MarkReadWrapperOptions,
   MessageToSend,
   StreamMessage,
+} from '../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
   TypingProvider,
   useChatContext,
   useTranslationContext,
@@ -64,23 +80,6 @@ import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './ut
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 
-import type {
-  APIErrorResponse,
-  ChannelAPIResponse,
-  ChannelMemberResponse,
-  ChannelQueryOptions,
-  ChannelState,
-  ErrorFromResponse,
-  Event,
-  EventAPIResponse,
-  Message,
-  MessageResponse,
-  SendMessageAPIResponse,
-  Channel as StreamChannel,
-  StreamChat,
-  UpdatedMessage,
-  UserResponse,
-} from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
 import type {
   ChannelUnreadUiState,

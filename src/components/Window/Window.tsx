@@ -1,7 +1,9 @@
-import React, { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 
-import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 export type WindowProps = {
   /** optional prop to force addition of class str-chat__main-panel---with-thread-opn to the Window root element */

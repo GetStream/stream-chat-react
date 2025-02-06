@@ -1,6 +1,7 @@
-import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
-import { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
-import { ReactionType } from '../../Reactions/types';
+import type { StreamMessage } from '../../../context';
+import { useChatContext, useTranslationContext } from '../../../context';
+import type { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
+import type { ReactionType } from '../../Reactions/types';
 
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 

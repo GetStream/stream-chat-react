@@ -18,8 +18,8 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
+import type { MessageContextValue } from '../../context';
 import {
-  MessageContextValue,
   MessageProvider,
   useChannelActionContext,
   useChannelStateContext,

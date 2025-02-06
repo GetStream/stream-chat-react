@@ -1,11 +1,10 @@
 import * as fileIconSet from './FileIconSet';
+import type { GeneralType, SupportedMimeType } from './mimeTypes';
 import {
   archiveFileTypes,
   codeFileTypes,
   excelMimeTypes,
-  GeneralType,
   powerpointMimeTypes,
-  SupportedMimeType,
   wordMimeTypes,
 } from './mimeTypes';
 import type { ComponentType } from 'react';

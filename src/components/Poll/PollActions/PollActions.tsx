@@ -1,26 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import { PollAction } from './PollAction';
-import {
-  AddCommentFormProps,
-  AddCommentForm as DefaultAddCommentForm,
-} from './AddCommentForm';
-import {
-  SuggestPollOptionForm as DefaultSuggestPollOptionForm,
-  SuggestPollOptionFormProps,
-} from './SuggestPollOptionForm';
-import {
-  EndPollDialog as DefaultEndPollDialog,
-  EndPollDialogProps,
-} from './EndPollDialog';
-import {
-  PollAnswerList as DefaultPollAnswerList,
-  PollAnswerListProps,
-} from './PollAnswerList';
-import {
-  PollOptionsFullList as DefaultPollOptionsFullList,
-  FullPollOptionsListingProps,
-} from './PollOptionsFullList';
-import { PollResults as DefaultPollResults, PollResultsProps } from './PollResults';
+import type { AddCommentFormProps } from './AddCommentForm';
+import { AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
+import type { SuggestPollOptionFormProps } from './SuggestPollOptionForm';
+import { SuggestPollOptionForm as DefaultSuggestPollOptionForm } from './SuggestPollOptionForm';
+import type { EndPollDialogProps } from './EndPollDialog';
+import { EndPollDialog as DefaultEndPollDialog } from './EndPollDialog';
+import type { PollAnswerListProps } from './PollAnswerList';
+import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
+import type { FullPollOptionsListingProps } from './PollOptionsFullList';
+import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollOptionsFullList';
+import type { PollResultsProps } from './PollResults';
+import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 import {
   useChannelStateContext,

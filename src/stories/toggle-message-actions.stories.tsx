@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+
+import { ConnectedUser } from './utils';
 import {
   Channel,
   ChannelHeader,
   ChannelList,
   MESSAGE_ACTIONS,
-  MessageActionsArray,
   MessageList,
   Thread,
   Window,
 } from '../components';
+import type { ConnectedUserProps } from './utils';
+import type { MessageActionsArray } from '../components';
 
 const allActions = Object.keys(MESSAGE_ACTIONS);
 const WrappedConnectedUser = ({

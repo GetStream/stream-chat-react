@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { StreamMessage, useTranslationContext } from '../../context';
+import type { StreamMessage } from '../../context';
+import { useTranslationContext } from '../../context';
 
 import { isMessageBounced } from './utils';
 

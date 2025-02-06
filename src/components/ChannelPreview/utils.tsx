@@ -6,7 +6,7 @@ import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stre
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
-import { ChatContextValue } from '../../context';
+import type { ChatContextValue } from '../../context';
 
 export const renderPreviewText = (text: string) => (
   <ReactMarkdown skipHtml>{text}</ReactMarkdown>

@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { SearchLocalUserParams, searchLocalUsers } from './utils';
+import type { SearchLocalUserParams } from './utils';
+import { searchLocalUsers } from './utils';
 
 import { UserItem } from '../../UserItem/UserItem';
 

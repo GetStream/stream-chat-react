@@ -1,17 +1,19 @@
-import React, { ComponentType } from 'react';
+import React from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
+import type { ComponentType } from 'react';
 import type { Options } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
 import type { PluggableList } from 'unified'; // A subdependency of react-markdown. The type is not declared or re-exported from anywhere else
 
-import { Anchor, Emoji, Mention, MentionProps } from './componentRenderers';
+import { Anchor, Emoji, Mention } from './componentRenderers';
 import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 import { ErrorBoundary } from '../../UtilityComponents';
+import type { MentionProps } from './componentRenderers';
 
 export type RenderTextPluginConfigurator = (
   defaultPlugins: PluggableList,

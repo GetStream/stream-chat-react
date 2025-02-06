@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
-import React, { PropsWithChildren, useEffect, useMemo, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
 /**

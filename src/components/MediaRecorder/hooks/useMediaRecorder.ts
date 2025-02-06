@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MessageInputContextValue, useTranslationContext } from '../../../context';
-import {
-  CustomAudioRecordingConfig,
-  MediaRecorderController,
-  MediaRecordingState,
-} from '../classes';
+import type { MessageInputContextValue } from '../../../context';
+import { useTranslationContext } from '../../../context';
+import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
+import { MediaRecorderController } from '../classes';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 

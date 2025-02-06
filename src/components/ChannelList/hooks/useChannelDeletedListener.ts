@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
+import type { Channel, Event } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
-
-import type { Channel, Event } from 'stream-chat';
 
 export const useChannelDeletedListener = (
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,

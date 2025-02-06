@@ -1,9 +1,11 @@
-import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import { SearchIcon } from './icons';
 import { ChannelPreview } from '../ChannelPreview';
-import { ChannelOrUserResponse, isChannel } from './utils';
+import type { ChannelOrUserResponse } from './utils';
+import { isChannel } from './utils';
 import { Avatar } from '../Avatar';
 
 import { useTranslationContext } from '../../context';

@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString } from '../../i18n/utils';

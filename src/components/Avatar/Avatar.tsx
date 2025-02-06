@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-
 import type { UserResponse } from 'stream-chat';
 
 import { Icon } from '../Threads/icons';

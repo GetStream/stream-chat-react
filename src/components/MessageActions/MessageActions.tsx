@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { PropsWithChildren, useCallback, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -8,7 +9,8 @@ import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { useComponentContext, useTranslationContext } from '../../context';
 
 import type { IconProps } from '../../types/types';

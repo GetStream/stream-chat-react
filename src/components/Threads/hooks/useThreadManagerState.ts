@@ -1,4 +1,4 @@
-import { ThreadManagerState } from 'stream-chat';
+import type { ThreadManagerState } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';

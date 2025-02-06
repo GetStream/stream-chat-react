@@ -1,10 +1,5 @@
-import React, {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
-  useContext,
-} from 'react';
+import type { Dispatch, PropsWithChildren, SetStateAction } from 'react';
+import React, { createContext, useContext } from 'react';
 
 import type { Channel } from 'stream-chat';
 

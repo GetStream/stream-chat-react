@@ -1,4 +1,4 @@
-import { ThreadState } from 'stream-chat';
+import type { ThreadState } from 'stream-chat';
 import { useThreadListItemContext } from '../ThreadList';
 import { useThreadContext } from '../ThreadContext';
 import { useStateStore } from '../../../store/';

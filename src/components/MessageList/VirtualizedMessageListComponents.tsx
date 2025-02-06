@@ -1,13 +1,14 @@
 import clsx from 'clsx';
 import throttle from 'lodash.throttle';
 import React from 'react';
-import { ItemProps, ListItem } from 'react-virtuoso';
+import type { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { isMessageEdited, Message } from '../Message';
 
-import { StreamMessage, useComponentContext } from '../../context';
+import type { StreamMessage } from '../../context';
+import { useComponentContext } from '../../context';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage } from './utils';
 
 import type { GroupStyle } from './utils';

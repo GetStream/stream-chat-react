@@ -9,7 +9,8 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
 
 const PinnedMessagesList = () => {
   const { pinnedMessages } = useChannelStateContext();

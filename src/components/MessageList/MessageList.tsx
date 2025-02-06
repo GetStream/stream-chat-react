@@ -13,34 +13,31 @@ import { MessageNotification as DefaultMessageNotification } from './MessageNoti
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
-import {
-  ChannelActionContextValue,
-  useChannelActionContext,
-} from '../../context/ChannelActionContext';
-import {
-  ChannelStateContextValue,
-  useChannelStateContext,
-} from '../../context/ChannelStateContext';
+import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { DialogManagerProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import {
-  InfiniteScroll,
-  InfiniteScrollProps,
-} from '../InfiniteScrollPaginator/InfiniteScroll';
+import type { InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
+import { InfiniteScroll } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
-import { defaultRenderMessages, MessageRenderer } from './renderMessages';
+import type { MessageRenderer } from './renderMessages';
+import { defaultRenderMessages } from './renderMessages';
 
 import type { GroupStyle, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type {
+  ChannelStateContextValue,
+  StreamMessage,
+} from '../../context/ChannelStateContext';
 
 import {
   DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,

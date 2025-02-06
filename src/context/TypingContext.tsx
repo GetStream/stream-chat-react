@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { UnknownType } from '../types/types';

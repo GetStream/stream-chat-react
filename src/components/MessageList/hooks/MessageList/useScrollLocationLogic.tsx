@@ -1,4 +1,5 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 

@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react';
+import type React from 'react';
+import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { Reaction, ReactionResponse } from 'stream-chat';

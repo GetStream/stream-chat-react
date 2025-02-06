@@ -1,19 +1,19 @@
-import React, { PropsWithChildren, useMemo } from 'react';
-import type { StreamChat } from 'stream-chat';
+import React, { useMemo } from 'react';
 import {
   ChannelSearchSource,
   MessageSearchSource,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
+import type { PropsWithChildren } from 'react';
+import type { StreamChat } from 'stream-chat';
 
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
-
-import { ChatProvider, CustomClasses } from '../../context/ChatContext';
+import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
-
+import type { CustomClasses } from '../../context/ChatContext';
 import type { MessageContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';

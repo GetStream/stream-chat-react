@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
+import React from 'react';
 
 type FieldErrorProps = ComponentProps<'div'> & {
   text?: string;

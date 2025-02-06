@@ -1,44 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-
-import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
-import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
-import { useMobileNavigation } from './hooks/useMobileNavigation';
-import {
-  CustomQueryChannelsFn,
-  usePaginatedChannels,
-} from './hooks/usePaginatedChannels';
-import {
-  useChannelListShape,
-  usePrepareShapeHandlers,
-} from './hooks/useChannelListShape';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
-
-import { Avatar as DefaultAvatar } from '../Avatar';
-import {
-  ChannelPreview,
-  ChannelPreviewUIComponentProps,
-} from '../ChannelPreview/ChannelPreview';
-import {
-  ChannelSearchProps,
-  ChannelSearch as DefaultChannelSearch,
-} from '../ChannelSearch/ChannelSearch';
-import {
-  EmptyStateIndicator as DefaultEmptyStateIndicator,
-  EmptyStateIndicatorProps,
-} from '../EmptyStateIndicator';
-import { LoadingChannels } from '../Loading/LoadingChannels';
-import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
-import { NullComponent } from '../UtilityComponents';
-
-import {
-  ChannelListContextProvider,
-  ChatContextValue,
-  useComponentContext,
-} from '../../context';
-import { useChatContext } from '../../context/ChatContext';
-import { useStateStore } from '../../store';
-
 import type {
   Channel,
   ChannelFilters,
@@ -47,6 +8,29 @@ import type {
   Event,
   SearchControllerState,
 } from 'stream-chat';
+
+import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
+import { useMobileNavigation } from './hooks/useMobileNavigation';
+import { usePaginatedChannels } from './hooks/usePaginatedChannels';
+import { useChannelListShape, usePrepareShapeHandlers } from './hooks/useChannelListShape';
+import { useStateStore } from '../../store';
+import { ChannelListMessenger } from './ChannelListMessenger';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { ChannelPreview } from '../ChannelPreview/ChannelPreview';
+import { ChannelSearch as DefaultChannelSearch } from '../ChannelSearch/ChannelSearch';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import { LoadingChannels } from '../Loading/LoadingChannels';
+import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
+import { ChannelListContextProvider, useChatContext, useComponentContext } from '../../context';
+import { NullComponent } from '../UtilityComponents';
+import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
+import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
+import type { ChannelListMessengerProps } from './ChannelListMessenger';
+import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
+import type { ChannelSearchProps } from '../ChannelSearch/ChannelSearch';
+import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
+import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
+import type { ChatContextValue } from '../../context';
 import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';

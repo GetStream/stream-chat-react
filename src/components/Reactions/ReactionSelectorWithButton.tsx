@@ -1,4 +1,5 @@
-import React, { ElementRef, useRef } from 'react';
+import type { ElementRef } from 'react';
+import React, { useRef } from 'react';
 import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import {

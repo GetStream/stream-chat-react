@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { iconMap, IconType } from './iconMap';
+import type { IconType } from './iconMap';
+import { iconMap } from './iconMap';
 
 export type FileIconProps = {
   big?: boolean;

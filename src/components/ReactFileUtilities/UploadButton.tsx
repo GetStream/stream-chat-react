@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
-import React, { ComponentProps, forwardRef, useCallback, useMemo } from 'react';
+import type { ComponentProps } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import {
@@ -9,7 +10,7 @@ import {
   useTranslationContext,
 } from '../../context';
 
-import { PartialSelected } from '../../types/types';
+import type { PartialSelected } from '../../types/types';
 
 /**
  * @deprecated Use FileInputProps instead.

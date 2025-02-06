@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-
+import type { ReactNode } from 'react';
 import type { Attachment } from 'stream-chat';
+
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import type {
   LocalAttachment,

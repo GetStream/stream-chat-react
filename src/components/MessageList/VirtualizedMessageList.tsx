@@ -1,12 +1,13 @@
-import React, { RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
-import {
+import type { RefObject } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import type {
   ComputeItemKey,
   ScrollSeekConfiguration,
   ScrollSeekPlaceholderProps,
-  Virtuoso,
   VirtuosoHandle,
   VirtuosoProps,
 } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
 import { useLastReadData } from './hooks';
@@ -24,14 +25,10 @@ import { useMarkRead } from './hooks/useMarkRead';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
-import {
-  getGroupStyles,
-  getLastReceived,
-  GroupStyle,
-  processMessages,
-  ProcessMessagesParams,
-} from './utils';
-import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
+import type { GroupStyle, ProcessMessagesParams } from './utils';
+import { getGroupStyles, getLastReceived, processMessages } from './utils';
+import type { MessageProps, MessageUIComponentProps } from '../Message';
+import { MessageSimple } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
   calculateFirstItemIndex,
@@ -48,21 +45,18 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
 import { DialogManagerProvider } from '../../context';
-import {
-  ChannelActionContextValue,
-  useChannelActionContext,
-} from '../../context/ChannelActionContext';
-import {
+import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import type {
   ChannelNotifications,
   ChannelStateContextValue,
   StreamMessage,
-  useChannelStateContext,
 } from '../../context/ChannelStateContext';
-import { ChatContextValue, useChatContext } from '../../context/ChatContext';
-import {
-  ComponentContextValue,
-  useComponentContext,
-} from '../../context/ComponentContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import type { ChatContextValue } from '../../context/ChatContext';
+import { useChatContext } from '../../context/ChatContext';
+import type { ComponentContextValue } from '../../context/ComponentContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
 
 import type {

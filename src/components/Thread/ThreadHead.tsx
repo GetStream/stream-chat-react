@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Message, MessageProps } from '../Message';
+import type { MessageProps } from '../Message';
+import { Message } from '../Message';
 import { ThreadStart as DefaultThreadStart } from './ThreadStart';
 
 import { useComponentContext } from '../../context';

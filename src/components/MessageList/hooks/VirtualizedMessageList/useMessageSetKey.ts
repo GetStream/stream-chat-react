@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StreamMessage } from '../../../../context';
+import type { StreamMessage } from '../../../../context';
 
 type UseMessageSetKeyParams = {
   messages?: StreamMessage[];

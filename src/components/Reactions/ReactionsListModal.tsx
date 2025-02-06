@@ -3,13 +3,14 @@ import clsx from 'clsx';
 
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
-import { Modal, ModalProps } from '../Modal';
+import type { ModalProps } from '../Modal';
+import { Modal } from '../Modal';
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { LoadingIndicator } from '../Loading';
 import { Avatar } from '../Avatar';
-import { MessageContextValue, useMessageContext } from '../../context';
-
-import { ReactionSort } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
+import { useMessageContext } from '../../context';
+import type { ReactionSort } from 'stream-chat';
 
 export type ReactionsListModalProps = ModalProps &
   Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>> & {

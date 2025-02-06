@@ -1,5 +1,5 @@
 import React from 'react';
-import { Message } from 'stream-chat';
+import type { Message } from 'stream-chat';
 import { SendIcon } from './icons';
 
 export type SendButtonProps = {

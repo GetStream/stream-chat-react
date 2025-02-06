@@ -1,6 +1,7 @@
 import { Subject } from './Subject';
-import { createObserver, ObserverOrNext } from './Observer';
-import { Subscription } from './Subscription';
+import type { ObserverOrNext } from './Observer';
+import { createObserver } from './Observer';
+import type { Subscription } from './Subscription';
 
 export class BehaviorSubject<T> extends Subject<T> {
   constructor(private _value: T) {

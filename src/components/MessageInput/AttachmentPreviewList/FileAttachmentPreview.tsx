@@ -4,8 +4,8 @@ import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../ico
 import { useTranslationContext } from '../../../context';
 
 import type { AttachmentPreviewProps } from './types';
-import { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
-import { Attachment } from 'stream-chat';
+import type { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
+import type { Attachment } from 'stream-chat';
 
 type FileLikeAttachment = Partial<
   Pick<Attachment, 'title' | 'file_size' | 'asset_url' | 'mime_type'>

@@ -1,7 +1,5 @@
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 export const useUserRole = (

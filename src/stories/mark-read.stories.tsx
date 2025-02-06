@@ -1,6 +1,7 @@
 import React from 'react';
-import type { ChannelSort } from 'stream-chat';
 import { nanoid } from 'nanoid';
+import type { ChannelSort } from 'stream-chat';
+
 import {
   Channel,
   ChannelHeader,
@@ -9,7 +10,8 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
 
 const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
