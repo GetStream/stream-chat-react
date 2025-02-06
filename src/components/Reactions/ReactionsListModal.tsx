@@ -12,12 +12,7 @@ import { MessageContextValue, useMessageContext } from '../../context';
 import { ReactionSort } from 'stream-chat';
 
 export type ReactionsListModalProps = ModalProps &
-  Partial<
-    Pick<
-      MessageContextValue<StreamChatGenerics>,
-      'handleFetchReactions' | 'reactionDetailsSort'
-    >
-  > & {
+  Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>> & {
     reactions: ReactionSummary[];
     selectedReactionType: ReactionType;
     onSelectedReactionTypeChange?: (reactionType: ReactionType) => void;
