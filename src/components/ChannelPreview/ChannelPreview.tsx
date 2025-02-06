@@ -6,12 +6,11 @@ import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
 
-import { ChatContextValue, useChatContext } from '../../context/ChatContext';
+import type { ChatContextValue } from '../../context/ChatContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import {
-  MessageDeliveryStatus,
-  useMessageDeliveryStatus,
-} from './hooks/useMessageDeliveryStatus';
+import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 
 import type { Channel, Event } from 'stream-chat';
 

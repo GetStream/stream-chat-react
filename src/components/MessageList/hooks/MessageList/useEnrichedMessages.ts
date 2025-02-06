@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 
-import {
-  getGroupStyles,
-  GroupStyle,
-  insertIntro,
-  processMessages,
-  ProcessMessagesParams,
-} from '../../utils';
+import type { GroupStyle, ProcessMessagesParams } from '../../utils';
+import { getGroupStyles, insertIntro, processMessages } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';

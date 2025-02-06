@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageDeliveredIcon } from './icons';
-import { getReadByTooltipText, mapToUserNameOrId, TooltipUsernameMapper } from './utils';
+import type { TooltipUsernameMapper } from './utils';
+import { getReadByTooltipText, mapToUserNameOrId } from './utils';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';

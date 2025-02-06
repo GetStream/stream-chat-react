@@ -1,8 +1,10 @@
-import React, { PropsWithChildren, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { PopperTooltip } from '../Tooltip';

@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { TranslationContextValue } from '../../../context/TranslationContext';
-import {
-  defaultDateTimeParser,
-  isLanguageSupported,
-  Streami18n,
-  SupportedTranslations,
-} from '../../../i18n';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
+import type { SupportedTranslations } from '../../../i18n';
+import { defaultDateTimeParser, isLanguageSupported, Streami18n } from '../../../i18n';
 
 import type {
   AppSettingsAPIResponse,

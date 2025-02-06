@@ -1,4 +1,5 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import type { TriggerSettings } from '../components/MessageInput/DefaultTriggerProvider';
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';

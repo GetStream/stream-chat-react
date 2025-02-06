@@ -1,20 +1,19 @@
-import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import type { Reducer } from 'react';
+import type React from 'react';
+import { useCallback, useReducer, useState } from 'react';
 import { nanoid } from 'nanoid';
 
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import { useAttachments } from './useAttachments';
-import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
+import type { EnrichURLsController } from './useLinkPreviews';
+import { useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import {
-  RecordingController,
-  useMediaRecorder,
-} from '../../MediaRecorder/hooks/useMediaRecorder';
+import type { RecordingController } from '../../MediaRecorder/hooks/useMediaRecorder';
+import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
 import type { LinkPreviewMap, LocalAttachment } from '../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';

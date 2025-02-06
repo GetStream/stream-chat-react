@@ -1,7 +1,5 @@
-import {
-  RetrySendMessage,
-  useChannelActionContext,
-} from '../../../context/ChannelActionContext';
+import type { RetrySendMessage } from '../../../context/ChannelActionContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 export const useRetryHandler = (
   customRetrySendMessage?: RetrySendMessage,

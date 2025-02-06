@@ -1,12 +1,11 @@
 import React from 'react';
 
-import {
-  ChannelPreviewInfoParams,
-  useChannelPreviewInfo,
-} from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import type { ChannelPreviewInfoParams } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { CloseIcon } from './icons';
 
-import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ThreadHeaderProps = {

@@ -1,17 +1,18 @@
 import React, { useCallback } from 'react';
 import type { ChannelSort } from 'stream-chat';
+
 import {
   Channel,
   ChannelHeader,
   ChannelList,
   MessageList,
   MessageStatus,
-  MessageStatusProps,
   Thread,
-  TooltipUsernameMapper,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
+import type { MessageStatusProps, TooltipUsernameMapper } from '../index';
 
 const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {

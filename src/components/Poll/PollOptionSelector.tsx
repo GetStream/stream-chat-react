@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import { isVoteAnswer, VotingVisibility } from 'stream-chat';
+import { isVoteAnswer } from 'stream-chat';
 import { Avatar } from '../Avatar';
 import {
   useChannelStateContext,
@@ -10,7 +10,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
+import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 
 type AmountBarProps = {
   amount: number;

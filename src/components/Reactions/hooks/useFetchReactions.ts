@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ReactionResponse, ReactionSort } from 'stream-chat';
-import { MessageContextValue, useMessageContext } from '../../../context';
+import type { ReactionResponse, ReactionSort } from 'stream-chat';
+import type { MessageContextValue } from '../../../context';
+import { useMessageContext } from '../../../context';
 
-import { ReactionType } from '../types';
+import type { ReactionType } from '../types';
 
 export interface FetchReactionsOptions {
   reactionType: ReactionType;

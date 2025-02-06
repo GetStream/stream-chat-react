@@ -1,5 +1,4 @@
 import React from 'react';
-
 import type { Attachment } from 'stream-chat';
 
 import { DownloadButton, FileSizeIndicator, PlayButton, ProgressBar } from './components';

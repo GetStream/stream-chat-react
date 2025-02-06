@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import type { Dispatch, SetStateAction } from 'react';
 import type { ChannelState, MessageResponse } from 'stream-chat';
+
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
 
 export const makeAddNotifications =

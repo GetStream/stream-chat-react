@@ -3,7 +3,6 @@ import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
 import {
-  GroupedRenderedAttachment,
   isAudioAttachment,
   isFileAttachment,
   isMediaAttachment,
@@ -11,7 +10,6 @@ import {
   isUploadedImage,
   isVoiceRecordingAttachment,
 } from './utils';
-
 import {
   AudioContainer,
   CardContainer,
@@ -22,7 +20,6 @@ import {
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
-
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
@@ -31,6 +28,7 @@ import type { FileAttachmentProps } from './FileAttachment';
 import type { GalleryProps, ImageProps } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
+import type { GroupedRenderedAttachment } from './utils';
 
 const CONTAINER_MAP = {
   audio: AudioContainer,
