@@ -27,7 +27,8 @@ import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';

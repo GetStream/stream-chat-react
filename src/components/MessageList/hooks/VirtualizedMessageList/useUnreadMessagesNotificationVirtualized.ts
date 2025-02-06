@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StreamMessage } from '../../../../context';
+import type { StreamMessage } from '../../../../context';
 
 export type UseUnreadMessagesNotificationParams = {
   showAlways: boolean;

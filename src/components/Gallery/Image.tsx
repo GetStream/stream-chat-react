@@ -1,4 +1,5 @@
-import React, { CSSProperties, MutableRefObject, useState } from 'react';
+import type { CSSProperties, MutableRefObject } from 'react';
+import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { BaseImage as DefaultBaseImage } from './BaseImage';

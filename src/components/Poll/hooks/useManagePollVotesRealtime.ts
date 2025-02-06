@@ -3,7 +3,7 @@ import { isVoteAnswer } from 'stream-chat';
 import { useChatContext } from '../../../context';
 import type { Event, PollAnswer, PollVote } from 'stream-chat';
 
-import { CursorPaginatorStateStore } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+import type { CursorPaginatorStateStore } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 
 export function useManagePollVotesRealtime<T extends PollVote | PollAnswer = PollVote>(
   managedVoteType: 'answer' | 'vote',

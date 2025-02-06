@@ -1,20 +1,13 @@
-import React, { ComponentType } from 'react';
-import {
-  UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview,
-  UnsupportedAttachmentPreviewProps,
-} from './UnsupportedAttachmentPreview';
-import {
-  VoiceRecordingPreview as DefaultVoiceRecordingPreview,
-  VoiceRecordingPreviewProps,
-} from './VoiceRecordingPreview';
-import {
-  FileAttachmentPreview as DefaultFilePreview,
-  FileAttachmentPreviewProps,
-} from './FileAttachmentPreview';
-import {
-  ImageAttachmentPreview as DefaultImagePreview,
-  ImageAttachmentPreviewProps,
-} from './ImageAttachmentPreview';
+import type { ComponentType } from 'react';
+import React from 'react';
+import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
+import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
+import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
+import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
+import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
+import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
+import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
 import {
   isLocalAttachment,
   isLocalAudioAttachment,

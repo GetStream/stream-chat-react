@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-
-import { AIState, Channel, Event } from 'stream-chat';
+import type { AIState, Channel, Event } from 'stream-chat';
 
 export const AIStates = {
   Error: 'AI_STATE_ERROR',

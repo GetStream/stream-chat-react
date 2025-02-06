@@ -1,19 +1,15 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import {
-  ChannelSearchControllerParams,
-  useChannelSearch,
-} from './hooks/useChannelSearch';
+import type { ChannelSearchControllerParams } from './hooks/useChannelSearch';
+import { useChannelSearch } from './hooks/useChannelSearch';
 
 import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 import { SearchBar as DefaultSearchBar } from './SearchBar';
-import {
-  AdditionalSearchInputProps,
-  SearchInput as DefaultSearchInput,
-  SearchInputProps,
-} from './SearchInput';
-import { AdditionalSearchResultsProps, SearchResults } from './SearchResults';
+import type { AdditionalSearchInputProps, SearchInputProps } from './SearchInput';
+import { SearchInput as DefaultSearchInput } from './SearchInput';
+import type { AdditionalSearchResultsProps } from './SearchResults';
+import { SearchResults } from './SearchResults';
 
 export type AdditionalChannelSearchProps = {
   /** Custom UI component to display the search bar with text input */

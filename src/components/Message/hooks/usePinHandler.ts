@@ -1,10 +1,8 @@
 import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 

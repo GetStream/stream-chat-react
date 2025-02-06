@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import type { ReactImageGalleryItem } from 'react-image-gallery';
+import ImageGallery from 'react-image-gallery';
 import { BaseImage } from './BaseImage';
 import { useTranslationContext } from '../../context';
 

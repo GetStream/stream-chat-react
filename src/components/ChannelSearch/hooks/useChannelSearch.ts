@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import uniqBy from 'lodash.uniqby';
 
-import { ChannelOrUserResponse, isChannel } from '../utils';
+import type { ChannelOrUserResponse } from '../utils';
+import { isChannel } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
 

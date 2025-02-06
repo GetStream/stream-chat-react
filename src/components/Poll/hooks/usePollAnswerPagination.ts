@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { useManagePollVotesRealtime } from './useManagePollVotesRealtime';
-import {
+import type {
   CursorPaginatorState,
   PaginationFn,
-  useCursorPaginator,
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+import { useCursorPaginator } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 import { usePollContext } from '../../../context';
 
 import { useStateStore } from '../../../store';

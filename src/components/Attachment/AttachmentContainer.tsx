@@ -1,8 +1,9 @@
-import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
-
 import * as linkify from 'linkifyjs';
+import type { Attachment } from 'stream-chat';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -11,23 +12,19 @@ import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Ga
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
-import {
+import type {
   AttachmentComponentType,
   GalleryAttachment,
-  isGalleryAttachmentType,
-  isSvgAttachment,
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
-
+import { isGalleryAttachmentType, isSvgAttachment } from './utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-
+import type { LocalAttachment } from '../MessageInput';
 import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
-import type { Attachment } from 'stream-chat';
-import { LocalAttachment } from '../MessageInput';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment;

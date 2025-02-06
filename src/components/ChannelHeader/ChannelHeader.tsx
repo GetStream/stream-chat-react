@@ -1,13 +1,12 @@
 import React from 'react';
 
 import { MenuIcon as DefaultMenuIcon } from './icons';
-
-import { ChannelAvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
-
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import type { ChannelAvatarProps } from '../Avatar';
 
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */

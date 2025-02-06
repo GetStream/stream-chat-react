@@ -1,21 +1,22 @@
 import fixWebmDuration from 'fix-webm-duration';
 import { nanoid } from 'nanoid';
+import type { AmplitudeRecorderConfig } from './AmplitudeRecorder';
 import {
   AmplitudeRecorder,
-  AmplitudeRecorderConfig,
   DEFAULT_AMPLITUDE_RECORDER_CONFIG,
 } from './AmplitudeRecorder';
 import { BrowserPermission } from './BrowserPermission';
 import { BehaviorSubject, Subject } from '../observable';
-import { transcode, TranscoderConfig } from '../transcode';
+import type { TranscoderConfig } from '../transcode';
+import { transcode } from '../transcode';
 import { resampleWaveformData } from '../../Attachment';
+import type { RecordedMediaType } from '../../ReactFileUtilities';
 import {
   createFileFromBlobs,
   getExtensionFromMimeType,
   getRecordedMediaTypeFromMimeType,
-  RecordedMediaType,
 } from '../../ReactFileUtilities';
-import { TranslationContextValue } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 

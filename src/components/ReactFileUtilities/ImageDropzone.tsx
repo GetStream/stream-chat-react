@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { PropsWithChildren, useCallback, useMemo } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useTranslationContext } from '../../context';
 

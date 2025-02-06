@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { dataTransferItemsToFiles, FileLike } from '../../ReactFileUtilities';
+import type { FileLike } from '../../ReactFileUtilities';
+import { dataTransferItemsToFiles } from '../../ReactFileUtilities';
 import type { EnrichURLsController } from './useLinkPreviews';
 import { SetLinkPreviewMode } from '../types';
 

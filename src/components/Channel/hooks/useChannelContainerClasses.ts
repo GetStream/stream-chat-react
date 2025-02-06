@@ -1,5 +1,5 @@
-import type { ChatContextValue } from '../../../context/ChatContext';
 import { useChatContext } from '../../../context/ChatContext';
+import type { ChatContextValue } from '../../../context/ChatContext';
 
 export const useImageFlagEmojisOnWindowsClass = () => {
   const { useImageFlagEmojisOnWindows } = useChatContext('Channel');

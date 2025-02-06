@@ -1,5 +1,7 @@
 import React from 'react';
-import { Avatar, AvatarProps, GroupAvatar, GroupAvatarProps } from './index';
+
+import { Avatar, GroupAvatar } from './';
+import type { AvatarProps, GroupAvatarProps } from './';
 
 export type ChannelAvatarProps = Partial<GroupAvatarProps> & AvatarProps;
 

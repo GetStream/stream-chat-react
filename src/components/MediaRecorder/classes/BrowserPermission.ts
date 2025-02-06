@@ -1,5 +1,5 @@
 import type { RecordedMediaType } from '../../ReactFileUtilities';
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { Subscription } from '../observable/Subscription';
 import { Subject } from '../observable/Subject';
 import { BehaviorSubject } from '../observable/BehaviorSubject';

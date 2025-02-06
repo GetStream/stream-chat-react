@@ -1,13 +1,8 @@
-import React, {
-  createContext,
-  ReactEventHandler,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import type { ReactEventHandler } from 'react';
+import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
-import { PropsWithChildrenOnly } from '../types/types';
-import { StreamMessage } from './ChannelStateContext';
+import type { PropsWithChildrenOnly } from '../types/types';
+import type { StreamMessage } from './ChannelStateContext';
 import { useChannelActionContext } from './ChannelActionContext';
 import { isMessageBounced } from '../components';
 

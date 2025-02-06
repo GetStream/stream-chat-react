@@ -11,7 +11,7 @@ import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 import type { CustomTrigger, UnknownType } from '../../types/types';
-import { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
+import type { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
 

@@ -1,9 +1,8 @@
-import React, { PropsWithChildren, useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect } from 'react';
 
-import {
-  LoadMoreButton as DefaultLoadMoreButton,
-  LoadMoreButtonProps,
-} from './LoadMoreButton';
+import type { LoadMoreButtonProps } from './LoadMoreButton';
+import { LoadMoreButton as DefaultLoadMoreButton } from './LoadMoreButton';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 

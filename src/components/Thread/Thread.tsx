@@ -2,13 +2,10 @@ import React, { useEffect } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
-import { MessageInput, MessageInputFlat, MessageInputProps } from '../MessageInput';
-import {
-  MessageList,
-  MessageListProps,
-  VirtualizedMessageList,
-  VirtualizedMessageListProps,
-} from '../MessageList';
+import type { MessageInputProps } from '../MessageInput';
+import { MessageInput, MessageInputFlat } from '../MessageInput';
+import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
+import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 

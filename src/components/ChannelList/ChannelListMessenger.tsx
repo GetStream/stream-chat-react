@@ -1,10 +1,10 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
+import type { PropsWithChildren } from 'react';
+import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { NullComponent } from '../UtilityComponents';
 import { useTranslationContext } from '../../context';
-
-import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 
 export type ChannelListMessengerProps = {
   /** Whether the channel query request returned an errored response */

@@ -1,4 +1,4 @@
-import { LocalAttachment } from '../types';
+import type { LocalAttachment } from '../types';
 
 export type AttachmentPreviewProps<A extends LocalAttachment> = {
   attachment: A;

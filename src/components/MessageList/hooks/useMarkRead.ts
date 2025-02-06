@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
+import type { StreamMessage } from '../../../context';
 import {
-  StreamMessage,
   useChannelActionContext,
   useChannelStateContext,
   useChatContext,

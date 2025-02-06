@@ -1,6 +1,9 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { StreamChat } from 'stream-chat';
+import type { PropsWithChildren } from 'react';
+import type { OwnUserResponse, TokenOrProvider, UserResponse } from 'stream-chat';
+
 import { Chat } from '../';
-import { OwnUserResponse, StreamChat, TokenOrProvider, UserResponse } from 'stream-chat';
 
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {

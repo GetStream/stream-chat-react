@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CustomMessageActions } from '../../context/MessageContext';
+import type { CustomMessageActions } from '../../context/MessageContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
