@@ -2,7 +2,6 @@
 
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Channel, Event, ExtendableGenerics } from 'stream-chat';
-import uniqBy from 'lodash.uniqby';
 
 import {
   extractSortValue,
@@ -68,7 +67,9 @@ type HandleChannelHiddenParameters<SCG extends ExtendableGenerics> = BaseParamet
   RepeatedParameters<SCG>;
 
 type HandleChannelVisibleParameters<SCG extends ExtendableGenerics> =
-  BaseParameters<SCG> & RepeatedParameters<SCG>;
+  BaseParameters<SCG> &
+    RepeatedParameters<SCG> &
+    Required<Pick<ChannelListProps<SCG>, 'sort' | 'filters'>>;
 
 type HandleChannelTruncatedParameters<SCG extends ExtendableGenerics> =
   BaseParameters<SCG> & RepeatedParameters<SCG>;
@@ -194,7 +195,6 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         moveChannelUpwards({
           channels,
           channelToMove: channel,
-          channelToMoveIndexWithinChannels: -1,
           sort,
         }),
       );
@@ -239,7 +239,6 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         moveChannelUpwards({
           channels,
           channelToMove: channel,
-          channelToMoveIndexWithinChannels: -1,
           sort,
         }),
       );
@@ -353,20 +352,36 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
     async ({
       customHandler,
       event,
+      filters,
       setChannels,
+      sort,
     }: HandleChannelVisibleParameters<SCG>) => {
       if (typeof customHandler === 'function') {
         return customHandler(setChannels, event);
       }
 
-      if (event.type && event.channel_type && event.channel_id) {
-        const channel = await getChannel({
-          client,
-          id: event.channel_id,
-          type: event.channel_type,
-        });
-        setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
+      if (!event.channel) {
+        return;
       }
+
+      const channel = await getChannel({
+        client,
+        id: event.channel.id,
+        type: event.channel.type,
+      });
+
+      const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
+      if (isChannelArchived(channel) && considerArchivedChannels && !filters.archived) {
+        return;
+      }
+
+      setChannels((channels) =>
+        moveChannelUpwards({
+          channels,
+          channelToMove: channel,
+          sort,
+        }),
+      );
     },
     [client],
   );
@@ -586,7 +601,9 @@ export const usePrepareShapeHandlers = <SCG extends ExtendableGenerics>({
         defaults.handleChannelVisible({
           customHandler: onChannelVisible,
           event,
+          filters,
           setChannels,
+          sort,
         });
         break;
       case 'channel.truncated':
