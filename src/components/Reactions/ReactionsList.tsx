@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
-import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
-
+import {
+  ReactionsListModal as DefaultReactionsListModal,
+  ReactionsListModalProps,
+} from './ReactionsListModal';
 import { useProcessReactions } from './hooks/useProcessReactions';
+import {
+  MessageContextValue,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
+
+import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
+
+import type { ReactionGroupResponse, ReactionResponse, ReactionSort } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 import type {
@@ -11,9 +22,6 @@ import type {
   ReactionsComparator,
   ReactionType,
 } from './types';
-import { ReactionsListModal } from './ReactionsListModal';
-import { MessageContextValue, useTranslationContext } from '../../context';
-import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 export type ReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -44,7 +52,7 @@ export type ReactionsListProps<
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
-  sortReactionDetails?: ReactionDetailsComparator;
+  sortReactionDetails?: ReactionDetailsComparator<StreamChatGenerics>;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
 };
@@ -67,6 +75,7 @@ const UnMemoizedReactionsList = <
   const [selectedReactionType, setSelectedReactionType] =
     useState<ReactionType<StreamChatGenerics> | null>(null);
   const { t } = useTranslationContext('ReactionsList');
+  const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
 
   const handleReactionButtonClick = (reactionType: string) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
@@ -126,13 +135,25 @@ const UnMemoizedReactionsList = <
       </div>
       {selectedReactionType !== null && (
         <ReactionsListModal
-          handleFetchReactions={handleFetchReactions}
+          handleFetchReactions={
+            handleFetchReactions as (
+              reactionType?: string,
+              sort?: ReactionSort<StreamChatGenerics>,
+            ) => Promise<Array<ReactionResponse<StreamChatGenerics>>>
+          }
           onClose={() => setSelectedReactionType(null)}
-          onSelectedReactionTypeChange={setSelectedReactionType}
+          onSelectedReactionTypeChange={
+            setSelectedReactionType as ReactionsListModalProps['onSelectedReactionTypeChange']
+          }
           open={selectedReactionType !== null}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}
-          sortReactionDetails={sortReactionDetails}
+          sortReactionDetails={
+            sortReactionDetails as (
+              a: ReactionResponse<StreamChatGenerics>,
+              b: ReactionResponse<StreamChatGenerics>,
+            ) => number
+          }
         />
       )}
     </>

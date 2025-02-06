@@ -11,7 +11,7 @@ import { MessageContextValue, useMessageContext } from '../../context';
 import { DefaultStreamChatGenerics } from '../../types/types';
 import { ReactionSort } from 'stream-chat';
 
-type ReactionsListModalProps<
+export type ReactionsListModalProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = ModalProps &
   Partial<
