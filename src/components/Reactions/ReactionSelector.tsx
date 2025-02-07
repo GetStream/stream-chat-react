@@ -200,7 +200,6 @@ const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
                   >
                     {latestUser ? (
                       <Avatar
-                        // @ts-expect-error <ADD_PROPERTY>image
                         image={latestUser.image}
                         name={latestUser.name}
                         size={20}

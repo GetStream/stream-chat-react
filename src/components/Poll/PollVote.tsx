@@ -57,7 +57,6 @@ const PollVoteAuthor = ({ vote }: PollVoteProps) => {
       {vote.user && (
         <Avatar
           className='str-chat__avatar--poll-vote-author'
-          // @ts-expect-error <ADD_PROPERTY>image
           image={vote.user.image}
           key={`poll-vote-${vote.id}-avatar-${vote.user.id}`}
           name={vote.user.name}

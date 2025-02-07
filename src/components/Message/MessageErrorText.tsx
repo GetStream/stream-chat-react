@@ -28,7 +28,6 @@ export function MessageErrorText({ message, theme }: MessageErrorTextProps) {
       <div
         className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
       >
-        {/* @ts-expect-error errorStatusCode might exist but isn't type-defined */}
         {message.errorStatusCode !== 403
           ? t<string>('Message Failed · Click to try again')
           : t<string>('Message Failed · Unauthorized')}

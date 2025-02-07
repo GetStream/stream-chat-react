@@ -66,7 +66,6 @@ export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTri
     useMentionsTransliteration,
   } = value;
 
-  // @ts-expect-error <ADD_PROPERTY>editing (StreamMessage)
   const editing = message?.editing;
   const linkPreviewsValue = Array.from(linkPreviews.values()).join();
   const mentionedUsersLength = mentioned_users.length;

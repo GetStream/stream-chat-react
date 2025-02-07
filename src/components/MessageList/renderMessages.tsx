@@ -82,7 +82,6 @@ export function defaultRenderMessages({
           />
         </li>,
       );
-      // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     } else if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
       renderedMessages.push(
         <li key='intro'>

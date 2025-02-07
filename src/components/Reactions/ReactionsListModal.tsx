@@ -115,7 +115,6 @@ export function ReactionsListModal({
                 <Avatar
                   className='stream-chat__avatar--reaction'
                   data-testid='avatar'
-                  // @ts-expect-error <ADD_PROPERTY>image
                   image={user?.image as string | undefined}
                   name={user?.name || user?.id}
                 />

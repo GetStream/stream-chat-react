@@ -115,7 +115,6 @@ export const PollOptionSelector = ({
                 .slice(0, displayAvatarCount)
                 .map(({ user }) => (
                   <Avatar
-                    // @ts-expect-error <ADD_PROPERTY>image
                     image={user?.image}
                     key={`poll-option-${option.id}-avatar-${user?.id}`}
                     name={user?.name}
