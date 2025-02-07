@@ -24,9 +24,10 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
-export type StreamMessage =
+export type StreamMessage = (
   | ReturnType<StreamChannelState['formatMessage']>
-  | MessageResponse;
+  | MessageResponse
+) & { customType?: string; errorStatusCode?: number; editing?: boolean; date?: Date };
 
 export type ChannelState = {
   suppressAutoscroll: boolean;

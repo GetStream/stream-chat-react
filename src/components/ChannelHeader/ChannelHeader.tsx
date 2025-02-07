@@ -42,7 +42,6 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
 
-  // @ts-expect-error <ADD_PROPERTY>subtitle
   const { member_count, subtitle } = channel?.data || {};
 
   return (

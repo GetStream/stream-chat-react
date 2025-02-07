@@ -56,7 +56,6 @@ export const QuotedMessage = () => {
         {quoted_message.user && (
           <Avatar
             className='str-chat__avatar--quoted-message-sender'
-            // @ts-expect-error <ADD_PROPERTY>image
             image={quoted_message.user.image}
             name={quoted_message.user.name || quoted_message.user.id}
             user={quoted_message.user}

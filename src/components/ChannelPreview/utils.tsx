@@ -104,9 +104,7 @@ export const getGroupChannelDisplayInfo = (
   const info: GroupChannelDisplayInfo = [];
   for (let i = 0; i < members.length; i++) {
     const { user } = members[i];
-    // @ts-expect-error <ADD_PROPERTY>image
     if (!user?.name && !user?.image) continue;
-    // @ts-expect-error <ADD_PROPERTY>image
     info.push({ image: user.image, name: user.name });
     if (info.length === 4) break;
   }
@@ -118,12 +116,10 @@ const getChannelDisplayInfo = (
   channel: Channel,
   currentUser?: UserResponse,
 ) => {
-  // @ts-expect-error <ADD_PROPERTY>name|image
   if (channel.data?.[info]) return channel.data[info];
   const members = Object.values(channel.state.members);
   if (members.length !== 2) return;
   const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
-  // @ts-expect-error <ADD_PROPERTY>name|image
   return otherMember?.user?.[info];
 };
 

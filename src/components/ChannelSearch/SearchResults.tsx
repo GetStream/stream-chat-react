@@ -97,7 +97,6 @@ const DefaultSearchResultItem = (props: SearchResultItemProps) => {
       >
         <Avatar
           className='str-chat__avatar--channel-preview'
-          // @ts-expect-error <ADD_PROPERTY>image
           image={result.image}
           name={result.name || result.id}
           user={result}
