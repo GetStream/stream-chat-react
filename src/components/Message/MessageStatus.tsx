@@ -128,7 +128,6 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
 
             <Avatar
               className='str-chat__avatar--message-status'
-              // @ts-expect-error <ADD_PROPERTY>image
               image={lastReadUser.image}
               name={lastReadUser.name || lastReadUser.id}
               user={lastReadUser}

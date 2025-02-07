@@ -90,7 +90,6 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
     >
       {message.user && (
         <Avatar
-          // @ts-expect-error <ADD_PROPERTY>image
           image={message.user.image}
           name={message.user.name || message.user.id}
           user={message.user}

@@ -88,7 +88,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-  // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
   }
@@ -99,7 +98,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
-  // @ts-expect-error <ADD_PROPERTY>errorStatusCode (StreamMessage)
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
@@ -128,7 +126,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
-        // @ts-expect-error <ADD_PROPERTY>errorStatusCode (StreamMessage)
         message?.status === 'failed' && message?.errorStatusCode !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
@@ -169,7 +166,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
           {PinIndicator && <PinIndicator />}
           {message.user && (
             <Avatar
-              // @ts-expect-error <ADD_PROPERTY>image
               image={message.user.image}
               name={message.user.name || message.user.id}
               onClick={onUserClick}

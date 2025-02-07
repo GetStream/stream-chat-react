@@ -133,13 +133,11 @@ export const processMessages = (params: ProcessMessagesParams) => {
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
       changes[changes.length - 1]?.customType !== CUSTOM_MESSAGE_TYPE.date // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
       changes.push(
-        // @ts-expect-error type mismatch
         {
           customType: CUSTOM_MESSAGE_TYPE.date,
           date: message.created_at,
@@ -269,7 +267,6 @@ export const insertIntro = (messages: StreamMessage[], headerPosition?: number) 
     if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
-        // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
         if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE_TYPE.date)
           continue;
         if (!nextMessageTime) {
@@ -295,18 +292,15 @@ export const getGroupStyles = (
   noGroupByUser: boolean,
   maxTimeBetweenGroupedMessages?: number,
 ): GroupStyle => {
-  // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) return '';
-  // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
+
   if (message.customType === CUSTOM_MESSAGE_TYPE.intro) return '';
 
   if (noGroupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
-    // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     previousMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
-    // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     previousMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     previousMessage.type === 'system' ||
     previousMessage.type === 'error' ||
@@ -324,9 +318,7 @@ export const getGroupStyles = (
 
   const isBottomMessage =
     !nextMessage ||
-    // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     nextMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
-    // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     nextMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     nextMessage.type === 'system' ||
     nextMessage.type === 'error' ||
@@ -382,11 +374,8 @@ export function isDateSeparatorMessage(
   message: StreamMessage,
 ): message is DateSeparatorMessage {
   return (
-    // @ts-expect-error <ADD_PROPERTY>customType (StreamMessage)
     message.customType === CUSTOM_MESSAGE_TYPE.date &&
-    // @ts-expect-error <ADD_PROPERTY>date (StreamMessage)
     !!message.date &&
-    // @ts-expect-error <ADD_PROPERTY>date (StreamMessage)
     isDate(message.date)
   );
 }
