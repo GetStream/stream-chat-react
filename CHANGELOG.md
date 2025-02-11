@@ -1,3 +1,10 @@
+## [12.11.1](https://github.com/GetStream/stream-chat-react/compare/v12.11.0...v12.11.1) (2025-02-11)
+
+
+### Bug Fixes
+
+* **handleMemberUpdated:** consider both pinned and archived channels ([#2638](https://github.com/GetStream/stream-chat-react/issues/2638)) ([ae66de8](https://github.com/GetStream/stream-chat-react/commit/ae66de8d3c5ed78fbe5aa5388ebf8a1b8e90a9e9))
+
 ## [12.11.0](https://github.com/GetStream/stream-chat-react/compare/v12.10.0...v12.11.0) (2025-02-07)
 
 
