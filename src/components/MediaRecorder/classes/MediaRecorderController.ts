@@ -17,23 +17,16 @@ import {
 } from '../../ReactFileUtilities';
 import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
-import { isSafari } from '../../../utils/browsers';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
-const RECORDED_MIME_TYPE_BY_BROWSER = {
+export const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
     others: 'audio/webm',
     safari: 'audio/mp4;codecs=mp4a.40.2',
   },
-} as const;
-
-export const DEFAULT_MEDIA_RECORDER_CONFIG: MediaRecorderConfig = {
-  mimeType: isSafari()
-    ? RECORDED_MIME_TYPE_BY_BROWSER.audio.safari
-    : RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
 } as const;
 
 export const DEFAULT_AUDIO_TRANSCODER_CONFIG: TranscoderConfig = {
@@ -120,7 +113,11 @@ export class MediaRecorderController<
 
     this.mediaRecorderConfig = mergeDeepUndefined(
       { ...config?.mediaRecorderConfig },
-      DEFAULT_MEDIA_RECORDER_CONFIG,
+      {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm')
+          ? RECORDED_MIME_TYPE_BY_BROWSER.audio.others
+          : RECORDED_MIME_TYPE_BY_BROWSER.audio.safari,
+      },
     );
 
     this.transcoderConfig = mergeDeepUndefined(
