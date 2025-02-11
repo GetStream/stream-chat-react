@@ -1,49 +1,66 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
+import type { TranslationLanguages } from 'stream-chat';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Poll } from '../Poll';
-
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { renderText as defaultRenderText } from './renderText';
+import type { MessageContextValue } from '../../context/MessageContext';
 
-import type { TranslationLanguages } from 'stream-chat';
+export type QuotedMessageProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+> = Pick<MessageContextValue<StreamChatGenerics>, 'renderText'>;
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+>({
+  renderText: propsRenderText,
+}: QuotedMessageProps) => {
   const { Attachment = DefaultAttachment, Avatar: ContextAvatar } =
     useComponentContext<StreamChatGenerics>('QuotedMessage');
   const { client } = useChatContext();
-  const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
+  const {
+    isMyMessage,
+    message,
+    renderText: contextRenderText,
+  } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
+
+  const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
   const Avatar = ContextAvatar || DefaultAvatar;
 
   const { quoted_message } = message;
-  if (!quoted_message) return null;
 
-  const poll = quoted_message.poll_id && client.polls.fromState(quoted_message.poll_id);
+  const poll = quoted_message?.poll_id && client.polls.fromState(quoted_message.poll_id);
   const quotedMessageDeleted =
-    quoted_message.deleted_at || quoted_message.type === 'deleted';
+    quoted_message?.deleted_at || quoted_message?.type === 'deleted';
 
   const quotedMessageText = quotedMessageDeleted
     ? t('This message was deleted...')
-    : quoted_message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-      quoted_message.text;
+    : quoted_message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+      quoted_message?.text;
 
   const quotedMessageAttachment =
-    quoted_message.attachments?.length && !quotedMessageDeleted
+    quoted_message?.attachments?.length && !quotedMessageDeleted
       ? quoted_message.attachments[0]
       : null;
 
+  const renderedText = useMemo(
+    () => renderText(quotedMessageText),
+    [quotedMessageText, renderText],
+  );
+
+  if (!quoted_message) return null;
   if (!quoted_message.poll && !quotedMessageText && !quotedMessageAttachment) return null;
 
   return (
@@ -80,7 +97,7 @@ export const QuotedMessage = <
                 className='str-chat__quoted-message-bubble__text'
                 data-testid='quoted-message-text'
               >
-                {quotedMessageText}
+                {renderedText}
               </div>
             </>
           )}
