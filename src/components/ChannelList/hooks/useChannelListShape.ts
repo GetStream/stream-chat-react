@@ -285,6 +285,11 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
       const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
       const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
 
+      // `pinned_at` nor `archived` properties are set or channel list order is locked, return early
+      if ((!considerPinnedChannels && !considerArchivedChannels) || lockChannelOrder) {
+        return;
+      }
+
       const pinnedAtSort = extractSortValue({ atIndex: 0, sort, targetKey: 'pinned_at' });
 
       setChannels((currentChannels) => {
@@ -295,9 +300,6 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
 
         const isTargetChannelArchived = isChannelArchived(targetChannel);
         const isTargetChannelPinned = isChannelPinned(targetChannel);
-
-        // handle pinning
-        if (!considerPinnedChannels || lockChannelOrder) return currentChannels;
 
         const newChannels = [...currentChannels];
 
