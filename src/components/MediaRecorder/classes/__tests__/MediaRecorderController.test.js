@@ -3,9 +3,9 @@ import * as transcoder from '../../transcode';
 import * as wavTranscoder from '../../transcode/wav';
 import {
   DEFAULT_AUDIO_TRANSCODER_CONFIG,
-  DEFAULT_MEDIA_RECORDER_CONFIG,
   MediaRecorderController,
   MediaRecordingState,
+  RECORDED_MIME_TYPE_BY_BROWSER,
   RecordingAttachmentType,
 } from '../MediaRecorderController';
 import {
@@ -92,10 +92,27 @@ describe('MediaRecorderController', () => {
   });
   afterEach(jest.clearAllMocks);
 
-  it('provides defaults on initiation', () => {
+  it('provides defaults on initiation (non-Safari)', () => {
     const controller = new MediaRecorderController();
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others }),
+    );
+    expect(controller.transcoderConfig).toStrictEqual(
+      expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
+    );
+    expect(controller.amplitudeRecorderConfig).toStrictEqual(
+      expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
+    );
+    expect(controller.t).toStrictEqual(defaultTranslatorFunction);
+    expect(controller.mediaType).toStrictEqual('audio');
+    expect(controller.customGenerateRecordingTitle).toBeUndefined();
+  });
+
+  it('provides defaults on initiation (Safari)', () => {
+    MediaRecorder.isTypeSupported.mockReturnValueOnce(false);
+    const controller = new MediaRecorderController();
+    expect(controller.mediaRecorderConfig).toStrictEqual(
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.safari }),
     );
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
@@ -151,7 +168,7 @@ describe('MediaRecorderController', () => {
     const controller = new MediaRecorderController({ generateRecordingTitle });
     expect(controller.customGenerateRecordingTitle).toStrictEqual(generateRecordingTitle);
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others }),
     );
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
