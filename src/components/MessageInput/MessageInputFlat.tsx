@@ -141,7 +141,8 @@ export const MessageInputFlat = <
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
-  /* This bit here is needed to make sure that we can get rid of the default behaviour
+  /**
+   * This bit here is needed to make sure that we can get rid of the default behaviour
    * if need be. Essentially this allows us to pass StopAIGenerationButton={null} and
    * completely circumvent the default logic if it's not what we want. We need it as a
    * prop because there is no other trivial way to override the SendMessage button otherwise.
