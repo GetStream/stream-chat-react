@@ -1,3 +1,29 @@
+## [12.11.1](https://github.com/GetStream/stream-chat-react/compare/v12.11.0...v12.11.1) (2025-02-11)
+
+
+### Bug Fixes
+
+* **handleMemberUpdated:** consider both pinned and archived channels ([#2638](https://github.com/GetStream/stream-chat-react/issues/2638)) ([ae66de8](https://github.com/GetStream/stream-chat-react/commit/ae66de8d3c5ed78fbe5aa5388ebf8a1b8e90a9e9))
+
+## [12.11.0](https://github.com/GetStream/stream-chat-react/compare/v12.10.0...v12.11.0) (2025-02-07)
+
+
+### Bug Fixes
+
+* change useStateStore to use useSyncExternalStore ([#2573](https://github.com/GetStream/stream-chat-react/issues/2573)) ([6f2de4e](https://github.com/GetStream/stream-chat-react/commit/6f2de4ebd8e8a5b9668b44bb0204ea695c48ff01))
+* make `channel.visible` respect archived and pinned channels ([#2633](https://github.com/GetStream/stream-chat-react/issues/2633)) ([2d2e2e5](https://github.com/GetStream/stream-chat-react/commit/2d2e2e56e6aff92a00d3dd2e6da8c5f7b64698e1))
+
+
+### Features
+
+* allow custom ReactionsListModal ([#2632](https://github.com/GetStream/stream-chat-react/issues/2632)) ([a428dc9](https://github.com/GetStream/stream-chat-react/commit/a428dc938388947b1f7e51fde3dd579eba76ea2f))
+* allow to search for channels only ([#2625](https://github.com/GetStream/stream-chat-react/issues/2625)) ([a4d6d83](https://github.com/GetStream/stream-chat-react/commit/a4d6d83cf7c63f3284f0e0c3d0689f64ae725323))
+
+
+### Chores
+
+* **deps:** upgrade @stream-io/stream-chat-css to version 5.7.0 ([#2636](https://github.com/GetStream/stream-chat-react/issues/2636)) ([8b7cfba](https://github.com/GetStream/stream-chat-react/commit/8b7cfba7140588f5fd1d727b48b7e6c7da5d99fe))
+
 ## [12.10.0](https://github.com/GetStream/stream-chat-react/compare/v12.9.0...v12.10.0) (2025-01-28)
 
 

@@ -34,6 +34,7 @@ import {
   QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
+  ReactionsListModalProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
@@ -182,6 +183,8 @@ export type ComponentContextValue<
   >;
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
+  /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
+  ReactionsListModal?: React.ComponentType<ReactionsListModalProps<StreamChatGenerics>>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType<SearchProps>;

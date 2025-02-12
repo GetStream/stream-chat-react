@@ -2,11 +2,13 @@ import { TranslationProvider } from '../../../../context';
 import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { useMediaRecorder } from '../useMediaRecorder';
-import { EventEmitterMock } from '../../../../mock-builders/browser';
+import { EventEmitterMock, MediaRecorderMock } from '../../../../mock-builders/browser';
 import { act } from '@testing-library/react';
 import { DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../../classes/AmplitudeRecorder';
 import { DEFAULT_AUDIO_TRANSCODER_CONFIG } from '../../classes';
 import { generateVoiceRecordingAttachment } from '../../../../mock-builders';
+
+window.MediaRecorder = MediaRecorderMock;
 
 const handleSubmit = jest.fn();
 const uploadAttachment = jest.fn();
@@ -27,8 +29,8 @@ const render = async (params = {}) => {
     <TranslationProvider value={translationContext}>{children}</TranslationProvider>
   );
   let result;
-  await act(() => {
-    result = renderHook(() => useMediaRecorder({ enabled: true, ...params }), {
+  await act(async () => {
+    result = await renderHook(() => useMediaRecorder({ enabled: true, ...params }), {
       wrapper,
     });
   });

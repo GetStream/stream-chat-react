@@ -150,6 +150,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'reactionOptions'
   | 'ReactionSelector'
   | 'ReactionsList'
+  | 'ReactionsListModal'
   | 'SendButton'
   | 'StartRecordingAudioButton'
   | 'ThreadHead'
@@ -1358,6 +1359,7 @@ const ChannelInner = <
       reactionOptions: props.reactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
+      ReactionsListModal: props.ReactionsListModal,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
@@ -1417,6 +1419,7 @@ const ChannelInner = <
       props.QuotedPoll,
       props.ReactionSelector,
       props.ReactionsList,
+      props.ReactionsListModal,
       props.SendButton,
       props.StartRecordingAudioButton,
       props.ThreadHead,
