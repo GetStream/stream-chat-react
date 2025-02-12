@@ -12,7 +12,9 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { TranslationLanguages } from 'stream-chat';
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { MessageContextValue } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { renderText as defaultRenderText } from '../Message';
 
 export const QuotedMessagePreviewHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -41,12 +43,14 @@ export type QuotedMessagePreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   quotedMessage: StreamMessage<StreamChatGenerics>;
+  renderText?: MessageContextValue<StreamChatGenerics>['renderText'];
 };
 
 export const QuotedMessagePreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >({
   quotedMessage,
+  renderText = defaultRenderText,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
   const { client } = useChatContext();
   const { Attachment = DefaultAttachment, Avatar = DefaultAvatar } =
@@ -56,6 +60,11 @@ export const QuotedMessagePreview = <
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     quotedMessage.text;
+
+  const renderedText = useMemo(
+    () => renderText(quotedMessageText, quotedMessage.mentioned_users),
+    [quotedMessage.mentioned_users, quotedMessageText, renderText],
+  );
 
   const quotedMessageAttachment = useMemo(() => {
     const [attachment] = quotedMessage.attachments ?? [];
@@ -91,7 +100,7 @@ export const QuotedMessagePreview = <
               className='str-chat__quoted-message-text'
               data-testid='quoted-message-text'
             >
-              <p>{quotedMessageText}</p>
+              {renderedText}
             </div>
           </>
         )}
