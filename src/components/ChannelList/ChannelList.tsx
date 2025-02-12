@@ -1,5 +1,6 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
+import type { ReactNode } from 'react';
 import type {
   Channel,
   ChannelFilters,
@@ -12,7 +13,10 @@ import type {
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
-import { useChannelListShape, usePrepareShapeHandlers } from './hooks/useChannelListShape';
+import {
+  useChannelListShape,
+  usePrepareShapeHandlers,
+} from './hooks/useChannelListShape';
 import { useStateStore } from '../../store';
 import { ChannelListMessenger } from './ChannelListMessenger';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -21,7 +25,11 @@ import { ChannelSearch as DefaultChannelSearch } from '../ChannelSearch/ChannelS
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
-import { ChannelListContextProvider, useChatContext, useComponentContext } from '../../context';
+import {
+  ChannelListContextProvider,
+  useChatContext,
+  useComponentContext,
+} from '../../context';
 import { NullComponent } from '../UtilityComponents';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
 import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';

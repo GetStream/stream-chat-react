@@ -1,19 +1,17 @@
 import throttle from 'lodash.throttle';
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { Channel, Event } from 'stream-chat';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
-
-import type { ChatContextValue } from '../../context/ChatContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
-
-import type { Channel, Event } from 'stream-chat';
-
+import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import type { ChatContextValue } from '../../context/ChatContext';
 import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
 import type { GroupChannelDisplayInfo } from './utils';
 import type { StreamMessage } from '../../context/ChannelStateContext';
