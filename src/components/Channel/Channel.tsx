@@ -13,23 +13,6 @@ import React, {
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import {
-  APIErrorResponse,
-  ChannelAPIResponse,
-  ChannelMemberResponse,
-  ChannelQueryOptions,
-  ChannelState,
-  ErrorFromResponse,
-  Event,
-  EventAPIResponse,
-  Message,
-  MessageResponse,
-  SendMessageAPIResponse,
-  Channel as StreamChannel,
-  StreamChat,
-  UpdatedMessage,
-  UserResponse,
-} from 'stream-chat';
 import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
@@ -62,6 +45,7 @@ import {
   WithComponents,
 } from '../../context';
 
+import { CHANNEL_CONTAINER_ID } from './constants';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
   DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
@@ -77,10 +61,27 @@ import {
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
+import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 
+import type {
+  APIErrorResponse,
+  ChannelAPIResponse,
+  ChannelMemberResponse,
+  ChannelQueryOptions,
+  ChannelState,
+  ErrorFromResponse,
+  Event,
+  EventAPIResponse,
+  Message,
+  MessageResponse,
+  SendMessageAPIResponse,
+  Channel as StreamChannel,
+  StreamChat,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
-
 import type {
   ChannelUnreadUiState,
   CustomTrigger,
@@ -96,8 +97,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import { useThreadContext } from '../Threads';
-import { CHANNEL_CONTAINER_ID } from './constants';
+import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -360,7 +360,7 @@ const ChannelInner = <
     [propChannelQueryOptions],
   );
 
-  const { client, customClasses, latestMessageDatesByChannels, mutes } =
+  const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
     useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
@@ -387,12 +387,16 @@ const ChannelInner = <
       loading: !channel.initialized,
     },
   );
-
+  const jumpToMessageFromSearch = useSearchFocusedMessage();
   const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
   const lastRead = useRef<Date | undefined>(undefined);
   const online = useRef(true);
+
+  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
 
@@ -647,6 +651,38 @@ const ChannelInner = <
     if (message) dispatch({ message, type: 'setThread' });
   }, [state.messages, state.thread]);
 
+  const handleHighlightedMessageChange = useCallback(
+    ({
+      highlightDuration,
+      highlightedMessageId,
+    }: {
+      highlightedMessageId: string;
+      highlightDuration?: number;
+    }) => {
+      dispatch({
+        channel,
+        highlightedMessageId,
+        type: 'jumpToMessageFinished',
+      });
+      if (clearHighlightedMessageTimeoutId.current) {
+        clearTimeout(clearHighlightedMessageTimeoutId.current);
+      }
+      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+        if (searchController._internalState.getLatestValue().focusedMessage) {
+          searchController._internalState.partialNext({ focusedMessage: undefined });
+        }
+        clearHighlightedMessageTimeoutId.current = null;
+        dispatch({ type: 'clearHighlightedMessage' });
+      }, highlightDuration ?? DEFAULT_HIGHLIGHT_DURATION);
+    },
+    [channel, searchController],
+  );
+
+  useEffect(() => {
+    if (!jumpToMessageFromSearch?.id) return;
+    handleHighlightedMessageChange({ highlightedMessageId: jumpToMessageFromSearch.id });
+  }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
+
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
@@ -745,10 +781,6 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
   const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] =
     useCallback(
       async (
@@ -760,22 +792,12 @@ const ChannelInner = <
         await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
         loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-        dispatch({
-          hasMoreNewer: channel.state.messagePagination.hasNext,
+        handleHighlightedMessageChange({
+          highlightDuration,
           highlightedMessageId: messageId,
-          type: 'jumpToMessageFinished',
         });
-
-        if (clearHighlightedMessageTimeoutId.current) {
-          clearTimeout(clearHighlightedMessageTimeoutId.current);
-        }
-
-        clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-          clearHighlightedMessageTimeoutId.current = null;
-          dispatch({ type: 'clearHighlightedMessage' });
-        }, highlightDuration);
       },
-      [channel, loadMoreFinished],
+      [channel, handleHighlightedMessageChange, loadMoreFinished],
     );
 
   const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] =
@@ -916,23 +938,19 @@ const ChannelInner = <
             first_unread_message_id: firstUnreadMessageId,
             last_read_message_id: lastReadMessageId,
           });
-
-        dispatch({
-          hasMoreNewer: channel.state.messagePagination.hasNext,
+        handleHighlightedMessageChange({
+          highlightDuration,
           highlightedMessageId: firstUnreadMessageId,
-          type: 'jumpToMessageFinished',
         });
-
-        if (clearHighlightedMessageTimeoutId.current) {
-          clearTimeout(clearHighlightedMessageTimeoutId.current);
-        }
-
-        clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-          clearHighlightedMessageTimeoutId.current = null;
-          dispatch({ type: 'clearHighlightedMessage' });
-        }, highlightDuration);
       },
-      [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
+      [
+        addNotification,
+        channel,
+        handleHighlightedMessageChange,
+        loadMoreFinished,
+        t,
+        channelUnreadUiState,
+      ],
     );
 
   const deleteMessage = useCallback(

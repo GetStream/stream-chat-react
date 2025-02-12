@@ -171,6 +171,36 @@ describe('ChannelPreview', () => {
     await expectLastEventMessageToBe(getByTestId, c0.data.name);
   });
 
+  it('allows to imperatively state the component represents an active channel', () => {
+    const previewUITestId = 'preview-ui-test-id';
+    const ChannelPreviewUI = ({ active }) => (
+      <div data-isactive={active} data-testid={previewUITestId} />
+    );
+    const { rerender } = renderComponent(
+      {
+        activeChannel: c1,
+        channel: c0,
+        Preview: ChannelPreviewUI,
+      },
+      render,
+    );
+    const previewUI = screen.getByTestId(previewUITestId);
+    expect(previewUI).toBeInTheDocument();
+    expect(previewUI).toHaveAttribute('data-isactive', 'false');
+
+    renderComponent(
+      {
+        active: true,
+        activeChannel: c1,
+        channel: c0,
+        Preview: ChannelPreviewUI,
+      },
+      rerender,
+    );
+    expect(previewUI).toBeInTheDocument();
+    expect(previewUI).toHaveAttribute('data-isactive', 'true');
+  });
+
   const eventCases = [
     ['message.new', dispatchMessageNewEvent],
     ['message.updated', dispatchMessageUpdatedEvent],

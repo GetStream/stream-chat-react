@@ -1,8 +1,13 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
-
 import { getDisplayName } from './utils/getDisplayName';
+
+import type {
+  AppSettingsAPIResponse,
+  Channel,
+  Mute,
+  SearchController,
+} from 'stream-chat';
 import type { ChatProps } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
@@ -35,6 +40,8 @@ export type ChatContextValue<
   latestMessageDatesByChannels: Record<ChannelCID, Date>;
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
+  /** Instance of SearchController class that allows to control all the search operations. */
+  searchController: SearchController<StreamChatGenerics>;
   /**
    * Sets active channel to be rendered within Channel component.
    * @param newChannel

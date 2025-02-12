@@ -75,6 +75,7 @@ const DefaultSearchResultsList = <
   );
 };
 
+// fixme: index and focusedUser should be changed for className with default value "str-chat__channel-search-result--focused"
 export type SearchResultItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = Pick<SearchResultsProps<StreamChatGenerics>, 'selectResult'> & {
@@ -218,14 +219,16 @@ export const SearchResults = <
 
       if (event.key === 'Enter') {
         event.preventDefault();
-        if (focusedResult !== undefined) {
-          selectResult(results[focusedResult]);
-          return setFocusedResult(undefined);
-        }
+        setFocusedResult((prevFocused) => {
+          if (typeof prevFocused !== 'undefined') {
+            selectResult(results[prevFocused]);
+            return undefined;
+          }
+          return prevFocused;
+        });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResult],
+    [results, selectResult],
   );
 
   useEffect(() => {

@@ -6,18 +6,19 @@ import {
   ChannelHeader,
   ChannelList,
   Chat,
-  MessageInput,
-  VirtualizedMessageList as MessageList,
-  Thread,
-  Window,
-  useCreateChatClient,
-  ThreadList,
   ChatView,
+  MessageInput,
+  StreamMessage,
+  Thread,
+  ThreadList,
+  useCreateChatClient,
+  VirtualizedMessageList as MessageList,
+  Window,
 } from 'stream-chat-react';
 
-const params = (new Proxy(new URLSearchParams(window.location.search), {
+const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown) as Record<string, string | null>;
+}) as unknown as Record<string, string | null>;
 
 const parseUserIdFromToken = (token: string) => {
   const [, payload] = token.split('.');
@@ -63,6 +64,9 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const isMessageAIGenerated = (message: StreamMessage<StreamChatGenerics>) =>
+  !!message?.ai_generated;
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
@@ -73,7 +77,7 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <Chat client={chatClient} isMessageAIGenerated={(message) => !!message?.ai_generated}>
+    <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>

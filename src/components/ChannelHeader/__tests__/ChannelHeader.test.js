@@ -21,6 +21,7 @@ import {
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+
 expect.extend(toHaveNoViolations);
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -48,7 +49,7 @@ const renderComponentBase = ({ channel, client, props }) =>
     </ChatProvider>,
   );
 
-async function renderComponent(props, channelData, channelType = 'messaging') {
+async function renderComponent({ channelData, channelType = 'messaging', props } = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
@@ -63,10 +64,10 @@ afterEach(cleanup);
 
 describe('ChannelHeader', () => {
   it('should display live label when prop live is true', async () => {
-    const { container } = await renderComponent(
-      { live: true },
-      { image: 'image.jpg', name: 'test-channel-1' },
-    );
+    const { container } = await renderComponent({
+      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      props: { live: true },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
     expect(
@@ -75,7 +76,7 @@ describe('ChannelHeader', () => {
   });
 
   it("should display avatar with fallback image only if other user's name is available", async () => {
-    await renderComponent(null, { image: null });
+    await renderComponent({ channelData: { image: null } });
     await waitFor(() => {
       expect(screen.queryByTestId('avatar-img')).not.toBeInTheDocument();
       expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
@@ -83,10 +84,10 @@ describe('ChannelHeader', () => {
   });
 
   it('should display avatar when channel has an image', async () => {
-    const { container, getByTestId } = await renderComponent(
-      { live: false },
-      { image: 'image.jpg', name: 'test-channel-1' },
-    );
+    const { container, getByTestId } = await renderComponent({
+      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      props: { live: false },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
     expect(getByTestId('avatar-img')).toBeInTheDocument();
@@ -94,20 +95,22 @@ describe('ChannelHeader', () => {
   });
 
   it('should display custom title', async () => {
-    const { container, getByText } = await renderComponent(
-      { title: 'Custom Title' },
-      { image: 'image.jpg', name: 'test-channel-1' },
-    );
+    const { container, getByText } = await renderComponent({
+      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      props: { title: 'Custom Title' },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
     expect(getByText('Custom Title')).toBeInTheDocument();
   });
 
   it('should display subtitle if present in channel data', async () => {
-    const { container, getByText } = await renderComponent(null, {
-      image: 'image.jpg',
-      name: 'test-channel-1',
-      subtitle: 'test subtitle',
+    const { container, getByText } = await renderComponent({
+      channelData: {
+        image: 'image.jpg',
+        name: 'test-channel-1',
+        subtitle: 'test subtitle',
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -115,11 +118,13 @@ describe('ChannelHeader', () => {
   });
 
   it('should display watcher_count', async () => {
-    const { container, getByText } = await renderComponent(null, {
-      image: 'image.jpg',
-      name: 'test-channel-1',
-      subtitle: 'test subtitle',
-      watcher_count: 34,
+    const { container, getByText } = await renderComponent({
+      channelData: {
+        image: 'image.jpg',
+        name: 'test-channel-1',
+        subtitle: 'test subtitle',
+        watcher_count: 34,
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -129,11 +134,13 @@ describe('ChannelHeader', () => {
   });
 
   it('should display correct member_count', async () => {
-    const { container, getByText } = await renderComponent(null, {
-      image: 'image.jpg',
-      member_count: 34,
-      name: 'test-channel-1',
-      subtitle: 'test subtitle',
+    const { container, getByText } = await renderComponent({
+      channelData: {
+        image: 'image.jpg',
+        member_count: 34,
+        name: 'test-channel-1',
+        subtitle: 'test subtitle',
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -163,7 +170,9 @@ describe('ChannelHeader', () => {
 
   it('should display custom menu icon', async () => {
     const { container } = await renderComponent({
-      MenuIcon: CustomMenuIcon,
+      props: {
+        MenuIcon: CustomMenuIcon,
+      },
     });
     expect(container.querySelector('div#custom-icon')).toBeInTheDocument();
   });

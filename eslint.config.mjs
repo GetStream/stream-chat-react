@@ -48,7 +48,10 @@ export default tseslint.config(
       'no-console': 'off',
       'no-mixed-spaces-and-tabs': 'warn',
       'no-self-compare': 'error',
-      'no-underscore-dangle': ['error', { allowAfterThis: true }],
+      'no-underscore-dangle': [
+        'error',
+        { allow: ['_internalState'], allowAfterThis: true },
+      ],
       'no-use-before-define': 'off',
       'no-useless-concat': 'error',
       'no-var': 'error',

@@ -12,7 +12,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
-import { ChatProvider } from '../../../context';
+import { ChatProvider, ComponentProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -23,19 +23,21 @@ describe('ChannelPreviewMessenger', () => {
 
   let chatClient;
   let channel;
-  const renderComponent = (props) => (
+  const renderComponent = (props, componentOverrides = {}) => (
     <ChatProvider value={{ client: chatClient }}>
-      <div aria-label='Select Channel' role='listbox'>
-        <ChannelPreviewMessenger
-          channel={channel}
-          displayImage='https://randomimage.com/src.jpg'
-          displayTitle='Channel name'
-          latestMessagePreview='Latest message!'
-          setActiveChannel={jest.fn()}
-          unread={10}
-          {...props}
-        />
-      </div>
+      <ComponentProvider value={componentOverrides}>
+        <div aria-label='Select Channel' role='listbox'>
+          <ChannelPreviewMessenger
+            channel={channel}
+            displayImage='https://randomimage.com/src.jpg'
+            displayTitle='Channel name'
+            latestMessagePreview='Latest message!'
+            setActiveChannel={jest.fn()}
+            unread={10}
+            {...props}
+          />
+        </div>
+      </ComponentProvider>
     </ChatProvider>
   );
 
