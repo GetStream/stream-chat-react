@@ -4,7 +4,7 @@ import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
 import type { Nodes } from 'hast-util-find-and-replace/lib';
-import type { Element } from 'react-markdown/lib/ast-to-react';
+import type { Element } from 'hast';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
 
