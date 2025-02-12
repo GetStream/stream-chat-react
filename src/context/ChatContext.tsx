@@ -1,14 +1,13 @@
-import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
-
-import { getDisplayName } from './utils/getDisplayName';
-
+import type { PropsWithChildren } from 'react';
 import type {
   AppSettingsAPIResponse,
   Channel,
   Mute,
   SearchController,
 } from 'stream-chat';
+
+import { getDisplayName } from './utils/getDisplayName';
 import type { ChatProps } from '../components/Chat/Chat';
 import type { UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
@@ -27,7 +26,7 @@ type CSSClasses =
 
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
-type ChannelCID = string; // e.g.: "messaging:general"
+type ChannelConfId = string; // e.g.: "messaging:general"
 
 export type ChatContextValue = {
   /**
@@ -36,11 +35,11 @@ export type ChatContextValue = {
   channelsQueryState: ChannelsQueryState;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
-  latestMessageDatesByChannels: Record<ChannelCID, Date>;
+  latestMessageDatesByChannels: Record<ChannelConfId, Date>;
   mutes: Array<Mute>;
   openMobileNav: () => void;
   /** Instance of SearchController class that allows to control all the search operations. */
-  searchController: SearchController<StreamChatGenerics>;
+  searchController: SearchController;
   /**
    * Sets active channel to be rendered within Channel component.
    * @param newChannel

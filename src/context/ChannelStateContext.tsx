@@ -1,9 +1,10 @@
-import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
-
+import type { PropsWithChildren } from 'react';
 import type {
+  APIErrorResponse,
   Channel,
   ChannelConfigWithInfo,
+  ErrorFromResponse,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
@@ -24,10 +25,15 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
-export type StreamMessage = (
-  | ReturnType<StreamChannelState['formatMessage']>
-  | MessageResponse
-) & { customType?: string; errorStatusCode?: number; editing?: boolean; date?: Date };
+export type StreamMessage =
+  // FIXME: we should use only one of the two (either formatted or unformatted)
+  (ReturnType<StreamChannelState['formatMessage']> | MessageResponse) & {
+    customType?: string;
+    errorStatusCode?: number;
+    error?: ErrorFromResponse<APIErrorResponse>;
+    editing?: boolean;
+    date?: Date;
+  };
 
 export type ChannelState = {
   suppressAutoscroll: boolean;

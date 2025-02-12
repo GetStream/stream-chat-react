@@ -51,8 +51,7 @@ import type {
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
-
-import {
+import type {
   SearchProps,
   SearchResultsPresearchProps,
   SearchSourceResultListProps,

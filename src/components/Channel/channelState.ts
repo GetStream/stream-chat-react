@@ -23,7 +23,7 @@ export type ChannelStateReducerAction =
       type: 'copyStateFromChannelOnEvent';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       highlightedMessageId: string;
       type: 'jumpToMessageFinished';
     }

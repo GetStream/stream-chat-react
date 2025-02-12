@@ -1,14 +1,14 @@
-import React, { ComponentType } from 'react';
+import React from 'react';
+import type { ComponentType } from 'react';
+import type { SearchSourceState, SearchSourceType } from 'stream-chat';
 
-import { DefaultSearchResultItems, SearchResultItemComponents } from './SearchResultItem';
+import { DefaultSearchResultItems } from './SearchResultItem';
 import { SearchSourceResultListFooter as DefaultSearchSourceResultListFooter } from './SearchSourceResultListFooter';
 import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { InfiniteScrollPaginator } from '../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
-
-import type { SearchSourceState, SearchSourceType } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import type { SearchResultItemComponents } from './SearchResultItem';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   items: nextValue.items,
@@ -20,15 +20,13 @@ export type SearchSourceResultListProps = {
   SearchResultItems?: SearchResultItemComponents;
 };
 
-export const SearchSourceResultList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const SearchSourceResultList = ({
   loadMoreDebounceMs = 100,
   loadMoreThresholdPx = 80,
   SearchResultItems = DefaultSearchResultItems,
 }: SearchSourceResultListProps) => {
   const { SearchSourceResultListFooter = DefaultSearchSourceResultListFooter } =
-    useComponentContext<StreamChatGenerics>();
+    useComponentContext();
 
   const { searchSource } = useSearchSourceResultsContext();
   const { items } = useStateStore(searchSource.state, searchSourceStateSelector);

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { SearchControllerState } from 'stream-chat';
 
 import { SearchSourceResults as DefaultSourceSearchResults } from './SearchSourceResults';
 import { SearchResultsHeader as DefaultSearchResultsHeader } from './SearchResultsHeader';
@@ -7,25 +8,20 @@ import { useSearchContext } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-import type { SearchControllerState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
-
 const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   activeSources: nextValue.sources.filter((s) => s.isActive),
   isActive: nextValue.isActive,
   searchQuery: nextValue.searchQuery,
 });
 
-export const SearchResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const SearchResults = () => {
   const { t } = useTranslationContext('ResultsContainer');
   const {
     SearchResultsHeader = DefaultSearchResultsHeader,
     SearchResultsPresearch = DefaultSearchResultsPresearch,
     SearchSourceResults = DefaultSourceSearchResults,
-  } = useComponentContext<StreamChatGenerics>();
-  const { searchController } = useSearchContext<StreamChatGenerics>();
+  } = useComponentContext();
+  const { searchController } = useSearchContext();
   const { activeSources, isActive, searchQuery } = useStateStore(
     searchController.state,
     searchControllerStateSelector,

@@ -1,12 +1,10 @@
 import clsx from 'clsx';
 import React from 'react';
+import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-
-import type { SearchSource, SearchSourceState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isActive: nextValue.isActive,
@@ -16,13 +14,9 @@ type SearchSourceFilterButtonProps = {
   source: SearchSource;
 };
 
-const SearchSourceFilterButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  source,
-}: SearchSourceFilterButtonProps) => {
+const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => {
   const { t } = useTranslationContext();
-  const { searchController } = useSearchContext<StreamChatGenerics>();
+  const { searchController } = useSearchContext();
   const { isActive } = useStateStore(source.state, searchSourceStateSelector);
   const label = `search-results-header-filter-source-button-label--${source.type}`;
   return (
@@ -47,10 +41,8 @@ const SearchSourceFilterButton = <
   );
 };
 
-export const SearchResultsHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
-  const { searchController } = useSearchContext<StreamChatGenerics>();
+export const SearchResultsHeader = () => {
+  const { searchController } = useSearchContext();
   return (
     <div className='str-chat__search-results-header' data-testid='search-results-header'>
       <div
