@@ -1,17 +1,15 @@
-import type { ReactNode } from 'react';
 import React, { Fragment } from 'react';
-
+import type { ReactNode } from 'react';
 import type { UserResponse } from 'stream-chat';
 
-import type { GroupStyle } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage } from './utils';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { ComponentContextValue, CustomClasses } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-
+import type { ComponentContextValue, CustomClasses } from '../../context';
+import type { GroupStyle } from './utils';
 import type { ChannelUnreadUiState } from '../../types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { MessageProps } from '../Message';
