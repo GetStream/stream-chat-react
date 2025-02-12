@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import type { ReactNode } from 'react';
 import type { ReactionSort, UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
@@ -109,7 +110,7 @@ export type MessageProps<
     text?: string,
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
-  ) => JSX.Element | null;
+  ) => ReactNode;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Comparator function to sort the list of reacted users
