@@ -130,7 +130,7 @@
     "remark-gfm": "^4.0.1",
     "textarea-caret": "^3.1.0",
     "tslib": "^2.6.2",
-    "unist-builder": "^3.0.0",
+    "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.0.0",
     "use-sync-external-store": "^1.4.0"
   },
