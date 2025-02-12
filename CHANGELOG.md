@@ -1,3 +1,20 @@
+## [12.12.0](https://github.com/GetStream/stream-chat-react/compare/v12.11.1...v12.12.0) (2025-02-12)
+
+
+### Bug Fixes
+
+* determine audio recording format with MediaRecorder.isTypeSupported not userAgent ([#2639](https://github.com/GetStream/stream-chat-react/issues/2639)) ([1c445de](https://github.com/GetStream/stream-chat-react/commit/1c445de211e8ed85371cf895f89e96f961e4c377))
+
+
+### Features
+
+* add general purpose search components ([#2588](https://github.com/GetStream/stream-chat-react/issues/2588)) ([d545207](https://github.com/GetStream/stream-chat-react/commit/d5452076e0fb99f44455d53fcc9f9c302f63c03f))
+
+
+### Chores
+
+* **deps:** upgrade react-markdown to v9 ([#2643](https://github.com/GetStream/stream-chat-react/issues/2643)) ([07812fe](https://github.com/GetStream/stream-chat-react/commit/07812fe15dd1dc30a060d19fe682f58d20bf8656))
+
 ## [12.11.1](https://github.com/GetStream/stream-chat-react/compare/v12.11.0...v12.11.1) (2025-02-11)
 
 
