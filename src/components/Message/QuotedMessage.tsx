@@ -56,8 +56,8 @@ export const QuotedMessage = <
       : null;
 
   const renderedText = useMemo(
-    () => renderText(quotedMessageText),
-    [quotedMessageText, renderText],
+    () => renderText(quotedMessageText, quoted_message?.mentioned_users),
+    [quotedMessageText, quoted_message?.mentioned_users, renderText],
   );
 
   if (!quoted_message) return null;
