@@ -2,16 +2,14 @@ import React from 'react';
 import { useMessageBounceContext, useTranslationContext } from '../../context';
 
 import type { MouseEventHandler, PropsWithChildren } from 'react';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import type { ModalProps } from '../Modal';
 
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
-export function MessageBouncePrompt<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({ children, onClose }: MessageBouncePromptProps) {
+export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptProps) {
   const { handleDelete, handleEdit, handleRetry } =
-    useMessageBounceContext<StreamChatGenerics>('MessageBouncePrompt');
+    useMessageBounceContext('MessageBouncePrompt');
   const { t } = useTranslationContext('MessageBouncePrompt');
 
   function createHandler(

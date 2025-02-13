@@ -1,4 +1,6 @@
-import React, { PropsWithChildren, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+
 import { DialogManager } from '../components/Dialog/DialogManager';
 import { DialogPortalDestination } from '../components/Dialog/DialogPortal';
 

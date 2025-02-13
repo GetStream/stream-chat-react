@@ -27,24 +27,19 @@ import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
-type MessageSimpleWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = MessageContextValue<StreamChatGenerics>;
+type MessageSimpleWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageSimpleWithContextProps<StreamChatGenerics>,
-) => {
+const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
     clearEditingState,
@@ -85,7 +80,7 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
-  } = useComponentContext<StreamChatGenerics>('MessageSimple');
+  } = useComponentContext('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -93,7 +88,6 @@ const MessageSimpleWithContext = <
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
   }
@@ -253,12 +247,8 @@ const MemoizedMessageSimple = React.memo(
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
-export const MessageSimple = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageUIComponentProps<StreamChatGenerics>,
-) => {
-  const messageContext = useMessageContext<StreamChatGenerics>('MessageSimple');
+export const MessageSimple = (props: MessageUIComponentProps) => {
+  const messageContext = useMessageContext('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

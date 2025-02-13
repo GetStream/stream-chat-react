@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
-import React, { ComponentProps, forwardRef, useCallback, useMemo } from 'react';
+import type { ComponentProps } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import {
@@ -8,8 +9,8 @@ import {
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types';
-import { PartialSelected } from '../../types/types';
+
+import type { PartialSelected } from '../../types/types';
 
 /**
  * @deprecated Use FileInputProps instead.
@@ -36,9 +37,7 @@ export type FileInputProps = UploadButtonProps;
 
 export const FileInput = UploadButton;
 
-export const UploadFileInput = forwardRef(function UploadFileInput<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const UploadFileInput = forwardRef(function UploadFileInput(
   {
     className,
     onFileChange: onFileChangeCustom,
@@ -48,9 +47,9 @@ export const UploadFileInput = forwardRef(function UploadFileInput<
 ) {
   const { t } = useTranslationContext('UploadFileInput');
   const { acceptedFiles = [], multipleUploads } =
-    useChannelStateContext<StreamChatGenerics>('UploadFileInput');
+    useChannelStateContext('UploadFileInput');
   const { isUploadEnabled, maxFilesLeft, uploadNewFiles } =
-    useMessageInputContext<StreamChatGenerics>('UploadFileInput');
+    useMessageInputContext('UploadFileInput');
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(

@@ -1,4 +1,5 @@
-import { createObserver, ObserverOrNext } from './Observer';
+import type { ObserverOrNext } from './Observer';
+import { createObserver } from './Observer';
 import { Subscription } from './Subscription';
 
 export interface Unsubscribable {

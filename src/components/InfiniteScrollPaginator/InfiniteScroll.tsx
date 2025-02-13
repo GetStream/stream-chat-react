@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';

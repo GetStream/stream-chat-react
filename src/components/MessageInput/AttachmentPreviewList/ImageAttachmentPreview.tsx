@@ -5,23 +5,15 @@ import { BaseImage as DefaultBaseImage } from '../../Gallery';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import type { AttachmentPreviewProps } from './types';
 import type { LocalImageAttachment } from '../types';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type ImageAttachmentPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  CustomLocalMetadata = Record<string, unknown>,
-> = AttachmentPreviewProps<
-  LocalImageAttachment<StreamChatGenerics, CustomLocalMetadata>,
-  StreamChatGenerics
->;
+export type ImageAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
+  AttachmentPreviewProps<LocalImageAttachment<CustomLocalMetadata>>;
 
-export const ImageAttachmentPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const ImageAttachmentPreview = ({
   attachment,
   handleRetry,
   removeAttachments,
-}: ImageAttachmentPreviewProps<StreamChatGenerics>) => {
+}: ImageAttachmentPreviewProps) => {
   const { t } = useTranslationContext('ImagePreviewItem');
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreview');
   const [previewError, setPreviewError] = useState(false);

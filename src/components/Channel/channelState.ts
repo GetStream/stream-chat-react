@@ -6,11 +6,7 @@ import type {
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type ChannelStateReducerAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> =
+export type ChannelStateReducerAction =
   | {
       type: 'closeThread';
     }
@@ -18,44 +14,42 @@ export type ChannelStateReducerAction<
       type: 'clearHighlightedMessage';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       type: 'copyMessagesFromChannel';
       parentId?: string | null;
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       type: 'copyStateFromChannelOnEvent';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       highlightedMessageId: string;
       type: 'jumpToMessageFinished';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       hasMore: boolean;
       type: 'initStateFromChannel';
     }
   | {
       hasMore: boolean;
-      messages: StreamMessage<StreamChatGenerics>[];
+      messages: StreamMessage[];
       type: 'loadMoreFinished';
     }
   | {
       hasMoreNewer: boolean;
-      messages: StreamMessage<StreamChatGenerics>[];
+      messages: StreamMessage[];
       type: 'loadMoreNewerFinished';
     }
   | {
       threadHasMore: boolean;
-      threadMessages: Array<
-        ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
-      >;
+      threadMessages: Array<ReturnType<StreamChannelState['formatMessage']>>;
       type: 'loadMoreThreadFinished';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
-      message: StreamMessage<StreamChatGenerics>;
+      channel: Channel;
+      message: StreamMessage;
       type: 'openThread';
     }
   | {
@@ -71,19 +65,19 @@ export type ChannelStateReducerAction<
       type: 'setLoadingMoreNewer';
     }
   | {
-      message: StreamMessage<StreamChatGenerics>;
+      message: StreamMessage;
       type: 'setThread';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
+      channel: Channel;
       type: 'setTyping';
     }
   | {
       type: 'startLoadingThread';
     }
   | {
-      channel: Channel<StreamChatGenerics>;
-      message: MessageResponse<StreamChatGenerics>;
+      channel: Channel;
+      message: MessageResponse;
       type: 'updateThreadOnEvent';
     }
   | {
@@ -91,11 +85,7 @@ export type ChannelStateReducerAction<
     };
 
 export const makeChannelReducer =
-  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>() =>
-  (
-    state: ChannelState<StreamChatGenerics>,
-    action: ChannelStateReducerAction<StreamChatGenerics>,
-  ) => {
+  () => (state: ChannelState, action: ChannelStateReducerAction) => {
     switch (action.type) {
       case 'closeThread': {
         return {
