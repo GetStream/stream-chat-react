@@ -26,6 +26,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { generatePoll } from '../../../mock-builders/generator/poll';
+import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
 expect.extend(toHaveNoViolations);
 
@@ -1520,8 +1521,10 @@ describe(`MessageInputFlat only`, () => {
     });
   };
 
-  const initQuotedMessagePreview = async (message) => {
-    await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
+  const initQuotedMessagePreview = async () => {
+    await waitFor(() =>
+      expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument(),
+    );
 
     const quoteButton = await screen.findByText(/^reply$/i);
     await waitFor(() => expect(quoteButton).toBeInTheDocument());
@@ -1548,6 +1551,38 @@ describe(`MessageInputFlat only`, () => {
       await renderComponent();
       await initQuotedMessagePreview(mainListMessage);
       await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+    });
+
+    it('renders proper markdown (through default renderText fn)', async () => {
+      const m = generateMessage({
+        mentioned_users: [{ id: 'john', name: 'John Cena' }],
+        text: 'hey @John Cena',
+        user,
+      });
+      await renderComponent({ messageContextOverrides: { message: m } });
+      await initQuotedMessagePreview(m);
+
+      expect(await screen.findByText('@John Cena')).toHaveAttribute('data-user-id');
+    });
+
+    it('uses custom renderText fn if provided', async () => {
+      const m = generateMessage({
+        text: nanoid(),
+        user,
+      });
+      const fn = jest.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
+      await renderComponent({
+        channelProps: {
+          QuotedMessagePreview: (props) => (
+            <QuotedMessagePreview {...props} renderText={fn} />
+          ),
+        },
+        messageContextOverrides: { message: m },
+      });
+      await initQuotedMessagePreview(m);
+
+      expect(fn).toHaveBeenCalled();
+      expect(await screen.findByTestId(m.text)).toBeInTheDocument();
     });
 
     it('is updated on original message update', async () => {

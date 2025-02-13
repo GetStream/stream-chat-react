@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
+import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -106,13 +107,46 @@ describe('QuotedMessage', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should rendered text', async () => {
-    const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+  it('renders proper markdown (through default renderText fn)', async () => {
+    const messageText = 'hey @John Cena';
+    const { container, findByTestId, findByText, queryByTestId } =
+      await renderQuotedMessage({
+        customProps: {
+          message: {
+            quoted_message: {
+              mentioned_users: [{ id: 'john', name: 'John Cena' }],
+              text: messageText,
+            },
+          },
+        },
+      });
+
+    expect(await findByText('@John Cena')).toHaveAttribute('data-user-id');
+    expect((await findByTestId('quoted-message-text')).textContent).toEqual(messageText);
+    expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('uses custom renderText fn if provided', async () => {
+    const messageText = nanoid();
+    const fn = jest
+      .fn()
+      .mockReturnValue(<div data-testid={messageText}>{messageText}</div>);
+
+    const { container, findByTestId, queryByTestId } = await renderQuotedMessage({
       customProps: {
-        message: { quoted_message: { text: quotedText } },
+        message: {
+          quoted_message: {
+            text: messageText,
+          },
+        },
+        renderText: fn,
       },
     });
-    expect(queryByText(quotedText)).toBeInTheDocument();
+
+    expect(fn).toHaveBeenCalled();
+    expect((await findByTestId('quoted-message-text')).textContent).toEqual(messageText);
     expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
