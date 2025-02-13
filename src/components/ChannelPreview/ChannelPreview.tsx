@@ -1,5 +1,5 @@
 import throttle from 'lodash.throttle';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -33,9 +33,9 @@ export type ChannelPreviewUIComponentProps<
   /** The last message received in a channel */
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** @deprecated Use latestMessagePreview prop instead. */
-  latestMessage?: string | JSX.Element;
+  latestMessage?: ReactNode;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
-  latestMessagePreview?: string | JSX.Element;
+  latestMessagePreview?: ReactNode;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
@@ -62,7 +62,7 @@ export type ChannelPreviewProps<
     channel: Channel<StreamChatGenerics>,
     t: TranslationContextValue['t'],
     userLanguage: TranslationContextValue['userLanguage'],
-  ) => string | JSX.Element;
+  ) => ReactNode;
   key?: string;
   /** Custom ChannelPreview click handler function */
   onSelect?: (event: React.MouseEvent) => void;

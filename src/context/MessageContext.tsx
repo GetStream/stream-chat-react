@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { PropsWithChildren, ReactNode, useContext } from 'react';
 
 import type { Mute, ReactionResponse, ReactionSort, UserResponse } from 'stream-chat';
 
@@ -130,7 +130,7 @@ export type MessageContextValue<
     text?: string,
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
-  ) => JSX.Element | null;
+  ) => ReactNode;
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */

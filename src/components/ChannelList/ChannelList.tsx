@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
@@ -97,7 +97,7 @@ export type ChannelListProps<
     t: TranslationContextValue['t'],
     userLanguage: TranslationContextValue['userLanguage'],
     isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
-  ) => string | JSX.Element;
+  ) => ReactNode;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
   /** Custom UI component to display the loading error indicator, defaults to component that renders null */

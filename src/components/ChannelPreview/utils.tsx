@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import ReactMarkdown from 'react-markdown';
 
@@ -37,7 +37,7 @@ export const getLatestMessagePreview = <
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   isMessageAIGenerated?: ChatContextValue<StreamChatGenerics>['isMessageAIGenerated'],
-): string | JSX.Element => {
+): ReactNode => {
   const latestMessage =
     channel.state.latestMessages[channel.state.latestMessages.length - 1];
 
@@ -47,11 +47,11 @@ export const getLatestMessagePreview = <
   const poll = latestMessage?.poll;
 
   if (!latestMessage) {
-    return t('Nothing yet...');
+    return t<string>('Nothing yet...');
   }
 
   if (latestMessage.deleted_at) {
-    return t('Message deleted');
+    return t<string>('Message deleted');
   }
 
   if (poll) {
@@ -94,10 +94,10 @@ export const getLatestMessagePreview = <
   }
 
   if (latestMessage.attachments?.length) {
-    return t('🏙 Attachment...');
+    return t<string>('🏙 Attachment...');
   }
 
-  return t('Empty message...');
+  return t<string>('Empty message...');
 };
 
 export type GroupChannelDisplayInfo = { image?: string; name?: string }[];
