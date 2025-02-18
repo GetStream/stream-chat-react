@@ -542,7 +542,7 @@ describe('MessageList', () => {
       );
       const parentMsg = messages[4];
       const lastReadMessage = messages[3];
-      const replies = Array.from({ length: 3 }).map((_, i) =>
+      const replies = Array.from({ length: 3 }).map(() =>
         generateMessage({
           created_at: new Date(
             new Date(parentMsg.created_at).getTime() + 1000 + 1,
