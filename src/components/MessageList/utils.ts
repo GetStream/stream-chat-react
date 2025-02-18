@@ -412,6 +412,9 @@ export const getIsFirstUnreadMessage = ({
   previousMessage?: StreamMessage;
   unreadMessageCount?: number;
 }) => {
+  // prevent showing unread indicator in threads
+  if (message.parent_id) return false;
+
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
   const lastReadTimestamp = lastReadDate?.getTime();
 

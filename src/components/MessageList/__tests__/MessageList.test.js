@@ -33,6 +33,8 @@ jest.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: jest.fn(),
 }));
 
+const UNREAD_MESSAGES_SEPARATOR_TEST_ID = 'unread-messages-separator';
+
 let chatClient;
 let channel;
 const user1 = generateUser();
@@ -448,7 +450,141 @@ describe('MessageList', () => {
           },
         });
       });
-      expect(screen.queryByTestId('unread-messages-separator')).toBeInTheDocument();
+      expect(screen.queryByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('should display unread messages separator in main msg list', async () => {
+      const user = generateUser();
+      const messages = Array.from({ length: 5 }).map((_, i) =>
+        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+      );
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: messages[2].created_at,
+                last_read_message_id: messages[2].id,
+                unread_messages: 2,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      const markReadSpy = jest.spyOn(channel, 'markRead').mockResolvedValue(false);
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(screen.queryByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID)).toBeInTheDocument();
+      markReadSpy.mockRestore();
+    });
+
+    it('should not display unread messages separator in read main msg list', async () => {
+      const user = generateUser();
+      const messages = Array.from({ length: 5 }).map((_, i) =>
+        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+      );
+
+      const lastMessage = messages.slice(-1)[0];
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: lastMessage.created_at,
+                last_read_message_id: lastMessage.id,
+                unread_messages: 0,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      const markReadSpy = jest.spyOn(channel, 'markRead').mockResolvedValue(false);
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(
+        screen.queryByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID),
+      ).not.toBeInTheDocument();
+      markReadSpy.mockRestore();
+    });
+
+    it('should not display unread messages separator in threads', async () => {
+      const user = generateUser();
+      const messages = Array.from({ length: 5 }).map((_, i) =>
+        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+      );
+      const parentMsg = messages[4];
+      const lastReadMessage = messages[3];
+      const replies = Array.from({ length: 3 }).map(() =>
+        generateMessage({
+          created_at: new Date(
+            new Date(parentMsg.created_at).getTime() + 1000 + 1,
+          ).toISOString(),
+          parent_id: parentMsg.id,
+        }),
+      );
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: lastReadMessage.created_at,
+                last_read_message_id: lastReadMessage.id,
+                unread_messages: 1,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: {
+            disableDateSeparator: true,
+            messages: replies,
+            threadList: true,
+          },
+        });
+      });
+
+      expect(
+        screen.queryByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID),
+      ).not.toBeInTheDocument();
     });
 
     it('should display custom unread messages separator when channel is marked unread', async () => {
