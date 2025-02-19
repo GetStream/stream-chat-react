@@ -1,3 +1,20 @@
+## [12.13.0](https://github.com/GetStream/stream-chat-react/compare/v12.12.0...v12.13.0) (2025-02-19)
+
+
+### Bug Fixes
+
+* hide UnreadMessagesSeparator in threads ([#2650](https://github.com/GetStream/stream-chat-react/issues/2650)) ([e58bc2a](https://github.com/GetStream/stream-chat-react/commit/e58bc2a3defbac4fcf71a62270f9808bc5114205))
+
+
+### Features
+
+* render Markdown within quoted message components ([#2640](https://github.com/GetStream/stream-chat-react/issues/2640)) ([6674cc2](https://github.com/GetStream/stream-chat-react/commit/6674cc210fb492649042fe0092b145aadb49d154))
+
+
+### Chores
+
+* **deps:** bump react peer dependency version to v16.14.0 ([#2644](https://github.com/GetStream/stream-chat-react/issues/2644)) ([88b6dc8](https://github.com/GetStream/stream-chat-react/commit/88b6dc867a89e4ccb022ab5fc2a9c136e2e5fe6b))
+
 ## [12.12.0](https://github.com/GetStream/stream-chat-react/compare/v12.11.1...v12.12.0) (2025-02-12)
 
 
