@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { Placement } from '@popperjs/core';
-import React, { ComponentProps, PropsWithChildren, useEffect, useState } from 'react';
+import type { Placement } from '@popperjs/core';
+import type { ComponentProps, PropsWithChildren } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
 import { usePopper } from 'react-popper';
 import { DialogPortalEntry } from './DialogPortal';

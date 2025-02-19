@@ -1,4 +1,5 @@
 import React from 'react';
+import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
 import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './SearchSourceResultsEmpty';
@@ -7,9 +8,6 @@ import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContex
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-import type { SearchSource, SearchSourceState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
-
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isLoading: nextValue.isLoading,
   items: nextValue.items,
@@ -17,16 +15,12 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
 
 export type SearchSourceResultsProps = { searchSource: SearchSource };
 
-export const SearchSourceResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  searchSource,
-}: SearchSourceResultsProps) => {
+export const SearchSourceResults = ({ searchSource }: SearchSourceResultsProps) => {
   const {
     SearchSourceResultList = DefaultSearchSourceResultList,
     SearchSourceResultsEmpty = DefaultSearchSourceResultsEmpty,
     SearchSourceResultsHeader = DefaultSearchSourceResultsHeader,
-  } = useComponentContext<StreamChatGenerics>();
+  } = useComponentContext();
   const { isLoading, items } = useStateStore(
     searchSource.state,
     searchSourceStateSelector,

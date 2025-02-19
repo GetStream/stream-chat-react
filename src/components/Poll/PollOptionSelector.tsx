@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import { isVoteAnswer, VotingVisibility } from 'stream-chat';
+import { isVoteAnswer } from 'stream-chat';
 import { Avatar } from '../Avatar';
 import {
   useChannelStateContext,
@@ -10,8 +10,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
+import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 
 type AmountBarProps = {
   amount: number;
@@ -39,21 +38,15 @@ export const Checkmark = ({ checked }: CheckmarkProps) => (
   />
 );
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+type PollStateSelectorReturnValue = {
   is_closed: boolean | undefined;
-  latest_votes_by_option: Record<string, PollVote<StreamChatGenerics>[]>;
+  latest_votes_by_option: Record<string, PollVote[]>;
   maxVotedOptionIds: string[];
-  ownVotesByOptionId: Record<string, PollVote<StreamChatGenerics>>;
+  ownVotesByOptionId: Record<string, PollVote>;
   vote_counts_by_option: Record<string, number>;
   voting_visibility: VotingVisibility | undefined;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   is_closed: nextValue.is_closed,
   latest_votes_by_option: nextValue.latest_votes_by_option,
   maxVotedOptionIds: nextValue.maxVotedOptionIds,
@@ -62,27 +55,22 @@ const pollStateSelector = <
   voting_visibility: nextValue.voting_visibility,
 });
 
-export type PollOptionSelectorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  option: PollOption<StreamChatGenerics>;
+export type PollOptionSelectorProps = {
+  option: PollOption;
   displayAvatarCount?: number;
   voteCountVerbose?: boolean;
 };
 
-export const PollOptionSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const PollOptionSelector = ({
   displayAvatarCount,
   option,
   voteCountVerbose,
-}: PollOptionSelectorProps<StreamChatGenerics>) => {
+}: PollOptionSelectorProps) => {
   const { t } = useTranslationContext();
-  const { channelCapabilities = {} } =
-    useChannelStateContext<StreamChatGenerics>('PollOptionsShortlist');
+  const { channelCapabilities = {} } = useChannelStateContext('PollOptionsShortlist');
   const { message } = useMessageContext();
 
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const {
     is_closed,
     latest_votes_by_option,
@@ -122,7 +110,7 @@ export const PollOptionSelector = <
         {displayAvatarCount && voting_visibility === 'public' && (
           <div className='str-chat__poll-option-voters'>
             {latest_votes_by_option?.[option.id] &&
-              (latest_votes_by_option[option.id] as PollVote<StreamChatGenerics>[])
+              (latest_votes_by_option[option.id] as PollVote[])
                 .filter((vote) => !!vote.user && !isVoteAnswer(vote))
                 .slice(0, displayAvatarCount)
                 .map(({ user }) => (

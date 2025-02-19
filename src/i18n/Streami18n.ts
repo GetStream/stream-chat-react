@@ -1,4 +1,4 @@
-import i18n, { TFunction } from 'i18next';
+import i18n from 'i18next';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -8,7 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
-
+import type { TFunction } from 'i18next';
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 

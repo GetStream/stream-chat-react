@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-
-import { AIState, Channel, Event } from 'stream-chat';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { AIState, Channel, Event } from 'stream-chat';
 
 export const AIStates = {
   Error: 'AI_STATE_ERROR',
@@ -17,11 +14,7 @@ export const AIStates = {
  * @param {Channel} channel - The channel for which we want to know the AI state.
  * @returns {{ aiState: AIState }} The current AI state for the given channel.
  */
-export const useAIState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  channel?: Channel<StreamChatGenerics>,
-): { aiState: AIState } => {
+export const useAIState = (channel?: Channel): { aiState: AIState } => {
   const [aiState, setAiState] = useState<AIState>(AIStates.Idle);
 
   useEffect(() => {
@@ -29,16 +22,13 @@ export const useAIState = <
       return;
     }
 
-    const indicatorChangedListener = channel.on(
-      'ai_indicator.update',
-      (event: Event<StreamChatGenerics>) => {
-        const { cid } = event;
-        const state = event.ai_state as AIState;
-        if (channel.cid === cid) {
-          setAiState(state);
-        }
-      },
-    );
+    const indicatorChangedListener = channel.on('ai_indicator.update', (event: Event) => {
+      const { cid } = event;
+      const state = event.ai_state as AIState;
+      if (channel.cid === cid) {
+        setAiState(state);
+      }
+    });
 
     const indicatorClearedListener = channel.on('ai_indicator.clear', (event) => {
       const { cid } = event;

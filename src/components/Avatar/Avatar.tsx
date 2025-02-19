@@ -1,16 +1,11 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-
 import type { UserResponse } from 'stream-chat';
 
 import { Icon } from '../Threads/icons';
 import { getWholeChar } from '../../utils';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type AvatarProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type AvatarProps = {
   /** Custom root element class that will be merged with the default class */
   className?: string;
   /** Image URL or default is an image of the first initial of the name if there is one  */
@@ -22,17 +17,13 @@ export type AvatarProps<
   /** mouseOver event handler attached to the component root element */
   onMouseOver?: (event: React.BaseSyntheticEvent) => void;
   /** The entire user object for the chat user displayed in the component */
-  user?: UserResponse<StreamChatGenerics>;
+  user?: UserResponse;
 };
 
 /**
  * A round avatar image with fallback to username's first letter
  */
-export const Avatar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: AvatarProps<StreamChatGenerics>,
-) => {
+export const Avatar = (props: AvatarProps) => {
   const {
     className,
     image,

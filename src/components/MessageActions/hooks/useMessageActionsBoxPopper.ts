@@ -1,4 +1,4 @@
-import { Placement } from '@popperjs/core';
+import type { Placement } from '@popperjs/core';
 import { useEffect, useRef } from 'react';
 import { usePopper } from 'react-popper';
 

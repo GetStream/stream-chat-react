@@ -2,11 +2,10 @@ import { useEffect, useRef } from 'react';
 
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export function useShouldForceScrollToBottom<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(messages: StreamMessage<StreamChatGenerics>[], currentUserId?: string) {
+export function useShouldForceScrollToBottom(
+  messages: StreamMessage[],
+  currentUserId?: string,
+) {
   const lastFocusedOwnMessage = useRef('');
   const initialFocusRegistered = useRef(false);
 

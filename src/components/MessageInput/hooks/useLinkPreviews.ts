@@ -1,12 +1,13 @@
 import { find } from 'linkifyjs';
-import { Dispatch, useCallback, useEffect, useRef } from 'react';
+import type { Dispatch } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import type {
   MessageInputReducerAction,
   MessageInputState,
 } from './useMessageInputState';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+
 import type { LinkPreview, LinkPreviewMap } from '../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 import type { DebouncedFunc } from 'lodash';
@@ -22,11 +23,9 @@ export type URLEnrichmentConfig = {
   onLinkPreviewDismissed?: (linkPreview: LinkPreview) => void;
 };
 
-type UseEnrichURLsParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = URLEnrichmentConfig & {
-  dispatch: Dispatch<MessageInputReducerAction<StreamChatGenerics>>;
-  linkPreviews: MessageInputState<StreamChatGenerics>['linkPreviews'];
+type UseEnrichURLsParams = URLEnrichmentConfig & {
+  dispatch: Dispatch<MessageInputReducerAction>;
+  linkPreviews: MessageInputState['linkPreviews'];
 };
 
 export type EnrichURLsController = {
@@ -40,16 +39,14 @@ export type EnrichURLsController = {
   >;
 };
 
-export const useLinkPreviews = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useLinkPreviews = ({
   debounceURLEnrichmentMs: debounceURLEnrichmentMsInputContext,
   dispatch,
   enrichURLForPreview = false,
   findURLFn: findURLFnInputContext,
   linkPreviews,
   onLinkPreviewDismissed: onLinkPreviewDismissedInputContext,
-}: UseEnrichURLsParams<StreamChatGenerics>): EnrichURLsController => {
+}: UseEnrichURLsParams): EnrichURLsController => {
   const { client } = useChatContext();
   // FIXME: the value of channelConfig is stale due to omitting it from the memoization deps in useCreateChannelStateContext
   const {

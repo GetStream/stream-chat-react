@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
 import { CloseIconRound } from './icons';

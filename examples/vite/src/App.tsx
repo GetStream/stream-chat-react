@@ -40,35 +40,10 @@ const filters: ChannelFilters = {
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
-type LocalAttachmentType = Record<string, unknown>;
-type LocalChannelType = Record<string, unknown>;
-type LocalCommandType = string;
-type LocalEventType = Record<string, unknown>;
-type LocalMemberType = Record<string, unknown>;
-type LocalMessageType = Record<string, unknown>;
-type LocalPollOptionType = Record<string, unknown>;
-type LocalPollType = Record<string, unknown>;
-type LocalReactionType = Record<string, unknown>;
-type LocalUserType = Record<string, unknown>;
-
-type StreamChatGenerics = {
-  attachmentType: LocalAttachmentType;
-  channelType: LocalChannelType;
-  commandType: LocalCommandType;
-  eventType: LocalEventType;
-  memberType: LocalMemberType;
-  messageType: LocalMessageType;
-  pollOptionType: LocalPollOptionType;
-  pollType: LocalPollType;
-  reactionType: LocalReactionType;
-  userType: LocalUserType;
-};
-
-const isMessageAIGenerated = (message: StreamMessage<StreamChatGenerics>) =>
-  !!message?.ai_generated;
+const isMessageAIGenerated = (message: StreamMessage) => !!message?.ai_generated;
 
 const App = () => {
-  const chatClient = useCreateChatClient<StreamChatGenerics>({
+  const chatClient = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
