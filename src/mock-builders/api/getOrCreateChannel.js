@@ -24,6 +24,9 @@ export const getOrCreateChannelApi = (
     pinnedMessages: channel.pinnedMessages,
     read: channel.read,
   };
+  if (channel.draft) {
+    result.draft = channel.draft;
+  }
 
   return mockedApiResponse(result, 'post');
 };

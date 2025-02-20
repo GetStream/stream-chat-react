@@ -5,6 +5,7 @@ import type {
   Channel,
   ChannelConfigWithInfo,
   ErrorFromResponse,
+  DraftResponse,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
@@ -44,12 +45,13 @@ export type ChannelState = {
   loading?: boolean;
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
-  members?: StreamChannelState['members'];
-  messages?: StreamMessage[];
-  pinnedMessages?: StreamMessage[];
-  quotedMessage?: StreamMessage;
-  read?: StreamChannelState['read'];
-  thread?: StreamMessage | null;
+  members?: StreamChannelState<StreamChatGenerics>['members'];
+  messageDraft?: DraftResponse<StreamChatGenerics>;
+  messages?: StreamMessage<StreamChatGenerics>[];
+  pinnedMessages?: StreamMessage<StreamChatGenerics>[];
+  quotedMessage?: StreamMessage<StreamChatGenerics>;
+  read?: StreamChannelState<StreamChatGenerics>['read'];
+  thread?: StreamMessage<StreamChatGenerics> | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
   threadMessages?: StreamMessage[];
@@ -76,7 +78,8 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
-  mutes?: Array<Mute>;
+  messageDraftsEnabled?: boolean;
+  mutes?: Array<Mute<StreamChatGenerics>>;
   onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;
 };

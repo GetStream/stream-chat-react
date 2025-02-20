@@ -169,8 +169,7 @@ export const useLinkPreviews = ({
           });
         });
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldDiscardEnrichQueries, linkPreviews]);
+  }, [dispatch, shouldDiscardEnrichQueries, linkPreviews]);
 
   return {
     cancelURLEnrichment,

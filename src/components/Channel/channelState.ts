@@ -115,6 +115,7 @@ export const makeChannelReducer =
         return {
           ...state,
           members: { ...channel.state.members },
+          messageDraft: channel.state.messageDraft,
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
           read: { ...channel.state.read },
@@ -130,6 +131,7 @@ export const makeChannelReducer =
           hasMore,
           loading: false,
           members: { ...channel.state.members },
+          messageDraft: channel.state.messageDraft,
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
           read: { ...channel.state.read },

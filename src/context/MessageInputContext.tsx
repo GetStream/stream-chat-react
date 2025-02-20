@@ -31,7 +31,7 @@ export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrig
 }: PropsWithChildren<{
   value: MessageInputContextValue<V>;
 }>) => (
-  <MessageInputContext.Provider value={value as MessageInputContextValue}>
+  <MessageInputContext.Provider value={value as unknown as MessageInputContextValue}>
     {children}
   </MessageInputContext.Provider>
 );
@@ -49,5 +49,5 @@ export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
     return {} as MessageInputContextValue<V>;
   }
 
-  return contextValue as MessageInputContextValue<V>;
+  return contextValue as unknown as MessageInputContextValue<StreamChatGenerics, V>;
 };

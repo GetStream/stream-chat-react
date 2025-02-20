@@ -19,6 +19,7 @@ import {
   dispatchMessageDeletedEvent,
   dispatchMessageUpdatedEvent,
   generateChannel,
+  generateFileAttachment,
   generateMember,
   generateMessage,
   generateScrapedDataAttachment,
@@ -27,6 +28,9 @@ import {
 } from '../../../mock-builders';
 import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
+import { dispatchDraftUpdated } from '../../../mock-builders/event/draftUpdated';
+import { dispatchDraftDeleted } from '../../../mock-builders/event/draftDeleted';
 
 expect.extend(toHaveNoViolations);
 
@@ -92,6 +96,7 @@ const editMock = jest.fn();
 const mockAddNotification = jest.fn();
 
 jest.mock('../../Channel/utils', () => ({
+  ...jest.requireActual('../../Channel/utils'),
   makeAddNotifications: () => mockAddNotification,
 }));
 
@@ -1465,6 +1470,29 @@ describe('EditMessageForm only', () => {
   });
 });
 
+const initQuotedMessagePreview = async (message) => {
+  await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
+
+  const quoteButton = await screen.findByText(/^reply$/i);
+  await waitFor(() => expect(quoteButton).toBeInTheDocument());
+
+  act(() => {
+    fireEvent.click(quoteButton);
+  });
+};
+
+const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
+  await waitFor(() =>
+    expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+  );
+  await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
+};
+
+const quotedMessagePreviewIsNotDisplayed = (message) => {
+  expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(message.text)).not.toBeInTheDocument();
+};
+
 describe(`MessageInputFlat only`, () => {
   afterEach(tearDown);
 
@@ -1519,31 +1547,6 @@ describe(`MessageInputFlat only`, () => {
       customClient: client,
       messageInputProps,
     });
-  };
-
-  const initQuotedMessagePreview = async () => {
-    await waitFor(() =>
-      expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument(),
-    );
-
-    const quoteButton = await screen.findByText(/^reply$/i);
-    await waitFor(() => expect(quoteButton).toBeInTheDocument());
-
-    act(() => {
-      fireEvent.click(quoteButton);
-    });
-  };
-
-  const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-    await waitFor(() =>
-      expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
-    );
-    await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
-  };
-
-  const quotedMessagePreviewIsNotDisplayed = (message) => {
-    expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(message.text)).not.toBeInTheDocument();
   };
 
   describe('QuotedMessagePreview', () => {
@@ -1741,6 +1744,441 @@ describe(`MessageInputFlat only`, () => {
       });
       expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
       jest.useRealTimers();
+    });
+  });
+});
+
+describe('Message drafts', () => {
+  afterEach(tearDown);
+
+  const renderComponent = makeRenderFn(MessageInputFlat);
+  // todo: thread
+
+  describe.each([
+    [
+      'enabled',
+      {
+        channelProps: { messageDraftsEnabled: true },
+        messageInputProps: { message: undefined },
+      },
+    ],
+    [
+      'disabled',
+      {
+        channelProps: { messageDraftsEnabled: undefined },
+        messageInputProps: { message: undefined },
+      },
+    ],
+    [
+      'editing message',
+      {
+        channelProps: { messageDraftsEnabled: true },
+        messageInputProps: { message: generateMessage() },
+      },
+    ],
+  ])('%s', (scenario, { channelProps, messageInputProps }) => {
+    const channelData = generateChannel();
+    channelData.draft = generateMessageDraft({
+      channel_cid: channelData.channel.cid,
+    });
+
+    it('initiates with draft', async () => {
+      const channelData = generateChannel({
+        channel: { own_capabilities: ['upload-file'] },
+      });
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({
+          attachments: [generateFileAttachment()],
+          quoted_message_id: mainListMessage.id,
+          mentioned_users: ['Y'],
+        }),
+        quoted_message: mainListMessage,
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      const filePreview = screen.queryByTestId(FILE_PREVIEW_TEST_ID);
+      if (scenario === 'enabled') {
+        expect(textarea.value).toBe(channelData.draft.message.text);
+        await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+        expect(
+          screen.getByText(channelData.draft.message.attachments[0].title),
+        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(filePreview.querySelector('a')).toHaveAttribute(
+            'href',
+            channelData.draft.message.attachments[0].asset_url,
+          );
+        });
+        // todo: check mentioned users
+      } else if (scenario === 'disabled') {
+        expect(textarea.value).toBe('');
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      } else if (scenario === 'editing message') {
+        expect(textarea.value).toBe(messageInputProps.message.text);
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      }
+    });
+
+    it('stores draft on unmount if at least text is not empty', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      const updatedDraftText = 'X';
+
+      await act(async () => {
+        await fireEvent.change(textarea, {
+          target: {
+            value: updatedDraftText,
+          },
+        });
+      });
+
+      unmount();
+
+      if (scenario === 'enabled') {
+        expect(channel.draftMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ text: updatedDraftText }),
+        );
+      } else {
+        expect(channel.draftMessage).not.toHaveBeenCalled();
+      }
+    });
+
+    it('stores draft on unmount if at least one attachment uploaded', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+      });
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps: {
+          ...messageInputProps,
+          doFileUploadRequest: mockUploadApi(),
+        },
+      });
+      const file = getFile();
+      const input = screen.getByTestId(FILE_INPUT_TEST_ID);
+
+      await act(() => {
+        fireEvent.change(input, {
+          target: {
+            files: [file],
+          },
+        });
+      });
+
+      unmount();
+
+      if (scenario === 'enabled') {
+        expect(channel.draftMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            attachments: [
+              {
+                asset_url: fileUploadUrl,
+                file_size: 7,
+                mime_type: 'text/plain',
+                title: 'some.txt',
+                type: 'file',
+              },
+            ],
+          }),
+        );
+      } else {
+        expect(channel.draftMessage).not.toHaveBeenCalled();
+      }
+    });
+
+    it('stores draft on unmount if quoted message exists', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      await initQuotedMessagePreview(mainListMessage);
+
+      unmount();
+
+      if (scenario === 'enabled') {
+        expect(channel.draftMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ quoted_message_id: mainListMessage.id }),
+        );
+      } else {
+        expect(channel.draftMessage).not.toHaveBeenCalled();
+      }
+    });
+
+    it('does not store unchanged draft on unmount', async () => {
+      const channelData = generateChannel({
+        channel: { own_capabilities: ['upload-file'] },
+      });
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({
+          attachments: [generateFileAttachment()],
+          quoted_message_id: mainListMessage.id,
+        }),
+        quoted_message: mainListMessage,
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      unmount();
+
+      expect(channel.draftMessage).not.toHaveBeenCalled();
+    });
+
+    it('overrides the draft with WS event draft.updated payload', async () => {
+      const channelData = generateChannel({
+        channel: { own_capabilities: ['upload-file'] },
+      });
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({
+          attachments: [generateFileAttachment()],
+          quoted_message_id: mainListMessage.id,
+        }),
+        quoted_message: mainListMessage,
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+      const updatedDraft = generateMessageDraft({
+        channel_cid: channel.cid,
+        message: generateMessage({
+          attachments: [generateFileAttachment()],
+          mentioned_users: ['X'],
+          quoted_message_id: mainListMessage.id,
+        }),
+        quoted_message: mainListMessage,
+      });
+      await act(() => {
+        dispatchDraftUpdated({ client, draft: updatedDraft });
+      });
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      const filePreview = screen.queryByTestId(FILE_PREVIEW_TEST_ID);
+      if (scenario === 'enabled') {
+        expect(textarea.value).toBe(updatedDraft.message.text);
+        await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+        expect(
+          screen.getByText(updatedDraft.message.attachments[0].title),
+        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(filePreview.querySelector('a')).toHaveAttribute(
+            'href',
+            updatedDraft.message.attachments[0].asset_url,
+          );
+        });
+        // todo: check mentioned users
+      } else if (scenario === 'disabled') {
+        expect(textarea.value).toBe('');
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      } else if (scenario === 'editing message') {
+        expect(textarea.value).toBe(messageInputProps.message.text);
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      }
+    });
+
+    it('removes the draft with WS event draft.deleted', async () => {
+      const channelData = generateChannel({
+        channel: { own_capabilities: ['upload-file'] },
+      });
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({
+          attachments: [generateFileAttachment()],
+          quoted_message_id: mainListMessage.id,
+        }),
+        quoted_message: mainListMessage,
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      await act(() => {
+        dispatchDraftDeleted({ client, draft: channelData.draft });
+      });
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      const filePreview = screen.queryByTestId(FILE_PREVIEW_TEST_ID);
+      if (scenario === 'editing message') {
+        expect(textarea.value).toBe(messageInputProps.message.text);
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      } else {
+        expect(textarea.value).toBe('');
+        expect(filePreview).not.toBeInTheDocument();
+        expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+      }
+    });
+
+    it('removes draft on text clear if no attachments and no quoted message', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      jest.spyOn(channel, 'deleteMessageDraft').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      const updatedDraftText = '';
+
+      await act(async () => {
+        await fireEvent.change(textarea, {
+          target: {
+            value: updatedDraftText,
+          },
+        });
+      });
+
+      unmount();
+
+      if (scenario === 'enabled') {
+        expect(channel.draftMessage).not.toHaveBeenCalled();
+        expect(channel.deleteMessageDraft).toHaveBeenCalledWith(
+          expect.objectContaining({}),
+        );
+      } else {
+        expect(channel.draftMessage).not.toHaveBeenCalled();
+        expect(channel.deleteMessageDraft).not.toHaveBeenCalled();
+      }
+    });
+
+    it('removes the draft if quoted message removed', async () => {
+      if (scenario !== 'enabled') return; // when the initial draft is disregarded, there is no quoted message preview
+
+      const channelData = generateChannel();
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({
+          attachments: [],
+          quoted_message_id: mainListMessage.id,
+          text: '',
+        }),
+        quoted_message: mainListMessage,
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      jest.spyOn(channel, 'deleteMessageDraft').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      if (scenario === 'enabled') {
+        await act(async () => {
+          await fireEvent.click(screen.getByLabelText('aria/Cancel Reply'));
+        });
+      }
+
+      unmount();
+
+      expect(channel.draftMessage).not.toHaveBeenCalled();
+      expect(channel.deleteMessageDraft).toHaveBeenCalledWith(
+        expect.objectContaining({}),
+      );
+    });
+
+    it('removes draft on last attachment removal if no text and no quoted message', async () => {
+      if (scenario !== 'enabled') return; // when the initial draft is disregarded, there is no attachment preview
+
+      const channelData = generateChannel({
+        channel: { own_capabilities: ['upload-file'] },
+      });
+      channelData.draft = generateMessageDraft({
+        channel_cid: channelData.channel.cid,
+        message: generateMessage({ attachments: [generateFileAttachment()], text: '' }),
+      });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData] });
+      jest.spyOn(channel, 'draftMessage').mockImplementationOnce();
+      jest.spyOn(channel, 'deleteMessageDraft').mockImplementationOnce();
+      const { unmount } = await renderComponent({
+        channelProps,
+        customChannel: channel,
+        customClient: client,
+        messageInputProps,
+      });
+
+      await act(async () => {
+        await fireEvent.click(screen.getByLabelText('aria/Remove attachment'));
+      });
+
+      unmount();
+
+      expect(channel.draftMessage).not.toHaveBeenCalled();
+      expect(channel.deleteMessageDraft).toHaveBeenCalledWith(
+        expect.objectContaining({}),
+      );
     });
   });
 });

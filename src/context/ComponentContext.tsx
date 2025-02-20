@@ -117,7 +117,9 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   /** Custom UI component to display the contents of a bounced message modal. Usually it allows to retry, edit, or delete the message. Defaults to and accepts the same props as: [MessageBouncePrompt](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) */
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
-  MessageDeleted?: React.ComponentType<MessageDeletedProps>;
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
+  /** Custom component that handles the message draft management for main or thread message composer */
+  MessageDraftSynchronizer?: React.ComponentType<PropsWithChildrenOnly>;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;

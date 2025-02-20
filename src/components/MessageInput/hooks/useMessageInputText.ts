@@ -100,8 +100,14 @@ export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
         logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
+    [
+      channel,
+      dispatch,
+      findAndEnqueueURLsToEnrich,
+      logChatPromiseExecution,
+      parent,
+      publishTypingEvent,
+    ],
   );
 
   return {

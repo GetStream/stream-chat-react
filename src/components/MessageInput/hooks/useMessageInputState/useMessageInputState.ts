@@ -1,35 +1,36 @@
-import type { Reducer } from 'react';
-import type React from 'react';
-import { useCallback, useReducer, useState } from 'react';
-import { nanoid } from 'nanoid';
+import React, { Reducer, useCallback, useReducer, useState } from 'react';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../../../context/ChannelStateContext';
 
-import { useAttachments } from './useAttachments';
-import type { EnrichURLsController } from './useLinkPreviews';
-import { useLinkPreviews } from './useLinkPreviews';
-import { useMessageInputText } from './useMessageInputText';
-import { useSubmitHandler } from './useSubmitHandler';
-import { usePasteHandler } from './usePasteHandler';
-import type { RecordingController } from '../../MediaRecorder/hooks/useMediaRecorder';
-import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
-import type { LinkPreviewMap, LocalAttachment } from '../types';
-import { LinkPreviewState, SetLinkPreviewMode } from '../types';
-import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
+import { useAttachments } from '../useAttachments';
+import { EnrichURLsController, useLinkPreviews } from '../useLinkPreviews';
+import { useMessageInputText } from '../useMessageInputText';
+import { useSubmitHandler } from '../useSubmitHandler';
+import { usePasteHandler } from '../usePasteHandler';
+import {
+  RecordingController,
+  useMediaRecorder,
+} from '../../../MediaRecorder/hooks/useMediaRecorder';
+import type { LinkPreviewMap, LocalAttachment } from '../../types';
+import { LinkPreviewState, SetLinkPreviewMode } from '../../types';
+import type { Attachment, Message, UserResponse } from 'stream-chat';
 
-import type { MessageInputProps } from '../MessageInput';
+import type { MessageInputProps } from '../../MessageInput';
 
-import type { CustomTrigger, SendMessageOptions } from '../../../types/types';
-import { mergeDeep } from '../../../utils/mergeDeep';
-
-export type MessageInputState = {
-  attachments: LocalAttachment[];
-  linkPreviews: LinkPreviewMap;
-  mentioned_users: UserResponse[];
-  setText: (text: string) => void;
-  text: string;
-};
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+} from '../../../../types/types';
+import { mergeDeep } from '../../../../utils/mergeDeep';
+import {
+  initState,
+  makeEmptyMessageInputState,
+  MessageInputState,
+} from './initMessageInputState';
 
 type UpsertAttachmentsAction = {
   attachments: LocalAttachment[];
@@ -44,6 +45,13 @@ type RemoveAttachmentsAction = {
 type SetTextAction = {
   getNewText: (currentStateText: string) => string;
   type: 'setText';
+};
+
+type SetComposerStateAction<
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+> = {
+  state: MessageInputState<SCG>;
+  type: 'setComposerState';
 };
 
 type ClearAction = {
@@ -67,7 +75,8 @@ export type MessageInputReducerAction =
   | SetLinkPreviewsAction
   | AddMentionedUserAction
   | UpsertAttachmentsAction
-  | RemoveAttachmentsAction;
+  | RemoveAttachmentsAction
+  | SetComposerStateAction;
 
 export type MessageInputHookProps = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -84,60 +93,12 @@ export type MessageInputHookProps = EnrichURLsController & {
   onSelectUser: (item: UserResponse) => void;
   recordingController: RecordingController;
   removeAttachments: (ids: string[]) => void;
+  setComposerState: (state: MessageInputState<StreamChatGenerics>) => void;
+  setText: (text: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadAttachment: (attachment: LocalAttachment) => Promise<LocalAttachment | undefined>;
   uploadNewFiles: (files: FileList | File[]) => void;
   upsertAttachments: (attachments: (Attachment | LocalAttachment)[]) => void;
-};
-
-const makeEmptyMessageInputState = (): MessageInputState => ({
-  attachments: [],
-  linkPreviews: new Map(),
-  mentioned_users: [],
-  setText: () => null,
-  text: '',
-});
-
-/**
- * Initializes the state. Empty if the message prop is falsy.
- */
-const initState = (
-  message?: Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
-): MessageInputState => {
-  if (!message) {
-    return makeEmptyMessageInputState();
-  }
-
-  const linkPreviews =
-    message.attachments?.reduce<LinkPreviewMap>((acc, attachment) => {
-      if (!attachment.og_scrape_url) return acc;
-      acc.set(attachment.og_scrape_url, {
-        ...(attachment as OGAttachment),
-        state: LinkPreviewState.LOADED,
-      });
-      return acc;
-    }, new Map()) ?? new Map();
-
-  const attachments =
-    message.attachments
-      ?.filter(({ og_scrape_url }) => !og_scrape_url)
-      .map(
-        (att) =>
-          ({
-            ...att,
-            localMetadata: { id: nanoid() },
-          }) as LocalAttachment,
-      ) || [];
-
-  const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
-
-  return {
-    attachments,
-    linkPreviews,
-    mentioned_users,
-    setText: () => null,
-    text: message.text || '',
-  };
 };
 
 /**
@@ -149,7 +110,7 @@ const messageInputReducer = (
 ) => {
   switch (action.type) {
     case 'setText':
-      return { ...state, text: action.getNewText(state.text) };
+      return { ...state, lastChange: new Date(), text: action.getNewText(state.text) };
 
     case 'clear':
       return makeEmptyMessageInputState();
@@ -177,6 +138,7 @@ const messageInputReducer = (
       return {
         ...state,
         attachments,
+        lastChange: new Date(),
       };
     }
 
@@ -186,6 +148,7 @@ const messageInputReducer = (
         attachments: state.attachments.filter(
           (att) => !action.ids.includes(att.localMetadata?.id),
         ),
+        lastChange: new Date(),
       };
     }
 
@@ -221,6 +184,7 @@ const messageInputReducer = (
       return {
         ...state,
         linkPreviews,
+        lastChange: new Date(),
       };
     }
 
@@ -228,6 +192,13 @@ const messageInputReducer = (
       return {
         ...state,
         mentioned_users: state.mentioned_users.concat(action.user),
+        lastChange: new Date(),
+      };
+
+    case 'setComposerState':
+      return {
+        ...action.state,
+        lastChange: new Date(),
       };
 
     default:
@@ -266,18 +237,27 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
   const {
     channelCapabilities = {},
     enrichURLForPreview: enrichURLForPreviewChannelContext,
-  } = useChannelStateContext('useMessageInputState');
+    messageDraft,
+    messageDraftsEnabled,
+  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
     message ||
+    (messageDraftsEnabled && messageDraft?.message) ||
     ((Array.isArray(defaultValue)
       ? { text: defaultValue.join('') }
       : { text: defaultValue?.toString() }) as Partial<StreamMessage>);
 
   const [state, dispatch] = useReducer(
-    messageInputReducer as Reducer<MessageInputState, MessageInputReducerAction>,
-    initialStateValue,
+    messageInputReducer as Reducer<
+      MessageInputState<StreamChatGenerics>,
+      MessageInputReducerAction<StreamChatGenerics>
+    >,
+    initialStateValue as Pick<
+      StreamMessage<StreamChatGenerics>,
+      'attachments' | 'mentioned_users' | 'text'
+    >,
     initState,
   );
 
@@ -360,6 +340,10 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     dispatch({ getNewText: () => text, type: 'setText' });
   }, []);
 
+  const setComposerState = useCallback((state: MessageInputState<StreamChatGenerics>) => {
+    dispatch({ state, type: 'setComposerState' });
+  }, []);
+
   return {
     ...state,
     ...enrichURLsController,
@@ -377,6 +361,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     openMentionsList,
     recordingController,
     removeAttachments,
+    setComposerState,
     setText,
     showCommandsList,
     showMentionsList,

@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import React from 'react';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
+import { MessageDraftSynchronizer as DefaultMessageDraftSynchronizer } from './MessageDraftSynchronizer';
 import { MessageInputFlat } from './MessageInputFlat';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
@@ -152,9 +153,12 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
 ) => {
   const { Input: PropInput } = props;
 
-  const { dragAndDropWindow } = useChannelStateContext();
-  const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } =
-    useComponentContext<V>('MessageInput');
+  const { dragAndDropWindow } = useChannelStateContext<StreamChatGenerics>();
+  const {
+    Input: ContextInput,
+    MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
+    TriggerProvider = DefaultTriggerProvider,
+  } = useComponentContext<StreamChatGenerics, V>('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
@@ -174,6 +178,7 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
     <DialogManagerProvider id={dialogManagerId}>
       <MessageInputProvider {...props}>
         <TriggerProvider>
+          <MessageDraftSynchronizer />
           <Input />
         </TriggerProvider>
       </MessageInputProvider>
