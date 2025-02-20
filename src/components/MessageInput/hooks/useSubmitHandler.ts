@@ -12,20 +12,13 @@ import type {
 } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  SendMessageOptions,
-} from '../../../types/types';
+import type { CustomTrigger, SendMessageOptions } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
 
-export const useSubmitHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
-  state: MessageInputState<StreamChatGenerics>,
-  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+export const useSubmitHandler = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
+  state: MessageInputState,
+  dispatch: React.Dispatch<MessageInputReducerAction>,
   numberOfUploads: number,
   enrichURLsController: EnrichURLsController,
 ) => {
@@ -40,9 +33,9 @@ export const useSubmitHandler = <
   const { attachments, linkPreviews, mentioned_users, text } = state;
 
   const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
+  const { channel } = useChannelStateContext('useSubmitHandler');
   const { addNotification, editMessage, sendMessage } =
-    useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
+    useChannelActionContext('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
 
   const textReference = useRef({ hasChanged: false, initialText: text });
@@ -58,7 +51,7 @@ export const useSubmitHandler = <
 
   const handleSubmit = async (
     event?: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
+    customMessageData?: Partial<Message>,
     options?: SendMessageOptions,
   ) => {
     event?.preventDefault();
@@ -165,7 +158,7 @@ export const useSubmitHandler = <
             ...message,
             ...updatedMessage,
             ...customMessageData,
-          } as unknown as UpdatedMessage<StreamChatGenerics>,
+          } as unknown as UpdatedMessage,
           sendOptions,
         );
 

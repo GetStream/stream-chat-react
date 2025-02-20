@@ -1,26 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import { PollAction } from './PollAction';
-import {
-  AddCommentFormProps,
-  AddCommentForm as DefaultAddCommentForm,
-} from './AddCommentForm';
-import {
-  SuggestPollOptionForm as DefaultSuggestPollOptionForm,
-  SuggestPollOptionFormProps,
-} from './SuggestPollOptionForm';
-import {
-  EndPollDialog as DefaultEndPollDialog,
-  EndPollDialogProps,
-} from './EndPollDialog';
-import {
-  PollAnswerList as DefaultPollAnswerList,
-  PollAnswerListProps,
-} from './PollAnswerList';
-import {
-  PollOptionsFullList as DefaultPollOptionsFullList,
-  FullPollOptionsListingProps,
-} from './PollOptionsFullList';
-import { PollResults as DefaultPollResults, PollResultsProps } from './PollResults';
+import type { AddCommentFormProps } from './AddCommentForm';
+import { AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
+import type { SuggestPollOptionFormProps } from './SuggestPollOptionForm';
+import { SuggestPollOptionForm as DefaultSuggestPollOptionForm } from './SuggestPollOptionForm';
+import type { EndPollDialogProps } from './EndPollDialog';
+import { EndPollDialog as DefaultEndPollDialog } from './EndPollDialog';
+import type { PollAnswerListProps } from './PollAnswerList';
+import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
+import type { FullPollOptionsListingProps } from './PollOptionsFullList';
+import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollOptionsFullList';
+import type { PollResultsProps } from './PollResults';
+import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 import {
   useChannelStateContext,
@@ -32,7 +23,6 @@ import {
 import { useStateStore } from '../../../store';
 
 import type { PollAnswer, PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 type ModalName =
   | 'suggest-option'
@@ -51,11 +41,7 @@ type PollStateSelectorReturnValue = {
   options: PollOption[];
   ownAnswer: PollAnswer | undefined;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   allow_answers: nextValue.allow_answers,
   allow_user_suggested_options: nextValue.allow_user_suggested_options,
   answers_count: nextValue.answers_count,
@@ -74,9 +60,7 @@ export type PollActionsProps = {
   SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
 
-export const PollActions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const PollActions = ({
   AddCommentForm = DefaultAddCommentForm,
   EndPollDialog = DefaultEndPollDialog,
   PollAnswerList = DefaultPollAnswerList,
@@ -86,10 +70,9 @@ export const PollActions = <
 }: PollActionsProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext('PollActions');
-  const { channelCapabilities = {} } =
-    useChannelStateContext<StreamChatGenerics>('PollActions');
+  const { channelCapabilities = {} } = useChannelStateContext('PollActions');
   const { message } = useMessageContext('PollActions');
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const {
     allow_answers,
     allow_user_suggested_options,

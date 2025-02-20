@@ -91,6 +91,7 @@ export default tseslint.config(
         { ignoreRestSiblings: false, caughtErrors: 'none' },
       ],
       '@typescript-eslint/no-unsafe-function-type': 'error',
+      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-wrapper-object-types': 'error',
       '@typescript-eslint/no-non-null-assertion': 'error',
       'no-empty-function': 'off',

@@ -1,5 +1,7 @@
-import React, { ComponentProps, useState } from 'react';
-import { PopperProps, usePopper } from 'react-popper';
+import type { ComponentProps } from 'react';
+import React, { useState } from 'react';
+import type { PopperProps } from 'react-popper';
+import { usePopper } from 'react-popper';
 
 export const Tooltip = ({ children, ...rest }: ComponentProps<'div'>) => (
   <div className='str-chat__tooltip' {...rest}>

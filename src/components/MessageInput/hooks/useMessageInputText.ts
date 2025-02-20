@@ -7,19 +7,16 @@ import type {
 import type { MessageInputProps } from '../MessageInput';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { CustomTrigger } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
 
-export const useMessageInputText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
-  state: MessageInputState<StreamChatGenerics>,
-  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
+  state: MessageInputState,
+  dispatch: React.Dispatch<MessageInputReducerAction>,
   findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useMessageInputText');
+  const { channel } = useChannelStateContext('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 

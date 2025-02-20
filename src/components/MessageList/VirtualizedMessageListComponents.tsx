@@ -1,18 +1,19 @@
 import clsx from 'clsx';
 import throttle from 'lodash.throttle';
 import React from 'react';
-import { ItemProps, ListItem } from 'react-virtuoso';
+import type { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { isMessageEdited, Message } from '../Message';
 
-import { StreamMessage, useComponentContext } from '../../context';
+import type { StreamMessage } from '../../context';
+import { useComponentContext } from '../../context';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage } from './utils';
 
 import type { GroupStyle } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
-import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
+import type { UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -24,11 +25,9 @@ export function calculateFirstItemIndex(numItemsPrepended: number) {
   return PREPEND_OFFSET - numItemsPrepended;
 }
 
-export const makeItemsRenderedHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  renderedItemsActions: Array<(msg: StreamMessage<StreamChatGenerics>[]) => void>,
-  processedMessages: StreamMessage<StreamChatGenerics>[],
+export const makeItemsRenderedHandler = (
+  renderedItemsActions: Array<(msg: StreamMessage[]) => void>,
+  processedMessages: StreamMessage[],
 ) =>
   throttle((items: ListItem<UnknownType>[]) => {
     const renderedMessages = items
@@ -37,24 +36,15 @@ export const makeItemsRenderedHandler = <
         return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
       })
       .filter((msg) => !!msg);
-    renderedItemsActions.forEach((action) =>
-      action(renderedMessages as StreamMessage<StreamChatGenerics>[]),
-    );
+    renderedItemsActions.forEach((action) => action(renderedMessages as StreamMessage[]));
   }, 200);
 
-type CommonVirtuosoComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  context?: VirtuosoContext<StreamChatGenerics>;
+type CommonVirtuosoComponentProps = {
+  context?: VirtuosoContext;
 };
 // using 'display: inline-block'
 // traps CSS margins of the item elements, preventing incorrect item measurements
-export const Item = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  context,
-  ...props
-}: ItemProps & CommonVirtuosoComponentProps<StreamChatGenerics>) => {
+export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
   const message =
@@ -75,13 +65,10 @@ export const Item = <
     />
   );
 };
-export const Header = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  context,
-}: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext<StreamChatGenerics>('VirtualizedMessageListHeader');
+export const Header = ({ context }: CommonVirtuosoComponentProps) => {
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
+    'VirtualizedMessageListHeader',
+  );
 
   return (
     <>
@@ -94,13 +81,10 @@ export const Header = <
     </>
   );
 };
-export const EmptyPlaceholder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  context,
-}: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
-    useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
+export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext(
+    'VirtualizedMessageList',
+  );
   return (
     <>
       {EmptyStateIndicator && (
@@ -110,12 +94,10 @@ export const EmptyPlaceholder = <
   );
 };
 
-export const messageRenderer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const messageRenderer = (
   virtuosoIndex: number,
   _data: UnknownType,
-  virtuosoContext: VirtuosoContext<StreamChatGenerics>,
+  virtuosoContext: VirtuosoContext,
 ) => {
   const {
     additionalMessageInputProps,
@@ -170,10 +152,8 @@ export const messageRenderer = <
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
     message.user?.id === messageList[streamMessageIndex - 1].user?.id;
-  const maybePrevMessage: StreamMessage<StreamChatGenerics> | undefined =
-    messageList[streamMessageIndex - 1];
-  const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
-    messageList[streamMessageIndex + 1];
+  const maybePrevMessage: StreamMessage | undefined = messageList[streamMessageIndex - 1];
+  const maybeNextMessage: StreamMessage | undefined = messageList[streamMessageIndex + 1];
 
   // FIXME: firstOfGroup & endOfGroup should be derived from groupStyles which apply a more complex logic
   const firstOfGroup =

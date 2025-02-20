@@ -1,8 +1,8 @@
 import { nanoid } from 'nanoid';
 import type { Dispatch, SetStateAction } from 'react';
 import type { ChannelState, MessageResponse } from 'stream-chat';
+
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
-import type { DefaultStreamChatGenerics } from '../../types';
 
 export const makeAddNotifications =
   (
@@ -34,11 +34,9 @@ export const makeAddNotifications =
  * @param targetId
  * @param msgSet
  */
-export const findInMsgSetById = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const findInMsgSetById = (
   targetId: string,
-  msgSet: ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>[],
+  msgSet: ReturnType<ChannelState['formatMessage']>[],
 ) => {
   for (let i = msgSet.length - 1; i >= 0; i--) {
     const item = msgSet[i];
@@ -60,13 +58,9 @@ export const findInMsgSetById = <
  * @param msgSet
  * @param exact
  */
-export const findInMsgSetByDate = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const findInMsgSetByDate = (
   targetDate: Date,
-  msgSet:
-    | MessageResponse<StreamChatGenerics>[]
-    | ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>[],
+  msgSet: MessageResponse[] | ReturnType<ChannelState['formatMessage']>[],
   exact = false,
 ) => {
   const targetTimestamp = targetDate.getTime();

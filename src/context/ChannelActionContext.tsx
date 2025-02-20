@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useContext } from 'react';
 
 import type {
   APIErrorResponse,
@@ -18,7 +19,6 @@ import type { CustomMentionHandler } from '../components/Message/hooks/useMentio
 
 import type {
   ChannelUnreadUiState,
-  DefaultStreamChatGenerics,
   SendMessageOptions,
   UnknownType,
   UpdateMessageOptions,
@@ -33,41 +33,31 @@ export type MarkReadWrapperOptions = {
   updateChannelUiUnreadState?: boolean;
 };
 
-export type MessageAttachments<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Array<Attachment<StreamChatGenerics>>;
+export type MessageAttachments = Array<Attachment>;
 
-export type MessageToSend<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  attachments?: MessageAttachments<StreamChatGenerics>;
+export type MessageToSend = {
+  attachments?: MessageAttachments;
   error?: ErrorFromResponse<APIErrorResponse>;
   errorStatusCode?: number;
   id?: string;
-  mentioned_users?: UserResponse<StreamChatGenerics>[];
-  parent?: StreamMessage<StreamChatGenerics>;
+  mentioned_users?: UserResponse[];
+  parent?: StreamMessage;
   parent_id?: string;
   status?: string;
   text?: string;
 };
 
-export type RetrySendMessage<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (message: StreamMessage<StreamChatGenerics>) => Promise<void>;
+export type RetrySendMessage = (message: StreamMessage) => Promise<void>;
 
-export type ChannelActionContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ChannelActionContextValue = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
-  deleteMessage: (
-    message: StreamMessage<StreamChatGenerics>,
-  ) => Promise<MessageResponse<StreamChatGenerics>>;
-  dispatch: React.Dispatch<ChannelStateReducerAction<StreamChatGenerics>>;
+  deleteMessage: (message: StreamMessage) => Promise<MessageResponse>;
+  dispatch: React.Dispatch<ChannelStateReducerAction>;
   editMessage: (
-    message: UpdatedMessage<StreamChatGenerics>,
+    message: UpdatedMessage,
     options?: UpdateMessageOptions,
-  ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
+  ) => Promise<UpdateMessageAPIResponse | void>;
   jumpToFirstUnreadMessage: (
     queryMessageLimit?: number,
     highlightDuration?: number,
@@ -82,50 +72,39 @@ export type ChannelActionContextValue<
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
   markRead: (options?: MarkReadWrapperOptions) => void;
-  onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
-  onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
-  openThread: (
-    message: StreamMessage<StreamChatGenerics>,
-    event?: React.BaseSyntheticEvent,
-  ) => void;
-  removeMessage: (message: StreamMessage<StreamChatGenerics>) => void;
-  retrySendMessage: RetrySendMessage<StreamChatGenerics>;
+  onMentionsClick: CustomMentionHandler;
+  onMentionsHover: CustomMentionHandler;
+  openThread: (message: StreamMessage, event?: React.BaseSyntheticEvent) => void;
+  removeMessage: (message: StreamMessage) => void;
+  retrySendMessage: RetrySendMessage;
   sendMessage: (
-    message: MessageToSend<StreamChatGenerics>,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
+    message: MessageToSend,
+    customMessageData?: Partial<Message>,
     options?: SendMessageOptions,
   ) => Promise<void>;
   setChannelUnreadUiState: React.Dispatch<
     React.SetStateAction<ChannelUnreadUiState | undefined>
   >;
-  setQuotedMessage: React.Dispatch<
-    React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
-  >;
-  updateMessage: (message: StreamMessage<StreamChatGenerics>) => void;
+  setQuotedMessage: React.Dispatch<React.SetStateAction<StreamMessage | undefined>>;
+  updateMessage: (message: StreamMessage) => void;
 };
 
 export const ChannelActionContext = React.createContext<
   ChannelActionContextValue | undefined
 >(undefined);
 
-export const ChannelActionProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const ChannelActionProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: ChannelActionContextValue<StreamChatGenerics>;
+  value: ChannelActionContextValue;
 }>) => (
   <ChannelActionContext.Provider value={value as unknown as ChannelActionContextValue}>
     {children}
   </ChannelActionContext.Provider>
 );
 
-export const useChannelActionContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  componentName?: string,
-) => {
+export const useChannelActionContext = (componentName?: string) => {
   const contextValue = useContext(ChannelActionContext);
 
   if (!contextValue) {
@@ -133,10 +112,10 @@ export const useChannelActionContext = <
       `The useChannelActionContext hook was called outside of the ChannelActionContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ChannelActionContextValue<StreamChatGenerics>;
+    return {} as ChannelActionContextValue;
   }
 
-  return contextValue as unknown as ChannelActionContextValue<StreamChatGenerics>;
+  return contextValue as unknown as ChannelActionContextValue;
 };
 
 /**
@@ -144,16 +123,13 @@ export const useChannelActionContext = <
  * typing is desired while using the HOC withChannelActionContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withChannelActionContext = <
-  P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
+export const withChannelActionContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
   const WithChannelActionContextComponent = (
-    props: Omit<P, keyof ChannelActionContextValue<StreamChatGenerics>>,
+    props: Omit<P, keyof ChannelActionContextValue>,
   ) => {
-    const channelActionContext = useChannelActionContext<StreamChatGenerics>();
+    const channelActionContext = useChannelActionContext();
 
     return <Component {...(props as P)} {...channelActionContext} />;
   };

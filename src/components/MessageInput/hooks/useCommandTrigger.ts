@@ -7,18 +7,11 @@ import type { CommandResponse } from 'stream-chat';
 
 import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+type ValidCommand = Required<Pick<CommandResponse, 'name'>> &
+  Omit<CommandResponse, 'name'>;
 
-type ValidCommand<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Required<Pick<CommandResponse<StreamChatGenerics>, 'name'>> &
-  Omit<CommandResponse<StreamChatGenerics>, 'name'>;
-
-export const useCommandTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(): CommandTriggerSetting<StreamChatGenerics> => {
-  const { channelConfig } =
-    useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
+export const useCommandTrigger = (): CommandTriggerSetting => {
+  const { channelConfig } = useChannelStateContext('useCommandTrigger');
   const { t } = useTranslationContext('useCommandTrigger');
 
   const commands = channelConfig?.commands;
@@ -61,13 +54,11 @@ export const useCommandTrigger = <
         onReady(
           result
             .filter(
-              (
-                result,
-              ): result is CommandResponse<StreamChatGenerics> & { name: string } =>
+              (result): result is CommandResponse & { name: string } =>
                 result.name !== undefined,
             )
             .map((commandData) => {
-              const translatedCommandData: ValidCommand<StreamChatGenerics> = {
+              const translatedCommandData: ValidCommand = {
                 name: commandData.name,
               };
 

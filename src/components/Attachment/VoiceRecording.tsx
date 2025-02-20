@@ -12,13 +12,9 @@ import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
 import { useTranslationContext } from '../../context';
 
-import type { DefaultStreamChatGenerics } from '../../types';
-
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
-export type VoiceRecordingPlayerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'> & {
+export type VoiceRecordingPlayerProps = Pick<VoiceRecordingProps, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
@@ -100,9 +96,7 @@ export const VoiceRecordingPlayer = ({
   );
 };
 
-export type QuotedVoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'>;
+export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { t } = useTranslationContext();
@@ -137,11 +131,9 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
   );
 };
 
-export type VoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type VoiceRecordingProps = {
   /** The attachment object from the message's attachment list. */
-  attachment: Attachment<StreamChatGenerics>;
+  attachment: Attachment;
   /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
   isQuoted?: boolean;
 };
