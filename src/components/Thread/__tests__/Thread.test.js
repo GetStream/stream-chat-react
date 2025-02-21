@@ -330,6 +330,12 @@ describe('Thread', () => {
     expect(channelActionContextMock.loadMoreThread).toHaveBeenCalledTimes(1);
   });
 
+  it('should not call the loadMoreThread callback on mount if the thread start has a non-zero reply count but threadInstance is provided', () => {
+    renderComponent({ chatClient, channelStateOverrides: { threadInstance: {} } });
+
+    expect(channelActionContextMock.loadMoreThread).not.toHaveBeenCalled();
+  });
+
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ getConfig: () => ({ replies: false }) });

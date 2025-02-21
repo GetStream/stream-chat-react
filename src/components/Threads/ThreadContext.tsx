@@ -4,15 +4,18 @@ import { Channel } from '../../components';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 export type ThreadContextValue = Thread | undefined;
 
 export const ThreadContext = createContext<ThreadContextValue>(undefined);
 
-export const useThreadContext = () => {
+export const useThreadContext = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>() => {
   const thread = useContext(ThreadContext);
 
-  return thread ?? undefined;
+  return (thread as unknown as Thread<StreamChatGenerics>) ?? undefined;
 };
 
 export const ThreadProvider = ({

@@ -9,6 +9,7 @@ import type {
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
+  Thread,
 } from 'stream-chat';
 
 import type {
@@ -53,6 +54,7 @@ export type ChannelState = {
   read?: StreamChannelState<StreamChatGenerics>['read'];
   thread?: StreamMessage<StreamChatGenerics> | null;
   threadHasMore?: boolean;
+  threadInstance?: Thread<StreamChatGenerics>;
   threadLoadingMore?: boolean;
   threadMessages?: StreamMessage[];
   threadSuppressAutoscroll?: boolean;

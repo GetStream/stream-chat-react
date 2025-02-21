@@ -53,9 +53,15 @@ export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
 export const Thread = <V extends CustomTrigger = CustomTrigger>(
   props: ThreadProps<V>,
 ) => {
-  const { channel, channelConfig, thread } = useChannelStateContext('Thread');
-  const threadInstance = useThreadContext();
+  const {
+    channel,
+    channelConfig,
+    thread,
+    threadInstance: threadInstanceChannelCtx,
+  } = useChannelStateContext<StreamChatGenerics>('Thread');
+  const threadInstanceThreadCtx = useThreadContext();
 
+  const threadInstance = threadInstanceThreadCtx ?? threadInstanceChannelCtx;
   if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
 
   // the wrapper ensures a key variable is set and the component recreates on thread switch
@@ -68,7 +74,11 @@ export const Thread = <V extends CustomTrigger = CustomTrigger>(
   );
 };
 
-const selector = (nextValue: ThreadState) => ({
+const selector = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
+  nextValue: ThreadState<StreamChatGenerics>,
+) => ({
   isLoadingNext: nextValue.pagination.isLoadingNext,
   isLoadingPrev: nextValue.pagination.isLoadingPrev,
   parentMessage: nextValue.parentMessage,
@@ -91,13 +101,12 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
     virtualized,
   } = props;
 
-  const threadInstance = useThreadContext();
-  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
-    useStateStore(threadInstance?.state, selector) ?? {};
+  const threadInstanceThreadCtx = useThreadContext<StreamChatGenerics>();
 
   const {
     thread,
     threadHasMore,
+    threadInstance: threadInstanceChannelCtx,
     threadLoadingMore,
     threadMessages = [],
     threadSuppressAutoscroll,
@@ -112,6 +121,11 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
     VirtualMessage,
   } = useComponentContext('Thread');
 
+  const threadInstance = threadInstanceThreadCtx ?? threadInstanceChannelCtx;
+
+  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
+    useStateStore(threadInstance?.state, selector) ?? {};
+
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
 
@@ -122,7 +136,7 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
-    if (thread?.id && thread?.reply_count) {
+    if (!threadInstance && thread?.id && thread?.reply_count) {
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }

@@ -1,7 +1,8 @@
-import type {
+import {
   Channel,
   MessageResponse,
   ChannelState as StreamChannelState,
+  Thread,
 } from 'stream-chat';
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
@@ -51,6 +52,7 @@ export type ChannelStateReducerAction =
       channel: Channel;
       message: StreamMessage;
       type: 'openThread';
+      threadInstance?: Thread<StreamChatGenerics>;
     }
   | {
       error: Error;
@@ -91,6 +93,7 @@ export const makeChannelReducer =
         return {
           ...state,
           thread: null,
+          threadInstance: undefined,
           threadLoadingMore: false,
           threadMessages: [],
         };
@@ -198,11 +201,12 @@ export const makeChannelReducer =
       }
 
       case 'openThread': {
-        const { channel, message } = action;
+        const { channel, message, threadInstance } = action;
         return {
           ...state,
           thread: message,
           threadHasMore: true,
+          threadInstance,
           threadMessages: message.id
             ? { ...channel.state.threads }[message.id] || []
             : [],

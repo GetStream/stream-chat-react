@@ -1145,14 +1145,42 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const openThread = (message: StreamMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    setQuotedMessage((current) => {
-      if (current?.parent_id !== message?.parent_id) {
-        return undefined;
-      } else {
-        return current;
+    if (messageDraftsEnabled) {
+      let threadInstance = client.threads.threadsById[message.id];
+      if (threadInstance) {
+        dispatch({ channel, message, threadInstance, type: 'openThread' });
+        return;
       }
-    });
-    dispatch({ channel, message, type: 'openThread' });
+
+      dispatch({
+        channel,
+        message,
+        threadInstance: {} as Thread<StreamChatGenerics>,
+        type: 'openThread',
+      });
+
+      client
+        .getThread(message.id, { reply_limit: DEFAULT_THREAD_PAGE_SIZE })
+        .then((t: Thread<StreamChatGenerics>) => {
+          t.registerSubscriptions();
+          dispatch({
+            channel,
+            message,
+            threadInstance: t,
+            type: 'openThread',
+          });
+          client.threads.addThread(t);
+        });
+    } else {
+      setQuotedMessage((current) => {
+        if (current?.parent_id !== message?.parent_id) {
+          return undefined;
+        } else {
+          return current;
+        }
+      });
+      dispatch({ channel, message, type: 'openThread' });
+    }
   };
 
   const closeThread = (event?: React.BaseSyntheticEvent) => {
@@ -1181,7 +1209,13 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
+    if (
+      state.threadInstance ||
+      state.threadLoadingMore ||
+      !state.thread ||
+      !state.threadHasMore
+    )
+      return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentId = state.thread.id;

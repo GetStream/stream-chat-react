@@ -567,18 +567,65 @@ describe('Channel', () => {
       const { channel, chatClient } = await initClient();
       const threadMessage = messages[0];
       const hasThread = jest.fn();
+      const hasThreadInstance = jest.fn();
+      const mockThreadInstance = {
+        threadInstanceMock: true,
+        registerSubscriptions: jest.fn(),
+      };
+      const getThreadSpy = jest
+        .spyOn(chatClient, 'getThread')
+        .mockResolvedValueOnce(mockThreadInstance);
 
       // this renders Channel, calls openThread from a child context consumer with a message,
       // and then calls hasThread with the thread id if it was set.
-      await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
-        if (!thread) {
-          openThread(threadMessage, { preventDefault: () => null });
-        } else {
-          hasThread(thread.id);
-        }
-      });
+      await renderComponent(
+        { channel, chatClient },
+        ({ openThread, thread, threadInstance }) => {
+          if (!thread) {
+            openThread(threadMessage, { preventDefault: () => null });
+          } else {
+            hasThread(thread.id);
+            hasThreadInstance(threadInstance);
+          }
+        },
+      );
 
-      await waitFor(() => expect(hasThread).toHaveBeenCalledWith(threadMessage.id));
+      await waitFor(() => {
+        expect(hasThread).toHaveBeenCalledWith(threadMessage.id);
+        expect(getThreadSpy).not.toHaveBeenCalled();
+        expect(hasThreadInstance).toHaveBeenCalledWith(undefined);
+      });
+      getThreadSpy.mockRestore();
+    });
+
+    it('uses Thread instance when messageDraftsEnabled is true', async () => {
+      const { channel, chatClient } = await initClient();
+      const threadMessage = messages[0];
+      const hasThreadInstance = jest.fn();
+      const mockThreadInstance = {
+        threadInstanceMock: true,
+        registerSubscriptions: jest.fn(),
+      };
+      const spy = jest
+        .spyOn(chatClient, 'getThread')
+        .mockResolvedValueOnce(mockThreadInstance);
+
+      await renderComponent(
+        { channel, chatClient, messageDraftsEnabled: true },
+        ({ openThread, thread, threadInstance }) => {
+          if (!thread) {
+            openThread(threadMessage, { preventDefault: () => null });
+          } else {
+            hasThreadInstance(threadInstance);
+          }
+        },
+      );
+
+      await waitFor(() => {
+        expect(hasThreadInstance).toHaveBeenCalledWith(mockThreadInstance);
+        expect(mockThreadInstance.registerSubscriptions).toHaveBeenCalledWith();
+      });
+      spy.mockRestore();
     });
 
     it('should be able to load more messages in a thread until reaching the end', async () => {
