@@ -49,8 +49,8 @@ jobs:
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # https://github.com/stream-ci-bot
-          GH_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: 0
         run: >
           yarn semantic-release
