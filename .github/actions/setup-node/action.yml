@@ -1,5 +1,5 @@
 name: Setup
-description: Sets up Node and Build SDK
+description: Sets up Node and installs dependencies
 
 inputs:
   node-version:

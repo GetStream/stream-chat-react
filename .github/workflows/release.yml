@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Run package release in "dry run" mode (does not publish either)
+        description: Run package release in "dry run" mode (does not publish)
         default: false
         type: boolean
 
@@ -21,13 +21,10 @@ jobs:
 
       - uses: ./.github/actions/setup-node
 
-      - name: Validate CommonJS bundle
-        run: yarn validate-cjs
-
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
           HUSKY: 0
         run: >
           yarn semantic-release

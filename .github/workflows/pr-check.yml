@@ -5,9 +5,12 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 jobs:
-  lint:
+  pr-title:
     runs-on: ubuntu-latest
     steps:
-      - uses: aslafy-z/conventional-pr-title-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node
+
+      - name: commitlint
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint --verbose
