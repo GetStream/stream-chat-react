@@ -1,3 +1,9 @@
+## [12.13.1](https://github.com/GetStream/stream-chat-react/compare/v12.13.0...v12.13.1) (2025-03-05)
+
+### Chores
+
+* **deps:** upgrade @stream-io/stream-chat-css to v5.7.2 ([#2660](https://github.com/GetStream/stream-chat-react/issues/2660)) ([03fad40](https://github.com/GetStream/stream-chat-react/commit/03fad407fd46a5fd1e5d930cf8e741329c0a895f))
+
 ## [12.13.0](https://github.com/GetStream/stream-chat-react/compare/v12.12.0...v12.13.0) (2025-02-19)
 
 
