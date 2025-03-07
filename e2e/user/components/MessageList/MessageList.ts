@@ -28,7 +28,10 @@ export default (page: Page) => ({
           ([selector]) => {
             const messageList = document.querySelector(selector);
             if (!messageList) return false;
-            return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+            return (
+              messageList.scrollTop + messageList.clientHeight ===
+              messageList.scrollHeight
+            );
           },
           [selector],
         ),

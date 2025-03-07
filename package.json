@@ -185,7 +185,6 @@
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^7.0.3",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/stream-chat-css": "^5.7.2",
     "@testing-library/dom": "^10.4.0",
@@ -220,7 +219,6 @@
     "dotenv": "^8.6.0",
     "emoji-mart": "^5.5.2",
     "esbuild": "^0.23.1",
-    "esbuild-plugin-replace": "^1.4.0",
     "eslint": "^9.16.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
@@ -237,7 +235,7 @@
     "jsdom": "^24.1.1",
     "lint-staged": "^15.2.1",
     "moment-timezone": "^0.5.43",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "semantic-release": "^24.2.3",
@@ -255,7 +253,7 @@
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
     "eslint": "eslint --max-warnings 0",
     "eslint-fix": "eslint --fix",
-    "prettier": "prettier 'src/**/*.{js,ts,jsx,tsx,md,json}' .prettierrc babel.config.js eslint.config.mjs",
+    "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}'",
     "prettier-fix": "yarn prettier --write",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc --watch --sourceMap --declarationMap",
@@ -270,8 +268,7 @@
     "e2e": "playwright test",
     "e2e-fixtures": "node e2e/fixtures/fixtures.mjs",
     "e2e-container": "./e2e/scripts/run_in_container.sh",
-    "docs:copy-css-docs": "scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs",
-    "docs:run": "yarn docs:copy-css-docs && stream-chat-docusaurus -s"
+    "prepack": "yarn build"
   },
   "resolutions": {
     "ast-types": "^0.14.0",

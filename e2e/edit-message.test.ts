@@ -14,7 +14,10 @@ test.describe('edit text message', () => {
     await controller.openStory('edit-message--user1', selectors.buttonAddMessage);
     await controller.clearChannel();
 
-    await Promise.all([page.waitForSelector(selectors.attachmentCard), controller.sendMessage()]);
+    await Promise.all([
+      page.waitForSelector(selectors.attachmentCard),
+      controller.sendMessage(),
+    ]);
   });
 
   test('message has 3 attachments (2 cards and 1 gallery)', ({ user }) => {

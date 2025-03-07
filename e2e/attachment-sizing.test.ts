@@ -16,7 +16,10 @@ const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
 
 test.describe('add height to video and image attachments', () => {
   test.beforeEach(async ({ controller, user }) => {
-    await controller.openStory('attachment-sizing--user1', selectors.channelPreviewButton);
+    await controller.openStory(
+      'attachment-sizing--user1',
+      selectors.channelPreviewButton,
+    );
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
   });
 
@@ -31,7 +34,9 @@ test.describe('add height to video and image attachments', () => {
     expect(result).toBeTruthy();
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
+      .isScrolledToBottom(
+        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`,
+      );
   });
 
   test('should add height for single image attachments', async ({ page, user }) => {
@@ -45,6 +50,8 @@ test.describe('add height to video and image attachments', () => {
     expect(result).toBe(true);
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
+      .isScrolledToBottom(
+        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`,
+      );
   });
 });

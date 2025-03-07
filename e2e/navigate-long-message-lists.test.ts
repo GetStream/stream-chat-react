@@ -29,10 +29,16 @@ const NEW_MESSAGE_NOTIFICATION_TEXT = 'New Messages!' as const;
 const LAST_REPLY_TEXT = 'Message 299';
 const MESSAGES_WITH_REPLIES = ['Message 149', 'Message 137', 'Message 124', 'Message 99'];
 
-const scrollInSteps = async (user: TestingUser, msgNumbers = ['142', '135', '128'], cycles = 3) => {
+const scrollInSteps = async (
+  user: TestingUser,
+  msgNumbers = ['142', '135', '128'],
+  cycles = 3,
+) => {
   for (let i = 0; i < cycles; i++) {
     await Promise.all(
-      msgNumbers.map((num: string) => user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded()),
+      msgNumbers.map((num: string) =>
+        user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded(),
+      ),
     );
   }
 };
@@ -63,7 +69,10 @@ test.describe('thread autoscroll', () => {
       await expectToOpenThreadAndSeeLatestMessage(page, user, MESSAGES_WITH_REPLIES[0]);
     });
 
-    test('if I load more messages by scrolling primary msg list', async ({ page, user }) => {
+    test('if I load more messages by scrolling primary msg list', async ({
+      page,
+      user,
+    }) => {
       const message = await user.get(Message)(MESSAGES_WITH_REPLIES[1]);
       await message.scrollIntoViewIfNeeded();
       await expectToOpenThreadAndSeeLatestMessage(page, user, MESSAGES_WITH_REPLIES[1]);
@@ -155,12 +164,16 @@ test.describe('scroll to the bottom', () => {
     await controller.sendOtherUserMessage();
 
     // click the notification
-    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
+    await page.waitForSelector(
+      getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT),
+    );
     await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
 
     // check that you are at the bottom
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
+      .isScrolledToBottom(
+        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`,
+      );
   });
 });

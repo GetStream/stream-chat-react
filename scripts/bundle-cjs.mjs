@@ -3,8 +3,7 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import { replace } from 'esbuild-plugin-replace';
-import getPackageVersion from './getPackageVersion.mjs';
+import getPackageVersion from './get-package-version.mjs';
 import packageJson from '../package.json' with { type: 'json' };
 
 // import.meta.dirname is not available before Node 20
@@ -34,7 +33,12 @@ const external = deps.filter((dep) => !bundledDeps.includes(dep));
 
 /** @type esbuild.BuildOptions */
 const cjsBundleConfig = {
-  entryPoints: [sdkEntrypoint, emojiEntrypoint, mp3EncoderEntrypoint, experimentalEntrypoint],
+  entryPoints: [
+    sdkEntrypoint,
+    emojiEntrypoint,
+    mp3EncoderEntrypoint,
+    experimentalEntrypoint,
+  ],
   bundle: true,
   format: 'cjs',
   target: 'es2020',
@@ -52,11 +56,9 @@ const bundles = ['browser', 'node'].map((platform) =>
     ...cjsBundleConfig,
     entryNames: `[dir]/[name].${platform}`,
     platform,
-    plugins: [
-      replace({
-        __STREAM_CHAT_REACT_VERSION__: getPackageVersion(),
-      }),
-    ],
+    define: {
+      'process.env.STREAM_CHAT_REACT_VERSION': JSON.stringify(getPackageVersion()),
+    },
   }),
 );
 await Promise.all(bundles);

@@ -2277,18 +2277,6 @@
   resolved "https://registry.yarnpkg.com/@semantic-release/error/-/error-4.0.0.tgz#692810288239637f74396976a9340fbc0aa9f6f9"
   integrity sha512-mgdxrHTLOjOddRVYIYDo0fR3/v61GNN1YGkfbrjuIKg/uMgCd+Qzo3UAXJ+woLQQpos4pl5Esuw5A7AoNlzjUQ==
 
-"@semantic-release/exec@^7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@semantic-release/exec/-/exec-7.0.3.tgz#be0b2d8e7e2bcf05076fc48914a643b939c2c151"
-  integrity sha512-uNWwPNtWi3WTcTm3fWfFQEuj8otOvwoS5m9yo2jSVHuvqdZNsOWmuL0/FqcVyZnCI32fxyYV0G7PPb/TzCH6jw==
-  dependencies:
-    "@semantic-release/error" "^4.0.0"
-    aggregate-error "^3.0.0"
-    debug "^4.0.0"
-    execa "^9.0.0"
-    lodash-es "^4.17.21"
-    parse-json "^8.0.0"
-
 "@semantic-release/git@^10.0.1":
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/@semantic-release/git/-/git-10.0.1.tgz#c646e55d67fae623875bf3a06a634dd434904498"
@@ -5396,13 +5384,6 @@ esbuild-openbsd-64@0.14.27:
   version "0.14.27"
   resolved "https://registry.yarnpkg.com/esbuild-openbsd-64/-/esbuild-openbsd-64-0.14.27.tgz#e99f8cdc63f1628747b63edd124d53cf7796468d"
   integrity sha512-xwSje6qIZaDHXWoPpIgvL+7fC6WeubHHv18tusLYMwL+Z6bEa4Pbfs5IWDtQdHkArtfxEkIZz77944z8MgDxGw==
-
-esbuild-plugin-replace@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/esbuild-plugin-replace/-/esbuild-plugin-replace-1.4.0.tgz#2051eb35e21699e41dcf75630f613bdaa5039be6"
-  integrity sha512-lP3ZAyzyRa5JXoOd59lJbRKNObtK8pJ/RO7o6vdjwLi71GfbL32NR22ZuS7/cLZkr10/L1lutoLma8E4DLngYg==
-  dependencies:
-    magic-string "^0.25.7"
 
 esbuild-sunos-64@0.14.27:
   version "0.14.27"
@@ -8834,13 +8815,6 @@ lz-string@^1.5.0:
   resolved "https://registry.yarnpkg.com/lz-string/-/lz-string-1.5.0.tgz#c1ab50f77887b712621201ba9fd4e3a6ed099941"
   integrity sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==
 
-magic-string@^0.25.7:
-  version "0.25.9"
-  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.25.9.tgz#de7f9faf91ef8a1c91d02c2e5314c8277dbcdd1c"
-  integrity sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==
-  dependencies:
-    sourcemap-codec "^1.4.8"
-
 make-dir@^2.0.0, make-dir@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-2.1.0.tgz#5f0310e18b8be898cc07009295a30ae41e91e6f5"
@@ -10726,10 +10700,10 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prettier@^3.4.2:
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.4.2.tgz#a5ce1fb522a588bf2b78ca44c6e6fe5aa5a2b13f"
-  integrity sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==
+prettier@^3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.5.3.tgz#4fc2ce0d657e7a02e602549f053b239cb7dfe1b5"
+  integrity sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==
 
 pretty-format@^27.0.2:
   version "27.5.1"
@@ -12021,11 +11995,6 @@ source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
-
-sourcemap-codec@^1.4.8:
-  version "1.4.8"
-  resolved "https://registry.yarnpkg.com/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz#ea804bd94857402e6992d05a38ef1ae35a9ab4c4"
-  integrity sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==
 
 space-separated-tokens@^2.0.0:
   version "2.0.2"

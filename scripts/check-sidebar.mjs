@@ -52,7 +52,9 @@ const walkFiles = async (docsPath) => {
 
     if (
       fileOrDirectory.isFile() &&
-      ACCEPTED_FILE_EXTENSIONS.some((extension) => fileOrDirectory.name.endsWith(extension))
+      ACCEPTED_FILE_EXTENSIONS.some((extension) =>
+        fileOrDirectory.name.endsWith(extension),
+      )
     ) {
       extractIdPromises.push(extractIdFromFile(completePath));
     }
@@ -116,5 +118,8 @@ const extractIdFromFile = async (resolvedPath) => {
   const nonExistentPaths = definedPaths.filter((p) => !availablePaths.includes(p));
 
   console.log('Paths missing from sidebars_[platform].json:', unusedPaths);
-  console.log('Paths defined in sidebars_[platform].json but missing from docs:', nonExistentPaths);
+  console.log(
+    'Paths defined in sidebars_[platform].json but missing from docs:',
+    nonExistentPaths,
+  );
 })();
