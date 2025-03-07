@@ -21,7 +21,10 @@ test.describe('add text message', () => {
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
   });
 
-  test('message list and preview button should be clear', async ({ controller, user }) => {
+  test('message list and preview button should be clear', async ({
+    controller,
+    user,
+  }) => {
     await controller.clearChannel();
     await user.sees(MessageList).empty();
     await user.sees(ChannelPreview)(CHANNEL_NAME).empty();
@@ -32,7 +35,9 @@ test.describe('add text message', () => {
 
     await user.sees(MessageList).not.empty();
     await user.sees(MessageList).contains.nthMessage(ADDED_MESSAGE_MAIN_LIST);
-    await user.sees(ChannelPreview)(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_MAIN_LIST);
+    await user
+      .sees(ChannelPreview)(CHANNEL_NAME)
+      .contains.lastMessage(ADDED_MESSAGE_MAIN_LIST);
   });
 });
 
@@ -47,12 +52,19 @@ test.describe('receive a message', () => {
     await controller.openStory('add-message--user2', selectors.channelPreviewButton);
   });
 
-  test('channel list should update for channel members and show unread', async ({ user }) => {
+  test('channel list should update for channel members and show unread', async ({
+    user,
+  }) => {
     await user.sees(ChannelPreview)(CHANNEL_NAME).not.read();
-    await user.sees(ChannelPreview)(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_MAIN_LIST);
+    await user
+      .sees(ChannelPreview)(CHANNEL_NAME)
+      .contains.lastMessage(ADDED_MESSAGE_MAIN_LIST);
   });
 
-  test('message list should update for different users on the channel', async ({ page, user }) => {
+  test('message list should update for different users on the channel', async ({
+    page,
+    user,
+  }) => {
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
       user.clicks(ChannelPreview).text(CHANNEL_NAME),
@@ -73,7 +85,10 @@ test.describe('reply to a message', () => {
     await user.clicks(Thread).close();
   });
 
-  test('thread with no replies contains only parent message', async ({ controller, user }) => {
+  test('thread with no replies contains only parent message', async ({
+    controller,
+    user,
+  }) => {
     await controller.clearChannel();
     await controller.sendMessage();
     await user.clicks(MessageActions).reply(ADDED_MESSAGE_MAIN_LIST);

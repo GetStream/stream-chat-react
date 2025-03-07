@@ -17,7 +17,9 @@ test.describe('autocomplete a mention', () => {
 
     await user.typesTo(MessageInput).text(MENTION_TRIGGER);
 
-    const autocompleteSuggestionItem = await user.clicks(AutocompleteSuggestionItem).nth(1);
+    const autocompleteSuggestionItem = await user
+      .clicks(AutocompleteSuggestionItem)
+      .nth(1);
     const textContent = await autocompleteSuggestionItem.textContent();
 
     await expect(getMessageInput(page)).toContainText(`${MENTION_TRIGGER}${textContent}`);

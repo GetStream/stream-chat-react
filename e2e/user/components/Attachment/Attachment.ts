@@ -2,7 +2,7 @@ import { expect, Page } from '@playwright/test';
 
 const attachmentTypes = ['card', 'img', 'gallery', 'video', 'file', 'media'] as const;
 
-type AttachmentType = typeof attachmentTypes[number];
+type AttachmentType = (typeof attachmentTypes)[number];
 
 export function getAttachment(page: Page, type: AttachmentType) {
   return page.locator(`.str-chat__message-attachment--${type}`);

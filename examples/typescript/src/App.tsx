@@ -11,9 +11,9 @@ import {
   Window,
 } from 'stream-chat-react';
 
-const params = (new Proxy(new URLSearchParams(window.location.search), {
+const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown) as Record<string, string | null>;
+}) as unknown as Record<string, string | null>;
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
 const userId = params.uid || (process.env.REACT_APP_USER_ID as string);

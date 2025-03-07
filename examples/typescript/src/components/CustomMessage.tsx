@@ -16,12 +16,8 @@ import {
 import './CustomMessage.scss';
 
 export const CustomMessage = () => {
-  const {
-    showDetailedReactions,
-    isReactionEnabled,
-    message,
-    reactionSelectorRef,
-  } = useMessageContext();
+  const { showDetailedReactions, isReactionEnabled, message, reactionSelectorRef } =
+    useMessageContext();
 
   const messageWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +40,9 @@ export const CustomMessage = () => {
         <MessageText />
         <MessageStatus />
         {message.attachments && <Attachment attachments={message.attachments} />}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
+        {hasReactions && !showDetailedReactions && isReactionEnabled && (
+          <SimpleReactionsList />
+        )}
         <MessageRepliesCountButton reply_count={message.reply_count} />
       </div>
     </div>

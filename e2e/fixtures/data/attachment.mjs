@@ -1,4 +1,3 @@
- 
 const smallImageAttachment = [
   {
     type: 'image',

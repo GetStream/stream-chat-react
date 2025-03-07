@@ -50,7 +50,6 @@ For complete pricing and details visit our [Chat Pricing Page](https://getstream
 
 `yarn add stream-chat stream-chat-react`
 
-
 ## Example Applications
 
 We have built five demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual event. You can preview these [demos](https://getstream.io/chat/demos/) on our website. Also, the code is [open source](https://github.com/GetStream/website-react-examples/).
@@ -61,7 +60,7 @@ We use a doc generator to build our [component documentation](https://getstream.
 
 The React components are created using the [stream-chat](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's likely you'll need to make additional calls to our Chat API using our JavaScript client, which has [documentation](https://getstream.io/chat/docs/javascript/) on our website.
 
-##  Component Reusability
+## Component Reusability
 
 For components that implement significant logic, it's helpful to split the component into two parts: a top-level component which handles functionality and a lower level component which renders the UI. This way you can swap UI without altering the logic that gives the component its functionality. We use this provider/consumer pattern frequently in the library, and the below example shows how to swap out the `Message` UI component with `CustomMessageUI` (using `WithComponents`), without affecting any logic in the application.
 
@@ -69,7 +68,7 @@ For components that implement significant logic, it's helpful to split the compo
 <Channel>
   <Window>
     <ChannelHeader />
-    <WithComponents overrides={{Message: CustomMessageUI}}>
+    <WithComponents overrides={{ Message: CustomMessageUI }}>
       <MessageList />
     </WithComponents>
     <MessageInput />
@@ -85,9 +84,9 @@ The preferred method for overriding the pre-defined styles in the library is to 
 ```css title="index.css"
 @layer stream, stream-overrides;
 
-@import "stream-chat-react/css/v2/index.css" layer(stream);
+@import 'stream-chat-react/css/v2/index.css' layer(stream);
 /* or */
-@import "stream-chat-react/dist/css/v2/index.css" layer(stream);
+@import 'stream-chat-react/dist/css/v2/index.css' layer(stream);
 
 @layer stream-overrides {
   /* your overrides */
@@ -103,6 +102,7 @@ Our library supports auto-translation for various user languages. Please read ou
 We welcome code changes that improve this library or fix a problem. Please make sure to follow all best practices and add tests, if applicable, before submitting a pull request on GitHub. We are pleased to merge your code into the official repository if it meets a need. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
 
 ## We are hiring!
+
 We recently closed a [$38 million Series B funding round](https://techcrunch.com/2021/03/04/stream-raises-38m-as-its-chat-and-activity-feed-apis-power-communications-for-1b-users/) and are actively growing.
 Our APIs are used by more than a billion end-users, and by working at Stream, you have the chance to make a huge impact on a team of very strong engineers.
 
@@ -116,4 +116,4 @@ This project uses `lamejs` library under the LGPL license to convert the recorde
 The library source code is dynamically imported and used only if audio recording is enabled.
 
 You can obtain the source code for `lamejs` from the [lamejs repository](https://github.com/gideonstele/lamejs) that is a fork of [the original JS library](https://github.com/zhuker/lamejs).
-You can find the source code for LAME at https://lame.sourceforge.net  and its license at: https://lame.sourceforge.net/license.txt
+You can find the source code for LAME at https://lame.sourceforge.net and its license at: https://lame.sourceforge.net/license.txt

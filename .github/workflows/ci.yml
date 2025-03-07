@@ -19,7 +19,7 @@ jobs:
     name: Lint & test with Node
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: ./.github/actions/setup-node
 
       - name: Build SDK

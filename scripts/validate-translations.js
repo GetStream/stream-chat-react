@@ -17,7 +17,10 @@ fs.readdir(directoryPath, function (err, files) {
     keys.forEach((key) => {
       if (!data[key] || data[key] === '') {
         countMissingTranslations = countMissingTranslations + 1;
-        console.error('\\033[91m', 'Missing translation for key "' + key + '" in "' + file + '"');
+        console.error(
+          '\\033[91m',
+          'Missing translation for key "' + key + '" in "' + file + '"',
+        );
       }
     });
   });

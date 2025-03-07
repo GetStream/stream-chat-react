@@ -4,7 +4,6 @@ about: Describe a new feature
 title: ''
 labels: feature
 assignees: ''
-
 ---
 
 **Motivation**
