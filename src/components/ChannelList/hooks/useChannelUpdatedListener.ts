@@ -4,22 +4,18 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { Channel, Event } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useChannelUpdatedListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+export const useChannelUpdatedListener = (
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   customHandler?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
-    event: Event<StreamChatGenerics>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    event: Event,
   ) => void,
   forceUpdate?: () => void,
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>('useChannelUpdatedListener');
+  const { client } = useChatContext('useChannelUpdatedListener');
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event) => {
       setChannels((channels) => {
         const channelIndex = channels.findIndex(
           (channel) => channel.cid === event.channel?.cid,

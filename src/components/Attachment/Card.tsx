@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
-import { AudioProps } from './Audio';
+import type { AudioProps } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
 import { PlayButton, ProgressBar } from './components';

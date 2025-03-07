@@ -8,26 +8,19 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type DeleteMessageNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+export type DeleteMessageNotifications = {
+  getErrorNotification?: (message: StreamMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const useDeleteHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: StreamMessage<StreamChatGenerics>,
-  notifications: DeleteMessageNotifications<StreamChatGenerics> = {},
+export const useDeleteHandler = (
+  message?: StreamMessage,
+  notifications: DeleteMessageNotifications = {},
 ): ReactEventHandler => {
   const { getErrorNotification, notify } = notifications;
 
-  const { deleteMessage, updateMessage } =
-    useChannelActionContext<StreamChatGenerics>('useDeleteHandler');
-  const { client } = useChatContext<StreamChatGenerics>('useDeleteHandler');
+  const { deleteMessage, updateMessage } = useChannelActionContext('useDeleteHandler');
+  const { client } = useChatContext('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
   return async (event) => {

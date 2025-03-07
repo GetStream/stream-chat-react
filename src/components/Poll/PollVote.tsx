@@ -5,7 +5,6 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext, useTranslationContext } from '../../context';
 
 import type { PollVote as PollVoteType } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
 const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
   const { t } = useTranslationContext();
@@ -33,17 +32,11 @@ const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
   );
 };
 
-type PollVoteProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  vote: PollVoteType<StreamChatGenerics>;
+type PollVoteProps = {
+  vote: PollVoteType;
 };
 
-const PollVoteAuthor = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  vote,
-}: PollVoteProps<StreamChatGenerics>) => {
+const PollVoteAuthor = ({ vote }: PollVoteProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { handleEnter, handleLeave, tooltipVisible } =
@@ -82,28 +75,18 @@ const PollVoteAuthor = <
   );
 };
 
-export const PollVote = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  vote,
-}: PollVoteProps<StreamChatGenerics>) => (
+export const PollVote = ({ vote }: PollVoteProps) => (
   <div className='str-chat__poll-vote'>
     <PollVoteAuthor vote={vote} />
     <PollVoteTimestamp timestamp={vote.created_at} />
   </div>
 );
 
-export type PollVoteListingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  votes: PollVoteType<StreamChatGenerics>[];
+export type PollVoteListingProps = {
+  votes: PollVoteType[];
 };
 
-export const PollVoteListing = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  votes,
-}: PollVoteListingProps<StreamChatGenerics>) => (
+export const PollVoteListing = ({ votes }: PollVoteListingProps) => (
   <div className='str-chat__poll-vote-listing'>
     {votes.map((vote) => (
       <PollVote key={`poll-vote-${vote.id}`} vote={vote} />
