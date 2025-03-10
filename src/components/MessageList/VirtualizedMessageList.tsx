@@ -1,12 +1,15 @@
-import React, { RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
+/* eslint-disable react/jsx-sort-props */
+import type { RefObject } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ComputeItemKey,
+  FollowOutputScalarType,
   ScrollSeekConfiguration,
   ScrollSeekPlaceholderProps,
-  Virtuoso,
   VirtuosoHandle,
   VirtuosoProps,
 } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
 import { useLastReadData } from './hooks';
@@ -231,7 +234,7 @@ const VirtualizedMessageListWithContext = <
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
-    stickToBottomScrollBehavior = 'smooth',
+    stickToBottomScrollBehavior = 'auto',
     suppressAutoscroll,
     threadList,
   } = props;
@@ -262,6 +265,13 @@ const VirtualizedMessageListWithContext = <
   );
 
   const virtuoso = useRef<VirtuosoHandle>(null);
+
+  const userInterractedWithScrollableViewRef = useRef<boolean>(false);
+  const atBottomRef = useRef<(t: boolean) => void | undefined>(undefined);
+  const atTopRef = useRef<(t: boolean) => void | undefined>(undefined);
+  const followOutputRef =
+    useRef<(t: boolean) => FollowOutputScalarType | undefined>(undefined);
+  const scrollToBottomRef = useRef<() => void>(undefined);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -361,27 +371,9 @@ const VirtualizedMessageListWithContext = <
     wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
   });
 
-  const scrollToBottom = useCallback(async () => {
-    if (hasMoreNewer) {
-      await jumpToLatestMessage();
-      return;
-    }
-
-    if (virtuoso.current) {
-      virtuoso.current.scrollToIndex(processedMessages.length - 1);
-    }
-
-    setNewMessagesNotification(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    virtuoso,
-    processedMessages,
-    setNewMessagesNotification,
-    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
-    processedMessages.length,
-    hasMoreNewer,
-    jumpToLatestMessage,
-  ]);
+  const scrollToBottom = useCallback(() => {
+    scrollToBottomRef.current?.();
+  }, []);
 
   useScrollToBottomOnNewMessage({
     messages,
@@ -406,7 +398,35 @@ const VirtualizedMessageListWithContext = <
       makeItemsRenderedHandler([toggleShowUnreadMessagesNotification], processedMessages),
     [processedMessages, toggleShowUnreadMessagesNotification],
   );
-  const followOutput = (isAtBottom: boolean) => {
+
+  const followOutput = useCallback(
+    (isAtBottom: boolean) =>
+      followOutputRef.current?.(isAtBottom) as FollowOutputScalarType,
+    [],
+  );
+
+  const atBottomStateChange = useCallback((isAtBottom: boolean) => {
+    atBottomRef.current?.(isAtBottom);
+  }, []);
+
+  const atTopStateChange = useCallback(() => {
+    atTopRef.current?.(true);
+  }, []);
+
+  scrollToBottomRef.current = async () => {
+    if (hasMoreNewer) {
+      await jumpToLatestMessage();
+      return;
+    }
+
+    if (virtuoso.current) {
+      virtuoso.current.scrollToIndex(processedMessages.length - 1);
+    }
+
+    setNewMessagesNotification(false);
+  };
+
+  followOutputRef.current = (isAtBottom: boolean) => {
     if (hasMoreNewer || suppressAutoscroll) {
       return false;
     }
@@ -426,7 +446,7 @@ const VirtualizedMessageListWithContext = <
     [],
   );
 
-  const atBottomStateChange = (isAtBottom: boolean) => {
+  atBottomRef.current = (isAtBottom) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
 
@@ -435,32 +455,70 @@ const VirtualizedMessageListWithContext = <
       setNewMessagesNotification?.(false);
     }
   };
-  const atTopStateChange = (isAtTop: boolean) => {
+
+  atTopRef.current = (isAtTop: boolean) => {
     if (isAtTop) {
       loadMore?.(messageLimit);
     }
   };
 
   useEffect(() => {
+    if (!highlightedMessageId) return;
+
     let scrollTimeout: ReturnType<typeof setTimeout>;
-    if (highlightedMessageId) {
-      const index = findMessageIndex(processedMessages, highlightedMessageId);
-      if (index !== -1) {
-        scrollTimeout = setTimeout(() => {
-          virtuoso.current?.scrollToIndex({ align: 'center', index });
-        }, 0);
-      }
+    const index = findMessageIndex(processedMessages, highlightedMessageId);
+    if (index !== -1) {
+      scrollTimeout = setTimeout(() => {
+        virtuoso.current?.scrollToIndex({ align: 'center', index });
+      }, 0);
     }
+
     return () => {
       clearTimeout(scrollTimeout);
     };
   }, [highlightedMessageId, processedMessages]);
+
+  // force autoscrollToBottom if user hasn't interracted yet
+  useEffect(() => {
+    /**
+     * a combination of parameters paired with extra data load on Virtuoso render causes
+     * a message list to render a set of items not at the bottom of the list as expected
+     * but rather either in the middle or a few hundredth pixels from the bottom
+     *
+     * `atTopStateChange` - if at top, load previous page, changing this to `startReached` reduces the amount of errors as it is not
+     * being triggered at Virtuoso render but does not solve the core issue
+     * `followOutput` - function which returns "smooth" value which is somehow more error-prone for Firefox and Safari
+     */
+
+    if (
+      highlightedMessageId ||
+      userInterractedWithScrollableViewRef.current ||
+      atBottom.current
+    ) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      userInterractedWithScrollableViewRef.current = true;
+      virtuoso.current?.autoscrollToBottom();
+    }, 0);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [atBottom, highlightedMessageId, processedMessages]);
 
   if (!processedMessages) return null;
 
   const dialogManagerId = threadList
     ? 'virtualized-message-list-dialog-manager-thread'
     : 'virtualized-message-list-dialog-manager';
+
+  const extra = {
+    ...overridingVirtuosoProps,
+    ...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {}),
+    ...(defaultItemHeight ? { defaultItemHeight } : {}),
+  };
 
   return (
     <VirtualizedMessageListContextProvider value={{ scrollToBottom }}>
@@ -477,8 +535,8 @@ const VirtualizedMessageListWithContext = <
             <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
               atBottomStateChange={atBottomStateChange}
               atBottomThreshold={100}
-              atTopStateChange={atTopStateChange}
-              atTopThreshold={100}
+              // atTopStateChange={atTopStateChange}
+              startReached={atTopStateChange}
               className='str-chat__message-list-scroll'
               components={{
                 EmptyPlaceholder,
@@ -529,13 +587,17 @@ const VirtualizedMessageListWithContext = <
               itemSize={fractionalItemSize}
               itemsRendered={handleItemsRendered}
               key={messageSetKey}
+              onTouchMove={() => {
+                userInterractedWithScrollableViewRef.current = true;
+              }}
+              onWheel={() => {
+                userInterractedWithScrollableViewRef.current = true;
+              }}
               overscan={overscan}
               ref={virtuoso}
-              style={{ overflowX: 'hidden' }}
+              style={{ overflowX: 'hidden', overscrollBehavior: 'none' }}
               totalCount={processedMessages.length}
-              {...overridingVirtuosoProps}
-              {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-              {...(defaultItemHeight ? { defaultItemHeight } : {})}
+              {...extra}
             />
           </div>
         </DialogManagerProvider>
