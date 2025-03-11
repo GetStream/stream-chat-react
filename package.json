@@ -258,7 +258,7 @@
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc --watch --sourceMap --declarationMap",
     "prepare": "husky install",
-    "preversion": "yarn install",
+    "preversion": "yarn install && yarn build",
     "test": "jest",
     "types": "tsc --noEmit --skipLibCheck false",
     "validate-translations": "node scripts/validate-translations.js",
@@ -267,8 +267,7 @@
     "browse-examples": "ladle serve",
     "e2e": "playwright test",
     "e2e-fixtures": "node e2e/fixtures/fixtures.mjs",
-    "e2e-container": "./e2e/scripts/run_in_container.sh",
-    "prepack": "yarn build"
+    "e2e-container": "./e2e/scripts/run_in_container.sh"
   },
   "resolutions": {
     "ast-types": "^0.14.0",
