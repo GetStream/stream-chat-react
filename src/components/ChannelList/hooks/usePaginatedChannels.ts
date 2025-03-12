@@ -4,10 +4,12 @@ import uniqBy from 'lodash.uniqby';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type {
+  APIErrorResponse,
   Channel,
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
+  ErrorFromResponse,
   StreamChat,
 } from 'stream-chat';
 
@@ -106,9 +108,9 @@ export const usePaginatedChannels = (
           activeChannelHandler(newChannels, setChannels);
         }
       }
-    } catch (err) {
-      console.warn(err);
-      setError(err as Error);
+    } catch (error) {
+      console.warn(error);
+      setError(error as ErrorFromResponse<APIErrorResponse>);
     }
 
     setQueryInProgress(null);
