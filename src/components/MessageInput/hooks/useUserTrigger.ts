@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { SearchLocalUserParams, searchLocalUsers } from './utils';
+import type { SearchLocalUserParams } from './utils';
+import { searchLocalUsers } from './utils';
 
 import { UserItem } from '../../UserItem/UserItem';
 
@@ -13,23 +14,15 @@ import type { UserResponse } from 'stream-chat';
 import type { SearchQueryParams } from '../../ChannelSearch/hooks/useChannelSearch';
 import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvider';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type UserTriggerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
+export type UserTriggerParams = {
+  onSelectUser: (item: UserResponse) => void;
   disableMentions?: boolean;
   mentionAllAppUsers?: boolean;
-  mentionQueryParams?: SearchQueryParams<StreamChatGenerics>['userFilters'];
+  mentionQueryParams?: SearchQueryParams['userFilters'];
   useMentionsTransliteration?: boolean;
 };
 
-export const useUserTrigger = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  params: UserTriggerParams<StreamChatGenerics>,
-): UserTriggerSetting<StreamChatGenerics> => {
+export const useUserTrigger = (params: UserTriggerParams): UserTriggerSetting => {
   const {
     disableMentions,
     mentionAllAppUsers,
@@ -40,8 +33,8 @@ export const useUserTrigger = <
 
   const [searching, setSearching] = useState(false);
 
-  const { client, mutes } = useChatContext<StreamChatGenerics>('useUserTrigger');
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useUserTrigger');
+  const { client, mutes } = useChatContext('useUserTrigger');
+  const { channel } = useChannelStateContext('useUserTrigger');
 
   const { members } = channel.state;
   const { watchers } = channel.state;
@@ -52,7 +45,7 @@ export const useUserTrigger = <
     const users = [...memberUsers, ...watcherUsers];
 
     // make sure we don't list users twice
-    const uniqueUsers = {} as Record<string, UserResponse<StreamChatGenerics>>;
+    const uniqueUsers = {} as Record<string, UserResponse>;
 
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {
@@ -65,45 +58,32 @@ export const useUserTrigger = <
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryMembersThrottled = useCallback(
-    throttle(
-      async (
-        query: string,
-        onReady: (users: UserResponse<StreamChatGenerics>[]) => void,
-      ) => {
-        try {
-          // @ts-expect-error valid query
-          const response = await channel.queryMembers({
-            name: { $autocomplete: query },
-          });
+    throttle(async (query: string, onReady: (users: UserResponse[]) => void) => {
+      try {
+        const response = await channel.queryMembers({
+          name: { $autocomplete: query },
+        });
 
-          const users = response.members.map(
-            (member) => member.user,
-          ) as UserResponse<StreamChatGenerics>[];
+        const users = response.members.map((member) => member.user) as UserResponse[];
 
-          if (onReady && users.length) {
-            onReady(users);
-          } else {
-            onReady([]);
-          }
-        } catch (error) {
-          console.log({ error });
+        if (onReady && users.length) {
+          onReady(users);
+        } else {
+          onReady([]);
         }
-      },
-      200,
-    ),
+      } catch (error) {
+        console.log({ error });
+      }
+    }, 200),
     [channel],
   );
 
-  const queryUsers = async (
-    query: string,
-    onReady: (users: UserResponse<StreamChatGenerics>[]) => void,
-  ) => {
+  const queryUsers = async (query: string, onReady: (users: UserResponse[]) => void) => {
     if (!query || searching) return;
     setSearching(true);
 
     try {
       const { users } = await client.queryUsers(
-        // @ts-expect-error valid query
         {
           $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
           ...(typeof mentionQueryParams.filters === 'function'
@@ -136,7 +116,7 @@ export const useUserTrigger = <
     dataProvider: (query, text, onReady) => {
       if (disableMentions) return;
 
-      const filterMutes = (data: UserResponse<StreamChatGenerics>[]) => {
+      const filterMutes = (data: UserResponse[]) => {
         if (text.includes('/unmute') && !mutes.length) {
           return [];
         }
@@ -153,7 +133,7 @@ export const useUserTrigger = <
       };
 
       if (mentionAllAppUsers) {
-        return queryUsersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) => {
+        return queryUsersThrottled(query, (data: UserResponse[]) => {
           if (onReady) onReady(filterMutes(data), query);
         });
       }
@@ -167,7 +147,7 @@ export const useUserTrigger = <
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
 
-        const params: SearchLocalUserParams<StreamChatGenerics> = {
+        const params: SearchLocalUserParams = {
           ownUserId: client.userID,
           query,
           text,
@@ -175,7 +155,7 @@ export const useUserTrigger = <
           users,
         };
 
-        const matchingUsers = searchLocalUsers<StreamChatGenerics>(params);
+        const matchingUsers = searchLocalUsers(params);
 
         const usersToShow = mentionQueryParams.options?.limit ?? 7;
         const data = matchingUsers.slice(0, usersToShow);
@@ -184,7 +164,7 @@ export const useUserTrigger = <
         return data;
       }
 
-      return queryMembersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) => {
+      return queryMembersThrottled(query, (data: UserResponse[]) => {
         if (onReady) onReady(filterMutes(data), query);
       });
     },

@@ -1,14 +1,12 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 import type { SearchController } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-export type SearchContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type SearchContextValue = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   directMessagingChannelType: string;
   /** Instance of the search controller that handles the data management */
-  searchController: SearchController<StreamChatGenerics>;
+  searchController: SearchController;
   /** Sets the input element into disabled state */
   disabled?: boolean;
   /** Clear search state / results on every click outside the search input, defaults to true */
@@ -22,22 +20,18 @@ export const SearchContext = createContext<SearchContextValue | undefined>(undef
 /**
  * Context provider for components rendered within the `Search` component
  */
-export const SearchContextProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const SearchContextProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: SearchContextValue<StreamChatGenerics>;
+  value: SearchContextValue;
 }>) => (
   <SearchContext.Provider value={value as unknown as SearchContextValue}>
     {children}
   </SearchContext.Provider>
 );
 
-export const useSearchContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const useSearchContext = () => {
   const contextValue = useContext(SearchContext);
-  return contextValue as unknown as SearchContextValue<StreamChatGenerics>;
+  return contextValue as unknown as SearchContextValue;
 };

@@ -2,22 +2,15 @@ import React, { useMemo } from 'react';
 import { usePollContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+type PollStateSelectorReturnValue = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
   max_votes_allowed: number;
   name: string;
-  options: PollOption<StreamChatGenerics>[];
+  options: PollOption[];
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   enforce_unique_vote: nextValue.enforce_unique_vote,
   is_closed: nextValue.is_closed,
   max_votes_allowed: nextValue.max_votes_allowed,
@@ -25,12 +18,10 @@ const pollStateSelector = <
   options: nextValue.options,
 });
 
-export const PollHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const PollHeader = () => {
   const { t } = useTranslationContext('PollHeader');
 
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =
     useStateStore(poll.state, pollStateSelector);
 

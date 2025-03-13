@@ -7,27 +7,19 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type CustomMentionHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (
+export type CustomMentionHandler = (
   event: React.BaseSyntheticEvent,
-  mentioned_users: UserResponse<StreamChatGenerics>[],
+  mentioned_users: UserResponse[],
 ) => void;
 
-export type MentionedUserEventHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (
+export type MentionedUserEventHandler = (
   event: React.BaseSyntheticEvent,
-  mentionedUsers: UserResponse<StreamChatGenerics>[],
+  mentionedUsers: UserResponse[],
 ) => void;
 
-function createEventHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  fn?: CustomMentionHandler<StreamChatGenerics>,
-  message?: StreamMessage<StreamChatGenerics>,
+function createEventHandler(
+  fn?: CustomMentionHandler,
+  message?: StreamMessage,
 ): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
@@ -37,19 +29,17 @@ function createEventHandler<
   };
 }
 
-export const useMentionsHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: StreamMessage<StreamChatGenerics>,
+export const useMentionsHandler = (
+  message?: StreamMessage,
   customMentionHandler?: {
-    onMentionsClick?: CustomMentionHandler<StreamChatGenerics>;
-    onMentionsHover?: CustomMentionHandler<StreamChatGenerics>;
+    onMentionsClick?: CustomMentionHandler;
+    onMentionsHover?: CustomMentionHandler;
   },
 ) => {
   const {
     onMentionsClick: contextOnMentionsClick,
     onMentionsHover: contextOnMentionsHover,
-  } = useChannelActionContext<StreamChatGenerics>('useMentionsHandler');
+  } = useChannelActionContext('useMentionsHandler');
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);

@@ -1,19 +1,16 @@
 import React from 'react';
 
-import { StreamMessage, useTranslationContext } from '../../context';
-import { DefaultStreamChatGenerics } from '../../types/types';
+import type { StreamMessage } from '../../context';
+import { useTranslationContext } from '../../context';
+
 import { isMessageBounced } from './utils';
 
-export interface MessageErrorTextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> {
-  message: StreamMessage<StreamChatGenerics>;
+export interface MessageErrorTextProps {
+  message: StreamMessage;
   theme: string;
 }
 
-export function MessageErrorText<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({ message, theme }: MessageErrorTextProps<StreamChatGenerics>) {
+export function MessageErrorText({ message, theme }: MessageErrorTextProps) {
   const { t } = useTranslationContext('MessageText');
 
   if (message.type === 'error' && !isMessageBounced(message)) {

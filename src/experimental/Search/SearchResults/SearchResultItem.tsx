@@ -1,29 +1,21 @@
+import React, { useCallback, useMemo } from 'react';
 import uniqBy from 'lodash.uniqby';
-import React, { ComponentType, useCallback, useMemo } from 'react';
+import type { ComponentType } from 'react';
+import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
 import { ChannelPreview } from '../../../components/ChannelPreview';
 import { useChannelListContext, useChatContext } from '../../../context';
-
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 
-import type { Channel, MessageResponse, User } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
-
-export type ChannelSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  item: Channel<StreamChatGenerics>;
+export type ChannelSearchResultItemProps = {
+  item: Channel;
 };
 
-export const ChannelSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  item,
-}: ChannelSearchResultItemProps<StreamChatGenerics>) => {
-  const { setActiveChannel } = useChatContext<StreamChatGenerics>();
-  const { setChannels } = useChannelListContext<StreamChatGenerics>();
+export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) => {
+  const { setActiveChannel } = useChatContext();
+  const { setChannels } = useChannelListContext();
 
   const onSelect = useCallback(() => {
     setActiveChannel(item);
@@ -39,24 +31,20 @@ export const ChannelSearchResultItem = <
   );
 };
 
-export type ChannelByMessageSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  item: MessageResponse<StreamChatGenerics>;
+export type ChannelByMessageSearchResultItemProps = {
+  item: MessageResponse;
 };
 
-export const MessageSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const MessageSearchResultItem = ({
   item,
-}: ChannelByMessageSearchResultItemProps<StreamChatGenerics>) => {
+}: ChannelByMessageSearchResultItemProps) => {
   const {
     channel: activeChannel,
     client,
     searchController,
     setActiveChannel,
-  } = useChatContext<StreamChatGenerics>();
-  const { setChannels } = useChannelListContext<StreamChatGenerics>();
+  } = useChatContext();
+  const { setChannels } = useChannelListContext();
 
   const channel = useMemo(() => {
     const { channel: channelData } = item;
@@ -97,20 +85,14 @@ export const MessageSearchResultItem = <
   );
 };
 
-export type UserSearchResultItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  item: User<StreamChatGenerics>;
+export type UserSearchResultItemProps = {
+  item: User;
 };
 
-export const UserSearchResultItem = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  item,
-}: UserSearchResultItemProps<StreamChatGenerics>) => {
-  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>();
-  const { setChannels } = useChannelListContext<StreamChatGenerics>();
-  const { directMessagingChannelType } = useSearchContext<StreamChatGenerics>();
+export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
+  const { client, setActiveChannel } = useChatContext();
+  const { setChannels } = useChannelListContext();
+  const { directMessagingChannelType } = useSearchContext();
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(directMessagingChannelType, {

@@ -1,30 +1,27 @@
 import React from 'react';
 
-import { MessageText, MessageTextProps } from './MessageText';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { MessageTextProps } from './MessageText';
+import { MessageText } from './MessageText';
+
 import { useMessageContext } from '../../context';
 import { useMessageTextStreaming } from './hooks';
 
-export type StreamedMessageTextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<MessageTextProps<StreamChatGenerics>, 'message' | 'renderText'> & {
+export type StreamedMessageTextProps = Pick<
+  MessageTextProps,
+  'message' | 'renderText'
+> & {
   renderingLetterCount?: number;
   streamingLetterIntervalMs?: number;
 };
 
-export const StreamedMessageText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: StreamedMessageTextProps<StreamChatGenerics>,
-) => {
+export const StreamedMessageText = (props: StreamedMessageTextProps) => {
   const {
     message: messageFromProps,
     renderingLetterCount,
     renderText,
     streamingLetterIntervalMs,
   } = props;
-  const { message: messageFromContext } =
-    useMessageContext<StreamChatGenerics>('StreamedMessageText');
+  const { message: messageFromContext } = useMessageContext('StreamedMessageText');
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
   const { streamedMessageText } = useMessageTextStreaming({

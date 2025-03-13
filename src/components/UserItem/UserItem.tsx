@@ -1,7 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 export type UserItemProps = {
   /** The user */

@@ -1,15 +1,15 @@
-import React, { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import React from 'react';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
-import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import {
-  ComponentContextValue,
-  useComponentContext,
-} from '../../context/ComponentContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import type { ComponentContextValue } from '../../context/ComponentContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
@@ -18,12 +18,7 @@ import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
 import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  SendMessageOptions,
-  UnknownType,
-} from '../../types/types';
+import type { CustomTrigger, SendMessageOptions, UnknownType } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
@@ -44,10 +39,7 @@ export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
     | null;
 }
 
-export type MessageInputProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = {
+export type MessageInputProps<V extends CustomTrigger = CustomTrigger> = {
   /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /**
@@ -68,12 +60,12 @@ export type MessageInputProps<
   /** Function to override the default file upload request */
   doFileUploadRequest?: (
     file: LocalAttachmentUploadMetadata['file'],
-    channel: Channel<StreamChatGenerics>,
+    channel: Channel,
   ) => Promise<SendFileAPIResponse>;
   /** Function to override the default image upload request */
   doImageUploadRequest?: (
     file: LocalAttachmentUploadMetadata['file'],
-    channel: Channel<StreamChatGenerics>,
+    channel: Channel,
   ) => Promise<SendFileAPIResponse>;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
@@ -92,7 +84,7 @@ export type MessageInputProps<
   /** Allows to hide MessageInput's send button. */
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
-  Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
+  Input?: React.ComponentType<MessageInputProps<V>>;
   /** Signals that the MessageInput is rendered in a message thread (Thread component) */
   isThreadInput?: boolean;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
@@ -100,22 +92,22 @@ export type MessageInputProps<
   /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
   mentionAllAppUsers?: boolean;
   /** Object containing filters/sort/options overrides for an @mention user query */
-  mentionQueryParams?: SearchQueryParams<StreamChatGenerics>['userFilters'];
+  mentionQueryParams?: SearchQueryParams['userFilters'];
   /** If provided, the existing message will be edited on submit */
-  message?: StreamMessage<StreamChatGenerics>;
+  message?: StreamMessage;
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
   /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
   overrideSubmitHandler?: (
-    message: MessageToSend<StreamChatGenerics>,
+    message: MessageToSend,
     channelCid: string,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
+    customMessageData?: Partial<Message>,
     options?: SendMessageOptions,
   ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
-  parent?: StreamMessage<StreamChatGenerics>;
+  parent?: StreamMessage;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
@@ -134,17 +126,14 @@ export type MessageInputProps<
   useMentionsTransliteration?: boolean;
 };
 
-const MessageInputProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: PropsWithChildren<MessageInputProps<StreamChatGenerics, V>>,
+const MessageInputProvider = <V extends CustomTrigger = CustomTrigger>(
+  props: PropsWithChildren<MessageInputProps<V>>,
 ) => {
-  const cooldownTimerState = useCooldownTimer<StreamChatGenerics>();
-  const messageInputState = useMessageInputState<StreamChatGenerics, V>(props);
+  const cooldownTimerState = useCooldownTimer();
+  const messageInputState = useMessageInputState<V>(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
 
-  const messageInputContextValue = useCreateMessageInputContext<StreamChatGenerics, V>({
+  const messageInputContextValue = useCreateMessageInputContext<V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
@@ -152,23 +141,20 @@ const MessageInputProvider = <
   });
 
   return (
-    <MessageInputContextProvider<StreamChatGenerics, V> value={messageInputContextValue}>
+    <MessageInputContextProvider<V> value={messageInputContextValue}>
       {props.children}
     </MessageInputContextProvider>
   );
 };
 
-const UnMemoizedMessageInput = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
+const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
 ) => {
   const { Input: PropInput } = props;
 
-  const { dragAndDropWindow } = useChannelStateContext<StreamChatGenerics>();
+  const { dragAndDropWindow } = useChannelStateContext();
   const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } =
-    useComponentContext<StreamChatGenerics, V>('MessageInput');
+    useComponentContext<V>('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput

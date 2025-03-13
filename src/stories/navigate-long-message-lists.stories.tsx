@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect } from 'react';
 import type { ChannelSort } from 'stream-chat';
+
 import {
   Channel,
   ChannelHeader,
@@ -12,7 +13,8 @@ import {
   useChatContext,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
 
 const user1Id = import.meta.env.E2E_TEST_USER_1;
 const user1Token = import.meta.env.E2E_TEST_USER_1_TOKEN;

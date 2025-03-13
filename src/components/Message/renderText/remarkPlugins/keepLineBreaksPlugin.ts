@@ -1,4 +1,5 @@
-import { visit, Visitor } from 'unist-util-visit';
+import type { Visitor } from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
 import { u } from 'unist-builder';
 
 import type { Break } from 'mdast';

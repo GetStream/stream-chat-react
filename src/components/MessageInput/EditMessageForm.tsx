@@ -3,18 +3,13 @@ import { MessageInputFlat } from './MessageInputFlat';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { CustomTrigger } from '../../types/types';
 
-export const EditMessageForm = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->() => {
+export const EditMessageForm = <V extends CustomTrigger = CustomTrigger>() => {
   const { t } = useTranslationContext('EditMessageForm');
 
-  const { clearEditingState, handleSubmit } = useMessageInputContext<
-    StreamChatGenerics,
-    V
-  >('EditMessageForm');
+  const { clearEditingState, handleSubmit } =
+    useMessageInputContext<V>('EditMessageForm');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

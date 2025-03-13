@@ -13,25 +13,17 @@ import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { renderText as defaultRenderText } from './renderText';
 import type { MessageContextValue } from '../../context/MessageContext';
 
-export type QuotedMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<MessageContextValue<StreamChatGenerics>, 'renderText'>;
+export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export const QuotedMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  renderText: propsRenderText,
-}: QuotedMessageProps) => {
+export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProps) => {
   const { Attachment = DefaultAttachment, Avatar: ContextAvatar } =
-    useComponentContext<StreamChatGenerics>('QuotedMessage');
+    useComponentContext('QuotedMessage');
   const { client } = useChatContext();
   const {
     isMyMessage,
     message,
     renderText: contextRenderText,
-  } = useMessageContext<StreamChatGenerics>('QuotedMessage');
+  } = useMessageContext('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
 

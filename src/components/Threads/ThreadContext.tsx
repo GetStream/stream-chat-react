@@ -3,7 +3,7 @@ import React, { createContext, useContext } from 'react';
 import { Channel } from '../../components';
 
 import type { PropsWithChildren } from 'react';
-import { Thread } from 'stream-chat';
+import type { Thread } from 'stream-chat';
 
 export type ThreadContextValue = Thread | undefined;
 

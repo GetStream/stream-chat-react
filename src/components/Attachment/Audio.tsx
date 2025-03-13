@@ -1,24 +1,15 @@
 import React from 'react';
-
 import type { Attachment } from 'stream-chat';
 
 import { DownloadButton, FileSizeIndicator, PlayButton, ProgressBar } from './components';
 import { useAudioController } from './hooks/useAudioController';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type AudioProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type AudioProps = {
   // fixme: rename og to attachment
-  og: Attachment<StreamChatGenerics>;
+  og: Attachment;
 };
 
-const UnMemoizedAudio = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: AudioProps<StreamChatGenerics>,
-) => {
+const UnMemoizedAudio = (props: AudioProps) => {
   const {
     og: { asset_url, file_size, mime_type, title },
   } = props;

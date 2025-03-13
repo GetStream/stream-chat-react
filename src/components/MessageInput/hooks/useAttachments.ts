@@ -28,7 +28,7 @@ import type {
   BaseLocalAttachmentMetadata,
   LocalAttachment,
 } from '../types';
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { CustomTrigger } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
 
@@ -44,15 +44,14 @@ const getAttachmentTypeFromMime = (mimeType: string) => {
   return 'file';
 };
 
-const ensureIsLocalAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): LocalAttachment<StreamChatGenerics> => {
+const ensureIsLocalAttachment = (
+  attachment: Attachment | LocalAttachment,
+): LocalAttachment => {
   if (isLocalAttachment(attachment)) {
     return attachment;
   }
-  const { localMetadata, ...rest } = attachment;
+  // local is considered local only if localMetadata has `id` so this is to doublecheck
+  const { localMetadata, ...rest } = attachment as LocalAttachment;
   return {
     localMetadata: {
       ...(localMetadata ?? {}),
@@ -62,22 +61,18 @@ const ensureIsLocalAttachment = <
   };
 };
 
-export const useAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
-  state: MessageInputState<StreamChatGenerics>,
-  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+export const useAttachments = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
+  state: MessageInputState,
+  dispatch: React.Dispatch<MessageInputReducerAction>,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
   const { doFileUploadRequest, doImageUploadRequest, errorHandler, noFiles } = props;
-  const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
+  const { getAppSettings } = useChatContext('useAttachments');
   const { t } = useTranslationContext('useAttachments');
-  const { addNotification } =
-    useChannelActionContext<StreamChatGenerics>('useAttachments');
+  const { addNotification } = useChannelActionContext('useAttachments');
   const { channel, maxNumberOfFiles, multipleUploads } =
-    useChannelStateContext<StreamChatGenerics>('useAttachments');
+    useChannelStateContext('useAttachments');
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
@@ -99,12 +94,7 @@ export const useAttachments = <
   );
 
   const upsertAttachments = useCallback(
-    (
-      attachments: (
-        | Attachment<StreamChatGenerics>
-        | LocalAttachment<StreamChatGenerics>
-      )[],
-    ) => {
+    (attachments: (Attachment | LocalAttachment)[]) => {
       if (!attachments.length) return;
       dispatch({
         attachments: attachments.map(ensureIsLocalAttachment),
@@ -115,9 +105,7 @@ export const useAttachments = <
   );
 
   const uploadAttachment = useCallback(
-    async (
-      att: LocalAttachment<StreamChatGenerics>,
-    ): Promise<LocalAttachment<StreamChatGenerics> | undefined> => {
+    async (att: LocalAttachment): Promise<LocalAttachment | undefined> => {
       const { localMetadata, ...providedAttachmentData } = att;
 
       if (!localMetadata?.file) return att;
@@ -138,10 +126,11 @@ export const useAttachments = <
       if (!canUpload) return att;
 
       localMetadata.id = localMetadata?.id ?? nanoid();
-      const finalAttachment: Attachment<StreamChatGenerics> = {
+      const finalAttachment: Attachment = {
         type: getAttachmentTypeFromMime(file.type),
       };
       if (isImage) {
+        // @ts-expect-error previewUri is being defined
         localMetadata.previewUri = URL.createObjectURL?.(file);
         if (file instanceof File) {
           finalAttachment.fallback = file.name;
@@ -189,7 +178,7 @@ export const useAttachments = <
         console.error(finalError);
         addNotification(finalError.message, 'error');
 
-        const failedAttachment: LocalAttachment<StreamChatGenerics> = {
+        const failedAttachment: LocalAttachment = {
           ...finalAttachment,
           localMetadata: {
             ...localMetadata,
@@ -218,7 +207,7 @@ export const useAttachments = <
         return;
       }
 
-      const uploadedAttachment: LocalAttachment<StreamChatGenerics> = {
+      const uploadedAttachment: LocalAttachment = {
         ...finalAttachment,
         localMetadata: {
           ...localMetadata,

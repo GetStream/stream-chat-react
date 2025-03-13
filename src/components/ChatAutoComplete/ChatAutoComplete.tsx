@@ -10,51 +10,34 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  UnknownType,
-} from '../../types/types';
-import { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
+import type { CustomTrigger, UnknownType } from '../../types/types';
+import type { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
 
-export type SuggestionCommand<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = CommandResponse<StreamChatGenerics>;
+export type SuggestionCommand = CommandResponse;
 
-export type SuggestionUser<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = UserResponse<StreamChatGenerics>;
+export type SuggestionUser = UserResponse;
 
 export type SuggestionEmoji<T extends UnknownType = UnknownType> =
   EmojiSearchIndexResult & T;
 
-export type SuggestionItem<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UnknownType = UnknownType,
-> =
-  | SuggestionUser<StreamChatGenerics>
-  | SuggestionCommand<StreamChatGenerics>
+export type SuggestionItem<T extends UnknownType = UnknownType> =
+  | SuggestionUser
+  | SuggestionCommand
   | SuggestionEmoji<T>;
 
 // FIXME: entity type is wrong, fix
-export type SuggestionItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UnknownType = UnknownType,
-> = {
+export type SuggestionItemProps<T extends UnknownType = UnknownType> = {
   className: string;
   component: React.ComponentType<{
-    entity: SuggestionItem<StreamChatGenerics, T>;
+    entity: SuggestionItem<T>;
     selected: boolean;
   }>;
-  item: SuggestionItem<StreamChatGenerics, T>;
+  item: SuggestionItem<T>;
   key: React.Key;
-  onClickHandler: (
-    event: React.BaseSyntheticEvent,
-    item: SuggestionItem<StreamChatGenerics, T>,
-  ) => void;
-  onSelectHandler: (item: SuggestionItem<StreamChatGenerics, T>) => void;
+  onClickHandler: (event: React.BaseSyntheticEvent, item: SuggestionItem<T>) => void;
+  onSelectHandler: (item: SuggestionItem<T>) => void;
   selected: boolean;
   style: React.CSSProperties;
   value: string;
@@ -65,22 +48,15 @@ export interface SuggestionHeaderProps {
   value: string;
 }
 
-export type SuggestionListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = ObjectUnion<{
-  [key in keyof TriggerSettings<StreamChatGenerics, V>]: {
-    component: TriggerSettings<StreamChatGenerics, V>[key]['component'];
+export type SuggestionListProps<V extends CustomTrigger = CustomTrigger> = ObjectUnion<{
+  [key in keyof TriggerSettings<V>]: {
+    component: TriggerSettings<V>[key]['component'];
     currentTrigger: string;
     dropdownScroll: (element: HTMLDivElement) => void;
     getSelectedItem:
-      | ((
-          item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0],
-        ) => void)
+      | ((item: Parameters<TriggerSettings<V>[key]['output']>[0]) => void)
       | null;
-    getTextToReplace: (
-      item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0],
-    ) => {
+    getTextToReplace: (item: Parameters<TriggerSettings<V>[key]['output']>[0]) => {
       caretPosition: 'start' | 'end' | 'next' | number;
       text: string;
       key?: string;
@@ -92,9 +68,7 @@ export type SuggestionListProps<
     }) => void;
     selectionEnd: number;
     SuggestionItem: React.ComponentType<SuggestionItemProps>;
-    values: Parameters<
-      Parameters<TriggerSettings<StreamChatGenerics, V>[key]['dataProvider']>[2]
-    >[0];
+    values: Parameters<Parameters<TriggerSettings<V>[key]['dataProvider']>[2]>[0];
     className?: string;
     itemClassName?: string;
     itemStyle?: React.CSSProperties;
@@ -126,19 +100,16 @@ export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
   wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex<T>) => string;
 };
 
-const UnMemoizedChatAutoComplete = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
+const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
   props: ChatAutoCompleteProps,
 ) => {
   const {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
-  } = useComponentContext<StreamChatGenerics, V>('ChatAutoComplete');
+  } = useComponentContext<V>('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
 
-  const messageInput = useMessageInputContext<StreamChatGenerics, V>('ChatAutoComplete');
+  const messageInput = useMessageInputContext<V>('ChatAutoComplete');
   const {
     cooldownRemaining,
     disabled,

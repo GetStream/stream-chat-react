@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
+import React from 'react';
 
 export const Anchor = ({ children, href }: ComponentProps<'a'>) => {
   const isEmail = href?.startsWith('mailto:');

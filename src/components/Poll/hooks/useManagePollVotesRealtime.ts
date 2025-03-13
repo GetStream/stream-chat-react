@@ -2,20 +2,15 @@ import { useEffect, useState } from 'react';
 import { isVoteAnswer } from 'stream-chat';
 import { useChatContext } from '../../../context';
 import type { Event, PollAnswer, PollVote } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
-import { CursorPaginatorStateStore } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 
-export function useManagePollVotesRealtime<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends
-    | PollVote<StreamChatGenerics>
-    | PollAnswer<StreamChatGenerics> = PollVote<StreamChatGenerics>,
->(
+import type { CursorPaginatorStateStore } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+
+export function useManagePollVotesRealtime<T extends PollVote | PollAnswer = PollVote>(
   managedVoteType: 'answer' | 'vote',
   cursorPaginatorState?: CursorPaginatorStateStore<T>,
   optionId?: string,
 ) {
-  const { client } = useChatContext<StreamChatGenerics>();
+  const { client } = useChatContext();
   const [votesInRealtime, setVotesInRealtime] = useState<T[]>(
     cursorPaginatorState?.getLatestValue().items ?? [],
   );
@@ -31,7 +26,7 @@ export function useManagePollVotesRealtime<
   );
 
   useEffect(() => {
-    const handleVoteEvent = (event: Event<StreamChatGenerics>) => {
+    const handleVoteEvent = (event: Event) => {
       if (!event.poll_vote) return;
       const isAnswer = isVoteAnswer(event.poll_vote);
       if (

@@ -1,4 +1,5 @@
-import React, { CSSProperties, MutableRefObject, useState } from 'react';
+import type { CSSProperties, MutableRefObject } from 'react';
+import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { BaseImage as DefaultBaseImage } from './BaseImage';
@@ -7,11 +8,9 @@ import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { useComponentContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
-import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';
+import type { Dimensions } from '../../types/types';
 
-export type ImageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ImageProps = {
   dimensions?: Dimensions;
   innerRef?: MutableRefObject<HTMLImageElement | null>;
   previewUrl?: string;
@@ -25,17 +24,13 @@ export type ImageProps<
       /** The thumb url */
       thumb_url?: string;
     }
-  | Attachment<StreamChatGenerics>
+  | Attachment
 );
 
 /**
  * A simple component that displays an image.
  */
-export const ImageComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ImageProps<StreamChatGenerics>,
-) => {
+export const ImageComponent = (props: ImageProps) => {
   const {
     dimensions = {},
     fallback,

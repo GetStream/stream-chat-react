@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StreamMessage } from '../../../../context';
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { StreamMessage } from '../../../../context';
 
 export type UseUnreadMessagesNotificationParams = {
   showAlways: boolean;
@@ -20,9 +19,7 @@ export type UseUnreadMessagesNotificationParams = {
  * @param showAlways
  * @param unreadCount
  */
-export const useUnreadMessagesNotificationVirtualized = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useUnreadMessagesNotificationVirtualized = ({
   lastRead,
   showAlways,
   unreadCount,
@@ -30,7 +27,7 @@ export const useUnreadMessagesNotificationVirtualized = <
   const [show, setShow] = useState(false);
 
   const toggleShowUnreadMessagesNotification = useCallback(
-    (renderedMessages: StreamMessage<StreamChatGenerics>[]) => {
+    (renderedMessages: StreamMessage[]) => {
       if (!unreadCount) return;
       const firstRenderedMessage = renderedMessages[0];
       const lastRenderedMessage = renderedMessages.slice(-1)[0];

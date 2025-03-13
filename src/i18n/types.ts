@@ -1,7 +1,7 @@
 import type { Streami18n } from './Streami18n';
-import Dayjs from 'dayjs';
+import type Dayjs from 'dayjs';
 import type { Moment } from 'moment-timezone';
-import { MessageContextValue } from '../context';
+import type { MessageContextValue } from '../context';
 import type { TFunction } from 'i18next';
 
 export type FormatterFactory<V> = (

@@ -1,13 +1,10 @@
 import { useMemo } from 'react';
 
 import type { MessageInputContextValue } from '../../../context/MessageInputContext';
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { CustomTrigger } from '../../../types/types';
 
-export const useCreateMessageInputContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  value: MessageInputContextValue<StreamChatGenerics, V>,
+export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+  value: MessageInputContextValue<V>,
 ) => {
   const {
     additionalTextareaProps,
@@ -74,7 +71,7 @@ export const useCreateMessageInputContext = <
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
 
-  const messageInputContext: MessageInputContextValue<StreamChatGenerics, V> = useMemo(
+  const messageInputContext: MessageInputContextValue<V> = useMemo(
     () => ({
       additionalTextareaProps,
       asyncMessagesMultiSendEnabled,

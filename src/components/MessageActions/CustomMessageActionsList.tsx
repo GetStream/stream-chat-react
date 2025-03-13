@@ -1,22 +1,15 @@
 import React from 'react';
 
-import { CustomMessageActions } from '../../context/MessageContext';
+import type { CustomMessageActions } from '../../context/MessageContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type CustomMessageActionsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  message: StreamMessage<StreamChatGenerics>;
-  customMessageActions?: CustomMessageActions<StreamChatGenerics>;
+export type CustomMessageActionsListProps = {
+  message: StreamMessage;
+  customMessageActions?: CustomMessageActions;
 };
 
-export const CustomMessageActionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: CustomMessageActionsListProps<StreamChatGenerics>,
-) => {
+export const CustomMessageActionsList = (props: CustomMessageActionsListProps) => {
   const { customMessageActions, message } = props;
 
   if (!customMessageActions) return null;

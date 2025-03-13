@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 
-import {
-  getGroupStyles,
-  GroupStyle,
-  insertIntro,
-  processMessages,
-  ProcessMessagesParams,
-} from '../../utils';
+import type { GroupStyle, ProcessMessagesParams } from '../../utils';
+import { getGroupStyles, insertIntro, processMessages } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
@@ -15,27 +10,23 @@ import type { Channel } from 'stream-chat';
 
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export const useEnrichedMessages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(args: {
-  channel: Channel<StreamChatGenerics>;
+export const useEnrichedMessages = (args: {
+  channel: Channel;
   disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
-  messages: StreamMessage<StreamChatGenerics>[];
+  messages: StreamMessage[];
   noGroupByUser: boolean;
   groupStyles?: (
-    message: StreamMessage<StreamChatGenerics>,
-    previousMessage: StreamMessage<StreamChatGenerics>,
-    nextMessage: StreamMessage<StreamChatGenerics>,
+    message: StreamMessage,
+    previousMessage: StreamMessage,
+    nextMessage: StreamMessage,
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
   headerPosition?: number;
   maxTimeBetweenGroupedMessages?: number;
-  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
+  reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
 }) => {
   const {
     channel,
@@ -50,9 +41,8 @@ export const useEnrichedMessages = <
     reviewProcessedMessage,
   } = args;
 
-  const { client } = useChatContext<StreamChatGenerics>('useEnrichedMessages');
-  const { HeaderComponent } =
-    useComponentContext<StreamChatGenerics>('useEnrichedMessages');
+  const { client } = useChatContext('useEnrichedMessages');
+  const { HeaderComponent } = useComponentContext('useEnrichedMessages');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -61,7 +51,7 @@ export const useEnrichedMessages = <
   let messagesWithDates =
     !enableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
-      : processMessages<StreamChatGenerics>({
+      : processMessages({
           enableDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,

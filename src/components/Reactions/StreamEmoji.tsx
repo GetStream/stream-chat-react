@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { SpriteImage, SpriteImageProps } from './SpriteImage';
+import type { SpriteImageProps } from './SpriteImage';
+import { SpriteImage } from './SpriteImage';
 
 import type { Readable } from '../../types/types';
 

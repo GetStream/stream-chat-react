@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import uniqBy from 'lodash.uniqby';
 
-import { ChannelOrUserResponse, isChannel } from '../utils';
+import type { ChannelOrUserResponse } from '../utils';
+import { isChannel } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
 
@@ -19,44 +21,31 @@ import type {
 import type { SearchBarController } from '../SearchBar';
 import type { SearchInputController } from '../SearchInput';
 import type { SearchResultsController } from '../SearchResults';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type ChannelSearchFunctionParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ChannelSearchFunctionParams = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<
-    React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>
-  >;
+  setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse[]>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export type SearchController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = SearchInputController &
+export type SearchController = SearchInputController &
   SearchBarController &
-  SearchResultsController<StreamChatGenerics>;
+  SearchResultsController;
 
-export type SearchQueryParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type SearchQueryParams = {
   channelFilters?: {
-    filters?: ChannelFilters<StreamChatGenerics>;
+    filters?: ChannelFilters;
     options?: ChannelOptions;
-    sort?: ChannelSort<StreamChatGenerics>;
+    sort?: ChannelSort;
   };
   userFilters?: {
-    filters?:
-      | UserFilters<StreamChatGenerics>
-      | ((query: string) => UserFilters<StreamChatGenerics>);
+    filters?: UserFilters | ((query: string) => UserFilters);
     options?: UserOptions;
-    sort?: UserSort<StreamChatGenerics>;
+    sort?: UserSort;
   };
 };
 
-export type ChannelSearchParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ChannelSearchParams = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
   /** Clear search state / results on every click outside the search input, defaults to true */
@@ -69,8 +58,8 @@ export type ChannelSearchParams<
   onSearchExit?: () => void;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (
-    params: ChannelSearchFunctionParams<StreamChatGenerics>,
-    result: ChannelOrUserResponse<StreamChatGenerics>,
+    params: ChannelSearchFunctionParams,
+    result: ChannelOrUserResponse,
   ) => Promise<void> | void;
   /** The number of milliseconds to debounce the search query. The default interval is 200ms. */
   searchDebounceIntervalMs?: number;
@@ -80,23 +69,19 @@ export type ChannelSearchParams<
   searchForUsers?: boolean;
   /** Custom search function to override the default implementation */
   searchFunction?: (
-    params: ChannelSearchFunctionParams<StreamChatGenerics>,
+    params: ChannelSearchFunctionParams,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
   /** Object containing filters/sort/options overrides for user / channel search */
-  searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
+  searchQueryParams?: SearchQueryParams;
 };
 
-export type ChannelSearchControllerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = ChannelSearchParams<StreamChatGenerics> & {
+export type ChannelSearchControllerParams = ChannelSearchParams & {
   /** Set the array of channels displayed in the ChannelList */
-  setChannels?: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+  setChannels?: React.Dispatch<React.SetStateAction<Array<Channel>>>;
 };
 
-export const useChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useChannelSearch = ({
   channelType = 'messaging',
   clearSearchOnClickOutside = true,
   disabled = false,
@@ -109,15 +94,12 @@ export const useChannelSearch = <
   searchFunction,
   searchQueryParams,
   setChannels,
-}: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, setActiveChannel } =
-    useChatContext<StreamChatGenerics>('useChannelSearch');
+}: ChannelSearchControllerParams): SearchController => {
+  const { client, setActiveChannel } = useChatContext('useChannelSearch');
 
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<
-    Array<ChannelOrUserResponse<StreamChatGenerics>>
-  >([]);
+  const [results, setResults] = useState<Array<ChannelOrUserResponse>>([]);
   const [searching, setSearching] = useState(false);
 
   const searchQueryPromiseInProgress = useRef<boolean>(false);
@@ -179,7 +161,7 @@ export const useChannelSearch = <
   }, [disabled]);
 
   const selectResult = useCallback(
-    async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
+    async (result: ChannelOrUserResponse) => {
       if (!client.userID) return;
       if (onSelectResult) {
         await onSelectResult(
@@ -192,7 +174,7 @@ export const useChannelSearch = <
         );
         return;
       }
-      let selectedChannel: Channel<StreamChatGenerics>;
+      let selectedChannel: Channel;
       if (isChannel(result)) {
         setActiveChannel(result);
         selectedChannel = result;
@@ -224,18 +206,14 @@ export const useChannelSearch = <
   const getChannels = useCallback(
     async (text: string) => {
       if (!searchForChannels && !searchForUsers) return;
-      let results: ChannelOrUserResponse<StreamChatGenerics>[] = [];
-      const promises: Array<
-        | Promise<Channel<StreamChatGenerics>[]>
-        | Promise<UsersAPIResponse<StreamChatGenerics>>
-      > = [];
+      let results: ChannelOrUserResponse[] = [];
+      const promises: Array<Promise<Channel[]> | Promise<UsersAPIResponse>> = [];
       try {
         if (searchForChannels) {
           promises.push(
             client.queryChannels(
-              // @ts-expect-error valid query
               {
-                members: { $in: [client.userID] },
+                members: { $in: [client.userID as string] },
                 name: { $autocomplete: text },
                 ...searchQueryParams?.channelFilters?.filters,
               },
@@ -248,7 +226,6 @@ export const useChannelSearch = <
         if (searchForUsers) {
           promises.push(
             client.queryUsers(
-              // @ts-expect-error valid query
               {
                 $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
                 ...searchQueryParams?.userFilters?.filters,
@@ -265,16 +242,13 @@ export const useChannelSearch = <
           const resolved = await Promise.all(promises);
 
           if (searchForChannels && searchForUsers) {
-            const [channels, { users }] = resolved as [
-              Channel<StreamChatGenerics>[],
-              UsersAPIResponse<StreamChatGenerics>,
-            ];
+            const [channels, { users }] = resolved as [Channel[], UsersAPIResponse];
             results = [...channels, ...users.filter((u) => u.id !== client.user?.id)];
           } else if (searchForChannels) {
-            const [channels] = resolved as [Channel<StreamChatGenerics>[]];
+            const [channels] = resolved as [Channel[]];
             results = [...channels];
           } else if (searchForUsers) {
-            const [{ users }] = resolved as [UsersAPIResponse<StreamChatGenerics>];
+            const [{ users }] = resolved as [UsersAPIResponse];
             results = [...users.filter((u) => u.id !== client.user?.id)];
           }
         }

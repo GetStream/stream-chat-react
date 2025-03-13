@@ -1476,7 +1476,7 @@ describe('Channel', () => {
           ({ sendMessage }) => {
             jest.spyOn(channel, 'sendMessage').mockImplementation((message) => {
               originalMessageStatus = message.status;
-              throw new chatClient.errorFromResponse({
+              throw chatClient.errorFromResponse({
                 data: {
                   code: 4,
                   message: `SendMessage failed with error: "a message with ID ${message.id} already exists"`,

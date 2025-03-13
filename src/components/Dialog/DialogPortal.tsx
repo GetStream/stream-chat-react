@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useCallback } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useCallback } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from './hooks';
 import { Portal } from '../Portal/Portal';
 import { useDialogManager } from '../../context';

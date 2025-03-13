@@ -1,31 +1,18 @@
-import { useChatContext } from '../../../context/ChatContext';
-
 import type { StreamChat, UpdatedMessage } from 'stream-chat';
 
-import type {
-  DefaultStreamChatGenerics,
-  UpdateMessageOptions,
-} from '../../../types/types';
+import { useChatContext } from '../../../context/ChatContext';
+import type { UpdateMessageOptions } from '../../../types/types';
 
-type UpdateHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (
+type UpdateHandler = (
   cid: string,
-  updatedMessage: UpdatedMessage<StreamChatGenerics>,
+  updatedMessage: UpdatedMessage,
   options?: UpdateMessageOptions,
-) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
+) => ReturnType<StreamChat['updateMessage']>;
 
-export const useEditMessageHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  doUpdateMessageRequest?: UpdateHandler<StreamChatGenerics>,
-) => {
-  const { channel, client } = useChatContext<StreamChatGenerics>('useEditMessageHandler');
+export const useEditMessageHandler = (doUpdateMessageRequest?: UpdateHandler) => {
+  const { channel, client } = useChatContext('useEditMessageHandler');
 
-  return (
-    updatedMessage: UpdatedMessage<StreamChatGenerics>,
-    options?: UpdateMessageOptions,
-  ) => {
+  return (updatedMessage: UpdatedMessage, options?: UpdateMessageOptions) => {
     if (doUpdateMessageRequest && channel) {
       return Promise.resolve(
         doUpdateMessageRequest(channel.cid, updatedMessage, options),

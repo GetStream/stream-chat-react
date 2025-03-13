@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
-import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import type { ReactImageGalleryItem } from 'react-image-gallery';
+import ImageGallery from 'react-image-gallery';
 import { BaseImage } from './BaseImage';
 import { useTranslationContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type ModalGalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ModalGalleryProps = {
   /** The images for the Carousel component */
-  images: Attachment<StreamChatGenerics>[];
+  images: Attachment[];
   /** The index for the component */
   index?: number;
 };
@@ -30,11 +28,7 @@ const renderItem = ({ original, originalAlt }: ReactImageGalleryItem) => (
   />
 );
 
-export const ModalGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ModalGalleryProps<StreamChatGenerics>,
-) => {
+export const ModalGallery = (props: ModalGalleryProps) => {
   const { images, index } = props;
   const { t } = useTranslationContext('ModalGallery');
 

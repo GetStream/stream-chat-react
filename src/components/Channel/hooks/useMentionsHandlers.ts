@@ -1,24 +1,18 @@
-import React, { useCallback } from 'react';
-
+import type React from 'react';
+import { useCallback } from 'react';
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+export type OnMentionAction = (
+  event: React.BaseSyntheticEvent,
+  user?: UserResponse,
+) => void;
 
-export type OnMentionAction<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (event: React.BaseSyntheticEvent, user?: UserResponse<StreamChatGenerics>) => void;
-
-export const useMentionsHandlers = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  onMentionsHover?: OnMentionAction<StreamChatGenerics>,
-  onMentionsClick?: OnMentionAction<StreamChatGenerics>,
+export const useMentionsHandlers = (
+  onMentionsHover?: OnMentionAction,
+  onMentionsClick?: OnMentionAction,
 ) =>
   useCallback(
-    (
-      event: React.BaseSyntheticEvent,
-      mentioned_users: UserResponse<StreamChatGenerics>[],
-    ) => {
+    (event: React.BaseSyntheticEvent, mentioned_users: UserResponse[]) => {
       if (
         (!onMentionsHover && !onMentionsClick) ||
         !(event.target instanceof HTMLElement)

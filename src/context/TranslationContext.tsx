@@ -1,14 +1,13 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { useContext } from 'react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-
-import { getDisplayName } from './utils/getDisplayName';
-import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
-
+import type { PropsWithChildren } from 'react';
 import type { TFunction } from 'i18next';
 import type { TranslationLanguages } from 'stream-chat';
 
+import { getDisplayName } from './utils/getDisplayName';
+import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
 import type { UnknownType } from '../types/types';
 import type { TDateTimeParser } from '../i18n/types';
 

@@ -2,12 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export function useNewMessageNotification<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  messages: StreamMessage<StreamChatGenerics>[],
+export function useNewMessageNotification(
+  messages: StreamMessage[],
   currentUserId: string | undefined,
   hasMoreNewer?: boolean,
 ) {
