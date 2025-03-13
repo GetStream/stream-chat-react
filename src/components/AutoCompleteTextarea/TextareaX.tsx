@@ -115,6 +115,7 @@ export const TextareaX = <
     disableMentions,
     grow = true,
     handleSubmit,
+    innerRef,
     maxRows = 10,
     minChar = 1,
     movePopupAsYouType = false,
@@ -128,12 +129,11 @@ export const TextareaX = <
     shouldSubmit,
     showCommandsList,
     showMentionsList,
-    SuggestionItem,
     // @ts-ignore
+    SuggestionItem,
     SuggestionList = DefaultSuggestionList,
     trigger,
     value: initialValue = '',
-    innerRef,
     ...restProps
   } = props;
 
@@ -794,11 +794,11 @@ export const TextareaX = <
 
         return (
           <div
-            ref={setDropdownRef}
             className={clsx(
               'str-chat__suggestion-list-container',
               restProps.dropdownClassName,
             )}
+            ref={setDropdownRef}
             style={restProps.dropdownStyle}
           >
             {/*// @ts-ignore*/}
@@ -822,6 +822,7 @@ export const TextareaX = <
         {..._cleanUpProps()}
         {...restProps.additionalTextareaProps}
         className={clsx('rta__textarea', restProps.className)}
+        defaultValue={undefined}
         maxRows={grow ? maxRows : 1}
         onBlur={(e) => {
           _onClickAndBlurHandler(e);
@@ -863,7 +864,6 @@ export const TextareaX = <
         }}
         style={restProps.style}
         value={state.value}
-        defaultValue={undefined}
       />
     </div>
   );

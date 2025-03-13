@@ -11,9 +11,9 @@ import { SendButton as DefaultSendButton } from './SendButton';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import {
   AudioRecorder as DefaultAudioRecorder,
-  RecordingPermission,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
   StartRecordingAudioButton as DefaultStartRecordingAudioButton,
+  RecordingPermission,
 } from '../MediaRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,

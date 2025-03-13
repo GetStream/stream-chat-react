@@ -1147,7 +1147,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     event?.preventDefault();
     // todo: revisit how to open a thread
 
-    let threadInstance = client.threads.threadsById[message.id];
+    const threadInstance = client.threads.threadsById[message.id];
     if (threadInstance) {
       dispatch({ channel, message, threadInstance, type: 'openThread' });
       return;

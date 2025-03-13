@@ -65,23 +65,23 @@ export const QuotedMessagePreview = ({
     messageComposerStateStoreSelector,
   );
 
-  const quotedMessageText = useMemo(() => {
-    return (
+  const quotedMessageText = useMemo(
+    () =>
       quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-      quotedMessage?.text
-    );
-  }, [quotedMessage]);
+      quotedMessage?.text,
+    [quotedMessage],
+  );
 
   const renderedText = useMemo(
     () => renderText(quotedMessageText, quotedMessage.mentioned_users),
     [quotedMessage.mentioned_users, quotedMessageText, renderText],
   );
 
-  const quotedMessageAttachments = useMemo(() => {
-    return quotedMessage?.attachments?.length
-      ? quotedMessage.attachments.slice(0, 1)
-      : [];
-  }, [quotedMessage]);
+  const quotedMessageAttachments = useMemo(
+    () =>
+      quotedMessage?.attachments?.length ? quotedMessage.attachments.slice(0, 1) : [],
+    [quotedMessage],
+  );
 
   const poll = quotedMessage?.poll_id && client.polls.fromState(quotedMessage.poll_id);
 

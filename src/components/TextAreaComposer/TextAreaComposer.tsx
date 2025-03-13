@@ -237,8 +237,8 @@ export const TextAreaComposer = <
     >
       {!isComposing && !!suggestions && (
         <div
-          ref={setSuggestionListContainer}
           className={clsx('str-chat__suggestion-list-container', dropdownClassName)}
+          ref={setSuggestionListContainer}
         >
           <AutocompleteSuggestionList
             className={listClassName}
@@ -250,11 +250,12 @@ export const TextAreaComposer = <
       <Textarea
         {...restProps}
         aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
-        data-testid='message-input'
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',
         )}
+        data-testid='message-input'
+        defaultValue={undefined}
         disabled={disabled || !!cooldownRemaining}
         maxRows={grow ? maxRows : 1}
         onBlur={clickAndBlurHandler}
@@ -272,7 +273,6 @@ export const TextAreaComposer = <
           textareaRef.current = ref;
         }}
         value={text}
-        defaultValue={undefined}
       />
     </div>
   );

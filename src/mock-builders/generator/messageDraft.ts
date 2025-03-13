@@ -7,11 +7,10 @@ export const generateMessageDraft = <
 >({
   channel_cid,
   ...customMsgDraft
-}: Partial<DraftResponse<StreamChatGenerics>>) => {
-  return {
+}: Partial<DraftResponse<StreamChatGenerics>>) =>
+  ({
     channel_cid,
     created_at: new Date().toISOString(),
     message: generateMessage(),
     ...customMsgDraft,
-  } as DraftResponse<StreamChatGenerics>;
-};
+  }) as DraftResponse<StreamChatGenerics>;
