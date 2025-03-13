@@ -13,6 +13,9 @@ import { type SearchSourceState } from 'stream-chat';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 import { useStateStore } from '../../store';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
+import { EmoticonItem } from '../EmoticonItem';
+import { CommandItem } from '../CommandItem';
+import { UserItem } from '../UserItem';
 
 type ObjectUnion<T> = T[keyof T];
 
@@ -21,7 +24,6 @@ export type SuggestionListProps<
   EmojiData extends UnknownType = UnknownType,
 > = ObjectUnion<{
   [key in keyof TriggerSettings<V>]: Partial<{
-    component: TriggerSettings<V>[key]['component'];
     dropdownScroll: (element: HTMLElement) => void;
     getSelectedItem:
       | ((item: Parameters<TriggerSettings<V>[key]['output']>[0]) => void)
@@ -52,7 +54,6 @@ export const SuggestionList = <
   EmojiData extends UnknownType = UnknownType,
 >({
   className,
-  component,
   value: propValue,
 }: SuggestionListProps<V>) => {
   const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
@@ -65,7 +66,13 @@ export const SuggestionList = <
   // const [selectedItemIndex, setSelectedItemIndex] = useState<number | undefined>(
   //   undefined,
   // );
-
+  const component =
+    suggestions?.trigger &&
+    {
+      '/': CommandItem,
+      ':': EmoticonItem,
+      '@': UserItem,
+    }[suggestions?.trigger];
   const itemsRef: HTMLElement[] = [];
 
   // const isSelected = (item: SuggestionItem<EmojiData>) =>

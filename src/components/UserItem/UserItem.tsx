@@ -27,26 +27,37 @@ export type UserItemProps = {
  */
 const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
   const hasEntity = !!Object.keys(entity).length;
-  const itemParts = entity?.itemNameParts;
+  // const itemParts = entity?.itemNameParts;
 
   const renderName = () => {
     if (!hasEntity) return null;
 
-    return itemParts.parts.map((part, i) => {
-      const matches = part.toLowerCase() === itemParts.match.toLowerCase();
+    // return itemParts.parts.map((part, i) => {
+    //   const matches = part.toLowerCase() === itemParts.match.toLowerCase();
+    //
+    //   return (
+    //     <span
+    //       className={clsx({
+    //         'str-chat__emoji-item--highlight': matches,
+    //         'str-chat__emoji-item--part': !matches,
+    //       })}
+    //       key={`part-${i}`}
+    //     >
+    //       {part}
+    //     </span>
+    //   );
+    // });
 
-      return (
-        <span
-          className={clsx({
-            'str-chat__emoji-item--highlight': matches,
-            'str-chat__emoji-item--part': !matches,
-          })}
-          key={`part-${i}`}
-        >
-          {part}
-        </span>
-      );
-    });
+    return (
+      <span
+        className={clsx({
+          'str-chat__emoji-item--part': true,
+        })}
+      >
+        {/* FIXME: temporal adjustment so that the component can be rendered */}
+        {entity.name ?? entity.id}
+      </span>
+    );
   };
 
   return (
