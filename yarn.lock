@@ -8597,6 +8597,11 @@ linkifyjs@^4.1.0:
   resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.1.0.tgz#0460bfcc37d3348fa80e078d92e7bbc82588db15"
   integrity sha512-Ffv8VoY3+ixI1b3aZ3O+jM6x17cOsgwfB1Wq7pkytbo1WlyRp6ZO0YDMqiWT/gQPY/CmtiGuKfzDIVqxh1aCTA==
 
+linkifyjs@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.2.0.tgz#9dd30222b9cbabec9c950e725ec00031c7fa3f08"
+  integrity sha512-pCj3PrQyATaoTYKHrgWRF3SJwsm61udVh+vuls/Rl6SptiDhgE7ziUIudAedRY9QEfynmM7/RmLEfPUyw1HPCw==
+
 lint-staged@^15.2.1:
   version "15.2.1"
   resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-15.2.1.tgz#25beb6e587f54245b20163f5efede073f12c4d1b"
@@ -12162,6 +12167,20 @@ stream-chat@^9.0.0-rc.8:
     form-data "^4.0.0"
     isomorphic-ws "^5.0.0"
     jsonwebtoken "^9.0.2"
+    ws "^8.18.1"
+
+"stream-chat@https://github.com/GetStream/stream-chat-js.git#feat/message-composer":
+  version "0.0.0-development"
+  resolved "https://github.com/GetStream/stream-chat-js.git#c82934d9c535b8e3f5df1fb073b40e6062be8bc7"
+  dependencies:
+    "@types/jsonwebtoken" "^9.0.8"
+    "@types/ws" "^8.5.14"
+    axios "^1.6.0"
+    base64-js "^1.5.1"
+    form-data "^4.0.0"
+    isomorphic-ws "^5.0.0"
+    jsonwebtoken "^9.0.2"
+    linkifyjs "^4.2.0"
     ws "^8.18.1"
 
 stream-combiner2@~1.1.1:
