@@ -2,7 +2,7 @@ import type { PropsWithChildren } from 'react';
 import React from 'react';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
-import { MessageDraftSynchronizer as DefaultMessageDraftSynchronizer } from './MessageDraftSynchronizer';
+// import { MessageDraftSynchronizer as DefaultMessageDraftSynchronizer } from './MessageDraftSynchronizer';
 import { MessageInputFlat } from './MessageInputFlat';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
@@ -22,6 +22,7 @@ import type { MessageToSend } from '../../context/ChannelActionContext';
 import type { CustomTrigger, SendMessageOptions, UnknownType } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -121,7 +122,7 @@ export type MessageInputProps<V extends CustomTrigger = CustomTrigger> = {
    * const defaultShouldSubmit = (event) => event.key === "Enter" && !event.shiftKey;
    * ```
    */
-  shouldSubmit?: (event: KeyboardEvent) => boolean;
+  shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
   /** Configuration parameters for link previews. */
   urlEnrichmentConfig?: URLEnrichmentConfig;
   useMentionsTransliteration?: boolean;
@@ -133,12 +134,16 @@ const MessageInputProvider = <V extends CustomTrigger = CustomTrigger>(
   const cooldownTimerState = useCooldownTimer();
   const messageInputState = useMessageInputState<V>(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
+  const messageComposer = useMessageComposer({ message: props.message });
+  if (typeof props.publishTypingEvent !== 'undefined')
+    messageComposer.config.publishTypingEvents = props.publishTypingEvent;
 
   const messageInputContextValue = useCreateMessageInputContext<V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
+    messageComposer,
   });
 
   return (
@@ -156,7 +161,7 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
   const { dragAndDropWindow } = useChannelStateContext<StreamChatGenerics>();
   const {
     Input: ContextInput,
-    MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
+    // MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
     TriggerProvider = DefaultTriggerProvider,
   } = useComponentContext<StreamChatGenerics, V>('MessageInput');
 
@@ -178,7 +183,7 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
     <DialogManagerProvider id={dialogManagerId}>
       <MessageInputProvider {...props}>
         <TriggerProvider>
-          <MessageDraftSynchronizer />
+          {/*<MessageDraftSynchronizer />*/}
           <Input />
         </TriggerProvider>
       </MessageInputProvider>

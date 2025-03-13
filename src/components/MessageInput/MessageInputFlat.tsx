@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Event } from 'stream-chat';
+import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -12,48 +11,52 @@ import { SendButton as DefaultSendButton } from './SendButton';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import {
   AudioRecorder as DefaultAudioRecorder,
+  RecordingPermission,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
   StartRecordingAudioButton as DefaultStartRecordingAudioButton,
-  RecordingPermission,
 } from '../MediaRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
-
-import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
-
+import { useStateStore } from '../../store';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 import { AIStates, useAIState } from '../AIStateIndicator';
+import { AttachmentManagerState } from 'stream-chat';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { TextAreaComposer } from '../TextAreaComposer';
+
+const attachmentManagerStateSelector = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
+  // @ts-ignore
+  state: AttachmentManagerState<SCG>,
+) => ({
+  attachments: state.attachments,
+});
 
 export const MessageInputFlat = () => {
   const { t } = useTranslationContext('MessageInputFlat');
   const {
     asyncMessagesMultiSendEnabled,
-    attachments,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
     hideSendButton,
-    isUploadEnabled,
     linkPreviews,
-    maxFilesLeft,
     message,
-    numberOfUploads,
-    parent,
     recordingController,
     setCooldownRemaining,
     text,
-    uploadNewFiles,
-  } = useMessageInputContext('MessageInputFlat');
+  } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
@@ -67,14 +70,11 @@ export const MessageInputFlat = () => {
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
-  } = useComponentContext('MessageInputFlat');
-  const {
-    acceptedFiles = [],
-    multipleUploads,
-    quotedMessage,
-  } = useChannelStateContext('MessageInputFlat');
-  const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
-  const { channel } = useChatContext('MessageInputFlat');
+  } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
+  const { acceptedFiles = [] } =
+    useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
+  const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
+  const messageComposer = useMessageComposer();
 
   const { aiState } = useAIState(channel);
 
@@ -88,11 +88,6 @@ export const MessageInputFlat = () => {
     setShowRecordingPermissionDeniedNotification(false);
   }, []);
 
-  const failedUploadsCount = useMemo(
-    () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
-    [attachments],
-  );
-
   const accept = useMemo(
     () =>
       acceptedFiles.reduce<Record<string, Array<string>>>((mediaTypeMap, mediaType) => {
@@ -102,39 +97,23 @@ export const MessageInputFlat = () => {
     [acceptedFiles],
   );
 
+  // @ts-ignore
+  const { attachments } = useStateStore(
+    messageComposer.attachmentManager.state,
+    // @ts-ignore
+    attachmentManagerStateSelector,
+  );
+
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
     accept,
-    disabled: !isUploadEnabled || maxFilesLeft === 0,
-    multiple: multipleUploads,
+    disabled: !messageComposer.attachmentManager.isUploadEnabled || !!cooldownRemaining,
+    multiple: messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1,
     noClick: true,
-    onDrop: uploadNewFiles,
+    onDrop: messageComposer.attachmentManager.uploadFiles,
   });
-
-  useEffect(() => {
-    const handleQuotedMessageUpdate = (e: Event) => {
-      if (e.message?.id !== quotedMessage?.id) return;
-      if (e.type === 'message.deleted') {
-        setQuotedMessage(undefined);
-        return;
-      }
-      setQuotedMessage(e.message);
-    };
-    channel?.on('message.deleted', handleQuotedMessageUpdate);
-    channel?.on('message.updated', handleQuotedMessageUpdate);
-
-    return () => {
-      channel?.off('message.deleted', handleQuotedMessageUpdate);
-      channel?.off('message.updated', handleQuotedMessageUpdate);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, quotedMessage]);
 
   if (recordingController.recordingState) return <AudioRecorder />;
 
-  // TODO: "!message" condition is a temporary fix for shared
-  // state when editing a message (fix shared state issue)
-  const displayQuotedMessage =
-    !message && quotedMessage && quotedMessage.parent_id === parent?.id;
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
@@ -176,21 +155,17 @@ export const MessageInputFlat = () => {
             {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
           </div>
         )}
-        {displayQuotedMessage && <QuotedMessagePreviewHeader />}
+        <QuotedMessagePreviewHeader />
 
         <div className='str-chat__message-input-inner'>
           <AttachmentSelector />
           <div className='str-chat__message-textarea-container'>
-            {displayQuotedMessage && (
-              <QuotedMessagePreview quotedMessage={quotedMessage} />
-            )}
-            {isUploadEnabled &&
-              !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
-                <AttachmentPreviewList />
-              )}
+            <QuotedMessagePreview />
+            {messageComposer.attachmentManager.isUploadEnabled &&
+              attachments.length > 0 && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
-              <ChatAutoComplete />
+              <TextAreaComposer />
 
               {EmojiPicker && <EmojiPicker />}
             </div>
@@ -209,9 +184,9 @@ export const MessageInputFlat = () => {
                   <>
                     <SendButton
                       disabled={
-                        !numberOfUploads &&
                         !text.length &&
-                        attachments.length - failedUploadsCount === 0
+                        attachments.length ===
+                          messageComposer.attachmentManager.failedUploadsCount
                       }
                       sendMessage={handleSubmit}
                     />

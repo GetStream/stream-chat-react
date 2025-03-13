@@ -19,7 +19,23 @@ import {
 } from '../../Attachment';
 import { useMessageInputContext } from '../../../context';
 
-export type AttachmentPreviewListProps = {
+import type { DefaultStreamChatGenerics } from '../../../types';
+import { AttachmentManagerState } from 'stream-chat';
+import { useStateStore } from '../../../store';
+import { useMessageComposer } from '../hooks/messageComposer/useMessageComposer';
+
+const attachmentManagerStateSelector = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
+  // @ts-ignore
+  state: AttachmentManagerState<SCG>,
+) => ({
+  attachments: state.attachments,
+});
+
+export type AttachmentPreviewListProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+> = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
@@ -35,9 +51,14 @@ export const AttachmentPreviewList = ({
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = DefaultFilePreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
-}: AttachmentPreviewListProps) => {
-  const { attachments, removeAttachments, uploadAttachment } = useMessageInputContext(
-    'AttachmentPreviewList',
+}: AttachmentPreviewListProps<StreamChatGenerics>) => {
+  const messageComposer = useMessageComposer<StreamChatGenerics>();
+
+  // @ts-ignore
+  const { attachments } = useStateStore(
+    messageComposer.attachmentManager.state,
+    // @ts-ignore
+    attachmentManagerStateSelector,
   );
 
   return (
@@ -52,54 +73,54 @@ export const AttachmentPreviewList = ({
             return (
               <VoiceRecordingPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           } else if (isLocalAudioAttachment(attachment)) {
             return (
               <AudioAttachmentPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           } else if (isLocalMediaAttachment(attachment)) {
             return (
               <VideoAttachmentPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           } else if (isLocalImageAttachment(attachment)) {
             return (
               <ImageAttachmentPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id || attachment.image_url}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           } else if (isLocalFileAttachment(attachment)) {
             return (
               <FileAttachmentPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           } else if (isLocalAttachment(attachment)) {
             return (
               <UnsupportedAttachmentPreview
                 attachment={attachment}
-                handleRetry={uploadAttachment}
+                handleRetry={messageComposer.attachmentManager.uploadAttachment}
                 key={attachment.localMetadata.id}
-                removeAttachments={removeAttachments}
+                removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
           }

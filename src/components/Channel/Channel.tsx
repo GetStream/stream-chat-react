@@ -175,6 +175,7 @@ export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
 > = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
+  // todo: move to MessageComposer configuration
   /** List of accepted file types */
   acceptedFiles?: string[];
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
@@ -239,6 +240,7 @@ export type ChannelProps<
   maxNumberOfFiles?: number;
   /** Enables storing message drafts on the server. */
   messageDraftsEnabled?: boolean;
+  // todo: document that multipleUploads is redundant and ignored with message composer
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
@@ -364,10 +366,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
-  // FIXME: Move  to LLC message list controller.
-  const [quotedMessage, setQuotedMessage] = useState<
-    StreamMessage<StreamChatGenerics> | undefined
-  >(messageDraftsEnabled ? channel.state.messageDraft?.quoted_message : undefined);
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
 
@@ -588,6 +586,10 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
         }
       }
 
+      if (maxNumberOfFiles) {
+        channel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage =
+          maxNumberOfFiles;
+      }
       done = true;
       originalTitle.current = document.title;
 
@@ -994,8 +996,9 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       id,
       mentioned_users: mentions,
       parent_id,
-      quoted_message_id:
-        parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
+      // todo: move to message composer
+      // quoted_message_id:
+      //   parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
     } as Message;
@@ -1036,9 +1039,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
           status: 'received',
         });
       }
-
-      if (quotedMessage && parent_id === quotedMessage?.parent_id)
-        setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -1145,42 +1145,33 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const openThread = (message: StreamMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    if (messageDraftsEnabled) {
-      let threadInstance = client.threads.threadsById[message.id];
-      if (threadInstance) {
-        dispatch({ channel, message, threadInstance, type: 'openThread' });
-        return;
-      }
+    // todo: revisit how to open a thread
 
-      dispatch({
-        channel,
-        message,
-        threadInstance: {} as Thread<StreamChatGenerics>,
-        type: 'openThread',
-      });
-
-      client
-        .getThread(message.id, { reply_limit: DEFAULT_THREAD_PAGE_SIZE })
-        .then((t: Thread<StreamChatGenerics>) => {
-          t.registerSubscriptions();
-          dispatch({
-            channel,
-            message,
-            threadInstance: t,
-            type: 'openThread',
-          });
-          client.threads.addThread(t);
-        });
-    } else {
-      setQuotedMessage((current) => {
-        if (current?.parent_id !== message?.parent_id) {
-          return undefined;
-        } else {
-          return current;
-        }
-      });
-      dispatch({ channel, message, type: 'openThread' });
+    let threadInstance = client.threads.threadsById[message.id];
+    if (threadInstance) {
+      dispatch({ channel, message, threadInstance, type: 'openThread' });
+      return;
     }
+
+    dispatch({
+      channel,
+      message,
+      threadInstance: {} as Thread<StreamChatGenerics>,
+      type: 'openThread',
+    });
+
+    client
+      .getThread(message.id, { reply_limit: DEFAULT_THREAD_PAGE_SIZE })
+      .then((t: Thread<StreamChatGenerics>) => {
+        t.registerSubscriptions();
+        dispatch({
+          channel,
+          message,
+          threadInstance: t,
+          type: 'openThread',
+        });
+        client.threads.addThread(t);
+      });
   };
 
   const closeThread = (event?: React.BaseSyntheticEvent) => {
@@ -1272,54 +1263,52 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     mutes,
     notifications,
     onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-    quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
     watcher_count: state.watcherCount,
   });
 
-  const channelActionContextValue: ChannelActionContextValue = useMemo(
-    () => ({
-      addNotification,
-      closeThread,
-      deleteMessage,
-      dispatch,
-      editMessage,
-      jumpToFirstUnreadMessage,
-      jumpToLatestMessage,
-      jumpToMessage,
-      loadMore,
-      loadMoreNewer,
-      loadMoreThread,
-      markRead,
-      onMentionsClick: onMentionsHoverOrClick,
-      onMentionsHover: onMentionsHoverOrClick,
-      openThread,
-      removeMessage,
-      retrySendMessage,
-      sendMessage,
-      setChannelUnreadUiState,
-      setQuotedMessage,
-      skipMessageDataMemoization,
-      updateMessage,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      channel.cid,
-      deleteMessage,
-      enrichURLForPreviewConfig?.findURLFn,
-      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-      loadMore,
-      loadMoreNewer,
-      markRead,
-      quotedMessage,
-      jumpToFirstUnreadMessage,
-      jumpToMessage,
-      jumpToLatestMessage,
-      setChannelUnreadUiState,
-    ],
-  );
+  const channelActionContextValue: ChannelActionContextValue<StreamChatGenerics> =
+    useMemo(
+      () => ({
+        addNotification,
+        closeThread,
+        deleteMessage,
+        dispatch,
+        editMessage,
+        jumpToFirstUnreadMessage,
+        jumpToLatestMessage,
+        jumpToMessage,
+        loadMore,
+        loadMoreNewer,
+        loadMoreThread,
+        markRead,
+        onMentionsClick: onMentionsHoverOrClick,
+        onMentionsHover: onMentionsHoverOrClick,
+        openThread,
+        removeMessage,
+        retrySendMessage,
+        sendMessage,
+        setChannelUnreadUiState,
+        skipMessageDataMemoization,
+        updateMessage,
+      }),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [
+        channel.cid,
+        deleteMessage,
+        enrichURLForPreviewConfig?.findURLFn,
+        enrichURLForPreviewConfig?.onLinkPreviewDismissed,
+        loadMore,
+        loadMoreNewer,
+        markRead,
+        jumpToFirstUnreadMessage,
+        jumpToMessage,
+        jumpToLatestMessage,
+        setChannelUnreadUiState,
+      ],
+    );
 
   const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({

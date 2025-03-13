@@ -15,14 +15,14 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
-import { useThreadContext } from '../Threads';
+import { ThreadContext, useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
-import type { CustomTrigger } from '../../types/types';
-import type { ThreadState } from 'stream-chat';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { Thread as ThreadClass, ThreadState } from 'stream-chat';
 
 export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -186,28 +186,34 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   );
 
   return (
-    <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
-      <ThreadMessageList
-        disableDateSeparator={!enableDateSeparator}
-        head={head}
-        Message={MessageUIComponent}
-        messageActions={messageActions}
-        suppressAutoscroll={threadSuppressAutoscroll}
-        threadList
-        {...threadProps}
-        {...(virtualized
-          ? additionalVirtualizedMessageListProps
-          : additionalMessageListProps)}
-      />
-      <MessageInput
-        focus={autoFocus}
-        Input={ThreadInput}
-        isThreadInput
-        parent={thread ?? parentMessage}
-        publishTypingEvent={false}
-        {...additionalMessageInputProps}
-      />
-    </div>
+    <ThreadContext.Provider
+      // todo: solve ts-ignore
+      // @ts-ignore
+      value={threadInstance as unknown as ThreadClass<StreamChatGenerics>}
+    >
+      <div className={threadClass}>
+        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        <ThreadMessageList
+          disableDateSeparator={!enableDateSeparator}
+          head={head}
+          Message={MessageUIComponent}
+          messageActions={messageActions}
+          suppressAutoscroll={threadSuppressAutoscroll}
+          threadList
+          {...threadProps}
+          {...(virtualized
+            ? additionalVirtualizedMessageListProps
+            : additionalMessageListProps)}
+        />
+        <MessageInput
+          focus={autoFocus}
+          Input={ThreadInput}
+          isThreadInput
+          parent={thread ?? parentMessage}
+          publishTypingEvent={false}
+          {...additionalMessageInputProps}
+        />
+      </div>
+    </ThreadContext.Provider>
   );
 };

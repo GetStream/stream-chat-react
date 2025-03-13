@@ -17,6 +17,7 @@ import {
 import type { ComponentPropsWithoutRef } from 'react';
 
 import type { MessageActionSetItem } from './MessageActions';
+import { useMessageComposer } from '../../components/MessageInput/hooks/messageComposer/useMessageComposer';
 
 export const DefaultDropdownActionButton = ({
   'aria-selected': ariaSelected = 'false',
@@ -33,12 +34,14 @@ export const DefaultDropdownActionButton = ({
 const DefaultMessageActionComponents = {
   dropdown: {
     Quote() {
-      const { setQuotedMessage } = useChannelActionContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
+      const messageComposer = useMessageComposer();
 
       const handleQuote = () => {
-        setQuotedMessage(message);
+        // todo: solve the ts-ignore
+        // @ts-ignore
+        messageComposer.setQuotedMessage(message);
 
         const elements = message.parent_id
           ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')

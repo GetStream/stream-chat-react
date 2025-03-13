@@ -10,16 +10,21 @@ import type {
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
 
-import type { CustomTrigger } from '../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../types/types';
+import { MessageComposer } from 'stream-chat';
 
-export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
-  MessageInputState &
-    MessageInputHookProps &
-    Omit<MessageInputProps<V>, 'Input'> &
-    CooldownTimerState & {
-      autocompleteTriggers?: TriggerSettings<V>;
-    } & CommandsListState &
-    MentionsListState;
+export type MessageInputContextValue<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  V extends CustomTrigger = CustomTrigger,
+> = MessageInputState<StreamChatGenerics> &
+  MessageInputHookProps<StreamChatGenerics> &
+  Omit<MessageInputProps<StreamChatGenerics, V>, 'Input'> &
+  CooldownTimerState & {
+    // @ts-ignore
+    messageComposer: MessageComposer<StreamChatGenerics>;
+    autocompleteTriggers?: TriggerSettings<StreamChatGenerics, V>;
+  } & CommandsListState &
+  MentionsListState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined
@@ -42,11 +47,7 @@ export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as MessageInputContextValue<V>;
+    return {} as MessageInputContextValue<StreamChatGenerics, V>;
   }
 
   return contextValue as unknown as MessageInputContextValue<StreamChatGenerics, V>;

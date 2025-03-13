@@ -32,7 +32,6 @@ import type {
   PinIndicatorProps,
   PollCreationDialogProps,
   PollOptionSelectorProps,
-  QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
   ReactionsListModalProps,
@@ -41,8 +40,6 @@ import type {
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
-  SuggestionItemProps,
-  SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
@@ -51,7 +48,10 @@ import type {
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
-import type {
+
+import { SuggestionItemProps, SuggestionListProps } from '../components/TextAreaComposer';
+
+import {
   SearchProps,
   SearchResultsPresearchProps,
   SearchSourceResultListProps,

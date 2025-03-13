@@ -96,9 +96,12 @@ export type MessageInputHookProps = EnrichURLsController & {
   setComposerState: (state: MessageInputState<StreamChatGenerics>) => void;
   setText: (text: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
-  uploadAttachment: (attachment: LocalAttachment) => Promise<LocalAttachment | undefined>;
-  uploadNewFiles: (files: FileList | File[]) => void;
-  upsertAttachments: (attachments: (Attachment | LocalAttachment)[]) => void;
+  uploadAttachment: (
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
+  upsertAttachments: (
+    attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[],
+  ) => void;
 };
 
 /**
@@ -304,7 +307,6 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     numberOfUploads,
     removeAttachments,
     uploadAttachment,
-    uploadNewFiles,
     upsertAttachments,
   } = useAttachments<V>(props, state, dispatch, textareaRef);
 
@@ -326,7 +328,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
   const isUploadEnabled = !!channelCapabilities['upload-file'];
 
   const { onPaste } = usePasteHandler(
-    uploadNewFiles,
+    () => null,
     insertText,
     isUploadEnabled,
     enrichURLsController.findAndEnqueueURLsToEnrich,
@@ -367,7 +369,6 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     showMentionsList,
     textareaRef,
     uploadAttachment,
-    uploadNewFiles,
     upsertAttachments,
   };
 };

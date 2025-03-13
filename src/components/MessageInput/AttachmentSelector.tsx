@@ -19,6 +19,8 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
+import type { DefaultStreamChatGenerics } from '../../types';
+import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
 
 export const SimpleAttachmentSelector = () => {
   const {
@@ -92,10 +94,12 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { isUploadEnabled } = useIsUploadEnabled();
 
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!isUploadEnabled} // todo: add styles
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();

@@ -47,10 +47,9 @@ export type ChannelState = {
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
   members?: StreamChannelState<StreamChatGenerics>['members'];
-  messageDraft?: DraftResponse<StreamChatGenerics>;
+  messageDraft: DraftResponse<StreamChatGenerics> | null;
   messages?: StreamMessage<StreamChatGenerics>[];
   pinnedMessages?: StreamMessage<StreamChatGenerics>[];
-  quotedMessage?: StreamMessage<StreamChatGenerics>;
   read?: StreamChannelState<StreamChatGenerics>['read'];
   thread?: StreamMessage<StreamChatGenerics> | null;
   threadHasMore?: boolean;

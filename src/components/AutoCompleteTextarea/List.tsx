@@ -1,12 +1,31 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  CSSProperties,
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
 
 import { Item } from './Item';
 import { escapeRegExp } from '../Message/renderText';
+import type { DefaultStreamChatGenerics } from '../../types';
+import type { CustomTrigger, UnknownType } from '../../types/types';
+import {
+  SuggestionEmoji,
+  SuggestionItem,
+  SuggestionListProps,
+  SuggestionUser,
+} from '../ChatAutoComplete';
 
-export const List = ({
+export const List = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  V extends CustomTrigger = CustomTrigger,
+  EmojiData extends UnknownType = UnknownType,
+>({
   className,
   component,
   currentTrigger,
@@ -21,39 +40,46 @@ export const List = ({
   SuggestionItem: PropSuggestionItem,
   value: propValue,
   values,
-}) => {
-  const { AutocompleteSuggestionItem } = useComponentContext('SuggestionList');
+}: SuggestionListProps<StreamChatGenerics, V>) => {
+  const { AutocompleteSuggestionItem } =
+    useComponentContext<StreamChatGenerics>('SuggestionList');
   const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
 
-  const [selectedItemIndex, setSelectedItemIndex] = useState(undefined);
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | undefined>(
+    undefined,
+  );
 
-  const itemsRef = [];
+  const itemsRef: HTMLElement[] = [];
 
-  const isSelected = (item) =>
+  const isSelected = (item: SuggestionItem<StreamChatGenerics, EmojiData>) =>
     selectedItemIndex === values.findIndex((value) => getId(value) === getId(item));
 
-  const getId = (item) => {
+  const getId = (item: SuggestionItem<StreamChatGenerics, EmojiData>) => {
     const textToReplace = getTextToReplace(item);
     if (textToReplace.key) {
       return textToReplace.key;
     }
 
-    if (typeof item === 'string' || !item.key) {
+    if (typeof item === 'string' || !(item as SuggestionEmoji<EmojiData>).key) {
       return textToReplace.text;
     }
 
-    return item.key;
+    return (item as SuggestionEmoji<V>).key;
   };
 
   const findItemIndex = useCallback(
-    (item) =>
+    (item: SuggestionItem<StreamChatGenerics, V>) =>
       values.findIndex((value) =>
-        value.id ? value.id === item.id : value.name === item.name,
+        value.id
+          ? value.id === (item as SuggestionUser<StreamChatGenerics>).id
+          : value.name === item.name,
       ),
     [values],
   );
 
-  const modifyText = (value) => {
+  const modifyText = (
+    value: SuggestionListProps<StreamChatGenerics, V>['values'][number],
+  ) => {
     if (!value) return;
 
     onSelect(getTextToReplace(value));
@@ -61,19 +87,21 @@ export const List = ({
   };
 
   const handleClick = useCallback(
-    (e, item) => {
+    (
+      e: React.MouseEvent<Element, MouseEvent>,
+      item: SuggestionItem<StreamChatGenerics, V>,
+    ) => {
       e?.preventDefault();
 
       const index = findItemIndex(item);
 
       modifyText(values[index]);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [modifyText, findItemIndex],
+    [modifyText, findItemIndex, values],
   );
 
   const selectItem = useCallback(
-    (item) => {
+    (item: SuggestionItem<StreamChatGenerics, V>) => {
       const index = findItemIndex(item);
       setSelectedItemIndex(index);
     },
@@ -81,7 +109,7 @@ export const List = ({
   );
 
   const handleKeyDown = useCallback(
-    (event) => {
+    (event: KeyboardEvent) => {
       if (event.key === 'ArrowUp') {
         setSelectedItemIndex((prevSelected) => {
           if (prevSelected === undefined) return 0;
@@ -104,7 +132,7 @@ export const List = ({
         (event.key === 'Enter' || event.key === 'Tab') &&
         selectedItemIndex !== undefined
       ) {
-        handleClick(event, values[selectedItemIndex]);
+        modifyText(values[selectedItemIndex]);
       }
 
       return null;
@@ -120,13 +148,13 @@ export const List = ({
 
   useEffect(() => {
     if (values?.length) selectItem(values[0]);
-  }, [values]); // eslint-disable-line
+  }, [selectItem, values]);
 
   const restructureItem = useCallback(
-    (item) => {
-      const matched = item.name || item.id;
+    (item: SuggestionItem<StreamChatGenerics, V>) => {
+      const matched = item.name || (item as SuggestionUser<StreamChatGenerics>).id;
 
-      const textBeforeCursor = propValue.slice(0, selectionEnd);
+      const textBeforeCursor = (propValue || '').slice(0, selectionEnd);
       const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
       const editedPropValue = escapeRegExp(textBeforeCursor.slice(triggerIndex + 1));
 
@@ -149,16 +177,17 @@ export const List = ({
       {restructuredValues.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
+          // @ts-ignore
           component={component}
           item={item}
-          key={getId(item)}
+          key={getId(item).toString()}
           onClickHandler={handleClick}
           onSelectHandler={selectItem}
-          ref={(ref) => {
+          ref={(ref: HTMLAnchorElement) => {
             itemsRef[i] = ref;
           }}
           selected={isSelected(item)}
-          style={itemStyle}
+          style={itemStyle as CSSProperties}
           value={propValue}
         />
       ))}

@@ -85,8 +85,7 @@ export type ChannelActionContextValue = {
   setChannelUnreadUiState: React.Dispatch<
     React.SetStateAction<ChannelUnreadUiState | undefined>
   >;
-  setQuotedMessage: React.Dispatch<React.SetStateAction<StreamMessage | undefined>>;
-  updateMessage: (message: StreamMessage) => void;
+  updateMessage: (message: StreamMessage<StreamChatGenerics>) => void;
 };
 
 export const ChannelActionContext = React.createContext<

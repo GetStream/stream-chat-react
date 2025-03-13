@@ -14,10 +14,13 @@ import type {
   DraftMessagePayload,
   DraftResponse,
   Event,
+  MessageComposerState,
   UserResponse,
 } from 'stream-chat';
 import type { LinkPreviewMap, LocalAttachment } from './types';
 import type { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../../types/types';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useStateStore } from '../../store';
 
 type MessageDraftRefs<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -29,10 +32,18 @@ type MessageDraftRefs<
   numberOfUploads: number;
   text: string;
   editedMessage?: StreamMessage<StreamChatGenerics>;
-  messageDraft?: DraftResponse<StreamChatGenerics>;
+  messageDraft: DraftResponse<StreamChatGenerics> | null;
   parent?: StreamMessage<StreamChatGenerics>;
-  quotedMessage?: StreamMessage<StreamChatGenerics>;
+  quotedMessage: StreamMessage<StreamChatGenerics> | null;
 };
+
+const messageComposerStateSelector = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+>(
+  state: MessageComposerState<SCG>,
+): Pick<MessageComposerState<SCG>, 'quotedMessage'> => ({
+  quotedMessage: state.quotedMessage,
+});
 
 // FIXME: Move all the logic from this component to the LLC Channel reactive state
 export const MessageDraftSynchronizer = <
@@ -41,9 +52,12 @@ export const MessageDraftSynchronizer = <
   children,
 }: PropsWithChildrenOnly) => {
   const { client } = useChatContext<SCG>();
-  const { setQuotedMessage } = useChannelActionContext<SCG>();
-  const { channel, messageDraft, messageDraftsEnabled, quotedMessage } =
-    useChannelStateContext<SCG>();
+  const { channel, messageDraft, messageDraftsEnabled } = useChannelStateContext<SCG>();
+  const messageComposer = useMessageComposer<SCG>();
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateSelector,
+  );
 
   const {
     attachments,
@@ -151,9 +165,8 @@ export const MessageDraftSynchronizer = <
         mentioned_users,
         text,
       });
-      setQuotedMessage(draft.quoted_message);
     }).unsubscribe;
-  }, [channel, setComposerState]);
+  }, [channel, messageComposer, setComposerState]);
 
   useEffect(() => {
     if (!messageDraftsEnabled) return;
@@ -164,7 +177,6 @@ export const MessageDraftSynchronizer = <
         ...initState(),
         lastChange: new Date(),
       });
-      setQuotedMessage(undefined);
     }).unsubscribe;
   }, [channel, setComposerState]);
 
