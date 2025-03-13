@@ -111,7 +111,7 @@ export const useUserTrigger = (params: UserTriggerParams): UserTriggerSetting =>
   const queryUsersThrottled = throttle(queryUsers, 200);
 
   return {
-    callback: (item) => onSelectUser(item),
+    callback: onSelectUser,
     component: UserItem,
     dataProvider: (query, text, onReady) => {
       if (disableMentions) return;

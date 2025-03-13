@@ -11,12 +11,14 @@ import type {
 } from '../components/MessageInput/hooks/useMessageInputState';
 
 import type { CustomTrigger } from '../types/types';
+import type { MessageComposer } from 'stream-chat';
 
 export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
   MessageInputState &
     MessageInputHookProps &
     Omit<MessageInputProps<V>, 'Input'> &
     CooldownTimerState & {
+      messageComposer: MessageComposer;
       autocompleteTriggers?: TriggerSettings<V>;
     } & CommandsListState &
     MentionsListState;
@@ -31,23 +33,20 @@ export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrig
 }: PropsWithChildren<{
   value: MessageInputContextValue<V>;
 }>) => (
-  <MessageInputContext.Provider value={value as MessageInputContextValue}>
+  <MessageInputContext.Provider value={value as unknown as MessageInputContextValue}>
     {children}
   </MessageInputContext.Provider>
 );
 
 export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
-    );
-
     return {} as MessageInputContextValue<V>;
   }
 
-  return contextValue as MessageInputContextValue<V>;
+  return contextValue as unknown as MessageInputContextValue<V>;
 };

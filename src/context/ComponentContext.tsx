@@ -41,8 +41,6 @@ import type {
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
-  SuggestionItemProps,
-  SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
@@ -51,6 +49,12 @@ import type {
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
+
+import type {
+  SuggestionItemProps,
+  SuggestionListProps,
+} from '../components/TextAreaComposer';
+
 import type {
   SearchProps,
   SearchResultsPresearchProps,
@@ -118,6 +122,8 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: React.ComponentType<MessageDeletedProps>;
+  /** Custom component that handles the message draft management for main or thread message composer */
+  MessageDraftSynchronizer?: React.ComponentType<PropsWithChildrenOnly>;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;

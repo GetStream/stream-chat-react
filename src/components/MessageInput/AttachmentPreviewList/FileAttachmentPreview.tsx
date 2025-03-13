@@ -25,6 +25,7 @@ export const FileAttachmentPreview = ({
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
+  const uploadState = attachment.localMetadata?.uploadState;
   return (
     <div
       className='str-chat__attachment-preview-file'
@@ -38,7 +39,7 @@ export const FileAttachmentPreview = ({
         aria-label={t('aria/Remove attachment')}
         className='str-chat__attachment-preview-delete'
         data-testid='file-preview-item-delete-button'
-        disabled={attachment.localMetadata?.uploadState === 'uploading'}
+        disabled={uploadState === 'uploading'}
         onClick={() =>
           attachment.localMetadata?.id &&
           removeAttachments([attachment.localMetadata?.id])
@@ -47,7 +48,7 @@ export const FileAttachmentPreview = ({
         <CloseIcon />
       </button>
 
-      {attachment.localMetadata?.uploadState === 'failed' && !!handleRetry && (
+      {uploadState === 'failed' && !!handleRetry && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
           data-testid='file-preview-item-retry-button'
@@ -61,7 +62,8 @@ export const FileAttachmentPreview = ({
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
           {attachment.title}
         </div>
-        {attachment.localMetadata?.uploadState === 'finished' &&
+        {/* undefined if loaded from a draft */}
+        {(typeof uploadState === 'undefined' || uploadState === 'finished') &&
           !!attachment.asset_url && (
             <a
               aria-label={t('aria/Download attachment')}
@@ -75,9 +77,7 @@ export const FileAttachmentPreview = ({
               <DownloadIcon />
             </a>
           )}
-        {attachment.localMetadata?.uploadState === 'uploading' && (
-          <LoadingIndicatorIcon size={17} />
-        )}
+        {uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
       </div>
     </div>
   );

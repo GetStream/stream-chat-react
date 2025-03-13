@@ -2,6 +2,7 @@ import type {
   Channel,
   MessageResponse,
   ChannelState as StreamChannelState,
+  Thread,
 } from 'stream-chat';
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
@@ -51,6 +52,7 @@ export type ChannelStateReducerAction =
       channel: Channel;
       message: StreamMessage;
       type: 'openThread';
+      threadInstance?: Thread;
     }
   | {
       error: Error;
@@ -91,6 +93,7 @@ export const makeChannelReducer =
         return {
           ...state,
           thread: null,
+          threadInstance: undefined,
           threadLoadingMore: false,
           threadMessages: [],
         };
@@ -115,6 +118,7 @@ export const makeChannelReducer =
         return {
           ...state,
           members: { ...channel.state.members },
+          messageDraft: channel.state.messageDraft,
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
           read: { ...channel.state.read },
@@ -130,6 +134,7 @@ export const makeChannelReducer =
           hasMore,
           loading: false,
           members: { ...channel.state.members },
+          messageDraft: channel.state.messageDraft,
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
           read: { ...channel.state.read },
@@ -196,11 +201,12 @@ export const makeChannelReducer =
       }
 
       case 'openThread': {
-        const { channel, message } = action;
+        const { channel, message, threadInstance } = action;
         return {
           ...state,
           thread: message,
           threadHasMore: true,
+          threadInstance,
           threadMessages: message.id
             ? { ...channel.state.threads }[message.id] || []
             : [],

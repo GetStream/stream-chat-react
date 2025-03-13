@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import type { CSSProperties } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
@@ -6,7 +8,18 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { Item } from './Item';
 import { escapeRegExp } from '../Message/renderText';
 
-export const List = ({
+import type { CustomTrigger, UnknownType } from '../../types/types';
+import type {
+  SuggestionEmoji,
+  SuggestionItem,
+  SuggestionListProps,
+  SuggestionUser,
+} from '../ChatAutoComplete';
+
+export const List = <
+  V extends CustomTrigger = CustomTrigger,
+  EmojiData extends UnknownType = UnknownType,
+>({
   className,
   component,
   currentTrigger,
@@ -21,59 +34,63 @@ export const List = ({
   SuggestionItem: PropSuggestionItem,
   value: propValue,
   values,
-}) => {
+}: SuggestionListProps<V>) => {
   const { AutocompleteSuggestionItem } = useComponentContext('SuggestionList');
   const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
 
-  const [selectedItemIndex, setSelectedItemIndex] = useState(undefined);
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | undefined>(
+    undefined,
+  );
 
-  const itemsRef = [];
+  const itemsRef: HTMLElement[] = [];
 
-  const isSelected = (item) =>
+  const isSelected = (item: SuggestionItem<EmojiData>) =>
+    // @ts-expect-error tmp
     selectedItemIndex === values.findIndex((value) => getId(value) === getId(item));
 
-  const getId = (item) => {
+  const getId = (item: SuggestionItem<EmojiData>) => {
+    // @ts-expect-error tmp
     const textToReplace = getTextToReplace(item);
     if (textToReplace.key) {
       return textToReplace.key;
     }
 
-    if (typeof item === 'string' || !item.key) {
+    if (typeof item === 'string' || !(item as SuggestionEmoji<EmojiData>).key) {
       return textToReplace.text;
     }
 
-    return item.key;
+    return (item as SuggestionEmoji<V>).key;
   };
 
   const findItemIndex = useCallback(
-    (item) =>
+    (item: SuggestionItem<V>) =>
       values.findIndex((value) =>
-        value.id ? value.id === item.id : value.name === item.name,
+        value.id ? value.id === (item as SuggestionUser).id : value.name === item.name,
       ),
     [values],
   );
 
-  const modifyText = (value) => {
+  const modifyText = (value: SuggestionListProps<V>['values'][number]) => {
     if (!value) return;
-
+    // @ts-expect-error tmp
     onSelect(getTextToReplace(value));
+    // @ts-expect-error tmp
     if (getSelectedItem) getSelectedItem(value);
   };
 
   const handleClick = useCallback(
-    (e, item) => {
+    (e: React.MouseEvent<Element, MouseEvent>, item: SuggestionItem<V>) => {
       e?.preventDefault();
 
       const index = findItemIndex(item);
 
       modifyText(values[index]);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [modifyText, findItemIndex],
+    [modifyText, findItemIndex, values],
   );
 
   const selectItem = useCallback(
-    (item) => {
+    (item: SuggestionItem<V>) => {
       const index = findItemIndex(item);
       setSelectedItemIndex(index);
     },
@@ -81,7 +98,7 @@ export const List = ({
   );
 
   const handleKeyDown = useCallback(
-    (event) => {
+    (event: KeyboardEvent) => {
       if (event.key === 'ArrowUp') {
         setSelectedItemIndex((prevSelected) => {
           if (prevSelected === undefined) return 0;
@@ -104,12 +121,11 @@ export const List = ({
         (event.key === 'Enter' || event.key === 'Tab') &&
         selectedItemIndex !== undefined
       ) {
-        handleClick(event, values[selectedItemIndex]);
+        modifyText(values[selectedItemIndex]);
       }
 
       return null;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedItemIndex, values],
   );
 
@@ -119,14 +135,15 @@ export const List = ({
   }, [handleKeyDown]);
 
   useEffect(() => {
+    // @ts-expect-error tmp
     if (values?.length) selectItem(values[0]);
-  }, [values]); // eslint-disable-line
+  }, [selectItem, values]);
 
   const restructureItem = useCallback(
-    (item) => {
-      const matched = item.name || item.id;
+    (item: SuggestionItem<V>) => {
+      const matched = item.name || (item as SuggestionUser).id;
 
-      const textBeforeCursor = propValue.slice(0, selectionEnd);
+      const textBeforeCursor = (propValue || '').slice(0, selectionEnd);
       const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
       const editedPropValue = escapeRegExp(textBeforeCursor.slice(triggerIndex + 1));
 
@@ -140,6 +157,7 @@ export const List = ({
   );
 
   const restructuredValues = useMemo(
+    // @ts-expect-error tmp
     () => values.map(restructureItem),
     [values, restructureItem],
   );
@@ -149,16 +167,17 @@ export const List = ({
       {restructuredValues.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
+          // @ts-expect-error tmp
           component={component}
           item={item}
-          key={getId(item)}
+          key={getId(item).toString()}
           onClickHandler={handleClick}
           onSelectHandler={selectItem}
-          ref={(ref) => {
+          ref={(ref: HTMLAnchorElement) => {
             itemsRef[i] = ref;
           }}
           selected={isSelected(item)}
-          style={itemStyle}
+          style={itemStyle as CSSProperties}
           value={propValue}
         />
       ))}

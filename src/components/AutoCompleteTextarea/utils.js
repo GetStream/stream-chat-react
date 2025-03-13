@@ -5,14 +5,14 @@ export function defaultScrollToItem(container, item) {
 
   const itemHeight = parseInt(getComputedStyle(item).getPropertyValue('height'), 10);
 
-  const containerHight =
+  const containerHeight =
     parseInt(getComputedStyle(container).getPropertyValue('height'), 10) - itemHeight;
 
   const actualScrollTop = container.scrollTop;
   const itemOffsetTop = item.offsetTop;
 
   if (
-    itemOffsetTop < actualScrollTop + containerHight &&
+    itemOffsetTop < actualScrollTop + containerHeight &&
     actualScrollTop < itemOffsetTop
   ) {
     return;

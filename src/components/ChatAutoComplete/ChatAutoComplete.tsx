@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 
-import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { LoadingIndicator } from '../Loading/LoadingIndicator';
 
 import { useMessageInputContext } from '../../context/MessageInputContext';
@@ -12,6 +11,7 @@ import type { CommandResponse, UserResponse } from 'stream-chat';
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 import type { CustomTrigger, UnknownType } from '../../types/types';
 import type { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
+import { TextareaX } from '../AutoCompleteTextarea/TextareaX';
 
 type ObjectUnion<T> = T[keyof T];
 
@@ -22,25 +22,28 @@ export type SuggestionUser = UserResponse;
 export type SuggestionEmoji<T extends UnknownType = UnknownType> =
   EmojiSearchIndexResult & T;
 
-export type SuggestionItem<T extends UnknownType = UnknownType> =
+export type SuggestionItem<EmojiData extends UnknownType = UnknownType> =
   | SuggestionUser
   | SuggestionCommand
-  | SuggestionEmoji<T>;
+  | SuggestionEmoji<EmojiData>;
 
 // FIXME: entity type is wrong, fix
-export type SuggestionItemProps<T extends UnknownType = UnknownType> = {
-  className: string;
+export type SuggestionItemProps<EmojiData extends UnknownType = UnknownType> = {
   component: React.ComponentType<{
-    entity: SuggestionItem<T>;
+    entity: SuggestionItem<EmojiData>;
     selected: boolean;
   }>;
-  item: SuggestionItem<T>;
+  item: SuggestionItem<EmojiData>;
   key: React.Key;
-  onClickHandler: (event: React.BaseSyntheticEvent, item: SuggestionItem<T>) => void;
-  onSelectHandler: (item: SuggestionItem<T>) => void;
+  onClickHandler: (
+    event: React.MouseEvent<Element, MouseEvent>,
+    item: SuggestionItem<EmojiData>,
+  ) => void;
+  onSelectHandler: (item: SuggestionItem<EmojiData>) => void;
   selected: boolean;
   style: React.CSSProperties;
-  value: string;
+  className?: string;
+  value?: string;
 };
 
 export interface SuggestionHeaderProps {
@@ -48,11 +51,14 @@ export interface SuggestionHeaderProps {
   value: string;
 }
 
-export type SuggestionListProps<V extends CustomTrigger = CustomTrigger> = ObjectUnion<{
+export type SuggestionListProps<
+  V extends CustomTrigger = CustomTrigger,
+  EmojiData extends UnknownType = UnknownType,
+> = ObjectUnion<{
   [key in keyof TriggerSettings<V>]: {
     component: TriggerSettings<V>[key]['component'];
     currentTrigger: string;
-    dropdownScroll: (element: HTMLDivElement) => void;
+    dropdownScroll: (element: HTMLElement) => void;
     getSelectedItem:
       | ((item: Parameters<TriggerSettings<V>[key]['output']>[0]) => void)
       | null;
@@ -61,17 +67,17 @@ export type SuggestionListProps<V extends CustomTrigger = CustomTrigger> = Objec
       text: string;
       key?: string;
     };
-    Header: React.ComponentType<SuggestionHeaderProps>;
     onSelect: (newToken: {
       caretPosition: 'start' | 'end' | 'next' | number;
       text: string;
     }) => void;
     selectionEnd: number;
-    SuggestionItem: React.ComponentType<SuggestionItemProps>;
+    SuggestionItem: React.ComponentType<SuggestionItemProps<EmojiData>>;
     values: Parameters<Parameters<TriggerSettings<V>[key]['dataProvider']>[2]>[0];
     className?: string;
     itemClassName?: string;
     itemStyle?: React.CSSProperties;
+    Header?: React.ComponentType<SuggestionHeaderProps>;
     style?: React.CSSProperties;
     value?: string;
   };
@@ -103,10 +109,8 @@ export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
 const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
   props: ChatAutoCompleteProps,
 ) => {
-  const {
-    AutocompleteSuggestionItem: SuggestionItem,
-    AutocompleteSuggestionList: SuggestionList,
-  } = useComponentContext<V>('ChatAutoComplete');
+  const { AutocompleteSuggestionItem: SuggestionItem } =
+    useComponentContext<V>('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
 
   const messageInput = useMessageInputContext<V>('ChatAutoComplete');
@@ -146,7 +150,7 @@ const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
   );
 
   return (
-    <AutoCompleteTextarea
+    <TextareaX
       additionalTextareaProps={messageInput.additionalTextareaProps}
       aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       className='str-chat__textarea__textarea str-chat__message-textarea'
@@ -172,10 +176,12 @@ const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
       shouldSubmit={messageInput.shouldSubmit}
       showCommandsList={messageInput.showCommandsList}
       showMentionsList={messageInput.showMentionsList}
+      // @ts-expect-error because we would have to pass the third generic type to ComponentContext
       SuggestionItem={SuggestionItem}
-      SuggestionList={SuggestionList}
+      // SuggestionList={SuggestionList}
+      // @ts-expect-error type mismatch
       trigger={messageInput.autocompleteTriggers || {}}
-      value={props.value || messageInput.text}
+      value={props.value}
     />
   );
 };

@@ -1,18 +1,30 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useChannelStateContext, useMessageInputContext } from '../../context';
+import { useMessageInputContext } from '../../context';
 import type { LinkPreview } from './types';
 import { LinkPreviewState } from './types';
 import { CloseIcon, LinkIcon } from './icons';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useStateStore } from '../../store';
+
+import type { MessageComposerState } from 'stream-chat';
 
 export type LinkPreviewListProps = {
   linkPreviews: LinkPreview[];
 };
 
+const messageComposerStateSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
+
 export const LinkPreviewList = ({ linkPreviews }: LinkPreviewListProps) => {
-  const { quotedMessage } = useChannelStateContext();
+  const messageComposer = useMessageComposer();
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateSelector,
+  );
   const showLinkPreviews = linkPreviews.length > 0 && !quotedMessage;
 
   if (!showLinkPreviews) return null;

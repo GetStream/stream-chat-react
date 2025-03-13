@@ -4,10 +4,12 @@ import type {
   APIErrorResponse,
   Channel,
   ChannelConfigWithInfo,
+  DraftResponse,
   ErrorFromResponse,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
+  Thread,
 } from 'stream-chat';
 
 import type {
@@ -45,12 +47,13 @@ export type ChannelState = {
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
   members?: StreamChannelState['members'];
+  messageDraft: DraftResponse | null;
   messages?: StreamMessage[];
   pinnedMessages?: StreamMessage[];
-  quotedMessage?: StreamMessage;
   read?: StreamChannelState['read'];
   thread?: StreamMessage | null;
   threadHasMore?: boolean;
+  threadInstance?: Thread;
   threadLoadingMore?: boolean;
   threadMessages?: StreamMessage[];
   threadSuppressAutoscroll?: boolean;
@@ -76,6 +79,7 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
+  messageDraftsEnabled?: boolean;
   mutes?: Array<Mute>;
   onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;

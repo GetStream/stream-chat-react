@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
@@ -27,6 +26,7 @@ import type {
   SendMessageAPIResponse,
   Channel as StreamChannel,
   StreamChat,
+  Thread,
   UpdatedMessage,
   UserResponse,
 } from 'stream-chat';
@@ -76,7 +76,12 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
+import {
+  findInMsgSetByDate,
+  findInMsgSetById,
+  generateMessageId,
+  makeAddNotifications,
+} from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 
@@ -168,6 +173,7 @@ const isUserResponseArray = (
 
 export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
   ChannelPropsForwardedToComponentContext & {
+    // todo: move to MessageComposer configuration
     /** List of accepted file types */
     acceptedFiles?: string[];
     /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
@@ -228,6 +234,9 @@ export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
     markReadOnMount?: boolean;
     /** Maximum number of attachments allowed per message */
     maxNumberOfFiles?: number;
+    /** Enables storing message drafts on the server. */
+    messageDraftsEnabled?: boolean;
+    // todo: document that multipleUploads is redundant and ignored with message composer
     /** Whether to allow multiple attachment uploads */
     multipleUploads?: boolean;
     /** Custom action handler function to run on click of an @mention in a message */
@@ -323,6 +332,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
     maxNumberOfFiles,
+    messageDraftsEnabled,
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
@@ -348,12 +358,12 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
   const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
+  // FIXME: Create a proper notification service in the LLC.
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const [quotedMessage, setQuotedMessage] = useState<StreamMessage>();
+  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
+
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
-
-  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
   const channelReducer = useMemo(() => makeChannelReducer(), []);
 
@@ -365,6 +375,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       ...initialState,
       hasMore: channel.state.messagePagination.hasPrev,
       loading: !channel.initialized,
+      messageDraft: channel.state.messageDraft,
     },
   );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
@@ -571,6 +582,10 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
         }
       }
 
+      if (maxNumberOfFiles) {
+        channel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage =
+          maxNumberOfFiles;
+      }
       done = true;
       originalTitle.current = document.title;
 
@@ -977,8 +992,9 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       id,
       mentioned_users: mentions,
       parent_id,
-      quoted_message_id:
-        parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
+      // todo: move to message composer
+      // quoted_message_id:
+      //   parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
     } as Message;
@@ -1019,9 +1035,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
           status: 'received',
         });
       }
-
-      if (quotedMessage && parent_id === quotedMessage?.parent_id)
-        setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -1077,7 +1090,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       attachments,
       created_at: new Date(),
       html: text,
-      id: customMessageData?.id ?? `${client.userID}-${nanoid()}`,
+      id: customMessageData?.id ?? generateMessageId({ client }),
       mentioned_users,
       parent_id: parent?.id,
       reactions: [],
@@ -1128,14 +1141,33 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const openThread = (message: StreamMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    setQuotedMessage((current) => {
-      if (current?.parent_id !== message?.parent_id) {
-        return undefined;
-      } else {
-        return current;
-      }
+    // todo: revisit how to open a thread
+
+    const threadInstance = client.threads.threadsById[message.id];
+    if (threadInstance) {
+      dispatch({ channel, message, threadInstance, type: 'openThread' });
+      return;
+    }
+
+    dispatch({
+      channel,
+      message,
+      threadInstance: {} as Thread,
+      type: 'openThread',
     });
-    dispatch({ channel, message, type: 'openThread' });
+
+    client
+      .getThread(message.id, { reply_limit: DEFAULT_THREAD_PAGE_SIZE })
+      .then((t: Thread) => {
+        t.registerSubscriptions();
+        dispatch({
+          channel,
+          message,
+          threadInstance: t,
+          type: 'openThread',
+        });
+        client.threads.addThread(t);
+      });
   };
 
   const closeThread = (event?: React.BaseSyntheticEvent) => {
@@ -1164,7 +1196,13 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
+    if (
+      state.threadInstance ||
+      state.threadLoadingMore ||
+      !state.thread ||
+      !state.threadHasMore
+    )
+      return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentId = state.thread.id;
@@ -1216,11 +1254,11 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
+    messageDraftsEnabled,
     multipleUploads,
     mutes,
     notifications,
     onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-    quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -1248,7 +1286,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       retrySendMessage,
       sendMessage,
       setChannelUnreadUiState,
-      setQuotedMessage,
       skipMessageDataMemoization,
       updateMessage,
     }),
@@ -1261,7 +1298,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       loadMore,
       loadMoreNewer,
       markRead,
-      quotedMessage,
       jumpToFirstUnreadMessage,
       jumpToMessage,
       jumpToLatestMessage,

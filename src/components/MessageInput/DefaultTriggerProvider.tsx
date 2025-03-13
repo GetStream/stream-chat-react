@@ -19,6 +19,7 @@ import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import type { UserItemProps } from '../UserItem/UserItem';
 
 import type { CustomTrigger, UnknownType } from '../../types/types';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 
 export type AutocompleteMinimalData = {
   id?: string;
@@ -63,6 +64,7 @@ export const DefaultTriggerProvider = <V extends CustomTrigger = CustomTrigger>(
   children,
 }: PropsWithChildren<Record<string, unknown>>) => {
   const currentValue = useMessageInputContext<V>('DefaultTriggerProvider');
+  const messageComposer = useMessageComposer();
 
   const defaultAutocompleteTriggers: TriggerSettings = {
     '/': useCommandTrigger(),
@@ -71,7 +73,7 @@ export const DefaultTriggerProvider = <V extends CustomTrigger = CustomTrigger>(
       disableMentions: currentValue.disableMentions,
       mentionAllAppUsers: currentValue.mentionAllAppUsers,
       mentionQueryParams: currentValue.mentionQueryParams,
-      onSelectUser: currentValue.onSelectUser,
+      onSelectUser: messageComposer.textComposer.upsertMentionedUser,
       useMentionsTransliteration: currentValue.useMentionsTransliteration,
     }),
   };

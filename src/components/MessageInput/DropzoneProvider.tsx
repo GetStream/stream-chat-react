@@ -15,22 +15,31 @@ import {
 import type { MessageInputProps } from './MessageInput';
 
 import type { CustomTrigger, UnknownType } from '../../types/types';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
+
+// const attachmentManagerStateSelector = <
+//
+// >(
+//   state: AttachmentManagerState,
+// ) => ({ isUploadEnabled: state.isUploadEnabled });
 
 const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
   children,
 }: PropsWithChildren<UnknownType>) => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext('DropzoneProvider');
+  const { acceptedFiles } = useChannelStateContext('DropzoneProvider');
 
-  const { cooldownRemaining, isUploadEnabled, maxFilesLeft, uploadNewFiles } =
-    useMessageInputContext<V>('DropzoneProvider');
+  const { cooldownRemaining } = useMessageInputContext<V>('DropzoneProvider');
+  const messageComposer = useMessageComposer();
+  const { availableUploadSlots, isUploadEnabled } = useIsUploadEnabled();
 
   return (
     <ImageDropzone
       accept={acceptedFiles}
-      disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
-      handleFiles={uploadNewFiles}
-      maxNumberOfFiles={maxFilesLeft}
-      multiple={multipleUploads}
+      disabled={!isUploadEnabled || !!cooldownRemaining}
+      handleFiles={messageComposer.attachmentManager.uploadFiles}
+      maxNumberOfFiles={availableUploadSlots}
+      multiple={messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1}
     >
       {children}
     </ImageDropzone>
@@ -42,11 +51,13 @@ export const DropzoneProvider = <V extends CustomTrigger = CustomTrigger>(
 ) => {
   const cooldownTimerState = useCooldownTimer();
   const messageInputState = useMessageInputState<V>(props);
+  const messageComposer = useMessageComposer({ message: props.message });
 
   const messageInputContextValue = useCreateMessageInputContext<V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
+    messageComposer,
   });
 
   return (
