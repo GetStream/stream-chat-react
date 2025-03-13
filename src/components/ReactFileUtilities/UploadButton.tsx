@@ -5,7 +5,7 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import { useChannelStateContext, useTranslationContext } from '../../context';
-import { PartialSelected } from '../../types/types';
+import type { PartialSelected } from '../../types/types';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 import { useIsUploadEnabled } from '../MessageInput/hooks/messageComposer/useIsUploadEnabled';
 
@@ -43,10 +43,9 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { acceptedFiles = [] } =
-    useChannelStateContext<StreamChatGenerics>('UploadFileInput');
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
-  const { isUploadEnabled } = useIsUploadEnabled<StreamChatGenerics>();
+  const { acceptedFiles = [] } = useChannelStateContext('UploadFileInput');
+  const messageComposer = useMessageComposer();
+  const { isUploadEnabled } = useIsUploadEnabled();
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(

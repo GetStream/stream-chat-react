@@ -1,19 +1,21 @@
-import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-underscore-dangle */
+
+import type { CSSProperties } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
 import clsx from 'clsx';
 import { List as DefaultSuggestionList } from './List';
-import {
-  DEFAULT_CARET_POSITION,
-  defaultScrollToItem,
-  errorMessage,
-  triggerPropsCheck,
-} from './utils';
+import { DEFAULT_CARET_POSITION, defaultScrollToItem, errorMessage } from './utils';
 import { isSafari } from '../../utils/browsers';
 import { CommandItem } from '../CommandItem';
 import { UserItem } from '../UserItem';
-import { SuggestionItemProps, SuggestionListProps } from '../ChatAutoComplete';
-import type { DefaultStreamChatGenerics } from '../../types';
+import type { SuggestionItemProps, SuggestionListProps } from '../ChatAutoComplete';
+
 import type { CustomTrigger, UnknownType } from '../../types/types';
 
 type TextareaState = {
@@ -32,7 +34,6 @@ type TextareaState = {
 };
 
 type TextareaProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
   EmojiData extends UnknownType = UnknownType,
 > = {
@@ -72,11 +73,9 @@ type TextareaProps<
   showMentionsList?: boolean;
   style?: Omit<CSSProperties, 'height'>;
   SuggestionItem?: React.ComponentType<
-    React.ComponentType<SuggestionItemProps<StreamChatGenerics, EmojiData>>
+    React.ComponentType<SuggestionItemProps<EmojiData>>
   >;
-  SuggestionList?: React.ComponentType<
-    SuggestionListProps<StreamChatGenerics, V, EmojiData>
-  >;
+  SuggestionList?: React.ComponentType<SuggestionListProps<V, EmojiData>>;
   trigger: Record<
     string,
     {
@@ -102,11 +101,10 @@ type TextareaProps<
 const _isCommand = (value: string) => value.startsWith('/');
 
 export const TextareaX = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
   EmojiData extends UnknownType = UnknownType,
 >(
-  props: TextareaProps<StreamChatGenerics, V, EmojiData>,
+  props: TextareaProps<V, EmojiData>,
 ) => {
   const {
     closeCommandsList,
@@ -129,7 +127,6 @@ export const TextareaX = <
     shouldSubmit,
     showCommandsList,
     showMentionsList,
-    // @ts-ignore
     SuggestionItem,
     SuggestionList = DefaultSuggestionList,
     trigger,
@@ -153,11 +150,11 @@ export const TextareaX = <
     dataLoading: false,
     isComposing: false,
     left: null,
+    propsValue: initialValue,
     selectionEnd: 0,
     selectionStart: 0,
     top: null,
     value: initialValue,
-    propsValue: initialValue,
   });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -655,7 +652,7 @@ export const TextareaX = <
         triggerProps.values = data;
       });
 
-      // @ts-ignore
+      // @ts-expect-error tmp
       triggerProps.component = showCommandsList ? CommandItem : UserItem;
       triggerProps.currentTrigger = showCommandsList ? '/' : '@';
       triggerProps.getTextToReplace = _getTextToReplace(showCommandsList ? '/' : '@');
@@ -711,9 +708,9 @@ export const TextareaX = <
 
         setState((prev) => ({
           ...prev,
+          component: triggerSettings.component,
           data,
           dataLoading: false,
-          component: triggerSettings.component,
         }));
       });
     }
@@ -801,7 +798,7 @@ export const TextareaX = <
             ref={setDropdownRef}
             style={restProps.dropdownStyle}
           >
-            {/*// @ts-ignore*/}
+            {/* @ts-expect-error tmp */}
             <SuggestionList
               className={restProps.listClassName}
               dropdownScroll={_dropdownScroll}

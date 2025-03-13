@@ -1,14 +1,13 @@
-import type { DefaultStreamChatGenerics } from '../../../types';
-import type { SearchSourceOptions } from 'stream-chat';
+import type {
+  SearchSourceOptions,
+  SearchSourceType,
+  TextComposerMiddlewareOptions,
+} from 'stream-chat';
 import {
   BaseSearchSource,
   getTriggerCharWithToken,
   insertItemWithTrigger,
   replaceWordWithEntity,
-  SearchSourceType,
-  TextComposerMiddleware,
-  TextComposerMiddlewareOptions,
-  TextComposerMiddlewareValue,
 } from 'stream-chat';
 import mergeWith from 'lodash.mergewith';
 import type { EmojiSearchIndexResult } from '../../../components/MessageInput';
@@ -77,7 +76,6 @@ const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: '
  */
 export const createTextComposerEmojiMiddleware = <
   T extends EmojiSearchIndexResult = EmojiSearchIndexResult,
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   searchSource: EmojiSearchSource<T>,
   options?: Partial<TextComposerMiddlewareOptions>,
@@ -88,7 +86,7 @@ export const createTextComposerEmojiMiddleware = <
 
   return {
     id: finalOptions.trigger,
-    onChange: async ({ input, nextHandler }: MiddlewareParams<SCG, T>) => {
+    onChange: async ({ input, nextHandler }: MiddlewareParams<T>) => {
       const { state } = input;
       if (!state.selection) return nextHandler(input);
 
@@ -147,7 +145,7 @@ export const createTextComposerEmojiMiddleware = <
       input,
       nextHandler,
       selectedSuggestion,
-    }: MiddlewareParams<SCG, T>) => {
+    }: MiddlewareParams<T>) => {
       const { state } = input;
       if (!selectedSuggestion || state.suggestions?.trigger !== finalOptions.trigger)
         return nextHandler(input);

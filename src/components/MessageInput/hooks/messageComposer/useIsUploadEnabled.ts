@@ -1,6 +1,5 @@
 import { useMessageComposer } from './useMessageComposer';
-import type { DefaultStreamChatGenerics } from '../../../../types';
-import { AttachmentManagerState } from 'stream-chat';
+import type { AttachmentManagerState } from 'stream-chat';
 import { useStateStore } from '../../../../store';
 
 const stateSelector = (state: AttachmentManagerState) => ({
@@ -8,10 +7,8 @@ const stateSelector = (state: AttachmentManagerState) => ({
   hasUploadPermission: state.hasUploadPermission,
 });
 
-export const useIsUploadEnabled = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+export const useIsUploadEnabled = () => {
+  const messageComposer = useMessageComposer();
   useStateStore(messageComposer.attachmentManager.state, stateSelector);
   return {
     availableUploadSlots: messageComposer.attachmentManager.availableUploadSlots,

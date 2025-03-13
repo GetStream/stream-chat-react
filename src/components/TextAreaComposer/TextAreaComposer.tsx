@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-underscore-dangle */
 import clsx from 'clsx';
 import Textarea from 'react-textarea-autosize';
-import React, {
+import React, { useCallback, useState } from 'react';
+import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
+
+import { useStateStore } from '../../store';
+import type {
   ChangeEventHandler,
+  FocusEvent,
+  MouseEvent,
   TextareaHTMLAttributes,
   UIEventHandler,
-  useCallback,
-  useState,
 } from 'react';
-import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
-import type { DefaultStreamChatGenerics } from '../../types';
-import { useStateStore } from '../../store';
-import type { FocusEvent, MouseEvent } from 'react';
 import type { SearchSourceState, TextComposerState } from 'stream-chat';
 import {
   useComponentContext,
@@ -21,11 +23,7 @@ import { isSafari } from '../../utils/browsers';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 import { defaultScrollToItem } from '../AutoCompleteTextarea';
 
-const textComposerStateSelector = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: TextComposerState<SCG>,
-) => ({
+const textComposerStateSelector = (state: TextComposerState) => ({
   suggestions: state.suggestions,
   text: state.text,
 });
@@ -69,9 +67,7 @@ export type TextComposerProps = Omit<
   // ref?: Ref<HTMLTextAreaElement>;
 };
 
-export const TextAreaComposer = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const TextAreaComposer = ({
   className,
   closeOnClickOutside,
   containerClassName,
@@ -94,7 +90,7 @@ export const TextAreaComposer = <
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const { cooldownRemaining, textareaRef } = useMessageInputContext();
-  const messageComposer = useMessageComposer<SCG>();
+  const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
 
   const { suggestions, text } = useStateStore(
@@ -148,12 +144,13 @@ export const TextAreaComposer = <
       if (!textareaRef.current) return;
       textComposer.handleChange({
         selection: {
-          start: textareaRef.current.selectionStart,
           end: textareaRef.current.selectionEnd,
+          start: textareaRef.current.selectionStart,
         },
         text: e.target.value,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onChange, textComposer],
   );
 
@@ -169,6 +166,7 @@ export const TextAreaComposer = <
     async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (!textareaRef.current) return;
 
+      await event;
       /**
        * todo: move to EmojisMiddleware so that on each change event, the text is already adjusted and not having to do this on keyDown event.
        * Should be adjusted on enter and space
@@ -178,6 +176,7 @@ export const TextAreaComposer = <
       messageComposer.sendMessage();
       textComposer.closeSuggestions();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [messageComposer, textComposer],
   );
 
@@ -199,12 +198,17 @@ export const TextAreaComposer = <
       if (shouldSubmit(event)) return _onEnter(event);
       if (event.key === 'Escape') return textComposer.closeSuggestions();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onKeyDown, shouldSubmit, _onEnter],
   );
 
   const scrollHandler: UIEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
-      onScroll ? onScroll(event) : textComposer.closeSuggestions();
+      if (onScroll) {
+        onScroll(event);
+      } else {
+        textComposer.closeSuggestions();
+      }
     },
     [onScroll, textComposer],
   );

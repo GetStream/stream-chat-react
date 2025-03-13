@@ -169,7 +169,7 @@ export const useLinkPreviews = ({
           });
         });
     });
-  }, [dispatch, shouldDiscardEnrichQueries, linkPreviews]);
+  }, [dispatch, shouldDiscardEnrichQueries, linkPreviews, client]);
 
   return {
     cancelURLEnrichment,

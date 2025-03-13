@@ -14,33 +14,23 @@ import {
 
 import type { MessageInputProps } from './MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  UnknownType,
-} from '../../types/types';
+import type { CustomTrigger, UnknownType } from '../../types/types';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
-import { useStateStore } from '../../store';
-import { AttachmentManagerState } from 'stream-chat';
-import { useMessageContext } from '../../context';
 import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
 
 // const attachmentManagerStateSelector = <
-//   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+//
 // >(
-//   state: AttachmentManagerState<StreamChatGenerics>,
+//   state: AttachmentManagerState,
 // ) => ({ isUploadEnabled: state.isUploadEnabled });
 
 const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
   children,
 }: PropsWithChildren<UnknownType>) => {
-  const { acceptedFiles } =
-    useChannelStateContext<StreamChatGenerics>('DropzoneProvider');
+  const { acceptedFiles } = useChannelStateContext('DropzoneProvider');
 
-  const { cooldownRemaining } = useMessageInputContext<StreamChatGenerics, V>(
-    'DropzoneProvider',
-  );
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+  const { cooldownRemaining } = useMessageInputContext<V>('DropzoneProvider');
+  const messageComposer = useMessageComposer();
   const { availableUploadSlots, isUploadEnabled } = useIsUploadEnabled();
 
   return (
@@ -59,8 +49,8 @@ const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
 export const DropzoneProvider = <V extends CustomTrigger = CustomTrigger>(
   props: PropsWithChildren<MessageInputProps<V>>,
 ) => {
-  const cooldownTimerState = useCooldownTimer<StreamChatGenerics>();
-  const messageInputState = useMessageInputState<StreamChatGenerics, V>(props);
+  const cooldownTimerState = useCooldownTimer();
+  const messageInputState = useMessageInputState<V>(props);
   const messageComposer = useMessageComposer({ message: props.message });
 
   const messageInputContextValue = useCreateMessageInputContext<V>({

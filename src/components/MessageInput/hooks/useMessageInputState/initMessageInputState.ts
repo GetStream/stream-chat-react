@@ -1,22 +1,18 @@
 import { nanoid } from 'nanoid';
 import type { OGAttachment, UserResponse } from 'stream-chat';
 import type { StreamMessage } from '../../../../context';
-import { LinkPreviewMap, LinkPreviewState, type LocalAttachment } from '../../types';
-import type { DefaultStreamChatGenerics } from '../../../../types';
+import type { LinkPreviewMap } from '../../types';
+import { LinkPreviewState, type LocalAttachment } from '../../types';
 
-export type MessageInputState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  attachments: LocalAttachment<StreamChatGenerics>[];
+export type MessageInputState = {
+  attachments: LocalAttachment[];
   linkPreviews: LinkPreviewMap;
-  mentioned_users: UserResponse<StreamChatGenerics>[];
+  mentioned_users: UserResponse[];
   text: string;
   lastChange?: Date;
 };
 
-export const makeEmptyMessageInputState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(): MessageInputState<StreamChatGenerics> => ({
+export const makeEmptyMessageInputState = (): MessageInputState => ({
   attachments: [],
   lastChange: undefined,
   linkPreviews: new Map(),
@@ -27,14 +23,9 @@ export const makeEmptyMessageInputState = <
 /**
  * Initializes the state. Empty if the message prop is falsy.
  */
-export const initState = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: Pick<
-    StreamMessage<StreamChatGenerics>,
-    'attachments' | 'mentioned_users' | 'text'
-  >,
-): MessageInputState<StreamChatGenerics> => {
+export const initState = (
+  message?: Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
+): MessageInputState => {
   if (!message) {
     return makeEmptyMessageInputState();
   }
@@ -57,7 +48,7 @@ export const initState = <
           ({
             ...att,
             localMetadata: { id: nanoid() },
-          }) as LocalAttachment<StreamChatGenerics>,
+          }) as LocalAttachment,
       ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];

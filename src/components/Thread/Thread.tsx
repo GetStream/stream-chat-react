@@ -21,8 +21,8 @@ import { useStateStore } from '../../store';
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
-import type { Thread as ThreadClass, ThreadState } from 'stream-chat';
+import type { CustomTrigger } from '../../types/types';
+import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -58,7 +58,7 @@ export const Thread = <V extends CustomTrigger = CustomTrigger>(
     channelConfig,
     thread,
     threadInstance: threadInstanceChannelCtx,
-  } = useChannelStateContext<StreamChatGenerics>('Thread');
+  } = useChannelStateContext('Thread');
   const threadInstanceThreadCtx = useThreadContext();
 
   const threadInstance = threadInstanceThreadCtx ?? threadInstanceChannelCtx;
@@ -74,11 +74,7 @@ export const Thread = <V extends CustomTrigger = CustomTrigger>(
   );
 };
 
-const selector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: ThreadState<StreamChatGenerics>,
-) => ({
+const selector = (nextValue: ThreadState) => ({
   isLoadingNext: nextValue.pagination.isLoadingNext,
   isLoadingPrev: nextValue.pagination.isLoadingPrev,
   parentMessage: nextValue.parentMessage,
@@ -101,7 +97,7 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
     virtualized,
   } = props;
 
-  const threadInstanceThreadCtx = useThreadContext<StreamChatGenerics>();
+  const threadInstanceThreadCtx = useThreadContext();
 
   const {
     thread,
@@ -140,7 +136,7 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
-  }, [thread, loadMoreThread]);
+  }, [thread, loadMoreThread, threadInstance]);
 
   const threadProps: Pick<
     VirtualizedMessageListProps,
@@ -186,11 +182,7 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   );
 
   return (
-    <ThreadContext.Provider
-      // todo: solve ts-ignore
-      // @ts-ignore
-      value={threadInstance as unknown as ThreadClass<StreamChatGenerics>}
-    >
+    <ThreadContext.Provider value={threadInstance}>
       <div className={threadClass}>
         <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
         <ThreadMessageList

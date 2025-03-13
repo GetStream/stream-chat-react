@@ -1,4 +1,4 @@
-import {
+import type {
   Channel,
   MessageResponse,
   ChannelState as StreamChannelState,
@@ -52,7 +52,7 @@ export type ChannelStateReducerAction =
       channel: Channel;
       message: StreamMessage;
       type: 'openThread';
-      threadInstance?: Thread<StreamChatGenerics>;
+      threadInstance?: Thread;
     }
   | {
       error: Error;

@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { generateMessageId } from '../Channel/utils';
-import { EnrichURLsController } from './hooks/useLinkPreviews';
+import type { EnrichURLsController } from './hooks/useLinkPreviews';
 import { prepareMessage } from './hooks/useSubmitHandler';
 import { initState } from './hooks/useMessageInputState/initMessageInputState';
+import type { StreamMessage } from '../../context';
 import {
-  StreamMessage,
-  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   useMessageInputContext,
@@ -18,42 +17,37 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { LinkPreviewMap, LocalAttachment } from './types';
-import type { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../../types/types';
+import type { PropsWithChildrenOnly } from '../../types/types';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { useStateStore } from '../../store';
 
-type MessageDraftRefs<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<EnrichURLsController, 'cancelURLEnrichment' | 'findAndEnqueueURLsToEnrich'> & {
-  attachments: LocalAttachment<StreamChatGenerics>[];
+type MessageDraftRefs = Pick<
+  EnrichURLsController,
+  'cancelURLEnrichment' | 'findAndEnqueueURLsToEnrich'
+> & {
+  attachments: LocalAttachment[];
   lastChange: Date | undefined;
   linkPreviews: LinkPreviewMap;
-  mentioned_users: UserResponse<StreamChatGenerics>[];
+  mentioned_users: UserResponse[];
   numberOfUploads: number;
   text: string;
-  editedMessage?: StreamMessage<StreamChatGenerics>;
-  messageDraft: DraftResponse<StreamChatGenerics> | null;
-  parent?: StreamMessage<StreamChatGenerics>;
-  quotedMessage: StreamMessage<StreamChatGenerics> | null;
+  editedMessage?: StreamMessage;
+  messageDraft: DraftResponse | null;
+  parent?: StreamMessage;
+  quotedMessage: StreamMessage | null;
 };
 
-const messageComposerStateSelector = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: MessageComposerState<SCG>,
-): Pick<MessageComposerState<SCG>, 'quotedMessage'> => ({
+const messageComposerStateSelector = (
+  state: MessageComposerState,
+): Pick<MessageComposerState, 'quotedMessage'> => ({
   quotedMessage: state.quotedMessage,
 });
 
 // FIXME: Move all the logic from this component to the LLC Channel reactive state
-export const MessageDraftSynchronizer = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  children,
-}: PropsWithChildrenOnly) => {
-  const { client } = useChatContext<SCG>();
-  const { channel, messageDraft, messageDraftsEnabled } = useChannelStateContext<SCG>();
-  const messageComposer = useMessageComposer<SCG>();
+export const MessageDraftSynchronizer = ({ children }: PropsWithChildrenOnly) => {
+  const { client } = useChatContext();
+  const { channel, messageDraft, messageDraftsEnabled } = useChannelStateContext();
+  const messageComposer = useMessageComposer();
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -71,9 +65,9 @@ export const MessageDraftSynchronizer = <
     parent,
     setComposerState,
     text,
-  } = useMessageInputContext<SCG>();
+  } = useMessageInputContext();
 
-  const draftPrereqRefs = useRef<MessageDraftRefs<SCG>>({
+  const draftPrereqRefs = useRef<MessageDraftRefs>({
     attachments,
     cancelURLEnrichment,
     editedMessage,
@@ -119,6 +113,8 @@ export const MessageDraftSynchronizer = <
     parent,
     quotedMessage,
     text,
+    messageDraftsEnabled,
+    channel,
   ]);
 
   useEffect(() => {
@@ -145,19 +141,28 @@ export const MessageDraftSynchronizer = <
       deletePayload.parent_id = messageDraft.parent_id;
     }
     channel.deleteMessageDraft(deletePayload);
-  }, [attachments, channel, lastChange, messageDraft, quotedMessage, text]);
+  }, [
+    attachments,
+    channel,
+    lastChange,
+    messageDraft,
+    messageDraftsEnabled,
+    quotedMessage,
+    text,
+  ]);
 
   useEffect(() => {
     if (!messageDraftsEnabled) return;
     if (draftPrereqRefs.current.editedMessage || !channel) return;
 
     return channel.on('draft.updated', (event: Event) => {
-      const draft = event.draft as DraftResponse<SCG>;
+      const draft = event.draft as DraftResponse;
       const { attachments, linkPreviews, mentioned_users, text } = initState({
         attachments: draft.message?.attachments ?? [],
-        mentioned_users: draft.message?.mentioned_users ?? [],
+        mentioned_users:
+          draft.message?.mentioned_users?.map((userId) => ({ id: userId })) ?? [],
         text: draft.message?.text ?? '',
-      } as Pick<StreamMessage<SCG>, 'attachments' | 'mentioned_users' | 'text'>);
+      } as Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>);
       setComposerState({
         attachments,
         lastChange: new Date(),
@@ -166,7 +171,7 @@ export const MessageDraftSynchronizer = <
         text,
       });
     }).unsubscribe;
-  }, [channel, messageComposer, setComposerState]);
+  }, [channel, messageComposer, messageDraftsEnabled, setComposerState]);
 
   useEffect(() => {
     if (!messageDraftsEnabled) return;
@@ -178,7 +183,7 @@ export const MessageDraftSynchronizer = <
         lastChange: new Date(),
       });
     }).unsubscribe;
-  }, [channel, setComposerState]);
+  }, [channel, messageDraftsEnabled, setComposerState]);
 
   useEffect(() => {
     // create draft when leaving the channel
@@ -186,7 +191,7 @@ export const MessageDraftSynchronizer = <
     if (draftPrereqRefs.current.editedMessage || !client || !channel) return;
 
     return () => {
-      const { message, notification } = prepareMessage<SCG>({
+      const { message, notification } = prepareMessage({
         attachments: draftPrereqRefs.current.attachments,
         cancelURLEnrichment: draftPrereqRefs.current.cancelURLEnrichment,
         findAndEnqueueURLsToEnrich: draftPrereqRefs.current.findAndEnqueueURLsToEnrich,
@@ -210,11 +215,11 @@ export const MessageDraftSynchronizer = <
 
       if (!shouldCreateDraft || notification?.type === 'error') return;
 
-      const draftMessagePayload: DraftMessagePayload<SCG> = {
+      const draftMessagePayload: DraftMessagePayload = {
         ...message,
         id:
           draftPrereqRefs.current.messageDraft?.message.id ||
-          generateMessageId<SCG>({ client }),
+          generateMessageId({ client }),
         mentioned_users: message?.mentioned_users.map((u) => u.id),
         text: message?.text ?? '',
       };
@@ -227,7 +232,7 @@ export const MessageDraftSynchronizer = <
       }
       channel.draftMessage(draftMessagePayload);
     };
-  }, [channel, client]);
+  }, [channel, client, messageDraftsEnabled]);
 
   return children;
 };

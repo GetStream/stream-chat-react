@@ -18,11 +18,7 @@ import type { CommandItemProps } from '../CommandItem/CommandItem';
 import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import type { UserItemProps } from '../UserItem/UserItem';
 
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  UnknownType,
-} from '../../types/types';
+import type { CustomTrigger, UnknownType } from '../../types/types';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 
 export type AutocompleteMinimalData = {
@@ -67,9 +63,7 @@ export type TriggerSettings<V extends CustomTrigger = CustomTrigger> =
 export const DefaultTriggerProvider = <V extends CustomTrigger = CustomTrigger>({
   children,
 }: PropsWithChildren<Record<string, unknown>>) => {
-  const currentValue = useMessageInputContext<StreamChatGenerics, V>(
-    'DefaultTriggerProvider',
-  );
+  const currentValue = useMessageInputContext<V>('DefaultTriggerProvider');
   const messageComposer = useMessageComposer();
 
   const defaultAutocompleteTriggers: TriggerSettings = {

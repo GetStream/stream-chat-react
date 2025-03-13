@@ -569,8 +569,8 @@ describe('Channel', () => {
       const hasThread = jest.fn();
       const hasThreadInstance = jest.fn();
       const mockThreadInstance = {
-        threadInstanceMock: true,
         registerSubscriptions: jest.fn(),
+        threadInstanceMock: true,
       };
       const getThreadSpy = jest
         .spyOn(chatClient, 'getThread')
@@ -603,8 +603,8 @@ describe('Channel', () => {
       const threadMessage = messages[0];
       const hasThreadInstance = jest.fn();
       const mockThreadInstance = {
-        threadInstanceMock: true,
         registerSubscriptions: jest.fn(),
+        threadInstanceMock: true,
       };
       const spy = jest
         .spyOn(chatClient, 'getThread')

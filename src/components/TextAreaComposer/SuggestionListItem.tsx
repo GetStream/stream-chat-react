@@ -1,23 +1,21 @@
-import React, { MouseEventHandler, Ref, useCallback } from 'react';
+import type { MouseEventHandler, Ref } from 'react';
+import React, { useCallback } from 'react';
 import clsx from 'clsx';
-import { SuggestionItem } from '../ChatAutoComplete';
-import type { DefaultStreamChatGenerics } from '../../types';
+import type { SuggestionItem } from '../ChatAutoComplete';
+
 import type { UnknownType } from '../../types/types';
 
-export type SuggestionItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  EmojiData extends UnknownType = UnknownType,
-> = {
+export type SuggestionItemProps<EmojiData extends UnknownType = UnknownType> = {
   component: React.ComponentType<{
-    entity: SuggestionItem<StreamChatGenerics, EmojiData>;
+    entity: SuggestionItem<EmojiData>;
     selected: boolean;
   }>;
-  item: SuggestionItem<StreamChatGenerics, EmojiData>;
+  item: SuggestionItem<EmojiData>;
   onClickHandler: (
     event: React.MouseEvent<Element, MouseEvent>,
-    item: SuggestionItem<StreamChatGenerics, EmojiData>,
+    item: SuggestionItem<EmojiData>,
   ) => void;
-  onSelectHandler: (item: SuggestionItem<StreamChatGenerics, EmojiData>) => void;
+  onSelectHandler: (item: SuggestionItem<EmojiData>) => void;
   selected: boolean;
   className?: string;
   value?: string;
@@ -26,10 +24,10 @@ export type SuggestionItemProps<
 export const SuggestionListItem = React.forwardRef<
   HTMLAnchorElement,
   SuggestionItemProps
->(function SuggestionListItem<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UnknownType = UnknownType,
->(props: SuggestionItemProps<StreamChatGenerics, T>, innerRef: Ref<HTMLAnchorElement>) {
+>(function SuggestionListItem<T extends UnknownType = UnknownType>(
+  props: SuggestionItemProps<T>,
+  innerRef: Ref<HTMLAnchorElement>,
+) {
   const {
     className,
     component: Component,

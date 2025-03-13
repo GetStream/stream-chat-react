@@ -8,9 +8,9 @@ export const dispatchDraftDeleted = ({
   draft: DraftResponse;
 }) => {
   client.dispatchEvent({
-    type: 'draft.deleted',
-    created_at: new Date().toISOString(),
     cid: draft.channel_cid,
+    created_at: new Date().toISOString(),
     draft,
+    type: 'draft.deleted',
   });
 };

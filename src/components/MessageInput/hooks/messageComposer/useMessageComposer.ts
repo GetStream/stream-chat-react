@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react';
+import type { TextComposerMiddleware } from 'stream-chat';
 import {
   createCommandsMiddleware,
   createMentionsMiddleware,
   type DraftResponse,
   MessageComposer,
-  TextComposerMiddleware,
 } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
 import {
@@ -13,31 +13,25 @@ import {
   useChatContext,
   useMessageInputContext,
 } from '../../../../context';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
-export type UseMessageComposerParams<
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  message?: DraftResponse<SCG> | StreamMessage<SCG>;
-  textComposerMiddleware?: TextComposerMiddleware<SCG>[];
+export type UseMessageComposerParams = {
+  message?: DraftResponse | StreamMessage;
+  textComposerMiddleware?: TextComposerMiddleware[];
 };
 
-export const useMessageComposer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const useMessageComposer = ({
   message,
   textComposerMiddleware,
-}: UseMessageComposerParams<StreamChatGenerics> = {}) => {
-  const { client } = useChatContext<StreamChatGenerics>();
-  const { channel } = useChannelStateContext<StreamChatGenerics>();
-  const thread = useThreadContext<StreamChatGenerics>();
-  const { messageComposer: inputMessageComposer } =
-    useMessageInputContext<StreamChatGenerics>();
+}: UseMessageComposerParams = {}) => {
+  const { client } = useChatContext();
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messageComposer: inputMessageComposer } = useMessageInputContext();
 
   const messageComposer = useMemo(() => {
     if (inputMessageComposer) return inputMessageComposer;
     if (message) {
-      const newMessageComposer = new MessageComposer<StreamChatGenerics>({
+      const newMessageComposer = new MessageComposer({
         channel,
         composition: message,
         threadId: thread?.id,
@@ -48,13 +42,13 @@ export const useMessageComposer = <
           ([
             createCommandsMiddleware(channel),
             createMentionsMiddleware(client),
-          ] as TextComposerMiddleware<StreamChatGenerics>[]),
+          ] as TextComposerMiddleware[]),
       );
       return newMessageComposer;
     }
 
     return thread?.messageComposer ?? channel.messageComposer;
-  }, [channel, client, inputMessageComposer, message, thread]);
+  }, [channel, client, inputMessageComposer, message, textComposerMiddleware, thread]);
 
   useEffect(() => {
     messageComposer.registerSubscriptions();

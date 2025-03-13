@@ -1,36 +1,28 @@
-import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import type { Reducer } from 'react';
+import type React from 'react';
+import { useCallback, useReducer, useState } from 'react';
 
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../../context/ChannelStateContext';
 
 import { useAttachments } from '../useAttachments';
-import { EnrichURLsController, useLinkPreviews } from '../useLinkPreviews';
+import type { EnrichURLsController } from '../useLinkPreviews';
+import { useLinkPreviews } from '../useLinkPreviews';
 import { useMessageInputText } from '../useMessageInputText';
 import { useSubmitHandler } from '../useSubmitHandler';
 import { usePasteHandler } from '../usePasteHandler';
-import {
-  RecordingController,
-  useMediaRecorder,
-} from '../../../MediaRecorder/hooks/useMediaRecorder';
+import type { RecordingController } from '../../../MediaRecorder/hooks/useMediaRecorder';
+import { useMediaRecorder } from '../../../MediaRecorder/hooks/useMediaRecorder';
 import type { LinkPreviewMap, LocalAttachment } from '../../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../../types';
 import type { Attachment, Message, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultStreamChatGenerics,
-  SendMessageOptions,
-} from '../../../../types/types';
+import type { CustomTrigger, SendMessageOptions } from '../../../../types/types';
 import { mergeDeep } from '../../../../utils/mergeDeep';
-import {
-  initState,
-  makeEmptyMessageInputState,
-  MessageInputState,
-} from './initMessageInputState';
+import type { MessageInputState } from './initMessageInputState';
+import { initState, makeEmptyMessageInputState } from './initMessageInputState';
 
 type UpsertAttachmentsAction = {
   attachments: LocalAttachment[];
@@ -47,10 +39,8 @@ type SetTextAction = {
   type: 'setText';
 };
 
-type SetComposerStateAction<
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  state: MessageInputState<SCG>;
+type SetComposerStateAction = {
+  state: MessageInputState;
   type: 'setComposerState';
 };
 
@@ -93,15 +83,11 @@ export type MessageInputHookProps = EnrichURLsController & {
   onSelectUser: (item: UserResponse) => void;
   recordingController: RecordingController;
   removeAttachments: (ids: string[]) => void;
-  setComposerState: (state: MessageInputState<StreamChatGenerics>) => void;
+  setComposerState: (state: MessageInputState) => void;
   setText: (text: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
-  uploadAttachment: (
-    attachment: LocalAttachment<StreamChatGenerics>,
-  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
-  upsertAttachments: (
-    attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[],
-  ) => void;
+  uploadAttachment: (attachment: LocalAttachment) => Promise<LocalAttachment | undefined>;
+  upsertAttachments: (attachments: (Attachment | LocalAttachment)[]) => void;
 };
 
 /**
@@ -186,16 +172,16 @@ const messageInputReducer = (
 
       return {
         ...state,
-        linkPreviews,
         lastChange: new Date(),
+        linkPreviews,
       };
     }
 
     case 'addMentionedUser':
       return {
         ...state,
-        mentioned_users: state.mentioned_users.concat(action.user),
         lastChange: new Date(),
+        mentioned_users: state.mentioned_users.concat(action.user),
       };
 
     case 'setComposerState':
@@ -242,7 +228,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     enrichURLForPreview: enrichURLForPreviewChannelContext,
     messageDraft,
     messageDraftsEnabled,
-  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
+  } = useChannelStateContext('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
@@ -253,14 +239,8 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
       : { text: defaultValue?.toString() }) as Partial<StreamMessage>);
 
   const [state, dispatch] = useReducer(
-    messageInputReducer as Reducer<
-      MessageInputState<StreamChatGenerics>,
-      MessageInputReducerAction<StreamChatGenerics>
-    >,
-    initialStateValue as Pick<
-      StreamMessage<StreamChatGenerics>,
-      'attachments' | 'mentioned_users' | 'text'
-    >,
+    messageInputReducer as Reducer<MessageInputState, MessageInputReducerAction>,
+    initialStateValue as Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
     initState,
   );
 
@@ -272,12 +252,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
       urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<V>(
-    props,
-    state,
-    dispatch,
-    enrichURLsController.findAndEnqueueURLsToEnrich,
-  );
+  const { handleChange, insertText, textareaRef } = useMessageInputText<V>(props);
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);
@@ -342,7 +317,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     dispatch({ getNewText: () => text, type: 'setText' });
   }, []);
 
-  const setComposerState = useCallback((state: MessageInputState<StreamChatGenerics>) => {
+  const setComposerState = useCallback((state: MessageInputState) => {
     dispatch({ state, type: 'setComposerState' });
   }, []);
 

@@ -1,14 +1,15 @@
-import React, { MouseEventHandler, Ref, useCallback } from 'react';
+import type { MouseEventHandler, Ref } from 'react';
+import React, { useCallback } from 'react';
 import clsx from 'clsx';
-import { SuggestionItemProps } from '../ChatAutoComplete';
-import type { DefaultStreamChatGenerics } from '../../types';
+import type { SuggestionItemProps } from '../ChatAutoComplete';
+
 import type { UnknownType } from '../../types/types';
 
 export const Item = React.forwardRef<HTMLAnchorElement, SuggestionItemProps>(
-  function Item<
-    StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-    T extends UnknownType = UnknownType,
-  >(props: SuggestionItemProps<StreamChatGenerics, T>, innerRef: Ref<HTMLAnchorElement>) {
+  function Item<T extends UnknownType = UnknownType>(
+    props: SuggestionItemProps<T>,
+    innerRef: Ref<HTMLAnchorElement>,
+  ) {
     const {
       className,
       component: Component,

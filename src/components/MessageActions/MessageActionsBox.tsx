@@ -6,7 +6,6 @@ import { MESSAGE_ACTIONS } from '../Message/utils';
 
 import type { MessageContextValue } from '../../context';
 import {
-  useChannelActionContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
@@ -51,17 +50,17 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
   } = props;
 
   const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
-    useComponentContext<StreamChatGenerics>('MessageActionsBox');
+    useComponentContext('MessageActionsBox');
   const { customMessageActions, message, threadList } =
-    useMessageContext<StreamChatGenerics>('MessageActionsBox');
+    useMessageContext('MessageActionsBox');
   const { t } = useTranslationContext('MessageActionsBox');
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+  const messageComposer = useMessageComposer();
 
   const messageActions = getMessageActions();
 
   const handleQuote = () => {
     // todo: solve ts-ignore
-    // @ts-ignore
+    // @ts-expect-error type mismatch (StreamMessage)
     messageComposer.setQuotedMessage(message);
 
     const elements = message.parent_id

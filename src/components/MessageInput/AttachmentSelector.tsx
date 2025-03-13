@@ -19,7 +19,7 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
-import type { DefaultStreamChatGenerics } from '../../types';
+
 import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
 
 export const SimpleAttachmentSelector = () => {

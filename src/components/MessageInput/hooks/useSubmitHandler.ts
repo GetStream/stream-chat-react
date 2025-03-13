@@ -15,21 +15,20 @@ import type { MessageInputProps } from '../MessageInput';
 import type { CustomTrigger, SendMessageOptions } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
 
-export type PrepareMessageParams<
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<EnrichURLsController, 'cancelURLEnrichment' | 'findAndEnqueueURLsToEnrich'> & {
-  attachments: LocalAttachment<SCG>[];
+export type PrepareMessageParams = Pick<
+  EnrichURLsController,
+  'cancelURLEnrichment' | 'findAndEnqueueURLsToEnrich'
+> & {
+  attachments: LocalAttachment[];
   linkPreviews: LinkPreviewMap;
-  mentioned_users: UserResponse<SCG>[];
+  mentioned_users: UserResponse[];
   numberOfUploads: number;
   text: string;
-  customMessageData?: Partial<Message<SCG>>;
+  customMessageData?: Partial<Message>;
   options?: SendMessageOptions;
 };
 
-export const prepareMessage = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const prepareMessage = ({
   attachments,
   cancelURLEnrichment,
   customMessageData,
@@ -39,7 +38,7 @@ export const prepareMessage = <
   numberOfUploads,
   options,
   text,
-}: PrepareMessageParams<SCG>) => {
+}: PrepareMessageParams) => {
   const trimmedMessage = text.trim();
   const isEmptyMessage =
     trimmedMessage === '' ||
@@ -77,11 +76,11 @@ export const prepareMessage = <
     .map((localAttachment) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { localMetadata: _, ...attachment } = localAttachment;
-      return attachment as Attachment<SCG>;
+      return attachment as Attachment;
     });
 
   const sendOptions = { ...options };
-  let attachmentsFromLinkPreviews: Attachment<SCG>[] = [];
+  let attachmentsFromLinkPreviews: Attachment[] = [];
   if (findAndEnqueueURLsToEnrich) {
     // prevent showing link preview in MessageInput after the message has been sent
     cancelURLEnrichment();
@@ -107,8 +106,7 @@ export const prepareMessage = <
 
           .map(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            ({ state: linkPreviewState, ...ogAttachment }) =>
-              ogAttachment as Attachment<SCG>,
+            ({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment,
           );
 
     // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
@@ -140,13 +138,10 @@ export const prepareMessage = <
   };
 };
 
-export const useSubmitHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: MessageInputProps<StreamChatGenerics, V>,
-  state: MessageInputState<StreamChatGenerics>,
-  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+export const useSubmitHandler = <V extends CustomTrigger = CustomTrigger>(
+  props: MessageInputProps<V>,
+  state: MessageInputState,
+  dispatch: React.Dispatch<MessageInputReducerAction>,
   numberOfUploads: number,
   enrichURLsController: EnrichURLsController,
 ) => {

@@ -7,12 +7,7 @@ import {
   ThreadIcon,
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
-import {
-  useChannelActionContext,
-  useChatContext,
-  useMessageContext,
-  useTranslationContext,
-} from '../../context';
+import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 
 import type { ComponentPropsWithoutRef } from 'react';
 
@@ -40,7 +35,7 @@ const DefaultMessageActionComponents = {
 
       const handleQuote = () => {
         // todo: solve the ts-ignore
-        // @ts-ignore
+        // @ts-expect-error type mismatch
         messageComposer.setQuotedMessage(message);
 
         const elements = message.parent_id

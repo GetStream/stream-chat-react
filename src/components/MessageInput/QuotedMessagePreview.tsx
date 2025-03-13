@@ -10,21 +10,18 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageComposerState, TranslationLanguages } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { MessageContextValue } from '../../context';
 import { useStateStore } from '../../store';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { renderText as defaultRenderText } from '../Message/renderText';
 
-const messageComposerStateStoreSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: MessageComposerState<StreamChatGenerics>,
-) => ({ quotedMessage: state.quotedMessage });
+const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
 
-export const QuotedMessagePreviewHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->() => {
+export const QuotedMessagePreviewHeader = () => {
   const { t } = useTranslationContext('QuotedMessagePreview');
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+  const messageComposer = useMessageComposer();
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateStoreSelector,
@@ -59,7 +56,7 @@ export const QuotedMessagePreview = ({
   const { Attachment = DefaultAttachment, Avatar = DefaultAvatar } =
     useComponentContext('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+  const messageComposer = useMessageComposer();
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateStoreSelector,
@@ -69,12 +66,12 @@ export const QuotedMessagePreview = ({
     () =>
       quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
       quotedMessage?.text,
-    [quotedMessage],
+    [quotedMessage?.i18n, quotedMessage?.text, userLanguage],
   );
 
   const renderedText = useMemo(
-    () => renderText(quotedMessageText, quotedMessage.mentioned_users),
-    [quotedMessage.mentioned_users, quotedMessageText, renderText],
+    () => renderText(quotedMessageText, quotedMessage?.mentioned_users),
+    [quotedMessage, quotedMessageText, renderText],
   );
 
   const quotedMessageAttachments = useMemo(

@@ -8,9 +8,9 @@ export const dispatchDraftUpdated = ({
   draft: DraftResponse;
 }) => {
   client.dispatchEvent({
-    type: 'draft.updated',
-    created_at: new Date().toISOString(),
     cid: draft.channel_cid,
+    created_at: new Date().toISOString(),
     draft,
+    type: 'draft.updated',
   });
 };

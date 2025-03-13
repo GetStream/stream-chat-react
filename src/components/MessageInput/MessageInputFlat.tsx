@@ -28,18 +28,12 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import { AttachmentManagerState } from 'stream-chat';
+import type { AttachmentManagerState } from 'stream-chat';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { TextAreaComposer } from '../TextAreaComposer';
 
-const attachmentManagerStateSelector = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  // @ts-ignore
-  state: AttachmentManagerState<SCG>,
-) => ({
+const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
   attachments: state.attachments,
 });
 
@@ -56,7 +50,7 @@ export const MessageInputFlat = () => {
     recordingController,
     setCooldownRemaining,
     text,
-  } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
+  } = useMessageInputContext('MessageInputFlat');
 
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
@@ -70,10 +64,9 @@ export const MessageInputFlat = () => {
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
-  } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
-  const { acceptedFiles = [] } =
-    useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
-  const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
+  } = useComponentContext('MessageInputFlat');
+  const { acceptedFiles = [] } = useChannelStateContext('MessageInputFlat');
+  const { channel } = useChatContext('MessageInputFlat');
   const messageComposer = useMessageComposer();
 
   const { aiState } = useAIState(channel);
@@ -97,10 +90,8 @@ export const MessageInputFlat = () => {
     [acceptedFiles],
   );
 
-  // @ts-ignore
   const { attachments } = useStateStore(
     messageComposer.attachmentManager.state,
-    // @ts-ignore
     attachmentManagerStateSelector,
   );
 

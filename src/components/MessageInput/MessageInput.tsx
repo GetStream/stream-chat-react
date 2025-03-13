@@ -158,12 +158,12 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
 ) => {
   const { Input: PropInput } = props;
 
-  const { dragAndDropWindow } = useChannelStateContext<StreamChatGenerics>();
+  const { dragAndDropWindow } = useChannelStateContext();
   const {
     Input: ContextInput,
     // MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
     TriggerProvider = DefaultTriggerProvider,
-  } = useComponentContext<StreamChatGenerics, V>('MessageInput');
+  } = useComponentContext<V>('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput

@@ -1,20 +1,15 @@
-import React, {
-  CSSProperties,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import type { CSSProperties } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
 
 import { Item } from './Item';
 import { escapeRegExp } from '../Message/renderText';
-import type { DefaultStreamChatGenerics } from '../../types';
+
 import type { CustomTrigger, UnknownType } from '../../types/types';
-import {
+import type {
   SuggestionEmoji,
   SuggestionItem,
   SuggestionListProps,
@@ -22,7 +17,6 @@ import {
 } from '../ChatAutoComplete';
 
 export const List = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger,
   EmojiData extends UnknownType = UnknownType,
 >({
@@ -40,9 +34,8 @@ export const List = <
   SuggestionItem: PropSuggestionItem,
   value: propValue,
   values,
-}: SuggestionListProps<StreamChatGenerics, V>) => {
-  const { AutocompleteSuggestionItem } =
-    useComponentContext<StreamChatGenerics>('SuggestionList');
+}: SuggestionListProps<V>) => {
+  const { AutocompleteSuggestionItem } = useComponentContext('SuggestionList');
   const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
 
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | undefined>(
@@ -51,10 +44,12 @@ export const List = <
 
   const itemsRef: HTMLElement[] = [];
 
-  const isSelected = (item: SuggestionItem<StreamChatGenerics, EmojiData>) =>
+  const isSelected = (item: SuggestionItem<EmojiData>) =>
+    // @ts-expect-error tmp
     selectedItemIndex === values.findIndex((value) => getId(value) === getId(item));
 
-  const getId = (item: SuggestionItem<StreamChatGenerics, EmojiData>) => {
+  const getId = (item: SuggestionItem<EmojiData>) => {
+    // @ts-expect-error tmp
     const textToReplace = getTextToReplace(item);
     if (textToReplace.key) {
       return textToReplace.key;
@@ -68,29 +63,23 @@ export const List = <
   };
 
   const findItemIndex = useCallback(
-    (item: SuggestionItem<StreamChatGenerics, V>) =>
+    (item: SuggestionItem<V>) =>
       values.findIndex((value) =>
-        value.id
-          ? value.id === (item as SuggestionUser<StreamChatGenerics>).id
-          : value.name === item.name,
+        value.id ? value.id === (item as SuggestionUser).id : value.name === item.name,
       ),
     [values],
   );
 
-  const modifyText = (
-    value: SuggestionListProps<StreamChatGenerics, V>['values'][number],
-  ) => {
+  const modifyText = (value: SuggestionListProps<V>['values'][number]) => {
     if (!value) return;
-
+    // @ts-expect-error tmp
     onSelect(getTextToReplace(value));
+    // @ts-expect-error tmp
     if (getSelectedItem) getSelectedItem(value);
   };
 
   const handleClick = useCallback(
-    (
-      e: React.MouseEvent<Element, MouseEvent>,
-      item: SuggestionItem<StreamChatGenerics, V>,
-    ) => {
+    (e: React.MouseEvent<Element, MouseEvent>, item: SuggestionItem<V>) => {
       e?.preventDefault();
 
       const index = findItemIndex(item);
@@ -101,7 +90,7 @@ export const List = <
   );
 
   const selectItem = useCallback(
-    (item: SuggestionItem<StreamChatGenerics, V>) => {
+    (item: SuggestionItem<V>) => {
       const index = findItemIndex(item);
       setSelectedItemIndex(index);
     },
@@ -137,7 +126,6 @@ export const List = <
 
       return null;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedItemIndex, values],
   );
 
@@ -147,12 +135,13 @@ export const List = <
   }, [handleKeyDown]);
 
   useEffect(() => {
+    // @ts-expect-error tmp
     if (values?.length) selectItem(values[0]);
   }, [selectItem, values]);
 
   const restructureItem = useCallback(
-    (item: SuggestionItem<StreamChatGenerics, V>) => {
-      const matched = item.name || (item as SuggestionUser<StreamChatGenerics>).id;
+    (item: SuggestionItem<V>) => {
+      const matched = item.name || (item as SuggestionUser).id;
 
       const textBeforeCursor = (propValue || '').slice(0, selectionEnd);
       const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
@@ -168,6 +157,7 @@ export const List = <
   );
 
   const restructuredValues = useMemo(
+    // @ts-expect-error tmp
     () => values.map(restructureItem),
     [values, restructureItem],
   );
@@ -177,7 +167,7 @@ export const List = <
       {restructuredValues.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
-          // @ts-ignore
+          // @ts-expect-error tmp
           component={component}
           item={item}
           key={getId(item).toString()}

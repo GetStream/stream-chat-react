@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { type TextComposerState } from 'stream-chat';
-import type {
-  MessageInputReducerAction,
-  MessageInputState,
-} from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { CustomTrigger } from '../../../types/types';
-import type { EnrichURLsController } from './useLinkPreviews';
 import { useMessageComposer } from './messageComposer/useMessageComposer';
 import { useStateStore } from '../../../store';
 
@@ -18,12 +12,8 @@ const messageComposerStateSelector = (state: TextComposerState) => ({
 
 export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
   props: MessageInputProps<V>,
-  state: MessageInputState,
-  dispatch: React.Dispatch<MessageInputReducerAction>,
-  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
-  const { channel } = useChannelStateContext('useMessageInputText');
-  const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
+  const { focus } = props;
   const messageComposer = useMessageComposer();
   const textareaRef = useRef<HTMLTextAreaElement>(undefined);
   const { text } = useStateStore(
@@ -43,12 +33,12 @@ export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
   const insertText = useCallback(
     (textToInsert: string) => {
       const selection = textareaRef?.current && {
-        start: textareaRef.current.selectionStart,
         end: textareaRef.current.selectionEnd,
+        start: textareaRef.current.selectionStart,
       };
       messageComposer.textComposer.insertText({
-        text: textToInsert,
         selection,
+        text: textToInsert,
       });
       if (selection) newCursorPosition.current = selection.start + textToInsert.length;
     },
@@ -69,7 +59,7 @@ export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
       event.preventDefault();
       if (!event.target || !textareaRef.current) return;
     },
-    [messageComposer],
+    [],
   );
 
   return {

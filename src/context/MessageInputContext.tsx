@@ -10,21 +10,18 @@ import type {
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../types/types';
-import { MessageComposer } from 'stream-chat';
+import type { CustomTrigger } from '../types/types';
+import type { MessageComposer } from 'stream-chat';
 
-export type MessageInputContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = MessageInputState<StreamChatGenerics> &
-  MessageInputHookProps<StreamChatGenerics> &
-  Omit<MessageInputProps<StreamChatGenerics, V>, 'Input'> &
-  CooldownTimerState & {
-    // @ts-ignore
-    messageComposer: MessageComposer<StreamChatGenerics>;
-    autocompleteTriggers?: TriggerSettings<StreamChatGenerics, V>;
-  } & CommandsListState &
-  MentionsListState;
+export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
+  MessageInputState &
+    MessageInputHookProps &
+    Omit<MessageInputProps<V>, 'Input'> &
+    CooldownTimerState & {
+      messageComposer: MessageComposer;
+      autocompleteTriggers?: TriggerSettings<V>;
+    } & CommandsListState &
+    MentionsListState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined
@@ -42,13 +39,14 @@ export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrig
 );
 
 export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    return {} as MessageInputContextValue<StreamChatGenerics, V>;
+    return {} as MessageInputContextValue<V>;
   }
 
-  return contextValue as unknown as MessageInputContextValue<StreamChatGenerics, V>;
+  return contextValue as unknown as MessageInputContextValue<V>;
 };

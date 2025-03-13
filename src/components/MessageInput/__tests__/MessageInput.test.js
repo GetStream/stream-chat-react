@@ -1790,8 +1790,8 @@ describe('Message drafts', () => {
         channel_cid: channelData.channel.cid,
         message: generateMessage({
           attachments: [generateFileAttachment()],
-          quoted_message_id: mainListMessage.id,
           mentioned_users: ['Y'],
+          quoted_message_id: mainListMessage.id,
         }),
         quoted_message: mainListMessage,
       });

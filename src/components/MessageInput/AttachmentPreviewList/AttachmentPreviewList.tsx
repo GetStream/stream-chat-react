@@ -17,25 +17,16 @@ import {
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
 } from '../../Attachment';
-import { useMessageInputContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types';
-import { AttachmentManagerState } from 'stream-chat';
+import type { AttachmentManagerState } from 'stream-chat';
 import { useStateStore } from '../../../store';
 import { useMessageComposer } from '../hooks/messageComposer/useMessageComposer';
 
-const attachmentManagerStateSelector = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  // @ts-ignore
-  state: AttachmentManagerState<SCG>,
-) => ({
+const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
   attachments: state.attachments,
 });
 
-export type AttachmentPreviewListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
@@ -51,13 +42,11 @@ export const AttachmentPreviewList = ({
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = DefaultFilePreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
-}: AttachmentPreviewListProps<StreamChatGenerics>) => {
-  const messageComposer = useMessageComposer<StreamChatGenerics>();
+}: AttachmentPreviewListProps) => {
+  const messageComposer = useMessageComposer();
 
-  // @ts-ignore
   const { attachments } = useStateStore(
     messageComposer.attachmentManager.state,
-    // @ts-ignore
     attachmentManagerStateSelector,
   );
 

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useChannelStateContext, useMessageInputContext } from '../../context';
+import { useMessageInputContext } from '../../context';
 import type { LinkPreview } from './types';
 import { LinkPreviewState } from './types';
 import { CloseIcon, LinkIcon } from './icons';
@@ -8,25 +8,19 @@ import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { useStateStore } from '../../store';
-import type { DefaultStreamChatGenerics } from '../../types';
+
 import type { MessageComposerState } from 'stream-chat';
 
 export type LinkPreviewListProps = {
   linkPreviews: LinkPreview[];
 };
 
-const messageComposerStateSelector = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: MessageComposerState<SCG>,
-) => ({ quotedMessage: state.quotedMessage });
+const messageComposerStateSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
 
-export const LinkPreviewList = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  linkPreviews,
-}: LinkPreviewListProps) => {
-  const messageComposer = useMessageComposer<SCG>();
+export const LinkPreviewList = ({ linkPreviews }: LinkPreviewListProps) => {
+  const messageComposer = useMessageComposer();
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,

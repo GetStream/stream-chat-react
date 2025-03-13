@@ -331,7 +331,7 @@ describe('Thread', () => {
   });
 
   it('should not call the loadMoreThread callback on mount if the thread start has a non-zero reply count but threadInstance is provided', () => {
-    renderComponent({ chatClient, channelStateOverrides: { threadInstance: {} } });
+    renderComponent({ channelStateOverrides: { threadInstance: {} }, chatClient });
 
     expect(channelActionContextMock.loadMoreThread).not.toHaveBeenCalled();
   });
