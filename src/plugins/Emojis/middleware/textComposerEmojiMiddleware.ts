@@ -10,27 +10,29 @@ import {
   replaceWordWithEntity,
 } from 'stream-chat';
 import mergeWith from 'lodash.mergewith';
-import type { EmojiSearchIndexResult } from '../../../components/MessageInput';
-import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data';
+import type {
+  EmojiSearchIndex,
+  EmojiSearchIndexResult,
+} from '../../../components/MessageInput';
 import type { TextComposerSuggestion } from 'stream-chat';
 import type { MiddlewareParams } from 'stream-chat';
-
-init({ data });
 
 class EmojiSearchSource<
   T extends TextComposerSuggestion<EmojiSearchIndexResult>,
 > extends BaseSearchSource<T> {
   readonly type: SearchSourceType = 'emoji';
-  constructor(options?: SearchSourceOptions) {
+  private emojiSearchIndex: EmojiSearchIndex;
+
+  constructor(emojiSearchIndex: EmojiSearchIndex, options?: SearchSourceOptions) {
     super(options);
+    this.emojiSearchIndex = emojiSearchIndex;
   }
 
   async query(searchQuery: string) {
     if (searchQuery.length === 0 || searchQuery.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
       return { items: [] as T[], next: null };
     }
-    const emojis: T[] = (await SearchIndex.search(searchQuery)) ?? [];
+    const emojis = (await this.emojiSearchIndex.search(searchQuery)) ?? [];
 
     // emojiIndex.search sometimes returns undefined values, so filter those out first
     return {
@@ -77,11 +79,11 @@ const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: '
 export const createTextComposerEmojiMiddleware = <
   T extends EmojiSearchIndexResult = EmojiSearchIndexResult,
 >(
-  searchSource: EmojiSearchSource<T>,
+  emojiSearchIndex: EmojiSearchIndex,
   options?: Partial<TextComposerMiddlewareOptions>,
 ) => {
   const finalOptions = mergeWith(DEFAULT_OPTIONS, options ?? {});
-  const emojiSearchSource = searchSource ?? new EmojiSearchSource();
+  const emojiSearchSource = new EmojiSearchSource(emojiSearchIndex);
   emojiSearchSource.activate();
 
   return {
