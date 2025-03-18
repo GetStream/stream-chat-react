@@ -201,9 +201,14 @@ export const SuggestionList = <
   return (
     <InfiniteScrollPaginator
       loadNextOnScrollToBottom={suggestions.searchSource.search}
-      threshold={40}
+      threshold={100}
     >
-      <ul className={clsx('str-chat__suggestion-list', className)}>
+      <ul
+        className={clsx(
+          'str-chat__suggestion-list str-chat__suggestion-list--react',
+          className,
+        )}
+      >
         {items.map((item, i) => (
           <AutocompleteSuggestionItem
             // @ts-expect-error type mismatch
