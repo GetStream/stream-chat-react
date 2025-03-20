@@ -2,6 +2,8 @@ import type {
   SearchSourceOptions,
   SearchSourceType,
   TextComposerMiddlewareOptions,
+  TextComposerMiddlewareParams,
+  TextComposerSuggestion,
 } from 'stream-chat';
 import {
   BaseSearchSource,
@@ -14,8 +16,6 @@ import type {
   EmojiSearchIndex,
   EmojiSearchIndexResult,
 } from '../../../components/MessageInput';
-import type { TextComposerSuggestion } from 'stream-chat';
-import type { MiddlewareParams } from 'stream-chat';
 
 class EmojiSearchSource<
   T extends TextComposerSuggestion<EmojiSearchIndexResult>,
@@ -69,7 +69,7 @@ const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: '
  *   minChars: 2
  *  }));
  *
- * @param {EmojiSearchSource} searchSource
+ * @param emojiSearchIndex
  * @param {{
  *     minChars: number;
  *     trigger: string;
@@ -88,7 +88,7 @@ export const createTextComposerEmojiMiddleware = <
 
   return {
     id: finalOptions.trigger,
-    onChange: async ({ input, nextHandler }: MiddlewareParams<T>) => {
+    onChange: async ({ input, nextHandler }: TextComposerMiddlewareParams<T>) => {
       const { state } = input;
       if (!state.selection) return nextHandler(input);
 
@@ -147,7 +147,7 @@ export const createTextComposerEmojiMiddleware = <
       input,
       nextHandler,
       selectedSuggestion,
-    }: MiddlewareParams<T>) => {
+    }: TextComposerMiddlewareParams<T>) => {
       const { state } = input;
       if (!selectedSuggestion || state.suggestions?.trigger !== finalOptions.trigger)
         return nextHandler(input);
