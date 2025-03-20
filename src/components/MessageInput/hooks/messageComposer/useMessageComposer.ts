@@ -8,11 +8,7 @@ import {
 import type { DraftResponse } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
 import type { StreamMessage } from '../../../../context';
-import {
-  useChannelStateContext,
-  useChatContext,
-  useMessageInputContext,
-} from '../../../../context';
+import { useChannelStateContext, useMessageInputContext } from '../../../../context';
 
 export type UseMessageComposerParams = {
   message?: DraftResponse | StreamMessage;
@@ -22,7 +18,6 @@ export type UseMessageComposerParams = {
 export const useMessageComposer = ({
   textComposerMiddleware,
 }: UseMessageComposerParams = {}) => {
-  const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const { message: editedMessage } = useMessageInputContext();
   // legacy thread will receive new composer
@@ -58,7 +53,7 @@ export const useMessageComposer = ({
         textComposerMiddleware ??
           ([
             createCommandsMiddleware(channel),
-            createMentionsMiddleware(client),
+            createMentionsMiddleware(channel),
           ] as TextComposerMiddleware[]),
       );
       return composer;
@@ -70,7 +65,7 @@ export const useMessageComposer = ({
         textComposerMiddleware ??
           ([
             createCommandsMiddleware(channel),
-            createMentionsMiddleware(client),
+            createMentionsMiddleware(channel),
           ] as TextComposerMiddleware[]),
       );
       return composer;
@@ -80,14 +75,7 @@ export const useMessageComposer = ({
       // should never reach this point
       return detachedMesssageComposerRef.current;
     }
-  }, [
-    cachedEditedMessage,
-    cachedParentMessage,
-    channel,
-    client,
-    textComposerMiddleware,
-    thread,
-  ]);
+  }, [cachedEditedMessage, cachedParentMessage, channel, textComposerMiddleware, thread]);
 
   useEffect(() => {
     messageComposer.registerSubscriptions();
