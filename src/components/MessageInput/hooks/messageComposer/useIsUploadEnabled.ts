@@ -9,6 +9,7 @@ const stateSelector = (state: AttachmentManagerState) => ({
 
 export const useIsUploadEnabled = () => {
   const messageComposer = useMessageComposer();
+  // ???
   useStateStore(messageComposer.attachmentManager.state, stateSelector);
   return {
     availableUploadSlots: messageComposer.attachmentManager.availableUploadSlots,

@@ -14,7 +14,7 @@ import {
 
 import type { MessageInputProps } from './MessageInput';
 
-import type { CustomTrigger, UnknownType } from '../../types/types';
+import type { UnknownType } from '../../types/types';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
 
@@ -24,12 +24,10 @@ import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
 //   state: AttachmentManagerState,
 // ) => ({ isUploadEnabled: state.isUploadEnabled });
 
-const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
-  children,
-}: PropsWithChildren<UnknownType>) => {
+const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
   const { acceptedFiles } = useChannelStateContext('DropzoneProvider');
 
-  const { cooldownRemaining } = useMessageInputContext<V>('DropzoneProvider');
+  const { cooldownRemaining } = useMessageInputContext('DropzoneProvider');
   const messageComposer = useMessageComposer();
   const { availableUploadSlots, isUploadEnabled } = useIsUploadEnabled();
 
@@ -46,18 +44,14 @@ const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
   );
 };
 
-export const DropzoneProvider = <V extends CustomTrigger = CustomTrigger>(
-  props: PropsWithChildren<MessageInputProps<V>>,
-) => {
+export const DropzoneProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();
-  const messageInputState = useMessageInputState<V>(props);
-  const messageComposer = useMessageComposer({ message: props.message });
+  const messageInputState = useMessageInputState(props);
 
-  const messageInputContextValue = useCreateMessageInputContext<V>({
+  const messageInputContextValue = useCreateMessageInputContext({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
-    messageComposer,
   });
 
   return (

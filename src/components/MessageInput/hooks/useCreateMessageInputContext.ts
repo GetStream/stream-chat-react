@@ -1,17 +1,13 @@
 import { useMemo } from 'react';
 
 import type { MessageInputContextValue } from '../../../context/MessageInputContext';
-import type { CustomTrigger } from '../../../types/types';
 
-export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
-  value: MessageInputContextValue<V>,
-) => {
+export const useCreateMessageInputContext = (value: MessageInputContextValue) => {
   const {
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
     attachments,
     audioRecordingEnabled,
-    autocompleteTriggers,
     cancelURLEnrichment,
     clearEditingState,
     closeCommandsList,
@@ -42,7 +38,6 @@ export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTri
     mentioned_users,
     mentionQueryParams,
     message,
-    messageComposer,
     minRows,
     noFiles,
     numberOfUploads,
@@ -73,13 +68,12 @@ export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTri
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
 
-  const messageInputContext: MessageInputContextValue<V> = useMemo(
+  const messageInputContext: MessageInputContextValue = useMemo(
     () => ({
       additionalTextareaProps,
       asyncMessagesMultiSendEnabled,
       attachments,
       audioRecordingEnabled,
-      autocompleteTriggers,
       cancelURLEnrichment,
       clearEditingState,
       closeCommandsList,
@@ -110,7 +104,6 @@ export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTri
       mentioned_users,
       mentionQueryParams,
       message,
-      messageComposer,
       minRows,
       noFiles,
       numberOfUploads,
@@ -155,7 +148,6 @@ export const useCreateMessageInputContext = <V extends CustomTrigger = CustomTri
       linkPreviewsValue,
       mentionedUsersLength,
       message,
-      messageComposer,
       minRows,
       parentId,
       publishTypingEvent,

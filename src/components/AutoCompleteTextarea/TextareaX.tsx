@@ -16,8 +16,6 @@ import { CommandItem } from '../CommandItem';
 import { UserItem } from '../UserItem';
 import type { SuggestionItemProps, SuggestionListProps } from '../ChatAutoComplete';
 
-import type { CustomTrigger, UnknownType } from '../../types/types';
-
 type TextareaState = {
   actualToken: string;
   component: React.ComponentType | null;
@@ -33,10 +31,7 @@ type TextareaState = {
   propsValue: string;
 };
 
-type TextareaProps<
-  V extends CustomTrigger = CustomTrigger,
-  EmojiData extends UnknownType = UnknownType,
-> = {
+type TextareaProps = {
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   className?: string;
   closeCommandsList?: () => void;
@@ -72,10 +67,8 @@ type TextareaProps<
   showCommandsList?: boolean;
   showMentionsList?: boolean;
   style?: Omit<CSSProperties, 'height'>;
-  SuggestionItem?: React.ComponentType<
-    React.ComponentType<SuggestionItemProps<EmojiData>>
-  >;
-  SuggestionList?: React.ComponentType<SuggestionListProps<V, EmojiData>>;
+  SuggestionItem?: React.ComponentType<React.ComponentType<SuggestionItemProps>>;
+  SuggestionList?: React.ComponentType<SuggestionListProps>;
   trigger: Record<
     string,
     {
@@ -100,12 +93,7 @@ type TextareaProps<
 
 const _isCommand = (value: string) => value.startsWith('/');
 
-export const TextareaX = <
-  V extends CustomTrigger = CustomTrigger,
-  EmojiData extends UnknownType = UnknownType,
->(
-  props: TextareaProps<V, EmojiData>,
-) => {
+export const TextareaX = (props: TextareaProps) => {
   const {
     closeCommandsList,
     closeMentionsList,
@@ -798,7 +786,6 @@ export const TextareaX = <
             ref={setDropdownRef}
             style={restProps.dropdownStyle}
           >
-            {/* @ts-expect-error tmp */}
             <SuggestionList
               className={restProps.listClassName}
               dropdownScroll={_dropdownScroll}
@@ -808,6 +795,7 @@ export const TextareaX = <
               )}
               itemStyle={restProps.itemStyle}
               onSelect={_onSelect}
+              // @ts-expect-error tmp
               SuggestionItem={SuggestionItem}
               {...triggerProps}
             />

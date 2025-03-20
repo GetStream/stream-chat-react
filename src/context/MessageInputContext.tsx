@@ -1,7 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import type { TriggerSettings } from '../components/MessageInput/DefaultTriggerProvider';
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 import type {
   CommandsListState,
@@ -10,43 +9,37 @@ import type {
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
 
-import type { CustomTrigger } from '../types/types';
-import type { MessageComposer } from 'stream-chat';
-
-export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
-  MessageInputState &
-    MessageInputHookProps &
-    Omit<MessageInputProps<V>, 'Input'> &
-    CooldownTimerState & {
-      messageComposer: MessageComposer;
-      autocompleteTriggers?: TriggerSettings<V>;
-    } & CommandsListState &
-    MentionsListState;
+export type MessageInputContextValue = MessageInputState &
+  MessageInputHookProps &
+  Omit<MessageInputProps, 'Input'> &
+  CooldownTimerState &
+  CommandsListState &
+  MentionsListState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined
 >(undefined);
 
-export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrigger>({
+export const MessageInputContextProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageInputContextValue<V>;
+  value: MessageInputContextValue;
 }>) => (
   <MessageInputContext.Provider value={value as unknown as MessageInputContextValue}>
     {children}
   </MessageInputContext.Provider>
 );
 
-export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+export const useMessageInputContext = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    return {} as MessageInputContextValue<V>;
+    return {} as MessageInputContextValue;
   }
 
-  return contextValue as unknown as MessageInputContextValue<V>;
+  return contextValue as unknown as MessageInputContextValue;
 };

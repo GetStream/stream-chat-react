@@ -5,12 +5,10 @@ import { useTranslationContext } from '../../../context';
 
 import type { CommandResponse } from 'stream-chat';
 
-import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
-
 type ValidCommand = Required<Pick<CommandResponse, 'name'>> &
   Omit<CommandResponse, 'name'>;
 
-export const useCommandTrigger = (): CommandTriggerSetting => {
+export const useCommandTrigger = () => {
   const { channelConfig } = useChannelStateContext('useCommandTrigger');
   const { t } = useTranslationContext('useCommandTrigger');
 
@@ -18,6 +16,7 @@ export const useCommandTrigger = (): CommandTriggerSetting => {
 
   return {
     component: CommandItem,
+    // @ts-expect-error tmp
     dataProvider: (query, text, onReady) => {
       if (text.indexOf('/') !== 0 || !commands) {
         return [];
@@ -81,6 +80,7 @@ export const useCommandTrigger = (): CommandTriggerSetting => {
 
       return result;
     },
+    // @ts-expect-error tmp
     output: (entity) => ({
       caretPosition: 'next',
       key: entity.name,

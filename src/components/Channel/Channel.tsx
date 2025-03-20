@@ -89,7 +89,6 @@ import { getChannel } from '../../utils';
 import type { MessageInputProps } from '../MessageInput';
 import type {
   ChannelUnreadUiState,
-  CustomTrigger,
   GiphyVersions,
   ImageAttachmentSizeHandler,
   UpdateMessageOptions,
@@ -171,7 +170,7 @@ const isUserResponseArray = (
   output: string[] | UserResponse[],
 ): output is UserResponse[] => (output as UserResponse[])[0]?.id != null;
 
-export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
+export type ChannelProps =
   ChannelPropsForwardedToComponentContext & {
     // todo: move to MessageComposer configuration
     /** List of accepted file types */
@@ -244,7 +243,7 @@ export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
     /** Custom action handler function to run on hover of an @mention in a message */
     onMentionsHover?: OnMentionAction;
     /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
-    optionalMessageInputProps?: MessageInputProps<V>;
+    optionalMessageInputProps?: MessageInputProps;
     /** You can turn on/off thumbnail generation for video attachments */
     shouldGenerateVideoThumbnail?: boolean;
     /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
@@ -270,8 +269,8 @@ const ChannelContainer = ({
   );
 };
 
-const UnMemoizedChannel = <V extends CustomTrigger = CustomTrigger>(
-  props: PropsWithChildren<ChannelProps<V>>,
+const UnMemoizedChannel = (
+  props: PropsWithChildren<ChannelProps>,
 ) => {
   const {
     channel: propsChannel,
@@ -307,9 +306,9 @@ const UnMemoizedChannel = <V extends CustomTrigger = CustomTrigger>(
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
-const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
+const ChannelInner = (
   props: PropsWithChildren<
-    ChannelProps<V> & {
+    ChannelProps & {
       channel: StreamChannel;
       key: string;
     }

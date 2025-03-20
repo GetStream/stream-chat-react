@@ -3,19 +3,17 @@ import React, { useCallback } from 'react';
 import clsx from 'clsx';
 import type { SuggestionItem } from '../ChatAutoComplete';
 
-import type { UnknownType } from '../../types/types';
-
-export type SuggestionItemProps<EmojiData extends UnknownType = UnknownType> = {
+export type SuggestionItemProps = {
   component: React.ComponentType<{
-    entity: SuggestionItem<EmojiData>;
+    entity: SuggestionItem;
     selected: boolean;
   }>;
-  item: SuggestionItem<EmojiData>;
+  item: SuggestionItem;
   onClickHandler: (
     event: React.MouseEvent<Element, MouseEvent>,
-    item: SuggestionItem<EmojiData>,
+    item: SuggestionItem,
   ) => void;
-  onSelectHandler: (item: SuggestionItem<EmojiData>) => void;
+  onSelectHandler: (item: SuggestionItem) => void;
   selected: boolean;
   className?: string;
   value?: string;
@@ -24,8 +22,8 @@ export type SuggestionItemProps<EmojiData extends UnknownType = UnknownType> = {
 export const SuggestionListItem = React.forwardRef<
   HTMLAnchorElement,
   SuggestionItemProps
->(function SuggestionListItem<T extends UnknownType = UnknownType>(
-  props: SuggestionItemProps<T>,
+>(function SuggestionListItem(
+  props: SuggestionItemProps,
   innerRef: Ref<HTMLAnchorElement>,
 ) {
   const {

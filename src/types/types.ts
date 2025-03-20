@@ -12,13 +12,6 @@ import type {
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
-export type CustomTrigger = {
-  [key: string]: {
-    componentProps: UnknownType;
-    data: UnknownType;
-  };
-};
-
 export type CustomMessageType = 'channel.intro' | 'message.date';
 
 export type DefaultAttachmentType = UnknownType & {

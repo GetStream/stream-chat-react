@@ -1,11 +1,9 @@
 import { EmoticonItem } from '../../EmoticonItem/EmoticonItem';
-import type { EmojiTriggerSetting } from '../DefaultTriggerProvider';
 import type { EmojiSearchIndex } from '../MessageInput';
 
-export const useEmojiTrigger = <T extends EmojiSearchIndex>(
-  emojiSearchIndex?: T,
-): EmojiTriggerSetting => ({
+export const useEmojiTrigger = (emojiSearchIndex?: EmojiSearchIndex) => ({
   component: EmoticonItem,
+  // @ts-expect-error tmp
   dataProvider: async (query, _, onReady) => {
     if (query.length === 0 || query.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
       return onReady([], query);
@@ -28,6 +26,7 @@ export const useEmojiTrigger = <T extends EmojiSearchIndex>(
 
     if (onReady) onReady(result, query);
   },
+  // @ts-expect-error tmp
   output: (entity) => ({
     caretPosition: 'next',
     key: entity.id as string,

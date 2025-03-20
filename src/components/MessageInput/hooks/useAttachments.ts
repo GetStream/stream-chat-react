@@ -28,7 +28,6 @@ import type {
   BaseLocalAttachmentMetadata,
   LocalAttachment,
 } from '../types';
-import type { CustomTrigger } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
 
@@ -61,8 +60,8 @@ const ensureIsLocalAttachment = (
   };
 };
 
-export const useAttachments = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
+export const useAttachments = (
+  props: MessageInputProps,
   state: MessageInputState,
   dispatch: React.Dispatch<MessageInputReducerAction>,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,

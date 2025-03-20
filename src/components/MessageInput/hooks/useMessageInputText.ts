@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef } from 'react';
 import { type TextComposerState } from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger } from '../../../types/types';
 import { useMessageComposer } from './messageComposer/useMessageComposer';
 import { useStateStore } from '../../../store';
 
@@ -10,9 +9,7 @@ const messageComposerStateSelector = (state: TextComposerState) => ({
   text: state.text,
 });
 
-export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
-) => {
+export const useMessageInputText = (props: MessageInputProps) => {
   const { focus } = props;
   const messageComposer = useMessageComposer();
   const textareaRef = useRef<HTMLTextAreaElement>(undefined);

@@ -29,13 +29,14 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import type { AttachmentManagerState } from 'stream-chat';
+import type { AttachmentManagerState, TextComposerState } from 'stream-chat';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { TextAreaComposer } from '../TextAreaComposer';
 
 const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
   attachments: state.attachments,
 });
+const textComposerStateSelector = (state: TextComposerState) => state;
 
 export const MessageInputFlat = () => {
   const { t } = useTranslationContext('MessageInputFlat');
@@ -49,7 +50,6 @@ export const MessageInputFlat = () => {
     message,
     recordingController,
     setCooldownRemaining,
-    text,
   } = useMessageInputContext('MessageInputFlat');
 
   const {
@@ -93,6 +93,10 @@ export const MessageInputFlat = () => {
   const { attachments } = useStateStore(
     messageComposer.attachmentManager.state,
     attachmentManagerStateSelector,
+  );
+  const { text: actualText } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
   );
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
@@ -175,7 +179,7 @@ export const MessageInputFlat = () => {
                   <>
                     <SendButton
                       disabled={
-                        !text.length &&
+                        !actualText.length &&
                         attachments.length ===
                           messageComposer.attachmentManager.failedUploadsCount
                       }

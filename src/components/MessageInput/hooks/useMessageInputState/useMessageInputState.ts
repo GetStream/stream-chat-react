@@ -19,7 +19,6 @@ import type { Attachment, Message, SendMessageOptions, UserResponse } from 'stre
 
 import type { MessageInputProps } from '../../MessageInput';
 
-import type { CustomTrigger } from '../../../../types/types';
 import { mergeDeep } from '../../../../utils/mergeDeep';
 import type { MessageInputState } from './initMessageInputState';
 import { initState, makeEmptyMessageInputState } from './initMessageInputState';
@@ -210,8 +209,8 @@ export type MentionsListState = {
 /**
  * hook for MessageInput state
  */
-export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
+export const useMessageInputState = (
+  props: MessageInputProps,
 ): MessageInputState & MessageInputHookProps & CommandsListState & MentionsListState => {
   const {
     additionalTextareaProps,
@@ -252,7 +251,7 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
       urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<V>(props);
+  const { handleChange, insertText, textareaRef } = useMessageInputText(props);
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);
@@ -283,9 +282,9 @@ export const useMessageInputState = <V extends CustomTrigger = CustomTrigger>(
     removeAttachments,
     uploadAttachment,
     upsertAttachments,
-  } = useAttachments<V>(props, state, dispatch, textareaRef);
+  } = useAttachments(props, state, dispatch, textareaRef);
 
-  const { handleSubmit } = useSubmitHandler<V>(
+  const { handleSubmit } = useSubmitHandler(
     props,
     state,
     dispatch,

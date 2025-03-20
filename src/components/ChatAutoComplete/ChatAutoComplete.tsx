@@ -8,12 +8,9 @@ import { useComponentContext } from '../../context/ComponentContext';
 
 import type { CommandResponse, UserResponse } from 'stream-chat';
 
-import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
-import type { CustomTrigger, UnknownType } from '../../types/types';
+import type { UnknownType } from '../../types/types';
 import type { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
 import { TextareaX } from '../AutoCompleteTextarea/TextareaX';
-
-type ObjectUnion<T> = T[keyof T];
 
 export type SuggestionCommand = CommandResponse;
 
@@ -22,24 +19,21 @@ export type SuggestionUser = UserResponse;
 export type SuggestionEmoji<T extends UnknownType = UnknownType> =
   EmojiSearchIndexResult & T;
 
-export type SuggestionItem<EmojiData extends UnknownType = UnknownType> =
-  | SuggestionUser
-  | SuggestionCommand
-  | SuggestionEmoji<EmojiData>;
+export type SuggestionItem = SuggestionUser | SuggestionCommand | SuggestionEmoji;
 
 // FIXME: entity type is wrong, fix
-export type SuggestionItemProps<EmojiData extends UnknownType = UnknownType> = {
+export type SuggestionItemProps = {
   component: React.ComponentType<{
-    entity: SuggestionItem<EmojiData>;
+    entity: SuggestionItem;
     selected: boolean;
   }>;
-  item: SuggestionItem<EmojiData>;
+  item: SuggestionItem;
   key: React.Key;
   onClickHandler: (
     event: React.MouseEvent<Element, MouseEvent>,
-    item: SuggestionItem<EmojiData>,
+    item: SuggestionItem,
   ) => void;
-  onSelectHandler: (item: SuggestionItem<EmojiData>) => void;
+  onSelectHandler: (item: SuggestionItem) => void;
   selected: boolean;
   style: React.CSSProperties;
   className?: string;
@@ -51,39 +45,35 @@ export interface SuggestionHeaderProps {
   value: string;
 }
 
-export type SuggestionListProps<
-  V extends CustomTrigger = CustomTrigger,
-  EmojiData extends UnknownType = UnknownType,
-> = ObjectUnion<{
-  [key in keyof TriggerSettings<V>]: {
-    component: TriggerSettings<V>[key]['component'];
-    currentTrigger: string;
-    dropdownScroll: (element: HTMLElement) => void;
-    getSelectedItem:
-      | ((item: Parameters<TriggerSettings<V>[key]['output']>[0]) => void)
-      | null;
-    getTextToReplace: (item: Parameters<TriggerSettings<V>[key]['output']>[0]) => {
-      caretPosition: 'start' | 'end' | 'next' | number;
-      text: string;
-      key?: string;
-    };
-    onSelect: (newToken: {
-      caretPosition: 'start' | 'end' | 'next' | number;
-      text: string;
-    }) => void;
-    selectionEnd: number;
-    SuggestionItem: React.ComponentType<SuggestionItemProps<EmojiData>>;
-    values: Parameters<Parameters<TriggerSettings<V>[key]['dataProvider']>[2]>[0];
-    className?: string;
-    itemClassName?: string;
-    itemStyle?: React.CSSProperties;
-    Header?: React.ComponentType<SuggestionHeaderProps>;
-    style?: React.CSSProperties;
-    value?: string;
+export type SuggestionListProps = {
+  component: React.ComponentType;
+  currentTrigger: string;
+  dropdownScroll: (element: HTMLElement) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getSelectedItem: ((item: any) => void) | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getTextToReplace: (item: any) => {
+    caretPosition: 'start' | 'end' | 'next' | number;
+    text: string;
+    key?: string;
   };
-}>;
+  onSelect: (newToken: {
+    caretPosition: 'start' | 'end' | 'next' | number;
+    text: string;
+  }) => void;
+  selectionEnd: number;
+  SuggestionItem: React.ComponentType<SuggestionItemProps>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values: any;
+  className?: string;
+  itemClassName?: string;
+  itemStyle?: React.CSSProperties;
+  Header?: React.ComponentType<SuggestionHeaderProps>;
+  style?: React.CSSProperties;
+  value?: string;
+};
 
-export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
+export type ChatAutoCompleteProps = {
   /** Override the default disabled state of the underlying `textarea` component. */
   disabled?: boolean;
   /** Function to override the default submit handler on the underlying `textarea` component */
@@ -103,23 +93,21 @@ export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
   /** The text value of the underlying `textarea` component */
   value?: string;
   /** Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component */
-  wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex<T>) => string;
+  wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex) => string;
 };
 
-const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
-  props: ChatAutoCompleteProps,
-) => {
+const UnMemoizedChatAutoComplete = (props: ChatAutoCompleteProps) => {
   const { AutocompleteSuggestionItem: SuggestionItem } =
-    useComponentContext<V>('ChatAutoComplete');
+    useComponentContext('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
 
-  const messageInput = useMessageInputContext<V>('ChatAutoComplete');
+  const messageInputContextValue = useMessageInputContext('ChatAutoComplete');
   const {
     cooldownRemaining,
     disabled,
     emojiSearchIndex,
     textareaRef: innerRef,
-  } = messageInput;
+  } = messageInputContextValue;
 
   const placeholder = props.placeholder || t('Type your message');
 
@@ -151,36 +139,36 @@ const UnMemoizedChatAutoComplete = <V extends CustomTrigger = CustomTrigger>(
 
   return (
     <TextareaX
-      additionalTextareaProps={messageInput.additionalTextareaProps}
+      additionalTextareaProps={messageInputContextValue.additionalTextareaProps}
       aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       className='str-chat__textarea__textarea str-chat__message-textarea'
-      closeCommandsList={messageInput.closeCommandsList}
-      closeMentionsList={messageInput.closeMentionsList}
+      closeCommandsList={messageInputContextValue.closeCommandsList}
+      closeMentionsList={messageInputContextValue.closeMentionsList}
       containerClassName='str-chat__textarea str-chat__message-textarea-react-host'
       disabled={(props.disabled ?? disabled) || !!cooldownRemaining}
-      disableMentions={messageInput.disableMentions}
-      grow={messageInput.grow}
-      handleSubmit={props.handleSubmit || messageInput.handleSubmit}
+      disableMentions={messageInputContextValue.disableMentions}
+      grow={messageInputContextValue.grow}
+      handleSubmit={props.handleSubmit || messageInputContextValue.handleSubmit}
       innerRef={updateInnerRef}
       loadingComponent={LoadingIndicator}
-      maxRows={messageInput.maxRows}
+      maxRows={messageInputContextValue.maxRows}
       minChar={0}
-      minRows={messageInput.minRows}
+      minRows={messageInputContextValue.minRows}
       onBlur={props.onBlur}
-      onChange={props.onChange || messageInput.handleChange}
+      onChange={props.onChange || messageInputContextValue.handleChange}
       onFocus={props.onFocus}
-      onPaste={props.onPaste || messageInput.onPaste}
+      onPaste={props.onPaste || messageInputContextValue.onPaste}
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={props.rows || 1}
-      shouldSubmit={messageInput.shouldSubmit}
-      showCommandsList={messageInput.showCommandsList}
-      showMentionsList={messageInput.showMentionsList}
+      shouldSubmit={messageInputContextValue.shouldSubmit}
+      showCommandsList={messageInputContextValue.showCommandsList}
+      showMentionsList={messageInputContextValue.showMentionsList}
       // @ts-expect-error because we would have to pass the third generic type to ComponentContext
       SuggestionItem={SuggestionItem}
       // SuggestionList={SuggestionList}
       // @ts-expect-error type mismatch
-      trigger={messageInput.autocompleteTriggers || {}}
+      trigger={messageInputContextValue.autocompleteTriggers || {}}
       value={props.value}
     />
   );

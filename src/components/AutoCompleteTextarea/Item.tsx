@@ -3,13 +3,8 @@ import React, { useCallback } from 'react';
 import clsx from 'clsx';
 import type { SuggestionItemProps } from '../ChatAutoComplete';
 
-import type { UnknownType } from '../../types/types';
-
 export const Item = React.forwardRef<HTMLAnchorElement, SuggestionItemProps>(
-  function Item<T extends UnknownType = UnknownType>(
-    props: SuggestionItemProps<T>,
-    innerRef: Ref<HTMLAnchorElement>,
-  ) {
+  function Item(props: SuggestionItemProps, innerRef: Ref<HTMLAnchorElement>) {
     const {
       className,
       component: Component,

@@ -15,15 +15,14 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 
 import type { RenderTextOptions } from './renderText';
-import type { CustomTrigger } from '../../types/types';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
-export type MessageProps<V extends CustomTrigger = CustomTrigger> = {
+export type MessageProps = {
   /** The message object */
   message: StreamMessage;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<V>;
+  additionalMessageInputProps?: MessageInputProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */

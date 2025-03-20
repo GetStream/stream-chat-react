@@ -18,7 +18,6 @@ import type {
 } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
 
 export type PrepareMessageParams = Pick<
@@ -144,8 +143,8 @@ export const prepareMessage = ({
   };
 };
 
-export const useSubmitHandler = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
+export const useSubmitHandler = (
+  props: MessageInputProps,
   state: MessageInputState,
   dispatch: React.Dispatch<MessageInputReducerAction>,
   numberOfUploads: number,

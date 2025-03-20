@@ -5,9 +5,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
 
-import type { CustomTrigger, UnknownType } from '../../types/types';
 import type { SuggestionHeaderProps, SuggestionItemProps } from '../ChatAutoComplete';
-import type { TriggerSettings } from '../MessageInput';
 import type { TextComposerState } from 'stream-chat';
 import { type SearchSourceState } from 'stream-chat';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
@@ -17,27 +15,20 @@ import { EmoticonItem } from '../EmoticonItem';
 import { CommandItem } from '../CommandItem';
 import { UserItem } from '../UserItem';
 
-type ObjectUnion<T> = T[keyof T];
-
-export type SuggestionListProps<
-  V extends CustomTrigger = CustomTrigger,
-  EmojiData extends UnknownType = UnknownType,
-> = ObjectUnion<{
-  [key in keyof TriggerSettings<V>]: Partial<{
-    dropdownScroll: (element: HTMLElement) => void;
-    getSelectedItem:
-      | ((item: Parameters<TriggerSettings<V>[key]['output']>[0]) => void)
-      | null;
-    getTextToReplace: (item: Parameters<TriggerSettings<V>[key]['output']>[0]) => {
-      caretPosition: 'start' | 'end' | 'next' | number;
-      text: string;
-      key?: string;
-    };
-    SuggestionItem: React.ComponentType<SuggestionItemProps<EmojiData>>;
-    className?: string;
-    Header?: React.ComponentType<SuggestionHeaderProps>;
-    value?: string;
-  }>;
+export type SuggestionListProps = Partial<{
+  dropdownScroll: (element: HTMLElement) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getSelectedItem: ((item: any) => void) | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getTextToReplace: (item: any) => {
+    caretPosition: 'start' | 'end' | 'next' | number;
+    text: string;
+    key?: string;
+  };
+  SuggestionItem: React.ComponentType<SuggestionItemProps>;
+  className?: string;
+  Header?: React.ComponentType<SuggestionHeaderProps>;
+  value?: string;
 }>;
 
 const textComposerStateSelector = (state: TextComposerState) => ({
@@ -48,14 +39,7 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   items: nextValue.items,
 });
 
-export const SuggestionList = <
-  V extends CustomTrigger = CustomTrigger,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  EmojiData extends UnknownType = UnknownType,
->({
-  className,
-  value: propValue,
-}: SuggestionListProps<V>) => {
+export const SuggestionList = ({ className, value: propValue }: SuggestionListProps) => {
   const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
     useComponentContext('SuggestionList');
   const messageComposer = useMessageComposer();
@@ -88,11 +72,11 @@ export const SuggestionList = <
   //     return textToReplace.text;
   //   }
   //
-  //   return (item as SuggestionEmoji<V>).key;
+  //   return (item as SuggestionEmoji).key;
   // };
   //
   // const findItemIndex = useCallback(
-  //   (item: SuggestionItem<V>) =>
+  //   (item: SuggestionItem) =>
   //     values.findIndex((value) =>
   //       value.id
   //         ? value.id === (item as SuggestionUser).id
@@ -102,7 +86,7 @@ export const SuggestionList = <
   // );
   //
   // const modifyText = (
-  //   value: SuggestionListProps<V>['values'][number],
+  //   value: SuggestionListProps['values'][number],
   // ) => {
   //   if (!value) return;
   //
@@ -113,7 +97,7 @@ export const SuggestionList = <
   // const handleClick = useCallback(
   //   (
   //     e: React.MouseEvent<Element, MouseEvent>,
-  //     item: SuggestionItem<V>,
+  //     item: SuggestionItem,
   //   ) => {
   //     e?.preventDefault();
   //
@@ -125,7 +109,7 @@ export const SuggestionList = <
   // );
   //
   // const selectItem = useCallback(
-  //   (item: SuggestionItem<V>) => {
+  //   (item: SuggestionItem) => {
   //     const index = findItemIndex(item);
   //     setSelectedItemIndex(index);
   //   },
@@ -175,7 +159,7 @@ export const SuggestionList = <
   // }, [selectItem, values]);
   //
   // const restructureItem = useCallback(
-  //   (item: SuggestionItem<V>) => {
+  //   (item: SuggestionItem) => {
   //     const matched = item.name || (item as SuggestionUser).id;
   //
   //     const textBeforeCursor = (propValue || '').slice(0, selectionEnd);

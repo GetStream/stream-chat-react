@@ -15,18 +15,17 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
-import { ThreadContext, useThreadContext } from '../Threads';
+import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
-import type { CustomTrigger } from '../../types/types';
 import type { ThreadState } from 'stream-chat';
 
-export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
+export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<V>;
+  additionalMessageInputProps?: MessageInputProps;
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
   additionalMessageListProps?: MessageListProps;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
@@ -50,9 +49,7 @@ export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
 /**
  * The Thread component renders a parent Message with a list of replies
  */
-export const Thread = <V extends CustomTrigger = CustomTrigger>(
-  props: ThreadProps<V>,
-) => {
+export const Thread = (props: ThreadProps) => {
   const {
     channel,
     channelConfig,
@@ -81,9 +78,7 @@ const selector = (nextValue: ThreadState) => ({
   replies: nextValue.replies,
 });
 
-const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
-  props: ThreadProps<V> & { key: string },
-) => {
+const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
     additionalMessageInputProps,
     additionalMessageListProps,
@@ -182,30 +177,28 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   );
 
   return (
-    <ThreadContext.Provider value={threadInstance}>
-      <div className={threadClass}>
-        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
-        <ThreadMessageList
-          disableDateSeparator={!enableDateSeparator}
-          head={head}
-          Message={MessageUIComponent}
-          messageActions={messageActions}
-          suppressAutoscroll={threadSuppressAutoscroll}
-          threadList
-          {...threadProps}
-          {...(virtualized
-            ? additionalVirtualizedMessageListProps
-            : additionalMessageListProps)}
-        />
-        <MessageInput
-          focus={autoFocus}
-          Input={ThreadInput}
-          isThreadInput
-          parent={thread ?? parentMessage}
-          publishTypingEvent={false}
-          {...additionalMessageInputProps}
-        />
-      </div>
-    </ThreadContext.Provider>
+    <div className={threadClass}>
+      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+      <ThreadMessageList
+        disableDateSeparator={!enableDateSeparator}
+        head={head}
+        Message={MessageUIComponent}
+        messageActions={messageActions}
+        suppressAutoscroll={threadSuppressAutoscroll}
+        threadList
+        {...threadProps}
+        {...(virtualized
+          ? additionalVirtualizedMessageListProps
+          : additionalMessageListProps)}
+      />
+      <MessageInput
+        focus={autoFocus}
+        Input={ThreadInput}
+        isThreadInput
+        parent={thread ?? parentMessage}
+        publishTypingEvent={false}
+        {...additionalMessageInputProps}
+      />
+    </div>
   );
 };

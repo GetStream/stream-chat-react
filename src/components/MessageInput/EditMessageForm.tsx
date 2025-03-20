@@ -3,13 +3,10 @@ import { MessageInputFlat } from './MessageInputFlat';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
 
-import type { CustomTrigger } from '../../types/types';
-
-export const EditMessageForm = <V extends CustomTrigger = CustomTrigger>() => {
+export const EditMessageForm = () => {
   const { t } = useTranslationContext('EditMessageForm');
 
-  const { clearEditingState, handleSubmit } =
-    useMessageInputContext<V>('EditMessageForm');
+  const { clearEditingState, handleSubmit } = useMessageInputContext('EditMessageForm');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

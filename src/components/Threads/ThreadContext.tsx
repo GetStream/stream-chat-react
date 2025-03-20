@@ -9,17 +9,13 @@ export type ThreadContextValue = Thread | undefined;
 
 export const ThreadContext = createContext<ThreadContextValue>(undefined);
 
-export const useThreadContext = () => {
-  const thread = useContext(ThreadContext);
-
-  return (thread as unknown as Thread) ?? undefined;
-};
+export const useThreadContext = () => useContext(ThreadContext);
 
 export const ThreadProvider = ({
   children,
   thread,
 }: PropsWithChildren<{ thread?: Thread }>) => (
-  <ThreadContext.Provider value={thread as unknown as Thread}>
+  <ThreadContext.Provider value={thread}>
     <Channel channel={thread?.channel}>{children}</Channel>
   </ThreadContext.Provider>
 );

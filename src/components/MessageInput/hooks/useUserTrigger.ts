@@ -12,7 +12,6 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import type { UserResponse } from 'stream-chat';
 
 import type { SearchQueryParams } from '../../ChannelSearch/hooks/useChannelSearch';
-import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvider';
 
 export type UserTriggerParams = {
   onSelectUser: (item: UserResponse) => void;
@@ -22,7 +21,7 @@ export type UserTriggerParams = {
   useMentionsTransliteration?: boolean;
 };
 
-export const useUserTrigger = (params: UserTriggerParams): UserTriggerSetting => {
+export const useUserTrigger = (params: UserTriggerParams) => {
   const {
     disableMentions,
     mentionAllAppUsers,
@@ -113,6 +112,7 @@ export const useUserTrigger = (params: UserTriggerParams): UserTriggerSetting =>
   return {
     callback: onSelectUser,
     component: UserItem,
+    // @ts-expect-error tmp
     dataProvider: (query, text, onReady) => {
       if (disableMentions) return;
 
@@ -168,6 +168,7 @@ export const useUserTrigger = (params: UserTriggerParams): UserTriggerSetting =>
         if (onReady) onReady(filterMutes(data), query);
       });
     },
+    // @ts-expect-error tmp
     output: (entity) => ({
       caretPosition: 'next',
       key: entity.id,

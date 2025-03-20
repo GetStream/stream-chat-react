@@ -1,7 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 
-import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 // import { MessageDraftSynchronizer as DefaultMessageDraftSynchronizer } from './MessageDraftSynchronizer';
 import { MessageInputFlat } from './MessageInputFlat';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
@@ -14,20 +13,14 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
-import type {
-  Channel,
-  Message,
-  SendFileAPIResponse,
-  SendMessageOptions,
-} from 'stream-chat';
+import type { Message, SendFileAPIResponse, SendMessageOptions } from 'stream-chat';
+import { Channel, Thread } from 'stream-chat';
 
 import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
-import type { CustomTrigger, UnknownType } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -37,16 +30,13 @@ export type EmojiSearchIndexResult = {
   native?: string;
 };
 
-export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
+export interface EmojiSearchIndex {
   search: (
     query: string,
-  ) =>
-    | PromiseLike<Array<EmojiSearchIndexResult & T>>
-    | Array<EmojiSearchIndexResult & T>
-    | null;
+  ) => PromiseLike<Array<EmojiSearchIndexResult>> | Array<EmojiSearchIndexResult> | null;
 }
 
-export type MessageInputProps<V extends CustomTrigger = CustomTrigger> = {
+export type MessageInputProps = {
   /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /**
@@ -91,7 +81,7 @@ export type MessageInputProps<V extends CustomTrigger = CustomTrigger> = {
   /** Allows to hide MessageInput's send button. */
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
-  Input?: React.ComponentType<MessageInputProps<V>>;
+  Input?: React.ComponentType<MessageInputProps>;
   /** Signals that the MessageInput is rendered in a message thread (Thread component) */
   isThreadInput?: boolean;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
@@ -133,42 +123,42 @@ export type MessageInputProps<V extends CustomTrigger = CustomTrigger> = {
   useMentionsTransliteration?: boolean;
 };
 
-const MessageInputProvider = <V extends CustomTrigger = CustomTrigger>(
-  props: PropsWithChildren<MessageInputProps<V>>,
-) => {
-  const cooldownTimerState = useCooldownTimer();
-  const messageInputState = useMessageInputState<V>(props);
-  const { emojiSearchIndex } = useComponentContext('MessageInput');
-  const messageComposer = useMessageComposer({ message: props.message });
-  if (typeof props.publishTypingEvent !== 'undefined')
-    messageComposer.config.publishTypingEvents = props.publishTypingEvent;
+export const valueIsThreadInstance = (value: unknown): value is Thread =>
+  value instanceof Thread;
+export const valueIsChannelInstance = (value: unknown): value is Channel =>
+  value instanceof Channel;
 
-  const messageInputContextValue = useCreateMessageInputContext<V>({
+const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
+  const cooldownTimerState = useCooldownTimer();
+  const messageInputState = useMessageInputState(props);
+  const { emojiSearchIndex } = useComponentContext('MessageInput');
+
+  // if (typeof props.publishTypingEvent !== 'undefined') {
+  //   messageComposer.config.publishTypingEvents = props.publishTypingEvent;
+  // }
+
+  const messageInputContextValue = useCreateMessageInputContext({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
-    messageComposer,
   });
 
   return (
-    <MessageInputContextProvider<V> value={messageInputContextValue}>
+    <MessageInputContextProvider value={messageInputContextValue}>
       {props.children}
     </MessageInputContextProvider>
   );
 };
 
-const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
-) => {
+const UnMemoizedMessageInput = (props: MessageInputProps) => {
   const { Input: PropInput } = props;
 
   const { dragAndDropWindow } = useChannelStateContext();
   const {
     Input: ContextInput,
     // MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
-    TriggerProvider = DefaultTriggerProvider,
-  } = useComponentContext<V>('MessageInput');
+  } = useComponentContext('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
@@ -178,19 +168,15 @@ const UnMemoizedMessageInput = <V extends CustomTrigger = CustomTrigger>(
   if (dragAndDropWindow)
     return (
       <DialogManagerProvider id={dialogManagerId}>
-        <TriggerProvider>
-          <Input />
-        </TriggerProvider>
+        <Input />
       </DialogManagerProvider>
     );
 
   return (
     <DialogManagerProvider id={dialogManagerId}>
       <MessageInputProvider {...props}>
-        <TriggerProvider>
-          {/*<MessageDraftSynchronizer />*/}
-          <Input />
-        </TriggerProvider>
+        {/*<MessageDraftSynchronizer />*/}
+        <Input />
       </MessageInputProvider>
     </DialogManagerProvider>
   );
