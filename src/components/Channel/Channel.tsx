@@ -170,87 +170,86 @@ const isUserResponseArray = (
   output: string[] | UserResponse[],
 ): output is UserResponse[] => (output as UserResponse[])[0]?.id != null;
 
-export type ChannelProps =
-  ChannelPropsForwardedToComponentContext & {
-    // todo: move to MessageComposer configuration
-    /** List of accepted file types */
-    acceptedFiles?: string[];
-    /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
-    activeUnreadHandler?: (unread: number, documentTitle: string) => void;
-    /** The connected and active channel */
-    channel?: StreamChannel;
-    /**
-     * Optional configuration parameters used for the initial channel query.
-     * Applied only if the value of channel.initialized is false.
-     * If the channel instance has already been initialized (channel has been queried),
-     * then the channel query will be skipped and channelQueryOptions will not be applied.
-     */
-    channelQueryOptions?: ChannelQueryOptions;
-    /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-    doDeleteMessageRequest?: (message: StreamMessage) => Promise<MessageResponse>;
-    /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
-    doMarkReadRequest?: (
-      channel: StreamChannel,
-      setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-    ) => Promise<EventAPIResponse> | void;
-    /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
-    doSendMessageRequest?: (
-      channel: StreamChannel,
-      message: Message,
-      options?: SendMessageOptions,
-    ) => ReturnType<StreamChannel['sendMessage']> | void;
-    /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
-    doUpdateMessageRequest?: (
-      cid: string,
-      updatedMessage: UpdatedMessage,
-      options?: UpdateMessageOptions,
-    ) => ReturnType<StreamChat['updateMessage']>;
-    /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
-    dragAndDropWindow?: boolean;
-    /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-    EmptyPlaceholder?: React.ReactElement;
-    /**
-     * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
-     * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-     * or directly on MessageInput level through urlEnrichmentConfig.
-     */
-    enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-    /** Global configuration for link preview generation in all the MessageInput components */
-    enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
-    /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
-    giphyVersion?: GiphyVersions;
-    /** A custom function to provide size configuration for image attachments */
-    imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
-    /**
-     * Allows to prevent triggering the channel.watch() call when mounting the component.
-     * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
-     * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
-     */
-    initializeOnMount?: boolean;
-    /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
-    LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-    /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
-    markReadOnMount?: boolean;
-    /** Maximum number of attachments allowed per message */
-    maxNumberOfFiles?: number;
-    /** Enables storing message drafts on the server. */
-    messageDraftsEnabled?: boolean;
-    // todo: document that multipleUploads is redundant and ignored with message composer
-    /** Whether to allow multiple attachment uploads */
-    multipleUploads?: boolean;
-    /** Custom action handler function to run on click of an @mention in a message */
-    onMentionsClick?: OnMentionAction;
-    /** Custom action handler function to run on hover of an @mention in a message */
-    onMentionsHover?: OnMentionAction;
-    /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
-    optionalMessageInputProps?: MessageInputProps;
-    /** You can turn on/off thumbnail generation for video attachments */
-    shouldGenerateVideoThumbnail?: boolean;
-    /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
-    skipMessageDataMemoization?: boolean;
-    /** A custom function to provide size configuration for video attachments */
-    videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
-  };
+export type ChannelProps = ChannelPropsForwardedToComponentContext & {
+  // todo: move to MessageComposer configuration
+  /** List of accepted file types */
+  acceptedFiles?: string[];
+  /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
+  activeUnreadHandler?: (unread: number, documentTitle: string) => void;
+  /** The connected and active channel */
+  channel?: StreamChannel;
+  /**
+   * Optional configuration parameters used for the initial channel query.
+   * Applied only if the value of channel.initialized is false.
+   * If the channel instance has already been initialized (channel has been queried),
+   * then the channel query will be skipped and channelQueryOptions will not be applied.
+   */
+  channelQueryOptions?: ChannelQueryOptions;
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
+  doDeleteMessageRequest?: (message: StreamMessage) => Promise<MessageResponse>;
+  /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
+  doMarkReadRequest?: (
+    channel: StreamChannel,
+    setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
+  ) => Promise<EventAPIResponse> | void;
+  /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
+  doSendMessageRequest?: (
+    channel: StreamChannel,
+    message: Message,
+    options?: SendMessageOptions,
+  ) => ReturnType<StreamChannel['sendMessage']> | void;
+  /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
+  doUpdateMessageRequest?: (
+    cid: string,
+    updatedMessage: UpdatedMessage,
+    options?: UpdateMessageOptions,
+  ) => ReturnType<StreamChat['updateMessage']>;
+  /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
+  dragAndDropWindow?: boolean;
+  /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
+  EmptyPlaceholder?: React.ReactElement;
+  /**
+   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
+   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
+   * or directly on MessageInput level through urlEnrichmentConfig.
+   */
+  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
+  /** Global configuration for link preview generation in all the MessageInput components */
+  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
+  /** A custom function to provide size configuration for image attachments */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
+  /**
+   * Allows to prevent triggering the channel.watch() call when mounting the component.
+   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
+   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
+   */
+  initializeOnMount?: boolean;
+  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
+  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
+  markReadOnMount?: boolean;
+  /** Maximum number of attachments allowed per message */
+  maxNumberOfFiles?: number;
+  /** Enables storing message drafts on the server. */
+  messageDraftsEnabled?: boolean;
+  // todo: document that multipleUploads is redundant and ignored with message composer
+  /** Whether to allow multiple attachment uploads */
+  multipleUploads?: boolean;
+  /** Custom action handler function to run on click of an @mention in a message */
+  onMentionsClick?: OnMentionAction;
+  /** Custom action handler function to run on hover of an @mention in a message */
+  onMentionsHover?: OnMentionAction;
+  /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
+  optionalMessageInputProps?: MessageInputProps;
+  /** You can turn on/off thumbnail generation for video attachments */
+  shouldGenerateVideoThumbnail?: boolean;
+  /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
+  skipMessageDataMemoization?: boolean;
+  /** A custom function to provide size configuration for video attachments */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
+};
 
 const ChannelContainer = ({
   children,
@@ -269,9 +268,7 @@ const ChannelContainer = ({
   );
 };
 
-const UnMemoizedChannel = (
-  props: PropsWithChildren<ChannelProps>,
-) => {
+const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
   const {
     channel: propsChannel,
     EmptyPlaceholder = null,
