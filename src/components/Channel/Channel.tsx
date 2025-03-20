@@ -24,6 +24,7 @@ import type {
   Message,
   MessageResponse,
   SendMessageAPIResponse,
+  SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
   Thread,
@@ -91,7 +92,6 @@ import type {
   CustomTrigger,
   GiphyVersions,
   ImageAttachmentSizeHandler,
-  SendMessageOptions,
   UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';

@@ -118,17 +118,6 @@ export type VideoAttachmentSizeHandler = (
 export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 // todo: fix export from stream-chat - for some reason not exported
-export type SendMessageOptions = {
-  force_moderation?: boolean;
-  is_pending_message?: boolean;
-  keep_channel_hidden?: boolean;
-  pending?: boolean;
-  pending_message_metadata?: Record<string, string>;
-  skip_enrich_url?: boolean;
-  skip_push?: boolean;
-};
-
-// todo: fix export from stream-chat - for some reason not exported
 export type UpdateMessageOptions = {
   skip_enrich_url?: boolean;
 };

@@ -7,6 +7,7 @@ import type {
   ErrorFromResponse,
   Message,
   MessageResponse,
+  SendMessageOptions,
   UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
@@ -19,7 +20,6 @@ import type { CustomMentionHandler } from '../components/Message/hooks/useMentio
 
 import type {
   ChannelUnreadUiState,
-  SendMessageOptions,
   UnknownType,
   UpdateMessageOptions,
 } from '../types/types';

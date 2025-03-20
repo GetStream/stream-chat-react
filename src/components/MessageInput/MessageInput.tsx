@@ -14,12 +14,17 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
-import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
+import type {
+  Channel,
+  Message,
+  SendFileAPIResponse,
+  SendMessageOptions,
+} from 'stream-chat';
 
 import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
-import type { CustomTrigger, SendMessageOptions, UnknownType } from '../../types/types';
+import type { CustomTrigger, UnknownType } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';

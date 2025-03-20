@@ -4,7 +4,13 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { type LinkPreviewMap, LinkPreviewState, type LocalAttachment } from '../types';
 
-import type { Attachment, Message, UpdatedMessage, UserResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Message,
+  SendMessageOptions,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
 
 import type {
   MessageInputReducerAction,
@@ -12,7 +18,7 @@ import type {
 } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger, SendMessageOptions } from '../../../types/types';
+import type { CustomTrigger } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
 
 export type PrepareMessageParams = Pick<

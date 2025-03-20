@@ -15,11 +15,11 @@ import type { RecordingController } from '../../../MediaRecorder/hooks/useMediaR
 import { useMediaRecorder } from '../../../MediaRecorder/hooks/useMediaRecorder';
 import type { LinkPreviewMap, LocalAttachment } from '../../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../../types';
-import type { Attachment, Message, UserResponse } from 'stream-chat';
+import type { Attachment, Message, SendMessageOptions, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../../MessageInput';
 
-import type { CustomTrigger, SendMessageOptions } from '../../../../types/types';
+import type { CustomTrigger } from '../../../../types/types';
 import { mergeDeep } from '../../../../utils/mergeDeep';
 import type { MessageInputState } from './initMessageInputState';
 import { initState, makeEmptyMessageInputState } from './initMessageInputState';

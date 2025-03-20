@@ -15,6 +15,10 @@ import {
   VirtualizedMessageList as MessageList,
   Window,
 } from 'stream-chat-react';
+import { init, SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
+
+init({ data });
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -64,7 +68,7 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel>
+          <Channel emojiSearchIndex={SearchIndex}>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
