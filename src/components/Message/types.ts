@@ -5,22 +5,20 @@ import type { ReactionSort, UserResponse } from 'stream-chat';
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
 
+import type { LocalMessage } from 'stream-chat';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
-
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
-
 import type { RenderTextOptions } from './renderText';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
 export type MessageProps = {
   /** The message object */
-  message: StreamMessage;
+  message: LocalMessage;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
@@ -38,23 +36,23 @@ export type MessageProps = {
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
-  getDeleteMessageErrorNotification?: (message: StreamMessage) => string;
+  getDeleteMessageErrorNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when loading message reactions fails */
-  getFetchReactionsErrorNotification?: (message: StreamMessage) => string;
+  getFetchReactionsErrorNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
-  getFlagMessageErrorNotification?: (message: StreamMessage) => string;
+  getFlagMessageErrorNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
-  getFlagMessageSuccessNotification?: (message: StreamMessage) => string;
+  getFlagMessageSuccessNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when mark channel messages unread request fails */
-  getMarkMessageUnreadErrorNotification?: (message: StreamMessage) => string;
+  getMarkMessageUnreadErrorNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when mark channel messages unread request succeeds */
-  getMarkMessageUnreadSuccessNotification?: (message: StreamMessage) => string;
+  getMarkMessageUnreadSuccessNotification?: (message: LocalMessage) => string;
   /** Function that returns the notification text to be displayed when a mute user request fails */
   getMuteUserErrorNotification?: (user: UserResponse) => string;
   /** Function that returns the notification text to be displayed when a mute user request succeeds */
   getMuteUserSuccessNotification?: (user: UserResponse) => string;
   /** Function that returns the notification text to be displayed when a pin message request fails */
-  getPinMessageErrorNotification?: (message: StreamMessage) => string;
+  getPinMessageErrorNotification?: (message: LocalMessage) => string;
   /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
   groupedByUser?: boolean;
   /** A list of styles to apply to this message, i.e. top, bottom, single */
@@ -112,6 +110,6 @@ export type MessageProps = {
 export type MessageUIComponentProps = Partial<MessageContextValue>;
 
 export type PinIndicatorProps = {
-  message?: StreamMessage;
+  message?: LocalMessage;
   t?: TFunction;
 };

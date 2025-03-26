@@ -5,13 +5,11 @@ import {
   createMentionsMiddleware,
   MessageComposer,
 } from 'stream-chat';
-import type { DraftResponse } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
-import type { StreamMessage } from '../../../../context';
 import { useChannelStateContext, useMessageInputContext } from '../../../../context';
 
 export type UseMessageComposerParams = {
-  message?: DraftResponse | StreamMessage;
   textComposerMiddleware?: TextComposerMiddleware[];
 };
 
@@ -23,15 +21,15 @@ export const useMessageComposer = ({
   // legacy thread will receive new composer
   const { thread: parentMessage } = useChannelStateContext();
   const thread = useThreadContext();
-  const detachedMesssageComposerRef = useRef<MessageComposer>(
+  const detachedMessageComposerRef = useRef<MessageComposer>(
     new MessageComposer({ channel }),
   );
 
   const [cachedEditedMessage, setCachedEditedMessage] = useState<
-    StreamMessage | undefined
+    LocalMessage | undefined
   >(editedMessage);
   const [cachedParentMessage, setCachedParentMessage] = useState<
-    StreamMessage | undefined
+    LocalMessage | undefined
   >(parentMessage ?? undefined);
 
   if (editedMessage?.id !== cachedEditedMessage?.id) {
@@ -73,7 +71,7 @@ export const useMessageComposer = ({
       return channel.messageComposer;
     } else {
       // should never reach this point
-      return detachedMesssageComposerRef.current;
+      return detachedMessageComposerRef.current;
     }
   }, [cachedEditedMessage, cachedParentMessage, channel, textComposerMiddleware, thread]);
 

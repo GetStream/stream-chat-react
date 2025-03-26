@@ -6,19 +6,16 @@ import { MessageInputFlat } from './MessageInputFlat';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
-import type { Message, SendFileAPIResponse, SendMessageOptions } from 'stream-chat';
-import { Channel, Thread } from 'stream-chat';
+import type { Channel, LocalMessage, SendFileAPIResponse } from 'stream-chat';
 
 import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
-import type { MessageToSend } from '../../context/ChannelActionContext';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
@@ -91,20 +88,13 @@ export type MessageInputProps = {
   /** Object containing filters/sort/options overrides for an @mention user query */
   mentionQueryParams?: SearchQueryParams['userFilters'];
   /** If provided, the existing message will be edited on submit */
-  message?: StreamMessage;
+  message?: LocalMessage;
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
   /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
-  /** Function to override the default submit handler */
-  overrideSubmitHandler?: (
-    message: MessageToSend,
-    channelCid: string,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
-  parent?: StreamMessage;
+  parent?: LocalMessage;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
@@ -122,11 +112,6 @@ export type MessageInputProps = {
   urlEnrichmentConfig?: URLEnrichmentConfig;
   useMentionsTransliteration?: boolean;
 };
-
-export const valueIsThreadInstance = (value: unknown): value is Thread =>
-  value instanceof Thread;
-export const valueIsChannelInstance = (value: unknown): value is Channel =>
-  value instanceof Channel;
 
 const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();

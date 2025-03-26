@@ -1,8 +1,6 @@
-import type { Reducer } from 'react';
-import type React from 'react';
+import type React, { Reducer } from 'react';
 import { useCallback, useReducer, useState } from 'react';
 
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../../../context/ChannelStateContext';
 
 import { useAttachments } from '../useAttachments';
@@ -15,7 +13,13 @@ import type { RecordingController } from '../../../MediaRecorder/hooks/useMediaR
 import { useMediaRecorder } from '../../../MediaRecorder/hooks/useMediaRecorder';
 import type { LinkPreviewMap, LocalAttachment } from '../../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../../types';
-import type { Attachment, Message, SendMessageOptions, UserResponse } from 'stream-chat';
+import type {
+  Attachment,
+  LocalMessage,
+  SendMessageOptions,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
 
 import type { MessageInputProps } from '../../MessageInput';
 
@@ -71,7 +75,7 @@ export type MessageInputHookProps = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
     event?: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message>,
+    customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
     options?: SendMessageOptions,
   ) => void;
   insertText: (textToInsert: string) => void;
@@ -235,11 +239,11 @@ export const useMessageInputState = (
     (messageDraftsEnabled && messageDraft?.message) ||
     ((Array.isArray(defaultValue)
       ? { text: defaultValue.join('') }
-      : { text: defaultValue?.toString() }) as Partial<StreamMessage>);
+      : { text: defaultValue?.toString() }) as Partial<LocalMessage>);
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState, MessageInputReducerAction>,
-    initialStateValue as Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
+    initialStateValue as Pick<LocalMessage, 'attachments' | 'mentioned_users' | 'text'>,
     initState,
   );
 
@@ -284,13 +288,7 @@ export const useMessageInputState = (
     upsertAttachments,
   } = useAttachments(props, state, dispatch, textareaRef);
 
-  const { handleSubmit } = useSubmitHandler(
-    props,
-    state,
-    dispatch,
-    numberOfUploads,
-    enrichURLsController,
-  );
+  const { handleSubmit } = useSubmitHandler(props);
   const recordingController = useMediaRecorder({
     asyncMessagesMultiSendEnabled,
     enabled: !!audioRecordingEnabled,

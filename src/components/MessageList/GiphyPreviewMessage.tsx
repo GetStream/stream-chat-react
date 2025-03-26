@@ -1,11 +1,10 @@
 import React from 'react';
 
 import { Message } from '../Message/Message';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
 export type GiphyPreviewMessageProps = {
-  message: StreamMessage;
+  message: LocalMessage;
 };
 
 export const GiphyPreviewMessage = (props: GiphyPreviewMessageProps) => {

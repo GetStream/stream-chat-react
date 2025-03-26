@@ -1,11 +1,10 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
 
@@ -19,7 +18,7 @@ export type MuteUserNotifications = {
 };
 
 export const useMuteHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   notifications: MuteUserNotifications = {},
 ): ReactEventHandler => {
   const { mutes } = useChannelStateContext('useMuteHandler');

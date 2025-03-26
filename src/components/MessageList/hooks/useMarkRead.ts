@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
-import type { StreamMessage } from '../../../context';
 import {
   useChannelActionContext,
   useChannelStateContext,
   useChatContext,
 } from '../../../context';
-import type { Channel, Event, MessageResponse } from 'stream-chat';
+import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
@@ -98,7 +97,7 @@ export const useMarkRead = ({
   ]);
 };
 
-function getPreviousLastMessage(messages: StreamMessage[], newMessage?: MessageResponse) {
+function getPreviousLastMessage(messages: LocalMessage[], newMessage?: MessageResponse) {
   if (!newMessage) return;
   let previousLastMessage;
   for (let i = messages.length - 1; i >= 0; i--) {

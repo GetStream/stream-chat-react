@@ -1,24 +1,21 @@
 import React, { Fragment } from 'react';
-import type { ReactNode } from 'react';
-import type { UserResponse } from 'stream-chat';
-
-import { getIsFirstUnreadMessage, isDateSeparatorMessage } from './utils';
+import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import type { ComponentContextValue, CustomClasses } from '../../context';
-import type { GroupStyle } from './utils';
-import type { ChannelUnreadUiState } from '../../types';
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { ReactNode } from 'react';
+import type { UserResponse } from 'stream-chat';
+import type { GroupStyle, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message';
+import type { ComponentContextValue, CustomClasses } from '../../context';
+import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
   components: ComponentContextValue;
   lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
-  messages: Array<StreamMessage>;
+  messages: Array<RenderedMessage>;
   /**
    * Object mapping message IDs of own messages to the users who read those messages.
    */
@@ -80,17 +77,19 @@ export function defaultRenderMessages({
           />
         </li>,
       );
-    } else if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
-      renderedMessages.push(
-        <li key='intro'>
-          <HeaderComponent />
-        </li>,
-      );
+    } else if (isIntroMessage(message)) {
+      if (HeaderComponent) {
+        renderedMessages.push(
+          <li key='intro'>
+            <HeaderComponent />
+          </li>,
+        );
+      }
     } else if (message.type === 'system') {
       renderedMessages.push(
         <li
           data-message-id={message.id}
-          key={message.id || (message.created_at as string)}
+          key={message.id || message.created_at.toISOString()}
         >
           <MessageSystem message={message} />
         </li>,
@@ -114,7 +113,7 @@ export function defaultRenderMessages({
       });
 
       renderedMessages.push(
-        <Fragment key={message.id || (message.created_at as string)}>
+        <Fragment key={message.id || message.created_at.toISOString()}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
               <UnreadMessagesSeparator

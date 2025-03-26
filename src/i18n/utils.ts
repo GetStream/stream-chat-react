@@ -24,8 +24,7 @@ export const isDayOrMoment = (
   output: TDateTimeParserOutput,
 ): output is Dayjs.Dayjs | Moment => !!(output as Dayjs.Dayjs | Moment)?.isSame;
 
-export const isDate = (output: TDateTimeParserOutput): output is Date =>
-  !!(output as Date)?.getMonth;
+export const isDate = (output: unknown): output is Date => !!(output as Date)?.getMonth;
 
 export function getDateString({
   calendar,

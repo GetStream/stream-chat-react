@@ -2,18 +2,12 @@ import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
 import type {
-  APIErrorResponse,
-  Attachment,
-  ErrorFromResponse,
+  LocalMessage,
   Message,
   MessageResponse,
   SendMessageOptions,
-  UpdatedMessage,
   UpdateMessageAPIResponse,
-  UserResponse,
 } from 'stream-chat';
-
-import type { StreamMessage } from './ChannelStateContext';
 
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
@@ -33,29 +27,15 @@ export type MarkReadWrapperOptions = {
   updateChannelUiUnreadState?: boolean;
 };
 
-export type MessageAttachments = Array<Attachment>;
-
-export type MessageToSend = {
-  attachments?: MessageAttachments;
-  error?: ErrorFromResponse<APIErrorResponse>;
-  errorStatusCode?: number;
-  id?: string;
-  mentioned_users?: UserResponse[];
-  parent?: StreamMessage;
-  parent_id?: string;
-  status?: string;
-  text?: string;
-};
-
-export type RetrySendMessage = (message: StreamMessage) => Promise<void>;
+export type RetrySendMessage = (message: LocalMessage) => Promise<void>;
 
 export type ChannelActionContextValue = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
-  deleteMessage: (message: StreamMessage) => Promise<MessageResponse>;
+  deleteMessage: (message: LocalMessage) => Promise<MessageResponse>;
   dispatch: React.Dispatch<ChannelStateReducerAction>;
   editMessage: (
-    message: UpdatedMessage,
+    message: LocalMessage | MessageResponse,
     options?: UpdateMessageOptions,
   ) => Promise<UpdateMessageAPIResponse | void>;
   jumpToFirstUnreadMessage: (
@@ -74,18 +54,18 @@ export type ChannelActionContextValue = {
   markRead: (options?: MarkReadWrapperOptions) => void;
   onMentionsClick: CustomMentionHandler;
   onMentionsHover: CustomMentionHandler;
-  openThread: (message: StreamMessage, event?: React.BaseSyntheticEvent) => void;
-  removeMessage: (message: StreamMessage) => void;
+  openThread: (message: LocalMessage, event?: React.BaseSyntheticEvent) => void;
+  removeMessage: (message: LocalMessage) => void;
   retrySendMessage: RetrySendMessage;
-  sendMessage: (
-    message: MessageToSend,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => Promise<void>;
+  sendMessage: (params: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => Promise<void>;
   setChannelUnreadUiState: React.Dispatch<
     React.SetStateAction<ChannelUnreadUiState | undefined>
   >;
-  updateMessage: (message: StreamMessage) => void;
+  updateMessage: (message: MessageResponse | LocalMessage) => void;
 };
 
 export const ChannelActionContext = React.createContext<

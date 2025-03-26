@@ -65,7 +65,7 @@ const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: '
  *
  *  const textComposer = new TextComposer(options);
  *
- *  textComposer.use(new EmojiMiddleware(client, {
+ *  textComposer.use(new createTextComposerEmojiMiddleware(emojiSearchIndex, {
  *   minChars: 2
  *  }));
  *

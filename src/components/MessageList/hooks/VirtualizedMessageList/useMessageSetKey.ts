@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import type { StreamMessage } from '../../../../context';
+import type { LocalMessage } from 'stream-chat';
 
 type UseMessageSetKeyParams = {
-  messages?: StreamMessage[];
+  messages?: LocalMessage[];
 };
 
 export const useMessageSetKey = ({ messages }: UseMessageSetKeyParams) => {

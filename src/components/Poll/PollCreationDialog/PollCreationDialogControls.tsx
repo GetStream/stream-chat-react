@@ -70,6 +70,8 @@ export const PollCreationDialogControls = ({
             return;
           }
           try {
+            // todo: move poll creation to LLC
+            // @ts-expect-error poll reference to be passed inside messageComposer
             await handleSubmitMessage(e, { poll_id: pollId });
           } catch (e) {
             // todo: add notification

@@ -1,11 +1,11 @@
 import React from 'react';
-import type { Message } from 'stream-chat';
 import { SendIcon } from './icons';
+import type { UpdatedMessage } from 'stream-chat';
 
 export type SendButtonProps = {
   sendMessage: (
     event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message>,
+    customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
   ) => void;
 } & React.ComponentProps<'button'>;
 export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => (

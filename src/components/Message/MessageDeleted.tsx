@@ -1,13 +1,12 @@
 import React from 'react';
 
 import { useUserRole } from './hooks/useUserRole';
-
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
 export type MessageDeletedProps = {
-  message: StreamMessage;
+  message: LocalMessage;
 };
 
 export const MessageDeleted = (props: MessageDeletedProps) => {

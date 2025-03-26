@@ -34,8 +34,6 @@ const DefaultMessageActionComponents = {
       const messageComposer = useMessageComposer();
 
       const handleQuote = () => {
-        // todo: solve the ts-ignore
-        // @ts-expect-error type mismatch
         messageComposer.setQuotedMessage(message);
 
         const elements = message.parent_id

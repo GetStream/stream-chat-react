@@ -59,8 +59,6 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
   const messageActions = getMessageActions();
 
   const handleQuote = () => {
-    // todo: solve ts-ignore
-    // @ts-expect-error type mismatch (StreamMessage)
     messageComposer.setQuotedMessage(message);
 
     const elements = message.parent_id

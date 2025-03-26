@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { StreamMessage } from '../../../../context';
+import type { RenderedMessage } from '../../utils';
+import type { LocalMessage } from 'stream-chat';
 
 export type UseUnreadMessagesNotificationParams = {
   showAlways: boolean;
@@ -27,19 +28,24 @@ export const useUnreadMessagesNotificationVirtualized = ({
   const [show, setShow] = useState(false);
 
   const toggleShowUnreadMessagesNotification = useCallback(
-    (renderedMessages: StreamMessage[]) => {
+    (renderedMessages: RenderedMessage[]) => {
       if (!unreadCount) return;
       const firstRenderedMessage = renderedMessages[0];
       const lastRenderedMessage = renderedMessages.slice(-1)[0];
       if (!(firstRenderedMessage && lastRenderedMessage)) return;
+
+      const firstRenderedMessageTime = new Date(
+        (firstRenderedMessage as LocalMessage).created_at ?? 0,
+      ).getTime();
+      const lastRenderedMessageTime = new Date(
+        (lastRenderedMessage as LocalMessage).created_at ?? 0,
+      ).getTime();
+      const lastReadTime = new Date(lastRead ?? 0).getTime();
+
       const scrolledBelowSeparator =
-        !!lastRead &&
-        new Date(firstRenderedMessage.created_at as string | Date).getTime() >
-          lastRead.getTime();
+        !!lastReadTime && firstRenderedMessageTime > lastReadTime;
       const scrolledAboveSeparator =
-        !!lastRead &&
-        new Date(lastRenderedMessage.created_at as string | Date).getTime() <
-          lastRead.getTime();
+        !!lastReadTime && lastRenderedMessageTime < lastReadTime;
 
       setShow(
         showAlways

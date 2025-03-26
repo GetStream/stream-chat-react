@@ -1,3 +1,4 @@
+import type { ComponentProps, PropsWithChildren } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -11,7 +12,7 @@ import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import type { ComponentProps, PropsWithChildren } from 'react';
+import { localMessageToNewMessagePayload } from 'stream-chat';
 import type {
   APIErrorResponse,
   ChannelAPIResponse,
@@ -21,6 +22,7 @@ import type {
   ErrorFromResponse,
   Event,
   EventAPIResponse,
+  LocalMessage,
   Message,
   MessageResponse,
   SendMessageAPIResponse,
@@ -28,8 +30,6 @@ import type {
   Channel as StreamChannel,
   StreamChat,
   Thread,
-  UpdatedMessage,
-  UserResponse,
 } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
@@ -50,8 +50,6 @@ import type {
   ChannelNotifications,
   ComponentContextValue,
   MarkReadWrapperOptions,
-  MessageToSend,
-  StreamMessage,
 } from '../../context';
 import {
   ChannelActionProvider,
@@ -77,12 +75,7 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import {
-  findInMsgSetByDate,
-  findInMsgSetById,
-  generateMessageId,
-  makeAddNotifications,
-} from './utils';
+import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 
@@ -166,10 +159,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'StreamedMessageText'
 >;
 
-const isUserResponseArray = (
-  output: string[] | UserResponse[],
-): output is UserResponse[] => (output as UserResponse[])[0]?.id != null;
-
 export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   // todo: move to MessageComposer configuration
   /** List of accepted file types */
@@ -186,7 +175,7 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
    */
   channelQueryOptions?: ChannelQueryOptions;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-  doDeleteMessageRequest?: (message: StreamMessage) => Promise<MessageResponse>;
+  doDeleteMessageRequest?: (message: LocalMessage) => Promise<MessageResponse>;
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel,
@@ -201,7 +190,7 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
   doUpdateMessageRequest?: (
     cid: string,
-    updatedMessage: UpdatedMessage,
+    updatedMessage: LocalMessage | MessageResponse,
     options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat['updateMessage']>;
   /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
@@ -943,7 +932,7 @@ const ChannelInner = (
     );
 
   const deleteMessage = useCallback(
-    async (message: StreamMessage): Promise<MessageResponse> => {
+    async (message: LocalMessage): Promise<MessageResponse> => {
       if (!message?.id) {
         throw new Error('Cannot delete a message - missing message ID.');
       }
@@ -960,9 +949,9 @@ const ChannelInner = (
     [client, doDeleteMessageRequest],
   );
 
-  const updateMessage = (updatedMessage: MessageToSend | StreamMessage) => {
+  const updateMessage = (updatedMessage: MessageResponse | LocalMessage) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage as MessageResponse, true);
+    channel.state.addMessageSorted(updatedMessage, true);
 
     dispatch({
       channel,
@@ -971,43 +960,28 @@ const ChannelInner = (
     });
   };
 
-  const doSendMessage = async (
-    message: MessageToSend | StreamMessage,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => {
-    const { attachments, id, mentioned_users = [], parent_id, text } = message;
-
-    // channel.sendMessage expects an array of user id strings
-    const mentions = isUserResponseArray(mentioned_users)
-      ? mentioned_users.map(({ id }) => id)
-      : mentioned_users;
-
-    const messageData = {
-      attachments,
-      id,
-      mentioned_users: mentions,
-      parent_id,
-      // todo: move to message composer
-      // quoted_message_id:
-      //   parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
-      text,
-      ...customMessageData,
-    } as Message;
-
+  const doSendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     try {
       let messageResponse: void | SendMessageAPIResponse;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel, messageData, options);
+        messageResponse = await doSendMessageRequest(channel, message, options);
       } else {
-        messageResponse = await channel.sendMessage(messageData, options);
+        messageResponse = await channel.sendMessage(message, options);
       }
 
-      let existingMessage;
+      let existingMessage: LocalMessage | undefined = undefined;
       for (let i = channel.state.messages.length - 1; i >= 0; i--) {
         const msg = channel.state.messages[i];
-        if (msg.id && msg.id === messageData.id) {
+        if (msg.id && msg.id === message.id) {
           existingMessage = msg;
           break;
         }
@@ -1051,23 +1025,20 @@ const ChannelInner = (
         error.message.includes('already exists')
       ) {
         updateMessage({
-          ...message,
+          ...localMessage,
           status: 'received',
         });
       } else {
         updateMessage({
-          ...message,
+          ...localMessage,
           error: parsedError,
-          errorStatusCode: parsedError.status || undefined,
           status: 'failed',
         });
 
         thread?.upsertReplyLocally({
           message: {
-            ...message,
-            // @ts-expect-error error is local
+            ...localMessage,
             error: parsedError,
-            errorStatusCode: parsedError.status || undefined,
             status: 'failed',
           },
         });
@@ -1075,55 +1046,40 @@ const ChannelInner = (
     }
   };
 
-  const sendMessage = async (
-    { attachments = [], mentioned_users = [], parent, text = '' }: MessageToSend,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => {
+  const sendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     channel.state.filterErrorMessages();
 
-    const messagePreview = {
-      attachments,
-      created_at: new Date(),
-      html: text,
-      id: customMessageData?.id ?? generateMessageId({ client }),
-      mentioned_users,
-      parent_id: parent?.id,
-      reactions: [],
-      status: 'sending',
-      text,
-      type: 'regular',
-      user: client.user,
-    };
-
     thread?.upsertReplyLocally({
-      // @ts-expect-error message type mismatch
-      message: messagePreview,
+      message: localMessage,
     });
 
-    updateMessage(messagePreview);
+    updateMessage(localMessage);
 
-    await doSendMessage(messagePreview, customMessageData, options);
+    await doSendMessage({ localMessage, message, options });
   };
 
-  const retrySendMessage = async (message: StreamMessage) => {
+  const retrySendMessage = async (localMessage: LocalMessage) => {
     updateMessage({
-      ...message,
-      errorStatusCode: undefined,
+      ...localMessage,
+      error: null,
       status: 'sending',
     });
 
-    if (message.attachments) {
-      // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
-      message.attachments = message.attachments.filter(
-        (attachment) => !attachment.og_scrape_url,
-      );
-    }
-
-    await doSendMessage(message);
+    await doSendMessage({
+      localMessage,
+      message: localMessageToNewMessagePayload(localMessage),
+    });
   };
 
-  const removeMessage = (message: StreamMessage) => {
+  const removeMessage = (message: LocalMessage) => {
     channel.state.removeMessage(message);
 
     dispatch({
@@ -1135,7 +1091,7 @@ const ChannelInner = (
 
   /** THREAD */
 
-  const openThread = (message: StreamMessage, event?: React.BaseSyntheticEvent) => {
+  const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
     // todo: revisit how to open a thread
 
@@ -1162,7 +1118,7 @@ const ChannelInner = (
           threadInstance: t,
           type: 'openThread',
         });
-        client.threads.addThread(t);
+        // client.threads.addThread(t);
       });
   };
 

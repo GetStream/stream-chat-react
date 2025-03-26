@@ -1,12 +1,10 @@
-import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
+import React, { useContext } from 'react';
 import type {
-  APIErrorResponse,
   Channel,
   ChannelConfigWithInfo,
   DraftResponse,
-  ErrorFromResponse,
-  MessageResponse,
+  LocalMessage,
   Mute,
   ChannelState as StreamChannelState,
   Thread,
@@ -27,15 +25,17 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
-export type StreamMessage =
-  // FIXME: we should use only one of the two (either formatted or unformatted)
-  (ReturnType<StreamChannelState['formatMessage']> | MessageResponse) & {
-    customType?: string;
-    errorStatusCode?: number;
-    error?: ErrorFromResponse<APIErrorResponse>;
-    editing?: boolean;
-    date?: Date;
-  };
+// todo: 1. create LocalMessage that would contain the below in stream-chat
+// todo: 2. move errorStatusCode, error to stream-chat
+// export type StreamMessage =
+//   // FIXME: we should use only one of the two (either formatted or unformatted)
+//   (ReturnType<StreamChannelState['formatMessage']> | MessageResponse) & {
+//     customType?: string;
+//     errorStatusCode?: number;
+//     error?: ErrorFromResponse<APIErrorResponse>;
+//     // editing?: boolean;
+//     // date?: Date;
+//   };
 
 export type ChannelState = {
   suppressAutoscroll: boolean;
@@ -48,14 +48,14 @@ export type ChannelState = {
   loadingMoreNewer?: boolean;
   members?: StreamChannelState['members'];
   messageDraft: DraftResponse | null;
-  messages?: StreamMessage[];
-  pinnedMessages?: StreamMessage[];
+  messages?: LocalMessage[];
+  pinnedMessages?: LocalMessage[];
   read?: StreamChannelState['read'];
-  thread?: StreamMessage | null;
+  thread?: LocalMessage | null;
   threadHasMore?: boolean;
   threadInstance?: Thread;
   threadLoadingMore?: boolean;
-  threadMessages?: StreamMessage[];
+  threadMessages?: LocalMessage[];
   threadSuppressAutoscroll?: boolean;
   typing?: StreamChannelState['typing'];
   watcherCount?: number;

@@ -1,6 +1,5 @@
 import { nanoid } from 'nanoid';
-import type { OGAttachment, UserResponse } from 'stream-chat';
-import type { StreamMessage } from '../../../../context';
+import type { LocalMessage, OGAttachment, UserResponse } from 'stream-chat';
 import type { LinkPreviewMap } from '../../types';
 import { LinkPreviewState, type LocalAttachment } from '../../types';
 
@@ -24,7 +23,7 @@ export const makeEmptyMessageInputState = (): MessageInputState => ({
  * Initializes the state. Empty if the message prop is falsy.
  */
 export const initState = (
-  message?: Pick<StreamMessage, 'attachments' | 'mentioned_users' | 'text'>,
+  message?: Pick<LocalMessage, 'attachments' | 'mentioned_users' | 'text'>,
 ): MessageInputState => {
   if (!message) {
     return makeEmptyMessageInputState();
@@ -51,7 +50,7 @@ export const initState = (
           }) as LocalAttachment,
       ) || [];
 
-  const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
+  const mentioned_users: LocalMessage['mentioned_users'] = message.mentioned_users || [];
 
   return {
     attachments,

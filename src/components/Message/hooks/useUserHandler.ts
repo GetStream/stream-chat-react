@@ -1,13 +1,12 @@
 import type { User } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
-
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
 export type UserEventHandler = (event: React.BaseSyntheticEvent, user: User) => void;
 
 export const useUserHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   eventHandlers?: {
     onUserClickHandler?: UserEventHandler;
     onUserHoverHandler?: UserEventHandler;

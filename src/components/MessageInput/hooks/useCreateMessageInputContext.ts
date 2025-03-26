@@ -45,7 +45,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
     onSelectUser,
     openCommandsList,
     openMentionsList,
-    overrideSubmitHandler,
     parent,
     publishTypingEvent,
     recordingController,
@@ -63,7 +62,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
     useMentionsTransliteration,
   } = value;
 
-  const editing = message?.editing;
   const linkPreviewsValue = Array.from(linkPreviews.values()).join();
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
@@ -111,7 +109,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
       onSelectUser,
       openCommandsList,
       openMentionsList,
-      overrideSubmitHandler,
       parent,
       publishTypingEvent,
       recordingController,
@@ -137,7 +134,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
       cooldownInterval,
       cooldownRemaining,
       dismissLinkPreview,
-      editing,
       emojiSearchIndex,
       findAndEnqueueURLsToEnrich,
       handleSubmit,

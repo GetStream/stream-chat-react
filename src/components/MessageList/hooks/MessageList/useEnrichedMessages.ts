@@ -1,26 +1,24 @@
 import { useMemo } from 'react';
 
-import type { GroupStyle, ProcessMessagesParams } from '../../utils';
+import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from '../../utils';
 import { getGroupStyles, insertIntro, processMessages } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
-import type { Channel } from 'stream-chat';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import type { Channel, LocalMessage } from 'stream-chat';
 
 export const useEnrichedMessages = (args: {
   channel: Channel;
   disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
-  messages: StreamMessage[];
+  messages: LocalMessage[];
   noGroupByUser: boolean;
   groupStyles?: (
-    message: StreamMessage,
-    previousMessage: StreamMessage,
-    nextMessage: StreamMessage,
+    message: RenderedMessage,
+    previousMessage: RenderedMessage,
+    nextMessage: RenderedMessage,
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;

@@ -12,8 +12,8 @@ import {
 import { renderText as defaultRenderText } from './renderText';
 import { MessageErrorText } from './MessageErrorText';
 
-import type { TranslationLanguages } from 'stream-chat';
-import type { MessageContextValue, StreamMessage } from '../../context';
+import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
 
 export type MessageTextProps = {
   /* Replaces the CSS class name placed on the component's inner `div` container */
@@ -21,7 +21,7 @@ export type MessageTextProps = {
   /* Adds a CSS class name to the component's outer `div` container */
   customWrapperClass?: string;
   /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`) */
-  message?: StreamMessage;
+  message?: LocalMessage;
   /* Theme string to be added to CSS class names */
   theme?: string;
 } & Pick<MessageContextValue, 'renderText'>;

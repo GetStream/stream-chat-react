@@ -1,11 +1,12 @@
 import type {
   Channel,
+  LocalMessage,
   MessageResponse,
   ChannelState as StreamChannelState,
   Thread,
 } from 'stream-chat';
 
-import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
+import type { ChannelState } from '../../context/ChannelStateContext';
 
 export type ChannelStateReducerAction =
   | {
@@ -35,12 +36,12 @@ export type ChannelStateReducerAction =
     }
   | {
       hasMore: boolean;
-      messages: StreamMessage[];
+      messages: LocalMessage[];
       type: 'loadMoreFinished';
     }
   | {
       hasMoreNewer: boolean;
-      messages: StreamMessage[];
+      messages: LocalMessage[];
       type: 'loadMoreNewerFinished';
     }
   | {
@@ -50,7 +51,7 @@ export type ChannelStateReducerAction =
     }
   | {
       channel: Channel;
-      message: StreamMessage;
+      message: LocalMessage;
       type: 'openThread';
       threadInstance?: Thread;
     }
@@ -67,7 +68,7 @@ export type ChannelStateReducerAction =
       type: 'setLoadingMoreNewer';
     }
   | {
-      message: StreamMessage;
+      message: LocalMessage;
       type: 'setThread';
     }
   | {

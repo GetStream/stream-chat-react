@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import clsx from 'clsx';
 
-import type { FormatMessageResponse, ThreadState } from 'stream-chat';
+import type { LocalMessage, ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
@@ -36,7 +36,7 @@ const getTitleFromMessage = ({
   message,
 }: {
   currentUserId?: string;
-  message?: FormatMessageResponse;
+  message?: LocalMessage;
 }) => {
   const attachment = message?.attachments?.at(0);
 

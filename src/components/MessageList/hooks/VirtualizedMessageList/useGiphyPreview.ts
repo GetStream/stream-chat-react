@@ -2,16 +2,15 @@ import { useEffect, useState } from 'react';
 
 import { useChatContext } from '../../../../context/ChatContext';
 
-import type { EventHandler } from 'stream-chat';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import type { EventHandler, LocalMessage } from 'stream-chat';
 
 export const useGiphyPreview = (separateGiphyPreview: boolean) => {
-  const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<StreamMessage>();
+  const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<LocalMessage>();
 
   const { client } = useChatContext('useGiphyPreview');
 
   useEffect(() => {
+    if (!separateGiphyPreview) return;
     const handleEvent: EventHandler = (event) => {
       const { message, user } = event;
 
@@ -20,7 +19,7 @@ export const useGiphyPreview = (separateGiphyPreview: boolean) => {
       }
     };
 
-    if (separateGiphyPreview) client.on('message.new', handleEvent);
+    client.on('message.new', handleEvent);
     return () => client.off('message.new', handleEvent);
   }, [client, separateGiphyPreview]);
 

@@ -89,7 +89,7 @@ export const TextAreaComposer = ({
 }: TextComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
-  const { cooldownRemaining, textareaRef } = useMessageInputContext();
+  const { cooldownRemaining, handleSubmit, textareaRef } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
 
@@ -173,7 +173,7 @@ export const TextAreaComposer = ({
        */
       // await replaceWord?.(text);
       textareaRef.current.selectionEnd = 0;
-      messageComposer.sendMessage();
+      handleSubmit();
       textComposer.closeSuggestions();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

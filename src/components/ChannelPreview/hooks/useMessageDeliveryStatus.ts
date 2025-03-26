@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, Event, LocalMessage, UserResponse } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
-
-import type { StreamMessage } from '../../../context';
 
 export enum MessageDeliveryStatus {
   DELIVERED = 'delivered',
@@ -13,7 +11,7 @@ export enum MessageDeliveryStatus {
 type UseMessageStatusParamsChannelPreviewProps = {
   channel: Channel;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage;
+  lastMessage?: LocalMessage;
 };
 
 export const useMessageDeliveryStatus = ({
@@ -26,7 +24,8 @@ export const useMessageDeliveryStatus = ({
   >();
 
   const isOwnMessage = useCallback(
-    (message?: StreamMessage) => client.user && message?.user?.id === client.user.id,
+    (message?: { user?: UserResponse | null }) =>
+      client.user && message?.user?.id === client.user.id,
     [client],
   );
 
