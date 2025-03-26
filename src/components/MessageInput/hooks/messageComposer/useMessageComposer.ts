@@ -3,6 +3,7 @@ import { MessageComposer } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
 import { useChannelStateContext, useMessageInputContext } from '../../../../context';
 import type { LocalMessage, TextComposerMiddleware } from 'stream-chat';
+import { useLegacyThreadContext } from '../../../Thread';
 
 export type UseMessageComposerParams = {
   textComposerMiddleware?: TextComposerMiddleware[];
@@ -14,7 +15,7 @@ export const useMessageComposer = ({
   const { channel } = useChannelStateContext();
   const { message: editedMessage } = useMessageInputContext();
   // legacy thread will receive new composer
-  const { thread: parentMessage } = useChannelStateContext();
+  const { legacyThread: parentMessage, messageDraft } = useLegacyThreadContext();
   const thread = useThreadContext();
   const detachedMessageComposerRef = useRef<MessageComposer>(
     new MessageComposer({ channel }),
@@ -43,14 +44,22 @@ export const useMessageComposer = ({
     if (cachedEditedMessage) {
       const composer = new MessageComposer({ channel, composition: cachedEditedMessage });
       // todo: remove with factory functions introduction
-      if (textComposerMiddleware) composer.textComposer.use(textComposerMiddleware);
+      if (textComposerMiddleware) {
+        composer.textComposer.use(textComposerMiddleware);
+      }
       return composer;
     } else if (thread) {
       return thread.messageComposer;
     } else if (cachedParentMessage) {
-      const composer = new MessageComposer({ channel, threadId: cachedParentMessage.id });
+      const composer = new MessageComposer({
+        channel,
+        composition: messageDraft,
+        threadId: cachedParentMessage.id,
+      });
       // todo: remove with factory functions introduction
-      if (textComposerMiddleware) composer.textComposer.use(textComposerMiddleware);
+      if (textComposerMiddleware) {
+        composer.textComposer.use(textComposerMiddleware);
+      }
       return composer;
     } else if (channel) {
       return channel.messageComposer;
@@ -58,7 +67,14 @@ export const useMessageComposer = ({
       // should never reach this point
       return detachedMessageComposerRef.current;
     }
-  }, [cachedEditedMessage, cachedParentMessage, channel, textComposerMiddleware, thread]);
+  }, [
+    cachedEditedMessage,
+    cachedParentMessage,
+    channel,
+    messageDraft, // TODO: set message draft after the fact
+    textComposerMiddleware,
+    thread,
+  ]);
 
   useEffect(() => {
     messageComposer.registerSubscriptions();

@@ -3,11 +3,16 @@ import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
 
+import type { SuggestionItemProps } from './SuggestionListItem';
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
 
-import type { SuggestionHeaderProps, SuggestionItemProps } from '../ChatAutoComplete';
+export interface SuggestionHeaderProps {
+  currentTrigger: string;
+  value: string;
+}
+
 import type { TextComposerState } from 'stream-chat';
-import { type SearchSourceState } from 'stream-chat';
+import type { SearchSourceState } from 'stream-chat';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 import { useStateStore } from '../../store';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';

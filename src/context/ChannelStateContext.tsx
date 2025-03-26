@@ -53,7 +53,6 @@ export type ChannelState = {
   read?: StreamChannelState['read'];
   thread?: LocalMessage | null;
   threadHasMore?: boolean;
-  threadInstance?: Thread;
   threadLoadingMore?: boolean;
   threadMessages?: LocalMessage[];
   threadSuppressAutoscroll?: boolean;

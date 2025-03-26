@@ -29,7 +29,6 @@ import type {
   SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
-  Thread,
 } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
@@ -150,7 +149,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ThreadHeader'
   | 'ThreadStart'
   | 'Timestamp'
-  | 'TriggerProvider'
   | 'TypingIndicator'
   | 'UnreadMessagesNotification'
   | 'UnreadMessagesSeparator'
@@ -1095,31 +1093,7 @@ const ChannelInner = (
     event?.preventDefault();
     // todo: revisit how to open a thread
 
-    const threadInstance = client.threads.threadsById[message.id];
-    if (threadInstance) {
-      dispatch({ channel, message, threadInstance, type: 'openThread' });
-      return;
-    }
-
-    dispatch({
-      channel,
-      message,
-      threadInstance: {} as Thread,
-      type: 'openThread',
-    });
-
-    client
-      .getThread(message.id, { reply_limit: DEFAULT_THREAD_PAGE_SIZE })
-      .then((t: Thread) => {
-        t.registerSubscriptions();
-        dispatch({
-          channel,
-          message,
-          threadInstance: t,
-          type: 'openThread',
-        });
-        // client.threads.addThread(t);
-      });
+    dispatch({ channel, message, type: 'openThread' });
   };
 
   const closeThread = (event?: React.BaseSyntheticEvent) => {
@@ -1148,13 +1122,7 @@ const ChannelInner = (
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (
-      state.threadInstance ||
-      state.threadLoadingMore ||
-      !state.thread ||
-      !state.threadHasMore
-    )
-      return;
+    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentId = state.thread.id;
@@ -1315,7 +1283,6 @@ const ChannelInner = (
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
       Timestamp: props.Timestamp,
-      TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
       UnreadMessagesSeparator: props.UnreadMessagesSeparator,
@@ -1373,7 +1340,6 @@ const ChannelInner = (
       props.ThreadHeader,
       props.ThreadStart,
       props.Timestamp,
-      props.TriggerProvider,
       props.TypingIndicator,
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
