@@ -20,6 +20,7 @@ export const useSubmitHandler = (props: MessageInputProps) => {
   const handleSubmit = useCallback(
     async (
       event?: React.BaseSyntheticEvent,
+      // todo: think how can custom data be passed to both edited and created message. Do we want to keep customMessageData param
       customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
     ) => {
       event?.preventDefault();
