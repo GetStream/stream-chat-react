@@ -1,13 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { TextComposerMiddleware } from 'stream-chat';
-import {
-  createCommandsMiddleware,
-  createMentionsMiddleware,
-  MessageComposer,
-} from 'stream-chat';
-import type { LocalMessage } from 'stream-chat';
+import { MessageComposer } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
 import { useChannelStateContext, useMessageInputContext } from '../../../../context';
+import type { LocalMessage, TextComposerMiddleware } from 'stream-chat';
 
 export type UseMessageComposerParams = {
   textComposerMiddleware?: TextComposerMiddleware[];
@@ -47,25 +42,15 @@ export const useMessageComposer = ({
   const messageComposer = useMemo(() => {
     if (cachedEditedMessage) {
       const composer = new MessageComposer({ channel, composition: cachedEditedMessage });
-      composer.textComposer.use(
-        textComposerMiddleware ??
-          ([
-            createCommandsMiddleware(channel),
-            createMentionsMiddleware(channel),
-          ] as TextComposerMiddleware[]),
-      );
+      // todo: remove with factory functions introduction
+      if (textComposerMiddleware) composer.textComposer.use(textComposerMiddleware);
       return composer;
     } else if (thread) {
       return thread.messageComposer;
     } else if (cachedParentMessage) {
       const composer = new MessageComposer({ channel, threadId: cachedParentMessage.id });
-      composer.textComposer.use(
-        textComposerMiddleware ??
-          ([
-            createCommandsMiddleware(channel),
-            createMentionsMiddleware(channel),
-          ] as TextComposerMiddleware[]),
-      );
+      // todo: remove with factory functions introduction
+      if (textComposerMiddleware) composer.textComposer.use(textComposerMiddleware);
       return composer;
     } else if (channel) {
       return channel.messageComposer;
