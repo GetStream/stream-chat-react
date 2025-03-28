@@ -38,7 +38,6 @@ export const useMessageComposer = ({
   // composer hierarchy
   // edited message (always new) -> thread instance (own) -> thread message (always new) -> channel (own)
   // editedMessage ?? thread ?? parentMessage ?? channel;
-
   const messageComposer = useMemo(() => {
     if (cachedEditedMessage) {
       const composer = new MessageComposer({ channel, composition: cachedEditedMessage });

@@ -24,8 +24,8 @@ export const useSubmitHandler = (props: MessageInputProps) => {
       customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
     ) => {
       event?.preventDefault();
-      const compostion = await messageComposer.compose();
-      if (!compostion || !compostion.message) return;
+      const composition = await messageComposer.compose();
+      if (!composition || !composition.message) return;
 
       // todo: plug in the client's notification system
       // if (notification?.type === 'error') {
@@ -33,7 +33,7 @@ export const useSubmitHandler = (props: MessageInputProps) => {
       //   return;
       // }
 
-      const { localMessage, message, sendOptions } = compostion;
+      const { localMessage, message, sendOptions } = composition;
 
       if (messageComposer.editedMessage && localMessage.type !== 'error') {
         try {
