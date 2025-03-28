@@ -133,9 +133,9 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
   }
 
   useEffect(() => {
-    messageComposer.registerSubscriptions();
+    const unsubscribe = messageComposer.registerSubscriptions();
     return () => {
-      messageComposer.unregisterSubscriptions();
+      unsubscribe();
     };
   }, [messageComposer]);
 
