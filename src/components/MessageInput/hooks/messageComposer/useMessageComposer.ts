@@ -5,66 +5,55 @@ import { useChannelStateContext, useMessageInputContext } from '../../../../cont
 import type { LocalMessage } from 'stream-chat';
 import { useLegacyThreadContext } from '../../../Thread';
 
-class FixedSizeQueueCache<T> {
-  private elements: Array<T>;
+class FixedSizeQueueCache<K, T> {
+  private keys: Array<K>;
   private size: number;
+  private valueByKey: Map<K, T>;
   constructor(size: number) {
     if (!size) throw new Error('Size must be greater than 0');
-    this.elements = [];
+    this.keys = [];
     this.size = size;
+    this.valueByKey = new Map();
   }
 
-  add(...values: T[]) {
-    const pushableValues =
-      values.length > this.size ? values.slice(values.length - this.size) : values;
+  add(key: K, value: T) {
+    const index = this.keys.indexOf(key);
 
-    if (pushableValues.length === this.size) {
-      // this.elements.splice(0, this.size - 1);
-      this.elements.length = 0;
-      this.elements.push(...pushableValues);
-    } else {
-      for (const value of pushableValues) {
-        if (this.elements.length >= this.size) {
-          this.elements.shift();
-        }
+    if (index > -1) {
+      this.keys.splice(this.keys.indexOf(key), 1);
+    } else if (this.keys.length >= this.size) {
+      const elementKey = this.keys.shift();
 
-        this.elements.push(value);
+      if (elementKey) {
+        this.valueByKey.delete(elementKey);
       }
     }
+
+    this.keys.push(key);
+    this.valueByKey.set(key, value);
   }
 
-  // returns value without shifting it to the end of the array
-  peek(predicate: (element: T) => boolean) {
-    // start searching from the most recent (end of array)
-    for (let index = 0; index < this.elements.length; index++) {
-      const element = this.elements[this.elements.length - 1 - index];
-      const predicateResult = predicate(element);
+  peek(key: K) {
+    const value = this.valueByKey.get(key);
 
-      if (predicateResult) return element;
-    }
-
-    return null;
+    return value;
   }
 
-  get(predicate: (element: T) => boolean) {
-    const foundElement = this.peek(predicate);
+  get(key: K) {
+    const foundElement = this.peek(key);
 
-    if (foundElement && this.elements.indexOf(foundElement) !== this.size - 1) {
-      this.elements.splice(this.elements.indexOf(foundElement), 1);
-      this.elements.push(foundElement);
+    if (foundElement && this.keys.indexOf(key) !== this.size - 1) {
+      this.keys.splice(this.keys.indexOf(key), 1);
+      this.keys.push(key);
     }
 
     return foundElement;
-  }
-
-  toArray() {
-    return [...this.elements];
   }
 }
 
 export type UseMessageComposerParams = unknown;
 
-const queueCache = new FixedSizeQueueCache<MessageComposer>(64);
+const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
   const { channel } = useChannelStateContext();
@@ -99,7 +88,7 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
     if (cachedEditedMessage) {
       const tag = `edited-message-${cachedEditedMessage.id}`;
 
-      const element = queueCache.get((element) => element.tag === tag);
+      const element = queueCache.get(tag);
       if (element) return element;
 
       const c = new MessageComposer({
@@ -108,15 +97,13 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
         tag,
       });
 
-      // FIXME: don't like this side effect here
-      queueCache.add(c);
       return c;
     } else if (threadInstance) {
       return threadInstance.messageComposer;
     } else if (cachedParentMessage) {
       const tag = `parent-message-${cachedParentMessage.id}`;
 
-      const element = queueCache.get((element) => element.tag === tag);
+      const element = queueCache.get(tag);
       if (element) return element;
 
       const c = new MessageComposer({
@@ -126,7 +113,6 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
         threadId: cachedParentMessage.id,
       });
 
-      queueCache.add(c);
       return c;
     } else if (channel) {
       return channel.messageComposer;
@@ -141,6 +127,10 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
     messageDraft, // TODO: set message draft after the fact
     threadInstance,
   ]);
+
+  if (!queueCache.peek(messageComposer.tag)) {
+    queueCache.add(messageComposer.tag, messageComposer);
+  }
 
   useEffect(() => {
     messageComposer.registerSubscriptions();
