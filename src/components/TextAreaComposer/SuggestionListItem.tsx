@@ -1,7 +1,13 @@
 import type { MouseEventHandler, Ref } from 'react';
 import React, { useCallback } from 'react';
 import clsx from 'clsx';
-import type { SuggestionItem } from '../ChatAutoComplete';
+import type { CommandResponse, UserResponse } from 'stream-chat';
+import type { EmojiSearchIndexResult } from '../MessageInput';
+
+export type SuggestionCommand = CommandResponse;
+export type SuggestionUser = UserResponse;
+export type SuggestionEmoji = EmojiSearchIndexResult;
+export type SuggestionItem = SuggestionUser | SuggestionCommand | SuggestionEmoji;
 
 export type SuggestionItemProps = {
   component: React.ComponentType<{

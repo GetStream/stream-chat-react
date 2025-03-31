@@ -7,7 +7,6 @@ export * from './ChannelList';
 export * from './ChannelPreview';
 export * from './ChannelSearch';
 export * from './Chat';
-export * from './ChatAutoComplete';
 export * from './CommandItem';
 export * from './DateSeparator';
 export * from './Dialog';
