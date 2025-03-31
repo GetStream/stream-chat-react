@@ -295,7 +295,6 @@ export const useMessageInputState = (
     enabled: !!audioRecordingEnabled,
     handleSubmit,
     recordingConfig: audioRecordingConfig,
-    uploadAttachment,
   });
 
   const isUploadEnabled = !!channelCapabilities['upload-file'];
