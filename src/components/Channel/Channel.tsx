@@ -1067,7 +1067,7 @@ const ChannelInner = (
   const retrySendMessage = async (localMessage: LocalMessage) => {
     updateMessage({
       ...localMessage,
-      error: null,
+      error: undefined,
       status: 'sending',
     });
 

@@ -21,6 +21,6 @@ export const useEditMessageHandler = (doUpdateMessageRequest?: UpdateHandler) =>
         doUpdateMessageRequest(channel.cid, updatedMessage, options),
       );
     }
-    return client.updateMessage(updatedMessage, options);
+    return client.updateMessage(updatedMessage, undefined, options);
   };
 };
