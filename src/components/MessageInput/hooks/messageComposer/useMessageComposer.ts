@@ -54,6 +54,7 @@ class FixedSizeQueueCache<K, T> {
 export type UseMessageComposerParams = unknown;
 
 const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
   const { channel } = useChannelStateContext();

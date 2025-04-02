@@ -1,8 +1,9 @@
 import type { PropsWithChildren } from 'react';
+import { useEffect } from 'react';
 import React from 'react';
 
-// import { MessageDraftSynchronizer as DefaultMessageDraftSynchronizer } from './MessageDraftSynchronizer';
 import { MessageInputFlat } from './MessageInputFlat';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
@@ -129,6 +130,18 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
+  const messageComposer = useMessageComposer();
+
+  useEffect(
+    () =>
+      // create draft when leaving the channel
+
+      () => {
+        messageComposer.createDraft();
+      },
+    [messageComposer],
+  );
+
   return (
     <MessageInputContextProvider value={messageInputContextValue}>
       {props.children}
@@ -140,10 +153,7 @@ const UnMemoizedMessageInput = (props: MessageInputProps) => {
   const { Input: PropInput } = props;
 
   const { dragAndDropWindow } = useChannelStateContext();
-  const {
-    Input: ContextInput,
-    // MessageDraftSynchronizer = DefaultMessageDraftSynchronizer,
-  } = useComponentContext('MessageInput');
+  const { Input: ContextInput } = useComponentContext('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
@@ -160,7 +170,6 @@ const UnMemoizedMessageInput = (props: MessageInputProps) => {
   return (
     <DialogManagerProvider id={dialogManagerId}>
       <MessageInputProvider {...props}>
-        {/*<MessageDraftSynchronizer />*/}
         <Input />
       </MessageInputProvider>
     </DialogManagerProvider>

@@ -38,8 +38,8 @@ export const useSubmitHandler = (props: MessageInputProps) => {
       if (messageComposer.editedMessage && localMessage.type !== 'error') {
         try {
           await editMessage({ ...localMessage, ...customMessageData }, sendOptions);
-
           clearEditingState?.();
+          messageComposer.clear();
         } catch (err) {
           addNotification(t('Edit message request failed'), 'error');
         }
