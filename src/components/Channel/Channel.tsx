@@ -128,6 +128,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'Message'
   | 'MessageActions'
   | 'MessageBouncePrompt'
+  | 'MessageBlocked'
   | 'MessageDeleted'
   | 'MessageListNotifications'
   | 'MessageListMainPanel'

@@ -67,6 +67,7 @@
   "Message deleted": "Mensaje eliminado",
   "Message has been successfully flagged": "El mensaje se marcó correctamente",
   "Message pinned": "Mensaje fijado",
+  "Message was blocked by moderation policies": "El mensaje fue bloqueado por las políticas de moderación",
   "Messages have been marked unread.": "Los mensajes han sido marcados como no leídos.",
   "Missing permissions to upload the attachment": "Faltan permisos para subir el archivo adjunto",
   "Multiple answers": "Múltiples respuestas",
