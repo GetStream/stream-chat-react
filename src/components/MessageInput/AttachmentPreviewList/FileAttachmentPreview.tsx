@@ -1,23 +1,21 @@
 import React from 'react';
+import { useTranslationContext } from '../../../context';
 import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
-import { useTranslationContext } from '../../../context';
 
-import type { AttachmentPreviewProps } from './types';
-import type { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
-import type { Attachment } from 'stream-chat';
+import type {
+  LocalAudioAttachment,
+  LocalFileAttachment,
+  LocalVideoAttachment,
+} from 'stream-chat';
+import type { UploadAttachmentPreviewProps } from './types';
 
-type FileLikeAttachment = Partial<
-  Pick<Attachment, 'title' | 'file_size' | 'asset_url' | 'mime_type'>
->;
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type FileAttachmentPreviewProps<CustomLocalMetadata = {}> = AttachmentPreviewProps<
-  LocalAttachmentCast<
-    FileLikeAttachment,
-    LocalAttachmentUploadMetadata & CustomLocalMetadata
-  >
->;
+export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
+  UploadAttachmentPreviewProps<
+    | LocalFileAttachment<CustomLocalMetadata>
+    | LocalAudioAttachment<CustomLocalMetadata>
+    | LocalVideoAttachment<CustomLocalMetadata>
+  >;
 
 export const FileAttachmentPreview = ({
   attachment,
@@ -26,6 +24,7 @@ export const FileAttachmentPreview = ({
 }: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
   const uploadState = attachment.localMetadata?.uploadState;
+
   return (
     <div
       className='str-chat__attachment-preview-file'

@@ -1,26 +1,26 @@
 import type { ComponentType } from 'react';
 import React from 'react';
-import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
-import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
-import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
-import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
-import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
-import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
-import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
-import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
 import {
   isLocalAttachment,
   isLocalAudioAttachment,
   isLocalFileAttachment,
   isLocalImageAttachment,
-  isLocalMediaAttachment,
+  isLocalVideoAttachment,
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
-} from '../../Attachment';
+} from 'stream-chat';
+import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
+import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
+import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
+import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
+import { useMessageComposer } from '../hooks/messageComposer/useMessageComposer';
+import { useStateStore } from '../../../store';
 
 import type { AttachmentManagerState } from 'stream-chat';
-import { useStateStore } from '../../../store';
-import { useMessageComposer } from '../hooks/messageComposer/useMessageComposer';
+import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
+import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
+import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
 
 const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
   attachments: state.attachments,
@@ -76,7 +76,7 @@ export const AttachmentPreviewList = ({
                 removeAttachments={messageComposer.attachmentManager.removeAttachments}
               />
             );
-          } else if (isLocalMediaAttachment(attachment)) {
+          } else if (isLocalVideoAttachment(attachment)) {
             return (
               <VideoAttachmentPreview
                 attachment={attachment}

@@ -47,7 +47,7 @@ const ensureIsLocalAttachment = (
   attachment: Attachment | LocalAttachment,
 ): LocalAttachment => {
   if (isLocalAttachment(attachment)) {
-    return attachment;
+    return attachment as LocalAttachment;
   }
   // local is considered local only if localMetadata has `id` so this is to doublecheck
   const { localMetadata, ...rest } = attachment as LocalAttachment;

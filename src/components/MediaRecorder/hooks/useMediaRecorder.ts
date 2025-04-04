@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { MessageInputContextValue } from '../../../context';
-import { useTranslationContext } from '../../../context';
-import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
 import { MediaRecorderController } from '../classes';
-
-import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
+import { useTranslationContext } from '../../../context';
 import { useMessageComposer } from '../../MessageInput/hooks/messageComposer/useMessageComposer';
+
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
+import type { MessageInputContextValue } from '../../../context';
 
 export type RecordingController = {
   completeRecording: () => void;

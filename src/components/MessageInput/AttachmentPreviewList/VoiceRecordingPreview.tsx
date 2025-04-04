@@ -4,11 +4,11 @@ import { RecordingTimer } from '../../MediaRecorder';
 import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import { FileIcon } from '../../ReactFileUtilities';
 import { useAudioController } from '../../Attachment/hooks/useAudioController';
-import type { AttachmentPreviewProps } from './types';
-import type { LocalVoiceRecordingAttachment } from '../types';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { UploadAttachmentPreviewProps } from './types';
 
 export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
-  AttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
+  UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
 
 export const VoiceRecordingPreview = ({
   attachment,

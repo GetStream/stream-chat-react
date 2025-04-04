@@ -1,13 +1,19 @@
 import React from 'react';
+import { isLocalUploadAttachment } from 'stream-chat';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import { FileIcon } from '../../ReactFileUtilities';
 import { useTranslationContext } from '../../../context';
-import type { AttachmentPreviewProps } from './types';
-import type { AnyLocalAttachment } from '../types';
+import type { AnyLocalAttachment, LocalUploadAttachment } from 'stream-chat';
 
 export type UnsupportedAttachmentPreviewProps<
   CustomLocalMetadata = Record<string, unknown>,
-> = AttachmentPreviewProps<AnyLocalAttachment<CustomLocalMetadata>>;
+> = {
+  attachment: AnyLocalAttachment<CustomLocalMetadata>;
+  handleRetry: (
+    attachment: LocalUploadAttachment,
+  ) => void | Promise<LocalUploadAttachment | undefined>;
+  removeAttachments: (ids: string[]) => void;
+};
 
 export const UnsupportedAttachmentPreview = ({
   attachment,
@@ -37,15 +43,17 @@ export const UnsupportedAttachmentPreview = ({
         <CloseIcon />
       </button>
 
-      {attachment.localMetadata?.uploadState === 'failed' && !!handleRetry && (
-        <button
-          className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
-          data-testid='file-preview-item-retry-button'
-          onClick={() => handleRetry(attachment)}
-        >
-          <RetryIcon />
-        </button>
-      )}
+      {isLocalUploadAttachment(attachment) &&
+        attachment.localMetadata?.uploadState === 'failed' &&
+        !!handleRetry && (
+          <button
+            className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
+            data-testid='file-preview-item-retry-button'
+            onClick={() => handleRetry(attachment)}
+          >
+            <RetryIcon />
+          </button>
+        )}
 
       <div className='str-chat__attachment-preview-metadata'>
         <div className='str-chat__attachment-preview-title' title={title}>
