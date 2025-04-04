@@ -1,13 +1,19 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
-import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import { useChannelStateContext, useTranslationContext } from '../../context';
-import type { PartialSelected } from '../../types/types';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
-import { useIsUploadEnabled } from '../MessageInput/hooks/messageComposer/useIsUploadEnabled';
+import { useAttachmentManagerState } from '../MessageInput/hooks/messageComposer/useAttachmentManagerState';
+import { useStateStore } from '../../store';
+import type { ComponentProps } from 'react';
+import type { AttachmentManagerConfig } from 'stream-chat';
+import type { PartialSelected } from '../../types/types';
+
+const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
+  maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
+});
 
 /**
  * @deprecated Use FileInputProps instead.
@@ -44,16 +50,20 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
 ) {
   const { t } = useTranslationContext('UploadFileInput');
   const { acceptedFiles = [] } = useChannelStateContext('UploadFileInput');
-  const messageComposer = useMessageComposer();
-  const { isUploadEnabled } = useIsUploadEnabled();
+  const { attachmentManager } = useMessageComposer();
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const { maxNumberOfFilesPerMessage } = useStateStore(
+    attachmentManager.configState,
+    attachmentManagerConfigStateSelector,
+  );
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(
     (files: Array<File>) => {
-      messageComposer.attachmentManager.uploadFiles(files);
+      attachmentManager.uploadFiles(files);
       onFileChangeCustom?.(files);
     },
-    [onFileChangeCustom, messageComposer],
+    [onFileChangeCustom, attachmentManager],
   );
 
   return (
@@ -63,7 +73,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
       data-testid='file-input'
       disabled={!isUploadEnabled} // todo: check whether cooldownremaining is also necessary
       id={id}
-      multiple={messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1}
+      multiple={maxNumberOfFilesPerMessage > 1}
       {...props}
       className={clsx('str-chat__file-input', className)}
       onFileChange={onFileChange}

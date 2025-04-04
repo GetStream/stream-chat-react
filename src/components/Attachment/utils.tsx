@@ -8,8 +8,8 @@ import type {
   VoiceRecordingAttachment,
 } from 'stream-chat';
 
+import type { LocalFileAttachment, LocalVideoAttachment } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
-import type { LocalFileAttachment, LocalVideoAttachment } from '../MessageInput';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',

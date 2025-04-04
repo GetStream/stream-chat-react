@@ -20,6 +20,9 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { TextAreaComposer } from '../TextAreaComposer';
+import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -28,14 +31,13 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
-import { AIStates, useAIState } from '../AIStateIndicator';
-import type { AttachmentManagerState, TextComposerState } from 'stream-chat';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
-import { TextAreaComposer } from '../TextAreaComposer';
+import type { AttachmentManagerConfig, TextComposerState } from 'stream-chat';
+import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 
-const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
-  attachments: state.attachments,
+const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
+  maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
 });
+
 const textComposerStateSelector = (state: TextComposerState) => state;
 
 export const MessageInputFlat = () => {
@@ -43,10 +45,8 @@ export const MessageInputFlat = () => {
   const {
     asyncMessagesMultiSendEnabled,
     cooldownRemaining,
-    findAndEnqueueURLsToEnrich,
     handleSubmit,
     hideSendButton,
-    linkPreviews,
     message,
     recordingController,
     setCooldownRemaining,
@@ -67,7 +67,7 @@ export const MessageInputFlat = () => {
   } = useComponentContext('MessageInputFlat');
   const { acceptedFiles = [] } = useChannelStateContext('MessageInputFlat');
   const { channel } = useChatContext('MessageInputFlat');
-  const messageComposer = useMessageComposer();
+  const { attachmentManager, textComposer } = useMessageComposer();
 
   const { aiState } = useAIState(channel);
 
@@ -90,21 +90,22 @@ export const MessageInputFlat = () => {
     [acceptedFiles],
   );
 
-  const { attachments } = useStateStore(
-    messageComposer.attachmentManager.state,
-    attachmentManagerStateSelector,
+  const { attachments, isUploadEnabled } = useAttachmentManagerState();
+  const { maxNumberOfFilesPerMessage } = useStateStore(
+    attachmentManager.configState,
+    attachmentManagerConfigStateSelector,
   );
   const { text: actualText } = useStateStore(
-    messageComposer.textComposer.state,
+    textComposer.state,
     textComposerStateSelector,
   );
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
     accept,
-    disabled: !messageComposer.attachmentManager.isUploadEnabled || !!cooldownRemaining,
-    multiple: messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1,
+    disabled: !isUploadEnabled || !!cooldownRemaining,
+    multiple: maxNumberOfFilesPerMessage > 1,
     noClick: true,
-    onDrop: messageComposer.attachmentManager.uploadFiles,
+    onDrop: attachmentManager.uploadFiles,
   });
 
   if (recordingController.recordingState) return <AudioRecorder />;
@@ -137,9 +138,7 @@ export const MessageInputFlat = () => {
               permissionName={RecordingPermission.MIC}
             />
           )}
-        {findAndEnqueueURLsToEnrich && (
-          <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
-        )}
+        <LinkPreviewList />
         {isDragActive && (
           <div
             className={clsx('str-chat__dropzone-container', {
@@ -156,12 +155,9 @@ export const MessageInputFlat = () => {
           <AttachmentSelector />
           <div className='str-chat__message-textarea-container'>
             <QuotedMessagePreview />
-            {messageComposer.attachmentManager.isUploadEnabled &&
-              attachments.length > 0 && <AttachmentPreviewList />}
-
+            <AttachmentPreviewList />
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <TextAreaComposer />
-
               {EmojiPicker && <EmojiPicker />}
             </div>
           </div>
@@ -180,8 +176,7 @@ export const MessageInputFlat = () => {
                     <SendButton
                       disabled={
                         !actualText.length &&
-                        attachments.length ===
-                          messageComposer.attachmentManager.failedUploadsCount
+                        attachments.length === attachmentManager.failedUploadsCount
                       }
                       sendMessage={handleSubmit}
                     />

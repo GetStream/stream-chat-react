@@ -16,7 +16,7 @@ import type { MessageInputProps } from './MessageInput';
 
 import type { UnknownType } from '../../types/types';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
-import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
+import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 
 // const attachmentManagerStateSelector = <
 //
@@ -29,7 +29,7 @@ const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
 
   const { cooldownRemaining } = useMessageInputContext('DropzoneProvider');
   const messageComposer = useMessageComposer();
-  const { availableUploadSlots, isUploadEnabled } = useIsUploadEnabled();
+  const { availableUploadSlots, isUploadEnabled } = useAttachmentManagerState();
 
   return (
     <ImageDropzone

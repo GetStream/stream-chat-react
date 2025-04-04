@@ -15,7 +15,6 @@ import type {
   EventComponentProps,
   FixedHeightMessageProps,
   GiphyPreviewMessageProps,
-  LinkPreviewListProps,
   LoadingIndicatorProps,
   MessageBouncePromptProps,
   MessageDeletedProps,
@@ -113,7 +112,7 @@ export type ComponentContextValue = {
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps>;
   /** Custom component to render link previews in message input **/
-  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
+  LinkPreviewList?: React.ComponentType;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */

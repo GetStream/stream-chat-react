@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 import * as linkify from 'linkifyjs';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, LocalAttachment } from 'stream-chat';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -20,7 +20,6 @@ import type {
 } from './utils';
 import { isGalleryAttachmentType, isSvgAttachment } from './utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import type { LocalAttachment } from '../MessageInput';
 import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,

@@ -2,23 +2,15 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
-import type {
-  CommandsListState,
-  MentionsListState,
-  MessageInputHookProps,
-  MessageInputState,
-} from '../components/MessageInput/hooks/useMessageInputState';
+import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputState';
 
-export type MessageInputContextValue = MessageInputState &
-  MessageInputHookProps &
+export type MessageInputContextValue = MessageInputHookProps &
   Omit<MessageInputProps, 'Input'> &
-  CooldownTimerState &
-  CommandsListState &
-  MentionsListState;
+  CooldownTimerState;
 
-export const MessageInputContext = createContext<
-  (MessageInputState & MessageInputHookProps) | undefined
->(undefined);
+export const MessageInputContext = createContext<MessageInputHookProps | undefined>(
+  undefined,
+);
 
 export const MessageInputContextProvider = ({
   children,

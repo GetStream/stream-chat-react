@@ -51,16 +51,7 @@ export const useMessageInputText = (props: MessageInputProps) => {
     }
   }, [text, newCursorPosition]);
 
-  const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
-    (event) => {
-      event.preventDefault();
-      if (!event.target || !textareaRef.current) return;
-    },
-    [],
-  );
-
   return {
-    handleChange,
     insertText,
     textareaRef,
   };

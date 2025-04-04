@@ -90,7 +90,6 @@ import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
-import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 
 type ChannelPropsForwardedToComponentContext = Pick<
@@ -195,14 +194,6 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   dragAndDropWindow?: boolean;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /**
-   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
-   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-   * or directly on MessageInput level through urlEnrichmentConfig.
-   */
-  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-  /** Global configuration for link preview generation in all the MessageInput components */
-  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
   /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
   giphyVersion?: GiphyVersions;
   /** A custom function to provide size configuration for image attachments */
@@ -309,7 +300,6 @@ const ChannelInner = (
     doSendMessageRequest,
     doUpdateMessageRequest,
     dragAndDropWindow = false,
-    enrichURLForPreviewConfig,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
@@ -566,7 +556,8 @@ const ChannelInner = (
       }
 
       if (maxNumberOfFiles) {
-        channel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage =
+        // todo: this has to be configured via a template
+        channel.messageComposer.attachmentManager.config.maxNumberOfFilesPerMessage =
           maxNumberOfFiles;
       }
       done = true;
@@ -1166,10 +1157,7 @@ const ChannelInner = (
     channelCapabilitiesArray,
     channelConfig,
     channelUnreadUiState,
-    debounceURLEnrichmentMs: enrichURLForPreviewConfig?.debounceURLEnrichmentMs,
     dragAndDropWindow,
-    enrichURLForPreview: props.enrichURLForPreview,
-    findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
@@ -1178,7 +1166,6 @@ const ChannelInner = (
     multipleUploads,
     mutes,
     notifications,
-    onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -1213,8 +1200,6 @@ const ChannelInner = (
     [
       channel.cid,
       deleteMessage,
-      enrichURLForPreviewConfig?.findURLFn,
-      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,
       loadMoreNewer,
       markRead,

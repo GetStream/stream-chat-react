@@ -7,7 +7,6 @@ import type {
   LocalMessage,
   Mute,
   ChannelState as StreamChannelState,
-  Thread,
 } from 'stream-chat';
 
 import type {
@@ -17,7 +16,6 @@ import type {
   UnknownType,
   VideoAttachmentSizeHandler,
 } from '../types/types';
-import type { URLEnrichmentConfig } from '../components/MessageInput/hooks/useLinkPreviews';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -72,15 +70,11 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   acceptedFiles?: string[];
   channelUnreadUiState?: ChannelUnreadUiState;
-  debounceURLEnrichmentMs?: URLEnrichmentConfig['debounceURLEnrichmentMs'];
   dragAndDropWindow?: boolean;
-  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-  findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
   messageDraftsEnabled?: boolean;
   mutes?: Array<Mute>;
-  onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;
 };
 

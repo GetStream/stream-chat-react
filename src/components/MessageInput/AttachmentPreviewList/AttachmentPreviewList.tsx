@@ -9,22 +9,16 @@ import {
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
 } from 'stream-chat';
+import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
 import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
 import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
 import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
 import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
 import { useMessageComposer } from '../hooks/messageComposer/useMessageComposer';
-import { useStateStore } from '../../../store';
-
-import type { AttachmentManagerState } from 'stream-chat';
-import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
+import { useAttachmentManagerState } from '../hooks/messageComposer/useAttachmentManagerState';
 import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
 import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
 import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
-
-const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
-  attachments: state.attachments,
-});
 
 export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
@@ -45,10 +39,9 @@ export const AttachmentPreviewList = ({
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
-  const { attachments } = useStateStore(
-    messageComposer.attachmentManager.state,
-    attachmentManagerStateSelector,
-  );
+  const { attachments, isUploadEnabled } = useAttachmentManagerState();
+
+  if (!isUploadEnabled || !attachments.length) return null;
 
   return (
     <div className='str-chat__attachment-preview-list'>

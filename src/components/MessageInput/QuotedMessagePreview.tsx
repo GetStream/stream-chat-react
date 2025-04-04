@@ -9,11 +9,11 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageComposerState, TranslationLanguages } from 'stream-chat';
-import type { MessageContextValue } from '../../context';
 import { useStateStore } from '../../store';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { renderText as defaultRenderText } from '../Message/renderText';
+import type { MessageComposerState, TranslationLanguages } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,

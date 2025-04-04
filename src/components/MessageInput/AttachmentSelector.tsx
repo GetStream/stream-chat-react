@@ -20,7 +20,7 @@ import {
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
 
-import { useIsUploadEnabled } from './hooks/messageComposer/useIsUploadEnabled';
+import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 
 export const SimpleAttachmentSelector = () => {
   const {
@@ -94,7 +94,7 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
-    const { isUploadEnabled } = useIsUploadEnabled();
+    const { isUploadEnabled } = useAttachmentManagerState();
 
     return (
       <DialogMenuButton

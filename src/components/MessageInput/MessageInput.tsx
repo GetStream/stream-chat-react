@@ -13,11 +13,16 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
-import type { Channel, LocalMessage, SendFileAPIResponse } from 'stream-chat';
+import type {
+  BaseLocalAttachmentMetadata,
+  Channel,
+  LinkPreviewsManagerConfig,
+  LocalAttachmentUploadMetadata,
+  LocalMessage,
+  SendFileAPIResponse,
+} from 'stream-chat';
 
-import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
-import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
 export type EmojiSearchIndexResult = {
@@ -64,6 +69,7 @@ export type MessageInputProps = {
   ) => Promise<SendFileAPIResponse>;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
+  // todo: document how to subscribe to notifications to handle errors
   /** Custom error handler function to be called with a file/image upload fails */
   errorHandler?: (
     error: Error,
@@ -92,12 +98,11 @@ export type MessageInputProps = {
   message?: LocalMessage;
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
-  /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
-  noFiles?: boolean;
   /** When replying in a thread, the parent message object */
   parent?: LocalMessage;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
+  // todo: document the change of transliterate prop
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
@@ -110,7 +115,7 @@ export type MessageInputProps = {
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
   /** Configuration parameters for link previews. */
-  urlEnrichmentConfig?: URLEnrichmentConfig;
+  urlEnrichmentConfig?: LinkPreviewsManagerConfig;
   useMentionsTransliteration?: boolean;
 };
 

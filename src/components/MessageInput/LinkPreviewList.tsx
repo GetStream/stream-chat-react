@@ -1,38 +1,55 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useMessageInputContext } from '../../context';
-import type { LinkPreview } from './types';
-import { LinkPreviewState } from './types';
-import { CloseIcon, LinkIcon } from './icons';
+import { LinkPreviewStatus } from 'stream-chat';
+import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
-import { useStateStore } from '../../store';
+import { CloseIcon, LinkIcon } from './icons';
 
-import type { MessageComposerState } from 'stream-chat';
+import type {
+  LinkPreview,
+  LinkPreviewsManagerConfig,
+  LinkPreviewsManagerState,
+  MessageComposerState,
+} from 'stream-chat';
 
-export type LinkPreviewListProps = {
-  linkPreviews: LinkPreview[];
-};
+const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
+  linkPreviews: Array.from(state.previews.values()),
+});
+
+const linkPreviewsManagerConfigStateSelector = (state: LinkPreviewsManagerConfig) => ({
+  linkPreviewsEnabled: state.enabled,
+});
 
 const messageComposerStateSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
 });
 
-export const LinkPreviewList = ({ linkPreviews }: LinkPreviewListProps) => {
+export const LinkPreviewList = () => {
   const messageComposer = useMessageComposer();
+  const { linkPreviewsManager } = messageComposer;
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
-  const showLinkPreviews = linkPreviews.length > 0 && !quotedMessage;
+  const { linkPreviews } = useStateStore(
+    linkPreviewsManager.state,
+    linkPreviewsManagerStateSelector,
+  );
+  const { linkPreviewsEnabled } = useStateStore(
+    linkPreviewsManager.configState,
+    linkPreviewsManagerConfigStateSelector,
+  );
+  const showLinkPreviews =
+    linkPreviewsEnabled && linkPreviews.length > 0 && !quotedMessage;
 
   if (!showLinkPreviews) return null;
 
   return (
     <div className='str-chat__link-preview-list'>
-      {Array.from(linkPreviews.values()).map((linkPreview) =>
-        linkPreview.state === LinkPreviewState.LOADED ? (
+      {linkPreviews.map((linkPreview) =>
+        linkPreview.status === LinkPreviewStatus.LOADED ? (
           <LinkPreviewCard key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
         ) : null,
       )}
@@ -45,7 +62,6 @@ type LinkPreviewProps = {
 };
 
 const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
-  const { dismissLinkPreview } = useMessageInputContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
@@ -53,7 +69,7 @@ const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
     <div
       className={clsx('str-chat__link-preview-card', {
         'str-chat__link-preview-card--loading':
-          linkPreview.state === LinkPreviewState.LOADING,
+          linkPreview.status === LinkPreviewStatus.LOADING,
       })}
       data-testid='link-preview-card'
     >
@@ -83,7 +99,7 @@ const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
       <button
         className='str-chat__link-preview-card__dismiss-button'
         data-testid='link-preview-card-dismiss-btn'
-        onClick={() => dismissLinkPreview(linkPreview)}
+        onClick={linkPreview.dismiss}
       >
         <CloseIcon />
       </button>
