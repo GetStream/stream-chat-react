@@ -1,69 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MessageComposer } from 'stream-chat';
+import { FixedSizeQueueCache, MessageComposer } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
-import { useChannelStateContext, useMessageInputContext } from '../../../../context';
+import { useChatContext, useMessageInputContext } from '../../../../context';
 import type { LocalMessage } from 'stream-chat';
 import { useLegacyThreadContext } from '../../../Thread';
-
-class FixedSizeQueueCache<K, T> {
-  private keys: Array<K>;
-  private size: number;
-  private valueByKey: Map<K, T>;
-  constructor(size: number) {
-    if (!size) throw new Error('Size must be greater than 0');
-    this.keys = [];
-    this.size = size;
-    this.valueByKey = new Map();
-  }
-
-  add(key: K, value: T) {
-    const index = this.keys.indexOf(key);
-
-    if (index > -1) {
-      this.keys.splice(this.keys.indexOf(key), 1);
-    } else if (this.keys.length >= this.size) {
-      const elementKey = this.keys.shift();
-
-      if (elementKey) {
-        this.valueByKey.delete(elementKey);
-      }
-    }
-
-    this.keys.push(key);
-    this.valueByKey.set(key, value);
-  }
-
-  peek(key: K) {
-    const value = this.valueByKey.get(key);
-
-    return value;
-  }
-
-  get(key: K) {
-    const foundElement = this.peek(key);
-
-    if (foundElement && this.keys.indexOf(key) !== this.size - 1) {
-      this.keys.splice(this.keys.indexOf(key), 1);
-      this.keys.push(key);
-    }
-
-    return foundElement;
-  }
-}
 
 export type UseMessageComposerParams = unknown;
 
 const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
-  const { channel } = useChannelStateContext();
+export const useMessageComposer = () => {
+  const { channel, client } = useChatContext();
   const { message: editedMessage } = useMessageInputContext();
   // legacy thread will receive new composer
   const { legacyThread: parentMessage, messageDraft } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
   const detachedMessageComposerRef = useRef<MessageComposer>(
-    new MessageComposer({ channel, tag: 'detached' }),
+    new MessageComposer({
+      client,
+      compositionContext: {
+        created_at: new Date(),
+        deleted_at: null,
+        id: 'detached',
+        pinned_at: null,
+        status: '',
+        type: 'regular',
+        updated_at: new Date(),
+      },
+    }),
   );
 
   const [cachedEditedMessage, setCachedEditedMessage] = useState<
@@ -86,34 +50,35 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
   // editedMessage ?? thread ?? parentMessage ?? channel;
   const messageComposer = useMemo(() => {
     if (cachedEditedMessage) {
-      const tag = `edited-message-${cachedEditedMessage.id}`;
+      const tag = MessageComposer.constructTag(cachedEditedMessage);
 
-      const element = queueCache.get(tag);
-      if (element) return element;
+      const cachedComposer = queueCache.get(tag);
+      if (cachedComposer) return cachedComposer;
 
-      const c = new MessageComposer({
-        channel,
+      return new MessageComposer({
+        client,
         composition: cachedEditedMessage,
-        tag,
+        compositionContext: cachedEditedMessage,
       });
-
-      return c;
     } else if (threadInstance) {
       return threadInstance.messageComposer;
     } else if (cachedParentMessage) {
-      const tag = `parent-message-${cachedParentMessage.id}`;
+      const compositionContext = {
+        ...cachedParentMessage,
+        legacyThreadId: cachedParentMessage.id,
+      };
 
-      const element = queueCache.get(tag);
-      if (element) return element;
+      const tag = MessageComposer.constructTag(compositionContext);
 
-      const c = new MessageComposer({
-        channel,
+      const cachedComposer = queueCache.get(tag);
+      if (cachedComposer) return cachedComposer;
+
+      // FIXME: draft won't be applied on second render
+      return new MessageComposer({
+        client,
         composition: messageDraft,
-        tag,
-        threadId: cachedParentMessage.id,
+        compositionContext,
       });
-
-      return c;
     } else if (channel) {
       return channel.messageComposer;
     } else {
@@ -124,11 +89,17 @@ export const useMessageComposer = (_unused: UseMessageComposerParams = {}) => {
     cachedEditedMessage,
     cachedParentMessage,
     channel,
-    messageDraft, // TODO: set message draft after the fact
+    client,
+    messageDraft,
     threadInstance,
   ]);
 
-  if (!queueCache.peek(messageComposer.tag)) {
+  if (
+    (['legacy_thread', 'message'] as MessageComposer['contextType'][]).includes(
+      messageComposer.contextType,
+    ) &&
+    !queueCache.peek(messageComposer.tag)
+  ) {
     queueCache.add(messageComposer.tag, messageComposer);
   }
 
