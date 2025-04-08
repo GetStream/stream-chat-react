@@ -67,6 +67,7 @@
   "Message deleted": "Mesaj silindi",
   "Message has been successfully flagged": "Mesaj başarıyla bayraklandı",
   "Message pinned": "Mesaj sabitlendi",
+  "Message was blocked by moderation policies": "Mesaj moderasyon politikaları tarafından engellendi",
   "Messages have been marked unread.": "Mesajlar okunmamış olarak işaretlendi.",
   "Missing permissions to upload the attachment": "Ek yüklemek için izinler eksik",
   "Multiple answers": "Çoklu cevaplar",

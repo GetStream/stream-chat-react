@@ -67,6 +67,7 @@
   "Message deleted": "메시지가 삭제되었습니다.",
   "Message has been successfully flagged": "메시지에 플래그가 지정되었습니다.",
   "Message pinned": "메시지 핀했습니다",
+  "Message was blocked by moderation policies": "메시지가 관리 정책에 의해 차단되었습니다.",
   "Messages have been marked unread.": "메시지가 읽지 않음으로 표시되었습니다.",
   "Missing permissions to upload the attachment": "첨부 파일을 업로드하려면 권한이 필요합니다",
   "Multiple answers": "복수 응답",

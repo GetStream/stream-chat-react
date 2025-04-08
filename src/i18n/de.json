@@ -67,6 +67,7 @@
   "Message deleted": "Nachricht gelöscht",
   "Message has been successfully flagged": "Nachricht wurde erfolgreich gemeldet",
   "Message pinned": "Nachricht angeheftet",
+  "Message was blocked by moderation policies": "Nachricht wurde durch moderationsrichtlinien blockiert",
   "Messages have been marked unread.": "Nachrichten wurden als ungelesen markiert.",
   "Missing permissions to upload the attachment": "Fehlende Berechtigungen zum Hochladen des Anhangs",
   "Multiple answers": "Mehrere Antworten",

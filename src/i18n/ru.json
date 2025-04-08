@@ -67,6 +67,7 @@
   "Message deleted": "Сообщение удалено",
   "Message has been successfully flagged": "Жалоба на сообщение была принята",
   "Message pinned": "Сообщение закреплено",
+  "Message was blocked by moderation policies": "Сообщение было заблокировано модерацией",
   "Messages have been marked unread.": "Сообщения были отмечены как непрочитанные.",
   "Missing permissions to upload the attachment": "Отсутствуют разрешения для загрузки вложения",
   "Multiple answers": "Несколько ответов",
