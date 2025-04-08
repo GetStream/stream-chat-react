@@ -128,6 +128,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'Message'
   | 'MessageActions'
   | 'MessageBouncePrompt'
+  | 'MessageBlocked'
   | 'MessageDeleted'
   | 'MessageListNotifications'
   | 'MessageListMainPanel'
@@ -1337,6 +1338,7 @@ const ChannelInner = <
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message,
       MessageActions: props.MessageActions,
+      MessageBlocked: props.MessageBlocked,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
       MessageListNotifications: props.MessageListNotifications,
@@ -1389,6 +1391,7 @@ const ChannelInner = <
       props.DateSeparator,
       props.EditMessageInput,
       props.EmojiPicker,
+      props.emojiSearchIndex,
       props.EmptyStateIndicator,
       props.FileUploadIcon,
       props.GiphyPreviewMessage,
@@ -1398,6 +1401,7 @@ const ChannelInner = <
       props.LoadingIndicator,
       props.Message,
       props.MessageActions,
+      props.MessageBlocked,
       props.MessageBouncePrompt,
       props.MessageDeleted,
       props.MessageListNotifications,
@@ -1417,11 +1421,14 @@ const ChannelInner = <
       props.QuotedMessage,
       props.QuotedMessagePreview,
       props.QuotedPoll,
+      props.reactionOptions,
       props.ReactionSelector,
       props.ReactionsList,
       props.ReactionsListModal,
       props.SendButton,
       props.StartRecordingAudioButton,
+      props.StopAIGenerationButton,
+      props.StreamedMessageText,
       props.ThreadHead,
       props.ThreadHeader,
       props.ThreadStart,
@@ -1431,10 +1438,6 @@ const ChannelInner = <
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
       props.VirtualMessage,
-      props.StopAIGenerationButton,
-      props.StreamedMessageText,
-      props.emojiSearchIndex,
-      props.reactionOptions,
     ],
   );
 
