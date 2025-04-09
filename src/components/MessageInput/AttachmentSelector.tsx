@@ -223,6 +223,7 @@ export const AttachmentSelector = ({
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}
+          tabIndex={-1}
           trapFocus
         >
           <div
