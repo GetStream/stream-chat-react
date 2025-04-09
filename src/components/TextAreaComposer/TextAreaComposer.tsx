@@ -122,43 +122,47 @@ export const TextAreaComposer = ({
         onKeyDown(event);
         return;
       }
-      // todo: submit message with commands (giphy, ban @mention, etc)
-      if (textComposer.suggestions) {
+
+      if (event.key === 'Enter') {
+        // allow next line only on Shift + Enter. Enter is reserved for submission.
+        event.preventDefault();
+      }
+
+      if (
+        textComposer.suggestions &&
+        textComposer.suggestions.searchSource.items?.length
+      ) {
         if (event.key === 'Escape') return textComposer.closeSuggestions();
         const loadedItems = textComposer.suggestions.searchSource.items;
-        if (loadedItems?.length) {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            textComposer.handleSelect(loadedItems[focusedItemIndex]);
-          }
-          if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            setFocusedItemIndex((prev) => {
-              let nextIndex = prev - 1;
-              if (suggestions?.searchSource.hasNext) {
-                nextIndex = prev;
-              } else if (nextIndex < 0) {
-                nextIndex = loadedItems.length - 1;
-              }
-              return nextIndex;
-            });
-          }
-          if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            setFocusedItemIndex((prev) => {
-              let nextIndex = prev + 1;
-              if (suggestions?.searchSource.hasNext) {
-                nextIndex = prev;
-              } else if (nextIndex >= loadedItems.length) {
-                nextIndex = 0;
-              }
+        if (event.key === 'Enter') {
+          textComposer.handleSelect(loadedItems[focusedItemIndex]);
+        }
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          setFocusedItemIndex((prev) => {
+            let nextIndex = prev - 1;
+            if (suggestions?.searchSource.hasNext) {
+              nextIndex = prev;
+            } else if (nextIndex < 0) {
+              nextIndex = loadedItems.length - 1;
+            }
+            return nextIndex;
+          });
+        }
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          setFocusedItemIndex((prev) => {
+            let nextIndex = prev + 1;
+            if (suggestions?.searchSource.hasNext) {
+              nextIndex = prev;
+            } else if (nextIndex >= loadedItems.length) {
+              nextIndex = 0;
+            }
 
-              return nextIndex;
-            });
-          }
+            return nextIndex;
+          });
         }
       } else if (shouldSubmit(event) && textareaRef.current) {
-        event.preventDefault();
         handleSubmit();
         textareaRef.current.selectionEnd = 0;
       }
