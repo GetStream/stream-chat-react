@@ -1,8 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import type { AvatarProps } from '../Avatar';
-import { Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../../Avatar';
+import { Avatar as DefaultAvatar } from '../../Avatar';
 
 export type UserItemProps = {
   /** The user */
@@ -10,7 +10,7 @@ export type UserItemProps = {
     /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
      * Default is bold for matches, but can be overwritten in css.
      * */
-    itemNameParts: { match: string; parts: string[] };
+    tokenizedDisplayName: { token: string; tokenizedDisplayName: string[] };
     /** Id of the user */
     id?: string;
     /** Image of the user */
@@ -25,40 +25,28 @@ export type UserItemProps = {
 /**
  * UI component for mentions rendered in suggestion list
  */
-const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
+export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
   const hasEntity = !!Object.keys(entity).length;
-  // const itemParts = entity?.itemNameParts;
+  if (!hasEntity) return null;
 
-  const renderName = () => {
-    if (!hasEntity) return null;
+  const { token, tokenizedDisplayName } = entity.tokenizedDisplayName;
 
-    // return itemParts.parts.map((part, i) => {
-    //   const matches = part.toLowerCase() === itemParts.match.toLowerCase();
-    //
-    //   return (
-    //     <span
-    //       className={clsx({
-    //         'str-chat__emoji-item--highlight': matches,
-    //         'str-chat__emoji-item--part': !matches,
-    //       })}
-    //       key={`part-${i}`}
-    //     >
-    //       {part}
-    //     </span>
-    //   );
-    // });
-
-    return (
-      <span
-        className={clsx({
-          'str-chat__emoji-item--part': true,
-        })}
-      >
-        {/* FIXME: temporal adjustment so that the component can be rendered */}
-        {entity.name ?? entity.id}
-      </span>
-    );
-  };
+  const renderName = () =>
+    tokenizedDisplayName.map((part, i) => {
+      const matches = part.toLowerCase() === token;
+      const partWithHTMLSpacesAround = part.replace(/^\s+|\s+$/g, '\u00A0');
+      return (
+        <span
+          className={clsx({
+            'str-chat__emoji-item--highlight': matches,
+            'str-chat__emoji-item--part': !matches,
+          })}
+          key={`part-${i}`}
+        >
+          {partWithHTMLSpacesAround}
+        </span>
+      );
+    });
 
   return (
     <div className='str-chat__user-item'>
@@ -74,5 +62,3 @@ const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) =
     </div>
   );
 };
-
-export const UserItem = React.memo(UnMemoizedUserItem) as typeof UnMemoizedUserItem;

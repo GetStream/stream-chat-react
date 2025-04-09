@@ -25,6 +25,7 @@ import type {
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
+// todo: move to a relevant place
 export type EmojiSearchIndexResult = {
   id: string;
   name: string;

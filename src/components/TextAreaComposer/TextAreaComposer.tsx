@@ -1,27 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-underscore-dangle */
 import clsx from 'clsx';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
-import React, { useCallback, useState } from 'react';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 
-import { useStateStore } from '../../store';
-import type {
-  ChangeEventHandler,
-  FocusEvent,
-  MouseEvent,
-  TextareaHTMLAttributes,
-  UIEventHandler,
-} from 'react';
+import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 'react';
 import type { SearchSourceState, TextComposerState } from 'stream-chat';
 import {
   useComponentContext,
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import { isSafari } from '../../utils/browsers';
+import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
-import { defaultScrollToItem } from '../AutoCompleteTextarea';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   suggestions: state.suggestions,
@@ -29,6 +19,7 @@ const textComposerStateSelector = (state: TextComposerState) => ({
 });
 const searchSourceStateSelector = (state: SearchSourceState) => ({
   isLoadingItems: state.isLoading,
+  items: state.items,
 });
 
 /**
@@ -42,39 +33,35 @@ const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
 
 /**
  * TODO:
- * - move cooldown logic to LLC MessageComposer
  * - disableMentions - just do not provide mentions middleware
  * - style props - just use CSS
  * - what was loadingComponent prop for?
  * - do we want to keep movePopupAsYouType prop?
  * - do we want to keep onCaretPositionChange prop?
- * - prop replaceWord logic should be included inside the TextComposerMiddleware.onChange
- * - scrollToItem prop was what for?
+ * - scrollToItem prop was what for? - removing it todo: document it
  */
 export type TextComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
   'style'
 > & {
-  closeOnClickOutside?: boolean;
+  closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
   dropdownClassName?: string;
   grow?: boolean;
   itemClassName?: string;
   listClassName?: string;
   maxRows?: number;
-  scrollToItem?: boolean | ((container: HTMLDivElement, item: HTMLElement) => void);
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
-  // ref?: Ref<HTMLTextAreaElement>;
 };
 
 export const TextAreaComposer = ({
   className,
-  closeOnClickOutside,
+  closeSuggestionsOnClickOutside,
   containerClassName,
   disabled,
-  dropdownClassName,
+  // dropdownClassName, // todo: find a different way to prevent prop drilling
   grow,
-  itemClassName,
+  // itemClassName, // todo: find a different way to prevent prop drilling
   listClassName,
   maxRows,
   onBlur,
@@ -82,17 +69,15 @@ export const TextAreaComposer = ({
   onKeyDown,
   onScroll,
   placeholder,
-  scrollToItem,
   shouldSubmit = defaultShouldSubmit,
-  // ref,
   ...restProps
 }: TextComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const { cooldownRemaining, handleSubmit, textareaRef } = useMessageInputContext();
+
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
-
   const { suggestions, text } = useStateStore(
     textComposer.state,
     textComposerStateSelector,
@@ -100,40 +85,10 @@ export const TextAreaComposer = ({
   const { isLoadingItems } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+
   const [isComposing, setIsComposing] = useState(false);
-
-  const [suggestionListContainer, setSuggestionListContainer] =
-    useState<HTMLDivElement | null>(null);
-
-  const clickAndBlurHandler = useCallback(
-    (e: FocusEvent<HTMLTextAreaElement> | MouseEvent<HTMLTextAreaElement>) => {
-      // If this is a click: e.target is the textarea, and e.relatedTarget is the thing
-      // that was actually clicked. If we clicked inside the suggestions dropdown, then
-      // that's not a blur so then do nothing.
-      const { relatedTarget } = e;
-      // If this is a blur event in Safari, then relatedTarget is never a dropdown item, but a common parent
-      // of textarea and dropdown container. That means that suggestionListContainer will not contain its parent and the
-      // suggestion list will be closed before onclick handler can be invoked selecting an item.
-      // It seems that Safari has different implementation determining the relatedTarget node than Chrome and Firefox.
-      // Therefore, if focused away in Safari, the dropdown will be kept rendered until pressing Esc or selecting and item from it.
-      const blurredInSafari = isSafari() && e.type === 'blur';
-      if (
-        (suggestionListContainer &&
-          relatedTarget instanceof Node &&
-          suggestionListContainer.contains(relatedTarget)) ||
-        blurredInSafari
-      ) {
-        return;
-      }
-
-      if (closeOnClickOutside) textComposer.closeSuggestions();
-
-      if (onBlur) {
-        onBlur(e as FocusEvent<HTMLTextAreaElement>);
-      }
-    },
-    [closeOnClickOutside, suggestionListContainer, onBlur, textComposer],
-  );
 
   const changeHandler: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (e) => {
@@ -150,8 +105,7 @@ export const TextAreaComposer = ({
         text: e.target.value,
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onChange, textComposer],
+    [onChange, textComposer, textareaRef],
   );
 
   const onCompositionEnd = useCallback(() => {
@@ -162,44 +116,62 @@ export const TextAreaComposer = ({
     setIsComposing(true);
   }, []);
 
-  const _onEnter = useCallback(
-    async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (!textareaRef.current) return;
-
-      await event;
-      /**
-       * todo: move to EmojisMiddleware so that on each change event, the text is already adjusted and not having to do this on keyDown event.
-       * Should be adjusted on enter and space
-       */
-      // await replaceWord?.(text);
-      textareaRef.current.selectionEnd = 0;
-      handleSubmit();
-      textComposer.closeSuggestions();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messageComposer, textComposer],
-  );
-
   const keyDownHandler = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (onKeyDown) {
         onKeyDown(event);
         return;
       }
+      // todo: submit message with commands (giphy, ban @mention, etc)
+      if (textComposer.suggestions) {
+        if (event.key === 'Escape') return textComposer.closeSuggestions();
+        const loadedItems = textComposer.suggestions.searchSource.items;
+        if (loadedItems?.length) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            textComposer.handleSelect(loadedItems[focusedItemIndex]);
+          }
+          if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setFocusedItemIndex((prev) => {
+              let nextIndex = prev - 1;
+              if (suggestions?.searchSource.hasNext) {
+                nextIndex = prev;
+              } else if (nextIndex < 0) {
+                nextIndex = loadedItems.length - 1;
+              }
+              return nextIndex;
+            });
+          }
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setFocusedItemIndex((prev) => {
+              let nextIndex = prev + 1;
+              if (suggestions?.searchSource.hasNext) {
+                nextIndex = prev;
+              } else if (nextIndex >= loadedItems.length) {
+                nextIndex = 0;
+              }
 
-      if (
-        (event.key === 'ArrowUp' || event.key === 'ArrowDown') &&
-        suggestionListContainer
-      ) {
+              return nextIndex;
+            });
+          }
+        }
+      } else if (shouldSubmit(event) && textareaRef.current) {
         event.preventDefault();
-        return;
+        handleSubmit();
+        textareaRef.current.selectionEnd = 0;
       }
-
-      if (shouldSubmit(event)) return _onEnter(event);
-      if (event.key === 'Escape') return textComposer.closeSuggestions();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onKeyDown, shouldSubmit, _onEnter],
+    [
+      focusedItemIndex,
+      handleSubmit,
+      onKeyDown,
+      shouldSubmit,
+      suggestions,
+      textComposer,
+      textareaRef,
+    ],
   );
 
   const scrollHandler: UIEventHandler<HTMLTextAreaElement> = useCallback(
@@ -213,71 +185,57 @@ export const TextAreaComposer = ({
     [onScroll, textComposer],
   );
 
-  const _dropdownScroll = useCallback(
-    (item: HTMLElement) => {
-      if (!scrollToItem || !suggestionListContainer) return;
-
-      if (scrollToItem === true) {
-        defaultScrollToItem(suggestionListContainer, item);
-        return;
-      }
-
-      if (typeof scrollToItem !== 'function' || scrollToItem.length !== 2) {
-        throw new Error(
-          '`scrollToItem` has to be boolean (true for default implementation) or function with two parameters: container, item.',
-        );
-      }
-
-      scrollToItem(suggestionListContainer, item);
-    },
-    [scrollToItem, suggestionListContainer],
-  );
+  useEffect(() => {
+    if (textComposer.suggestions) {
+      setFocusedItemIndex(0);
+    }
+  }, [textComposer.suggestions]);
 
   return (
     <div
-      className={clsx('rta', 'str-chat__textarea str-chat__message-textarea-react-host', {
-        ['rta--loading']: isLoadingItems,
-      })}
-    >
-      {!isComposing && !!suggestions && (
-        <div
-          className={clsx('str-chat__suggestion-list-container', dropdownClassName)}
-          ref={setSuggestionListContainer}
-        >
-          <AutocompleteSuggestionList
-            className={listClassName}
-            dropdownScroll={_dropdownScroll} // todo: move into SuggestionList
-            // onSelect={_onSelect} todo: move into SuggestionList as textComposer.handleSelect()
-          />
-        </div>
+      className={clsx(
+        'rta',
+        'str-chat__textarea str-chat__message-textarea-react-host',
+        containerClassName,
+        {
+          ['rta--loading']: isLoadingItems,
+        },
       )}
+      ref={containerRef}
+    >
       <Textarea
         {...restProps}
         aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',
+          className,
         )}
         data-testid='message-input'
         defaultValue={undefined}
         disabled={disabled || !!cooldownRemaining}
         maxRows={grow ? maxRows : 1}
-        onBlur={clickAndBlurHandler}
+        onBlur={onBlur}
         onChange={changeHandler}
-        onClick={clickAndBlurHandler}
         onCompositionEnd={onCompositionEnd}
         onCompositionStart={onCompositionStart}
         onKeyDown={keyDownHandler}
         onScroll={scrollHandler}
-        onSelect={(e) => {
-          // todo: original calls props.onCaretPositionChange and props.onSelect, but maybe not necessary
-        }}
         placeholder={placeholder || t('Type your message')}
         ref={(ref) => {
           textareaRef.current = ref;
         }}
         value={text}
       />
+      {/* todo: document the layout change for the accessibility purpose (tabIndex) */}
+      {!isComposing && (
+        <AutocompleteSuggestionList
+          className={listClassName}
+          closeOnClickOutside={closeSuggestionsOnClickOutside}
+          focusedItemIndex={focusedItemIndex}
+          setFocusedItemIndex={setFocusedItemIndex}
+        />
+      )}
     </div>
   );
 };

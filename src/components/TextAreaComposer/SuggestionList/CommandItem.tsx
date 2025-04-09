@@ -12,7 +12,7 @@ export type CommandItemProps = {
   };
 };
 
-const UnMemoizedCommandItem = (props: PropsWithChildren<CommandItemProps>) => {
+export const CommandItem = (props: PropsWithChildren<CommandItemProps>) => {
   const { entity } = props;
 
   return (
@@ -25,7 +25,3 @@ const UnMemoizedCommandItem = (props: PropsWithChildren<CommandItemProps>) => {
     </div>
   );
 };
-
-export const CommandItem = React.memo(
-  UnMemoizedCommandItem,
-) as typeof UnMemoizedCommandItem;

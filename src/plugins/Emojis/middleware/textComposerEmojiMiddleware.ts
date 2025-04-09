@@ -1,3 +1,4 @@
+import mergeWith from 'lodash.mergewith';
 import type {
   SearchSourceOptions,
   SearchSourceType,
@@ -7,11 +8,11 @@ import type {
 } from 'stream-chat';
 import {
   BaseSearchSource,
+  getTokenizedSuggestionDisplayName,
   getTriggerCharWithToken,
   insertItemWithTrigger,
   replaceWordWithEntity,
 } from 'stream-chat';
-import mergeWith from 'lodash.mergewith';
 import type {
   EmojiSearchIndex,
   EmojiSearchIndexResult,
@@ -29,7 +30,7 @@ class EmojiSearchSource<
   }
 
   async query(searchQuery: string) {
-    if (searchQuery.length === 0 || searchQuery.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
+    if (searchQuery.length === 0) {
       return { items: [] as T[], next: null };
     }
     const emojis = (await this.emojiSearchIndex.search(searchQuery)) ?? [];
@@ -39,10 +40,11 @@ class EmojiSearchSource<
       items: emojis
         .filter(Boolean)
         .slice(0, 7)
-        .map(({ id, name, native, skins = [] }) => {
+        .map(({ emoticons = [], id, name, native, skins = [] }) => {
           const [firstSkin] = skins;
 
           return {
+            emoticons,
             id,
             name,
             native: native ?? firstSkin.native,
@@ -53,7 +55,13 @@ class EmojiSearchSource<
   }
 
   protected filterQueryResults(items: T[]): T[] | Promise<T[]> {
-    return items;
+    return items.map((item) => ({
+      ...item,
+      ...getTokenizedSuggestionDisplayName({
+        displayName: item.id,
+        searchToken: this.searchQuery,
+      }),
+    }));
   }
 }
 
@@ -87,18 +95,35 @@ export const createTextComposerEmojiMiddleware = <
   emojiSearchSource.activate();
 
   return {
-    id: finalOptions.trigger,
+    id: 'stream-io/emoji-middleware',
     onChange: async ({ input, nextHandler }: TextComposerMiddlewareParams<T>) => {
       const { state } = input;
       if (!state.selection) return nextHandler(input);
 
-      const lastToken = getTriggerCharWithToken(
-        finalOptions.trigger,
-        state.text.slice(0, state.selection.end),
-      );
+      const triggerWithToken = getTriggerCharWithToken({
+        acceptTrailingSpaces: false,
+        text: state.text.slice(0, state.selection.end),
+        trigger: finalOptions.trigger,
+      });
 
-      if (!lastToken || lastToken.length < finalOptions.minChars) {
-        return nextHandler(input);
+      const triggerWasRemoved =
+        !triggerWithToken || triggerWithToken.length < finalOptions.minChars;
+
+      if (triggerWasRemoved) {
+        const hasSuggestionsForTrigger =
+          input.state.suggestions?.trigger === finalOptions.trigger;
+        const newInput = { ...input };
+        if (hasSuggestionsForTrigger && newInput.state.suggestions) {
+          delete newInput.state.suggestions; // todo: should be delete or just resetState?
+        }
+        return nextHandler(newInput);
+      }
+
+      const newSearchTriggerred =
+        triggerWithToken && triggerWithToken === finalOptions.trigger;
+
+      if (newSearchTriggerred) {
+        emojiSearchSource.resetStateAndActivate();
       }
 
       const textWithReplacedWord = await replaceWordWithEntity({
@@ -124,7 +149,7 @@ export const createTextComposerEmojiMiddleware = <
         return {
           state: {
             ...state,
-            suggestions: undefined,
+            suggestions: undefined, // to prevent the TextComposerMiddlewareExecutor to run the first page query
             text: textWithReplacedWord,
           },
           stop: true, // Stop other middleware from processing '@' character
@@ -135,7 +160,7 @@ export const createTextComposerEmojiMiddleware = <
         state: {
           ...state,
           suggestions: {
-            query: lastToken.slice(1),
+            query: triggerWithToken.slice(1),
             searchSource: emojiSearchSource,
             trigger: finalOptions.trigger,
           },
@@ -152,6 +177,7 @@ export const createTextComposerEmojiMiddleware = <
       if (!selectedSuggestion || state.suggestions?.trigger !== finalOptions.trigger)
         return nextHandler(input);
 
+      emojiSearchSource.resetStateAndActivate();
       return Promise.resolve({
         state: {
           ...state,

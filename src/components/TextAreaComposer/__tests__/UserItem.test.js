@@ -6,7 +6,7 @@ import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
-import { UserItem } from '../UserItem';
+import { UserItem } from '../SuggestionList';
 
 afterEach(cleanup);
 
