@@ -1,4 +1,11 @@
-import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import { useEffect } from 'react';
+import {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  LocalMessage,
+  TextComposerMiddleware,
+} from 'stream-chat';
 import {
   AIStateIndicator,
   Channel,
@@ -8,13 +15,14 @@ import {
   Chat,
   ChatView,
   MessageInput,
-  StreamMessage,
   Thread,
   ThreadList,
+  useChatContext,
   useCreateChatClient,
   VirtualizedMessageList as MessageList,
   Window,
 } from 'stream-chat-react';
+import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
@@ -44,7 +52,24 @@ const filters: ChannelFilters = {
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
-const isMessageAIGenerated = (message: StreamMessage) => !!message?.ai_generated;
+// @ts-ignore
+const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
+
+const Component = () => {
+  const { client } = useChatContext();
+  useEffect(() => {
+    client.setMessageComposerApplyModifications(({ composer }) => {
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [
+          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
+        ],
+        position: { before: 'stream-io/mentions-middleware' },
+        unique: true,
+      });
+    });
+  }, [client]);
+  return null;
+};
 
 const App = () => {
   const chatClient = useCreateChatClient({
@@ -57,6 +82,7 @@ const App = () => {
 
   return (
     <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+      <Component />
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
@@ -73,7 +99,7 @@ const App = () => {
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <AIStateIndicator />
-              <MessageInput focus />
+              <MessageInput focus audioRecordingEnabled />
             </Window>
             <Thread virtualized />
           </Channel>
