@@ -124,6 +124,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'Message'
   | 'MessageActions'
   | 'MessageBouncePrompt'
+  | 'MessageBlocked'
   | 'MessageDeleted'
   | 'MessageListNotifications'
   | 'MessageListMainPanel'
@@ -1296,6 +1297,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message,
       MessageActions: props.MessageActions,
+      MessageBlocked: props.MessageBlocked,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
       MessageListNotifications: props.MessageListNotifications,
@@ -1348,6 +1350,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       props.DateSeparator,
       props.EditMessageInput,
       props.EmojiPicker,
+      props.emojiSearchIndex,
       props.EmptyStateIndicator,
       props.FileUploadIcon,
       props.GiphyPreviewMessage,
@@ -1357,6 +1360,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       props.LoadingIndicator,
       props.Message,
       props.MessageActions,
+      props.MessageBlocked,
       props.MessageBouncePrompt,
       props.MessageDeleted,
       props.MessageListNotifications,
@@ -1376,11 +1380,14 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       props.QuotedMessage,
       props.QuotedMessagePreview,
       props.QuotedPoll,
+      props.reactionOptions,
       props.ReactionSelector,
       props.ReactionsList,
       props.ReactionsListModal,
       props.SendButton,
       props.StartRecordingAudioButton,
+      props.StopAIGenerationButton,
+      props.StreamedMessageText,
       props.ThreadHead,
       props.ThreadHeader,
       props.ThreadStart,
@@ -1390,10 +1397,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
       props.VirtualMessage,
-      props.StopAIGenerationButton,
-      props.StreamedMessageText,
-      props.emojiSearchIndex,
-      props.reactionOptions,
     ],
   );
 

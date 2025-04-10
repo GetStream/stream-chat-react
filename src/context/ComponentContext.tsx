@@ -116,6 +116,8 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   MessageActions?: React.ComponentType;
   /** Custom UI component to display the contents of a bounced message modal. Usually it allows to retry, edit, or delete the message. Defaults to and accepts the same props as: [MessageBouncePrompt](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) */
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
+  /** Custom UI component for a moderation-blocked message, defaults to and accepts same props as: [MessageBlocked](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageBlocked.tsx) */
+  MessageBlocked?: React.ComponentType;
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: React.ComponentType<MessageDeletedProps>;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
