@@ -3,7 +3,11 @@ import { nanoid } from 'nanoid';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
-import { useChannelStateContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useMessageInputContext,
+  useTranslationContext,
+} from '../../context';
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 import { useAttachmentManagerState } from '../MessageInput/hooks/messageComposer/useAttachmentManagerState';
 import { useStateStore } from '../../store';
@@ -49,6 +53,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
+  const { cooldownRemaining } = useMessageInputContext();
   const { acceptedFiles = [] } = useChannelStateContext('UploadFileInput');
   const { attachmentManager } = useMessageComposer();
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -71,7 +76,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
       accept={acceptedFiles?.join(',')}
       aria-label={t('aria/File upload')}
       data-testid='file-input'
-      disabled={!isUploadEnabled} // todo: check whether cooldownremaining is also necessary
+      disabled={!isUploadEnabled || !!cooldownRemaining}
       id={id}
       multiple={maxNumberOfFilesPerMessage > 1}
       {...props}

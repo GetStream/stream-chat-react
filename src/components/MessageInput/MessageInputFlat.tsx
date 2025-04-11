@@ -31,14 +31,12 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
-import type { AttachmentManagerConfig, TextComposerState } from 'stream-chat';
+import type { AttachmentManagerConfig } from 'stream-chat';
 import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 
 const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
   maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
 });
-
-const textComposerStateSelector = (state: TextComposerState) => state;
 
 export const MessageInputFlat = () => {
   const { t } = useTranslationContext('MessageInputFlat');
@@ -67,8 +65,7 @@ export const MessageInputFlat = () => {
   } = useComponentContext('MessageInputFlat');
   const { acceptedFiles = [] } = useChannelStateContext('MessageInputFlat');
   const { channel } = useChatContext('MessageInputFlat');
-  const { attachmentManager, textComposer } = useMessageComposer();
-
+  const { attachmentManager } = useMessageComposer();
   const { aiState } = useAIState(channel);
 
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
@@ -94,10 +91,6 @@ export const MessageInputFlat = () => {
   const { maxNumberOfFilesPerMessage } = useStateStore(
     attachmentManager.configState,
     attachmentManagerConfigStateSelector,
-  );
-  const { text: actualText } = useStateStore(
-    textComposer.state,
-    textComposerStateSelector,
   );
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
@@ -173,13 +166,7 @@ export const MessageInputFlat = () => {
                   />
                 ) : (
                   <>
-                    <SendButton
-                      disabled={
-                        !actualText.length &&
-                        attachments.length === attachmentManager.failedUploadsCount
-                      }
-                      sendMessage={handleSubmit}
-                    />
+                    <SendButton sendMessage={handleSubmit} />
                     {recordingEnabled && (
                       <StartRecordingAudioButton
                         disabled={

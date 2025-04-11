@@ -39,9 +39,9 @@ export const AttachmentPreviewList = ({
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
-  const { attachments, isUploadEnabled } = useAttachmentManagerState();
+  const { attachments } = useAttachmentManagerState();
 
-  if (!isUploadEnabled || !attachments.length) return null;
+  if (!attachments.length) return null;
 
   return (
     <div className='str-chat__attachment-preview-list'>

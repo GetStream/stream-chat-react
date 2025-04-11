@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
@@ -19,7 +19,11 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
+import {
+  EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
+  useMessageComposer,
+} from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
 import { Poll } from '../Poll';
@@ -81,13 +85,19 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext('MessageSimple');
-
+  const messageComposer = useMessageComposer();
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
+
+  const onEditModalClose = useCallback(() => {
+    clearEditingState();
+    messageComposer.restore();
+  }, [clearEditingState, messageComposer]);
+
   if (isDateSeparatorMessage(message)) {
     return null;
   }
@@ -141,7 +151,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       {editing && (
         <Modal
           className='str-chat__edit-message-modal'
-          onClose={clearEditingState}
+          onClose={onEditModalClose}
           open={editing}
         >
           <MessageInput

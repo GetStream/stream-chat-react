@@ -30,6 +30,7 @@ export const useMessageInputState = (props: MessageInputProps): MessageInputHook
     const threadId = messageComposer.threadId;
     if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
       return;
+    // get draft data for legacy thead composer
     messageComposer.channel.getDraft({ parent_id: threadId }).then(({ draft }) => {
       if (draft) {
         messageComposer.initState({ composition: draft });

@@ -1,34 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { LocalMessage } from 'stream-chat';
 import { FixedSizeQueueCache, MessageComposer } from 'stream-chat';
 import { useThreadContext } from '../../../Threads';
-import { useChatContext, useMessageInputContext } from '../../../../context';
-import type { LocalMessage } from 'stream-chat';
+import {
+  useChannelStateContext,
+  useChatContext,
+  useMessageContext,
+} from '../../../../context';
 import { useLegacyThreadContext } from '../../../Thread';
-
-export type UseMessageComposerParams = unknown;
 
 const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
 
 export const useMessageComposer = () => {
-  const { channel, client } = useChatContext();
-  const { message: editedMessage } = useMessageInputContext();
+  const { client } = useChatContext();
+  const { channel } = useChannelStateContext();
+  const { message: editedMessage } = useMessageContext();
   // legacy thread will receive new composer
-  const { legacyThread: parentMessage, messageDraft } = useLegacyThreadContext();
+  const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
-  const detachedMessageComposerRef = useRef<MessageComposer>(
-    new MessageComposer({
-      client,
-      compositionContext: {
-        created_at: new Date(),
-        deleted_at: null,
-        id: 'detached',
-        pinned_at: null,
-        status: '',
-        type: 'regular',
-        updated_at: new Date(),
-      },
-    }),
-  );
 
   const [cachedEditedMessage, setCachedEditedMessage] = useState<
     LocalMessage | undefined
@@ -73,26 +62,14 @@ export const useMessageComposer = () => {
       const cachedComposer = queueCache.get(tag);
       if (cachedComposer) return cachedComposer;
 
-      // FIXME: draft won't be applied on second render
       return new MessageComposer({
         client,
-        composition: messageDraft,
         compositionContext,
       });
-    } else if (channel) {
-      return channel.messageComposer;
     } else {
-      // should never reach this point
-      return detachedMessageComposerRef.current;
+      return channel.messageComposer;
     }
-  }, [
-    cachedEditedMessage,
-    cachedParentMessage,
-    channel,
-    client,
-    messageDraft,
-    threadInstance,
-  ]);
+  }, [cachedEditedMessage, cachedParentMessage, channel, client, threadInstance]);
 
   if (
     (['legacy_thread', 'message'] as MessageComposer['contextType'][]).includes(

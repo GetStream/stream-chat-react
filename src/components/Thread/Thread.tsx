@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
@@ -20,7 +20,7 @@ import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
-import type { DraftResponse, LocalMessage, ThreadState } from 'stream-chat';
+import type { LocalMessage, ThreadState } from 'stream-chat';
 
 export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -47,8 +47,7 @@ export type ThreadProps = {
 
 const LegacyThreadContext = React.createContext<{
   legacyThread: LocalMessage | undefined;
-  messageDraft: DraftResponse | undefined;
-}>({ legacyThread: undefined, messageDraft: undefined });
+}>({ legacyThread: undefined });
 
 export const useLegacyThreadContext = () => useContext(LegacyThreadContext);
 
@@ -78,39 +77,6 @@ const selector = (nextValue: ThreadState) => ({
   parentMessage: nextValue.parentMessage,
   replies: nextValue.replies,
 });
-
-const useMessageDraft = (legacyThread?: LocalMessage) => {
-  const { channel } = useChannelStateContext();
-  const [messageDraft, setMessageDraft] = useState<DraftResponse | undefined>(undefined);
-  const [cachedParentMessage, setCachedParentMessage] = useState(
-    legacyThread ?? undefined,
-  );
-
-  if (legacyThread?.id !== cachedParentMessage?.id) {
-    setCachedParentMessage(legacyThread ?? undefined);
-  }
-
-  useEffect(() => {
-    if (!cachedParentMessage || !cachedParentMessage.reply_count) return;
-    let interrupted = false;
-
-    channel
-      .getDraft({ parent_id: cachedParentMessage.id })
-      .then((draftResponse) => {
-        if (interrupted) return;
-        setMessageDraft(draftResponse.draft);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    return () => {
-      interrupted = true;
-    };
-  }, [cachedParentMessage, channel]);
-
-  return messageDraft;
-};
 
 const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
@@ -144,7 +110,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     ThreadInput: ContextInput,
     VirtualMessage,
   } = useComponentContext('Thread');
-  const messageDraft = useMessageDraft(thread ?? undefined);
 
   const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
     useStateStore(threadInstance?.state, selector) ?? {};
@@ -215,7 +180,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     <LegacyThreadContext.Provider
       value={{
         legacyThread: thread ?? undefined,
-        messageDraft,
       }}
     >
       <div className={threadClass}>
