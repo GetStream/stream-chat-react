@@ -48,6 +48,9 @@ export const MultipleAnswersField = () => {
             />
             <input
               id='max_votes_allowed'
+              onBlur={() => {
+                pollComposer.handleFieldBlur('max_votes_allowed');
+              }}
               onChange={(e) => {
                 pollComposer.updateFields({
                   max_votes_allowed: e.target.value,
