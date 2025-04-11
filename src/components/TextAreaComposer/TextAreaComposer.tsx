@@ -74,7 +74,8 @@ export const TextAreaComposer = ({
 }: TextComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
-  const { cooldownRemaining, handleSubmit, textareaRef } = useMessageInputContext();
+  const { cooldownRemaining, handleSubmit, onPaste, textareaRef } =
+    useMessageInputContext();
 
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
@@ -224,6 +225,7 @@ export const TextAreaComposer = ({
         onCompositionEnd={onCompositionEnd}
         onCompositionStart={onCompositionStart}
         onKeyDown={keyDownHandler}
+        onPaste={onPaste}
         onScroll={scrollHandler}
         placeholder={placeholder || t('Type your message')}
         ref={(ref) => {
