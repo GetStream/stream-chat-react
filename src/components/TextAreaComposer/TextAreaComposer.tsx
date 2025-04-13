@@ -14,6 +14,7 @@ import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
+  selection: state.selection,
   suggestions: state.suggestions,
   text: state.text,
 });
@@ -79,7 +80,7 @@ export const TextAreaComposer = ({
 
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
-  const { suggestions, text } = useStateStore(
+  const { selection, suggestions, text } = useStateStore(
     textComposer.state,
     textComposerStateSelector,
   );
@@ -189,6 +190,17 @@ export const TextAreaComposer = ({
     },
     [onScroll, textComposer],
   );
+
+  useEffect(() => {
+    // FIXME: find the real reason for cursor being set to the end on each change
+    // This is a workaround to prevent the cursor from jumping
+    // to the end of the textarea when the user is typing
+    // at the position that is not at the end of the textarea value.
+    if (textareaRef.current && !isComposing) {
+      textareaRef.current.selectionStart = selection.start;
+      textareaRef.current.selectionEnd = selection.end;
+    }
+  }, [text, textareaRef, selection.start, selection.end, isComposing]);
 
   useEffect(() => {
     if (textComposer.suggestions) {
