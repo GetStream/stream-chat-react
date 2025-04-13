@@ -41,12 +41,40 @@ import type { MessageUIComponentProps } from './types';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
 
+const EditMessageModal = ({
+  additionalMessageInputProps,
+}: Pick<MessageUIComponentProps, 'additionalMessageInputProps'>) => {
+  const { EditMessageInput = DefaultEditMessageForm } = useComponentContext();
+  const { clearEditingState, message } = useMessageContext();
+  const messageComposer = useMessageComposer();
+  const onEditModalClose = useCallback(() => {
+    clearEditingState();
+    messageComposer.restore();
+  }, [clearEditingState, messageComposer]);
+
+  return (
+    <Modal
+      className='str-chat__edit-message-modal'
+      onClose={onEditModalClose}
+      open={true}
+    >
+      <MessageInput
+        clearEditingState={clearEditingState}
+        grow
+        hideSendButton
+        Input={EditMessageInput}
+        message={message}
+        {...additionalMessageInputProps}
+      />
+    </Modal>
+  );
+};
+
 type MessageSimpleWithContextProps = MessageContextValue;
 
 const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
-    clearEditingState,
     editing,
     endOfGroup,
     firstOfGroup,
@@ -71,7 +99,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    EditMessageInput = DefaultEditMessageForm,
     MessageOptions = DefaultMessageOptions,
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
@@ -85,18 +112,12 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext('MessageSimple');
-  const messageComposer = useMessageComposer();
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-
-  const onEditModalClose = useCallback(() => {
-    clearEditingState();
-    messageComposer.restore();
-  }, [clearEditingState, messageComposer]);
 
   if (isDateSeparatorMessage(message)) {
     return null;
@@ -149,20 +170,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   return (
     <>
       {editing && (
-        <Modal
-          className='str-chat__edit-message-modal'
-          onClose={onEditModalClose}
-          open={editing}
-        >
-          <MessageInput
-            clearEditingState={clearEditingState}
-            grow
-            hideSendButton
-            Input={EditMessageInput}
-            message={message}
-            {...additionalMessageInputProps}
-          />
-        </Modal>
+        <EditMessageModal additionalMessageInputProps={additionalMessageInputProps} />
       )}
       {isBounceDialogOpen && (
         <MessageBounceModal
