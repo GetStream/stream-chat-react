@@ -55,10 +55,17 @@ const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
-const Component = () => {
-  const { client } = useChatContext();
+const App = () => {
+  const chatClient = useCreateChatClient({
+    apiKey,
+    tokenOrProvider: userToken,
+    userData: { id: userId },
+  });
+
   useEffect(() => {
-    client.setMessageComposerApplyModifications(({ composer }) => {
+    if (!chatClient) return;
+
+    chatClient.setMessageComposerSetupFunction(({ composer }) => {
       composer.textComposer.middlewareExecutor.insert({
         middleware: [
           createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
@@ -67,22 +74,12 @@ const Component = () => {
         unique: true,
       });
     });
-  }, [client]);
-  return null;
-};
-
-const App = () => {
-  const chatClient = useCreateChatClient({
-    apiKey,
-    tokenOrProvider: userToken,
-    userData: { id: userId },
-  });
+  }, [chatClient]);
 
   if (!chatClient) return <>Loading...</>;
 
   return (
     <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
-      <Component />
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
