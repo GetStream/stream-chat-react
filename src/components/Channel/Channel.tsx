@@ -157,7 +157,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
 >;
 
 export type ChannelProps = ChannelPropsForwardedToComponentContext & {
-  // todo: move to MessageComposer configuration
+  // todo: X document the use of config.attachments.fileUploadFilter to replace acceptedFiles prop
   /** List of accepted file types */
   acceptedFiles?: string[];
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
@@ -208,11 +208,10 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
+  // todo: X document how maxNumberOfFiles can be customized with message composer
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
-  /** Enables storing message drafts on the server. */
-  messageDraftsEnabled?: boolean;
-  // todo: document that multipleUploads is redundant and ignored with message composer
+  // todo: X document that multipleUploads is redundant and ignored with message composer
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
@@ -305,7 +304,6 @@ const ChannelInner = (
     LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
     maxNumberOfFiles,
-    messageDraftsEnabled,
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
@@ -555,7 +553,7 @@ const ChannelInner = (
       }
 
       if (maxNumberOfFiles) {
-        // todo: this has to be configured via a template
+        // todo: X this has to be configured via a template
         channel.messageComposer.attachmentManager.config.maxNumberOfFilesPerMessage =
           maxNumberOfFiles;
       }
@@ -1081,8 +1079,6 @@ const ChannelInner = (
 
   const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    // todo: revisit how to open a thread
-
     dispatch({ channel, message, type: 'openThread' });
   };
 
@@ -1161,7 +1157,6 @@ const ChannelInner = (
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
-    messageDraftsEnabled,
     multipleUploads,
     mutes,
     notifications,

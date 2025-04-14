@@ -597,7 +597,7 @@ describe('Channel', () => {
       });
       getThreadSpy.mockRestore();
     });
-
+    // todo: remove messageDraftsEnabled tests
     it('uses Thread instance when messageDraftsEnabled is true', async () => {
       const { channel, chatClient } = await initClient();
       const threadMessage = messages[0];

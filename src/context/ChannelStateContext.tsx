@@ -22,18 +22,6 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
-// todo: 1. create LocalMessage that would contain the below in stream-chat
-// todo: 2. move errorStatusCode, error to stream-chat
-// export type StreamMessage =
-//   // FIXME: we should use only one of the two (either formatted or unformatted)
-//   (ReturnType<StreamChannelState['formatMessage']> | MessageResponse) & {
-//     customType?: string;
-//     errorStatusCode?: number;
-//     error?: ErrorFromResponse<APIErrorResponse>;
-//     // editing?: boolean;
-//     // date?: Date;
-//   };
-
 export type ChannelState = {
   suppressAutoscroll: boolean;
   error?: Error | null;
@@ -71,7 +59,6 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   dragAndDropWindow?: boolean;
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
-  messageDraftsEnabled?: boolean;
   mutes?: Array<Mute>;
   watcher_count?: number;
 };
