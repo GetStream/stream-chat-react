@@ -14,12 +14,9 @@ export const useMessageComposer = () => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const { editing, message: editedMessage } = useMessageContext();
-  const messageInputContext = useMessageContext();
   // legacy thread will receive new composer
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
-
-  const isInsideMessageInputContext = !!messageInputContext;
 
   const cachedEditedMessage = useMemo(() => {
     if (!editedMessage) return undefined;
@@ -52,7 +49,7 @@ export const useMessageComposer = () => {
       });
     } else if (threadInstance) {
       return threadInstance.messageComposer;
-    } else if (isInsideMessageInputContext && cachedParentMessage) {
+    } else if (cachedParentMessage) {
       const compositionContext = {
         ...cachedParentMessage,
         legacyThreadId: cachedParentMessage.id,
@@ -76,7 +73,6 @@ export const useMessageComposer = () => {
     channel,
     client,
     editing,
-    isInsideMessageInputContext,
     threadInstance,
   ]);
 
