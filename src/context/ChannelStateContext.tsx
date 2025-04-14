@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import type {
   Channel,
   ChannelConfigWithInfo,
-  DraftResponse,
   LocalMessage,
   Mute,
   ChannelState as StreamChannelState,
@@ -45,7 +44,6 @@ export type ChannelState = {
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
   members?: StreamChannelState['members'];
-  messageDraft: DraftResponse | null;
   messages?: LocalMessage[];
   pinnedMessages?: LocalMessage[];
   read?: StreamChannelState['read'];

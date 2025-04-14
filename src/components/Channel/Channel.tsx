@@ -348,7 +348,6 @@ const ChannelInner = (
       ...initialState,
       hasMore: channel.state.messagePagination.hasPrev,
       loading: !channel.initialized,
-      messageDraft: channel.state.messageDraft,
     },
   );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
