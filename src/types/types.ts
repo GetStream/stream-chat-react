@@ -110,11 +110,6 @@ export type VideoAttachmentSizeHandler = (
 
 export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
-// todo: fix export from stream-chat - for some reason not exported
-export type UpdateMessageOptions = {
-  skip_enrich_url?: boolean;
-};
-
 export type Readable<T> = {
   [key in keyof T]: T[key];
 } & {};

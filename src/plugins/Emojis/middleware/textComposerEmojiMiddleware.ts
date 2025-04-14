@@ -114,7 +114,7 @@ export const createTextComposerEmojiMiddleware = <
           input.state.suggestions?.trigger === finalOptions.trigger;
         const newInput = { ...input };
         if (hasSuggestionsForTrigger && newInput.state.suggestions) {
-          delete newInput.state.suggestions; // todo: should be delete or just resetState?
+          delete newInput.state.suggestions;
         }
         return nextHandler(newInput);
       }

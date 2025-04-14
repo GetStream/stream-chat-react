@@ -29,6 +29,7 @@ import type {
   SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
+  UpdateMessageOptions,
 } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
@@ -83,7 +84,6 @@ import type {
   ChannelUnreadUiState,
   GiphyVersions,
   ImageAttachmentSizeHandler,
-  UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
 import {

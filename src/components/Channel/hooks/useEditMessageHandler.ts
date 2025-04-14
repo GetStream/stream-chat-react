@@ -1,7 +1,11 @@
-import type { LocalMessage, MessageResponse, StreamChat } from 'stream-chat';
+import type {
+  LocalMessage,
+  MessageResponse,
+  StreamChat,
+  UpdateMessageOptions,
+} from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
-import type { UpdateMessageOptions } from '../../../types/types';
 
 type UpdateHandler = (
   cid: string,

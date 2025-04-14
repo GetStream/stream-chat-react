@@ -7,16 +7,13 @@ import type {
   MessageResponse,
   SendMessageOptions,
   UpdateMessageAPIResponse,
+  UpdateMessageOptions,
 } from 'stream-chat';
 
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type {
-  ChannelUnreadUiState,
-  UnknownType,
-  UpdateMessageOptions,
-} from '../types/types';
+import type { ChannelUnreadUiState, UnknownType } from '../types/types';
 
 export type MarkReadWrapperOptions = {
   /**
