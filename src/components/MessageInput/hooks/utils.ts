@@ -1,10 +1,8 @@
-import type { AppSettingsAPIResponse, FileUploadConfig, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-
-import { DEFAULT_UPLOAD_SIZE_LIMIT_BYTES } from '../../../constants/limits';
 
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
@@ -107,98 +105,6 @@ export const searchLocalUsers = (params: SearchLocalUserParams): UserResponse[] 
   });
 
   return matchingUsers;
-};
-
-type CheckUploadPermissionsParams = {
-  addNotification: ChannelActionContextValue['addNotification'];
-  file: File;
-  getAppSettings: ChatContextValue['getAppSettings'];
-  t: TranslationContextValue['t'];
-  uploadType: 'image' | 'file';
-};
-
-export const checkUploadPermissions = async (params: CheckUploadPermissionsParams) => {
-  const { addNotification, file, getAppSettings, t, uploadType } = params;
-
-  let appSettings: AppSettingsAPIResponse | null = null;
-  appSettings = await getAppSettings();
-
-  const {
-    allowed_file_extensions,
-    allowed_mime_types,
-    blocked_file_extensions,
-    blocked_mime_types,
-    size_limit,
-  } =
-    ((uploadType === 'image'
-      ? appSettings?.app?.image_upload_config
-      : appSettings?.app?.file_upload_config) as FileUploadConfig) || {};
-
-  const sendNotAllowedErrorNotification = () =>
-    addNotification(
-      t(`Upload type: "{{ type }}" is not allowed`, {
-        type: file.type || 'unknown type',
-      }),
-      'error',
-    );
-
-  if (allowed_file_extensions?.length) {
-    const allowed = allowed_file_extensions.some((ext) =>
-      file.name.toLowerCase().endsWith(ext.toLowerCase()),
-    );
-
-    if (!allowed) {
-      sendNotAllowedErrorNotification();
-      return false;
-    }
-  }
-
-  if (blocked_file_extensions?.length) {
-    const blocked = blocked_file_extensions.some((ext) =>
-      file.name.toLowerCase().endsWith(ext.toLowerCase()),
-    );
-
-    if (blocked) {
-      sendNotAllowedErrorNotification();
-      return false;
-    }
-  }
-
-  if (allowed_mime_types?.length) {
-    const allowed = allowed_mime_types.some(
-      (type) => type.toLowerCase() === file.type?.toLowerCase(),
-    );
-
-    if (!allowed) {
-      sendNotAllowedErrorNotification();
-      return false;
-    }
-  }
-
-  if (blocked_mime_types?.length) {
-    const blocked = blocked_mime_types.some(
-      (type) => type.toLowerCase() === file.type?.toLowerCase(),
-    );
-
-    if (blocked) {
-      sendNotAllowedErrorNotification();
-      return false;
-    }
-  }
-
-  const sizeLimit = size_limit || DEFAULT_UPLOAD_SIZE_LIMIT_BYTES;
-  if (file.size && file.size > sizeLimit) {
-    addNotification(
-      t('File is too large: {{ size }}, maximum upload size is {{ limit }}', {
-        limit: prettifyFileSize(sizeLimit),
-        size: prettifyFileSize(file.size),
-      }),
-      'error',
-    );
-    return false;
-  }
-
-  return true;
 };
 
 export function prettifyFileSize(bytes: number, precision = 3) {

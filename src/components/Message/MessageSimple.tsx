@@ -45,7 +45,7 @@ const EditMessageModal = ({
   additionalMessageInputProps,
 }: Pick<MessageUIComponentProps, 'additionalMessageInputProps'>) => {
   const { EditMessageInput = DefaultEditMessageForm } = useComponentContext();
-  const { clearEditingState, message } = useMessageContext();
+  const { clearEditingState } = useMessageContext();
   const messageComposer = useMessageComposer();
   const onEditModalClose = useCallback(() => {
     clearEditingState();
@@ -63,7 +63,6 @@ const EditMessageModal = ({
         grow
         hideSendButton
         Input={EditMessageInput}
-        message={message}
         {...additionalMessageInputProps}
       />
     </Modal>

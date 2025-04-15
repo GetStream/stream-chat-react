@@ -44,7 +44,7 @@ export const UnsupportedAttachmentPreview = ({
       </button>
 
       {isLocalUploadAttachment(attachment) &&
-        attachment.localMetadata?.uploadState === 'failed' &&
+        ['blocked', 'failed'].includes(attachment.localMetadata?.uploadState) &&
         !!handleRetry && (
           <button
             className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'

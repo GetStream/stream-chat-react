@@ -2,11 +2,11 @@ import React, { useCallback, useEffect } from 'react';
 import { MessageInputFlat } from './MessageInputFlat';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useComposerHasSendableData, useMessageComposer } from './hooks';
+import { useMessageComposer, useMessageComposerHasSendableData } from './hooks';
 
 const EditMessageFormSendButton = () => {
-  const { t } = useTranslationContext('EditMessageForm');
-  const hasSendableData = useComposerHasSendableData();
+  const { t } = useTranslationContext();
+  const hasSendableData = useMessageComposerHasSendableData();
   return (
     <button
       className='str-chat__edit-message-send'

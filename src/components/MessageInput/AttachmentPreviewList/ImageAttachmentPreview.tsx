@@ -40,7 +40,7 @@ export const ImageAttachmentPreview = ({
         <CloseIcon />
       </button>
 
-      {uploadState === 'failed' && (
+      {['blocked', 'failed'].includes(uploadState) && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-image'
           data-testid='image-preview-item-retry-button'

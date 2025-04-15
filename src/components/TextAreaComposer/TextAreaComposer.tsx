@@ -33,7 +33,7 @@ const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
 /**
- * TODO:
+ * TODO: X
  * - disableMentions - just do not provide mentions middleware
  * - style props - just use CSS
  * - what was loadingComponent prop for?
@@ -60,9 +60,9 @@ export const TextAreaComposer = ({
   closeSuggestionsOnClickOutside,
   containerClassName,
   disabled,
-  // dropdownClassName, // todo: find a different way to prevent prop drilling
+  // dropdownClassName, // todo: X find a different way to prevent prop drilling
   grow,
-  // itemClassName, // todo: find a different way to prevent prop drilling
+  // itemClassName, // todo: X find a different way to prevent prop drilling
   listClassName,
   maxRows,
   onBlur,
@@ -245,7 +245,7 @@ export const TextAreaComposer = ({
         }}
         value={text}
       />
-      {/* todo: document the layout change for the accessibility purpose (tabIndex) */}
+      {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
       {!isComposing && (
         <AutocompleteSuggestionList
           className={listClassName}

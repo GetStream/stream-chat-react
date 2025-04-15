@@ -1,6 +1,6 @@
 import React from 'react';
 import { SendIcon } from './icons';
-import { useComposerHasSendableData } from './hooks';
+import { useMessageComposerHasSendableData } from './hooks';
 import type { UpdatedMessage } from 'stream-chat';
 
 export type SendButtonProps = {
@@ -10,7 +10,7 @@ export type SendButtonProps = {
   ) => void;
 } & React.ComponentProps<'button'>;
 export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
-  const hasSendableData = useComposerHasSendableData();
+  const hasSendableData = useMessageComposerHasSendableData();
   return (
     <button
       aria-label='Send'

@@ -2,9 +2,9 @@ import clsx from 'clsx';
 import type { Ref } from 'react';
 import { useLayoutEffect } from 'react';
 import React, { useCallback, useRef } from 'react';
+import { useMessageComposer } from '../../MessageInput';
 import type { CommandResponse, TextComposerSuggestion, UserResponse } from 'stream-chat';
 import type { EmojiSearchIndexResult } from '../../MessageInput';
-import { useMessageComposer } from '../../MessageInput';
 
 export type SuggestionCommand = CommandResponse;
 export type SuggestionUser = UserResponse;

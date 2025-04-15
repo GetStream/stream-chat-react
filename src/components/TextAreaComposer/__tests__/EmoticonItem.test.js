@@ -8,29 +8,16 @@ import { EmoticonItem } from '../SuggestionList';
 afterEach(cleanup);
 
 describe('EmoticonItem', () => {
-  it('should render component with empty entity', () => {
+  it('should not render component with empty entity', () => {
     const { container } = render(<EmoticonItem entity={{}} />);
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__emoji-item"
-        >
-          <span
-            class="str-chat__emoji-item--entity"
-          />
-          <span
-            class="str-chat__emoji-item--name"
-          />
-        </div>
-      </div>
-    `);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render component with custom entity prop', async () => {
     const entity = {
-      itemNameParts: { match: 'n', parts: ['n', 'ame'] },
       name: 'name',
       native: 'native',
+      tokenizedDisplayName: { parts: ['n', 'ame'], token: 'n' },
     };
     const Component = <EmoticonItem entity={entity} />;
 

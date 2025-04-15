@@ -75,10 +75,10 @@ export type ComponentContextValue = {
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
-  // TODO: rename to SuggestionListItem
+  // TODO: X rename to SuggestionListItem
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps>;
   /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
-  // TODO: rename to SuggestionList
+  // TODO: X rename to SuggestionList
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps>;
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;

@@ -33,6 +33,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
 import type { AttachmentManagerConfig } from 'stream-chat';
 import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
+import { useMessageContext } from '../../context';
 
 const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
   maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
@@ -40,12 +41,12 @@ const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) =>
 
 export const MessageInputFlat = () => {
   const { t } = useTranslationContext('MessageInputFlat');
+  const { message } = useMessageContext();
   const {
     asyncMessagesMultiSendEnabled,
     cooldownRemaining,
     handleSubmit,
     hideSendButton,
-    message,
     recordingController,
     setCooldownRemaining,
   } = useMessageInputContext('MessageInputFlat');

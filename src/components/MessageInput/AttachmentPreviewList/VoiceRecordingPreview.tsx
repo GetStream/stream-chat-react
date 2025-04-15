@@ -44,15 +44,16 @@ export const VoiceRecordingPreview = ({
         <CloseIcon />
       </button>
 
-      {attachment.localMetadata?.uploadState === 'failed' && !!handleRetry && (
-        <button
-          className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
-          data-testid='file-preview-item-retry-button'
-          onClick={() => handleRetry(attachment)}
-        >
-          <RetryIcon />
-        </button>
-      )}
+      {['blocked', 'failed'].includes(attachment.localMetadata?.uploadState) &&
+        !!handleRetry && (
+          <button
+            className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
+            data-testid='file-preview-item-retry-button'
+            onClick={() => handleRetry(attachment)}
+          >
+            <RetryIcon />
+          </button>
+        )}
 
       <div className='str-chat__attachment-preview-metadata'>
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>

@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { MessageInputFlat } from './MessageInputFlat';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
@@ -14,18 +13,18 @@ import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
 import type {
-  BaseLocalAttachmentMetadata,
   Channel,
   LinkPreviewsManagerConfig,
   LocalAttachmentUploadMetadata,
   LocalMessage,
+  Message,
   SendFileAPIResponse,
+  SendMessageOptions,
 } from 'stream-chat';
 
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
-// todo: move to a relevant place
 export type EmojiSearchIndexResult = {
   id: string;
   name: string;
@@ -70,13 +69,6 @@ export type MessageInputProps = {
   ) => Promise<SendFileAPIResponse>;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
-  // todo: document how to subscribe to notifications to handle errors
-  /** Custom error handler function to be called with a file/image upload fails */
-  errorHandler?: (
-    error: Error,
-    type: string,
-    file: LocalAttachmentUploadMetadata['file'] & BaseLocalAttachmentMetadata,
-  ) => void;
   /** If true, focuses the text input on component mount */
   focus?: boolean;
   /** Generates the default value for the underlying textarea element. The function's return value takes precedence before additionalTextareaProps.defaultValue. */
@@ -95,15 +87,21 @@ export type MessageInputProps = {
   mentionAllAppUsers?: boolean;
   /** Object containing filters/sort/options overrides for an @mention user query */
   mentionQueryParams?: SearchQueryParams['userFilters'];
-  /** If provided, the existing message will be edited on submit */
-  message?: LocalMessage;
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
+  /** Function to override the default message sending process. Not message updating process. */
+  overrideSubmitHandler?: (params: {
+    cid: string;
+    localMessage: LocalMessage;
+    message: Message;
+    sendOptions: SendMessageOptions;
+  }) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: LocalMessage;
+  // todo: X document change in configuration
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
-  // todo: document the change of transliterate prop
+  // todo: X document the change of transliterate prop
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
@@ -125,6 +123,7 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const messageInputState = useMessageInputState(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
 
+  // todo: X document how to disable publishTypingEvents
   // if (typeof props.publishTypingEvent !== 'undefined') {
   //   messageComposer.config.publishTypingEvents = props.publishTypingEvent;
   // }

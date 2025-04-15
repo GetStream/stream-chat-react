@@ -47,7 +47,7 @@ export const FileAttachmentPreview = ({
         <CloseIcon />
       </button>
 
-      {uploadState === 'failed' && !!handleRetry && (
+      {['blocked', 'failed'].includes(uploadState) && !!handleRetry && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
           data-testid='file-preview-item-retry-button'

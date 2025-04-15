@@ -10,7 +10,7 @@ export type UserItemProps = {
     /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
      * Default is bold for matches, but can be overwritten in css.
      * */
-    tokenizedDisplayName: { token: string; tokenizedDisplayName: string[] };
+    tokenizedDisplayName: { token: string; parts: string[] };
     /** Id of the user */
     id?: string;
     /** Image of the user */
@@ -29,10 +29,10 @@ export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
   const hasEntity = !!Object.keys(entity).length;
   if (!hasEntity) return null;
 
-  const { token, tokenizedDisplayName } = entity.tokenizedDisplayName;
+  const { parts, token } = entity.tokenizedDisplayName;
 
   const renderName = () =>
-    tokenizedDisplayName.map((part, i) => {
+    parts.map((part, i) => {
       const matches = part.toLowerCase() === token;
       const partWithHTMLSpacesAround = part.replace(/^\s+|\s+$/g, '\u00A0');
       return (

@@ -99,7 +99,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
-        disabled={!isUploadEnabled} // todo: add styles
+        disabled={!isUploadEnabled} // todo: add styles for disabled state
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();

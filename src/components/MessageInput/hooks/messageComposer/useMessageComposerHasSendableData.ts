@@ -4,7 +4,7 @@ import type { EditingAuditState } from 'stream-chat';
 
 const editingAuditStateStateSelector = (state: EditingAuditState) => state;
 
-export const useComposerHasSendableData = () => {
+export const useMessageComposerHasSendableData = () => {
   const messageComposer = useMessageComposer();
   useStateStore(messageComposer.editingAuditState, editingAuditStateStateSelector);
   return messageComposer.hasSendableData;

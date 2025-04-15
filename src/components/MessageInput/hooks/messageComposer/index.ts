@@ -1,3 +1,3 @@
 export * from './useAttachmentManagerState';
-export * from './useComposerHasSendableData';
+export * from './useMessageComposerHasSendableData';
 export * from './useMessageComposer';
