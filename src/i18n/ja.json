@@ -67,6 +67,7 @@
   "Message deleted": "メッセージが削除されました",
   "Message has been successfully flagged": "メッセージに正常にフラグが付けられました",
   "Message pinned": "メッセージにピンが付けられました",
+  "Message was blocked by moderation policies": "メッセージはモデレーションポリシーによってブロックされました",
   "Messages have been marked unread.": "メッセージは未読としてマークされました。",
   "Missing permissions to upload the attachment": "添付ファイルをアップロードするための許可がありません",
   "Multiple answers": "複数回答",

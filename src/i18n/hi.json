@@ -68,6 +68,7 @@
   "Message deleted": "मैसेज हटा दिया गया",
   "Message has been successfully flagged": "मैसेज को फ्लैग कर दिया गया है",
   "Message pinned": "संदेश पिन किया गया",
+  "Message was blocked by moderation policies": "संदेश को मॉडरेशन नीतियों द्वारा ब्लॉक कर दिया गया है",
   "Messages have been marked unread.": "संदेशों को अपठित चिह्नित किया गया है।",
   "Missing permissions to upload the attachment": "अटैचमेंट अपलोड करने के लिए अनुमतियां गायब",
   "Multiple answers": "कई उत्तर",

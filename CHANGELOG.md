@@ -1,3 +1,9 @@
+## [12.14.0](https://github.com/GetStream/stream-chat-react/compare/v12.13.1...v12.14.0) (2025-04-08)
+
+### Features
+
+* [REACT-218] add MessageBlocked component ([#2675](https://github.com/GetStream/stream-chat-react/issues/2675)) ([0ecd147](https://github.com/GetStream/stream-chat-react/commit/0ecd147264a57921623cf80dad0faa97db203cf3))
+
 ## [12.13.1](https://github.com/GetStream/stream-chat-react/compare/v12.13.0...v12.13.1) (2025-03-05)
 
 ### Chores
