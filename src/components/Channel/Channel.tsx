@@ -1032,6 +1032,7 @@ const ChannelInner = (
     }
   };
 
+  // BREAKING: sendMessage now requires a params object instead of message
   const sendMessage = async ({
     localMessage,
     message,
