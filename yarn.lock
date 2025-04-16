@@ -12157,7 +12157,7 @@ statuses@2.0.1:
 
 "stream-chat@https://github.com/GetStream/stream-chat-js.git#feat/message-composer":
   version "0.0.0-development"
-  resolved "https://github.com/GetStream/stream-chat-js.git#ffec1a0b44d5db3abbbc86c563708f52926d6c9b"
+  resolved "https://github.com/GetStream/stream-chat-js.git#cb37c34ee27cbcc0f2405026fe16ecaf6b22bd1c"
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
