@@ -1,7 +1,7 @@
 import throttle from 'lodash.throttle';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, Event, LocalMessage } from 'stream-chat';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -14,7 +14,6 @@ import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { ChatContextValue } from '../../context/ChatContext';
 import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
 import type { GroupChannelDisplayInfo } from './utils';
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
 export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
@@ -25,7 +24,7 @@ export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
   /** Title of Channel to display */
   groupChannelDisplayInfo?: GroupChannelDisplayInfo;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage;
+  lastMessage?: LocalMessage;
   /** @deprecated Use latestMessagePreview prop instead. */
   latestMessage?: ReactNode;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
@@ -86,7 +85,7 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
     channel,
   });
 
-  const [lastMessage, setLastMessage] = useState<StreamMessage>(
+  const [lastMessage, setLastMessage] = useState<LocalMessage>(
     channel.state.messages[channel.state.messages.length - 1],
   );
   const [unread, setUnread] = useState(0);

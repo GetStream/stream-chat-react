@@ -1,16 +1,16 @@
 import React from 'react';
-import type { Event } from 'stream-chat';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString } from '../../i18n/utils';
+
+import type { Event, LocalMessage } from 'stream-chat';
 import type { AvatarProps } from '../Avatar';
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type EventComponentProps = TimestampFormatterOptions & {
   /** Message object */
-  message: StreamMessage & {
+  message: LocalMessage & {
     event?: Event;
   };
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */

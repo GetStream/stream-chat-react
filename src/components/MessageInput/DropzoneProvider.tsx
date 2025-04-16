@@ -14,36 +14,41 @@ import {
 
 import type { MessageInputProps } from './MessageInput';
 
-import type { CustomTrigger, UnknownType } from '../../types/types';
+import type { UnknownType } from '../../types/types';
+import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 
-const DropzoneInner = <V extends CustomTrigger = CustomTrigger>({
-  children,
-}: PropsWithChildren<UnknownType>) => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext('DropzoneProvider');
+// const attachmentManagerStateSelector = <
+//
+// >(
+//   state: AttachmentManagerState,
+// ) => ({ isUploadEnabled: state.isUploadEnabled });
 
-  const { cooldownRemaining, isUploadEnabled, maxFilesLeft, uploadNewFiles } =
-    useMessageInputContext<V>('DropzoneProvider');
+const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
+  const { acceptedFiles } = useChannelStateContext('DropzoneProvider');
+
+  const { cooldownRemaining } = useMessageInputContext('DropzoneProvider');
+  const messageComposer = useMessageComposer();
+  const { availableUploadSlots, isUploadEnabled } = useAttachmentManagerState();
 
   return (
     <ImageDropzone
       accept={acceptedFiles}
-      disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
-      handleFiles={uploadNewFiles}
-      maxNumberOfFiles={maxFilesLeft}
-      multiple={multipleUploads}
+      disabled={!isUploadEnabled || !!cooldownRemaining}
+      handleFiles={messageComposer.attachmentManager.uploadFiles}
+      maxNumberOfFiles={availableUploadSlots}
+      multiple={messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1}
     >
       {children}
     </ImageDropzone>
   );
 };
 
-export const DropzoneProvider = <V extends CustomTrigger = CustomTrigger>(
-  props: PropsWithChildren<MessageInputProps<V>>,
-) => {
+export const DropzoneProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();
-  const messageInputState = useMessageInputState<V>(props);
+  const messageInputState = useMessageInputState(props);
 
-  const messageInputContextValue = useCreateMessageInputContext<V>({
+  const messageInputContextValue = useCreateMessageInputContext({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,

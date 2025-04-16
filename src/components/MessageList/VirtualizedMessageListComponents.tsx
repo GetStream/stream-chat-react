@@ -7,11 +7,11 @@ import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyState
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { isMessageEdited, Message } from '../Message';
 
-import type { StreamMessage } from '../../context';
 import { useComponentContext } from '../../context';
-import { getIsFirstUnreadMessage, isDateSeparatorMessage } from './utils';
+import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 
-import type { GroupStyle } from './utils';
+import type { LocalMessage } from 'stream-chat';
+import type { GroupStyle, RenderedMessage } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
 
@@ -26,8 +26,8 @@ export function calculateFirstItemIndex(numItemsPrepended: number) {
 }
 
 export const makeItemsRenderedHandler = (
-  renderedItemsActions: Array<(msg: StreamMessage[]) => void>,
-  processedMessages: StreamMessage[],
+  renderedItemsActions: Array<(msg: RenderedMessage[]) => void>,
+  processedMessages: RenderedMessage[],
 ) =>
   throttle((items: ListItem<UnknownType>[]) => {
     const renderedMessages = items
@@ -36,7 +36,9 @@ export const makeItemsRenderedHandler = (
         return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
       })
       .filter((msg) => !!msg);
-    renderedItemsActions.forEach((action) => action(renderedMessages as StreamMessage[]));
+    renderedItemsActions.forEach((action) =>
+      action(renderedMessages as RenderedMessage[]),
+    );
   }, 200);
 
 type CommonVirtuosoComponentProps = {
@@ -136,7 +138,7 @@ export const messageRenderer = (
 
   const message = messageList[streamMessageIndex];
 
-  if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
+  if (!message || isIntroMessage(message)) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
   if (isDateSeparatorMessage(message)) {
     return DateSeparator ? (
@@ -148,12 +150,16 @@ export const messageRenderer = (
     return MessageSystem ? <MessageSystem message={message} /> : null;
   }
 
+  const maybePrevMessage = messageList[streamMessageIndex - 1] as
+    | LocalMessage
+    | undefined;
+  const maybeNextMessage = messageList[streamMessageIndex + 1] as
+    | LocalMessage
+    | undefined;
   const groupedByUser =
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
-    message.user?.id === messageList[streamMessageIndex - 1].user?.id;
-  const maybePrevMessage: StreamMessage | undefined = messageList[streamMessageIndex - 1];
-  const maybeNextMessage: StreamMessage | undefined = messageList[streamMessageIndex + 1];
+    message.user?.id === maybePrevMessage?.user?.id;
 
   // FIXME: firstOfGroup & endOfGroup should be derived from groupStyles which apply a more complex logic
   const firstOfGroup =

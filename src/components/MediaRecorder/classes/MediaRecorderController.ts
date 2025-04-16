@@ -1,6 +1,5 @@
 import fixWebmDuration from 'fix-webm-duration';
 import { nanoid } from 'nanoid';
-import type { AmplitudeRecorderConfig } from './AmplitudeRecorder';
 import {
   AmplitudeRecorder,
   DEFAULT_AMPLITUDE_RECORDER_CONFIG,
@@ -16,11 +15,11 @@ import {
   getExtensionFromMimeType,
   getRecordedMediaTypeFromMimeType,
 } from '../../ReactFileUtilities';
-import type { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
-
-import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { AmplitudeRecorderConfig } from './AmplitudeRecorder';
+import type { TranslationContextValue } from '../../../context';
 
 export const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -188,7 +187,7 @@ export class MediaRecorderController {
         this.amplitudeRecorder?.amplitudes.value ?? [],
         this.amplitudeRecorderConfig.sampleCount,
       ),
-    };
+    } as LocalVoiceRecordingAttachment;
   };
 
   handleErrorEvent = (e: Event) => {

@@ -2,14 +2,20 @@ import deepequal from 'react-fast-compare';
 import emojiRegex from 'emoji-regex';
 
 import type { TFunction } from 'i18next';
-import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  LocalMessage,
+  LocalMessageBase,
+  MessageResponse,
+  Mute,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
 import type {
   ComponentContextValue,
   CustomMessageActions,
   MessageContextValue,
-  StreamMessage,
 } from '../../context';
 
 /**
@@ -38,7 +44,7 @@ export const validateAndGetMessage = <T extends unknown[]>(
 /**
  * Tell if the owner of the current message is muted
  */
-export const isUserMuted = (message: StreamMessage, mutes?: Mute[]) => {
+export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
   if (!mutes || !message) return false;
 
   const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
@@ -257,11 +263,11 @@ export const shouldRenderMessageActions = ({
   return true;
 };
 
-function areMessagesEqual(
-  prevMessage: StreamMessage,
-  nextMessage: StreamMessage,
-): boolean {
-  return (
+function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
+  const areBaseMessagesEqual = (
+    prevMessage: LocalMessageBase,
+    nextMessage: LocalMessageBase,
+  ) =>
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
@@ -271,12 +277,15 @@ function areMessagesEqual(
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.updated_at === nextMessage.user?.updated_at &&
+    prevMessage.user?.updated_at === nextMessage.user?.updated_at;
+
+  return (
+    areBaseMessagesEqual(prevMessage, nextMessage) &&
     Boolean(prevMessage.quoted_message) === Boolean(nextMessage.quoted_message) &&
-    (!prevMessage.quoted_message ||
-      areMessagesEqual(
-        prevMessage.quoted_message as StreamMessage,
-        nextMessage.quoted_message as StreamMessage,
+    ((!prevMessage.quoted_message && !nextMessage.quoted_message) ||
+      areBaseMessagesEqual(
+        prevMessage.quoted_message as LocalMessageBase,
+        nextMessage.quoted_message as LocalMessageBase,
       ))
   );
 }
@@ -355,10 +364,10 @@ export const areMessageUIPropsEqual = (
   return areMessagesEqual(prevMessage, nextMessage);
 };
 
-export const messageHasReactions = (message?: StreamMessage) =>
+export const messageHasReactions = (message?: LocalMessage) =>
   Object.values(message?.reaction_groups ?? {}).some(({ count }) => count > 0);
 
-export const messageHasAttachments = (message?: StreamMessage) =>
+export const messageHasAttachments = (message?: LocalMessage) =>
   !!message?.attachments && !!message.attachments.length;
 
 export const getImages = (message?: MessageResponse) => {
@@ -453,19 +462,18 @@ export const isOnlyEmojis = (text?: string) => {
 };
 
 export const isMessageBounced = (
-  message: Pick<StreamMessage, 'type' | 'moderation' | 'moderation_details'>,
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
   message.type === 'error' &&
   (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE' ||
     message.moderation?.action === 'bounce');
 
 export const isMessageBlocked = (
-  message: Pick<StreamMessage, 'type' | 'moderation' | 'moderation_details'>,
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
   message.type === 'error' &&
   (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
     message.moderation?.action === 'remove');
 
-export const isMessageEdited = (
-  message: Pick<StreamMessage, 'message_text_updated_at'>,
-) => !!message.message_text_updated_at;
+export const isMessageEdited = (message: Pick<LocalMessage, 'message_text_updated_at'>) =>
+  !!message.message_text_updated_at;

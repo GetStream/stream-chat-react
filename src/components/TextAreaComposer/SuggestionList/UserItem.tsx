@@ -1,8 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import type { AvatarProps } from '../Avatar';
-import { Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../../Avatar';
+import { Avatar as DefaultAvatar } from '../../Avatar';
 
 export type UserItemProps = {
   /** The user */
@@ -10,7 +10,7 @@ export type UserItemProps = {
     /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
      * Default is bold for matches, but can be overwritten in css.
      * */
-    itemNameParts: { match: string; parts: string[] };
+    tokenizedDisplayName: { token: string; parts: string[] };
     /** Id of the user */
     id?: string;
     /** Image of the user */
@@ -25,16 +25,16 @@ export type UserItemProps = {
 /**
  * UI component for mentions rendered in suggestion list
  */
-const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
+export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
   const hasEntity = !!Object.keys(entity).length;
-  const itemParts = entity?.itemNameParts;
+  if (!hasEntity) return null;
 
-  const renderName = () => {
-    if (!hasEntity) return null;
+  const { parts, token } = entity.tokenizedDisplayName;
 
-    return itemParts.parts.map((part, i) => {
-      const matches = part.toLowerCase() === itemParts.match.toLowerCase();
-
+  const renderName = () =>
+    parts.map((part, i) => {
+      const matches = part.toLowerCase() === token;
+      const partWithHTMLSpacesAround = part.replace(/^\s+|\s+$/g, '\u00A0');
       return (
         <span
           className={clsx({
@@ -43,11 +43,10 @@ const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) =
           })}
           key={`part-${i}`}
         >
-          {part}
+          {partWithHTMLSpacesAround}
         </span>
       );
     });
-  };
 
   return (
     <div className='str-chat__user-item'>
@@ -63,5 +62,3 @@ const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) =
     </div>
   );
 };
-
-export const UserItem = React.memo(UnMemoizedUserItem) as typeof UnMemoizedUserItem;

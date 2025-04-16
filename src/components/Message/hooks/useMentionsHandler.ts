@@ -1,11 +1,9 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type React from 'react';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
-
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 export type CustomMentionHandler = (
   event: React.BaseSyntheticEvent,
@@ -19,7 +17,7 @@ export type MentionedUserEventHandler = (
 
 function createEventHandler(
   fn?: CustomMentionHandler,
-  message?: StreamMessage,
+  message?: LocalMessage,
 ): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
@@ -30,7 +28,7 @@ function createEventHandler(
 }
 
 export const useMentionsHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   customMentionHandler?: {
     onMentionsClick?: CustomMentionHandler;
     onMentionsHover?: CustomMentionHandler;

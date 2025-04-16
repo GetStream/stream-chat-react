@@ -35,8 +35,6 @@ jest.mock('../../EmptyStateIndicator', () => ({
 
 const UNREAD_MESSAGES_SEPARATOR_TEST_ID = 'unread-messages-separator';
 
-let chatClient;
-let channel;
 const user1 = generateUser();
 const user2 = generateUser();
 const message1 = generateMessage({ text: 'message1', user: user1 });
@@ -59,29 +57,34 @@ const renderComponent = ({ channelProps, chatClient, msgListProps }) =>
   );
 
 describe('MessageList', () => {
+  let chatClient;
+  let channel;
+  let markReadMock;
+
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
     channel = chatClient.channel('messaging', mockedChannelData.id);
     await channel.watch();
+
+    markReadMock = jest
+      .spyOn(channel, 'markRead')
+      .mockResolvedValue(markReadApi(channel));
   });
 
   afterEach(() => {
     cleanup();
     jest.clearAllMocks();
+    markReadMock.mockRestore();
   });
 
   it('should add new message at the bottom of the list', async () => {
-    const { getByTestId, getByText } = renderComponent({
+    const { findByTestId, getByText } = renderComponent({
       channelProps: { channel },
       chatClient,
     });
-    const markReadMock = jest
-      .spyOn(channel, 'markRead')
-      .mockReturnValueOnce(markReadApi(channel));
-    await waitFor(() => {
-      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
-    });
+
+    expect(await findByTestId('reverse-infinite-scroll')).toBeInTheDocument();
 
     const newMessage = generateMessage({ user: user2 });
     act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel));
@@ -92,7 +95,6 @@ describe('MessageList', () => {
     // MessageErrorIcon has path with id "background" - that is not permitted from the a11i standpoint
     // const results = await axe(container);
     // expect(results).toHaveNoViolations();
-    markReadMock.mockRestore();
   });
 
   it('should render the thread head if provided', async () => {
@@ -134,12 +136,10 @@ describe('MessageList', () => {
   });
 
   it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {
-    await act(() => {
-      renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: { messages: [] },
-      });
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { messages: [] },
     });
 
     await waitFor(() => {
@@ -151,12 +151,10 @@ describe('MessageList', () => {
   });
 
   it('should not render EmptyStateIndicator with corresponding list type in thread', async () => {
-    await act(() => {
-      renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: { messages: [], threadList: true },
-      });
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { messages: [], threadList: true },
     });
 
     await waitFor(() => {
@@ -165,15 +163,12 @@ describe('MessageList', () => {
   });
 
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
-    let renderResult;
-    await act(() => {
-      renderResult = renderComponent({
-        channelProps: {
-          Avatar,
-          channel,
-        },
-        chatClient,
-      });
+    const renderResult = renderComponent({
+      channelProps: {
+        Avatar,
+        channel,
+      },
+      chatClient,
     });
 
     await waitFor(() => {
@@ -186,19 +181,14 @@ describe('MessageList', () => {
 
   it('should accept a custom group style function', async () => {
     const classNameSuffix = 'msg-list-test';
-    const markReadMock = jest
-      .spyOn(channel, 'markRead')
-      .mockReturnValueOnce(markReadApi(channel));
 
-    await act(() => {
-      renderComponent({
-        channelProps: {
-          Avatar,
-          channel,
-        },
-        chatClient,
-        msgListProps: { groupStyles: () => classNameSuffix },
-      });
+    renderComponent({
+      channelProps: {
+        Avatar,
+        channel,
+      },
+      chatClient,
+      msgListProps: { groupStyles: () => classNameSuffix },
     });
 
     await waitFor(() => {
@@ -220,17 +210,12 @@ describe('MessageList', () => {
     // MessageErrorIcon has path with id "background" - that is not permitted from the a11i standpoint
     // const results = await axe(renderResult.container);
     // expect(results).toHaveNoViolations();
-    markReadMock.mockRestore();
   });
 
   it('should render DateSeparator by default', async () => {
-    let container;
-    await act(() => {
-      const result = renderComponent({
-        channelProps: { channel },
-        chatClient,
-      });
-      container = result.container;
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
     });
 
     await waitFor(() => {
@@ -242,14 +227,10 @@ describe('MessageList', () => {
   });
 
   it('should not render DateSeparator if disableDateSeparator is true', async () => {
-    let container;
-    await act(() => {
-      const result = renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: { disableDateSeparator: true },
-      });
-      container = result.container;
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { disableDateSeparator: true },
     });
 
     await waitFor(() => {
@@ -265,14 +246,12 @@ describe('MessageList', () => {
     const headerText = 'header is rendered';
     const Header = () => <div>{headerText}</div>;
 
-    await act(() => {
-      renderComponent({
-        channelProps: { channel, HeaderComponent: Header },
-        chatClient,
-        msgListProps: {
-          messages: [intro],
-        },
-      });
+    renderComponent({
+      channelProps: { channel, HeaderComponent: Header },
+      chatClient,
+      msgListProps: {
+        messages: [intro],
+      },
     });
 
     await waitFor(() => {
@@ -286,14 +265,12 @@ describe('MessageList', () => {
       type: 'system',
     });
 
-    await act(() => {
-      renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: {
-          messages: [system],
-        },
-      });
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: {
+        messages: [system],
+      },
     });
 
     await waitFor(() => {
@@ -305,12 +282,10 @@ describe('MessageList', () => {
     const customRenderMessages = ({ messages }) =>
       messages.map((msg) => <li key={msg.id}>prefixed {msg.text}</li>);
 
-    await act(() => {
-      renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: { renderMessages: customRenderMessages },
-      });
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { renderMessages: customRenderMessages },
     });
 
     await waitFor(() => {

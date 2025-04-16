@@ -4,17 +4,16 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
-
 export type DeleteMessageNotifications = {
-  getErrorNotification?: (message: StreamMessage) => string;
+  getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useDeleteHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   notifications: DeleteMessageNotifications = {},
 ): ReactEventHandler => {
   const { getErrorNotification, notify } = notifications;

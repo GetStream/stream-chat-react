@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import type { StreamMessage } from '../../../../context';
+import type { RenderedMessage } from '../../utils';
 
 type UseScrollToBottomOnNewMessageParams = {
   scrollToBottom: () => void;
-  messages?: StreamMessage[];
+  messages?: RenderedMessage[];
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
 };

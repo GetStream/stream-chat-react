@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useTimeElapsed } from '../../MessageInput/hooks/useTimeElapsed';
+import { useTimeElapsed } from './hooks/useTimeElapsed';
 import { useMessageInputContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
 

@@ -2,12 +2,12 @@ import type { PropsWithChildren } from 'react';
 import React from 'react';
 import clsx from 'clsx';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 export type WindowProps = {
   /** optional prop to force addition of class str-chat__main-panel---with-thread-opn to the Window root element */
-  thread?: StreamMessage;
+  thread?: LocalMessage;
 };
 
 const UnMemoizedWindow = (props: PropsWithChildren<WindowProps>) => {

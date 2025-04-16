@@ -1,18 +1,19 @@
 import React from 'react';
 
-import type { ChannelPreviewInfoParams } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { CloseIcon } from './icons';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { ChannelPreviewInfoParams } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import type { LocalMessage } from 'stream-chat';
 
 export type ThreadHeaderProps = {
   /** Callback for closing the thread */
   closeThread: (event?: React.BaseSyntheticEvent) => void;
   /** The thread parent message */
-  thread: StreamMessage;
+  thread: LocalMessage;
 };
 
 export const ThreadHeader = (

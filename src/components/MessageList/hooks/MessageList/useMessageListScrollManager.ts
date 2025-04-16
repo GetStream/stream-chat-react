@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 
 import { useChatContext } from '../../../../context/ChatContext';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
 export type ContainerMeasures = {
   offsetHeight: number;
@@ -11,7 +10,7 @@ export type ContainerMeasures = {
 
 export type UseMessageListScrollManagerParams = {
   loadMoreScrollThreshold: number;
-  messages: StreamMessage[];
+  messages: LocalMessage[];
   onScrollBy: (scrollBy: number) => void;
   scrollContainerMeasures: () => ContainerMeasures;
   scrolledUpThreshold: number;
@@ -36,7 +35,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     offsetHeight: 0,
     scrollHeight: 0,
   });
-  const messages = useRef<StreamMessage[]>(undefined);
+  const messages = useRef<LocalMessage[]>(undefined);
   const scrollTop = useRef(0);
 
   useLayoutEffect(() => {

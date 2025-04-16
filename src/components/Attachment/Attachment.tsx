@@ -1,15 +1,11 @@
 import React, { useMemo } from 'react';
-import type { ReactPlayerProps } from 'react-player';
-import type { Attachment as StreamAttachment } from 'stream-chat';
-
 import {
   isAudioAttachment,
-  isFileAttachment,
-  isMediaAttachment,
+  isImageAttachment,
   isScrapedContent,
-  isUploadedImage,
   isVoiceRecordingAttachment,
-} from './utils';
+} from 'stream-chat';
+
 import {
   AudioContainer,
   CardContainer,
@@ -20,6 +16,10 @@ import {
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
+import { isFileAttachment, isMediaAttachment } from './utils';
+
+import type { ReactPlayerProps } from 'react-player';
+import type { Attachment as StreamAttachment } from 'stream-chat';
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
@@ -104,11 +104,11 @@ const renderGroupedAttachments = ({
   ...rest
 }: AttachmentProps): GroupedRenderedAttachment => {
   const uploadedImages: StreamAttachment[] = attachments.filter((attachment) =>
-    isUploadedImage(attachment),
+    isImageAttachment(attachment),
   );
 
   const containers = attachments
-    .filter((attachment) => !isUploadedImage(attachment))
+    .filter((attachment) => !isImageAttachment(attachment))
     .reduce<GroupedRenderedAttachment>(
       (typeMap, attachment) => {
         const attachmentType = getAttachmentType(attachment);

@@ -9,11 +9,7 @@ export type ThreadContextValue = Thread | undefined;
 
 export const ThreadContext = createContext<ThreadContextValue>(undefined);
 
-export const useThreadContext = () => {
-  const thread = useContext(ThreadContext);
-
-  return thread ?? undefined;
-};
+export const useThreadContext = () => useContext(ThreadContext);
 
 export const ThreadProvider = ({
   children,

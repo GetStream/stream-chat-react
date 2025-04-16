@@ -2,15 +2,14 @@ import type React from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
 export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   loadMoreScrollThreshold: number;
   suppressAutoscroll: boolean;
-  messages?: StreamMessage[];
+  messages?: LocalMessage[];
   scrolledUpThreshold?: number;
 };
 

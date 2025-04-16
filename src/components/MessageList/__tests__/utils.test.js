@@ -486,11 +486,20 @@ describe('getGroupStyles', () => {
 
     it('is date message', () => {
       if (position === 'bottom') {
-        nextMessage = { ...nextMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+        nextMessage = {
+          ...nextMessage,
+          customType: CUSTOM_MESSAGE_TYPE.date,
+          date: new Date(),
+        };
       }
       if (position === 'top') {
-        previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+        previousMessage = {
+          ...previousMessage,
+          customType: CUSTOM_MESSAGE_TYPE.date,
+          date: new Date(),
+        };
       }
+
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
         position,
       );

@@ -1,11 +1,11 @@
 import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
@@ -36,12 +36,12 @@ export type PinPermissions<
 };
 
 export type PinMessageNotifications = {
-  getErrorNotification?: (message: StreamMessage) => string;
+  getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const usePinHandler = (
-  message: StreamMessage,
+  message: LocalMessage,
   // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
   notifications: PinMessageNotifications = {},
@@ -62,8 +62,7 @@ export const usePinHandler = (
 
     if (!message.pinned) {
       try {
-        // @ts-expect-error type mismatch
-        const optimisticMessage: StreamMessage = {
+        const optimisticMessage: LocalMessage = {
           ...message,
           pinned: true,
           pinned_at: new Date(),

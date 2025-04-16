@@ -1,10 +1,15 @@
 import type { PropsWithChildren, ReactNode } from 'react';
 import React, { useContext } from 'react';
 
-import type { Mute, ReactionResponse, ReactionSort, UserResponse } from 'stream-chat';
+import type {
+  LocalMessage,
+  Mute,
+  ReactionResponse,
+  ReactionSort,
+  UserResponse,
+} from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
-import type { StreamMessage } from './ChannelStateContext';
 
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
@@ -23,7 +28,7 @@ import type { UnknownType } from '../types/types';
 
 export type CustomMessageActions = {
   [key: string]: (
-    message: StreamMessage,
+    message: LocalMessage,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
 };
@@ -71,7 +76,7 @@ export type MessageContextValue = {
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
-  message: StreamMessage;
+  message: LocalMessage;
   /** Indicates whether a message has not been read yet or has been marked unread */
   messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
@@ -109,7 +114,7 @@ export type MessageContextValue = {
   /**
    * A factory function that determines whether a message is AI generated or not.
    */
-  isMessageAIGenerated?: (message: StreamMessage) => boolean;
+  isMessageAIGenerated?: (message: LocalMessage) => boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */

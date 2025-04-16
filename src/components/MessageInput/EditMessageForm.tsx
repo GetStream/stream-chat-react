@@ -1,24 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { MessageInputFlat } from './MessageInputFlat';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useMessageComposer, useMessageComposerHasSendableData } from './hooks';
 
-import type { CustomTrigger } from '../../types/types';
+const EditMessageFormSendButton = () => {
+  const { t } = useTranslationContext();
+  const hasSendableData = useMessageComposerHasSendableData();
+  return (
+    <button
+      className='str-chat__edit-message-send'
+      data-testid='send-button-edit-form'
+      disabled={!hasSendableData}
+      type='submit'
+    >
+      {t<string>('Send')}
+    </button>
+  );
+};
 
-export const EditMessageForm = <V extends CustomTrigger = CustomTrigger>() => {
+export const EditMessageForm = () => {
   const { t } = useTranslationContext('EditMessageForm');
+  const messageComposer = useMessageComposer();
+  const { clearEditingState, handleSubmit } = useMessageInputContext('EditMessageForm');
 
-  const { clearEditingState, handleSubmit } =
-    useMessageInputContext<V>('EditMessageForm');
+  const cancel = useCallback(() => {
+    clearEditingState?.();
+    messageComposer.restore();
+  }, [clearEditingState, messageComposer]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') clearEditingState?.();
+      if (event.key === 'Escape') cancel();
     };
 
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [clearEditingState]);
+  }, [cancel]);
 
   return (
     <form
@@ -31,17 +49,11 @@ export const EditMessageForm = <V extends CustomTrigger = CustomTrigger>() => {
         <button
           className='str-chat__edit-message-cancel'
           data-testid='cancel-button'
-          onClick={clearEditingState}
+          onClick={cancel}
         >
           {t<string>('Cancel')}
         </button>
-        <button
-          className='str-chat__edit-message-send'
-          data-testid='send-button-edit-form'
-          type='submit'
-        >
-          {t<string>('Send')}
-        </button>
+        <EditMessageFormSendButton />
       </div>
     </form>
   );

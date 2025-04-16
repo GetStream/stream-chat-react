@@ -20,6 +20,8 @@ import {
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
 
+import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
+
 export const SimpleAttachmentSelector = () => {
   const {
     AttachmentSelectorInitiationButtonContents,
@@ -92,10 +94,12 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { isUploadEnabled } = useAttachmentManagerState();
 
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!isUploadEnabled} // todo: add styles for disabled state
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();
@@ -219,6 +223,7 @@ export const AttachmentSelector = ({
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}
+          tabIndex={-1}
           trapFocus
         >
           <div

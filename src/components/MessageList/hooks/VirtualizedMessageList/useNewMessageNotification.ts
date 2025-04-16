@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
+import type { RenderedMessage } from '../../utils';
 
 export function useNewMessageNotification(
-  messages: StreamMessage[],
+  messages: RenderedMessage[],
   currentUserId: string | undefined,
   hasMoreNewer?: boolean,
 ) {
@@ -37,7 +37,7 @@ export function useNewMessageNotification(
     if (atBottom.current) return;
 
     /* if the new message belongs to current user scroll to bottom */
-    if (lastMessage.user?.id !== currentUserId && didMount.current) {
+    if ((lastMessage as LocalMessage).user?.id !== currentUserId && didMount.current) {
       /* otherwise just show newMessage notification  */
       setNewMessagesNotification(true);
     }

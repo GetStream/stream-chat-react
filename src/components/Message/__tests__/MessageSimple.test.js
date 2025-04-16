@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -14,16 +14,14 @@ import { MESSAGE_ACTIONS } from '../utils';
 import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
-import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
 import { getReadStates } from '../../MessageList';
 import { MML as MMLMock } from '../../MML';
-import { Modal as ModalMock } from '../../Modal';
 import { defaultReactionOptions } from '../../Reactions';
 
 import {
   ChannelActionProvider,
   ChannelStateProvider,
-  ComponentProvider,
+  WithComponents,
 } from '../../../context';
 import {
   countReactions,
@@ -32,8 +30,10 @@ import {
   generateMessage,
   generateReaction,
   generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
   groupReactions,
+  useMockedApis,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 
@@ -41,16 +41,18 @@ expect.extend(toHaveNoViolations);
 
 Dayjs.extend(calendar);
 
-jest.mock('../MessageOptions', () => ({ MessageOptions: jest.fn(() => <div />) }));
-jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
-jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
-jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
-jest.mock('../../MessageInput', () => ({
-  EditMessageForm: jest.fn(() => <div data-testid='edit-message-form' />),
-  MessageInput: jest.fn(() => <div data-testid='message-input' />),
+jest.mock('../MessageOptions', () => ({
+  MessageOptions: jest.fn(() => <div data-testid='mocked-message-options' />),
+}));
+jest.mock('../MessageText', () => ({
+  MessageText: jest.fn(() => <div data-testid='mocked-message-text' />),
+}));
+jest.mock('../../MML', () => ({ MML: jest.fn(() => <div data-testid='mocked-mml' />) }));
+jest.mock('../../Avatar', () => ({
+  Avatar: jest.fn(() => <div data-testid='mocked-avatar' />),
 }));
 jest.mock('../../Modal', () => ({
-  Modal: jest.fn((props) => <div>{props.children}</div>),
+  Modal: jest.fn((props) => <div data-testid='mocked-modal'>{props.children}</div>),
 }));
 
 const alice = generateUser();
@@ -59,59 +61,6 @@ const carol = generateUser();
 const openThreadMock = jest.fn();
 const retrySendMessageMock = jest.fn();
 const removeMessageMock = jest.fn();
-
-async function renderMessageSimple({
-  channelCapabilities = { 'send-reaction': true },
-  channelConfigOverrides = { replies: true },
-  components = {},
-  message,
-  props = {},
-  renderer = render,
-}) {
-  const channel = generateChannel({
-    getConfig: () => channelConfigOverrides,
-    state: { membership: {} },
-  });
-
-  const channelConfig = channel.getConfig();
-  const client = await getTestClientWithUser(alice);
-  let result;
-
-  await act(() => {
-    result = renderer(
-      <Chat client={client}>
-        <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
-          <ChannelActionProvider
-            value={{
-              openThread: openThreadMock,
-              removeMessage: removeMessageMock,
-              retrySendMessage: retrySendMessageMock,
-            }}
-          >
-            <ComponentProvider
-              value={{
-                Attachment: AttachmentMock,
-
-                Message: () => <MessageSimple {...props} />,
-                reactionOptions: defaultReactionOptions,
-                ...components,
-              }}
-            >
-              <Message
-                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                isMyMessage={() => true}
-                message={message}
-                threadList={false}
-                {...props}
-              />
-            </ComponentProvider>
-          </ChannelActionProvider>
-        </ChannelStateProvider>
-      </Chat>,
-    );
-  });
-  return result;
-}
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
@@ -128,11 +77,79 @@ function generateBobMessage(messageOptions) {
 }
 
 describe('<MessageSimple />', () => {
-  afterEach(cleanup);
-  beforeEach(jest.clearAllMocks);
+  let channel;
+  let client;
+
+  async function renderMessageSimple({
+    channelCapabilities = { 'send-reaction': true },
+    channelConfigOverrides = { replies: true },
+    components = {},
+    message,
+    props = {},
+    renderer = render,
+  }) {
+    let result;
+    await act(() => {
+      result = renderer(
+        <Chat client={client}>
+          <ChannelStateProvider
+            value={{
+              channel,
+              channelCapabilities,
+              channelConfig: channelConfigOverrides,
+            }}
+          >
+            <ChannelActionProvider
+              value={{
+                openThread: openThreadMock,
+                removeMessage: removeMessageMock,
+                retrySendMessage: retrySendMessageMock,
+              }}
+            >
+              <WithComponents
+                overrides={{
+                  Attachment: AttachmentMock,
+                  Message: () => <MessageSimple {...props} />,
+                  reactionOptions: defaultReactionOptions,
+                  ...components,
+                }}
+              >
+                <Message
+                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                  isMyMessage={() => true}
+                  message={message}
+                  threadList={false}
+                  {...props}
+                />
+              </WithComponents>
+            </ChannelActionProvider>
+          </ChannelStateProvider>
+        </Chat>,
+      );
+    });
+    return result;
+  }
+
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
+
+  beforeEach(async () => {
+    const mockedChannel = generateChannel({
+      state: { membership: {} },
+    });
+
+    client = await getTestClientWithUser(alice);
+    useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+    channel = client.channel('messaging', mockedChannel.channel.id);
+  });
 
   it('should not render anything if message is of custom type message.date', async () => {
-    const message = generateAliceMessage({ customType: 'message.date' });
+    const message = generateAliceMessage({
+      customType: 'message.date',
+      date: new Date(),
+    });
     const { container } = await renderMessageSimple({ message });
     expect(container).toBeEmptyDOMElement();
   });
@@ -217,7 +234,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
 
-    const CustomEditMessageInput = () => <div>Edit Input</div>;
+    const CustomEditMessageInput = () => <div data-testid='custom-edit-message-input' />;
 
     const { container } = await renderMessageSimple({
       components: {
@@ -227,14 +244,8 @@ describe('<MessageSimple />', () => {
       props: { clearEditingState, editing: true },
     });
 
-    expect(MessageInputMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        clearEditingState,
-        Input: CustomEditMessageInput,
-        message,
-      }),
-      undefined,
-    );
+    expect(await screen.findByTestId('custom-edit-message-input')).toBeInTheDocument();
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -297,21 +308,9 @@ describe('<MessageSimple />', () => {
         editing: true,
       },
     });
-    expect(ModalMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        onClose: clearEditingState,
-        open: true,
-      }),
-      undefined,
-    );
-    expect(MessageInputMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        clearEditingState,
-        Input: EditMessageForm,
-        message,
-      }),
-      undefined,
-    );
+
+    expect(await screen.findByTestId('mocked-modal')).toBeInTheDocument();
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -678,20 +677,29 @@ describe('<MessageSimple />', () => {
     ],
   ])('bounced message %s', (_, bouncedMessageOptions) => {
     it('should render error badge for bounced messages', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const { queryByTestId } = await renderMessageSimple({ message });
       expect(queryByTestId('error')).toBeInTheDocument();
     });
 
     it('should render open bounce modal on click', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const { getByTestId, queryByTestId } = await renderMessageSimple({ message });
       fireEvent.click(getByTestId('message-inner'));
       expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
     });
 
     it('should switch to message editing', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const { getByTestId, queryByTestId } = await renderMessageSimple({
         message,
       });
@@ -701,7 +709,10 @@ describe('<MessageSimple />', () => {
     });
 
     it('should retry sending message', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const { getByTestId } = await renderMessageSimple({
         message,
       });
@@ -715,7 +726,10 @@ describe('<MessageSimple />', () => {
     });
 
     it('should remove message', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const { getByTestId } = await renderMessageSimple({
         message,
       });
@@ -729,7 +743,10 @@ describe('<MessageSimple />', () => {
     });
 
     it('should use overriden modal content component', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const CustomMessageBouncePrompt = () => (
         <div data-testid='custom-message-bounce-prompt'>Overriden</div>
       );
@@ -744,7 +761,10 @@ describe('<MessageSimple />', () => {
     });
 
     it('should use overriden modal content text', async () => {
-      const message = generateAliceMessage(bouncedMessageOptions);
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
       const CustomMessageBouncePrompt = () => (
         <MessageBouncePrompt>Overriden</MessageBouncePrompt>
       );

@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
+import { isLocalMessage } from '../utils';
 import { getReadStates } from '../utils';
 
-import type { UserResponse } from 'stream-chat';
-
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { RenderedMessage } from '../utils';
 
 type UseLastReadDataParams = {
-  messages: StreamMessage[];
+  messages: RenderedMessage[];
   returnAllReadData: boolean;
   userID: string | undefined;
   read?: Record<string, { last_read: Date; user: UserResponse }>;
@@ -16,13 +16,10 @@ type UseLastReadDataParams = {
 export const useLastReadData = (props: UseLastReadDataParams) => {
   const { messages, read, returnAllReadData, userID } = props;
 
-  return useMemo(
-    () =>
-      getReadStates(
-        messages.filter(({ user }) => user?.id === userID),
-        read,
-        returnAllReadData,
-      ),
-    [messages, read, returnAllReadData, userID],
-  );
+  return useMemo(() => {
+    const ownLocalMessages = messages.filter(
+      (msg) => isLocalMessage(msg) && msg.user?.id === userID,
+    ) as LocalMessage[];
+    return getReadStates(ownLocalMessages, read, returnAllReadData);
+  }, [messages, read, returnAllReadData, userID]);
 };

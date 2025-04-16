@@ -1,17 +1,21 @@
-import type { StreamMessage } from '../../../context';
 import { useChatContext, useTranslationContext } from '../../../context';
-import type { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
+import type {
+  LocalMessage,
+  ReactionResponse,
+  ReactionSort,
+  StreamChat,
+} from 'stream-chat';
 import type { ReactionType } from '../../Reactions/types';
 
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 
 type FetchMessageReactionsNotifications = {
-  getErrorNotification?: (message: StreamMessage) => string;
+  getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export function useReactionsFetcher(
-  message: StreamMessage,
+  message: LocalMessage,
   notifications: FetchMessageReactionsNotifications = {},
 ) {
   const { client } = useChatContext('useRectionsFetcher');

@@ -1,4 +1,11 @@
-import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import { useEffect } from 'react';
+import {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  LocalMessage,
+  TextComposerMiddleware,
+} from 'stream-chat';
 import {
   AIStateIndicator,
   Channel,
@@ -8,13 +15,20 @@ import {
   Chat,
   ChatView,
   MessageInput,
-  StreamMessage,
   Thread,
   ThreadList,
+  useChatContext,
   useCreateChatClient,
   VirtualizedMessageList as MessageList,
   Window,
+  SendButtonProps,
+  useMessageComposer,
 } from 'stream-chat-react';
+import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
+import { init, SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
+
+init({ data });
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -35,12 +49,27 @@ const userId = parseUserIdFromToken(userToken);
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
-  archived: false,
+  // archived: false,
 };
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
-const isMessageAIGenerated = (message: StreamMessage) => !!message?.ai_generated;
+// @ts-ignore
+const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
+
+const Btn = ({ sendMessage }: SendButtonProps) => {
+  const messageComposer = useMessageComposer();
+  return (
+    <button
+      onClick={(e) => {
+        messageComposer.customDataManager.setData({ a: 'b' });
+        sendMessage(e);
+      }}
+    >
+      Submit
+    </button>
+  );
+};
 
 const App = () => {
   const chatClient = useCreateChatClient({
@@ -48,6 +77,24 @@ const App = () => {
     tokenOrProvider: userToken,
     userData: { id: userId },
   });
+
+  useEffect(() => {
+    if (!chatClient) return;
+
+    chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [
+          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
+        ],
+        position: { before: 'stream-io/text-composer/mentions-middleware' },
+        unique: true,
+      });
+      composer.attachmentManager.setCustomUploadFn(async (fileLike) => {
+        return composer.attachmentManager.doDefaultUploadRequest(fileLike);
+      });
+      // composer.customDataManager =
+    });
+  }, [chatClient]);
 
   if (!chatClient) return <>Loading...</>;
 
@@ -64,12 +111,12 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel>
+          <Channel emojiSearchIndex={SearchIndex} SendButton={Btn}>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <AIStateIndicator />
-              <MessageInput focus />
+              <MessageInput focus audioRecordingEnabled />
             </Window>
             <Thread virtualized />
           </Channel>

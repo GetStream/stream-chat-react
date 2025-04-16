@@ -15,7 +15,6 @@ import type {
   EventComponentProps,
   FixedHeightMessageProps,
   GiphyPreviewMessageProps,
-  LinkPreviewListProps,
   LoadingIndicatorProps,
   MessageBouncePromptProps,
   MessageDeletedProps,
@@ -41,8 +40,6 @@ import type {
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
-  SuggestionItemProps,
-  SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
@@ -51,16 +48,22 @@ import type {
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
+
+import type {
+  SuggestionItemProps,
+  SuggestionListProps,
+} from '../components/TextAreaComposer';
+
 import type {
   SearchProps,
   SearchResultsPresearchProps,
   SearchSourceResultListProps,
 } from '../experimental';
 
-import type { CustomTrigger, PropsWithChildrenOnly, UnknownType } from '../types/types';
+import type { PropsWithChildrenOnly, UnknownType } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 
-export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
+export type ComponentContextValue = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps>;
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
@@ -72,8 +75,10 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
+  // TODO: X rename to SuggestionListItem
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps>;
   /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
+  // TODO: X rename to SuggestionList
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps>;
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
@@ -105,9 +110,9 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: React.ComponentType;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
-  Input?: React.ComponentType<MessageInputProps<V>>;
+  Input?: React.ComponentType<MessageInputProps>;
   /** Custom component to render link previews in message input **/
-  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
+  LinkPreviewList?: React.ComponentType;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
@@ -200,7 +205,7 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
   ThreadHead?: React.ComponentType<MessageProps>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: React.ComponentType<ThreadHeaderProps>;
-  ThreadInput?: React.ComponentType<MessageInputProps<V>>;
+  ThreadInput?: React.ComponentType<MessageInputProps>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;
@@ -224,40 +229,35 @@ export type ComponentContextValue<V extends CustomTrigger = CustomTrigger> = {
 
 export const ComponentContext = React.createContext<ComponentContextValue>({});
 
-export const ComponentProvider = <V extends CustomTrigger = CustomTrigger>({
+export const ComponentProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<V>>;
+  value: Partial<ComponentContextValue>;
 }>) => (
   <ComponentContext.Provider value={value as unknown as ComponentContextValue}>
     {children}
   </ComponentContext.Provider>
 );
 
-export const useComponentContext = <V extends CustomTrigger = CustomTrigger>(
+export const useComponentContext = (
   /**
    * @deprecated
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
-) => useContext(ComponentContext) as unknown as ComponentContextValue<V>;
+) => useContext(ComponentContext) as unknown as ComponentContextValue;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext
  * typing is desired while using the HOC withComponentContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withComponentContext = <
-  P extends UnknownType,
-  V extends CustomTrigger = CustomTrigger,
->(
+export const withComponentContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
-  const WithComponentContextComponent = (
-    props: Omit<P, keyof ComponentContextValue<V>>,
-  ) => {
-    const componentContext = useComponentContext<V>();
+  const WithComponentContextComponent = (props: Omit<P, keyof ComponentContextValue>) => {
+    const componentContext = useComponentContext();
 
     return <Component {...(props as P)} {...componentContext} />;
   };

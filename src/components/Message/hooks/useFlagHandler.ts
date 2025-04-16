@@ -3,21 +3,20 @@ import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
-
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
 export type FlagMessageNotifications = {
-  getErrorNotification?: (message: StreamMessage) => string;
-  getSuccessNotification?: (message: StreamMessage) => string;
+  getErrorNotification?: (message: LocalMessage) => string;
+  getSuccessNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useFlagHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   notifications: FlagMessageNotifications = {},
 ): ReactEventHandler => {
   const { client } = useChatContext('useFlagHandler');
