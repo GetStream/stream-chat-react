@@ -42,7 +42,7 @@ export const useSubmitHandler = (props: MessageInputProps) => {
             await sendMessage({ localMessage, message, options: sendOptions });
           }
           messageComposer.clear();
-          if (messageComposer.config.publishTypingEvents)
+          if (messageComposer.config.text.publishTypingEvents)
             await messageComposer.channel.stopTyping();
         } catch (err) {
           addNotification(t('Send message request failed'), 'error');

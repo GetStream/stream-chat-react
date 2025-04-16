@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
+import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
@@ -11,12 +12,11 @@ import {
 import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
 import { useAttachmentManagerState } from '../MessageInput/hooks/messageComposer/useAttachmentManagerState';
 import { useStateStore } from '../../store';
-import type { ComponentProps } from 'react';
-import type { AttachmentManagerConfig } from 'stream-chat';
+import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';
 
-const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
-  maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  maxNumberOfFilesPerMessage: state.attachments.maxNumberOfFilesPerMessage,
 });
 
 /**
@@ -55,10 +55,11 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   const { t } = useTranslationContext('UploadFileInput');
   const { cooldownRemaining } = useMessageInputContext();
   const { acceptedFiles = [] } = useChannelStateContext('UploadFileInput');
-  const { attachmentManager } = useMessageComposer();
+  const messageComposer = useMessageComposer();
+  const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
   const { maxNumberOfFilesPerMessage } = useStateStore(
-    attachmentManager.configState,
+    messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
   const id = useMemo(() => nanoid(), []);

@@ -31,12 +31,12 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
-import type { AttachmentManagerConfig } from 'stream-chat';
 import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
 import { useMessageContext } from '../../context';
+import type { MessageComposerConfig } from 'stream-chat';
 
-const attachmentManagerConfigStateSelector = (state: AttachmentManagerConfig) => ({
-  maxNumberOfFilesPerMessage: state.maxNumberOfFilesPerMessage,
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  maxNumberOfFilesPerMessage: state.attachments.maxNumberOfFilesPerMessage,
 });
 
 export const MessageInputFlat = () => {
@@ -66,7 +66,8 @@ export const MessageInputFlat = () => {
   } = useComponentContext('MessageInputFlat');
   const { acceptedFiles = [] } = useChannelStateContext('MessageInputFlat');
   const { channel } = useChatContext('MessageInputFlat');
-  const { attachmentManager } = useMessageComposer();
+  const messageComposer = useMessageComposer();
+  const { attachmentManager } = messageComposer;
   const { aiState } = useAIState(channel);
 
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
@@ -90,7 +91,7 @@ export const MessageInputFlat = () => {
 
   const { attachments, isUploadEnabled } = useAttachmentManagerState();
   const { maxNumberOfFilesPerMessage } = useStateStore(
-    attachmentManager.configState,
+    messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
 

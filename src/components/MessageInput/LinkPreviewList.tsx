@@ -1,25 +1,23 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { LinkPreviewStatus } from 'stream-chat';
+import type {
+  LinkPreview,
+  LinkPreviewsManagerState,
+  MessageComposerState,
+} from 'stream-chat';
+import { LinkPreviewStatus, type MessageComposerConfig } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { CloseIcon, LinkIcon } from './icons';
 
-import type {
-  LinkPreview,
-  LinkPreviewsManagerConfig,
-  LinkPreviewsManagerState,
-  MessageComposerState,
-} from 'stream-chat';
-
 const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
   linkPreviews: Array.from(state.previews.values()),
 });
 
-const linkPreviewsManagerConfigStateSelector = (state: LinkPreviewsManagerConfig) => ({
-  linkPreviewsEnabled: state.enabled,
+const linkPreviewsManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  linkPreviewsEnabled: state.linkPreviews.enabled,
 });
 
 const messageComposerStateSelector = (state: MessageComposerState) => ({
@@ -38,7 +36,7 @@ export const LinkPreviewList = () => {
     linkPreviewsManagerStateSelector,
   );
   const { linkPreviewsEnabled } = useStateStore(
-    linkPreviewsManager.configState,
+    messageComposer.configState,
     linkPreviewsManagerConfigStateSelector,
   );
   const showLinkPreviews =
