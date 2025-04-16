@@ -373,9 +373,9 @@ export function isIntroMessage(message: unknown): message is IntroMessage {
 export function isDateSeparatorMessage(
   message: unknown,
 ): message is DateSeparatorMessage {
-  if (typeof message === 'undefined') return false;
-
   return (
+    message !== null &&
+    typeof message === 'object' &&
     (message as DateSeparatorMessage).customType === CUSTOM_MESSAGE_TYPE.date &&
     isDate((message as DateSeparatorMessage).date)
   );

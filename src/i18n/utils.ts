@@ -25,6 +25,8 @@ export const isDayOrMoment = (
 ): output is Dayjs.Dayjs | Moment => !!(output as Dayjs.Dayjs | Moment)?.isSame;
 
 export const isDate = (output: unknown): output is Date =>
+  output !== null &&
+  typeof output === 'object' &&
   typeof (output as Date).getTime === 'function';
 
 export function getDateString({
