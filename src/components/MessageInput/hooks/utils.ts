@@ -1,9 +1,5 @@
 import type { UserResponse } from 'stream-chat';
 
-import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';
-import type { ChatContextValue } from '../../../context/ChatContext';
-import type { TranslationContextValue } from '../../../context/TranslationContext';
-
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
   c: 'ç|Ç',

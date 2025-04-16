@@ -63,9 +63,9 @@ const threadMessage = generateMessage({
 });
 const mockedChannelData = generateChannel({
   channel: {
-    type: 'messaging',
     id: 'general',
     own_capabilities: ['send-poll', 'upload-file'],
+    type: 'messaging',
   },
   members: [generateMember({ user }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
