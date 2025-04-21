@@ -5,7 +5,7 @@ import type {
   LinkPreviewsManagerState,
   MessageComposerState,
 } from 'stream-chat';
-import { LinkPreviewStatus, type MessageComposerConfig } from 'stream-chat';
+import { LinkPreviewsManager } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
@@ -13,11 +13,11 @@ import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
 import { CloseIcon, LinkIcon } from './icons';
 
 const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
-  linkPreviews: Array.from(state.previews.values()),
-});
-
-const linkPreviewsManagerConfigStateSelector = (state: MessageComposerConfig) => ({
-  linkPreviewsEnabled: state.linkPreviews.enabled,
+  linkPreviews: Array.from(state.previews.values()).filter(
+    (preview) =>
+      LinkPreviewsManager.previewIsLoaded(preview) ||
+      LinkPreviewsManager.previewIsLoading(preview),
+  ),
 });
 
 const messageComposerStateSelector = (state: MessageComposerState) => ({
@@ -35,22 +35,16 @@ export const LinkPreviewList = () => {
     linkPreviewsManager.state,
     linkPreviewsManagerStateSelector,
   );
-  const { linkPreviewsEnabled } = useStateStore(
-    messageComposer.configState,
-    linkPreviewsManagerConfigStateSelector,
-  );
-  const showLinkPreviews =
-    linkPreviewsEnabled && linkPreviews.length > 0 && !quotedMessage;
+
+  const showLinkPreviews = linkPreviews.length > 0 && !quotedMessage;
 
   if (!showLinkPreviews) return null;
 
   return (
     <div className='str-chat__link-preview-list'>
-      {linkPreviews.map((linkPreview) =>
-        linkPreview.status === LinkPreviewStatus.LOADED ? (
-          <LinkPreviewCard key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
-        ) : null,
-      )}
+      {linkPreviews.map((linkPreview) => (
+        <LinkPreviewCard key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
+      ))}
     </div>
   );
 };
@@ -60,14 +54,22 @@ type LinkPreviewProps = {
 };
 
 const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
+  const { linkPreviewsManager } = useMessageComposer();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+
+  if (
+    !LinkPreviewsManager.previewIsLoaded(linkPreview) &&
+    !LinkPreviewsManager.previewIsLoading(linkPreview)
+  )
+    return null;
+
   return (
     <div
       className={clsx('str-chat__link-preview-card', {
         'str-chat__link-preview-card--loading':
-          linkPreview.status === LinkPreviewStatus.LOADING,
+          LinkPreviewsManager.previewIsLoading(linkPreview),
       })}
       data-testid='link-preview-card'
     >
@@ -97,7 +99,8 @@ const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
       <button
         className='str-chat__link-preview-card__dismiss-button'
         data-testid='link-preview-card-dismiss-btn'
-        onClick={linkPreview.dismiss}
+        onClick={() => linkPreviewsManager.dismissPreview(linkPreview.og_scrape_url)}
+        type='button'
       >
         <CloseIcon />
       </button>
