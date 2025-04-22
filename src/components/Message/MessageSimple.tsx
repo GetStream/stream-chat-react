@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
+import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
@@ -11,6 +12,7 @@ import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import {
   areMessageUIPropsEqual,
+  isMessageBlocked,
   isMessageBounced,
   isMessageEdited,
   messageHasAttachments,
@@ -69,6 +71,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
     MessageActions = MessageOptions,
+    MessageBlocked = DefaultMessageBlocked,
     MessageDeleted = DefaultMessageDeleted,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
@@ -91,6 +94,10 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   if (message.deleted_at || message.type === 'deleted') {
     return <MessageDeleted message={message} />;
+  }
+
+  if (isMessageBlocked(message)) {
+    return <MessageBlocked />;
   }
 
   const showMetadata = !groupedByUser || endOfGroup;

@@ -374,8 +374,9 @@ export function isDateSeparatorMessage(
   message: unknown,
 ): message is DateSeparatorMessage {
   return (
+    message !== null &&
+    typeof message === 'object' &&
     (message as DateSeparatorMessage).customType === CUSTOM_MESSAGE_TYPE.date &&
-    !!(message as DateSeparatorMessage).date &&
     isDate((message as DateSeparatorMessage).date)
   );
 }
