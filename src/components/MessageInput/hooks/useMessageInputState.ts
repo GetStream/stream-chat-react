@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useMessageComposer } from './messageComposer/useMessageComposer';
+import { useMessageComposer } from './messageComposer';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';

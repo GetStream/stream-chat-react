@@ -9,7 +9,7 @@ import { LinkPreviewsManager } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from './hooks';
 import { CloseIcon, LinkIcon } from './icons';
 
 const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({

@@ -3,7 +3,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageInputProps } from '../MessageInput';
-import { useMessageComposer } from './messageComposer/useMessageComposer';
+import { useMessageComposer } from './messageComposer';
 
 export const useSubmitHandler = (props: MessageInputProps) => {
   const { clearEditingState, overrideSubmitHandler } = props;

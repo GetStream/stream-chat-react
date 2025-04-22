@@ -2,7 +2,7 @@ import type { PropsWithChildren } from 'react';
 import React, { useEffect } from 'react';
 
 import { MessageInputFlat } from './MessageInputFlat';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from './hooks';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
@@ -40,8 +40,15 @@ export interface EmojiSearchIndex {
 }
 
 export type MessageInputProps = {
-  /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
-  additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  /**
+   * Additional props to be passed to the underlying `AutoCompleteTextarea` component.
+   * Default value is handled via MessageComposer.
+   * [Available props](https://www.npmjs.com/package/react-textarea-autosize)
+   */
+  additionalTextareaProps?: Omit<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    'defaultValue'
+  >;
   /**
    * When enabled, recorded messages won’t be sent immediately.
    * Instead, they will “stack up” with other attachments in the message composer allowing the user to send multiple attachments as part of the same message.
@@ -71,8 +78,6 @@ export type MessageInputProps = {
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
   focus?: boolean;
-  /** Generates the default value for the underlying textarea element. The function's return value takes precedence before additionalTextareaProps.defaultValue. */
-  getDefaultValue?: () => string | string[];
   /** If true, expands the text input vertically for new lines */
   grow?: boolean;
   /** Allows to hide MessageInput's send button. */

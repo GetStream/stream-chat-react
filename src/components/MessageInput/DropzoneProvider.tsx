@@ -15,20 +15,24 @@ import {
 import type { MessageInputProps } from './MessageInput';
 
 import type { UnknownType } from '../../types/types';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
-import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
+import { useMessageComposer } from './hooks';
+import { useAttachmentManagerState } from './hooks';
+import { useStateStore } from '../../store';
+import type { MessageComposerConfig } from 'stream-chat';
 
-// const attachmentManagerStateSelector = <
-//
-// >(
-//   state: AttachmentManagerState,
-// ) => ({ isUploadEnabled: state.isUploadEnabled });
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  maxNumberOfFilesPerMessage: state.attachments.maxNumberOfFilesPerMessage,
+});
 
 const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
   const { acceptedFiles } = useChannelStateContext('DropzoneProvider');
 
   const { cooldownRemaining } = useMessageInputContext('DropzoneProvider');
   const messageComposer = useMessageComposer();
+  const { maxNumberOfFilesPerMessage } = useStateStore(
+    messageComposer.configState,
+    attachmentManagerConfigStateSelector,
+  );
   const { availableUploadSlots, isUploadEnabled } = useAttachmentManagerState();
 
   return (
@@ -37,7 +41,7 @@ const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
       disabled={!isUploadEnabled || !!cooldownRemaining}
       handleFiles={messageComposer.attachmentManager.uploadFiles}
       maxNumberOfFiles={availableUploadSlots}
-      multiple={messageComposer.attachmentManager.maxNumberOfFilesPerMessage > 1}
+      multiple={maxNumberOfFilesPerMessage > 1}
     >
       {children}
     </ImageDropzone>

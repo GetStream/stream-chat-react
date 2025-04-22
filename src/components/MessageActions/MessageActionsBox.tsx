@@ -12,7 +12,7 @@ import {
 } from '../../context';
 
 import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
-import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from '../MessageInput';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'

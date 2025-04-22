@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MediaRecorderController } from '../classes';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposer } from '../../MessageInput/hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from '../../MessageInput';
 
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';

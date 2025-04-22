@@ -1,9 +1,8 @@
 import clsx from 'clsx';
+import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
-import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
-
-import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 'react';
+import { useMessageComposer } from '../MessageInput';
 import type { SearchSourceState, TextComposerState } from 'stream-chat';
 import {
   useComponentContext,
@@ -18,6 +17,7 @@ const textComposerStateSelector = (state: TextComposerState) => ({
   suggestions: state.suggestions,
   text: state.text,
 });
+
 const searchSourceStateSelector = (state: SearchSourceState) => ({
   isLoadingItems: state.isLoading,
   items: state.items,
@@ -43,7 +43,7 @@ const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
  */
 export type TextComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
-  'style'
+  'style' | 'defaultValue'
 > & {
   closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
@@ -61,22 +61,35 @@ export const TextAreaComposer = ({
   containerClassName,
   disabled,
   // dropdownClassName, // todo: X find a different way to prevent prop drilling
-  grow,
+  grow: growProp,
   // itemClassName, // todo: X find a different way to prevent prop drilling
   listClassName,
-  maxRows,
+  maxRows: maxRowsProp = 1,
   onBlur,
   onChange,
   onKeyDown,
   onScroll,
-  placeholder,
-  shouldSubmit = defaultShouldSubmit,
+  placeholder: placeholderProp,
+  shouldSubmit: shouldSubmitProp,
   ...restProps
 }: TextComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
-  const { cooldownRemaining, handleSubmit, onPaste, textareaRef } =
-    useMessageInputContext();
+  const {
+    additionalTextareaProps,
+    cooldownRemaining,
+    grow: growContext,
+    handleSubmit,
+    maxRows: maxRowsContext,
+    onPaste,
+    shouldSubmit: shouldSubmitContext,
+    textareaRef,
+  } = useMessageInputContext();
+
+  const grow = growProp ?? growContext;
+  const maxRows = maxRowsProp ?? maxRowsContext;
+  const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
+  const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
@@ -84,6 +97,7 @@ export const TextAreaComposer = ({
     textComposer.state,
     textComposerStateSelector,
   );
+
   const { isLoadingItems } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
 
@@ -229,7 +243,6 @@ export const TextAreaComposer = ({
           className,
         )}
         data-testid='message-input'
-        defaultValue={undefined}
         disabled={disabled || !!cooldownRemaining}
         maxRows={grow ? maxRows : 1}
         onBlur={onBlur}

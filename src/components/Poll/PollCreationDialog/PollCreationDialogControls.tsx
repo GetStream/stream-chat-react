@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMessageComposer } from '../../MessageInput/hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from '../../MessageInput';
 import { useMessageInputContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';

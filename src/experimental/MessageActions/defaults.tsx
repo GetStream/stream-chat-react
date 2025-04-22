@@ -8,11 +8,11 @@ import {
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import { useMessageComposer } from '../../components';
 
 import type { ComponentPropsWithoutRef } from 'react';
 
 import type { MessageActionSetItem } from './MessageActions';
-import { useMessageComposer } from '../../components/MessageInput/hooks/messageComposer/useMessageComposer';
 
 export const DefaultDropdownActionButton = ({
   'aria-selected': ariaSelected = 'false',

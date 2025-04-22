@@ -10,7 +10,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import { useStateStore } from '../../store';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from './hooks';
 import { renderText as defaultRenderText } from '../Message/renderText';
 import type { MessageComposerState, TranslationLanguages } from 'stream-chat';
 import type { MessageContextValue } from '../../context';

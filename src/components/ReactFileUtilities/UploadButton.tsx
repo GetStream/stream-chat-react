@@ -9,7 +9,7 @@ import {
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import { useMessageComposer } from '../MessageInput/hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from '../MessageInput';
 import { useAttachmentManagerState } from '../MessageInput/hooks/messageComposer/useAttachmentManagerState';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';

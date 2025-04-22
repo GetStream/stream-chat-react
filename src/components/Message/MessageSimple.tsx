@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
@@ -19,13 +19,8 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-  useMessageComposer,
-} from '../MessageInput';
+import { EditMessageModal } from '../MessageInput';
 import { MML } from '../MML';
-import { Modal } from '../Modal';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
@@ -40,34 +35,6 @@ import type { MessageUIComponentProps } from './types';
 
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
-
-const EditMessageModal = ({
-  additionalMessageInputProps,
-}: Pick<MessageUIComponentProps, 'additionalMessageInputProps'>) => {
-  const { EditMessageInput = DefaultEditMessageForm } = useComponentContext();
-  const { clearEditingState } = useMessageContext();
-  const messageComposer = useMessageComposer();
-  const onEditModalClose = useCallback(() => {
-    clearEditingState();
-    messageComposer.restore();
-  }, [clearEditingState, messageComposer]);
-
-  return (
-    <Modal
-      className='str-chat__edit-message-modal'
-      onClose={onEditModalClose}
-      open={true}
-    >
-      <MessageInput
-        clearEditingState={clearEditingState}
-        grow
-        hideSendButton
-        Input={EditMessageInput}
-        {...additionalMessageInputProps}
-      />
-    </Modal>
-  );
-};
 
 type MessageSimpleWithContextProps = MessageContextValue;
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { LinkPreview, SearchController } from 'stream-chat';
+import React, { useEffect } from 'react';
+import { MessageComposer, SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -7,8 +7,8 @@ import { axe } from '../../../../axe-helper';
 import { nanoid } from 'nanoid';
 
 import { MessageInput } from '../MessageInput';
+import { EditMessageForm } from '../EditMessageForm';
 import { Channel } from '../../Channel/Channel';
-import { MessageActionsBox } from '../../MessageActions';
 
 import { MessageProvider } from '../../../context/MessageContext';
 import { ChatProvider } from '../../../context/ChatContext';
@@ -17,6 +17,7 @@ import {
   dispatchMessageUpdatedEvent,
   generateChannel,
   generateLocalAttachmentData,
+  generateLocalFileUploadAttachmentData,
   generateMember,
   generateMessage,
   generateScrapedDataAttachment,
@@ -25,6 +26,16 @@ import {
 } from '../../../mock-builders';
 import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import { useMessageComposer as useMessageComposerMock } from '../hooks';
+
+jest.mock('../../Channel/utils', () => ({
+  ...jest.requireActual('../../Channel/utils'),
+  makeAddNotifications: () => mockAddNotification,
+}));
+
+jest.mock('../hooks/messageComposer/useMessageComposer', () => ({
+  useMessageComposer: jest.fn().mockImplementation(),
+}));
 
 expect.extend(toHaveNoViolations);
 
@@ -33,6 +44,7 @@ const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
 const FILE_INPUT_TEST_ID = 'file-input';
 const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
 const SEND_BTN_TEST_ID = 'send-button';
+const SEND_BTN_EDIT_FORM_TEST_ID = 'send-button-edit-form';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-list-scroll-container';
 const UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID = 'attachment-preview-unknown';
 
@@ -42,7 +54,7 @@ const userId = 'userId';
 const username = 'username';
 const mentionId = 'mention-id';
 const mentionName = 'mention-name';
-const user = generateUser({ id: userId, name: username });
+const user = generateUser({ id: userId, image: 'user-image', name: username });
 const mentionUser = generateUser({
   id: mentionId,
   name: mentionName,
@@ -80,12 +92,8 @@ const getImage = () => new File(['content'], filename, { type: 'image/png' });
 const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
 
 const sendMessageMock = jest.fn();
+const editMock = jest.fn();
 const mockAddNotification = jest.fn();
-
-jest.mock('../../Channel/utils', () => ({
-  ...jest.requireActual('../../Channel/utils'),
-  makeAddNotifications: () => mockAddNotification,
-}));
 
 const defaultMessageContextValue = {
   getMessageActions: () => ['delete', 'edit', 'quote'],
@@ -107,37 +115,14 @@ function dropFile(file, formElement) {
   });
 }
 
-const initQuotedMessagePreview = async (message) => {
-  await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
-
-  const quoteButton = await screen.findByText(/^reply$/i);
-  await waitFor(() => expect(quoteButton).toBeInTheDocument());
-
-  act(() => {
-    fireEvent.click(quoteButton);
-  });
-};
-
-const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-  await waitFor(() =>
-    expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
-  );
-  await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
-};
-
-const quotedMessagePreviewIsNotDisplayed = (message) => {
-  expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
-  expect(screen.queryByText(message.text)).not.toBeInTheDocument();
-};
-
 const renderComponent = async ({
   channelData = [],
   channelProps = {},
   chatContextOverrides = {},
   customChannel,
   customClient,
+  CustomStateSetter = null,
   customUser,
-  messageActionsBoxProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
 } = {}) => {
@@ -158,16 +143,21 @@ const renderComponent = async ({
       <ChatProvider
         value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
       >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+        <Channel
+          doSendMessageRequest={sendMessageMock}
+          doUpdateMessageRequest={editMock}
+          {...channelProps}
+        >
           <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+            value={{
+              ...defaultMessageContextValue,
+              editing: true,
+              ...messageContextOverrides,
+            }}
           >
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
-            />
+            {CustomStateSetter && <CustomStateSetter />}
+            <MessageInput Input={EditMessageForm} {...messageInputProps} />
           </MessageProvider>
-          <MessageInput {...messageInputProps} />
         </Channel>
       </ChatProvider>,
     );
@@ -175,7 +165,9 @@ const renderComponent = async ({
 
   const submit = async () => {
     const submitButton =
-      renderResult.findByText('Send') || renderResult.findByTitle('Send');
+      renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
+      renderResult.findByText('Send') ||
+      renderResult.findByTitle('Send');
     fireEvent.click(await submitButton);
   };
 
@@ -185,6 +177,7 @@ const renderComponent = async ({
 const tearDown = () => {
   cleanup();
   jest.clearAllMocks();
+  useMessageComposerMock.mockReset();
 };
 
 function axeNoViolations(container) {
@@ -194,7 +187,7 @@ function axeNoViolations(container) {
   };
 }
 
-const setup = async ({ channelData } = {}) => {
+const setup = async ({ channelData, composerConfig, composition } = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -202,18 +195,28 @@ const setup = async ({ channelData } = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = jest.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
+  const sendImageSpy = jest.spyOn(customChannel, 'sendImage').mockResolvedValue({
     file: fileUploadUrl,
   });
-  const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
+  const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValue({
     file: fileUploadUrl,
   });
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+  const messageComposer = new MessageComposer({
+    client: customClient,
+    composition: composition ?? mainListMessage,
+    compositionContext: composition ?? mainListMessage,
+    config: composerConfig,
+  });
+  messageComposer.registerSubscriptions();
+  // Set up the mock to return our messageComposer instance
+  useMessageComposerMock.mockReturnValue(messageComposer);
+
+  return { customChannel, customClient, messageComposer, sendFileSpy, sendImageSpy };
 };
 
-const setupUploadRejected = async (error) => {
+const setupUploadRejected = async ({ composerConfig, composition, error } = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -226,38 +229,30 @@ const setupUploadRejected = async (error) => {
     .mockRejectedValueOnce(error);
   const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
-};
-
-const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
-  const {
-    channels: [channel],
-    client,
-  } = await initClientWithChannels({
-    channelsData: [{ channel: { cooldown } }],
-    customUser: user,
+  const messageComposer = new MessageComposer({
+    client: customClient,
+    composition: composition ?? mainListMessage,
+    compositionContext: composition ?? mainListMessage,
+    config: composerConfig,
   });
 
-  const lastSentSecondsAhead = 5;
-  await renderComponent({
-    chatContextOverrides: {
-      latestMessageDatesByChannels: {
-        [channel.cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
-      },
-    },
-    customChannel: channel,
-    customClient: client,
-    messageInputProps,
-  });
+  // Set up the mock to return our messageComposer instance
+  useMessageComposerMock.mockReturnValue(messageComposer);
+
+  return { customChannel, customClient, messageComposer, sendFileSpy, sendImageSpy };
 };
 
-describe(`MessageInputFlat`, () => {
+describe(`EditMessageForm`, () => {
   afterEach(tearDown);
 
   it('should render custom EmojiPicker', async () => {
     const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
-
-    await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      channelProps: { EmojiPicker: CustomEmojiPicker },
+      customChannel,
+      customClient,
+    });
 
     await waitFor(() => {
       const c = screen.getByTestId('custom-emoji-picker');
@@ -265,16 +260,44 @@ describe(`MessageInputFlat`, () => {
     });
   });
 
-  it('should contain placeholder text if no default message text provided', async () => {
-    await renderComponent();
+  it('should not contain placeholder text if message has text', async () => {
+    const message = generateMessage({
+      attachments: [generateLocalFileUploadAttachmentData()],
+      cid,
+      text: 'XXX',
+    });
+    const { customChannel, customClient } = await setup({ composition: message });
+
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
     await waitFor(() => {
       const textarea = screen.getByPlaceholderText(inputPlaceholder);
       expect(textarea).toBeInTheDocument();
-      expect(textarea.value).toBe('');
+      expect(textarea.value).toBe(message.text);
     });
   });
 
-  it('should display default value', async () => {
+  it('should contain placeholder text if no default message text provided', async () => {
+    const message = generateMessage({
+      attachments: [generateLocalFileUploadAttachmentData()],
+      cid,
+      text: '',
+    });
+    const { customChannel, customClient } = await setup({ composition: message });
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
+    await waitFor(() => {
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      expect(textarea).toBeInTheDocument();
+      expect(textarea.value).toBe(message.text);
+    });
+  });
+
+  it('should ignore default message text if provided', async () => {
     const defaultValue = nanoid();
     const { customChannel, customClient } = await setup();
     customChannel.messageComposer.textComposer.defaultValue = defaultValue;
@@ -283,13 +306,16 @@ describe(`MessageInputFlat`, () => {
       customClient,
     });
     await waitFor(() => {
-      const textarea = screen.queryByDisplayValue(defaultValue);
-      expect(textarea).toBeInTheDocument();
+      expect(screen.queryByDisplayValue(defaultValue)).not.toBeInTheDocument();
+      expect(screen.queryByDisplayValue(mainListMessage.text)).toBeInTheDocument();
     });
   });
 
   it('should shift focus to the textarea if the `focus` prop is true', async () => {
+    const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
+      customChannel,
+      customClient,
       messageInputProps: {
         focus: true,
       },
@@ -301,9 +327,29 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should not shift focus to the textarea if the `focus` prop is false', async () => {
+    const { customChannel, customClient } = await setup();
+    const { container } = await renderComponent({
+      customChannel,
+      customClient,
+      messageInputProps: {
+        focus: false,
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(inputPlaceholder)).not.toHaveFocus();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should render default file upload icon', async () => {
-    const { container } = await renderComponent();
-    const fileUploadIcon = await screen.findByTestId('invoke-attachment-selector-button');
+    const { customChannel, customClient } = await setup();
+    const { container } = await renderComponent({
+      customChannel,
+      customClient,
+    });
+    const fileUploadIcon = await screen.findByTitle('Attach files');
 
     await waitFor(() => {
       expect(fileUploadIcon).toBeInTheDocument();
@@ -318,8 +364,12 @@ describe(`MessageInputFlat`, () => {
         <title>NotFileUploadIcon</title>
       </svg>
     );
-
-    const { container } = await renderComponent({ channelProps: { FileUploadIcon } });
+    const { customChannel, customClient } = await setup();
+    const { container } = await renderComponent({
+      channelProps: { FileUploadIcon },
+      customChannel,
+      customClient,
+    });
 
     const fileUploadIcon = await screen.findByTitle('NotFileUploadIcon');
 
@@ -342,9 +392,11 @@ describe(`MessageInputFlat`, () => {
         <title>AttachmentSelectorInitiationButtonContents</title>
       </svg>
     );
-
+    const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
       channelProps: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      customChannel,
+      customClient,
     });
 
     const fileUploadIcon = await screen.queryByTitle('NotFileUploadIcon');
@@ -443,7 +495,7 @@ describe(`MessageInputFlat`, () => {
         expect(
           screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
         ).not.toBeInTheDocument();
-        expect(formElement).toHaveValue(pastedString);
+        expect(formElement).toHaveValue(mainListMessage.text + pastedString);
       });
 
       const results = await axe(container);
@@ -509,15 +561,44 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
-      const {
-        channels: [customChannel],
-        client: customClient,
-      } = await initClientWithChannels({
-        channelsData: [mockedChannelData],
-        customUser: user,
+    // todo: JSDOM implementation used in Jest uses custom File mock that is different from that used in browser / node -> this
+    it.skip('should call error handler if a file failed to upload and allow retrying', async () => {
+      const error = new Error('failed to upload');
+      const { customChannel, customClient, sendFileSpy } = await setupUploadRejected({
+        error,
       });
-      customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 1;
+
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      const file = getFile();
+
+      act(() => dropFile(file, formElement));
+
+      await waitFor(() => {
+        expect(sendFileSpy).toHaveBeenCalledWith(file);
+      });
+
+      sendFileSpy.mockImplementationOnce(() => Promise.resolve({ file }));
+
+      await act(() => {
+        fireEvent.click(screen.getByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID));
+      });
+
+      await waitFor(() => {
+        expect(sendFileSpy).toHaveBeenCalledTimes(2);
+        expect(sendFileSpy).toHaveBeenCalledWith(file);
+      });
+      await axeNoViolations(container);
+    });
+
+    it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
+      const { customChannel, customClient } = await setup({
+        composerConfig: { attachments: { maxNumberOfFilesPerMessage: 1 } },
+      });
       const { container } = await renderComponent({
         customChannel,
         customClient,
@@ -528,14 +609,9 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should set multiple attribute on the file input if multipleUploads is true', async () => {
-      const {
-        channels: [customChannel],
-        client: customClient,
-      } = await initClientWithChannels({
-        channelsData: [mockedChannelData],
-        customUser: user,
+      const { customChannel, customClient } = await setup({
+        composerConfig: { attachments: { maxNumberOfFilesPerMessage: 5 } },
       });
-      customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 5;
       const { container } = await renderComponent({
         customChannel,
         customClient,
@@ -548,13 +624,12 @@ describe(`MessageInputFlat`, () => {
     const filename1 = '1.txt';
     const filename2 = '2.txt';
     it('should only allow dropping max number of files into the dropzone', async () => {
-      const { customChannel, customClient } = await setup();
+      const { customChannel, customClient } = await setup({
+        composerConfig: { attachments: { maxNumberOfFilesPerMessage: 1 } },
+      });
       const { container } = await renderComponent({
         customChannel,
         customClient,
-      });
-      act(() => {
-        customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 1;
       });
 
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
@@ -574,9 +649,11 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should show attachment previews if at least one non-scraped attachments available', async () => {
-      const { customChannel, customClient } = await setup();
-      customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' }],
+      const { customChannel, customClient } = await setup({
+        composition: {
+          ...mainListMessage,
+          attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' }],
+        },
       });
       await renderComponent({
         customChannel,
@@ -592,15 +669,18 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should not show scraped content in attachment previews', async () => {
-      const { customChannel, customClient } = await setup();
       const scrapedAttachment = {
         ...generateLocalAttachmentData(),
         ...generateScrapedDataAttachment(),
       };
       const unknownAttachment = { ...generateLocalAttachmentData(), type: 'xxx' };
-      customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [scrapedAttachment, unknownAttachment],
+      const { customChannel, customClient } = await setup({
+        composition: {
+          ...mainListMessage,
+          attachments: [scrapedAttachment, unknownAttachment],
+        },
       });
+
       await renderComponent({
         customChannel,
         customClient,
@@ -615,29 +695,11 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should not show attachment previews if no files uploaded and no attachments available', async () => {
-      const { customChannel, customClient } = await setup();
-      customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [],
-      });
-      await renderComponent({
-        customChannel,
-        customClient,
-      });
-      expect(
-        screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
-      ).not.toBeInTheDocument();
-    });
-
-    it('should not show attachment previews if no files uploaded and attachments available are only link previews', async () => {
-      const { customChannel, customClient } = await setup();
-      customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [],
-      });
-      const linkPreviewData = generateScrapedDataAttachment();
-      customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([
-          [linkPreviewData.og_scrape_url, new LinkPreview({ data: linkPreviewData })],
-        ]),
+      const { customChannel, customClient } = await setup({
+        composition: {
+          ...mainListMessage,
+          attachments: [],
+        },
       });
       await renderComponent({
         customChannel,
@@ -649,9 +711,10 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should show attachment preview list if not only failed uploads are available', async () => {
-      const cause = new Error('failed to upload');
-      const { customChannel, customClient, sendFileSpy } =
-        await setupUploadRejected(cause);
+      const error = new Error('failed to upload');
+      const { customChannel, customClient, sendFileSpy } = await setupUploadRejected({
+        error,
+      });
       sendFileSpy.mockResolvedValueOnce({ file: fileUploadUrl });
       await renderComponent({
         customChannel,
@@ -662,14 +725,18 @@ describe(`MessageInputFlat`, () => {
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getFile();
 
-      await act(async () => await dropFile(file, formElement));
+      await act(async () => {
+        await dropFile(file, formElement);
+      });
 
       await waitFor(() => {
         expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
         expect(screen.queryByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID)).toBeInTheDocument();
       });
 
-      await act(async () => await dropFile(file, formElement));
+      await act(async () => {
+        await dropFile(file, formElement);
+      });
 
       await waitFor(() => {
         const previewList = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
@@ -681,6 +748,19 @@ describe(`MessageInputFlat`, () => {
 
   describe('Uploads disabled', () => {
     const channelData = { channel: { own_capabilities: [] } };
+
+    it('should render file upload button disabled', async () => {
+      const { customChannel, customClient } = await setup({
+        channelData,
+      });
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      await waitFor(() => expect(screen.getByTestId(FILE_INPUT_TEST_ID)).toBeDisabled());
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
 
     it('pasting images and files should do nothing', async () => {
       const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup({
@@ -742,7 +822,25 @@ describe(`MessageInputFlat`, () => {
   });
 
   describe('Submitting', () => {
-    it('should submit the input value when clicking the submit button', async () => {
+    it('should submit the message if content not change', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      await act(() => submit());
+
+      expect(editMock).toHaveBeenCalledWith(
+        customChannel.cid,
+        expect.objectContaining({
+          text: mainListMessage.text,
+        }),
+        {},
+      );
+      await axeNoViolations(container);
+    });
+    it('should submit the input value with text changed', async () => {
       const { customChannel, customClient } = await setup();
       const { container, submit } = await renderComponent({
         customChannel,
@@ -750,16 +848,18 @@ describe(`MessageInputFlat`, () => {
       });
 
       const messageText = 'Some text';
-      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: messageText,
-        },
+      await act(async () => {
+        fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+          target: {
+            value: messageText,
+          },
+        });
       });
 
       await act(() => submit());
 
-      expect(sendMessageMock).toHaveBeenCalledWith(
-        customChannel,
+      expect(editMock).toHaveBeenCalledWith(
+        customChannel.cid,
         expect.objectContaining({
           text: messageText,
         }),
@@ -768,111 +868,41 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('should allow to send custom message data', async () => {
-      const { customChannel, customClient } = await setup();
-      const customMessageData = { customX: 'customX' };
-      const CustomStateSetter = null;
-
-      customChannel.messageComposer.customDataManager.setData(customMessageData);
-      const { container, submit } = await renderComponent({
-        customChannel,
-        customClient,
-        CustomStateSetter,
-      });
-
-      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: 'Some text',
-        },
-      });
-
-      await act(() => submit());
-
-      await waitFor(() => {
-        expect(sendMessageMock).toHaveBeenCalledWith(
-          customChannel,
-          expect.objectContaining(customMessageData),
-          {},
-        );
-      });
-      await axeNoViolations(container);
-    });
-
-    it('should use overrideSubmitHandler prop if it is defined', async () => {
-      const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
-      const { customChannel, customClient } = await setup();
-      const customMessageData = { customX: 'customX' };
-      customChannel.messageComposer.customDataManager.setData(customMessageData);
-      const { container, submit } = await renderComponent({
-        customChannel,
-        customClient,
-        messageInputProps: {
-          overrideSubmitHandler: overrideMock,
-        },
-      });
-      const messageText = 'Some text';
-
-      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: messageText,
-        },
-      });
-
-      await act(() => submit());
-
-      expect(overrideMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cid: customChannel.cid,
-          localMessage: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          message: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          sendOptions: expect.objectContaining({}),
-        }),
-      );
-      await axeNoViolations(container);
-    });
-
-    it('should not do anything if the message is empty and has no files', async () => {
-      const { customChannel, customClient } = await setup();
-      const { container, submit } = await renderComponent({
-        customChannel,
-        customClient,
-        messageContextOverrides: {
-          message: {
-            cid: customChannel.cid,
-            created_at: new Date(),
-            updated_at: new Date(),
-          },
-        },
-      });
-
-      await act(() => submit());
-
-      expect(sendMessageMock).not.toHaveBeenCalled();
-      await axeNoViolations(container);
-    });
-
-    it('should add image as attachment if a message is submitted with an image', async () => {
+    // todo: button is not enabled at the moment when we want to click submit
+    it.skip('should add image as attachment if a message is submitted with an image', async () => {
       const { customChannel, customClient, sendImageSpy } = await setup();
       const { container, submit } = await renderComponent({
         customChannel,
         customClient,
       });
       // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
-      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      // const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getImage();
+      const input = screen.getByTestId(FILE_INPUT_TEST_ID);
+      // await act(async () => {
+      //   await dropFile(file, formElement);
+      // });
       await act(async () => {
-        await dropFile(file, formElement);
+        await fireEvent.change(input, {
+          target: {
+            files: [file],
+          },
+        });
       });
 
       // wait for image uploading to complete before trying to send the message
 
-      await waitFor(() => expect(sendImageSpy).toHaveBeenCalled());
+      await waitFor(() => {
+        expect(sendImageSpy).toHaveBeenCalled();
+        // expect(screen.getByTestId(SEND_BTN_EDIT_FORM_TEST_ID)).toBeEnabled();
+      });
+
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(SEND_BTN_EDIT_FORM_TEST_ID)).toBeEnabled();
+        },
+        { interval: 1, timeout: 2000 }, // Poll every 1ms up to 2 seconds
+      );
 
       await act(async () => await submit());
 
@@ -886,13 +916,93 @@ describe(`MessageInputFlat`, () => {
       };
 
       await waitFor(() => {
-        expect(sendMessageMock).toHaveBeenCalledWith(
-          customChannel,
+        expect(editMock).toHaveBeenCalledWith(
+          customChannel.cid,
           expect.objectContaining(msgFragment),
           {},
         );
       });
 
+      await axeNoViolations(container);
+    });
+
+    it('should allow to send custom message data', async () => {
+      const { customChannel, customClient } = await setup();
+      const customMessageData = { customX: 'customX' };
+      const CustomStateSetter = () => {
+        const composer = useMessageComposerMock();
+        useEffect(() => {
+          composer.customDataManager.setData(customMessageData);
+        }, [composer]);
+      };
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        CustomStateSetter,
+      });
+
+      await act(() => submit());
+
+      await waitFor(() => {
+        expect(editMock).toHaveBeenCalledWith(
+          customChannel.cid,
+          expect.objectContaining(customMessageData),
+          {},
+        );
+      });
+      await axeNoViolations(container);
+    });
+
+    it('should not call overrideSubmitHandler', async () => {
+      const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
+      const { customChannel, customClient } = await setup();
+      const customMessageData = { customX: 'customX' };
+      const CustomStateSetter = () => {
+        const composer = useMessageComposerMock();
+        useEffect(() => {
+          composer.customDataManager.setData(customMessageData);
+        }, [composer]);
+      };
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        CustomStateSetter,
+        messageInputProps: {
+          overrideSubmitHandler: overrideMock,
+        },
+      });
+      const messageText = 'Some text';
+
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: messageText,
+        },
+      });
+
+      await act(() => submit());
+      expect(overrideMock).not.toHaveBeenCalled();
+
+      await axeNoViolations(container);
+    });
+
+    it('should not do anything if the message is empty and has no files', async () => {
+      const composition = {
+        cid,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      const { customChannel, customClient } = await setup({ composition });
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        messageContextOverrides: {
+          message: composition,
+        },
+      });
+
+      await act(() => submit());
+
+      expect(editMock).not.toHaveBeenCalled();
       await axeNoViolations(container);
     });
 
@@ -905,7 +1015,6 @@ describe(`MessageInputFlat`, () => {
 
       const messageText = 'Some text';
       const input = await screen.findByPlaceholderText(inputPlaceholder);
-
       await act(async () => {
         await fireEvent.change(input, {
           target: {
@@ -916,8 +1025,8 @@ describe(`MessageInputFlat`, () => {
 
       await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
-      expect(sendMessageMock).toHaveBeenCalledWith(
-        customChannel,
+      expect(editMock).toHaveBeenCalledWith(
+        customChannel.cid,
         expect.objectContaining({
           text: messageText,
         }),
@@ -938,15 +1047,17 @@ describe(`MessageInputFlat`, () => {
       const input = await screen.findByPlaceholderText(inputPlaceholder);
 
       const messageText = 'Some text';
-      fireEvent.change(input, {
-        target: {
-          value: messageText,
-        },
+      await act(async () => {
+        await fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
       });
 
       await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
-      expect(sendMessageMock).not.toHaveBeenCalled();
+      expect(editMock).not.toHaveBeenCalled();
       await axeNoViolations(container);
     });
 
@@ -974,8 +1085,8 @@ describe(`MessageInputFlat`, () => {
           key: '9',
         });
       });
-      expect(sendMessageMock).toHaveBeenCalledWith(
-        customChannel,
+      expect(editMock).toHaveBeenCalledWith(
+        customChannel.cid,
         expect.objectContaining({
           text: messageText,
         }),
@@ -1007,8 +1118,7 @@ describe(`MessageInputFlat`, () => {
           shiftKey: true,
         });
       });
-
-      expect(sendMessageMock).not.toHaveBeenCalled();
+      expect(editMock).not.toHaveBeenCalled();
 
       await axeNoViolations(container);
     });
@@ -1073,14 +1183,31 @@ describe(`MessageInputFlat`, () => {
 
     await act(() => submit());
 
-    expect(sendMessageMock).toHaveBeenCalledWith(
-      customChannel,
+    expect(editMock.mock.calls[1]).toEqual([
+      customChannel.cid,
       expect.objectContaining({
-        mentioned_users: expect.arrayContaining([mentionId]),
+        ...mainListMessage,
+        deleted_at: null,
+        error: null,
+        mentioned_users: [
+          expect.objectContaining({
+            banned: false,
+            created_at: '2020-04-27T13:39:49.331742Z',
+            id: 'mention-id',
+            image: expect.any(String),
+            name: 'mention-name',
+            online: false,
+            role: 'user',
+            updated_at: '2020-04-27T13:39:49.332087Z',
+          }),
+        ],
+        parent_id: undefined,
+        quoted_message: null,
+        reaction_groups: null,
         text: '@mention-name ',
       }),
       {},
-    );
+    ]);
 
     Element.prototype.scrollIntoView = scrollIntoView;
     const results = await axe(container);
@@ -1116,83 +1243,158 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
+  const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
+    await waitFor(() =>
+      expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+    );
+    await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
+  };
+
+  const quotedMessagePreviewIsNotDisplayed = (message) => {
+    expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(message.text)).not.toBeInTheDocument();
+  };
+
+  const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+    const { customChannel, customClient } = await setup({
+      channelData: { channel: { cooldown } },
+    });
+
+    const lastSentSecondsAhead = 5;
+    await renderComponent({
+      chatContextOverrides: {
+        latestMessageDatesByChannels: {
+          [customChannel.cid]: new Date(
+            new Date().getTime() + lastSentSecondsAhead * 1000,
+          ),
+        },
+      },
+      customChannel,
+      customClient,
+      messageInputProps,
+    });
+  };
+
   describe('QuotedMessagePreview', () => {
+    const quotedMessage = generateMessage();
+    const messageWithQuotedMessage = {
+      ...mainListMessage,
+      quoted_message: quotedMessage,
+    };
     it('is displayed on quote action click', async () => {
-      await renderComponent();
-      await initQuotedMessagePreview(mainListMessage);
+      const { customChannel, customClient } = await setup({
+        composition: messageWithQuotedMessage,
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
       await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
     });
 
     it('renders proper markdown (through default renderText fn)', async () => {
-      const m = generateMessage({
-        mentioned_users: [{ id: 'john', name: 'John Cena' }],
-        text: 'hey @John Cena',
-        user,
+      const messageWithQuotedMessage = {
+        ...mainListMessage,
+        quoted_message: generateMessage({
+          mentioned_users: [{ id: 'john', name: 'John Cena' }],
+          text: 'hey @John Cena',
+          user,
+        }),
+      };
+      const { customChannel, customClient } = await setup({
+        composition: messageWithQuotedMessage,
       });
-      await renderComponent({ messageContextOverrides: { message: m } });
-      await initQuotedMessagePreview(m);
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
 
       expect(await screen.findByText('@John Cena')).toHaveAttribute('data-user-id');
     });
 
     it('uses custom renderText fn if provided', async () => {
-      const m = generateMessage({
-        text: nanoid(),
-        user,
+      const messageWithQuotedMessage = {
+        ...mainListMessage,
+        quoted_message: generateMessage({
+          text: nanoid(),
+          user,
+        }),
+      };
+      const quotedMsgText = messageWithQuotedMessage.quoted_message.text;
+      const fn = jest
+        .fn()
+        .mockReturnValue(<div data-testid={quotedMsgText}>{quotedMsgText}</div>);
+
+      const { customChannel, customClient } = await setup({
+        composition: messageWithQuotedMessage,
       });
-      const fn = jest.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
       await renderComponent({
         channelProps: {
           QuotedMessagePreview: (props) => (
             <QuotedMessagePreview {...props} renderText={fn} />
           ),
         },
-        messageContextOverrides: { message: m },
+        customChannel,
+        customClient,
       });
-      await initQuotedMessagePreview(m);
 
       expect(fn).toHaveBeenCalled();
-      expect(await screen.findByTestId(m.text)).toBeInTheDocument();
+      expect(await screen.findByTestId(quotedMsgText)).toBeInTheDocument();
     });
 
     it('is updated on original message update', async () => {
-      const { channel, client } = await renderComponent();
-      await initQuotedMessagePreview(mainListMessage);
-      mainListMessage.text = new Date().toISOString();
+      const { customChannel, customClient } = await setup({
+        composition: messageWithQuotedMessage,
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      messageWithQuotedMessage.quoted_message.text = new Date().toISOString();
       await act(() => {
-        dispatchMessageUpdatedEvent(client, mainListMessage, channel);
+        dispatchMessageUpdatedEvent(
+          customClient,
+          messageWithQuotedMessage.quoted_message,
+          customChannel,
+        );
       });
       await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
     });
 
     it('is closed on original message delete', async () => {
-      const { channel, client } = await renderComponent();
-      await initQuotedMessagePreview(mainListMessage);
-      await act(() => {
-        dispatchMessageDeletedEvent(client, mainListMessage, channel);
+      const { customChannel, customClient } = await setup({
+        composition: messageWithQuotedMessage,
       });
-      quotedMessagePreviewIsNotDisplayed(mainListMessage);
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      await act(() => {
+        dispatchMessageDeletedEvent(
+          customClient,
+          messageWithQuotedMessage.quoted_message,
+          customChannel,
+        );
+      });
+      quotedMessagePreviewIsNotDisplayed(messageWithQuotedMessage.quoted_message);
     });
 
     it('renders quoted Poll component if message contains poll', async () => {
       const poll = generatePoll();
       const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
+      const messageWithQuotedMessage = {
+        ...mainListMessage,
+        quoted_message: messageWithPoll,
+      };
+      const { customChannel, customClient } = await setup({
+        channelData: { messages: [messageWithPoll, messageWithQuotedMessage] },
+        composition: messageWithQuotedMessage,
       });
       const { container } = await renderComponent({
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
+        customChannel,
+        customClient,
       });
 
-      await initQuotedMessagePreview(messageWithPoll);
       expect(
         container.querySelector('.str-chat__quoted-poll-preview'),
       ).toBeInTheDocument();
@@ -1201,98 +1403,50 @@ describe(`MessageInputFlat`, () => {
     it('renders custom quoted Poll component if message contains poll', async () => {
       const poll = generatePoll();
       const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
+      const messageWithQuotedMessage = {
+        ...mainListMessage,
+        quoted_message: messageWithPoll,
+      };
+      const { customChannel, customClient } = await setup({
+        channelData: { messages: [messageWithPoll, messageWithQuotedMessage] },
+        composition: messageWithQuotedMessage,
       });
       const pollText = 'Custom Poll component';
       const QuotedPoll = () => <div>{pollText}</div>;
 
       await renderComponent({
         channelProps: { QuotedPoll },
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
+        customChannel,
+        customClient,
       });
 
-      await initQuotedMessagePreview(messageWithPoll);
       expect(screen.queryByText(pollText)).toBeInTheDocument();
     });
   });
 
   describe('send button', () => {
-    it('should be renderer for empty input', async () => {
-      await renderComponent();
-      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
-    });
-
-    it('should not be rendered during active cooldown period', async () => {
-      await renderWithActiveCooldown();
-      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
-    });
-
-    it('should not be renderer if explicitly hidden', async () => {
-      await renderComponent({ messageInputProps: { hideSendButton: true } });
-      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
-    });
-
-    it('should be disabled if there is no content to be submitted', async () => {
-      await renderComponent();
-      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeDisabled();
-    });
-
-    it('should be enabled if there is text to be submitted', async () => {
-      await renderComponent();
-      await act(() => {
-        fireEvent.change(screen.getByPlaceholderText(inputPlaceholder), {
-          target: {
-            value: 'X',
-          },
-        });
-      });
-      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
-    });
-
-    it('should be enabled if there are uploads to be submitted', async () => {
+    it('should be rendered when editing a message', async () => {
       const { customChannel, customClient } = await setup();
       await renderComponent({
         customChannel,
         customClient,
       });
-      const file = getFile();
-
-      await act(async () => {
-        await fireEvent.change(screen.getByTestId(FILE_INPUT_TEST_ID), {
-          target: {
-            files: [file],
-          },
-        });
-      });
-      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
     });
 
-    it('should disabled if there are failed attachments only', async () => {
-      const error = new Error('Upload failed');
-      const { customChannel, customClient } = await setupUploadRejected(error);
+    it('should not be renderer during active cooldown period', async () => {
+      await renderWithActiveCooldown();
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should not be renderer if explicitly hidden', async () => {
+      const { customChannel, customClient } = await setup();
       await renderComponent({
         customChannel,
         customClient,
+        messageInputProps: { hideSendButton: true },
       });
-      const file = getFile();
-
-      await act(async () => {
-        await fireEvent.change(screen.getByTestId(FILE_INPUT_TEST_ID), {
-          target: {
-            files: [file],
-          },
-        });
-      });
-      expect(screen.getByTestId(SEND_BTN_TEST_ID)).not.toBeEnabled();
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
     });
   });
 

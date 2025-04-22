@@ -20,7 +20,7 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
-import { useMessageComposer } from './hooks/messageComposer/useMessageComposer';
+import { useMessageComposer } from './hooks';
 import { TextAreaComposer } from '../TextAreaComposer';
 import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
