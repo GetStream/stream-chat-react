@@ -6,6 +6,7 @@ import { FileIcon } from '../../ReactFileUtilities';
 import { useAudioController } from '../../Attachment/hooks/useAudioController';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
+import { useTranslationContext } from '../../../context';
 
 export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
@@ -15,6 +16,7 @@ export const VoiceRecordingPreview = ({
   handleRetry,
   removeAttachments,
 }: VoiceRecordingPreviewProps) => {
+  const { t } = useTranslationContext();
   const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController({
     mimeType: attachment.mime_type,
   });
@@ -34,6 +36,7 @@ export const VoiceRecordingPreview = ({
       <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 
       <button
+        aria-label={t('aria/Remove attachment')}
         className='str-chat__attachment-preview-delete'
         data-testid='file-preview-item-delete-button'
         disabled={attachment.localMetadata?.uploadState === 'uploading'}

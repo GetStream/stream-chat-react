@@ -32,6 +32,7 @@ export const UnsupportedAttachmentPreview = ({
       </div>
 
       <button
+        aria-label={t('aria/Remove attachment')}
         className='str-chat__attachment-preview-delete'
         data-testid='file-preview-item-delete-button'
         disabled={attachment.localMetadata?.uploadState === 'uploading'}

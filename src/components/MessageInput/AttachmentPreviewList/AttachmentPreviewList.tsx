@@ -14,8 +14,7 @@ import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from 
 import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
 import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
 import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
-import { useMessageComposer } from '../hooks';
-import { useAttachmentManagerState } from '../hooks/messageComposer/useAttachmentManagerState';
+import { useAttachmentManagerState, useMessageComposer } from '../hooks';
 import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
 import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
 import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
