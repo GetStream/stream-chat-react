@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Event } from 'stream-chat';
-import clsx from 'clsx';
-import { useDropzone } from 'react-dropzone';
 import {
   AttachmentSelector as DefaultAttachmentSelector,
   SimpleAttachmentSelector,
@@ -28,14 +26,13 @@ import { RecordingAttachmentType } from '../MediaRecorder/classes';
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import { AIStates, useAIState } from '../AIStateIndicator';
+import { WithDragAndDropUpload } from './WithDragAndDropUpload';
 
 export const MessageInputFlat = () => {
-  const { t } = useTranslationContext('MessageInputFlat');
   const {
     asyncMessagesMultiSendEnabled,
     attachments,
@@ -45,14 +42,12 @@ export const MessageInputFlat = () => {
     hideSendButton,
     isUploadEnabled,
     linkPreviews,
-    maxFilesLeft,
     message,
     numberOfUploads,
     parent,
     recordingController,
     setCooldownRemaining,
     text,
-    uploadNewFiles,
   } = useMessageInputContext('MessageInputFlat');
 
   const {
@@ -68,11 +63,7 @@ export const MessageInputFlat = () => {
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext('MessageInputFlat');
-  const {
-    acceptedFiles = [],
-    multipleUploads,
-    quotedMessage,
-  } = useChannelStateContext('MessageInputFlat');
+  const { quotedMessage } = useChannelStateContext('MessageInputFlat');
   const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
   const { channel } = useChatContext('MessageInputFlat');
 
@@ -92,23 +83,6 @@ export const MessageInputFlat = () => {
     () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
     [attachments],
   );
-
-  const accept = useMemo(
-    () =>
-      acceptedFiles.reduce<Record<string, Array<string>>>((mediaTypeMap, mediaType) => {
-        mediaTypeMap[mediaType] ??= [];
-        return mediaTypeMap;
-      }, {}),
-    [acceptedFiles],
-  );
-
-  const { getRootProps, isDragActive, isDragReject } = useDropzone({
-    accept,
-    disabled: !isUploadEnabled || maxFilesLeft === 0,
-    multiple: multipleUploads,
-    noClick: true,
-    onDrop: uploadNewFiles,
-  });
 
   useEffect(() => {
     const handleQuotedMessageUpdate = (e: Event) => {
@@ -153,90 +127,76 @@ export const MessageInputFlat = () => {
     !!StopAIGenerationButton;
 
   return (
-    <>
-      <div {...getRootProps({ className: 'str-chat__message-input' })}>
-        {recordingEnabled &&
-          recordingController.permissionState === 'denied' &&
-          showRecordingPermissionDeniedNotification && (
-            <RecordingPermissionDeniedNotification
-              onClose={closePermissionDeniedNotification}
-              permissionName={RecordingPermission.MIC}
-            />
-          )}
-        {findAndEnqueueURLsToEnrich && (
-          <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
+    <WithDragAndDropUpload className='str-chat__message-input' component='div'>
+      {recordingEnabled &&
+        recordingController.permissionState === 'denied' &&
+        showRecordingPermissionDeniedNotification && (
+          <RecordingPermissionDeniedNotification
+            onClose={closePermissionDeniedNotification}
+            permissionName={RecordingPermission.MIC}
+          />
         )}
-        {isDragActive && (
-          <div
-            className={clsx('str-chat__dropzone-container', {
-              'str-chat__dropzone-container--not-accepted': isDragReject,
-            })}
-          >
-            {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
-            {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
-          </div>
-        )}
-        {displayQuotedMessage && <QuotedMessagePreviewHeader />}
+      {findAndEnqueueURLsToEnrich && (
+        <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
+      )}
+      {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
-        <div className='str-chat__message-input-inner'>
-          <AttachmentSelector />
-          <div className='str-chat__message-textarea-container'>
-            {displayQuotedMessage && (
-              <QuotedMessagePreview quotedMessage={quotedMessage} />
+      <div className='str-chat__message-input-inner'>
+        <AttachmentSelector />
+        <div className='str-chat__message-textarea-container'>
+          {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
+          {isUploadEnabled &&
+            !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
+              <AttachmentPreviewList />
             )}
-            {isUploadEnabled &&
-              !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
-                <AttachmentPreviewList />
-              )}
 
-            <div className='str-chat__message-textarea-with-emoji-picker'>
-              <ChatAutoComplete />
+          <div className='str-chat__message-textarea-with-emoji-picker'>
+            <ChatAutoComplete />
 
-              {EmojiPicker && <EmojiPicker />}
-            </div>
+            {EmojiPicker && <EmojiPicker />}
           </div>
-          {shouldDisplayStopAIGeneration ? (
-            <StopAIGenerationButton onClick={stopGenerating} />
-          ) : (
-            !hideSendButton && (
-              <>
-                {cooldownRemaining ? (
-                  <CooldownTimer
-                    cooldownInterval={cooldownRemaining}
-                    setCooldownRemaining={setCooldownRemaining}
-                  />
-                ) : (
-                  <>
-                    <SendButton
-                      disabled={
-                        !numberOfUploads &&
-                        !text.length &&
-                        attachments.length - failedUploadsCount === 0
-                      }
-                      sendMessage={handleSubmit}
-                    />
-                    {recordingEnabled && (
-                      <StartRecordingAudioButton
-                        disabled={
-                          isRecording ||
-                          (!asyncMessagesMultiSendEnabled &&
-                            attachments.some(
-                              (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
-                            ))
-                        }
-                        onClick={() => {
-                          recordingController.recorder?.start();
-                          setShowRecordingPermissionDeniedNotification(true);
-                        }}
-                      />
-                    )}
-                  </>
-                )}
-              </>
-            )
-          )}
         </div>
+        {shouldDisplayStopAIGeneration ? (
+          <StopAIGenerationButton onClick={stopGenerating} />
+        ) : (
+          !hideSendButton && (
+            <>
+              {cooldownRemaining ? (
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
+              ) : (
+                <>
+                  <SendButton
+                    disabled={
+                      !numberOfUploads &&
+                      !text.length &&
+                      attachments.length - failedUploadsCount === 0
+                    }
+                    sendMessage={handleSubmit}
+                  />
+                  {recordingEnabled && (
+                    <StartRecordingAudioButton
+                      disabled={
+                        isRecording ||
+                        (!asyncMessagesMultiSendEnabled &&
+                          attachments.some(
+                            (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
+                          ))
+                      }
+                      onClick={() => {
+                        recordingController.recorder?.start();
+                        setShowRecordingPermissionDeniedNotification(true);
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </>
+          )
+        )}
       </div>
-    </>
+    </WithDragAndDropUpload>
   );
 };

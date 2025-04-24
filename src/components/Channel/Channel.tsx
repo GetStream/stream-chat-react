@@ -201,7 +201,10 @@ export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
       updatedMessage: UpdatedMessage,
       options?: UpdateMessageOptions,
     ) => ReturnType<StreamChat['updateMessage']>;
-    /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
+    /**
+     * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
+     * @description If true, chat users will be able to drag and drop file uploads to the entire channel window
+     */
     dragAndDropWindow?: boolean;
     /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
     EmptyPlaceholder?: React.ReactElement;
@@ -235,7 +238,10 @@ export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
     onMentionsClick?: OnMentionAction;
     /** Custom action handler function to run on hover of an @mention in a message */
     onMentionsHover?: OnMentionAction;
-    /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
+    /**
+     * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
+     * @description If `dragAndDropWindow` prop is `true`, the props to pass to the `MessageInput` component (overrides props placed directly on `MessageInput`)
+     */
     optionalMessageInputProps?: MessageInputProps<V>;
     /** You can turn on/off thumbnail generation for video attachments */
     shouldGenerateVideoThumbnail?: boolean;

@@ -37,15 +37,12 @@ export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrig
 );
 
 export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
-    );
-
     return {} as MessageInputContextValue<V>;
   }
 
