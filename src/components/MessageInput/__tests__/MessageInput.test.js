@@ -1,5 +1,5 @@
 import React from 'react';
-import { LinkPreview, SearchController } from 'stream-chat';
+import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -359,6 +359,29 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('are rendered in custom LinkPreviewList component', async () => {
+    const LINK_PREVIEW_TEST_ID = 'link-preview-card';
+    const scrapedData = generateScrapedDataAttachment({
+      og_scrape_url: 'http://getstream.io',
+      title: 'http://getstream.io',
+    });
+    const customTestId = 'custom-link-preview';
+    const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
+    await renderComponent({
+      channelProps: { LinkPreviewList: CustomLinkPreviewList },
+    });
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    expect(await screen.queryByTestId(customTestId)).toBeInTheDocument();
+    expect(await screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+  });
+
   describe('Attachments', () => {
     it('Pasting images and files should result in uploading the files and showing previews', async () => {
       const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
@@ -635,9 +658,7 @@ describe(`MessageInputFlat`, () => {
       });
       const linkPreviewData = generateScrapedDataAttachment();
       customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([
-          [linkPreviewData.og_scrape_url, new LinkPreview({ data: linkPreviewData })],
-        ]),
+        previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]),
       });
       await renderComponent({
         customChannel,

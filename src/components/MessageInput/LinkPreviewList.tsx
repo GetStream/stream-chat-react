@@ -53,7 +53,7 @@ type LinkPreviewProps = {
   linkPreview: LinkPreview;
 };
 
-const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
+export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { linkPreviewsManager } = useMessageComposer();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();

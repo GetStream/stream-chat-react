@@ -14,7 +14,6 @@ import { DialogManagerProvider } from '../../context';
 
 import type {
   Channel,
-  LinkPreviewsManagerConfig,
   LocalAttachmentUploadMetadata,
   LocalMessage,
   Message,
@@ -118,8 +117,6 @@ export type MessageInputProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
-  /** Configuration parameters for link previews. */
-  urlEnrichmentConfig?: LinkPreviewsManagerConfig;
   useMentionsTransliteration?: boolean;
 };
 
