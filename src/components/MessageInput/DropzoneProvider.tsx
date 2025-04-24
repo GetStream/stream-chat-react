@@ -4,7 +4,7 @@ import { ImageDropzone } from '../ReactFileUtilities';
 
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
-import { useMessageInputState } from './hooks/useMessageInputState';
+import { useMessageInputUiApi } from './hooks/useMessageInputUiApi';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import {
@@ -50,11 +50,11 @@ const DropzoneInner = ({ children }: PropsWithChildren<UnknownType>) => {
 
 export const DropzoneProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();
-  const messageInputState = useMessageInputState(props);
+  const messageInputUiApi = useMessageInputUiApi(props);
 
   const messageInputContextValue = useCreateMessageInputContext({
     ...cooldownTimerState,
-    ...messageInputState,
+    ...messageInputUiApi,
     ...props,
   });
 

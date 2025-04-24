@@ -1,12 +1,10 @@
-import { useEffect } from 'react';
-import { useMessageComposer } from './messageComposer';
+import type React from 'react';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
-import type React from 'react';
-import type { UpdatedMessage } from 'stream-chat';
 import type { RecordingController } from '../../MediaRecorder/hooks/useMediaRecorder';
+import type { UpdatedMessage } from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
 
 export type MessageInputHookProps = {
@@ -20,23 +18,9 @@ export type MessageInputHookProps = {
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
 };
 
-export const useMessageInputState = (props: MessageInputProps): MessageInputHookProps => {
+export const useMessageInputUiApi = (props: MessageInputProps): MessageInputHookProps => {
   const { asyncMessagesMultiSendEnabled, audioRecordingConfig, audioRecordingEnabled } =
     props;
-
-  const messageComposer = useMessageComposer();
-
-  useEffect(() => {
-    const threadId = messageComposer.threadId;
-    if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
-      return;
-    // get draft data for legacy thead composer
-    messageComposer.channel.getDraft({ parent_id: threadId }).then(({ draft }) => {
-      if (draft) {
-        messageComposer.initState({ composition: draft });
-      }
-    });
-  }, [messageComposer]);
 
   const { insertText, textareaRef } = useMessageInputText(props);
 

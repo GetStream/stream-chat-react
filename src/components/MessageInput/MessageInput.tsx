@@ -5,7 +5,7 @@ import { MessageInputFlat } from './MessageInputFlat';
 import { useMessageComposer } from './hooks';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
-import { useMessageInputState } from './hooks/useMessageInputState';
+import { useMessageInputUiApi } from './hooks/useMessageInputUiApi';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -122,32 +122,32 @@ export type MessageInputProps = {
 
 const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();
-  const messageInputState = useMessageInputState(props);
+  const messageInputUiApi = useMessageInputUiApi(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
-
-  // todo: X document how to disable publishTypingEvents
-  // if (typeof props.publishTypingEvent !== 'undefined') {
-  //   messageComposer.config.publishTypingEvents = props.publishTypingEvent;
-  // }
 
   const messageInputContextValue = useCreateMessageInputContext({
     ...cooldownTimerState,
-    ...messageInputState,
+    ...messageInputUiApi,
     ...props,
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
   const messageComposer = useMessageComposer();
 
-  useEffect(
-    () =>
-      // create draft when leaving the channel
-
-      () => {
-        messageComposer.createDraft();
-      },
-    [messageComposer],
-  );
+  useEffect(() => {
+    const threadId = messageComposer.threadId;
+    if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
+      return;
+    // get draft data for legacy thead composer
+    messageComposer.channel.getDraft({ parent_id: threadId }).then(({ draft }) => {
+      if (draft) {
+        messageComposer.initState({ composition: draft });
+      }
+    });
+    return () => {
+      messageComposer.createDraft();
+    };
+  }, [messageComposer]);
 
   return (
     <MessageInputContextProvider value={messageInputContextValue}>

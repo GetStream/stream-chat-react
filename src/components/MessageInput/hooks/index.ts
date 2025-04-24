@@ -1,3 +1,3 @@
 export * from './useCooldownTimer';
-export * from './useMessageInputState';
+export * from './useMessageInputUiApi';
 export * from './messageComposer';
