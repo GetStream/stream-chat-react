@@ -32,21 +32,16 @@ export const useDragAndDropUploadContext = () => useContext(DragAndDropUploadCon
 /**
  * @private To maintain top -> bottom data flow, the drag-and-drop functionality allows dragging any files to the queue - the closest
  * `MessageInputProvider` will be notified through `DragAndDropUploadContext.fileQueue` and starts the upload with `uploadNewAttachments`,
- * forwarded files are immediately after removed from the queue.
+ * forwarded files are removed from the queue immediately after.
  */
 export const useHandleDragAndDropQueuedFiles = ({
   uploadNewFiles,
 }: MessageInputContextValue) => {
   const { fileQueue, removeFilesFromQueue } = useDragAndDropUploadContext();
 
-  // const uploadNewFilesReference = useRef<((f: File[]) => void) | undefined>(undefined);
-
-  // uploadNewFilesReference.current = (f) => messageInputContextValue.uploadNewFiles(f);
-
   useEffect(() => {
     if (!removeFilesFromQueue) return;
 
-    // uploadNewFilesReference.current?.(fileQueue);
     uploadNewFiles(fileQueue);
 
     removeFilesFromQueue(fileQueue);
@@ -59,7 +54,7 @@ export const useHandleDragAndDropQueuedFiles = ({
  * @example
  * ```tsx
  * <Channel>
- *  <WithDragAndDropUpload as="section" className="message-list-dnd-wrapper">
+ *  <WithDragAndDropUpload component="section" className="message-list-dnd-wrapper">
  *    <Window>
  *      <MessageList />
  *      <MessageInput />
@@ -70,12 +65,16 @@ export const useHandleDragAndDropQueuedFiles = ({
  * ```
  */
 export const WithDragAndDropUpload = ({
-  as: Component = 'div',
   children,
   className,
+  component: Component = 'div',
   style,
 }: PropsWithChildren<{
-  as?: ElementType;
+  /**
+   * @description An element to render as a wrapper onto which drag & drop functionality will be applied.
+   * @default 'div'
+   */
+  component?: ElementType;
   className?: string;
   style?: CSSProperties;
 }>) => {
@@ -110,6 +109,8 @@ export const WithDragAndDropUpload = ({
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
     accept,
+    // apply `disabled` rules if available, otherwise allow anything and
+    // let the `uploadNewFiles` handle the limitations internally
     disabled: isWithinMessageInputContext
       ? !messageInputContext.isUploadEnabled || messageInputContext.maxFilesLeft === 0
       : false,
