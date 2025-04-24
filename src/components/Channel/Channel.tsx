@@ -43,7 +43,6 @@ import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 import type { LoadingErrorIndicatorProps } from '../Loading';
 import { LoadingErrorIndicator as DefaultLoadingErrorIndicator } from '../Loading';
 import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
-import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
 import type {
   ChannelActionContextValue,
@@ -191,11 +190,6 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
     updatedMessage: LocalMessage | MessageResponse,
     options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat['updateMessage']>;
-  /**
-   * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-   * @description If true, chat users will be able to drag and drop file uploads to the entire channel window
-   */
-  dragAndDropWindow?: boolean;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
   /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
@@ -222,11 +216,6 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   onMentionsClick?: OnMentionAction;
   /** Custom action handler function to run on hover of an @mention in a message */
   onMentionsHover?: OnMentionAction;
-  /**
-   * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-   * @description If `dragAndDropWindow` prop is `true`, the props to pass to the `MessageInput` component (overrides props placed directly on `MessageInput`)
-   */
-  optionalMessageInputProps?: MessageInputProps;
   /** You can turn on/off thumbnail generation for video attachments */
   shouldGenerateVideoThumbnail?: boolean;
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
@@ -305,7 +294,6 @@ const ChannelInner = (
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
-    dragAndDropWindow = false,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
@@ -314,7 +302,6 @@ const ChannelInner = (
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
-    optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
 
@@ -1160,7 +1147,6 @@ const ChannelInner = (
     channelCapabilitiesArray,
     channelConfig,
     channelUnreadUiState,
-    dragAndDropWindow,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
@@ -1374,14 +1360,7 @@ const ChannelInner = (
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
-              <div className={`${chatContainerClass}`}>
-                {dragAndDropWindow && (
-                  <DropzoneProvider {...optionalMessageInputProps}>
-                    {children}
-                  </DropzoneProvider>
-                )}
-                {!dragAndDropWindow && <>{children}</>}
-              </div>
+              <div className={clsx(chatContainerClass)}>{children}</div>
             </TypingProvider>
           </WithComponents>
         </ChannelActionProvider>

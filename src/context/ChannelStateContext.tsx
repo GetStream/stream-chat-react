@@ -56,7 +56,6 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   acceptedFiles?: string[];
   channelUnreadUiState?: ChannelUnreadUiState;
-  dragAndDropWindow?: boolean;
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
   mutes?: Array<Mute>;

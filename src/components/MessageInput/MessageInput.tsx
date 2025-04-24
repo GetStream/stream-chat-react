@@ -165,20 +165,12 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
 const UnMemoizedMessageInput = (props: MessageInputProps) => {
   const { Input: PropInput } = props;
 
-  const { dragAndDropWindow } = useChannelStateContext();
   const { Input: ContextInput } = useComponentContext('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
     ? 'message-input-dialog-manager-thread'
     : 'message-input-dialog-manager';
-
-  if (dragAndDropWindow)
-    return (
-      <DialogManagerProvider id={dialogManagerId}>
-        <Input />
-      </DialogManagerProvider>
-    );
 
   return (
     <DialogManagerProvider id={dialogManagerId}>
