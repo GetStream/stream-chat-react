@@ -153,7 +153,7 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     [messageComposer],
   );
 
-  useHandleDragAndDropQueuedFiles(messageInputContextValue);
+  useHandleDragAndDropQueuedFiles();
 
   return (
     <MessageInputContextProvider value={messageInputContextValue}>

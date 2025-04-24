@@ -2,13 +2,15 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
+import type { MessageComposerConfig } from 'stream-chat';
 
 import {
   useChannelStateContext,
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import type { MessageInputContextValue } from '../../context';
+import { useAttachmentManagerState, useMessageComposer } from './hooks';
+import { useStateStore } from '../../store';
 
 const DragAndDropUploadContext = React.createContext<{
   fileQueue: File[];
@@ -27,19 +29,23 @@ export const useDragAndDropUploadContext = () => useContext(DragAndDropUploadCon
  * `MessageInputProvider` will be notified through `DragAndDropUploadContext.fileQueue` and starts the upload with `uploadNewAttachments`,
  * forwarded files are removed from the queue immediately after.
  */
-export const useHandleDragAndDropQueuedFiles = ({
-  uploadNewFiles,
-}: MessageInputContextValue) => {
+export const useHandleDragAndDropQueuedFiles = () => {
   const { fileQueue, removeFilesFromQueue } = useDragAndDropUploadContext();
+
+  const messageComposer = useMessageComposer();
 
   useEffect(() => {
     if (!removeFilesFromQueue) return;
 
-    uploadNewFiles(fileQueue);
+    messageComposer.attachmentManager.uploadFiles(fileQueue);
 
     removeFilesFromQueue(fileQueue);
-  }, [fileQueue, removeFilesFromQueue, uploadNewFiles]);
+  }, [fileQueue, removeFilesFromQueue, messageComposer]);
 };
+
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  multipleUploads: state.attachments.maxNumberOfFilesPerMessage > 1,
+});
 
 /**
  * Wrapper to replace now deprecated `Channel.dragAndDropWindow` option.
@@ -72,15 +78,15 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const [files, setFiles] = useState<File[]>([]);
-  const { acceptedFiles = [], multipleUploads } = useChannelStateContext();
+  const { acceptedFiles = [] } = useChannelStateContext();
   const { t } = useTranslationContext();
 
   const messageInputContext = useMessageInputContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
+  const messageComposer = useMessageComposer();
 
   // if message input context is available, there's no need to use the queue
-  const isWithinMessageInputContext =
-    typeof messageInputContext.uploadNewFiles === 'function';
+  const isWithinMessageInputContext = Object.keys(messageInputContext).length > 0;
 
   const accept = useMemo(
     () =>
@@ -100,17 +106,23 @@ export const WithDragAndDropUpload = ({
     setFiles((cv) => cv.filter((f) => files.indexOf(f) === -1));
   }, []);
 
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const { multipleUploads } = useStateStore(
+    messageComposer.configState,
+    attachmentManagerConfigStateSelector,
+  );
+
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
     accept,
     // apply `disabled` rules if available, otherwise allow anything and
     // let the `uploadNewFiles` handle the limitations internally
     disabled: isWithinMessageInputContext
-      ? !messageInputContext.isUploadEnabled || messageInputContext.maxFilesLeft === 0
+      ? !isUploadEnabled || (messageInputContext.cooldownRemaining ?? 0) > 0
       : false,
     multiple: multipleUploads,
     noClick: true,
     onDrop: isWithinMessageInputContext
-      ? messageInputContext.uploadNewFiles
+      ? messageComposer.attachmentManager.uploadFiles
       : addFilesToQueue,
   });
 
