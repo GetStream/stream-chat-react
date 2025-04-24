@@ -18,7 +18,12 @@ import {
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
-import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
+import {
+  ChannelStateProvider,
+  ChatProvider,
+  ComponentProvider,
+  DialogManagerProvider,
+} from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -36,45 +41,55 @@ const toggleOpenMessageActions = async (i = 0) => {
   });
 };
 
-async function renderComponent(boxProps, messageContext = {}) {
-  const { client } = await initClientWithChannels();
-  return render(
-    <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t: (key) => key }}>
-        <ComponentProvider value={{}}>
-          <ChannelActionProvider
-            value={{
-              openThread: jest.fn(),
-              removeMessage: jest.fn(),
-              updateMessage: jest.fn(),
-            }}
-          >
-            <DialogManagerProvider id='message-actions-box-dialog-manager'>
-              <MessageProvider
+async function renderComponent(boxProps = {}, messageContext = {}) {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels();
+  return {
+    channel,
+    result: render(
+      <ChatProvider value={{ client }}>
+        <TranslationProvider value={{ t: (key) => key }}>
+          <ComponentProvider value={{}}>
+            <ChannelStateProvider value={{ channel }}>
+              <ChannelActionProvider
                 value={{
-                  ...defaultMessageContextValue,
-                  ...messageContext,
-                  message: boxProps.message,
+                  openThread: jest.fn(),
+                  removeMessage: jest.fn(),
+                  updateMessage: jest.fn(),
                 }}
               >
-                <MessageActionsBox
-                  {...boxProps}
-                  getMessageActions={getMessageActionsMock}
-                />
-              </MessageProvider>
-            </DialogManagerProvider>
-          </ChannelActionProvider>
-        </ComponentProvider>
-      </TranslationProvider>
-    </ChatProvider>,
-  );
+                <DialogManagerProvider id='message-actions-box-dialog-manager'>
+                  <MessageProvider
+                    value={{
+                      ...defaultMessageContextValue,
+                      ...messageContext,
+                      message: boxProps.message,
+                    }}
+                  >
+                    <MessageActionsBox
+                      {...boxProps}
+                      getMessageActions={getMessageActionsMock}
+                    />
+                  </MessageProvider>
+                </DialogManagerProvider>
+              </ChannelActionProvider>
+            </ChannelStateProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </ChatProvider>,
+    ),
+  };
 }
 
 describe('MessageActionsBox', () => {
   afterEach(jest.clearAllMocks);
 
   it('should not show any of the action buttons if no actions are returned by getMessageActions', async () => {
-    const { container, queryByText } = await renderComponent({});
+    const {
+      result: { container, queryByText },
+    } = await renderComponent({});
     expect(queryByText('Flag')).not.toBeInTheDocument();
     expect(queryByText('Mute')).not.toBeInTheDocument();
     expect(queryByText('Unmute')).not.toBeInTheDocument();
@@ -89,7 +104,9 @@ describe('MessageActionsBox', () => {
   it('should call the handleFlag prop if the flag button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['flag']);
     const handleFlag = jest.fn();
-    const { container, getByText } = await renderComponent({ handleFlag });
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handleFlag });
     await act(async () => {
       await fireEvent.click(getByText('Flag'));
     });
@@ -101,7 +118,9 @@ describe('MessageActionsBox', () => {
   it('should call the handleMute prop if the mute button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['mute']);
     const handleMute = jest.fn();
-    const { container, getByText } = await renderComponent({
+    const {
+      result: { container, getByText },
+    } = await renderComponent({
       handleMute,
       isUserMuted: () => false,
     });
@@ -116,7 +135,9 @@ describe('MessageActionsBox', () => {
   it('should call the handleMute prop if the unmute button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['mute']);
     const handleMute = jest.fn();
-    const { container, getByText } = await renderComponent({
+    const {
+      result: { container, getByText },
+    } = await renderComponent({
       handleMute,
       isUserMuted: () => true,
     });
@@ -131,7 +152,9 @@ describe('MessageActionsBox', () => {
   it('should call the handleEdit prop if the edit button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['edit']);
     const handleEdit = jest.fn();
-    const { container, getByText } = await renderComponent({ handleEdit });
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handleEdit });
     await act(async () => {
       await fireEvent.click(getByText('Edit Message'));
     });
@@ -143,7 +166,9 @@ describe('MessageActionsBox', () => {
   it('should call the handleDelete prop if the delete button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['delete']);
     const handleDelete = jest.fn();
-    const { container, getByText } = await renderComponent({ handleDelete });
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handleDelete });
     await act(async () => {
       await fireEvent.click(getByText('Delete'));
     });
@@ -156,7 +181,9 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['pin']);
     const handlePin = jest.fn();
     const message = generateMessage({ pinned: false });
-    const { container, getByText } = await renderComponent({ handlePin, message });
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handlePin, message });
     await act(async () => {
       await fireEvent.click(getByText('Pin'));
     });
@@ -169,11 +196,28 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['pin']);
     const handlePin = jest.fn();
     const message = generateMessage({ pinned: true });
-    const { container, getByText } = await renderComponent({ handlePin, message });
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handlePin, message });
     await act(async () => {
       await fireEvent.click(getByText('Unpin'));
     });
     expect(handlePin).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should call use MessageComposer to set quoted message', async () => {
+    getMessageActionsMock.mockImplementationOnce(() => ['quote']);
+    const {
+      channel,
+      result: { container, getByText },
+    } = await renderComponent({ message: generateMessage() });
+    const setQuotedMessageSpy = jest.spyOn(channel.messageComposer, 'setQuotedMessage');
+    await act(async () => {
+      await fireEvent.click(getByText('Reply'));
+    });
+    expect(setQuotedMessageSpy).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
