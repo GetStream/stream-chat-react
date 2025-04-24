@@ -26,6 +26,7 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
+import { useHandleDragAndDropQueuedFiles } from './WithDragAndDropUpload';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -150,6 +151,9 @@ const MessageInputProvider = <
     ...props,
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
+
+  // @ts-expect-error generics to be removed
+  useHandleDragAndDropQueuedFiles(messageInputContextValue);
 
   return (
     <MessageInputContextProvider<StreamChatGenerics, V> value={messageInputContextValue}>
