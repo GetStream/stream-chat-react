@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
@@ -11,34 +11,27 @@ import {
 import type { MessageInputContextValue } from '../../context';
 
 const DragAndDropUploadContext = React.createContext<{
-  fileQueue: File[];
-  addFilesToQueue: ((files: File[]) => void) | null;
-  removeFilesFromQueue: ((files: File[]) => void) | null;
+  subscribeToDrop: ((fn: (files: File[]) => void) => () => void) | null;
 }>({
-  addFilesToQueue: null,
-  fileQueue: [],
-  removeFilesFromQueue: null,
+  subscribeToDrop: null,
 });
 
 export const useDragAndDropUploadContext = () => useContext(DragAndDropUploadContext);
 
 /**
- * @private To maintain top -> bottom data flow, the drag-and-drop functionality allows dragging any files to the queue - the closest
- * `MessageInputProvider` will be notified through `DragAndDropUploadContext.fileQueue` and starts the upload with `uploadNewAttachments`,
- * forwarded files are removed from the queue immediately after.
+ * @private This hook should be used only once directly in the `MessageInputProvider` to
+ * register `uploadNewFiles` functions of the rendered `MessageInputs`. Each `MessageInput`
+ * will then be notified when the drop event occurs from within the `WithDragAndDropUpload`
+ * component.
  */
-export const useHandleDragAndDropQueuedFiles = ({
-  uploadNewFiles,
-}: MessageInputContextValue) => {
-  const { fileQueue, removeFilesFromQueue } = useDragAndDropUploadContext();
+export const useRegisterDropHandlers = ({ uploadNewFiles }: MessageInputContextValue) => {
+  const { subscribeToDrop } = useDragAndDropUploadContext();
 
   useEffect(() => {
-    if (!removeFilesFromQueue) return;
+    const unsubscribe = subscribeToDrop?.(uploadNewFiles);
 
-    uploadNewFiles(fileQueue);
-
-    removeFilesFromQueue(fileQueue);
-  }, [fileQueue, removeFilesFromQueue, uploadNewFiles]);
+    return unsubscribe;
+  }, [subscribeToDrop, uploadNewFiles]);
 };
 
 /**
@@ -71,7 +64,7 @@ export const WithDragAndDropUpload = ({
   className?: string;
   style?: CSSProperties;
 }>) => {
-  const [files, setFiles] = useState<File[]>([]);
+  const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
   const { acceptedFiles = [], multipleUploads } = useChannelStateContext();
   const { t } = useTranslationContext();
 
@@ -91,13 +84,16 @@ export const WithDragAndDropUpload = ({
     [acceptedFiles],
   );
 
-  const addFilesToQueue = useCallback((files: File[]) => {
-    setFiles((cv) => cv.concat(files));
+  const subscribeToDrop = useCallback((fn: (files: File[]) => void) => {
+    dropHandlersRef.current.add(fn);
+
+    return () => {
+      dropHandlersRef.current.delete(fn);
+    };
   }, []);
 
-  const removeFilesFromQueue = useCallback((files: File[]) => {
-    if (!files.length) return;
-    setFiles((cv) => cv.filter((f) => files.indexOf(f) === -1));
+  const handleDrop = useCallback((files: File[]) => {
+    dropHandlersRef.current.forEach((fn) => fn(files));
   }, []);
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
@@ -109,20 +105,20 @@ export const WithDragAndDropUpload = ({
       : false,
     multiple: multipleUploads,
     noClick: true,
-    onDrop: isWithinMessageInputContext
-      ? messageInputContext.uploadNewFiles
-      : addFilesToQueue,
+    onDrop: isWithinMessageInputContext ? messageInputContext.uploadNewFiles : handleDrop,
   });
 
   // nested WithDragAndDropUpload components render wrappers without functionality
   // (MessageInputFlat has a default WithDragAndDropUpload)
-  if (dragAndDropUploadContext.removeFilesFromQueue !== null) {
+  if (dragAndDropUploadContext.subscribeToDrop !== null) {
     return <Component className={className}>{children}</Component>;
   }
 
   return (
     <DragAndDropUploadContext.Provider
-      value={{ addFilesToQueue, fileQueue: files, removeFilesFromQueue }}
+      value={{
+        subscribeToDrop,
+      }}
     >
       <Component {...getRootProps({ className, style })}>
         {/* TODO: could be a replaceable component */}

@@ -21,7 +21,7 @@ import type { MessageToSend } from '../../context/ChannelActionContext';
 import type { CustomTrigger, SendMessageOptions, UnknownType } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
-import { useHandleDragAndDropQueuedFiles } from './WithDragAndDropUpload';
+import { useRegisterDropHandlers } from './WithDragAndDropUpload';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -141,7 +141,7 @@ const MessageInputProvider = <V extends CustomTrigger = CustomTrigger>(
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
-  useHandleDragAndDropQueuedFiles(messageInputContextValue);
+  useRegisterDropHandlers();
 
   return (
     <MessageInputContextProvider<V> value={messageInputContextValue}>
