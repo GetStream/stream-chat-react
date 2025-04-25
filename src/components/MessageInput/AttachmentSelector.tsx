@@ -20,7 +20,7 @@ import {
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
 
-import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 
 export const SimpleAttachmentSelector = () => {
   const {

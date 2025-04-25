@@ -10,7 +10,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useMessageComposer } from '../MessageInput';
-import { useAttachmentManagerState } from '../MessageInput/hooks/messageComposer/useAttachmentManagerState';
+import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';

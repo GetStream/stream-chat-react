@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { type TextComposerState } from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
 
-import { useMessageComposer } from './messageComposer';
+import { useMessageComposer } from './useMessageComposer';
 import { useStateStore } from '../../../store';
 
 const messageComposerStateSelector = (state: TextComposerState) => ({

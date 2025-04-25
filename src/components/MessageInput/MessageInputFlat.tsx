@@ -31,7 +31,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useStateStore } from '../../store';
-import { useAttachmentManagerState } from './hooks/messageComposer/useAttachmentManagerState';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { useMessageContext } from '../../context';
 import type { MessageComposerConfig } from 'stream-chat';
 

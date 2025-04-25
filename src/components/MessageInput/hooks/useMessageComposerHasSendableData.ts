@@ -1,5 +1,5 @@
 import { useMessageComposer } from './useMessageComposer';
-import { useStateStore } from '../../../../store';
+import { useStateStore } from '../../../store';
 import type { EditingAuditState } from 'stream-chat';
 
 const editingAuditStateStateSelector = (state: EditingAuditState) => state;

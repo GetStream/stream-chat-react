@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
+import { useMessageComposer } from './useMessageComposer';
 import { dataTransferItemsToFiles } from '../../ReactFileUtilities';
-import { useMessageComposer } from './messageComposer';
 
 export const usePasteHandler = (insertText: (textToInsert: string) => void) => {
   const { attachmentManager } = useMessageComposer();

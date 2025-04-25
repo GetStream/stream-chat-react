@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { FixedSizeQueueCache, MessageComposer } from 'stream-chat';
-import { useThreadContext } from '../../../Threads';
+import { useThreadContext } from '../../Threads';
 import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
-} from '../../../../context';
-import { useLegacyThreadContext } from '../../../Thread';
+} from '../../../context';
+import { useLegacyThreadContext } from '../../Thread';
 
 const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
 
