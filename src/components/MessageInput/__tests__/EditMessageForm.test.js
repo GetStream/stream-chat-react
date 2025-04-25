@@ -33,7 +33,7 @@ jest.mock('../../Channel/utils', () => ({
   makeAddNotifications: () => mockAddNotification,
 }));
 
-jest.mock('../hooks/messageComposer/useMessageComposer', () => ({
+jest.mock('../hooks/useMessageComposer', () => ({
   useMessageComposer: jest.fn().mockImplementation(),
 }));
 
