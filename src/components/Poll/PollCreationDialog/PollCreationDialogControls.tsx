@@ -1,12 +1,6 @@
 import React from 'react';
-import { useMessageComposer } from '../../MessageInput';
+import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
 import { useMessageInputContext, useTranslationContext } from '../../../context';
-import { useStateStore } from '../../../store';
-import type { PollComposerState } from 'stream-chat';
-
-const pollComposerStateSelector = (state: PollComposerState) => ({
-  errors: Object.values(state.errors).filter((e) => e),
-});
 
 export type PollCreationDialogControlsProps = {
   close: () => void;
@@ -18,10 +12,7 @@ export const PollCreationDialogControls = ({
   const { t } = useTranslationContext('PollCreationDialogControls');
   const { handleSubmit: handleSubmitMessage } = useMessageInputContext();
   const messageComposer = useMessageComposer();
-  const { errors } = useStateStore(
-    messageComposer.pollComposer.state,
-    pollComposerStateSelector,
-  );
+  const canCreatePoll = useCanCreatePoll();
 
   return (
     <div className='str-chat__dialog__controls'>
@@ -36,7 +27,7 @@ export const PollCreationDialogControls = ({
       </button>
       <button
         className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-        disabled={!messageComposer.pollComposer.canCreatePoll || errors.length > 0}
+        disabled={!canCreatePoll}
         onClick={() => {
           messageComposer
             .createPoll()
