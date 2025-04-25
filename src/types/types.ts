@@ -1,54 +1,11 @@
 import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
-import type {
-  APIErrorResponse,
-  Attachment,
-  ErrorFromResponse,
-  Event,
-  Mute,
-  ChannelState as StreamChannelState,
-} from 'stream-chat';
+import type { Attachment, ChannelState as StreamChannelState } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
 export type CustomMessageType = 'channel.intro' | 'message.date';
-
-export type DefaultAttachmentType = UnknownType & {
-  asset_url?: string;
-  file_size?: number;
-  id?: string;
-  images?: Array<{
-    image_url?: string;
-    thumb_url?: string;
-  }>;
-};
-
-export type DefaultChannelType = UnknownType & {
-  frozen?: boolean;
-  image?: string;
-  member_count?: number;
-  subtitle?: string;
-};
-
-export type DefaultMessageType = UnknownType & {
-  customType?: CustomMessageType;
-  date?: string | Date;
-  error?: ErrorFromResponse<APIErrorResponse>;
-  errorStatusCode?: number;
-  event?: Event;
-  unread?: boolean;
-};
-
-export type DefaultUserTypeInternal = {
-  image?: string;
-  status?: string;
-};
-
-export type DefaultUserType = UnknownType &
-  DefaultUserTypeInternal & {
-    mutes?: Array<Mute>;
-  };
 
 export type GiphyVersions =
   | 'original'

@@ -2438,10 +2438,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.8.0.tgz#6c0032544cfbc59447f71ef88b3c0736aaa676a8"
-  integrity sha512-p9Z1Ktx3E+o+7EFubNyZWNjg26UNgux8IAK0nhoC04t47Cok5pSHcUbPmTgiICSPXYNNEcDxrCil5crM0ItUUA==
+"@stream-io/stream-chat-css@^5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.8.1.tgz#f9bafd3bba46a98cea19d68de5d88f284be4d0ae"
+  integrity sha512-jT2cZNlKqlCM3A2wJouCQHmrqNbcWCclNyx+5K0JeQ1DM7i2eWKB5CRF/8IkqmQC6WO8Hnye/Z7Pyx4YwhccSA==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"

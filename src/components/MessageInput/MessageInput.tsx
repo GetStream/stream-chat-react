@@ -6,7 +6,6 @@ import { useMessageComposer } from './hooks';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputUiApi } from './hooks/useMessageInputUiApi';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
@@ -23,6 +22,7 @@ import type {
 
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
+import { useHandleDragAndDropQueuedFiles } from './WithDragAndDropUpload';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -149,6 +149,8 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     };
   }, [messageComposer]);
 
+  useHandleDragAndDropQueuedFiles();
+
   return (
     <MessageInputContextProvider value={messageInputContextValue}>
       {props.children}
@@ -159,20 +161,12 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
 const UnMemoizedMessageInput = (props: MessageInputProps) => {
   const { Input: PropInput } = props;
 
-  const { dragAndDropWindow } = useChannelStateContext();
   const { Input: ContextInput } = useComponentContext('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
     ? 'message-input-dialog-manager-thread'
     : 'message-input-dialog-manager';
-
-  if (dragAndDropWindow)
-    return (
-      <DialogManagerProvider id={dialogManagerId}>
-        <Input />
-      </DialogManagerProvider>
-    );
 
   return (
     <DialogManagerProvider id={dialogManagerId}>
