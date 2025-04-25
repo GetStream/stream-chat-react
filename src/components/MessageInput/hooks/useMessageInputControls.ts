@@ -18,7 +18,9 @@ export type MessageInputHookProps = {
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
 };
 
-export const useMessageInputUiApi = (props: MessageInputProps): MessageInputHookProps => {
+export const useMessageInputControls = (
+  props: MessageInputProps,
+): MessageInputHookProps => {
   const { asyncMessagesMultiSendEnabled, audioRecordingConfig, audioRecordingEnabled } =
     props;
 

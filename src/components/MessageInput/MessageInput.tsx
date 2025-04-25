@@ -5,7 +5,7 @@ import { MessageInputFlat } from './MessageInputFlat';
 import { useMessageComposer } from './hooks';
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
-import { useMessageInputUiApi } from './hooks/useMessageInputUiApi';
+import { useMessageInputControls } from './hooks/useMessageInputControls';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
@@ -122,7 +122,7 @@ export type MessageInputProps = {
 
 const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
   const cooldownTimerState = useCooldownTimer();
-  const messageInputUiApi = useMessageInputUiApi(props);
+  const messageInputUiApi = useMessageInputControls(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
 
   const messageInputContextValue = useCreateMessageInputContext({

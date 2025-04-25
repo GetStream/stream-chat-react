@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
-import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputUiApi';
+import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputControls';
 
 export type MessageInputContextValue = MessageInputHookProps &
   Omit<MessageInputProps, 'Input' | 'overrideSubmitHandler'> &
