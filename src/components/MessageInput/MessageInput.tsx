@@ -134,6 +134,13 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
 
   const messageComposer = useMessageComposer();
 
+  useEffect(
+    () => () => {
+      messageComposer.createDraft();
+    },
+    [messageComposer],
+  );
+
   useEffect(() => {
     const threadId = messageComposer.threadId;
     if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
@@ -144,9 +151,6 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
         messageComposer.initState({ composition: draft });
       }
     });
-    return () => {
-      messageComposer.createDraft();
-    };
   }, [messageComposer]);
 
   useHandleDragAndDropQueuedFiles();
