@@ -32,7 +32,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
     setCooldownRemaining,
     shouldSubmit,
     textareaRef,
-    useMentionsTransliteration,
   } = value;
 
   const parentId = parent?.id;
@@ -67,7 +66,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
       setCooldownRemaining,
       shouldSubmit,
       textareaRef,
-      useMentionsTransliteration,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [

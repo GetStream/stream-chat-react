@@ -105,7 +105,6 @@ export type MessageInputProps = {
   // todo: X document change in configuration
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
-  // todo: X document the change of transliterate prop
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
@@ -117,7 +116,6 @@ export type MessageInputProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
-  useMentionsTransliteration?: boolean;
 };
 
 const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
