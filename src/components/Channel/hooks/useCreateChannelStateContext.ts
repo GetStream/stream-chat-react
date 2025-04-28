@@ -11,7 +11,6 @@ export const useCreateChannelStateContext = (
   },
 ) => {
   const {
-    acceptedFiles,
     channel,
     channelCapabilitiesArray = [],
     channelConfig,
@@ -24,10 +23,8 @@ export const useCreateChannelStateContext = (
     imageAttachmentSizeHandler,
     loading,
     loadingMore,
-    maxNumberOfFiles,
     members,
     messages = [],
-    multipleUploads,
     mutes,
     notifications,
     pinnedMessages,
@@ -100,7 +97,6 @@ export const useCreateChannelStateContext = (
 
   const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
-      acceptedFiles,
       channel,
       channelCapabilities,
       channelConfig,
@@ -113,10 +109,8 @@ export const useCreateChannelStateContext = (
       imageAttachmentSizeHandler,
       loading,
       loadingMore,
-      maxNumberOfFiles,
       members,
       messages,
-      multipleUploads,
       mutes,
       notifications,
       pinnedMessages,

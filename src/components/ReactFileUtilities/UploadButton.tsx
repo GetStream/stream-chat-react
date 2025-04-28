@@ -4,11 +4,7 @@ import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
-import {
-  useChannelStateContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
+import { useMessageInputContext, useTranslationContext } from '../../context';
 import { useMessageComposer } from '../MessageInput';
 import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
 import { useStateStore } from '../../store';
@@ -16,6 +12,7 @@ import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';
 
 const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  acceptedFiles: state.attachments.acceptedFiles,
   maxNumberOfFilesPerMessage: state.attachments.maxNumberOfFilesPerMessage,
 });
 
@@ -54,11 +51,10 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
 ) {
   const { t } = useTranslationContext('UploadFileInput');
   const { cooldownRemaining } = useMessageInputContext();
-  const { acceptedFiles = [] } = useChannelStateContext('UploadFileInput');
   const messageComposer = useMessageComposer();
   const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
-  const { maxNumberOfFilesPerMessage } = useStateStore(
+  const { acceptedFiles, maxNumberOfFilesPerMessage } = useStateStore(
     messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );

@@ -1,14 +1,10 @@
+import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
-import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
 import type { MessageComposerConfig } from 'stream-chat';
 
-import {
-  useChannelStateContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
+import { useMessageInputContext, useTranslationContext } from '../../context';
 import { useAttachmentManagerState, useMessageComposer } from './hooks';
 import { useStateStore } from '../../store';
 
@@ -39,6 +35,7 @@ export const useRegisterDropHandlers = () => {
 };
 
 const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  acceptedFiles: state.attachments.acceptedFiles,
   multipleUploads: state.attachments.maxNumberOfFilesPerMessage > 1,
 });
 
@@ -64,6 +61,7 @@ export const WithDragAndDropUpload = ({
   component: Component = 'div',
   style,
 }: PropsWithChildren<{
+  acceptedFiles?: string[];
   /**
    * @description An element to render as a wrapper onto which drag & drop functionality will be applied.
    * @default 'div'
@@ -73,13 +71,16 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
-  const { acceptedFiles = [] } = useChannelStateContext();
   const { t } = useTranslationContext();
 
   const messageInputContext = useMessageInputContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
   const messageComposer = useMessageComposer();
-
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const { acceptedFiles, multipleUploads } = useStateStore(
+    messageComposer.configState,
+    attachmentManagerConfigStateSelector,
+  );
   // if message input context is available, there's no need to use the queue
   const isWithinMessageInputContext = Object.keys(messageInputContext).length > 0;
 
@@ -103,12 +104,6 @@ export const WithDragAndDropUpload = ({
   const handleDrop = useCallback((files: File[]) => {
     dropHandlersRef.current.forEach((fn) => fn(files));
   }, []);
-
-  const { isUploadEnabled } = useAttachmentManagerState();
-  const { multipleUploads } = useStateStore(
-    messageComposer.configState,
-    attachmentManagerConfigStateSelector,
-  );
 
   const { getRootProps, isDragActive, isDragReject } = useDropzone({
     accept,

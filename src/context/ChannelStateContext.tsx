@@ -50,14 +50,11 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo | undefined;
   imageAttachmentSizeHandler: ImageAttachmentSizeHandler;
-  multipleUploads: boolean;
   notifications: ChannelNotifications;
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
-  acceptedFiles?: string[];
   channelUnreadUiState?: ChannelUnreadUiState;
   giphyVersion?: GiphyVersions;
-  maxNumberOfFiles?: number;
   mutes?: Array<Mute>;
   watcher_count?: number;
 };

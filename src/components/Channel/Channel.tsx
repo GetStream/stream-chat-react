@@ -155,9 +155,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
 >;
 
 export type ChannelProps = ChannelPropsForwardedToComponentContext & {
-  // todo: X document the use of config.attachments.fileUploadFilter to replace acceptedFiles prop
-  /** List of accepted file types */
-  acceptedFiles?: string[];
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** The connected and active channel */
@@ -204,12 +201,6 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
-  // todo: X document how maxNumberOfFiles can be customized with message composer
-  /** Maximum number of attachments allowed per message */
-  maxNumberOfFiles?: number;
-  // todo: X document that multipleUploads is redundant and ignored with message composer
-  /** Whether to allow multiple attachment uploads */
-  multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
   onMentionsClick?: OnMentionAction;
   /** Custom action handler function to run on hover of an @mention in a message */
@@ -283,7 +274,6 @@ const ChannelInner = (
   >,
 ) => {
   const {
-    acceptedFiles,
     activeUnreadHandler,
     channel,
     channelQueryOptions: propChannelQueryOptions,
@@ -296,8 +286,6 @@ const ChannelInner = (
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
-    maxNumberOfFiles,
-    multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
     skipMessageDataMemoization,
@@ -544,11 +532,6 @@ const ChannelInner = (
         }
       }
 
-      if (maxNumberOfFiles) {
-        // todo: X this has to be configured via a template
-        channel.messageComposer.attachmentManager.config.maxNumberOfFilesPerMessage =
-          maxNumberOfFiles;
-      }
       done = true;
       originalTitle.current = document.title;
 
@@ -1140,7 +1123,6 @@ const ChannelInner = (
 
   const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
-    acceptedFiles,
     channel,
     channelCapabilitiesArray,
     channelConfig,
@@ -1148,8 +1130,6 @@ const ChannelInner = (
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
-    maxNumberOfFiles,
-    multipleUploads,
     mutes,
     notifications,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
