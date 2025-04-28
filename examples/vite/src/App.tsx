@@ -15,14 +15,13 @@ import {
   Chat,
   ChatView,
   MessageInput,
+  SendButtonProps,
   Thread,
   ThreadList,
-  useChatContext,
   useCreateChatClient,
+  useMessageComposer,
   VirtualizedMessageList as MessageList,
   Window,
-  SendButtonProps,
-  useMessageComposer,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -92,7 +91,6 @@ const App = () => {
       composer.attachmentManager.setCustomUploadFn(async (fileLike) => {
         return composer.attachmentManager.doDefaultUploadRequest(fileLike);
       });
-      // composer.customDataManager =
     });
   }, [chatClient]);
 
