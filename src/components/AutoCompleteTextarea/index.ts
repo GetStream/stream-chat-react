@@ -1,1 +1,0 @@
-export { defaultScrollToItem } from './utils';
