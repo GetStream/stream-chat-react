@@ -48,27 +48,13 @@ const userId = parseUserIdFromToken(userToken);
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
-  // archived: false,
+  archived: false,
 };
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
-
-const Btn = ({ sendMessage }: SendButtonProps) => {
-  const messageComposer = useMessageComposer();
-  return (
-    <button
-      onClick={(e) => {
-        messageComposer.customDataManager.setData({ a: 'b' });
-        sendMessage(e);
-      }}
-    >
-      Submit
-    </button>
-  );
-};
 
 const App = () => {
   const chatClient = useCreateChatClient({
@@ -88,9 +74,6 @@ const App = () => {
         position: { before: 'stream-io/text-composer/mentions-middleware' },
         unique: true,
       });
-      composer.attachmentManager.setCustomUploadFn(async (fileLike) => {
-        return composer.attachmentManager.doDefaultUploadRequest(fileLike);
-      });
     });
   }, [chatClient]);
 
@@ -109,7 +92,7 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel emojiSearchIndex={SearchIndex} SendButton={Btn}>
+          <Channel emojiSearchIndex={SearchIndex}>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
