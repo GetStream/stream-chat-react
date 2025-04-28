@@ -201,7 +201,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           Input={ThreadInput}
           isThreadInput
           parent={thread ?? parentMessage}
-          publishTypingEvent={false}
           {...additionalMessageInputProps}
         />
       </div>

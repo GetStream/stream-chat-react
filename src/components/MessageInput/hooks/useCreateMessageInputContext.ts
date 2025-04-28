@@ -27,7 +27,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
     minRows,
     onPaste,
     parent,
-    publishTypingEvent,
     recordingController,
     setCooldownRemaining,
     shouldSubmit,
@@ -61,7 +60,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
       minRows,
       onPaste,
       parent,
-      publishTypingEvent,
       recordingController,
       setCooldownRemaining,
       shouldSubmit,
@@ -79,7 +77,6 @@ export const useCreateMessageInputContext = (value: MessageInputContextValue) =>
       isThreadInput,
       minRows,
       parentId,
-      publishTypingEvent,
       recordingController,
     ],
   );

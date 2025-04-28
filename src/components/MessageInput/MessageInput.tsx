@@ -102,9 +102,6 @@ export type MessageInputProps = {
   }) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: LocalMessage;
-  // todo: X document change in configuration
-  /** If true, triggers typing events on text input keystroke */
-  publishTypingEvent?: boolean;
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
