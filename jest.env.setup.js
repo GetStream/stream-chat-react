@@ -12,6 +12,12 @@ Object.defineProperty(globalThis, 'crypto', {
   },
 });
 
+Object.defineProperty(globalThis, 'structuredClone', {
+  value: (val) => {
+    return JSON.parse(JSON.stringify(val));
+  },
+});
+
 // Mock proper File API behavior
 if (typeof File === 'undefined') {
   class File extends Blob {
