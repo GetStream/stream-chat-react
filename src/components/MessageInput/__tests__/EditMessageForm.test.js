@@ -822,7 +822,7 @@ describe(`EditMessageForm`, () => {
   });
 
   describe('Submitting', () => {
-    it('should submit the message if content not change', async () => {
+    it('should not submit the message if content not change', async () => {
       const { customChannel, customClient } = await setup();
       const { container, submit } = await renderComponent({
         customChannel,
@@ -831,13 +831,7 @@ describe(`EditMessageForm`, () => {
 
       await act(() => submit());
 
-      expect(editMock).toHaveBeenCalledWith(
-        customChannel.cid,
-        expect.objectContaining({
-          text: mainListMessage.text,
-        }),
-        {},
-      );
+      expect(editMock).not.toHaveBeenCalled();
       await axeNoViolations(container);
     });
     it('should submit the input value with text changed', async () => {
