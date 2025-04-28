@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import {
   isAudioAttachment,
+  isFileAttachment,
   isImageAttachment,
   isScrapedContent,
+  isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
 
@@ -16,7 +18,7 @@ import {
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
-import { isFileAttachment, isMediaAttachment } from './utils';
+import { SUPPORTED_VIDEO_FORMATS } from './utils';
 
 import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
@@ -164,13 +166,13 @@ const getAttachmentType = (
 ): keyof typeof CONTAINER_MAP => {
   if (isScrapedContent(attachment)) {
     return 'card';
-  } else if (isMediaAttachment(attachment)) {
+  } else if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'media';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
   } else if (isVoiceRecordingAttachment(attachment)) {
     return 'voiceRecording';
-  } else if (isFileAttachment(attachment)) {
+  } else if (isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'file';
   }
 
