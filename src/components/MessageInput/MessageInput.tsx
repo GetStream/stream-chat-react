@@ -13,7 +13,6 @@ import { DialogManagerProvider } from '../../context';
 
 import type { LocalMessage, Message, SendMessageOptions } from 'stream-chat';
 
-import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
 
@@ -66,10 +65,6 @@ export type MessageInputProps = {
   isThreadInput?: boolean;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
   maxRows?: number;
-  /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
-  mentionAllAppUsers?: boolean;
-  /** Object containing filters/sort/options overrides for an @mention user query */
-  mentionQueryParams?: SearchQueryParams['userFilters'];
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
   /** Function to override the default message sending process. Not message updating process. */
@@ -86,7 +81,7 @@ export type MessageInputProps = {
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
    * If specified, this function overrides the default behavior specified previously.
    *
-   * Example of default behaviour:
+   * Example of default behavior:
    * ```tsx
    * const defaultShouldSubmit = (event) => event.key === "Enter" && !event.shiftKey;
    * ```
