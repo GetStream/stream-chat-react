@@ -5,7 +5,7 @@ import type { CooldownTimerState, MessageInputProps } from '../components/Messag
 import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputControls';
 
 export type MessageInputContextValue = MessageInputHookProps &
-  Omit<MessageInputProps, 'Input' | 'overrideSubmitHandler'> &
+  Omit<MessageInputProps, 'Input'> &
   CooldownTimerState;
 
 export const MessageInputContext = createContext<MessageInputHookProps | undefined>(
