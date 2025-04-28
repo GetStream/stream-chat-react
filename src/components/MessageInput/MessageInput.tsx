@@ -22,7 +22,7 @@ import type {
 
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
-import { useHandleDragAndDropQueuedFiles } from './WithDragAndDropUpload';
+import { useRegisterDropHandlers } from './WithDragAndDropUpload';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -153,7 +153,7 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     });
   }, [messageComposer]);
 
-  useHandleDragAndDropQueuedFiles();
+  useRegisterDropHandlers();
 
   return (
     <MessageInputContextProvider value={messageInputContextValue}>
