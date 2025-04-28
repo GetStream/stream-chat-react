@@ -3,7 +3,11 @@ import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
-import type { SearchSourceState, TextComposerState } from 'stream-chat';
+import type {
+  MessageComposerConfig,
+  SearchSourceState,
+  TextComposerState,
+} from 'stream-chat';
 import {
   useComponentContext,
   useMessageInputContext,
@@ -23,6 +27,10 @@ const searchSourceStateSelector = (state: SearchSourceState) => ({
   items: state.items,
 });
 
+const configStateSelector = (state: MessageComposerConfig) => ({
+  enabled: state.text.enabled,
+});
+
 /**
  * isComposing prevents double submissions in Korean and other languages.
  * starting point for a read:
@@ -34,7 +42,7 @@ const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
 
 export type TextComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
-  'style' | 'defaultValue'
+  'style' | 'defaultValue' | 'disabled'
 > & {
   closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
@@ -50,7 +58,6 @@ export const TextareaComposer = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,
-  disabled,
   // dropdownClassName, // todo: X find a different way to prevent prop drilling
   grow: growProp,
   // itemClassName, // todo: X find a different way to prevent prop drilling
@@ -88,6 +95,8 @@ export const TextareaComposer = ({
     textComposer.state,
     textComposerStateSelector,
   );
+
+  const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
 
   const { isLoadingItems } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
@@ -234,7 +243,7 @@ export const TextareaComposer = ({
           className,
         )}
         data-testid='message-input'
-        disabled={disabled || !!cooldownRemaining}
+        disabled={!enabled || !!cooldownRemaining}
         maxRows={grow ? maxRows : 1}
         onBlur={onBlur}
         onChange={changeHandler}

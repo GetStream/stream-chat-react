@@ -52,8 +52,6 @@ export type MessageInputProps = {
   audioRecordingEnabled?: boolean;
   /** Function to clear the editing state while editing a message */
   clearEditingState?: () => void;
-  /** If true, disables the text input */
-  disabled?: boolean;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
