@@ -52,7 +52,7 @@ import type {
 import type {
   SuggestionItemProps,
   SuggestionListProps,
-} from '../components/TextAreaComposer';
+} from '../components/TextareaComposer';
 
 import type {
   SearchProps,

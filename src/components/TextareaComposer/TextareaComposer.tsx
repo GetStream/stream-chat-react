@@ -32,15 +32,6 @@ const searchSourceStateSelector = (state: SearchSourceState) => ({
 const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
-/**
- * TODO: X
- * - disableMentions - just do not provide mentions middleware
- * - style props - just use CSS
- * - what was loadingComponent prop for?
- * - do we want to keep movePopupAsYouType prop?
- * - do we want to keep onCaretPositionChange prop?
- * - scrollToItem prop was what for? - removing it todo: document it
- */
 export type TextComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
   'style' | 'defaultValue'
@@ -55,7 +46,7 @@ export type TextComposerProps = Omit<
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
 };
 
-export const TextAreaComposer = ({
+export const TextareaComposer = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,

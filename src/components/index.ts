@@ -26,7 +26,7 @@ export * from './Modal';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';
-export * from './TextAreaComposer';
+export * from './TextareaComposer';
 export * from './Thread';
 export * from './Tooltip';
 export * from './TypingIndicator';

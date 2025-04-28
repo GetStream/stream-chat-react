@@ -19,7 +19,7 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
-import { TextAreaComposer } from '../TextAreaComposer';
+import { TextareaComposer } from '../TextareaComposer';
 import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
@@ -107,7 +107,7 @@ export const MessageInputFlat = () => {
           <QuotedMessagePreview />
           <AttachmentPreviewList />
           <div className='str-chat__message-textarea-with-emoji-picker'>
-            <TextAreaComposer />
+            <TextareaComposer />
             {EmojiPicker && <EmojiPicker />}
           </div>
         </div>
