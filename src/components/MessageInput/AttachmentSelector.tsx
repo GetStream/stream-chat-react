@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import type { ElementRef } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
@@ -19,8 +20,6 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
-
-import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 
 export const SimpleAttachmentSelector = () => {
   const {

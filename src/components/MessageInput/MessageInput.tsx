@@ -11,14 +11,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
 
-import type {
-  Channel,
-  LocalAttachmentUploadMetadata,
-  LocalMessage,
-  Message,
-  SendFileAPIResponse,
-  SendMessageOptions,
-} from 'stream-chat';
+import type { LocalMessage, Message, SendMessageOptions } from 'stream-chat';
 
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
@@ -61,18 +54,6 @@ export type MessageInputProps = {
   clearEditingState?: () => void;
   /** If true, disables the text input */
   disabled?: boolean;
-  /** If true, the suggestion list will not display and autocomplete @mentions. Default: false. */
-  disableMentions?: boolean;
-  /** Function to override the default file upload request */
-  doFileUploadRequest?: (
-    file: LocalAttachmentUploadMetadata['file'],
-    channel: Channel,
-  ) => Promise<SendFileAPIResponse>;
-  /** Function to override the default image upload request */
-  doImageUploadRequest?: (
-    file: LocalAttachmentUploadMetadata['file'],
-    channel: Channel,
-  ) => Promise<SendFileAPIResponse>;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
