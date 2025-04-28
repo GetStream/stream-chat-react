@@ -309,7 +309,6 @@ const ChannelInner = (
   const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
-  // FIXME: Create a proper notification service in the LLC.
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
@@ -1007,7 +1006,6 @@ const ChannelInner = (
     }
   };
 
-  // BREAKING: sendMessage now requires a params object instead of message
   const sendMessage = async ({
     localMessage,
     message,
