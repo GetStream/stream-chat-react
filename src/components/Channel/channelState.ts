@@ -92,7 +92,6 @@ export const makeChannelReducer =
         return {
           ...state,
           thread: null,
-          threadInstance: undefined,
           threadLoadingMore: false,
           threadMessages: [],
         };
