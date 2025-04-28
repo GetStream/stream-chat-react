@@ -6,18 +6,28 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 import { Poll } from '../Poll';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { TranslationLanguages } from 'stream-chat';
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import { useStateStore } from '../../store';
+import { useMessageComposer } from './hooks';
+import { renderText as defaultRenderText } from '../Message/renderText';
+import type { MessageComposerState, TranslationLanguages } from 'stream-chat';
 import type { MessageContextValue } from '../../context';
-import { renderText as defaultRenderText } from '../Message';
+
+const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
 
 export const QuotedMessagePreviewHeader = () => {
-  const { setQuotedMessage } = useChannelActionContext('QuotedMessagePreview');
   const { t } = useTranslationContext('QuotedMessagePreview');
+  const messageComposer = useMessageComposer();
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateStoreSelector,
+  );
+
+  if (!quotedMessage) return null;
 
   return (
     <div className='str-chat__quoted-message-preview-header'>
@@ -27,7 +37,7 @@ export const QuotedMessagePreviewHeader = () => {
       <button
         aria-label={t('aria/Cancel Reply')}
         className='str-chat__quoted-message-remove'
-        onClick={() => setQuotedMessage(undefined)}
+        onClick={() => messageComposer.setQuotedMessage(null)}
       >
         <CloseIcon />
       </button>
@@ -36,43 +46,50 @@ export const QuotedMessagePreviewHeader = () => {
 };
 
 export type QuotedMessagePreviewProps = {
-  quotedMessage: StreamMessage;
   renderText?: MessageContextValue['renderText'];
 };
 
 export const QuotedMessagePreview = ({
-  quotedMessage,
   renderText = defaultRenderText,
 }: QuotedMessagePreviewProps) => {
   const { client } = useChatContext();
   const { Attachment = DefaultAttachment, Avatar = DefaultAvatar } =
     useComponentContext('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
-
-  const quotedMessageText =
-    quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    quotedMessage.text;
-
-  const renderedText = useMemo(
-    () => renderText(quotedMessageText, quotedMessage.mentioned_users),
-    [quotedMessage.mentioned_users, quotedMessageText, renderText],
+  const messageComposer = useMessageComposer();
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateStoreSelector,
   );
 
-  const quotedMessageAttachment = useMemo(() => {
-    const [attachment] = quotedMessage.attachments ?? [];
-    return attachment ? [attachment] : [];
-  }, [quotedMessage.attachments]);
+  const quotedMessageText = useMemo(
+    () =>
+      quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+      quotedMessage?.text,
+    [quotedMessage?.i18n, quotedMessage?.text, userLanguage],
+  );
 
-  if (!quotedMessageText && !quotedMessageAttachment) return null;
+  const renderedText = useMemo(
+    () => renderText(quotedMessageText, quotedMessage?.mentioned_users),
+    [quotedMessage, quotedMessageText, renderText],
+  );
 
-  const poll = quotedMessage.poll_id && client.polls.fromState(quotedMessage.poll_id);
+  const quotedMessageAttachments = useMemo(
+    () =>
+      quotedMessage?.attachments?.length ? quotedMessage.attachments.slice(0, 1) : [],
+    [quotedMessage],
+  );
+
+  const poll = quotedMessage?.poll_id && client.polls.fromState(quotedMessage.poll_id);
+
+  if (!quotedMessageText && !quotedMessageAttachments.length && !poll) return null;
 
   return (
     <div
       className='str-chat__quoted-message-preview'
       data-testid='quoted-message-preview'
     >
-      {quotedMessage.user && (
+      {quotedMessage?.user && (
         <Avatar
           className='str-chat__avatar--quoted-message-sender'
           image={quotedMessage.user.image}
@@ -85,8 +102,8 @@ export const QuotedMessagePreview = ({
           <Poll isQuoted poll={poll} />
         ) : (
           <>
-            {!!quotedMessageAttachment.length && (
-              <Attachment attachments={quotedMessageAttachment} isQuoted />
+            {!!quotedMessageAttachments.length && (
+              <Attachment attachments={quotedMessageAttachments} isQuoted />
             )}
             <div
               className='str-chat__quoted-message-text'

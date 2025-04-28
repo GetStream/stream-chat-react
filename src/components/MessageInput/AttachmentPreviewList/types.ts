@@ -1,9 +1,9 @@
-import type { LocalAttachment } from '../types';
+import type { LocalUploadAttachment } from 'stream-chat';
 
-export type AttachmentPreviewProps<A extends LocalAttachment> = {
+export type UploadAttachmentPreviewProps<A extends LocalUploadAttachment> = {
   attachment: A;
   handleRetry: (
-    attachment: LocalAttachment,
-  ) => void | Promise<LocalAttachment | undefined>;
+    attachment: LocalUploadAttachment,
+  ) => void | Promise<LocalUploadAttachment | undefined>;
   removeAttachments: (ids: string[]) => void;
 };

@@ -2,26 +2,24 @@ import type React from 'react';
 import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
+import { useThreadContext } from '../../Threads';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { Reaction, ReactionResponse } from 'stream-chat';
-
-import { useThreadContext } from '../../Threads';
+import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
-export const useReactionHandler = (message?: StreamMessage) => {
+export const useReactionHandler = (message?: LocalMessage) => {
   const thread = useThreadContext();
   const { updateMessage } = useChannelActionContext('useReactionHandler');
   const { channel, channelCapabilities } = useChannelStateContext('useReactionHandler');
   const { client } = useChatContext('useReactionHandler');
 
   const createMessagePreview = useCallback(
-    (add: boolean, reaction: ReactionResponse, message: StreamMessage): StreamMessage => {
+    (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
       const newReactionGroups = message?.reaction_groups || {};
       const reactionType = reaction.type;
       const hasReaction = !!newReactionGroups[reactionType];
@@ -50,7 +48,7 @@ export const useReactionHandler = (message?: StreamMessage) => {
         }
       }
 
-      const newReactions: Reaction[] | undefined = add
+      const newReactions: ReactionResponse[] | undefined = add
         ? [reaction, ...(message?.latest_reactions || [])]
         : message.latest_reactions?.filter(
             (item) => !(item.type === reaction.type && item.user_id === reaction.user_id),
@@ -65,7 +63,7 @@ export const useReactionHandler = (message?: StreamMessage) => {
         latest_reactions: newReactions || message.latest_reactions,
         own_reactions: newOwnReactions,
         reaction_groups: newReactionGroups,
-      } as StreamMessage;
+      };
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [client.user, client.userID],
@@ -87,7 +85,6 @@ export const useReactionHandler = (message?: StreamMessage) => {
 
     try {
       updateMessage(tempMessage);
-      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
@@ -99,7 +96,6 @@ export const useReactionHandler = (message?: StreamMessage) => {
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      // @ts-expect-error message type mismatch
       thread?.upsertReplyLocally({ message });
     }
   }, 1000);

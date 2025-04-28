@@ -1,3 +1,4 @@
+import type { ComponentProps, PropsWithChildren } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -7,12 +8,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import type { ComponentProps, PropsWithChildren } from 'react';
 import type {
   APIErrorResponse,
   ChannelAPIResponse,
@@ -22,14 +21,16 @@ import type {
   ErrorFromResponse,
   Event,
   EventAPIResponse,
+  LocalMessage,
   Message,
   MessageResponse,
   SendMessageAPIResponse,
+  SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
-  UpdatedMessage,
-  UserResponse,
+  UpdateMessageOptions,
 } from 'stream-chat';
+import { localMessageToNewMessagePayload } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
@@ -42,15 +43,12 @@ import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 import type { LoadingErrorIndicatorProps } from '../Loading';
 import { LoadingErrorIndicator as DefaultLoadingErrorIndicator } from '../Loading';
 import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
-import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
 import type {
   ChannelActionContextValue,
   ChannelNotifications,
   ComponentContextValue,
   MarkReadWrapperOptions,
-  MessageToSend,
-  StreamMessage,
 } from '../../context';
 import {
   ChannelActionProvider,
@@ -79,22 +77,16 @@ import {
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
-
-import type { MessageInputProps } from '../MessageInput';
 import type {
   ChannelUnreadUiState,
-  CustomTrigger,
   GiphyVersions,
   ImageAttachmentSizeHandler,
-  SendMessageOptions,
-  UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
 import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
-import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 
 type ChannelPropsForwardedToComponentContext = Pick<
@@ -154,7 +146,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ThreadHeader'
   | 'ThreadStart'
   | 'Timestamp'
-  | 'TriggerProvider'
   | 'TypingIndicator'
   | 'UnreadMessagesNotification'
   | 'UnreadMessagesSeparator'
@@ -163,93 +154,64 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'StreamedMessageText'
 >;
 
-const isUserResponseArray = (
-  output: string[] | UserResponse[],
-): output is UserResponse[] => (output as UserResponse[])[0]?.id != null;
-
-export type ChannelProps<V extends CustomTrigger = CustomTrigger> =
-  ChannelPropsForwardedToComponentContext & {
-    /** List of accepted file types */
-    acceptedFiles?: string[];
-    /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
-    activeUnreadHandler?: (unread: number, documentTitle: string) => void;
-    /** The connected and active channel */
-    channel?: StreamChannel;
-    /**
-     * Optional configuration parameters used for the initial channel query.
-     * Applied only if the value of channel.initialized is false.
-     * If the channel instance has already been initialized (channel has been queried),
-     * then the channel query will be skipped and channelQueryOptions will not be applied.
-     */
-    channelQueryOptions?: ChannelQueryOptions;
-    /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-    doDeleteMessageRequest?: (message: StreamMessage) => Promise<MessageResponse>;
-    /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
-    doMarkReadRequest?: (
-      channel: StreamChannel,
-      setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-    ) => Promise<EventAPIResponse> | void;
-    /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
-    doSendMessageRequest?: (
-      channel: StreamChannel,
-      message: Message,
-      options?: SendMessageOptions,
-    ) => ReturnType<StreamChannel['sendMessage']> | void;
-    /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
-    doUpdateMessageRequest?: (
-      cid: string,
-      updatedMessage: UpdatedMessage,
-      options?: UpdateMessageOptions,
-    ) => ReturnType<StreamChat['updateMessage']>;
-    /**
-     * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-     * @description If true, chat users will be able to drag and drop file uploads to the entire channel window
-     */
-    dragAndDropWindow?: boolean;
-    /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-    EmptyPlaceholder?: React.ReactElement;
-    /**
-     * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
-     * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-     * or directly on MessageInput level through urlEnrichmentConfig.
-     */
-    enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-    /** Global configuration for link preview generation in all the MessageInput components */
-    enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
-    /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
-    giphyVersion?: GiphyVersions;
-    /** A custom function to provide size configuration for image attachments */
-    imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
-    /**
-     * Allows to prevent triggering the channel.watch() call when mounting the component.
-     * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
-     * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
-     */
-    initializeOnMount?: boolean;
-    /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
-    LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-    /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
-    markReadOnMount?: boolean;
-    /** Maximum number of attachments allowed per message */
-    maxNumberOfFiles?: number;
-    /** Whether to allow multiple attachment uploads */
-    multipleUploads?: boolean;
-    /** Custom action handler function to run on click of an @mention in a message */
-    onMentionsClick?: OnMentionAction;
-    /** Custom action handler function to run on hover of an @mention in a message */
-    onMentionsHover?: OnMentionAction;
-    /**
-     * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-     * @description If `dragAndDropWindow` prop is `true`, the props to pass to the `MessageInput` component (overrides props placed directly on `MessageInput`)
-     */
-    optionalMessageInputProps?: MessageInputProps<V>;
-    /** You can turn on/off thumbnail generation for video attachments */
-    shouldGenerateVideoThumbnail?: boolean;
-    /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
-    skipMessageDataMemoization?: boolean;
-    /** A custom function to provide size configuration for video attachments */
-    videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
-  };
+export type ChannelProps = ChannelPropsForwardedToComponentContext & {
+  /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
+  activeUnreadHandler?: (unread: number, documentTitle: string) => void;
+  /** The connected and active channel */
+  channel?: StreamChannel;
+  /**
+   * Optional configuration parameters used for the initial channel query.
+   * Applied only if the value of channel.initialized is false.
+   * If the channel instance has already been initialized (channel has been queried),
+   * then the channel query will be skipped and channelQueryOptions will not be applied.
+   */
+  channelQueryOptions?: ChannelQueryOptions;
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
+  doDeleteMessageRequest?: (message: LocalMessage) => Promise<MessageResponse>;
+  /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
+  doMarkReadRequest?: (
+    channel: StreamChannel,
+    setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
+  ) => Promise<EventAPIResponse> | void;
+  /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
+  doSendMessageRequest?: (
+    channel: StreamChannel,
+    message: Message,
+    options?: SendMessageOptions,
+  ) => ReturnType<StreamChannel['sendMessage']> | void;
+  /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
+  doUpdateMessageRequest?: (
+    cid: string,
+    updatedMessage: LocalMessage | MessageResponse,
+    options?: UpdateMessageOptions,
+  ) => ReturnType<StreamChat['updateMessage']>;
+  /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
+  EmptyPlaceholder?: React.ReactElement;
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
+  /** A custom function to provide size configuration for image attachments */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
+  /**
+   * Allows to prevent triggering the channel.watch() call when mounting the component.
+   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
+   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
+   */
+  initializeOnMount?: boolean;
+  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
+  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
+  markReadOnMount?: boolean;
+  /** Custom action handler function to run on click of an @mention in a message */
+  onMentionsClick?: OnMentionAction;
+  /** Custom action handler function to run on hover of an @mention in a message */
+  onMentionsHover?: OnMentionAction;
+  /** You can turn on/off thumbnail generation for video attachments */
+  shouldGenerateVideoThumbnail?: boolean;
+  /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
+  skipMessageDataMemoization?: boolean;
+  /** A custom function to provide size configuration for video attachments */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
+};
 
 const ChannelContainer = ({
   children,
@@ -268,9 +230,7 @@ const ChannelContainer = ({
   );
 };
 
-const UnMemoizedChannel = <V extends CustomTrigger = CustomTrigger>(
-  props: PropsWithChildren<ChannelProps<V>>,
-) => {
+const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
   const {
     channel: propsChannel,
     EmptyPlaceholder = null,
@@ -305,16 +265,15 @@ const UnMemoizedChannel = <V extends CustomTrigger = CustomTrigger>(
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
-const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
+const ChannelInner = (
   props: PropsWithChildren<
-    ChannelProps<V> & {
+    ChannelProps & {
       channel: StreamChannel;
       key: string;
     }
   >,
 ) => {
   const {
-    acceptedFiles,
     activeUnreadHandler,
     channel,
     channelQueryOptions: propChannelQueryOptions,
@@ -323,17 +282,12 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
-    dragAndDropWindow = false,
-    enrichURLForPreviewConfig,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
-    maxNumberOfFiles,
-    multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
-    optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
 
@@ -356,11 +310,10 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const [quotedMessage, setQuotedMessage] = useState<StreamMessage>();
+  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
+
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
-
-  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
   const channelReducer = useMemo(() => makeChannelReducer(), []);
 
@@ -939,7 +892,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     );
 
   const deleteMessage = useCallback(
-    async (message: StreamMessage): Promise<MessageResponse> => {
+    async (message: LocalMessage): Promise<MessageResponse> => {
       if (!message?.id) {
         throw new Error('Cannot delete a message - missing message ID.');
       }
@@ -956,9 +909,9 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     [client, doDeleteMessageRequest],
   );
 
-  const updateMessage = (updatedMessage: MessageToSend | StreamMessage) => {
+  const updateMessage = (updatedMessage: MessageResponse | LocalMessage) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage as MessageResponse, true);
+    channel.state.addMessageSorted(updatedMessage, true);
 
     dispatch({
       channel,
@@ -967,42 +920,28 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     });
   };
 
-  const doSendMessage = async (
-    message: MessageToSend | StreamMessage,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => {
-    const { attachments, id, mentioned_users = [], parent_id, text } = message;
-
-    // channel.sendMessage expects an array of user id strings
-    const mentions = isUserResponseArray(mentioned_users)
-      ? mentioned_users.map(({ id }) => id)
-      : mentioned_users;
-
-    const messageData = {
-      attachments,
-      id,
-      mentioned_users: mentions,
-      parent_id,
-      quoted_message_id:
-        parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
-      text,
-      ...customMessageData,
-    } as Message;
-
+  const doSendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     try {
       let messageResponse: void | SendMessageAPIResponse;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel, messageData, options);
+        messageResponse = await doSendMessageRequest(channel, message, options);
       } else {
-        messageResponse = await channel.sendMessage(messageData, options);
+        messageResponse = await channel.sendMessage(message, options);
       }
 
-      let existingMessage;
+      let existingMessage: LocalMessage | undefined = undefined;
       for (let i = channel.state.messages.length - 1; i >= 0; i--) {
         const msg = channel.state.messages[i];
-        if (msg.id && msg.id === messageData.id) {
+        if (msg.id && msg.id === message.id) {
           existingMessage = msg;
           break;
         }
@@ -1026,9 +965,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
           status: 'received',
         });
       }
-
-      if (quotedMessage && parent_id === quotedMessage?.parent_id)
-        setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -1049,23 +985,20 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
         error.message.includes('already exists')
       ) {
         updateMessage({
-          ...message,
+          ...localMessage,
           status: 'received',
         });
       } else {
         updateMessage({
-          ...message,
+          ...localMessage,
           error: parsedError,
-          errorStatusCode: parsedError.status || undefined,
           status: 'failed',
         });
 
         thread?.upsertReplyLocally({
           message: {
-            ...message,
-            // @ts-expect-error error is local
+            ...localMessage,
             error: parsedError,
-            errorStatusCode: parsedError.status || undefined,
             status: 'failed',
           },
         });
@@ -1073,55 +1006,40 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     }
   };
 
-  const sendMessage = async (
-    { attachments = [], mentioned_users = [], parent, text = '' }: MessageToSend,
-    customMessageData?: Partial<Message>,
-    options?: SendMessageOptions,
-  ) => {
+  const sendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     channel.state.filterErrorMessages();
 
-    const messagePreview = {
-      attachments,
-      created_at: new Date(),
-      html: text,
-      id: customMessageData?.id ?? `${client.userID}-${nanoid()}`,
-      mentioned_users,
-      parent_id: parent?.id,
-      reactions: [],
-      status: 'sending',
-      text,
-      type: 'regular',
-      user: client.user,
-    };
-
     thread?.upsertReplyLocally({
-      // @ts-expect-error message type mismatch
-      message: messagePreview,
+      message: localMessage,
     });
 
-    updateMessage(messagePreview);
+    updateMessage(localMessage);
 
-    await doSendMessage(messagePreview, customMessageData, options);
+    await doSendMessage({ localMessage, message, options });
   };
 
-  const retrySendMessage = async (message: StreamMessage) => {
+  const retrySendMessage = async (localMessage: LocalMessage) => {
     updateMessage({
-      ...message,
-      errorStatusCode: undefined,
+      ...localMessage,
+      error: undefined,
       status: 'sending',
     });
 
-    if (message.attachments) {
-      // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
-      message.attachments = message.attachments.filter(
-        (attachment) => !attachment.og_scrape_url,
-      );
-    }
-
-    await doSendMessage(message);
+    await doSendMessage({
+      localMessage,
+      message: localMessageToNewMessagePayload(localMessage),
+    });
   };
 
-  const removeMessage = (message: StreamMessage) => {
+  const removeMessage = (message: LocalMessage) => {
     channel.state.removeMessage(message);
 
     dispatch({
@@ -1133,15 +1051,8 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   /** THREAD */
 
-  const openThread = (message: StreamMessage, event?: React.BaseSyntheticEvent) => {
+  const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    setQuotedMessage((current) => {
-      if (current?.parent_id !== message?.parent_id) {
-        return undefined;
-      } else {
-        return current;
-      }
-    });
     dispatch({ channel, message, type: 'openThread' });
   };
 
@@ -1210,24 +1121,15 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
 
   const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
-    acceptedFiles,
     channel,
     channelCapabilitiesArray,
     channelConfig,
     channelUnreadUiState,
-    debounceURLEnrichmentMs: enrichURLForPreviewConfig?.debounceURLEnrichmentMs,
-    dragAndDropWindow,
-    enrichURLForPreview: props.enrichURLForPreview,
-    findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
-    maxNumberOfFiles,
-    multipleUploads,
     mutes,
     notifications,
-    onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-    quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -1255,7 +1157,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       retrySendMessage,
       sendMessage,
       setChannelUnreadUiState,
-      setQuotedMessage,
       skipMessageDataMemoization,
       updateMessage,
     }),
@@ -1263,12 +1164,9 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
     [
       channel.cid,
       deleteMessage,
-      enrichURLForPreviewConfig?.findURLFn,
-      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,
       loadMoreNewer,
       markRead,
-      quotedMessage,
       jumpToFirstUnreadMessage,
       jumpToMessage,
       jumpToLatestMessage,
@@ -1335,7 +1233,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
       Timestamp: props.Timestamp,
-      TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
       UnreadMessagesSeparator: props.UnreadMessagesSeparator,
@@ -1398,7 +1295,6 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
       props.ThreadHeader,
       props.ThreadStart,
       props.Timestamp,
-      props.TriggerProvider,
       props.TypingIndicator,
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
@@ -1440,14 +1336,7 @@ const ChannelInner = <V extends CustomTrigger = CustomTrigger>(
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
-              <div className={`${chatContainerClass}`}>
-                {dragAndDropWindow && (
-                  <DropzoneProvider {...optionalMessageInputProps}>
-                    {children}
-                  </DropzoneProvider>
-                )}
-                {!dragAndDropWindow && <>{children}</>}
-              </div>
+              <div className={clsx(chatContainerClass)}>{children}</div>
             </TypingProvider>
           </WithComponents>
         </ChannelActionProvider>

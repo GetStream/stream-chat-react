@@ -21,10 +21,8 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
+import { EditMessageModal } from '../MessageInput';
 import { MML } from '../MML';
-import { Modal } from '../Modal';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
@@ -38,13 +36,13 @@ import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 import type { MessageUIComponentProps } from './types';
 
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
+import { isDateSeparatorMessage } from '../MessageList';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
 const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
-    clearEditingState,
     editing,
     endOfGroup,
     firstOfGroup,
@@ -69,7 +67,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    EditMessageInput = DefaultEditMessageForm,
     MessageOptions = DefaultMessageOptions,
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
@@ -84,14 +81,14 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext('MessageSimple');
-
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-  if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
+
+  if (isDateSeparatorMessage(message)) {
     return null;
   }
 
@@ -105,7 +102,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
-  const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+  const allowRetry = message.status === 'failed' && message.error?.status !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
@@ -133,7 +130,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
-        message?.status === 'failed' && message?.errorStatusCode !== 403,
+        message?.status === 'failed' && message?.error?.status !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
@@ -146,20 +143,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   return (
     <>
       {editing && (
-        <Modal
-          className='str-chat__edit-message-modal'
-          onClose={clearEditingState}
-          open={editing}
-        >
-          <MessageInput
-            clearEditingState={clearEditingState}
-            grow
-            hideSendButton
-            Input={EditMessageInput}
-            message={message}
-            {...additionalMessageInputProps}
-          />
-        </Modal>
+        <EditMessageModal additionalMessageInputProps={additionalMessageInputProps} />
       )}
       {isBounceDialogOpen && (
         <MessageBounceModal

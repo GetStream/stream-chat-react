@@ -7,12 +7,8 @@ import {
   ThreadIcon,
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
-import {
-  useChannelActionContext,
-  useChatContext,
-  useMessageContext,
-  useTranslationContext,
-} from '../../context';
+import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import { useMessageComposer } from '../../components';
 
 import type { ComponentPropsWithoutRef } from 'react';
 
@@ -33,12 +29,12 @@ export const DefaultDropdownActionButton = ({
 const DefaultMessageActionComponents = {
   dropdown: {
     Quote() {
-      const { setQuotedMessage } = useChannelActionContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
+      const messageComposer = useMessageComposer();
 
       const handleQuote = () => {
-        setQuotedMessage(message);
+        messageComposer.setQuotedMessage(message);
 
         const elements = message.parent_id
           ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')

@@ -2,20 +2,19 @@ import type React from 'react';
 import { useMemo } from 'react';
 
 import { useLastReadData } from '../useLastReadData';
-import type { GroupStyle } from '../../utils';
 import { getLastReceived } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
 import type { ChannelState as StreamChannelState } from 'stream-chat';
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
+import type { GroupStyle, RenderedMessage } from '../../utils';
 import type { ChannelUnreadUiState } from '../../../../types/types';
 import type { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
 type UseMessageListElementsProps = {
-  enrichedMessages: StreamMessage[];
+  enrichedMessages: RenderedMessage[];
   internalMessageProps: SharedMessageProps;
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer;

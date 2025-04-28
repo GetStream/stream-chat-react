@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { MessageInputContextValue } from '../../../context';
-import { useTranslationContext } from '../../../context';
-import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
 import { MediaRecorderController } from '../classes';
+import { useTranslationContext } from '../../../context';
+import { useMessageComposer } from '../../MessageInput';
 
-import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
+import type { MessageInputContextValue } from '../../../context';
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -16,7 +17,7 @@ export type RecordingController = {
 
 type UseMediaRecorderParams = Pick<
   MessageInputContextValue,
-  'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
+  'asyncMessagesMultiSendEnabled' | 'handleSubmit'
 > & {
   enabled: boolean;
   generateRecordingTitle?: (mimeType: string) => string;
@@ -29,10 +30,9 @@ export const useMediaRecorder = ({
   generateRecordingTitle,
   handleSubmit,
   recordingConfig,
-  uploadAttachment,
 }: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
-
+  const messageComposer = useMessageComposer();
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
@@ -54,13 +54,13 @@ export const useMediaRecorder = ({
     if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
-    await uploadAttachment(recording);
+    await messageComposer.attachmentManager.uploadAttachment(recording);
     if (!asyncMessagesMultiSendEnabled) {
       // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
       scheduleForSubmit(true);
     }
     recorder.cleanUp();
-  }, [asyncMessagesMultiSendEnabled, recorder, uploadAttachment]);
+  }, [asyncMessagesMultiSendEnabled, messageComposer, recorder]);
 
   useEffect(() => {
     if (!isScheduledForSubmit) return;

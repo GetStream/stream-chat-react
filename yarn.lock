@@ -2438,10 +2438,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^5.8.1":
-  version "5.8.1"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.8.1.tgz#f9bafd3bba46a98cea19d68de5d88f284be4d0ae"
-  integrity sha512-jT2cZNlKqlCM3A2wJouCQHmrqNbcWCclNyx+5K0JeQ1DM7i2eWKB5CRF/8IkqmQC6WO8Hnye/Z7Pyx4YwhccSA==
+"@stream-io/stream-chat-css@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.9.0.tgz#3e5604e430f83d742f34cf0ce745d8458bff71e2"
+  integrity sha512-BYaEWwt6roV/+TnMmSvRznJYLiuJddS/lTQo850OEmLQi+YqHNywxitviT8GUgttYGkg0ZpRG0TefaStKubsZA==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -8597,6 +8597,11 @@ linkifyjs@^4.1.0:
   resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.1.0.tgz#0460bfcc37d3348fa80e078d92e7bbc82588db15"
   integrity sha512-Ffv8VoY3+ixI1b3aZ3O+jM6x17cOsgwfB1Wq7pkytbo1WlyRp6ZO0YDMqiWT/gQPY/CmtiGuKfzDIVqxh1aCTA==
 
+linkifyjs@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.2.0.tgz#9dd30222b9cbabec9c950e725ec00031c7fa3f08"
+  integrity sha512-pCj3PrQyATaoTYKHrgWRF3SJwsm61udVh+vuls/Rl6SptiDhgE7ziUIudAedRY9QEfynmM7/RmLEfPUyw1HPCw==
+
 lint-staged@^15.2.1:
   version "15.2.1"
   resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-15.2.1.tgz#25beb6e587f54245b20163f5efede073f12c4d1b"
@@ -12150,10 +12155,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@^9.0.0-rc.8:
-  version "9.0.0-rc.8"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.0.0-rc.8.tgz#e188e481841493584691ae491916843d0ef5f9cd"
-  integrity sha512-P+Ksnu1cQQfL1t2/QTJ5rr/z2Jehvd2ap41xZgtfbJssHSD7ahe14TCF/1L7q4jjaNlZcTtLcKXCWbbOdKjDcg==
+stream-chat@^9.0.0-rc.13:
+  version "9.0.0-rc.13"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.0.0-rc.13.tgz#90396d724bd5f81e2d8eb051c9c56b075892305f"
+  integrity sha512-qJPcHsQUfu0qMb7p7Bv9OnL6qID/qxYLKOIsG6KbUNEQHwkKSw/aDwExpvgJR7dXsUOLyLZFhVtYnFkAPDdJ3A==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
@@ -12162,6 +12167,7 @@ stream-chat@^9.0.0-rc.8:
     form-data "^4.0.0"
     isomorphic-ws "^5.0.0"
     jsonwebtoken "^9.0.2"
+    linkifyjs "^4.2.0"
     ws "^8.18.1"
 
 stream-combiner2@~1.1.1:

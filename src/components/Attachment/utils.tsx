@@ -1,16 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Attachment } from 'stream-chat';
-
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
-import type {
-  LocalAttachment,
-  LocalAudioAttachment,
-  LocalFileAttachment,
-  LocalImageAttachment,
-  LocalVideoAttachment,
-  LocalVoiceRecordingAttachment,
-  VoiceRecordingAttachment,
-} from '../MessageInput';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
@@ -36,65 +26,12 @@ export type RenderGalleryProps = Omit<AttachmentProps, 'attachments'> & {
   attachment: GalleryAttachment;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isLocalAttachment = (attachment: any): attachment is LocalAttachment =>
-  !!(attachment as LocalAttachment).localMetadata?.id;
-
-export const isScrapedContent = (attachment: Attachment) =>
-  attachment.og_scrape_url || attachment.title_link;
-
-export const isUploadedImage = (attachment: Attachment) =>
-  attachment.type === 'image' && !isScrapedContent(attachment);
-
-export const isLocalImageAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is LocalImageAttachment =>
-  isUploadedImage(attachment) && isLocalAttachment(attachment);
-
+// This identity function determines attachment type specific to React.
+// Once made sure other SDKs support the same logic, move to stream-chat-js
 export const isGalleryAttachmentType = (
   attachment: Attachment | GalleryAttachment,
 ): attachment is GalleryAttachment =>
   Array.isArray((attachment as GalleryAttachment).images);
-
-export const isAudioAttachment = (attachment: Attachment | LocalAttachment) =>
-  attachment.type === 'audio';
-
-export const isLocalAudioAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is LocalAudioAttachment =>
-  isAudioAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isVoiceRecordingAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is VoiceRecordingAttachment => attachment.type === 'voiceRecording';
-
-export const isLocalVoiceRecordingAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is LocalVoiceRecordingAttachment =>
-  isVoiceRecordingAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isFileAttachment = (attachment: Attachment | LocalAttachment) =>
-  attachment.type === 'file' ||
-  !!(
-    attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
-    attachment.type !== 'video'
-  );
-
-export const isLocalFileAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is LocalFileAttachment =>
-  isFileAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isMediaAttachment = (attachment: Attachment | LocalAttachment) =>
-  (attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
-  attachment.type === 'video';
-
-export const isLocalMediaAttachment = (
-  attachment: Attachment | LocalAttachment,
-): attachment is LocalVideoAttachment =>
-  isMediaAttachment(attachment) && isLocalAttachment(attachment);
 
 export const isSvgAttachment = (attachment: Attachment) => {
   const filename = attachment.fallback || '';

@@ -6,13 +6,13 @@ import { MESSAGE_ACTIONS } from '../Message/utils';
 
 import type { MessageContextValue } from '../../context';
 import {
-  useChannelActionContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 
 import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
+import { useMessageComposer } from '../MessageInput';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -51,16 +51,15 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
 
   const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
     useComponentContext('MessageActionsBox');
-  const { setQuotedMessage } = useChannelActionContext('MessageActionsBox');
   const { customMessageActions, message, threadList } =
     useMessageContext('MessageActionsBox');
-
   const { t } = useTranslationContext('MessageActionsBox');
+  const messageComposer = useMessageComposer();
 
   const messageActions = getMessageActions();
 
   const handleQuote = () => {
-    setQuotedMessage(message);
+    messageComposer.setQuotedMessage(message);
 
     const elements = message.parent_id
       ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')

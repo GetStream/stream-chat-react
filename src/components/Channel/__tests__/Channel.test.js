@@ -88,15 +88,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
-const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
-
-// create a full message state so that we can properly test `loadMore`
-const messages = Array.from({ length: 25 }, (_, i) =>
-  generateMessage({ created_at: new Date((i + 1) * 1000000), user }),
-);
-
-const pinnedMessages = [generateMessage({ pinned: true, user })];
-
 const renderComponent = async (props = {}, callback = () => {}) => {
   const {
     channel: channelFromProps,
@@ -118,9 +109,13 @@ const renderComponent = async (props = {}, callback = () => {}) => {
   return result;
 };
 
-const initClient = async () => {
+const initClient = async ({ channelId, channelType, messages, pinnedMessages, user }) => {
   const members = [generateMember({ user })];
   const mockedChannel = generateChannel({
+    channel: {
+      id: channelId,
+      type: channelType,
+    },
     members,
     messages,
     pinnedMessages,
@@ -133,15 +128,52 @@ const initClient = async () => {
   jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
   return { channel, chatClient };
 };
-describe('Channel', () => {
-  const MockMessageList = () => {
-    const { messages: channelMessages } = useChannelStateContext();
 
-    return channelMessages.map(
-      ({ id, status, text }) =>
-        status !== 'failed' && <div key={id || nanoid()}>{text}</div>,
+const MockMessageList = () => {
+  const { messages: channelMessages } = useChannelStateContext();
+
+  return channelMessages.map(
+    ({ id, status, text }) =>
+      status !== 'failed' && <div key={id || nanoid()}>{text}</div>,
+  );
+};
+
+describe('Channel', () => {
+  const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
+  const channelType = 'messaging';
+  let channelId;
+  let channel;
+  let chatClient;
+  let messages;
+
+  beforeEach(async () => {
+    channelId = nanoid();
+
+    // create a full message state so that we can properly test `loadMore`
+    messages = Array.from({ length: 25 }, (_, i) =>
+      generateMessage({
+        cid: `${channelType}:${channelId}`,
+        created_at: new Date((i + 1) * 1000000),
+        user,
+      }),
     );
-  };
+
+    const pinnedMessages = [
+      generateMessage({
+        cid: `${channelType}:${channelId}`,
+        pinned: true,
+        user,
+      }),
+    ];
+
+    ({ channel, chatClient } = await initClient({
+      channelId,
+      channelType,
+      messages,
+      pinnedMessages,
+      user,
+    }));
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -169,7 +201,6 @@ describe('Channel', () => {
   });
 
   it('should render channel content if channels query loads more channels', async () => {
-    const { channel, chatClient } = await initClient();
     const childrenContent = 'Channel children';
     await channel.watch();
     render(
@@ -211,7 +242,6 @@ describe('Channel', () => {
   });
 
   it('should render empty channel container if channel does not have cid', async () => {
-    const { channel } = await initClient();
     const childrenContent = 'Channel children';
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { cid, ...channelWithoutCID } = channel;
@@ -297,7 +327,6 @@ describe('Channel', () => {
   });
 
   it('should watch the current channel on mount', async () => {
-    const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch');
 
     await renderComponent({ channel, chatClient });
@@ -309,7 +338,6 @@ describe('Channel', () => {
   });
 
   it('should apply channelQueryOptions to channel watch call', async () => {
-    const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch');
     const channelQueryOptions = {
       messages: { limit: 20 },
@@ -323,7 +351,6 @@ describe('Channel', () => {
   });
 
   it('should set hasMore state to false if the initial channel query returns less messages than the default initial page size', async () => {
-    const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [
       queryChannelWithNewMessages([generateMessage()], channel),
     ]);
@@ -343,7 +370,6 @@ describe('Channel', () => {
   // switch back to channel A (reset hasMore)
   // switch back to channel B - messages are already cached and there's more than page size amount
   it('should set hasMore state to true if the initial channel query returns more messages than the default initial page size', async () => {
-    const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [
       queryChannelWithNewMessages(Array.from({ length: 26 }, generateMessage), channel),
     ]);
@@ -360,7 +386,6 @@ describe('Channel', () => {
   });
 
   it('should set hasMore state to true if the initial channel query returns count of messages equal to the default initial page size', async () => {
-    const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [
       queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
     ]);
@@ -375,7 +400,6 @@ describe('Channel', () => {
   });
 
   it('should set hasMore state to false if the initial channel query returns less messages than the custom query channels options message limit', async () => {
-    const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [
       queryChannelWithNewMessages([generateMessage()], channel),
     ]);
@@ -396,7 +420,6 @@ describe('Channel', () => {
   });
 
   it('should set hasMore state to true if the initial channel query returns count of messages equal custom query channels options message limit', async () => {
-    const { channel, chatClient } = await initClient();
     const equalCount = 10;
     useMockedApis(chatClient, [
       queryChannelWithNewMessages(
@@ -421,7 +444,6 @@ describe('Channel', () => {
   });
 
   it('should not call watch the current channel on mount if channel is initialized', async () => {
-    const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch');
     channel.initialized = true;
     await renderComponent({ channel, chatClient });
@@ -429,7 +451,6 @@ describe('Channel', () => {
   });
 
   it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {
-    const { channel, chatClient } = await initClient();
     const watchError = new Error('watching went wrong');
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => Promise.reject(watchError));
 
@@ -446,7 +467,6 @@ describe('Channel', () => {
   });
 
   it('should render a LoadingIndicator if it is loading', async () => {
-    const { channel, chatClient } = await initClient();
     const watchPromise = new Promise(() => {});
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
     const result = await renderComponent({ channel, chatClient });
@@ -455,7 +475,6 @@ describe('Channel', () => {
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
-    const { channel, chatClient } = await initClient();
     const { findByText } = await renderComponent({
       channel,
       chatClient,
@@ -466,7 +485,6 @@ describe('Channel', () => {
   });
 
   it('should store pinned messages as an array in the channel context', async () => {
-    const { channel, chatClient } = await initClient();
     let ctxPins;
 
     const { getByText } = await renderComponent(
@@ -488,7 +506,6 @@ describe('Channel', () => {
 
   // should these 'on' tests actually test if the handler works?
   it('should add a connection recovery handler on the client on mount', async () => {
-    const { channel, chatClient } = await initClient();
     const clientOnSpy = jest.spyOn(chatClient, 'on');
 
     await renderComponent({ channel, chatClient });
@@ -502,7 +519,6 @@ describe('Channel', () => {
   });
 
   it('should add an `on` handler to the channel on mount', async () => {
-    const { channel, chatClient } = await initClient();
     const channelOnSpy = jest.spyOn(channel, 'on');
     await renderComponent({ channel, chatClient });
 
@@ -510,7 +526,6 @@ describe('Channel', () => {
   });
 
   it('should mark the channel as read when the channel is mounted', async () => {
-    const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
@@ -520,7 +535,6 @@ describe('Channel', () => {
   });
 
   it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
-    const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
@@ -530,7 +544,6 @@ describe('Channel', () => {
   });
 
   it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
-    const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const doMarkReadRequest = jest.fn();
 
@@ -545,7 +558,6 @@ describe('Channel', () => {
   });
 
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
-    const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
     await renderComponent({
       channel,
@@ -556,7 +568,6 @@ describe('Channel', () => {
   });
 
   it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
-    const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
@@ -564,25 +575,40 @@ describe('Channel', () => {
 
   describe('Children that consume the contexts set in Channel', () => {
     it('should be able to open threads', async () => {
-      const { channel, chatClient } = await initClient();
       const threadMessage = messages[0];
       const hasThread = jest.fn();
+      const hasThreadInstance = jest.fn();
+      const mockThreadInstance = {
+        registerSubscriptions: jest.fn(),
+        threadInstanceMock: true,
+      };
+      const getThreadSpy = jest
+        .spyOn(chatClient, 'getThread')
+        .mockResolvedValueOnce(mockThreadInstance);
 
       // this renders Channel, calls openThread from a child context consumer with a message,
       // and then calls hasThread with the thread id if it was set.
-      await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
-        if (!thread) {
-          openThread(threadMessage, { preventDefault: () => null });
-        } else {
-          hasThread(thread.id);
-        }
-      });
+      await renderComponent(
+        { channel, chatClient },
+        ({ openThread, thread, threadInstance }) => {
+          if (!thread) {
+            openThread(threadMessage, { preventDefault: () => null });
+          } else {
+            hasThread(thread.id);
+            hasThreadInstance(threadInstance);
+          }
+        },
+      );
 
-      await waitFor(() => expect(hasThread).toHaveBeenCalledWith(threadMessage.id));
+      await waitFor(() => {
+        expect(hasThread).toHaveBeenCalledWith(threadMessage.id);
+        expect(getThreadSpy).not.toHaveBeenCalled();
+        expect(hasThreadInstance).toHaveBeenCalledWith(undefined);
+      });
+      getThreadSpy.mockRestore();
     });
 
     it('should be able to load more messages in a thread until reaching the end', async () => {
-      const { channel, chatClient } = await initClient();
       const getRepliesSpy = jest.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
       const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
@@ -650,7 +676,6 @@ describe('Channel', () => {
     });
 
     it('should allow closing a thread after it has been opened', async () => {
-      const { channel, chatClient } = await initClient();
       let threadHasClosed = false;
       const threadMessage = messages[0];
 
@@ -679,7 +704,6 @@ describe('Channel', () => {
     });
 
     it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
-      const { channel, chatClient } = await initClient();
       const onMentionsHoverMock = jest.fn();
       const onMentionsClickMock = jest.fn();
       const username = 'Mentioned User';
@@ -731,7 +755,6 @@ describe('Channel', () => {
     describe('loading more messages', () => {
       const limit = 10;
       it("should initiate the hasMore flag with the current message set's pagination hasPrev value", async () => {
-        const { channel, chatClient } = await initClient();
         let hasMore;
         await renderComponent({ channel, chatClient }, ({ hasMore: hasMoreCtx }) => {
           hasMore = hasMoreCtx;
@@ -745,7 +768,6 @@ describe('Channel', () => {
         expect(hasMore).toBe(false);
       });
       it('should be able to load more messages', async () => {
-        const { channel, chatClient } = await initClient();
         const channelQuerySpy = jest.spyOn(channel, 'query');
         let newMessageAdded = false;
 
@@ -783,7 +805,6 @@ describe('Channel', () => {
       });
 
       it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
-        const { channel, chatClient } = await initClient();
         let channelHasMore = false;
         const newMessages = [generateMessage({ created_at: new Date(1000) })];
         await renderComponent(
@@ -806,7 +827,6 @@ describe('Channel', () => {
       });
 
       it('should set hasMore to true if querying channel returns an amount of messages that equals the limit', async () => {
-        const { channel, chatClient } = await initClient();
         let channelHasMore = false;
         const newMessages = Array(limit)
           .fill(null)
@@ -831,7 +851,6 @@ describe('Channel', () => {
       });
 
       it('should set loadingMore to true while loading more', async () => {
-        const { channel, chatClient } = await initClient();
         const queryPromise = new Promise(() => {});
         let isLoadingMore = false;
 
@@ -845,7 +864,6 @@ describe('Channel', () => {
       });
 
       it('should not load the second page, if the previous query has returned less then default limit messages', async () => {
-        const { channel, chatClient } = await initClient();
         const firstPageOfMessages = [generateMessage()];
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageOfMessages, channel),
@@ -877,7 +895,6 @@ describe('Channel', () => {
       });
 
       it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
-        const { channel, chatClient } = await initClient();
         const firstPageMessages = Array.from({ length: 25 }, (_, i) =>
           generateMessage({ created_at: new Date((i + 16) * 100000) }),
         );
@@ -924,7 +941,6 @@ describe('Channel', () => {
         });
       });
       it('should not load the second page, if the previous query has returned less then custom limit messages', async () => {
-        const { channel, chatClient } = await initClient();
         const channelQueryOptions = {
           messages: { limit: 10 },
         };
@@ -959,7 +975,6 @@ describe('Channel', () => {
         });
       });
       it('should load the second page, if the previous query has returned message count equal custom messages limit', async () => {
-        const { channel, chatClient } = await initClient();
         const equalCount = 10;
         const channelQueryOptions = {
           messages: { limit: equalCount },
@@ -1421,24 +1436,28 @@ describe('Channel', () => {
 
     describe('Sending/removing/updating messages', () => {
       it('should remove error messages from channel state when sending a new message', async () => {
-        const { channel, chatClient } = await initClient();
         const filterErrorMessagesSpy = jest.spyOn(channel.state, 'filterErrorMessages');
         // flag to prevent infinite loop
         let hasSent = false;
 
         await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
-          if (!hasSent) sendMessage({ text: 'message' });
-          hasSent = true;
+          if (!hasSent) {
+            const m = generateMessage();
+            sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+            hasSent = true;
+          }
         });
 
         await waitFor(() => expect(filterErrorMessagesSpy).toHaveBeenCalledWith());
       });
 
       it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
-        const { channel, chatClient } = await initClient();
         // flag to prevent infinite loop
         let hasSent = false;
-        const messageText = 'bla bla';
+        const messageText = nanoid();
+        jest
+          .spyOn(channel, 'sendMessage')
+          .mockImplementationOnce(() => new Promise(() => {}));
 
         const { findByText } = await renderComponent(
           {
@@ -1447,11 +1466,11 @@ describe('Channel', () => {
             children: <MockMessageList />,
           },
           ({ sendMessage }) => {
-            jest
-              .spyOn(channel, 'sendMessage')
-              .mockImplementationOnce(() => new Promise(() => {}));
-            if (!hasSent) sendMessage({ text: messageText });
-            hasSent = true;
+            if (!hasSent) {
+              const m = generateMessage({ text: messageText });
+              sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+              hasSent = true;
+            }
           },
         );
 
@@ -1459,13 +1478,22 @@ describe('Channel', () => {
       });
 
       it('should mark message as received when the backend reports duplicated message id', async () => {
-        const { channel, chatClient } = await initClient();
         // flag to prevent infinite loop
         let hasSent = false;
-        const messageText = 'hello world';
-        const messageId = '123456';
+        const messageText = nanoid();
+        const messageId = nanoid();
 
         let originalMessageStatus = null;
+        jest.spyOn(channel, 'sendMessage').mockImplementation((message) => {
+          originalMessageStatus = message.status;
+          throw chatClient.errorFromResponse({
+            data: {
+              code: 4,
+              message: `SendMessage failed with error: "a message with ID ${message.id} already exists"`,
+            },
+            status: 400,
+          });
+        });
 
         const { findByText } = await renderComponent(
           {
@@ -1474,22 +1502,18 @@ describe('Channel', () => {
             children: <MockMessageList />,
           },
           ({ sendMessage }) => {
-            jest.spyOn(channel, 'sendMessage').mockImplementation((message) => {
-              originalMessageStatus = message.status;
-              throw chatClient.errorFromResponse({
-                data: {
-                  code: 4,
-                  message: `SendMessage failed with error: "a message with ID ${message.id} already exists"`,
-                },
-                status: 400,
-              });
-            });
             if (!hasSent) {
-              sendMessage({ text: messageText }, { id: messageId, status: 'sending' });
+              const m = generateMessage({
+                id: messageId,
+                status: 'sending', // FIXME: had to have been explicitly added
+                text: messageText,
+              });
+              sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+              hasSent = true;
             }
-            hasSent = true;
           },
         );
+
         expect(await findByText(messageText)).toBeInTheDocument();
         expect(originalMessageStatus).toBe('sending');
 
@@ -1499,58 +1523,67 @@ describe('Channel', () => {
       });
 
       it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
-        const { channel, chatClient } = await initClient();
-        // flag to prevent infinite loop
-        let hasSent = false;
-        const doSendMessageRequest = jest.fn(() => new Promise(() => {}));
-        const message = { text: 'message' };
+        const doSendMessageRequest = jest.fn();
+        const message = generateMessage();
+
+        let sendMessage;
         await renderComponent(
           {
             channel,
             chatClient,
             doSendMessageRequest,
           },
-          ({ sendMessage }) => {
-            if (!hasSent) sendMessage(message);
-            hasSent = true;
+          ({ sendMessage: sm }) => {
+            sendMessage = sm;
           },
         );
 
-        await waitFor(() =>
-          expect(doSendMessageRequest).toHaveBeenCalledWith(
-            channel,
-            expect.objectContaining(message),
-            undefined,
-          ),
+        await act(() =>
+          sendMessage({ localMessage: { ...message, status: 'sending' }, message }),
+        );
+
+        expect(doSendMessageRequest).toHaveBeenCalledWith(
+          channel,
+          expect.objectContaining(message),
+          undefined,
         );
       });
 
       it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
-        const { channel, chatClient } = await initClient();
-        const sentMessage = { text: 'message' };
-        const messageResponse = { text: 'different message' };
-        let hasSent = false;
+        const responseText = nanoid();
 
+        jest
+          .spyOn(channel, 'sendMessage')
+          .mockImplementationOnce((sm) => ({ message: { ...sm, text: responseText } }));
+
+        let sendMessage;
         const { findByText } = await renderComponent(
           {
             channel,
             chatClient,
             children: <MockMessageList />,
           },
-          ({ sendMessage }) => {
-            useMockedApis(chatClient, [sendMessageApi(generateMessage(messageResponse))]);
-            if (!hasSent) sendMessage(sentMessage);
-            hasSent = true;
+          ({ sendMessage: sm }) => {
+            sendMessage = sm;
           },
         );
 
-        expect(await findByText(messageResponse.text)).toBeInTheDocument();
+        const m = generateMessage();
+        await act(() =>
+          sendMessage({
+            localMessage: { ...m, status: 'sending' },
+            message: m,
+          }),
+        );
+
+        expect(await findByText(responseText)).toBeInTheDocument();
       });
+
       describe('delete message', () => {
         it('should throw error instead of calling default client.deleteMessage() function', async () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
-          const { channel, chatClient } = await initClient();
+
           const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
           let deleteMessageHandler;
           await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
@@ -1565,7 +1598,7 @@ describe('Channel', () => {
 
         it('should call the default client.deleteMessage() function', async () => {
           const message = generateMessage();
-          const { channel, chatClient } = await initClient();
+
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
@@ -1580,7 +1613,7 @@ describe('Channel', () => {
         it('should throw error instead of calling custom doDeleteMessageRequest function', async () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
-          const { channel, chatClient } = await initClient();
+
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
@@ -1602,7 +1635,7 @@ describe('Channel', () => {
 
         it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
           const message = generateMessage();
-          const { channel, chatClient } = await initClient();
+
           const doDeleteMessageRequest = jest.fn();
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
@@ -1623,7 +1656,6 @@ describe('Channel', () => {
       });
 
       it('should enable editing messages', async () => {
-        const { channel, chatClient } = await initClient();
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
         const clientUpdateMessageSpy = jest.spyOn(chatClient, 'updateMessage');
@@ -1640,7 +1672,6 @@ describe('Channel', () => {
       });
 
       it('should use doUpdateMessageRequest for the editMessage callback if provided', async () => {
-        const { channel, chatClient } = await initClient();
         const doUpdateMessageRequest = jest.fn((channelId, message) => message);
 
         await renderComponent(
@@ -1660,7 +1691,6 @@ describe('Channel', () => {
       });
 
       it('should update messages passed into the updateMessage callback', async () => {
-        const { channel, chatClient } = await initClient();
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText, updated_at: Date.now() };
         let hasUpdated = false;
@@ -1679,38 +1709,51 @@ describe('Channel', () => {
       });
 
       it('should enable retrying message sending', async () => {
-        const { channel, chatClient } = await initClient();
-        // flag to prevent infinite loop
-        let hasSent = false;
-        let hasRetried = false;
-        const messageObject = { text: 'bla bla' };
+        const messageObject = generateMessage({
+          text: nanoid(),
+        });
 
+        let retrySendMessage;
+        let sendMessage;
+        let contextMessages;
         await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
-          ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
-            if (!hasSent) {
-              jest
-                .spyOn(channel, 'sendMessage')
-                .mockImplementationOnce(() => Promise.reject());
-              sendMessage(messageObject);
-              hasSent = true;
-            } else if (
-              !hasRetried &&
-              contextMessages.some(({ status }) => status === 'failed')
-            ) {
-              // retry
-              useMockedApis(chatClient, [sendMessageApi(messageObject)]);
-              retrySendMessage(messageObject);
-              hasRetried = true;
-            }
+          ({ messages: cm, retrySendMessage: rsm, sendMessage: sm }) => {
+            retrySendMessage = rsm;
+            sendMessage = sm;
+            contextMessages = cm;
           },
         );
+
+        jest
+          .spyOn(channel, 'sendMessage')
+          .mockImplementationOnce(() => Promise.reject())
+          .mockImplementationOnce(() => {
+            const creationDate = new Date();
+            const created_at = creationDate.toISOString();
+            const updated_at = new Date(creationDate.getTime() + 1).toISOString();
+            return {
+              ...messageObject,
+              created_at,
+              updated_at,
+            };
+          });
+
+        await act(() =>
+          sendMessage({
+            localMessage: { ...messageObject, status: 'sending' },
+            message: messageObject,
+          }),
+        );
+
+        expect(contextMessages.some(({ status }) => status === 'failed')).toBe(true);
+
+        await act(() => retrySendMessage(messageObject));
 
         expect(screen.queryByText(messageObject.text)).toBeInTheDocument();
       });
 
       it('should remove scraped attachment on retry-sending message', async () => {
-        const { channel, chatClient } = await initClient();
         // flag to prevent infinite loop
         let hasSent = false;
         let hasRetried = false;
@@ -1726,7 +1769,13 @@ describe('Channel', () => {
           { channel, chatClient, children: <MockMessageList /> },
           ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
             if (!hasSent) {
-              sendMessage(messageObject);
+              sendMessage({
+                localMessage: {
+                  ...messageObject,
+                  status: 'sending',
+                },
+                message: messageObject,
+              });
               hasSent = true;
             } else if (
               !hasRetried &&
@@ -1751,7 +1800,6 @@ describe('Channel', () => {
       });
 
       it('should allow removing messages', async () => {
-        const { channel, chatClient } = await initClient();
         let allMessagesRemoved = false;
         const removeSpy = jest.spyOn(channel.state, 'removeMessage');
 
@@ -1803,7 +1851,6 @@ describe('Channel', () => {
         );
 
       it('should eventually pass down a message when a message.new event is triggered on the channel', async () => {
-        const { channel, chatClient } = await initClient();
         const message = generateMessage({ user });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
@@ -1827,18 +1874,16 @@ describe('Channel', () => {
       });
 
       it('should not overwrite the message with send response, if already updated by WS events', async () => {
-        const { channel, chatClient } = await initClient();
         let oldText;
         const newText = 'new text';
-        const creationDate = new Date();
-        const created_at = creationDate.toISOString();
-        const updated_at = new Date(creationDate.getTime() + 1).toISOString();
-        let hasSent = false;
 
         jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+          const creationDate = new Date();
+          const created_at = creationDate.toISOString();
+          const updated_at = new Date(creationDate.getTime() + 1).toISOString();
+
           oldText = message.text;
           const finalMessage = { ...message, created_at, updated_at: created_at };
-          useMockedApis(chatClient, [sendMessageApi(finalMessage)]);
           // both effects have to be emitted, otherwise the original message in status "sending" will not be filtered out (done when message.new is emitted) => and the message.updated event would add the updated message as a new message.
           createChannelEventDispatcher(
             {
@@ -1866,67 +1911,67 @@ describe('Channel', () => {
             chatClient,
             channel,
           )();
-          return channel.sendMessage(message);
+          return { message };
         });
 
-        const { queryByText } = await renderComponent(
+        let sendMessage;
+        const { findByText, queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
-          ({ sendMessage }) => {
-            if (!hasSent) {
-              sendMessage(generateMessage());
-              hasSent = true;
-            }
+          ({ sendMessage: sm }) => {
+            sendMessage = sm;
           },
         );
+
+        await act(async () => {
+          const m = generateMessage();
+          await sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+        });
 
         await waitFor(async () => {
           expect(
             await queryByText(oldText, undefined, { timeout: 100 }),
           ).not.toBeInTheDocument();
-          expect(
-            await queryByText(newText, undefined, { timeout: 100 }),
-          ).toBeInTheDocument();
         });
+
+        expect(await findByText(newText)).toBeInTheDocument();
       });
 
       it('should overwrite the message of status "sending" regardless of updated_at timestamp', async () => {
-        const { channel, chatClient } = await initClient();
         let oldText;
         const newText = 'new text';
-        const creationDate = new Date();
-        const created_at = creationDate.toISOString();
-        const updated_at = new Date(creationDate.getTime() - 1).toISOString();
-        let hasSent = false;
 
         jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+          const creationDate = new Date();
+          const created_at = creationDate.toISOString();
+          const updated_at = new Date(creationDate.getTime() - 1).toISOString();
           oldText = message.text;
-          const finalMessage = { ...message, created_at, text: newText, updated_at };
-          useMockedApis(chatClient, [sendMessageApi(finalMessage)]);
-          return channel.sendMessage(message);
+          return { message: { ...message, created_at, text: newText, updated_at } };
         });
 
-        const { queryByText } = await renderComponent(
+        let sendMessage;
+        const { findByText, queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
-          ({ sendMessage }) => {
-            if (!hasSent) {
-              sendMessage(generateMessage());
-              hasSent = true;
-            }
+          ({ sendMessage: sm }) => {
+            sendMessage = sm;
           },
         );
+
+        await act(async () => {
+          const m = generateMessage();
+
+          await sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+        });
 
         await waitFor(async () => {
           expect(
             await queryByText(oldText, undefined, { timeout: 100 }),
           ).not.toBeInTheDocument();
-          expect(
-            await queryByText(newText, undefined, { timeout: 100 }),
-          ).toBeInTheDocument();
         });
+
+        expect(await findByText(newText)).toBeInTheDocument();
       });
 
       it('should not mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
-        const { channel, chatClient } = await initClient();
         const markReadSpy = jest.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
@@ -1944,7 +1989,6 @@ describe('Channel', () => {
       });
 
       it('should not mark the channel as read if the new message author is the current user and the user is looking at the page', async () => {
-        const { channel, chatClient } = await initClient();
         const markReadSpy = jest.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
@@ -1962,7 +2006,6 @@ describe('Channel', () => {
       });
 
       it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
-        const { channel, chatClient } = await initClient();
         const unreadAmount = 1;
         Object.defineProperty(document, 'hidden', {
           configurable: true,
@@ -1984,7 +2027,6 @@ describe('Channel', () => {
       });
 
       it('should update the `thread` parent message if an event comes in that modifies it', async () => {
-        const { channel, chatClient } = await initClient();
         const threadMessage = messages[0];
         const newText = 'new text';
         const updatedThreadMessage = { ...threadMessage, text: newText };
@@ -2011,7 +2053,6 @@ describe('Channel', () => {
       });
 
       it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
-        const { channel, chatClient } = await initClient();
         const threadMessage = messages[0];
         const newThreadMessage = generateMessage({
           parent_id: threadMessage.id,
@@ -2067,10 +2108,9 @@ describe('Channel', () => {
           name: 'Thread',
         },
       ].forEach(({ callback, component: Component, getFirstMessageAvatar, name }) => {
-        const [threadMessage] = messages;
-
         it(`should update user data in ${name} based on updated_at`, async () => {
-          const { channel, chatClient } = await initClient();
+          const [threadMessage] = messages;
+
           const updatedAttribute = { name: 'newName' };
           const dispatchUserUpdatedEvent = createChannelEventDispatcher(
             {
@@ -2108,7 +2148,8 @@ describe('Channel', () => {
         });
 
         it(`should not update user data in ${name} if updated_at has not changed`, async () => {
-          const { channel, chatClient } = await initClient();
+          const [threadMessage] = messages;
+
           const updatedAttribute = { name: 'newName' };
           const dispatchUserUpdatedEvent = createChannelEventDispatcher(
             {
@@ -2220,7 +2261,6 @@ describe('Channel', () => {
 
   describe('Custom Components', () => {
     it('should render CustomMessageActionsList if provided', async () => {
-      const { channel, chatClient } = await initClient();
       const CustomMessageActionsList = jest
         .fn()
         .mockImplementation(() => 'CustomMessageActionsList');

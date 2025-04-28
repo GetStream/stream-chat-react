@@ -1,11 +1,9 @@
-import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
+import React, { useContext } from 'react';
 import type {
-  APIErrorResponse,
   Channel,
   ChannelConfigWithInfo,
-  ErrorFromResponse,
-  MessageResponse,
+  LocalMessage,
   Mute,
   ChannelState as StreamChannelState,
 } from 'stream-chat';
@@ -17,23 +15,12 @@ import type {
   UnknownType,
   VideoAttachmentSizeHandler,
 } from '../types/types';
-import type { URLEnrichmentConfig } from '../components/MessageInput/hooks/useLinkPreviews';
 
 export type ChannelNotifications = Array<{
   id: string;
   text: string;
   type: 'success' | 'error';
 }>;
-
-export type StreamMessage =
-  // FIXME: we should use only one of the two (either formatted or unformatted)
-  (ReturnType<StreamChannelState['formatMessage']> | MessageResponse) & {
-    customType?: string;
-    errorStatusCode?: number;
-    error?: ErrorFromResponse<APIErrorResponse>;
-    editing?: boolean;
-    date?: Date;
-  };
 
 export type ChannelState = {
   suppressAutoscroll: boolean;
@@ -45,14 +32,13 @@ export type ChannelState = {
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
   members?: StreamChannelState['members'];
-  messages?: StreamMessage[];
-  pinnedMessages?: StreamMessage[];
-  quotedMessage?: StreamMessage;
+  messages?: LocalMessage[];
+  pinnedMessages?: LocalMessage[];
   read?: StreamChannelState['read'];
-  thread?: StreamMessage | null;
+  thread?: LocalMessage | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
-  threadMessages?: StreamMessage[];
+  threadMessages?: LocalMessage[];
   threadSuppressAutoscroll?: boolean;
   typing?: StreamChannelState['typing'];
   watcherCount?: number;
@@ -64,20 +50,12 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo | undefined;
   imageAttachmentSizeHandler: ImageAttachmentSizeHandler;
-  multipleUploads: boolean;
   notifications: ChannelNotifications;
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
-  acceptedFiles?: string[];
   channelUnreadUiState?: ChannelUnreadUiState;
-  debounceURLEnrichmentMs?: URLEnrichmentConfig['debounceURLEnrichmentMs'];
-  dragAndDropWindow?: boolean;
-  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-  findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
-  maxNumberOfFiles?: number;
   mutes?: Array<Mute>;
-  onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;
 };
 

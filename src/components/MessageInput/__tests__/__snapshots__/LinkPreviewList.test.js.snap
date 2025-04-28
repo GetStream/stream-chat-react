@@ -1,0 +1,180 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LinPreviewCard does not render dismissed preview 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    />
+  </div>
+</div>
+`;
+
+exports[`LinPreviewCard does not render failed preview 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    />
+  </div>
+</div>
+`;
+
+exports[`LinPreviewCard does not render pending preview 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    />
+  </div>
+</div>
+`;
+
+exports[`LinPreviewCard renders for loaded preview 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    >
+      <div
+        class="str-chat__link-preview-card"
+        data-testid="link-preview-card"
+      >
+        <div
+          class="str-chat__link-preview-card__icon-container"
+        >
+          <svg
+            fill="none"
+            height="11"
+            viewBox="0 0 20 11"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clip-rule="evenodd"
+              d="M1.9 5.5C1.9 3.79 3.29 2.4 5 2.4H8.05C8.57467 2.4 9 1.97467 9 1.45C9 0.925329 8.57467 0.5 8.05 0.5H5C2.24 0.5 0 2.74 0 5.5C0 8.26 2.24 10.5 5 10.5H8.05C8.57467 10.5 9 10.0747 9 9.55C9 9.02533 8.57467 8.6 8.05 8.6H5C3.29 8.6 1.9 7.21 1.9 5.5ZM6 5.5C6 6.05228 6.44772 6.5 7 6.5H13C13.5523 6.5 14 6.05228 14 5.5C14 4.94772 13.5523 4.5 13 4.5H7C6.44772 4.5 6 4.94772 6 5.5ZM15 0.5H11.95C11.4253 0.5 11 0.925329 11 1.45C11 1.97467 11.4253 2.4 11.95 2.4H15C16.71 2.4 18.1 3.79 18.1 5.5C18.1 7.21 16.71 8.6 15 8.6H11.95C11.4253 8.6 11 9.02533 11 9.55C11 10.0747 11.4253 10.5 11.95 10.5H15C17.76 10.5 20 8.26 20 5.5C20 2.74 17.76 0.5 15 0.5Z"
+              fill="#005DFF"
+              fill-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div
+          class="str-chat__link-preview-card__content"
+        >
+          <div
+            class="str-chat__link-preview-card__content-title"
+          >
+            title
+          </div>
+          <div
+            class="str-chat__link-preview-card__content-description"
+          >
+            text
+          </div>
+        </div>
+        <button
+          class="str-chat__link-preview-card__dismiss-button"
+          data-testid="link-preview-card-dismiss-btn"
+          type="button"
+        >
+          <svg
+            data-testid="close-no-outline"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+              fill="black"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`LinPreviewCard renders for loading preview 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    >
+      <div
+        class="str-chat__link-preview-card str-chat__link-preview-card--loading"
+        data-testid="link-preview-card"
+      >
+        <div
+          class="str-chat__link-preview-card__icon-container"
+        >
+          <svg
+            fill="none"
+            height="11"
+            viewBox="0 0 20 11"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clip-rule="evenodd"
+              d="M1.9 5.5C1.9 3.79 3.29 2.4 5 2.4H8.05C8.57467 2.4 9 1.97467 9 1.45C9 0.925329 8.57467 0.5 8.05 0.5H5C2.24 0.5 0 2.74 0 5.5C0 8.26 2.24 10.5 5 10.5H8.05C8.57467 10.5 9 10.0747 9 9.55C9 9.02533 8.57467 8.6 8.05 8.6H5C3.29 8.6 1.9 7.21 1.9 5.5ZM6 5.5C6 6.05228 6.44772 6.5 7 6.5H13C13.5523 6.5 14 6.05228 14 5.5C14 4.94772 13.5523 4.5 13 4.5H7C6.44772 4.5 6 4.94772 6 5.5ZM15 0.5H11.95C11.4253 0.5 11 0.925329 11 1.45C11 1.97467 11.4253 2.4 11.95 2.4H15C16.71 2.4 18.1 3.79 18.1 5.5C18.1 7.21 16.71 8.6 15 8.6H11.95C11.4253 8.6 11 9.02533 11 9.55C11 10.0747 11.4253 10.5 11.95 10.5H15C17.76 10.5 20 8.26 20 5.5C20 2.74 17.76 0.5 15 0.5Z"
+              fill="#005DFF"
+              fill-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div
+          class="str-chat__link-preview-card__content"
+        >
+          <div
+            class="str-chat__link-preview-card__content-title"
+          >
+            title
+          </div>
+          <div
+            class="str-chat__link-preview-card__content-description"
+          >
+            text
+          </div>
+        </div>
+        <button
+          class="str-chat__link-preview-card__dismiss-button"
+          data-testid="link-preview-card-dismiss-btn"
+          type="button"
+        >
+          <svg
+            data-testid="close-no-outline"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+              fill="black"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

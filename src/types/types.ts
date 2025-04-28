@@ -5,13 +5,6 @@ import type { Attachment, ChannelState as StreamChannelState } from 'stream-chat
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
-export type CustomTrigger = {
-  [key: string]: {
-    componentProps: UnknownType;
-    data: UnknownType;
-  };
-};
-
 export type CustomMessageType = 'channel.intro' | 'message.date';
 
 export type GiphyVersions =
@@ -73,22 +66,6 @@ export type VideoAttachmentSizeHandler = (
 ) => VideoAttachmentConfiguration;
 
 export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
-
-// TODO: fix export from stream-chat - for some reason not exported
-export type SendMessageOptions = {
-  force_moderation?: boolean;
-  is_pending_message?: boolean;
-  keep_channel_hidden?: boolean;
-  pending?: boolean;
-  pending_message_metadata?: Record<string, string>;
-  skip_enrich_url?: boolean;
-  skip_push?: boolean;
-};
-
-// todo: fix export from stream-chat - for some reason not exported
-export type UpdateMessageOptions = {
-  skip_enrich_url?: boolean;
-};
 
 export type Readable<T> = {
   [key in keyof T]: T[key];

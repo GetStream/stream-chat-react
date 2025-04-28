@@ -1,17 +1,17 @@
 import { validateAndGetMessage } from '../utils';
 import { useChannelStateContext, useTranslationContext } from '../../../context';
 
-import type { StreamMessage } from '../../../context';
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
 export type MarkUnreadHandlerNotifications = {
-  getErrorNotification?: (message: StreamMessage) => string;
-  getSuccessNotification?: (message: StreamMessage) => string;
+  getErrorNotification?: (message: LocalMessage) => string;
+  getSuccessNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useMarkUnreadHandler = (
-  message?: StreamMessage,
+  message?: LocalMessage,
   notifications: MarkUnreadHandlerNotifications = {},
 ): ReactEventHandler => {
   const { getErrorNotification, getSuccessNotification, notify } = notifications;

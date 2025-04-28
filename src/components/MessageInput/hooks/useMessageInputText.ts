@@ -1,27 +1,22 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { logChatPromiseExecution } from 'stream-chat';
-import type {
-  MessageInputReducerAction,
-  MessageInputState,
-} from './useMessageInputState';
+import { type TextComposerState } from 'stream-chat';
 import type { MessageInputProps } from '../MessageInput';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { CustomTrigger } from '../../../types/types';
-import type { EnrichURLsController } from './useLinkPreviews';
+import { useMessageComposer } from './useMessageComposer';
+import { useStateStore } from '../../../store';
 
-export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
-  props: MessageInputProps<V>,
-  state: MessageInputState,
-  dispatch: React.Dispatch<MessageInputReducerAction>,
-  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
-) => {
-  const { channel } = useChannelStateContext('useMessageInputText');
-  const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
-  const { text } = state;
+const messageComposerStateSelector = (state: TextComposerState) => ({
+  text: state.text,
+});
 
+export const useMessageInputText = (props: MessageInputProps) => {
+  const { focus } = props;
+  const messageComposer = useMessageComposer();
   const textareaRef = useRef<HTMLTextAreaElement>(undefined);
-
+  const { text } = useStateStore(
+    messageComposer.textComposer.state,
+    messageComposerStateSelector,
+  );
   // Focus
   useEffect(() => {
     if (focus && textareaRef.current) {
@@ -34,42 +29,17 @@ export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
 
   const insertText = useCallback(
     (textToInsert: string) => {
-      const { maxLength } = additionalTextareaProps || {};
-
-      if (!textareaRef.current) {
-        return dispatch({
-          getNewText: (text) => {
-            const updatedText = text + textToInsert;
-            if (maxLength && updatedText.length > maxLength) {
-              return updatedText.slice(0, maxLength);
-            }
-            return updatedText;
-          },
-          type: 'setText',
-        });
-      }
-
-      const { selectionEnd, selectionStart } = textareaRef.current;
-      newCursorPosition.current = selectionStart + textToInsert.length;
-
-      dispatch({
-        getNewText: (prevText) => {
-          const updatedText =
-            prevText.slice(0, selectionStart) +
-            textToInsert +
-            prevText.slice(selectionEnd);
-
-          if (maxLength && updatedText.length > maxLength) {
-            return updatedText.slice(0, maxLength);
-          }
-
-          return updatedText;
-        },
-        type: 'setText',
+      const selection = textareaRef?.current && {
+        end: textareaRef.current.selectionEnd,
+        start: textareaRef.current.selectionStart,
+      };
+      messageComposer.textComposer.insertText({
+        selection,
+        text: textToInsert,
       });
+      if (selection) newCursorPosition.current = selection.start + textToInsert.length;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [additionalTextareaProps, newCursorPosition, textareaRef],
+    [messageComposer, newCursorPosition, textareaRef],
   );
 
   useEffect(() => {
@@ -81,31 +51,7 @@ export const useMessageInputText = <V extends CustomTrigger = CustomTrigger>(
     }
   }, [text, newCursorPosition]);
 
-  const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
-    (event) => {
-      event.preventDefault();
-      if (!event || !event.target) {
-        return;
-      }
-
-      const newText = event.target.value;
-      dispatch({
-        getNewText: () => newText,
-        type: 'setText',
-      });
-
-      findAndEnqueueURLsToEnrich?.(newText);
-
-      if (publishTypingEvent && newText && channel) {
-        logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
-  );
-
   return {
-    handleChange,
     insertText,
     textareaRef,
   };

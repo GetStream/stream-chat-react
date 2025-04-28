@@ -1,9 +1,9 @@
-import type { StreamMessage } from '../../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
+import type { LocalMessage } from 'stream-chat';
 
 export const useUserRole = (
-  message: StreamMessage,
+  message: LocalMessage,
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {

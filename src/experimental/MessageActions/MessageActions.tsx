@@ -81,6 +81,7 @@ export const MessageActions = ({
             id={dropdownDialogId}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
+            tabIndex={-1}
             trapFocus
           >
             <DropdownBox open={dropdownDialogIsOpen}>

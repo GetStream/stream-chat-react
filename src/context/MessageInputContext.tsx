@@ -1,50 +1,37 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import type { TriggerSettings } from '../components/MessageInput/DefaultTriggerProvider';
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
-import type {
-  CommandsListState,
-  MentionsListState,
-  MessageInputHookProps,
-  MessageInputState,
-} from '../components/MessageInput/hooks/useMessageInputState';
+import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputControls';
 
-import type { CustomTrigger } from '../types/types';
+export type MessageInputContextValue = MessageInputHookProps &
+  Omit<MessageInputProps, 'Input'> &
+  CooldownTimerState;
 
-export type MessageInputContextValue<V extends CustomTrigger = CustomTrigger> =
-  MessageInputState &
-    MessageInputHookProps &
-    Omit<MessageInputProps<V>, 'Input'> &
-    CooldownTimerState & {
-      autocompleteTriggers?: TriggerSettings<V>;
-    } & CommandsListState &
-    MentionsListState;
+export const MessageInputContext = createContext<MessageInputHookProps | undefined>(
+  undefined,
+);
 
-export const MessageInputContext = createContext<
-  (MessageInputState & MessageInputHookProps) | undefined
->(undefined);
-
-export const MessageInputContextProvider = <V extends CustomTrigger = CustomTrigger>({
+export const MessageInputContextProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageInputContextValue<V>;
+  value: MessageInputContextValue;
 }>) => (
-  <MessageInputContext.Provider value={value as MessageInputContextValue}>
+  <MessageInputContext.Provider value={value as unknown as MessageInputContextValue}>
     {children}
   </MessageInputContext.Provider>
 );
 
-export const useMessageInputContext = <V extends CustomTrigger = CustomTrigger>(
+export const useMessageInputContext = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentName?: string,
 ) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    return {} as MessageInputContextValue<V>;
+    return {} as MessageInputContextValue;
   }
 
-  return contextValue as MessageInputContextValue<V>;
+  return contextValue as unknown as MessageInputContextValue;
 };

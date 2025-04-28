@@ -1,11 +1,10 @@
 import React from 'react';
 
+import type { LocalMessage } from 'stream-chat';
 import type { CustomMessageActions } from '../../context/MessageContext';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
-
 export type CustomMessageActionsListProps = {
-  message: StreamMessage;
+  message: LocalMessage;
   customMessageActions?: CustomMessageActions;
 };
 

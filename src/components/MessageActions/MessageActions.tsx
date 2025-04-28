@@ -110,6 +110,7 @@ export const MessageActions = (props: MessageActionsProps) => {
         id={dialogId}
         placement={isMine ? 'top-end' : 'top-start'}
         referenceElement={actionsBoxButtonRef.current}
+        tabIndex={-1}
         trapFocus
       >
         <MessageActionsBox

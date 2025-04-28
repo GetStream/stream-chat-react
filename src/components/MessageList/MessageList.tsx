@@ -28,16 +28,13 @@ import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
-import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 
-import type { GroupStyle, ProcessMessagesParams } from './utils';
+import type { LocalMessage } from 'stream-chat';
+import type { MessageRenderer } from './renderMessages';
+import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message/types';
-
-import type {
-  ChannelStateContextValue,
-  StreamMessage,
-} from '../../context/ChannelStateContext';
+import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
 
 import {
   DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
@@ -113,7 +110,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     hasMoreNewer,
     listElement,
     loadMoreScrollThreshold,
-    messages,
+    messages, // todo: is it correct to base the scroll logic on an array that does not contain date separators or intro?
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
   });
@@ -317,9 +314,9 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
-    message: StreamMessage,
-    previousMessage: StreamMessage,
-    nextMessage: StreamMessage,
+    message: RenderedMessage,
+    previousMessage: RenderedMessage,
+    nextMessage: RenderedMessage,
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
@@ -350,7 +347,7 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
-  messages?: StreamMessage[];
+  messages?: LocalMessage[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
   /** Overrides the way MessageList renders messages */

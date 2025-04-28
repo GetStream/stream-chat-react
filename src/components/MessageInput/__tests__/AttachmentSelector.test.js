@@ -49,7 +49,9 @@ const renderComponent = async ({
   const {
     channels: [channel],
     client,
-  } = await initClientWithChannels();
+  } = await initClientWithChannels({
+    channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+  });
   let result;
   await act(() => {
     result = render(
@@ -155,7 +157,9 @@ describe('AttachmentSelector', () => {
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     const uploadFileMenuBtn = menu.querySelector(`.${UPLOAD_FILE_BUTTON_CLASS}`);
     expect(uploadFileMenuBtn).toBeInTheDocument();
-    fireEvent.click(uploadFileMenuBtn);
+    await act(async () => {
+      await fireEvent.click(uploadFileMenuBtn);
+    });
     await waitFor(() => {
       expect(menu).not.toBeInTheDocument();
     });

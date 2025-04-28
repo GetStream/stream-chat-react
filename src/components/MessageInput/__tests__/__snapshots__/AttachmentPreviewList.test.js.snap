@@ -3,157 +3,166 @@
 exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
 <div>
   <div
-    class="str-chat__attachment-preview-list"
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
   >
     <div
-      class="str-chat__attachment-list-scroll-container"
-      data-testid="attachment-list-scroll-container"
+      class="str-chat__container"
     >
       <div
-        class="str-chat__attachment-preview-image"
-        data-testid="attachment-preview-image"
+        class="str-chat__attachment-preview-list"
       >
-        <button
-          aria-label="aria/Remove attachment"
-          class="str-chat__attachment-preview-delete"
-          data-testid="image-preview-item-delete-button"
-          disabled=""
-        >
-          <svg
-            data-testid="close-no-outline"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
-              fill="black"
-            />
-          </svg>
-        </button>
         <div
-          class="str-chat__attachment-preview-image-loading"
+          class="str-chat__attachment-list-scroll-container"
+          data-testid="attachment-list-scroll-container"
         >
           <div
-            class="str-chat__loading-indicator"
+            class="str-chat__attachment-preview-image"
+            data-testid="attachment-preview-image"
           >
-            <svg
-              data-testid="loading-indicator"
-              height="17"
-              viewBox="0 0 30 30"
-              width="17"
-              xmlns="http://www.w3.org/2000/svg"
+            <button
+              aria-label="Remove attachment"
+              class="str-chat__attachment-preview-delete"
+              data-testid="image-preview-item-delete-button"
+              disabled=""
             >
-              <defs>
-                <lineargradient
-                  id="randomNanoId-linear-gradient"
-                  x1="50%"
-                  x2="50%"
-                  y1="0%"
-                  y2="100%"
+              <svg
+                data-testid="close-no-outline"
+                fill="none"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                  fill="black"
+                />
+              </svg>
+            </button>
+            <div
+              class="str-chat__attachment-preview-image-loading"
+            >
+              <div
+                class="str-chat__loading-indicator"
+              >
+                <svg
+                  data-testid="loading-indicator"
+                  height="17"
+                  viewBox="0 0 30 30"
+                  width="17"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <stop
-                    offset="0%"
-                    stop-color="#FFF"
-                    stop-opacity="0"
+                  <defs>
+                    <lineargradient
+                      id="randomNanoId-linear-gradient"
+                      x1="50%"
+                      x2="50%"
+                      y1="0%"
+                      y2="100%"
+                    >
+                      <stop
+                        offset="0%"
+                        stop-color="#FFF"
+                        stop-opacity="0"
+                      />
+                      <stop
+                        data-testid="stop-color"
+                        offset="100%"
+                        stop-opacity="1"
+                      />
+                    </lineargradient>
+                  </defs>
+                  <path
+                    d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+                    fill="url(#randomNanoId-linear-gradient)"
+                    fill-rule="evenodd"
                   />
-                  <stop
-                    data-testid="stop-color"
-                    offset="100%"
-                    stop-opacity="1"
-                  />
-                </lineargradient>
-              </defs>
-              <path
-                d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-                fill="url(#randomNanoId-linear-gradient)"
-                fill-rule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
-        <img
-          alt="image-upload-1"
-          class="str-chat__attachment-preview-thumbnail"
-          data-testid="custom-base-image"
-          src="image-preview-uri"
-          title="image-upload-1"
-        />
-      </div>
-      <div
-        class="str-chat__attachment-preview-image"
-        data-testid="attachment-preview-image"
-      >
-        <button
-          aria-label="aria/Remove attachment"
-          class="str-chat__attachment-preview-delete"
-          data-testid="image-preview-item-delete-button"
-          disabled=""
-        >
-          <svg
-            data-testid="close-no-outline"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
-              fill="black"
+                </svg>
+              </div>
+            </div>
+            <img
+              alt="image-upload-1"
+              class="str-chat__attachment-preview-thumbnail"
+              data-testid="custom-base-image"
+              src="image-preview-uri"
+              title="image-upload-1"
             />
-          </svg>
-        </button>
-        <div
-          class="str-chat__attachment-preview-image-loading"
-        >
+          </div>
           <div
-            class="str-chat__loading-indicator"
+            class="str-chat__attachment-preview-image"
+            data-testid="attachment-preview-image"
           >
-            <svg
-              data-testid="loading-indicator"
-              height="17"
-              viewBox="0 0 30 30"
-              width="17"
-              xmlns="http://www.w3.org/2000/svg"
+            <button
+              aria-label="Remove attachment"
+              class="str-chat__attachment-preview-delete"
+              data-testid="image-preview-item-delete-button"
+              disabled=""
             >
-              <defs>
-                <lineargradient
-                  id="randomNanoId-linear-gradient"
-                  x1="50%"
-                  x2="50%"
-                  y1="0%"
-                  y2="100%"
+              <svg
+                data-testid="close-no-outline"
+                fill="none"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                  fill="black"
+                />
+              </svg>
+            </button>
+            <div
+              class="str-chat__attachment-preview-image-loading"
+            >
+              <div
+                class="str-chat__loading-indicator"
+              >
+                <svg
+                  data-testid="loading-indicator"
+                  height="17"
+                  viewBox="0 0 30 30"
+                  width="17"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <stop
-                    offset="0%"
-                    stop-color="#FFF"
-                    stop-opacity="0"
+                  <defs>
+                    <lineargradient
+                      id="randomNanoId-linear-gradient"
+                      x1="50%"
+                      x2="50%"
+                      y1="0%"
+                      y2="100%"
+                    >
+                      <stop
+                        offset="0%"
+                        stop-color="#FFF"
+                        stop-opacity="0"
+                      />
+                      <stop
+                        data-testid="stop-color"
+                        offset="100%"
+                        stop-opacity="1"
+                      />
+                    </lineargradient>
+                  </defs>
+                  <path
+                    d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+                    fill="url(#randomNanoId-linear-gradient)"
+                    fill-rule="evenodd"
                   />
-                  <stop
-                    data-testid="stop-color"
-                    offset="100%"
-                    stop-opacity="1"
-                  />
-                </lineargradient>
-              </defs>
-              <path
-                d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-                fill="url(#randomNanoId-linear-gradient)"
-                fill-rule="evenodd"
-              />
-            </svg>
+                </svg>
+              </div>
+            </div>
+            <img
+              alt="image-upload-2"
+              class="str-chat__attachment-preview-thumbnail"
+              data-testid="custom-base-image"
+              src="image-preview-uri"
+              title="image-upload-2"
+            />
           </div>
         </div>
-        <img
-          alt="image-upload-2"
-          class="str-chat__attachment-preview-thumbnail"
-          data-testid="custom-base-image"
-          src="image-preview-uri"
-          title="image-upload-2"
-        />
       </div>
     </div>
   </div>

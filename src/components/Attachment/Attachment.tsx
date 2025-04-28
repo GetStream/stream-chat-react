@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
-import type { ReactPlayerProps } from 'react-player';
-import type { Attachment as StreamAttachment } from 'stream-chat';
-
 import {
   isAudioAttachment,
   isFileAttachment,
-  isMediaAttachment,
+  isImageAttachment,
   isScrapedContent,
-  isUploadedImage,
+  isVideoAttachment,
   isVoiceRecordingAttachment,
-} from './utils';
+} from 'stream-chat';
+
 import {
   AudioContainer,
   CardContainer,
@@ -20,6 +18,10 @@ import {
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
+import { SUPPORTED_VIDEO_FORMATS } from './utils';
+
+import type { ReactPlayerProps } from 'react-player';
+import type { Attachment as StreamAttachment } from 'stream-chat';
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
@@ -104,11 +106,11 @@ const renderGroupedAttachments = ({
   ...rest
 }: AttachmentProps): GroupedRenderedAttachment => {
   const uploadedImages: StreamAttachment[] = attachments.filter((attachment) =>
-    isUploadedImage(attachment),
+    isImageAttachment(attachment),
   );
 
   const containers = attachments
-    .filter((attachment) => !isUploadedImage(attachment))
+    .filter((attachment) => !isImageAttachment(attachment))
     .reduce<GroupedRenderedAttachment>(
       (typeMap, attachment) => {
         const attachmentType = getAttachmentType(attachment);
@@ -164,13 +166,13 @@ const getAttachmentType = (
 ): keyof typeof CONTAINER_MAP => {
   if (isScrapedContent(attachment)) {
     return 'card';
-  } else if (isMediaAttachment(attachment)) {
+  } else if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'media';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
   } else if (isVoiceRecordingAttachment(attachment)) {
     return 'voiceRecording';
-  } else if (isFileAttachment(attachment)) {
+  } else if (isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'file';
   }
 

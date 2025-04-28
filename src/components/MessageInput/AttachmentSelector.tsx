@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import type { ElementRef } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
@@ -92,10 +93,12 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { isUploadEnabled } = useAttachmentManagerState();
 
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!isUploadEnabled} // todo: add styles for disabled state
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();
@@ -219,6 +222,7 @@ export const AttachmentSelector = ({
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}
+          tabIndex={-1}
           trapFocus
         >
           <div

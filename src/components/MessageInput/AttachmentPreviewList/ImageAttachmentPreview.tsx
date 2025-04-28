@@ -1,13 +1,13 @@
 import clsx from 'clsx';
-import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import React, { useCallback, useState } from 'react';
+import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import { BaseImage as DefaultBaseImage } from '../../Gallery';
 import { useComponentContext, useTranslationContext } from '../../../context';
-import type { AttachmentPreviewProps } from './types';
-import type { LocalImageAttachment } from '../types';
+import type { LocalImageAttachment } from 'stream-chat';
+import type { UploadAttachmentPreviewProps } from './types';
 
 export type ImageAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
-  AttachmentPreviewProps<LocalImageAttachment<CustomLocalMetadata>>;
+  UploadAttachmentPreviewProps<LocalImageAttachment<CustomLocalMetadata>>;
 
 export const ImageAttachmentPreview = ({
   attachment,
@@ -40,7 +40,7 @@ export const ImageAttachmentPreview = ({
         <CloseIcon />
       </button>
 
-      {uploadState === 'failed' && (
+      {['blocked', 'failed'].includes(uploadState) && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-image'
           data-testid='image-preview-item-retry-button'

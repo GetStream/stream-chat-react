@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
@@ -20,13 +20,11 @@ import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
+import type { LocalMessage, ThreadState } from 'stream-chat';
 
-import type { CustomTrigger } from '../../types/types';
-import type { ThreadState } from 'stream-chat';
-
-export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
+export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<V>;
+  additionalMessageInputProps?: MessageInputProps;
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
   additionalMessageListProps?: MessageListProps;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
@@ -47,16 +45,21 @@ export type ThreadProps<V extends CustomTrigger = CustomTrigger> = {
   virtualized?: boolean;
 };
 
+const LegacyThreadContext = React.createContext<{
+  legacyThread: LocalMessage | undefined;
+}>({ legacyThread: undefined });
+
+export const useLegacyThreadContext = () => useContext(LegacyThreadContext);
+
 /**
  * The Thread component renders a parent Message with a list of replies
  */
-export const Thread = <V extends CustomTrigger = CustomTrigger>(
-  props: ThreadProps<V>,
-) => {
+export const Thread = (props: ThreadProps) => {
   const { channel, channelConfig, thread } = useChannelStateContext('Thread');
   const threadInstance = useThreadContext();
 
-  if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
+  if (!thread && !threadInstance) return null;
+  if (channelConfig?.replies === false) return null;
 
   // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
@@ -75,9 +78,7 @@ const selector = (nextValue: ThreadState) => ({
   replies: nextValue.replies,
 });
 
-const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
-  props: ThreadProps<V> & { key: string },
-) => {
+const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
     additionalMessageInputProps,
     additionalMessageListProps,
@@ -92,8 +93,6 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   } = props;
 
   const threadInstance = useThreadContext();
-  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
-    useStateStore(threadInstance?.state, selector) ?? {};
 
   const {
     thread,
@@ -112,6 +111,9 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
     VirtualMessage,
   } = useComponentContext('Thread');
 
+  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
+    useStateStore(threadInstance?.state, selector) ?? {};
+
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
 
@@ -122,11 +124,13 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
-    if (thread?.id && thread?.reply_count) {
+    if (threadInstance) return;
+
+    if ((thread?.reply_count ?? 0) > 0) {
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
-  }, [thread, loadMoreThread]);
+  }, [thread, loadMoreThread, threadInstance]);
 
   const threadProps: Pick<
     VirtualizedMessageListProps,
@@ -172,28 +176,34 @@ const ThreadInner = <V extends CustomTrigger = CustomTrigger>(
   );
 
   return (
-    <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
-      <ThreadMessageList
-        disableDateSeparator={!enableDateSeparator}
-        head={head}
-        Message={MessageUIComponent}
-        messageActions={messageActions}
-        suppressAutoscroll={threadSuppressAutoscroll}
-        threadList
-        {...threadProps}
-        {...(virtualized
-          ? additionalVirtualizedMessageListProps
-          : additionalMessageListProps)}
-      />
-      <MessageInput
-        focus={autoFocus}
-        Input={ThreadInput}
-        isThreadInput
-        parent={thread ?? parentMessage}
-        publishTypingEvent={false}
-        {...additionalMessageInputProps}
-      />
-    </div>
+    // Thread component needs a context which we can use for message composer
+    <LegacyThreadContext.Provider
+      value={{
+        legacyThread: thread ?? undefined,
+      }}
+    >
+      <div className={threadClass}>
+        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        <ThreadMessageList
+          disableDateSeparator={!enableDateSeparator}
+          head={head}
+          Message={MessageUIComponent}
+          messageActions={messageActions}
+          suppressAutoscroll={threadSuppressAutoscroll}
+          threadList
+          {...threadProps}
+          {...(virtualized
+            ? additionalVirtualizedMessageListProps
+            : additionalMessageListProps)}
+        />
+        <MessageInput
+          focus={autoFocus}
+          Input={ThreadInput}
+          isThreadInput
+          parent={thread ?? parentMessage}
+          {...additionalMessageInputProps}
+        />
+      </div>
+    </LegacyThreadContext.Provider>
   );
 };

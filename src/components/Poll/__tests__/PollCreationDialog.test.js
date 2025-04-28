@@ -2,12 +2,10 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollCreationDialog } from '../PollCreationDialog';
-import {
-  ChatProvider,
-  MessageInputContextProvider,
-  TranslationProvider,
-} from '../../../context';
-import { generateUser, getTestClientWithUser } from '../../../mock-builders';
+import { MessageInputContextProvider } from '../../../context';
+import { generateUser, initClientWithChannels } from '../../../mock-builders';
+import { Chat } from '../../Chat';
+import { Channel } from '../../Channel';
 
 const NAME_FIELD_PLACEHOLDER = 'Ask a question';
 const OPTION_FIELD_PLACEHOLDER = 'Add an option';
@@ -22,7 +20,6 @@ const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_INPUT_FIELD_ERROR_TEST_ID = 'poll-option-input-field-error';
 const MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID =
   'poll-max-votes-allowed-input-field-error';
-const REQUIRED_FIELD_ERROR_TEXT = 'The field is required';
 const DUPLICATE_OPTION_FIELD_ERROR_TEXT = 'Option already exists';
 const MAX_VOTE_COUNT_FIELD_ERROR_TEXT = 'Type a number from 2 to 10';
 
@@ -31,22 +28,29 @@ const getOptionInput = () => screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDE
 
 const close = jest.fn();
 const handleSubmit = jest.fn();
-const t = (v) => v;
-
 const user = generateUser();
 
-const renderComponent = async ({ client: customClient } = {}) => {
-  const client = customClient ?? (await getTestClientWithUser(user));
-
-  return render(
-    <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
-        <MessageInputContextProvider value={{ handleSubmit }}>
-          <PollCreationDialog close={close} />
-        </MessageInputContextProvider>
-      </TranslationProvider>
-    </ChatProvider>,
-  );
+const renderComponent = async ({ channel: customChannel, client: customClient } = {}) => {
+  let channel = customChannel;
+  let client = customClient;
+  if (!(channel && client)) {
+    const initiated = await initClientWithChannels();
+    channel = initiated.channels[0];
+    client = initiated.client;
+  }
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={client}>
+        <Channel channel={channel}>
+          <MessageInputContextProvider value={{ handleSubmit }}>
+            <PollCreationDialog close={close} />
+          </MessageInputContextProvider>
+        </Channel>
+      </Chat>,
+    );
+  });
+  return { channel, client, ...result };
 };
 
 describe('PollCreationDialog', () => {
@@ -77,8 +81,8 @@ describe('PollCreationDialog', () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: text } });
     });
     expect(nameInput).toHaveValue(text);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -89,14 +93,14 @@ describe('PollCreationDialog', () => {
     await renderComponent();
     const nameInput = getNameInput();
     expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
-    act(() => {
-      fireEvent.focus(nameInput);
+    await act(async () => {
+      await fireEvent.focus(nameInput);
     });
-    act(() => {
-      fireEvent.blur(nameInput);
+    await act(async () => {
+      await fireEvent.blur(nameInput);
     });
     expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).toHaveTextContent(
-      REQUIRED_FIELD_ERROR_TEXT,
+      'Name is required',
     );
     expect(nameInput).toHaveValue('');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -108,17 +112,17 @@ describe('PollCreationDialog', () => {
     await renderComponent();
     const nameInput = getNameInput();
     expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
-    act(() => {
-      fireEvent.focus(nameInput);
+    await act(async () => {
+      await fireEvent.focus(nameInput);
     });
-    act(() => {
-      fireEvent.blur(nameInput);
+    await act(async () => {
+      await fireEvent.blur(nameInput);
     });
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: text } });
     });
-    act(() => {
-      fireEvent.blur(nameInput);
+    await act(async () => {
+      await fireEvent.blur(nameInput);
     });
     expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
     expect(nameInput).toHaveValue(text);
@@ -143,12 +147,12 @@ describe('PollCreationDialog', () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: text } });
     });
     const optionInput = getOptionInput();
-    act(() => {
-      fireEvent.change(optionInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(optionInput, { target: { value: text } });
     });
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeEnabled();
@@ -239,8 +243,8 @@ describe('PollCreationDialog', () => {
   it('shows max vote count input on max vote count enabling', async () => {
     await renderComponent();
     const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(enforceUniqueToggle);
+    await act(async () => {
+      await fireEvent.click(enforceUniqueToggle);
     });
     expect(enforceUniqueToggle).toBeChecked();
     expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('');
@@ -252,20 +256,20 @@ describe('PollCreationDialog', () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: text } });
     });
     const optionInput = getOptionInput();
-    act(() => {
-      fireEvent.change(optionInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(optionInput, { target: { value: text } });
     });
     const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(enforceUniqueToggle);
+    await act(async () => {
+      await fireEvent.click(enforceUniqueToggle);
     });
     const maxVoteCountInput = screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER);
-    act(() => {
-      fireEvent.change(maxVoteCountInput, { target: { value: '2' } });
+    await act(async () => {
+      await fireEvent.change(maxVoteCountInput, { target: { value: '2' } });
     });
     expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -276,20 +280,20 @@ describe('PollCreationDialog', () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: text } });
     });
     const optionInput = getOptionInput();
-    act(() => {
-      fireEvent.change(optionInput, { target: { value: text } });
+    await act(async () => {
+      await fireEvent.change(optionInput, { target: { value: text } });
     });
     const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(enforceUniqueToggle);
+    await act(async () => {
+      await fireEvent.click(enforceUniqueToggle);
     });
     const maxVoteCountInput = screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER);
-    act(() => {
-      fireEvent.change(maxVoteCountInput, { target: { value: '1' } });
+    await act(async () => {
+      await fireEvent.change(maxVoteCountInput, { target: { value: '11' } });
     });
 
     const maxVoteCountErrors = screen.getAllByTestId(
@@ -298,7 +302,7 @@ describe('PollCreationDialog', () => {
 
     expect(maxVoteCountErrors).toHaveLength(1);
     expect(maxVoteCountErrors[0]).toHaveTextContent(MAX_VOTE_COUNT_FIELD_ERROR_TEXT);
-    expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('1');
+    expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('11');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
   });
@@ -306,8 +310,8 @@ describe('PollCreationDialog', () => {
   it('toggles voting visibility', async () => {
     await renderComponent();
     const votingVisibilityToggle = screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(votingVisibilityToggle);
+    await act(async () => {
+      await fireEvent.click(votingVisibilityToggle);
     });
     expect(votingVisibilityToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -317,8 +321,8 @@ describe('PollCreationDialog', () => {
   it('toggles allowing user suggested options', async () => {
     await renderComponent();
     const suggestOptionToggle = screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(suggestOptionToggle);
+    await act(async () => {
+      await fireEvent.click(suggestOptionToggle);
     });
     expect(suggestOptionToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -328,8 +332,8 @@ describe('PollCreationDialog', () => {
   it('toggles allowing user comments', async () => {
     await renderComponent();
     const allowCommentsToggle = screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL);
-    act(() => {
-      fireEvent.click(allowCommentsToggle);
+    await act(async () => {
+      await fireEvent.click(allowCommentsToggle);
     });
     expect(allowCommentsToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -350,50 +354,52 @@ describe('PollCreationDialog', () => {
     };
     const expectedPollPayload = { ...formState, max_votes_allowed: 10 };
 
-    const client = await getTestClientWithUser(user);
-    let pollId;
+    const poll = { id: 'pollId' };
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
     const createPollSpy = jest
       .spyOn(client, 'createPoll')
-      .mockImplementationOnce((poll) => {
-        pollId = poll.id;
-        return Promise.resolve({ poll });
-      });
+      .mockImplementationOnce(() => Promise.resolve({ poll }));
 
-    await renderComponent({ client });
-    act(() => {
-      fireEvent.change(getNameInput(), { target: { value: formState.name } });
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: formState.name } });
     });
-    act(() => {
-      fireEvent.change(getOptionInput(), {
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), {
         target: { value: formState.options[0].text },
       });
     });
     const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
-    act(() => {
-      fireEvent.change(optionFields[1], { target: { value: formState.options[1].text } });
+    await act(async () => {
+      await fireEvent.change(optionFields[1], {
+        target: { value: formState.options[1].text },
+      });
     });
-    act(() => {
-      fireEvent.click(screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL));
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL));
     });
-    act(() => {
-      fireEvent.change(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER), {
+    await act(async () => {
+      await fireEvent.change(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER), {
         target: { value: formState.max_votes_allowed },
       });
     });
-    act(() => {
-      fireEvent.click(screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL));
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL));
     });
-    act(() => {
-      fireEvent.click(screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL));
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL));
     });
-    act(() => {
-      fireEvent.click(screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL));
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL));
     });
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     const submitButton = screen.getByText(CREATE_BUTTON_TEXT);
     expect(submitButton).toBeEnabled();
-    act(() => {
-      fireEvent.click(submitButton);
+    await act(async () => {
+      await fireEvent.click(submitButton);
     });
 
     await waitFor(() => {
@@ -401,7 +407,6 @@ describe('PollCreationDialog', () => {
         expect.objectContaining(expectedPollPayload),
       );
       expect(close).toHaveBeenCalledTimes(1);
-      expect(handleSubmit).toHaveBeenCalledWith(expect.any(Object), { poll_id: pollId });
     });
   });
 

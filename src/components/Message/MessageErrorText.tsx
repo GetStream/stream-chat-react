@@ -1,12 +1,12 @@
 import React from 'react';
 
-import type { StreamMessage } from '../../context';
+import { isMessageBounced } from './utils';
 import { useTranslationContext } from '../../context';
 
-import { isMessageBounced } from './utils';
+import type { LocalMessage } from 'stream-chat';
 
 export interface MessageErrorTextProps {
-  message: StreamMessage;
+  message: LocalMessage;
   theme: string;
 }
 
@@ -28,7 +28,7 @@ export function MessageErrorText({ message, theme }: MessageErrorTextProps) {
       <div
         className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
       >
-        {message.errorStatusCode !== 403
+        {message.error?.status !== 403
           ? t<string>('Message Failed · Click to try again')
           : t<string>('Message Failed · Unauthorized')}
       </div>

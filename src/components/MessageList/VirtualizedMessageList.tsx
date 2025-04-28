@@ -25,7 +25,7 @@ import { useMarkRead } from './hooks/useMarkRead';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
-import type { GroupStyle, ProcessMessagesParams } from './utils';
+import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import { getGroupStyles, getLastReceived, processMessages } from './utils';
 import type { MessageProps, MessageUIComponentProps } from '../Message';
 import { MessageSimple } from '../Message';
@@ -50,7 +50,6 @@ import { useChannelActionContext } from '../../context/ChannelActionContext';
 import type {
   ChannelNotifications,
   ChannelStateContextValue,
-  StreamMessage,
 } from '../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ChatContextValue } from '../../context/ChatContext';
@@ -61,6 +60,7 @@ import { VirtualizedMessageListContextProvider } from '../../context/Virtualized
 
 import type {
   Channel,
+  LocalMessage,
   ChannelState as StreamChannelState,
   UserResponse,
 } from 'stream-chat';
@@ -107,7 +107,7 @@ export type VirtuosoContext = Required<
     /** Mapping of message ID of own messages to the array of users, who read the given message */
     ownMessagesReadByOthers: Record<string, UserResponse[]>;
     /** The original message list enriched with date separators, omitted deleted messages or giphy previews. */
-    processedMessages: StreamMessage[];
+    processedMessages: RenderedMessage[];
     /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
     virtuosoRef: RefObject<VirtuosoHandle | null>;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
@@ -155,12 +155,12 @@ function fractionalItemSize(element: HTMLElement) {
   return element.getBoundingClientRect().height;
 }
 
-function findMessageIndex(messages: Array<{ id: string }>, id: string) {
+function findMessageIndex(messages: RenderedMessage[], id: string) {
   return messages.findIndex((message) => message.id === id);
 }
 
 function calculateInitialTopMostItemIndex(
-  messages: Array<{ id: string }>,
+  messages: RenderedMessage[],
   highlightedMessageId: string | undefined,
 ) {
   if (highlightedMessageId) {
@@ -317,7 +317,7 @@ const VirtualizedMessageListWithContext = (
           !shouldGroupByUser,
           maxTimeBetweenGroupedMessages,
         );
-        if (style) acc[message.id] = style;
+        if (style && message.id) acc[message.id] = style;
         return acc;
       }, {}),
     // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
@@ -547,7 +547,7 @@ export type VirtualizedMessageListProps = Partial<
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer?: (
-    messageList: StreamMessage[],
+    messageList: RenderedMessage[],
     index: number,
   ) => React.ReactElement;
   /** @deprecated Use additionalVirtuosoProps.defaultItemHeight instead. Will be removed with next major release - `v11.0.0`.
@@ -558,9 +558,9 @@ export type VirtualizedMessageListProps = Partial<
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
-    message: StreamMessage,
-    previousMessage: StreamMessage,
-    nextMessage: StreamMessage,
+    message: RenderedMessage,
+    previousMessage: RenderedMessage,
+    nextMessage: RenderedMessage,
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
@@ -594,7 +594,7 @@ export type VirtualizedMessageListProps = Partial<
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
-  messages?: StreamMessage[];
+  messages?: LocalMessage[];
   /**
    * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
    * The amount of extra content the list should render in addition to what's necessary to fill in the viewport

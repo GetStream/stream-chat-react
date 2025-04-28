@@ -16,9 +16,7 @@ import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from './renderText';
 
-import type { TranslationLanguages } from 'stream-chat';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { LocalMessage, TranslationLanguages } from 'stream-chat';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -38,7 +36,7 @@ const getUserColor = (theme: string, userId: string) =>
 
 export type FixedHeightMessageProps = {
   groupedByUser?: boolean;
-  message?: StreamMessage;
+  message?: LocalMessage;
 };
 
 const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {

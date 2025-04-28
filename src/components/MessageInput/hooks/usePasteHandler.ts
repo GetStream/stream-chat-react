@@ -1,15 +1,9 @@
 import { useCallback } from 'react';
-import type { FileLike } from '../../ReactFileUtilities';
+import { useMessageComposer } from './useMessageComposer';
 import { dataTransferItemsToFiles } from '../../ReactFileUtilities';
-import type { EnrichURLsController } from './useLinkPreviews';
-import { SetLinkPreviewMode } from '../types';
 
-export const usePasteHandler = (
-  uploadNewFiles: (files: FileList | FileLike[] | File[]) => void,
-  insertText: (textToInsert: string) => void,
-  isUploadEnabled: boolean,
-  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
-) => {
+export const usePasteHandler = (insertText: (textToInsert: string) => void) => {
+  const { attachmentManager } = useMessageComposer();
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
       (async (event) => {
@@ -36,15 +30,12 @@ export const usePasteHandler = (
         if (plainTextPromise) {
           const pastedText = await plainTextPromise;
           insertText(pastedText);
-          findAndEnqueueURLsToEnrich?.(pastedText, SetLinkPreviewMode.UPSERT);
-          findAndEnqueueURLsToEnrich?.flush();
-        } else if (fileLikes.length && isUploadEnabled) {
-          uploadNewFiles(fileLikes);
-          return;
+        } else {
+          attachmentManager.uploadFiles(fileLikes);
         }
       })(clipboardEvent);
     },
-    [findAndEnqueueURLsToEnrich, insertText, isUploadEnabled, uploadNewFiles],
+    [attachmentManager, insertText],
   );
 
   return { onPaste };

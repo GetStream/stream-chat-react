@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Event } from 'stream-chat';
+import React, { useCallback, useState } from 'react';
+
 import {
   AttachmentSelector as DefaultAttachmentSelector,
   SimpleAttachmentSelector,
@@ -19,35 +19,26 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
-
-import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
+import { TextareaComposer } from '../TextareaComposer';
+import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
-
-import { AIStates, useAIState } from '../AIStateIndicator';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
+import { useMessageContext } from '../../context';
 import { WithDragAndDropUpload } from './WithDragAndDropUpload';
 
 export const MessageInputFlat = () => {
+  const { message } = useMessageContext();
   const {
     asyncMessagesMultiSendEnabled,
-    attachments,
     cooldownRemaining,
-    findAndEnqueueURLsToEnrich,
     handleSubmit,
     hideSendButton,
-    isUploadEnabled,
-    linkPreviews,
-    message,
-    numberOfUploads,
-    parent,
     recordingController,
     setCooldownRemaining,
-    text,
   } = useMessageInputContext('MessageInputFlat');
 
   const {
@@ -63,10 +54,7 @@ export const MessageInputFlat = () => {
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext('MessageInputFlat');
-  const { quotedMessage } = useChannelStateContext('MessageInputFlat');
-  const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
   const { channel } = useChatContext('MessageInputFlat');
-
   const { aiState } = useAIState(channel);
 
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
@@ -79,36 +67,10 @@ export const MessageInputFlat = () => {
     setShowRecordingPermissionDeniedNotification(false);
   }, []);
 
-  const failedUploadsCount = useMemo(
-    () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
-    [attachments],
-  );
-
-  useEffect(() => {
-    const handleQuotedMessageUpdate = (e: Event) => {
-      if (e.message?.id !== quotedMessage?.id) return;
-      if (e.type === 'message.deleted') {
-        setQuotedMessage(undefined);
-        return;
-      }
-      setQuotedMessage(e.message);
-    };
-    channel?.on('message.deleted', handleQuotedMessageUpdate);
-    channel?.on('message.updated', handleQuotedMessageUpdate);
-
-    return () => {
-      channel?.off('message.deleted', handleQuotedMessageUpdate);
-      channel?.off('message.updated', handleQuotedMessageUpdate);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, quotedMessage]);
+  const { attachments } = useAttachmentManagerState();
 
   if (recordingController.recordingState) return <AudioRecorder />;
 
-  // TODO: "!message" condition is a temporary fix for shared
-  // state when editing a message (fix shared state issue)
-  const displayQuotedMessage =
-    !message && quotedMessage && quotedMessage.parent_id === parent?.id;
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
@@ -136,23 +98,16 @@ export const MessageInputFlat = () => {
             permissionName={RecordingPermission.MIC}
           />
         )}
-      {findAndEnqueueURLsToEnrich && (
-        <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
-      )}
-      {displayQuotedMessage && <QuotedMessagePreviewHeader />}
+      <LinkPreviewList />
+      <QuotedMessagePreviewHeader />
 
       <div className='str-chat__message-input-inner'>
         <AttachmentSelector />
         <div className='str-chat__message-textarea-container'>
-          {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-          {isUploadEnabled &&
-            !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
-              <AttachmentPreviewList />
-            )}
-
+          <QuotedMessagePreview />
+          <AttachmentPreviewList />
           <div className='str-chat__message-textarea-with-emoji-picker'>
-            <ChatAutoComplete />
-
+            <TextareaComposer />
             {EmojiPicker && <EmojiPicker />}
           </div>
         </div>
@@ -168,14 +123,7 @@ export const MessageInputFlat = () => {
                 />
               ) : (
                 <>
-                  <SendButton
-                    disabled={
-                      !numberOfUploads &&
-                      !text.length &&
-                      attachments.length - failedUploadsCount === 0
-                    }
-                    sendMessage={handleSubmit}
-                  />
+                  <SendButton sendMessage={handleSubmit} />
                   {recordingEnabled && (
                     <StartRecordingAudioButton
                       disabled={
