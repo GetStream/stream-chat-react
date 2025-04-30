@@ -926,7 +926,7 @@ describe(`EditMessageForm`, () => {
       const CustomStateSetter = () => {
         const composer = useMessageComposerMock();
         useEffect(() => {
-          composer.customDataManager.setData(customMessageData);
+          composer.customDataManager.setMessageData(customMessageData);
         }, [composer]);
       };
       const { container, submit } = await renderComponent({
@@ -954,7 +954,7 @@ describe(`EditMessageForm`, () => {
       const CustomStateSetter = () => {
         const composer = useMessageComposerMock();
         useEffect(() => {
-          composer.customDataManager.setData(customMessageData);
+          composer.customDataManager.setMessageData(customMessageData);
         }, [composer]);
       };
       const { container, submit } = await renderComponent({

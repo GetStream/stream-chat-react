@@ -1,21 +1,24 @@
 import clsx from 'clsx';
 import type { Ref } from 'react';
-import { useLayoutEffect } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { useMessageComposer } from '../../MessageInput';
-import type { CommandResponse, TextComposerSuggestion, UserResponse } from 'stream-chat';
-import type { EmojiSearchIndexResult } from '../../MessageInput';
+import type { TextComposerSuggestion } from 'stream-chat';
+import type { UserItemProps } from './UserItem';
+import type { CommandItemProps } from './CommandItem';
+import type { EmoticonItemProps } from './EmoticonItem';
 
-export type SuggestionCommand = CommandResponse;
-export type SuggestionUser = UserResponse;
-export type SuggestionEmoji = EmojiSearchIndexResult;
-export type SuggestionItem = SuggestionUser | SuggestionCommand | SuggestionEmoji;
+export type DefaultSuggestionListItemEntity =
+  | UserItemProps['entity']
+  | CommandItemProps['entity']
+  | EmoticonItemProps['entity'];
+
+export type SuggestionListItemComponentProps = {
+  entity: DefaultSuggestionListItemEntity | unknown;
+  focused: boolean;
+};
 
 export type SuggestionItemProps = {
-  component: React.ComponentType<{
-    entity: SuggestionItem;
-    focused: boolean;
-  }>;
+  component: React.ComponentType<SuggestionListItemComponentProps>;
   item: TextComposerSuggestion;
   focused: boolean;
   className?: string;

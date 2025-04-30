@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
+import type { CommandItemProps } from './CommandItem';
 import { CommandItem } from './CommandItem';
+import type { EmoticonItemProps } from './EmoticonItem';
 import { EmoticonItem } from './EmoticonItem';
+import type { SuggestionListItemComponentProps } from './SuggestionListItem';
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
 import { UserItem } from './UserItem';
 import { useComponentContext } from '../../../context/ComponentContext';
@@ -13,10 +16,15 @@ import type {
   TextComposerState,
   TextComposerSuggestion,
 } from 'stream-chat';
-import type { SuggestionItemProps } from './SuggestionListItem';
+import type { UserItemProps } from './UserItem';
+
+type SuggestionTrigger = '/' | ':' | '@' | string;
 
 export type SuggestionListProps = Partial<{
-  SuggestionItem: React.ComponentType<SuggestionItemProps>;
+  suggestionItemComponents: Record<
+    SuggestionTrigger,
+    React.ComponentType<SuggestionListItemComponentProps>
+  >;
   className?: string;
   closeOnClickOutside?: boolean;
   containerClassName?: string;
@@ -34,11 +42,20 @@ const searchSourceStateSelector = (
   items: nextValue.items ?? [],
 });
 
-export const defaultComponents = {
-  '/': CommandItem,
-  ':': EmoticonItem,
-  '@': UserItem,
-};
+export const defaultComponents: Record<
+  SuggestionTrigger,
+  React.ComponentType<SuggestionListItemComponentProps>
+> = {
+  '/': (props: SuggestionListItemComponentProps) => (
+    <CommandItem entity={props.entity as CommandItemProps['entity']} />
+  ),
+  ':': (props: SuggestionListItemComponentProps) => (
+    <EmoticonItem entity={props.entity as EmoticonItemProps['entity']} />
+  ),
+  '@': (props: SuggestionListItemComponentProps) => (
+    <UserItem entity={props.entity as UserItemProps['entity']} />
+  ),
+} as const;
 
 export const SuggestionList = ({
   className,
@@ -46,6 +63,7 @@ export const SuggestionList = ({
   containerClassName,
   focusedItemIndex,
   setFocusedItemIndex,
+  suggestionItemComponents = defaultComponents,
 }: SuggestionListProps) => {
   const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
     useComponentContext();
@@ -56,8 +74,9 @@ export const SuggestionList = ({
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
-  // @ts-expect-error component type mismatch
-  const component = suggestions?.trigger && defaultComponents[suggestions?.trigger];
+  const component = suggestions?.trigger
+    ? suggestionItemComponents[suggestions?.trigger]
+    : undefined;
 
   useEffect(() => {
     if (!closeOnClickOutside || !suggestions || !container) return;
