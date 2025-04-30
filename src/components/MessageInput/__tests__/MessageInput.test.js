@@ -794,7 +794,7 @@ describe(`MessageInputFlat`, () => {
       const customMessageData = { customX: 'customX' };
       const CustomStateSetter = null;
 
-      customChannel.messageComposer.customDataManager.setData(customMessageData);
+      customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
       const { container, submit } = await renderComponent({
         customChannel,
         customClient,
@@ -823,7 +823,7 @@ describe(`MessageInputFlat`, () => {
       const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
       const { customChannel, customClient } = await setup();
       const customMessageData = { customX: 'customX' };
-      customChannel.messageComposer.customDataManager.setData(customMessageData);
+      customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
       const { container, submit } = await renderComponent({
         customChannel,
         customClient,

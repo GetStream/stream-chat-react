@@ -1,15 +1,9 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
+import type { CommandResponse } from 'stream-chat';
 
 export type CommandItemProps = {
-  entity: {
-    /** Arguments of command */
-    args?: string;
-    /** Description of command */
-    description?: string;
-    /** Name of the command */
-    name?: string;
-  };
+  entity: CommandResponse;
 };
 
 export const CommandItem = (props: PropsWithChildren<CommandItemProps>) => {
