@@ -1,3 +1,9 @@
+## [13.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v13.0.0-rc.1...v13.0.0-rc.2) (2025-04-30)
+
+### Features
+
+* replace SuggestionItem prop with suggestionItemComponents prop for SuggestionList ([#2693](https://github.com/GetStream/stream-chat-react/issues/2693)) ([985f5e3](https://github.com/GetStream/stream-chat-react/commit/985f5e3a43da660573e21dcc44f96cf4b44b3552))
+
 ## [13.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v12.14.0...v13.0.0-rc.1) (2025-04-28)
 
 ### ⚠ BREAKING CHANGES
