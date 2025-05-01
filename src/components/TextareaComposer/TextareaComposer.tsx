@@ -46,11 +46,9 @@ export type TextComposerProps = Omit<
 > & {
   closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
-  dropdownClassName?: string;
-  grow?: boolean;
-  itemClassName?: string;
   listClassName?: string;
   maxRows?: number;
+  minRows?: number;
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
 };
 
@@ -58,34 +56,32 @@ export const TextareaComposer = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,
-  // dropdownClassName, // todo: X find a different way to prevent prop drilling
-  grow: growProp,
-  // itemClassName, // todo: X find a different way to prevent prop drilling
   listClassName,
   maxRows: maxRowsProp = 1,
+  minRows: minRowsProp,
   onBlur,
   onChange,
   onKeyDown,
   onScroll,
   placeholder: placeholderProp,
   shouldSubmit: shouldSubmitProp,
-  ...restProps
+  ...restTextareaProps
 }: TextComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const {
     additionalTextareaProps,
     cooldownRemaining,
-    grow: growContext,
     handleSubmit,
     maxRows: maxRowsContext,
+    minRows: minRowsContext,
     onPaste,
     shouldSubmit: shouldSubmitContext,
     textareaRef,
   } = useMessageInputContext();
 
-  const grow = growProp ?? growContext;
   const maxRows = maxRowsProp ?? maxRowsContext;
+  const minRows = minRowsProp ?? minRowsContext;
   const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
@@ -235,7 +231,7 @@ export const TextareaComposer = ({
       ref={containerRef}
     >
       <Textarea
-        {...restProps}
+        {...{ ...additionalTextareaProps, ...restTextareaProps }}
         aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
         className={clsx(
           'rta__textarea',
@@ -244,7 +240,8 @@ export const TextareaComposer = ({
         )}
         data-testid='message-input'
         disabled={!enabled || !!cooldownRemaining}
-        maxRows={grow ? maxRows : 1}
+        maxRows={maxRows}
+        minRows={minRows}
         onBlur={onBlur}
         onChange={changeHandler}
         onCompositionEnd={onCompositionEnd}

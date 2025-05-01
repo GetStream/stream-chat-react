@@ -38,7 +38,7 @@ export type MessageInputProps = {
    */
   additionalTextareaProps?: Omit<
     React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-    'defaultValue'
+    'defaultValue' | 'style' | 'disabled'
   >;
   /**
    * When enabled, recorded messages won’t be sent immediately.
@@ -55,8 +55,6 @@ export type MessageInputProps = {
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
   focus?: boolean;
-  /** If true, expands the text input vertically for new lines */
-  grow?: boolean;
   /** Allows to hide MessageInput's send button. */
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
