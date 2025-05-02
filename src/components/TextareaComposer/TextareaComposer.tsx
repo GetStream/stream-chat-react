@@ -1,5 +1,12 @@
+import debounce from 'lodash.debounce';
 import clsx from 'clsx';
-import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 'react';
+import type {
+  ChangeEventHandler,
+  SyntheticEvent,
+  TextareaHTMLAttributes,
+  UIEventHandler,
+} from 'react';
+import { useMemo } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
@@ -63,6 +70,7 @@ export const TextareaComposer = ({
   onChange,
   onKeyDown,
   onScroll,
+  onSelect,
   placeholder: placeholderProp,
   shouldSubmit: shouldSubmitProp,
   ...restTextareaProps
@@ -201,6 +209,22 @@ export const TextareaComposer = ({
     [onScroll, textComposer],
   );
 
+  const setSelectionDebounced = useMemo(
+    () =>
+      debounce(
+        (e: SyntheticEvent<HTMLTextAreaElement>) => {
+          onSelect?.(e);
+          textComposer.setSelection({
+            end: (e.target as HTMLTextAreaElement).selectionEnd,
+            start: (e.target as HTMLTextAreaElement).selectionStart,
+          });
+        },
+        100,
+        { leading: false, trailing: true },
+      ),
+    [onSelect, textComposer],
+  );
+
   useEffect(() => {
     // FIXME: find the real reason for cursor being set to the end on each change
     // This is a workaround to prevent the cursor from jumping
@@ -249,6 +273,7 @@ export const TextareaComposer = ({
         onKeyDown={keyDownHandler}
         onPaste={onPaste}
         onScroll={scrollHandler}
+        onSelect={setSelectionDebounced}
         placeholder={placeholder || t('Type your message')}
         ref={(ref) => {
           textareaRef.current = ref;

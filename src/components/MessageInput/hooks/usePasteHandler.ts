@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import { useMessageComposer } from './useMessageComposer';
 import { dataTransferItemsToFiles } from '../../ReactFileUtilities';
 
-export const usePasteHandler = (insertText: (textToInsert: string) => void) => {
-  const { attachmentManager } = useMessageComposer();
+export const usePasteHandler = () => {
+  const { attachmentManager, textComposer } = useMessageComposer();
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
       (async (event) => {
@@ -29,13 +29,13 @@ export const usePasteHandler = (insertText: (textToInsert: string) => void) => {
 
         if (plainTextPromise) {
           const pastedText = await plainTextPromise;
-          insertText(pastedText);
+          textComposer.insertText({ text: pastedText });
         } else {
           attachmentManager.uploadFiles(fileLikes);
         }
       })(clipboardEvent);
     },
-    [attachmentManager, insertText],
+    [attachmentManager, textComposer],
   );
 
   return { onPaste };
