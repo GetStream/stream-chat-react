@@ -1,3 +1,17 @@
+## [12.15.0](https://github.com/GetStream/stream-chat-react/compare/v12.14.0...v12.15.0) (2025-05-02)
+
+### Features
+
+* introduce WithDragAndDropUpload component ([#2688](https://github.com/GetStream/stream-chat-react/issues/2688)) ([6b03abd](https://github.com/GetStream/stream-chat-react/commit/6b03abd707165d08539af435b940dd13025481d2))
+
+### Chores
+
+* **deps:** upgrade @stream-io/stream-chat-css to v5.8.1 ([#2689](https://github.com/GetStream/stream-chat-react/issues/2689)) ([d0c32e3](https://github.com/GetStream/stream-chat-react/commit/d0c32e33225c2e72bf4f14f368c34fa3a34c543c))
+
+### Refactors
+
+* simplify WithDragAndDropUpload API ([#2691](https://github.com/GetStream/stream-chat-react/issues/2691)) ([46c9add](https://github.com/GetStream/stream-chat-react/commit/46c9add73d8c37ed65cd0c2808c148199820889a))
+
 ## [12.14.0](https://github.com/GetStream/stream-chat-react/compare/v12.13.1...v12.14.0) (2025-04-08)
 
 ### Features
