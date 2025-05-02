@@ -12155,10 +12155,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@^9.0.0-rc.15:
-  version "9.0.0-rc.15"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.0.0-rc.15.tgz#6a35f27c38be2e021a3e62abcffa40aaef84fc0a"
-  integrity sha512-n8IftP103jp8IVOUZA4mnOvEIbyzGTVjoL3rDm42apk8DRHz2/vdvgyTYUJysDNYh+Oxu5HwWObToKv1c/Bxdw==
+stream-chat@^9.0.0-rc.16:
+  version "9.0.0-rc.16"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.0.0-rc.16.tgz#f93ba775754385ca5c297bf275d48a46cc012d5a"
+  integrity sha512-QWk9+g0Vnx94epuT7W/+eopC7hWaqDEVspMsyz79B1pMV6lWJSM2ya5aK5ttlMzd01kh3t0YZglZ1fRNtQERpg==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
