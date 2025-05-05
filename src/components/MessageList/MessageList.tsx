@@ -37,7 +37,6 @@ import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageLi
 import { useStableId } from '../UtilityComponents/useStableId';
 import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
-
 import type { GroupStyle, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 

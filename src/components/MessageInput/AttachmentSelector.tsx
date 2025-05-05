@@ -1,10 +1,4 @@
-import React, {
-  ElementRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ElementRef, useCallback, useEffect, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
