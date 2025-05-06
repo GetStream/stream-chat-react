@@ -61,6 +61,12 @@ to extend your types
 * introduce WithDragAndDropUpload component ([#2688](https://github.com/GetStream/stream-chat-react/issues/2688)) ([6b03abd](https://github.com/GetStream/stream-chat-react/commit/6b03abd707165d08539af435b940dd13025481d2))
 * message composer ([#2669](https://github.com/GetStream/stream-chat-react/issues/2669)) ([fa2519b](https://github.com/GetStream/stream-chat-react/commit/fa2519b50f1a3bb8837369188bffb356509236ed)), closes [#2688](https://github.com/GetStream/stream-chat-react/issues/2688)
 
+## [12.15.0](https://github.com/GetStream/stream-chat-react/compare/v12.14.0...v12.15.0) (2025-05-02)
+
+### Features
+
+* introduce WithDragAndDropUpload component ([#2688](https://github.com/GetStream/stream-chat-react/issues/2688)) ([6b03abd](https://github.com/GetStream/stream-chat-react/commit/6b03abd707165d08539af435b940dd13025481d2))
+
 ### Chores
 
 * **deps:** upgrade @stream-io/stream-chat-css to v5.8.1 ([#2689](https://github.com/GetStream/stream-chat-react/issues/2689)) ([d0c32e3](https://github.com/GetStream/stream-chat-react/commit/d0c32e33225c2e72bf4f14f368c34fa3a34c543c))
