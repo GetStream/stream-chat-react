@@ -47,9 +47,9 @@ const configStateSelector = (state: MessageComposerConfig) => ({
 const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
-export type TextComposerProps = Omit<
+export type TextareaComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
-  'style' | 'defaultValue' | 'disabled'
+  'style' | 'defaultValue' | 'disabled' | 'value'
 > & {
   closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
@@ -74,7 +74,7 @@ export const TextareaComposer = ({
   placeholder: placeholderProp,
   shouldSubmit: shouldSubmitProp,
   ...restTextareaProps
-}: TextComposerProps) => {
+}: TextareaComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const {

@@ -38,7 +38,7 @@ export type MessageInputProps = {
    */
   additionalTextareaProps?: Omit<
     React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-    'defaultValue' | 'style' | 'disabled'
+    'defaultValue' | 'style' | 'disabled' | 'value'
   >;
   /**
    * When enabled, recorded messages won’t be sent immediately.
