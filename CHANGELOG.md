@@ -1,3 +1,65 @@
+## [13.0.0](https://github.com/GetStream/stream-chat-react/compare/v12.15.0...v13.0.0) (2025-05-06)
+
+### ⚠ BREAKING CHANGES
+
+* `Channel` props `dragAndDropWindow` &
+`optionalMessageInputProps` have been removed, use
+* Remove ChatAutoComplete, AutoCompleteTextarea,
+DefaultSuggestionList, DefaultSuggestionListItem and introduce
+TextareaComposer, SuggestionList, SuggestionListItem
+* Remove defaultScrollToItem function previously used by
+SuggestionList
+* Removed DefaultTriggerProvider component
+* Remove from Channel props - acceptedFiles,
+enrichURLForPreview, enrichURLForPreviewConfig, maxNumberOfFiles,
+multipleUploads, TriggerProvider
+* Removal of acceptedFiles, debounceURLEnrichmentMs,
+enrichURLForPreview, findURLFn, multipleUploads, onLinkPreviewDismissed,
+quotedMessage from ChannelStateContext
+* Changed signature for functions sendMessage and
+editMessage in ChannelActionContext
+* Changed signature for handleSubmit
+* Removed setQuotedMessage from ChannelActionContext
+* Removed types MessageToSend, StreamMessage,
+UpdatedMessage in favor of LocalMessage or RenderedMessage
+* Removed Trigger generics from ChannelProps
+* Message input state as well as the API is now kept
+within MessageComposer instead of MessageInputContext
+* Renamed useMessageInputState to useMessageInputControls
+as it does not handle the composition state anymore
+* Removed from MessageInputProps - disabled,
+disableMentions, doFileUploadRequest, doImageUploadRequest,
+errorHandler, getDefaultValue, mentionAllAppUsers, mentionQueryParams,
+message, noFiles, urlEnrichmentConfig, useMentionsTransliteration,
+additionalTextareaProps do not expect default value anymore
+* Changed the signature of MessageInput prop
+overrideSubmitHandler
+* Local attachment and link preview types moved to
+stream-chat
+* The SuggestionListItem UI components for
+TextareaComposer receive tokenizedDisplayName instead of itemNameParts
+* Removed duplicate types SendMessageOptions,
+UpdateMessageOptions which should be imported from stream-chat instead
+* Removed type LinkPreviewListProps - LinkPreviewList
+does not have any props anymore
+* dropped `StreamChatGenerics`, use `Custom<Entity>Data`
+to extend your types
+
+### Bug Fixes
+
+* make consistent use of message composition related props ([#2695](https://github.com/GetStream/stream-chat-react/issues/2695)) ([2b789e5](https://github.com/GetStream/stream-chat-react/commit/2b789e5c9be4727d9ec03ce128067f6d111415be))
+* replace StreamChatGenerics with module augmentation ([#2634](https://github.com/GetStream/stream-chat-react/issues/2634)) ([67bed79](https://github.com/GetStream/stream-chat-react/commit/67bed794555cd1e71456c0732c6bacfcd2712685))
+
+### Features
+
+* default data interfaces ([#2683](https://github.com/GetStream/stream-chat-react/issues/2683)) ([a88e145](https://github.com/GetStream/stream-chat-react/commit/a88e1456e970b6c344545422bdbc4edd1370b862))
+* message composer ([#2669](https://github.com/GetStream/stream-chat-react/issues/2669)) ([fa2519b](https://github.com/GetStream/stream-chat-react/commit/fa2519b50f1a3bb8837369188bffb356509236ed)), closes [#2688](https://github.com/GetStream/stream-chat-react/issues/2688)
+* replace SuggestionItem prop with suggestionItemComponents prop for SuggestionList ([#2693](https://github.com/GetStream/stream-chat-react/issues/2693)) ([985f5e3](https://github.com/GetStream/stream-chat-react/commit/985f5e3a43da660573e21dcc44f96cf4b44b3552))
+
+### Chores
+
+* **deps:** upgrade stream-chat to v9.0.0 ([666be5e](https://github.com/GetStream/stream-chat-react/commit/666be5e3bce201b2371de65a4e899c09deec86e3))
+
 ## [13.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v13.0.0-rc.1...v13.0.0-rc.2) (2025-04-30)
 
 ### Features
