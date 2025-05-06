@@ -1,16 +1,12 @@
 import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinEnabledUserRoles<T extends string = string> = Partial<
@@ -39,27 +35,22 @@ export type PinPermissions<
   team?: PinEnabledUserRoles<U>;
 };
 
-export type PinMessageNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+export type PinMessageNotifications = {
+  getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const usePinHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message: StreamMessage<StreamChatGenerics>,
+export const usePinHandler = (
+  message: LocalMessage,
   // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
-  notifications: PinMessageNotifications<StreamChatGenerics> = {},
+  notifications: PinMessageNotifications = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext<StreamChatGenerics>('usePinHandler');
-  const { channelCapabilities = {} } =
-    useChannelStateContext<StreamChatGenerics>('usePinHandler');
-  const { client } = useChatContext<StreamChatGenerics>('usePinHandler');
+  const { updateMessage } = useChannelActionContext('usePinHandler');
+  const { channelCapabilities = {} } = useChannelStateContext('usePinHandler');
+  const { client } = useChatContext('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
 
   const canPin = !!channelCapabilities['pin-message'];
@@ -71,7 +62,7 @@ export const usePinHandler = <
 
     if (!message.pinned) {
       try {
-        const optimisticMessage = {
+        const optimisticMessage: LocalMessage = {
           ...message,
           pinned: true,
           pinned_at: new Date(),

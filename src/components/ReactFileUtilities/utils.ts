@@ -1,5 +1,6 @@
-import { FileLike, RecordedMediaType } from './types';
-import { ChangeEvent, useCallback } from 'react';
+import type { FileLike, RecordedMediaType } from './types';
+import type { ChangeEvent } from 'react';
+import { useCallback } from 'react';
 
 export const useHandleFileChangeWrapper = (
   resetOnChange = false,

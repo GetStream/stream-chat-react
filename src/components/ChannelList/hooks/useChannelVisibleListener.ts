@@ -7,21 +7,17 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { Channel, Event } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useChannelVisibleListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+export const useChannelVisibleListener = (
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   customHandler?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
-    event: Event<StreamChatGenerics>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    event: Event,
   ) => void,
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>('useChannelVisibleListener');
+  const { client } = useChatContext('useChannelVisibleListener');
 
   useEffect(() => {
-    const handleEvent = async (event: Event<StreamChatGenerics>) => {
+    const handleEvent = async (event: Event) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else if (event.type && event.channel_type && event.channel_id) {

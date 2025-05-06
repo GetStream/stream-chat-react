@@ -4,27 +4,18 @@ import { isDate, isDayOrMoment } from '../../../i18n';
 
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useCreateChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  value: Omit<ChannelStateContextValue<StreamChatGenerics>, 'channelCapabilities'> & {
+export const useCreateChannelStateContext = (
+  value: Omit<ChannelStateContextValue, 'channelCapabilities'> & {
     channelCapabilitiesArray: string[];
     skipMessageDataMemoization?: boolean;
   },
 ) => {
   const {
-    acceptedFiles,
     channel,
     channelCapabilitiesArray = [],
     channelConfig,
     channelUnreadUiState,
-    debounceURLEnrichmentMs,
-    dragAndDropWindow,
-    enrichURLForPreview,
     error,
-    findURLFn,
     giphyVersion,
     hasMore,
     hasMoreNewer,
@@ -32,15 +23,11 @@ export const useCreateChannelStateContext = <
     imageAttachmentSizeHandler,
     loading,
     loadingMore,
-    maxNumberOfFiles,
     members,
     messages = [],
-    multipleUploads,
     mutes,
     notifications,
-    onLinkPreviewDismissed,
     pinnedMessages,
-    quotedMessage,
     read = {},
     shouldGenerateVideoThumbnail,
     skipMessageDataMemoization,
@@ -108,18 +95,13 @@ export const useCreateChannelStateContext = <
     )
     .join();
 
-  const channelStateContext: ChannelStateContextValue<StreamChatGenerics> = useMemo(
+  const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
-      acceptedFiles,
       channel,
       channelCapabilities,
       channelConfig,
       channelUnreadUiState,
-      debounceURLEnrichmentMs,
-      dragAndDropWindow,
-      enrichURLForPreview,
       error,
-      findURLFn,
       giphyVersion,
       hasMore,
       hasMoreNewer,
@@ -127,15 +109,11 @@ export const useCreateChannelStateContext = <
       imageAttachmentSizeHandler,
       loading,
       loadingMore,
-      maxNumberOfFiles,
       members,
       messages,
-      multipleUploads,
       mutes,
       notifications,
-      onLinkPreviewDismissed,
       pinnedMessages,
-      quotedMessage,
       read,
       shouldGenerateVideoThumbnail,
       suppressAutoscroll,
@@ -153,10 +131,7 @@ export const useCreateChannelStateContext = <
       channel.data?.name, // otherwise ChannelHeader will not be updated
       channelId,
       channelUnreadUiState,
-      debounceURLEnrichmentMs,
-      enrichURLForPreview,
       error,
-      findURLFn,
       hasMore,
       hasMoreNewer,
       highlightedMessageId,
@@ -167,8 +142,6 @@ export const useCreateChannelStateContext = <
       memoizedMessageData,
       memoizedThreadMessageData,
       notificationsLength,
-      onLinkPreviewDismissed,
-      quotedMessage,
       readUsersLength,
       readUsersLastReads,
       shouldGenerateVideoThumbnail,

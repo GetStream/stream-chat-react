@@ -21,35 +21,28 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
+import { EditMessageModal } from '../MessageInput';
 import { MML } from '../MML';
-import { Modal } from '../Modal';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
+import { isDateSeparatorMessage } from '../MessageList';
 
-type MessageSimpleWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = MessageContextValue<StreamChatGenerics>;
+type MessageSimpleWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageSimpleWithContextProps<StreamChatGenerics>,
-) => {
+const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
-    clearEditingState,
     editing,
     endOfGroup,
     firstOfGroup,
@@ -74,7 +67,6 @@ const MessageSimpleWithContext = <
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    EditMessageInput = DefaultEditMessageForm,
     MessageOptions = DefaultMessageOptions,
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
@@ -88,8 +80,7 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
-  } = useComponentContext<StreamChatGenerics>('MessageSimple');
-
+  } = useComponentContext('MessageSimple');
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
   const isAIGenerated = useMemo(
@@ -97,7 +88,7 @@ const MessageSimpleWithContext = <
     [isMessageAIGenerated, message],
   );
 
-  if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
+  if (isDateSeparatorMessage(message)) {
     return null;
   }
 
@@ -111,7 +102,7 @@ const MessageSimpleWithContext = <
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
-  const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+  const allowRetry = message.status === 'failed' && message.error?.status !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
@@ -139,7 +130,7 @@ const MessageSimpleWithContext = <
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
-        message?.status === 'failed' && message?.errorStatusCode !== 403,
+        message?.status === 'failed' && message?.error?.status !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
@@ -152,20 +143,7 @@ const MessageSimpleWithContext = <
   return (
     <>
       {editing && (
-        <Modal
-          className='str-chat__edit-message-modal'
-          onClose={clearEditingState}
-          open={editing}
-        >
-          <MessageInput
-            clearEditingState={clearEditingState}
-            grow
-            hideSendButton
-            Input={EditMessageInput}
-            message={message}
-            {...additionalMessageInputProps}
-          />
-        </Modal>
+        <EditMessageModal additionalMessageInputProps={additionalMessageInputProps} />
       )}
       {isBounceDialogOpen && (
         <MessageBounceModal
@@ -260,12 +238,8 @@ const MemoizedMessageSimple = React.memo(
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
-export const MessageSimple = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageUIComponentProps<StreamChatGenerics>,
-) => {
-  const messageContext = useMessageContext<StreamChatGenerics>('MessageSimple');
+export const MessageSimple = (props: MessageUIComponentProps) => {
+  const messageContext = useMessageContext('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

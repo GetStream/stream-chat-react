@@ -4,23 +4,17 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { Channel, Event } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useNotificationRemovedFromChannelListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+export const useNotificationRemovedFromChannelListener = (
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   customHandler?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
-    event: Event<StreamChatGenerics>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    event: Event,
   ) => void,
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>(
-    'useNotificationRemovedFromChannelListener',
-  );
+  const { client } = useChatContext('useNotificationRemovedFromChannelListener');
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else {

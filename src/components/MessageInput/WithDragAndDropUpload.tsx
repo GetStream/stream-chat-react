@@ -1,21 +1,12 @@
-import React, {
-  CSSProperties,
-  ElementType,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
-import {
-  MessageInputContextValue,
-  useChannelStateContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
+import type { CSSProperties, ElementType, PropsWithChildren } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
+import type { MessageComposerConfig } from 'stream-chat';
+
+import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useAttachmentManagerState, useMessageComposer } from './hooks';
+import { useStateStore } from '../../store';
 
 const DragAndDropUploadContext = React.createContext<{
   subscribeToDrop: ((fn: (files: File[]) => void) => () => void) | null;
@@ -31,15 +22,22 @@ export const useDragAndDropUploadContext = () => useContext(DragAndDropUploadCon
  * will then be notified when the drop event occurs from within the `WithDragAndDropUpload`
  * component.
  */
-export const useRegisterDropHandlers = ({ uploadNewFiles }: MessageInputContextValue) => {
+export const useRegisterDropHandlers = () => {
   const { subscribeToDrop } = useDragAndDropUploadContext();
 
+  const messageComposer = useMessageComposer();
+
   useEffect(() => {
-    const unsubscribe = subscribeToDrop?.(uploadNewFiles);
+    const unsubscribe = subscribeToDrop?.(messageComposer.attachmentManager.uploadFiles);
 
     return unsubscribe;
-  }, [subscribeToDrop, uploadNewFiles]);
+  }, [subscribeToDrop, messageComposer]);
 };
+
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  acceptedFiles: state.attachments.acceptedFiles,
+  multipleUploads: state.attachments.maxNumberOfFilesPerMessage > 1,
+});
 
 /**
  * Wrapper to replace now deprecated `Channel.dragAndDropWindow` option.
@@ -63,6 +61,7 @@ export const WithDragAndDropUpload = ({
   component: Component = 'div',
   style,
 }: PropsWithChildren<{
+  acceptedFiles?: string[];
   /**
    * @description An element to render as a wrapper onto which drag & drop functionality will be applied.
    * @default 'div'
@@ -72,15 +71,18 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
-  const { acceptedFiles = [], multipleUploads } = useChannelStateContext();
   const { t } = useTranslationContext();
 
   const messageInputContext = useMessageInputContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
-
+  const messageComposer = useMessageComposer();
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const { acceptedFiles, multipleUploads } = useStateStore(
+    messageComposer.configState,
+    attachmentManagerConfigStateSelector,
+  );
   // if message input context is available, there's no need to use the queue
-  const isWithinMessageInputContext =
-    typeof messageInputContext.uploadNewFiles === 'function';
+  const isWithinMessageInputContext = Object.keys(messageInputContext).length > 0;
 
   const accept = useMemo(
     () =>
@@ -108,11 +110,13 @@ export const WithDragAndDropUpload = ({
     // apply `disabled` rules if available, otherwise allow anything and
     // let the `uploadNewFiles` handle the limitations internally
     disabled: isWithinMessageInputContext
-      ? !messageInputContext.isUploadEnabled || messageInputContext.maxFilesLeft === 0
+      ? !isUploadEnabled || (messageInputContext.cooldownRemaining ?? 0) > 0
       : false,
     multiple: multipleUploads,
     noClick: true,
-    onDrop: isWithinMessageInputContext ? messageInputContext.uploadNewFiles : handleDrop,
+    onDrop: isWithinMessageInputContext
+      ? messageComposer.attachmentManager.uploadFiles
+      : handleDrop,
   });
 
   // nested WithDragAndDropUpload components render wrappers without functionality

@@ -1,11 +1,5 @@
-import React, {
-  MouseEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { MouseEventHandler, PropsWithChildren } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import {
@@ -14,7 +8,8 @@ import {
   ReturnIcon,
   XIcon,
 } from './icons';
-import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
+import type { SearchInputProps } from './SearchInput';
+import { SearchInput as DefaultSearchInput } from './SearchInput';
 
 export type AppMenuProps = {
   close?: () => void;

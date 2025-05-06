@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 export type DragAndDropContainerProps = PropsWithChildren<{

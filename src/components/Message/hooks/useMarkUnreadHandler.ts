@@ -1,27 +1,22 @@
 import { validateAndGetMessage } from '../utils';
 import { useChannelStateContext, useTranslationContext } from '../../../context';
 
-import type { StreamMessage } from '../../../context';
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type MarkUnreadHandlerNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
-  getSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+export type MarkUnreadHandlerNotifications = {
+  getErrorNotification?: (message: LocalMessage) => string;
+  getSuccessNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const useMarkUnreadHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: StreamMessage<StreamChatGenerics>,
-  notifications: MarkUnreadHandlerNotifications<StreamChatGenerics> = {},
+export const useMarkUnreadHandler = (
+  message?: LocalMessage,
+  notifications: MarkUnreadHandlerNotifications = {},
 ): ReactEventHandler => {
   const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useMarkUnreadHandler');
+  const { channel } = useChannelStateContext('useMarkUnreadHandler');
   const { t } = useTranslationContext('useMarkUnreadHandler');
 
   return async (event) => {

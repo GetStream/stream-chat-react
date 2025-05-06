@@ -7,18 +7,13 @@ import { LoadingIndicator } from '../../Loading';
 import { useStateStore } from '../../../store';
 import { usePollContext, useTranslationContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollAnswer, PollState } from 'stream-chat';
 
 type PollStateSelectorReturnValue = {
   is_closed: boolean | undefined;
   ownAnswer: PollAnswer | undefined;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   is_closed: nextValue.is_closed,
   ownAnswer: nextValue.ownAnswer,
 });
@@ -28,18 +23,15 @@ export type PollAnswerListProps = {
   close?: () => void;
 };
 
-export const PollAnswerList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const PollAnswerList = ({
   close,
   onUpdateOwnAnswerClick,
 }: PollAnswerListProps) => {
   const { t } = useTranslationContext();
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const { is_closed, ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
-  const { answers, error, hasNextPage, loading, loadMore } =
-    usePollAnswerPagination<StreamChatGenerics>();
+  const { answers, error, hasNextPage, loading, loadMore } = usePollAnswerPagination();
 
   return (
     <div className='str-chat__modal__poll-answer-list'>

@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle';
+import type { PointerEventHandler } from 'react';
 import React, {
-  PointerEventHandler,
   useCallback,
   useEffect,
   useLayoutEffect,

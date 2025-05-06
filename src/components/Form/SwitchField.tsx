@@ -1,11 +1,11 @@
 import clsx from 'clsx';
-import React, {
+import type {
   ComponentProps,
   ElementRef,
   KeyboardEventHandler,
   PropsWithChildren,
-  useRef,
 } from 'react';
+import React, { useRef } from 'react';
 
 export type SwitchFieldProps = PropsWithChildren<ComponentProps<'input'>>;
 

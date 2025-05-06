@@ -1,10 +1,5 @@
-import React, {
-  ChangeEvent,
-  ChangeEventHandler,
-  ComponentProps,
-  useCallback,
-  useState,
-} from 'react';
+import type { ChangeEvent, ChangeEventHandler, ComponentProps } from 'react';
+import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 import { FieldError } from '../Form/FieldError';
 import { useTranslationContext } from '../../context';

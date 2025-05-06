@@ -4,7 +4,7 @@ import { useComponentContext, useMessageContext } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 
 import type { ReactionsListProps } from '../ReactionsList';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+
 import type { ReactionsComparator, ReactionSummary } from '../types';
 
 type SharedReactionListProps =
@@ -26,11 +26,7 @@ export const defaultReactionsSort: ReactionsComparator = (a, b) => {
   return a.reactionType.localeCompare(b.reactionType, 'en');
 };
 
-export const useProcessReactions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  params: UseProcessReactionsParams,
-) => {
+export const useProcessReactions = (params: UseProcessReactionsParams) => {
   const {
     own_reactions: propOwnReactions,
     reaction_groups: propReactionGroups,
@@ -39,9 +35,9 @@ export const useProcessReactions = <
     sortReactions: propSortReactions,
   } = params;
   const { message, sortReactions: contextSortReactions } =
-    useMessageContext<StreamChatGenerics>('useProcessReactions');
+    useMessageContext('useProcessReactions');
   const { reactionOptions: contextReactionOptions = defaultReactionOptions } =
-    useComponentContext<StreamChatGenerics>('useProcessReactions');
+    useComponentContext('useProcessReactions');
 
   const reactionOptions = propReactionOptions ?? contextReactionOptions;
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;

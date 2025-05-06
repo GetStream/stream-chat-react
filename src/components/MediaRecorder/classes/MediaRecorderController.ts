@@ -2,25 +2,24 @@ import fixWebmDuration from 'fix-webm-duration';
 import { nanoid } from 'nanoid';
 import {
   AmplitudeRecorder,
-  AmplitudeRecorderConfig,
   DEFAULT_AMPLITUDE_RECORDER_CONFIG,
 } from './AmplitudeRecorder';
 import { BrowserPermission } from './BrowserPermission';
 import { BehaviorSubject, Subject } from '../observable';
-import { transcode, TranscoderConfig } from '../transcode';
+import type { TranscoderConfig } from '../transcode';
+import { transcode } from '../transcode';
 import { resampleWaveformData } from '../../Attachment';
+import type { RecordedMediaType } from '../../ReactFileUtilities';
 import {
   createFileFromBlobs,
   getExtensionFromMimeType,
   getRecordedMediaTypeFromMimeType,
-  RecordedMediaType,
 } from '../../ReactFileUtilities';
-import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
-
-import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { AmplitudeRecorderConfig } from './AmplitudeRecorder';
+import type { TranslationContextValue } from '../../../context';
 
 export const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -72,9 +71,7 @@ export enum RecordingAttachmentType {
   VOICE_RECORDING = 'voiceRecording',
 }
 
-export class MediaRecorderController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> {
+export class MediaRecorderController {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
   amplitudeRecorder: AmplitudeRecorder | undefined;
@@ -89,14 +86,10 @@ export class MediaRecorderController<
   recordingUri: string | undefined;
   mediaType: RecordedMediaType;
 
-  signalRecordingReady:
-    | ((r: LocalVoiceRecordingAttachment<StreamChatGenerics>) => void)
-    | undefined;
+  signalRecordingReady: ((r: LocalVoiceRecordingAttachment) => void) | undefined;
 
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
-  recording = new BehaviorSubject<
-    LocalVoiceRecordingAttachment<StreamChatGenerics> | undefined
-  >(undefined);
+  recording = new BehaviorSubject<LocalVoiceRecordingAttachment | undefined>(undefined);
   error = new Subject<Error | undefined>();
   notification = new Subject<{ text: string; type: 'success' | 'error' } | undefined>();
 
@@ -194,7 +187,7 @@ export class MediaRecorderController<
         this.amplitudeRecorder?.amplitudes.value ?? [],
         this.amplitudeRecorderConfig.sampleCount,
       ),
-    };
+    } as LocalVoiceRecordingAttachment;
   };
 
   handleErrorEvent = (e: Event) => {
@@ -349,11 +342,9 @@ export class MediaRecorderController<
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
     }
-    const result = new Promise<LocalVoiceRecordingAttachment<StreamChatGenerics>>(
-      (res) => {
-        this.signalRecordingReady = res;
-      },
-    );
+    const result = new Promise<LocalVoiceRecordingAttachment>((res) => {
+      this.signalRecordingReady = res;
+    });
     this.mediaRecorder?.stop();
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.STOPPED);

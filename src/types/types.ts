@@ -1,80 +1,11 @@
 import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
-import type {
-  APIErrorResponse,
-  Attachment,
-  ErrorFromResponse,
-  Event,
-  ExtendableGenerics,
-  LiteralStringForUnion,
-  Mute,
-  ChannelState as StreamChannelState,
-} from 'stream-chat';
+import type { Attachment, ChannelState as StreamChannelState } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
-export type CustomTrigger = {
-  [key: string]: {
-    componentProps: UnknownType;
-    data: UnknownType;
-  };
-};
-
 export type CustomMessageType = 'channel.intro' | 'message.date';
-
-export type DefaultAttachmentType = UnknownType & {
-  asset_url?: string;
-  file_size?: number;
-  id?: string;
-  images?: Array<{
-    image_url?: string;
-    thumb_url?: string;
-  }>;
-};
-
-export type DefaultChannelType = UnknownType & {
-  frozen?: boolean;
-  image?: string;
-  member_count?: number;
-  subtitle?: string;
-};
-
-export type DefaultMessageType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = UnknownType & {
-  customType?: CustomMessageType;
-  date?: string | Date;
-  error?: ErrorFromResponse<APIErrorResponse>;
-  errorStatusCode?: number;
-  event?: Event<StreamChatGenerics>;
-  unread?: boolean;
-};
-
-export type DefaultUserTypeInternal = {
-  image?: string;
-  status?: string;
-};
-
-export type DefaultUserType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = UnknownType &
-  DefaultUserTypeInternal & {
-    mutes?: Array<Mute<StreamChatGenerics>>;
-  };
-
-export type DefaultStreamChatGenerics = ExtendableGenerics & {
-  attachmentType: DefaultAttachmentType;
-  channelType: DefaultChannelType;
-  commandType: LiteralStringForUnion;
-  eventType: UnknownType;
-  memberType: UnknownType;
-  messageType: DefaultMessageType;
-  pollOptionType: UnknownType;
-  pollType: UnknownType;
-  reactionType: UnknownType;
-  userType: DefaultUserType;
-};
 
 export type GiphyVersions =
   | 'original'
@@ -134,25 +65,7 @@ export type VideoAttachmentSizeHandler = (
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
 
-export type ChannelUnreadUiState<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
-
-// todo: fix export from stream-chat - for some reason not exported
-export type SendMessageOptions = {
-  force_moderation?: boolean;
-  is_pending_message?: boolean;
-  keep_channel_hidden?: boolean;
-  pending?: boolean;
-  pending_message_metadata?: Record<string, string>;
-  skip_enrich_url?: boolean;
-  skip_push?: boolean;
-};
-
-// todo: fix export from stream-chat - for some reason not exported
-export type UpdateMessageOptions = {
-  skip_enrich_url?: boolean;
-};
+export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 export type Readable<T> = {
   [key in keyof T]: T[key];

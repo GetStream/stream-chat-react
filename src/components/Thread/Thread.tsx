@@ -1,14 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
-import { MessageInput, MessageInputFlat, MessageInputProps } from '../MessageInput';
-import {
-  MessageList,
-  MessageListProps,
-  VirtualizedMessageList,
-  VirtualizedMessageListProps,
-} from '../MessageList';
+import type { MessageInputProps } from '../MessageInput';
+import { MessageInput, MessageInputFlat } from '../MessageInput';
+import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
+import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
@@ -23,22 +20,17 @@ import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
+import type { LocalMessage, ThreadState } from 'stream-chat';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
-import type { ThreadState } from 'stream-chat';
-
-export type ThreadProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = {
+export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
+  additionalMessageInputProps?: MessageInputProps;
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
-  additionalMessageListProps?: MessageListProps<StreamChatGenerics>;
+  additionalMessageListProps?: MessageListProps;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: Partial<MessageProps<StreamChatGenerics>>;
+  additionalParentMessageProps?: Partial<MessageProps>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
-  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
+  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
@@ -46,27 +38,28 @@ export type ThreadProps<
   /** Custom thread input UI component used to override the default `Input` value stored in `ComponentContext` or the [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default */
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
-  Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  Message?: React.ComponentType<MessageUIComponentProps>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
 
+const LegacyThreadContext = React.createContext<{
+  legacyThread: LocalMessage | undefined;
+}>({ legacyThread: undefined });
+
+export const useLegacyThreadContext = () => useContext(LegacyThreadContext);
+
 /**
  * The Thread component renders a parent Message with a list of replies
  */
-export const Thread = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: ThreadProps<StreamChatGenerics, V>,
-) => {
-  const { channel, channelConfig, thread } =
-    useChannelStateContext<StreamChatGenerics>('Thread');
+export const Thread = (props: ThreadProps) => {
+  const { channel, channelConfig, thread } = useChannelStateContext('Thread');
   const threadInstance = useThreadContext();
 
-  if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
+  if (!thread && !threadInstance) return null;
+  if (channelConfig?.replies === false) return null;
 
   // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
@@ -85,12 +78,7 @@ const selector = (nextValue: ThreadState) => ({
   replies: nextValue.replies,
 });
 
-const ThreadInner = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: ThreadProps<StreamChatGenerics, V> & { key: string },
-) => {
+const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
     additionalMessageInputProps,
     additionalMessageListProps,
@@ -105,8 +93,6 @@ const ThreadInner = <
   } = props;
 
   const threadInstance = useThreadContext();
-  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
-    useStateStore(threadInstance?.state, selector) ?? {};
 
   const {
     thread,
@@ -114,17 +100,19 @@ const ThreadInner = <
     threadLoadingMore,
     threadMessages = [],
     threadSuppressAutoscroll,
-  } = useChannelStateContext<StreamChatGenerics>('Thread');
-  const { closeThread, loadMoreThread } =
-    useChannelActionContext<StreamChatGenerics>('Thread');
-  const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
+  } = useChannelStateContext('Thread');
+  const { closeThread, loadMoreThread } = useChannelActionContext('Thread');
+  const { customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
     ThreadInput: ContextInput,
     VirtualMessage,
-  } = useComponentContext<StreamChatGenerics>('Thread');
+  } = useComponentContext('Thread');
+
+  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
+    useStateStore(threadInstance?.state, selector) ?? {};
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
@@ -136,14 +124,16 @@ const ThreadInner = <
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
-    if (thread?.id && thread?.reply_count) {
+    if (threadInstance) return;
+
+    if ((thread?.reply_count ?? 0) > 0) {
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
-  }, [thread, loadMoreThread]);
+  }, [thread, loadMoreThread, threadInstance]);
 
   const threadProps: Pick<
-    VirtualizedMessageListProps<StreamChatGenerics>,
+    VirtualizedMessageListProps,
     | 'hasMoreNewer'
     | 'loadMoreNewer'
     | 'loadingMoreNewer'
@@ -186,28 +176,34 @@ const ThreadInner = <
   );
 
   return (
-    <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
-      <ThreadMessageList
-        disableDateSeparator={!enableDateSeparator}
-        head={head}
-        Message={MessageUIComponent}
-        messageActions={messageActions}
-        suppressAutoscroll={threadSuppressAutoscroll}
-        threadList
-        {...threadProps}
-        {...(virtualized
-          ? additionalVirtualizedMessageListProps
-          : additionalMessageListProps)}
-      />
-      <MessageInput
-        focus={autoFocus}
-        Input={ThreadInput}
-        isThreadInput
-        parent={thread ?? parentMessage}
-        publishTypingEvent={false}
-        {...additionalMessageInputProps}
-      />
-    </div>
+    // Thread component needs a context which we can use for message composer
+    <LegacyThreadContext.Provider
+      value={{
+        legacyThread: thread ?? undefined,
+      }}
+    >
+      <div className={threadClass}>
+        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        <ThreadMessageList
+          disableDateSeparator={!enableDateSeparator}
+          head={head}
+          Message={MessageUIComponent}
+          messageActions={messageActions}
+          suppressAutoscroll={threadSuppressAutoscroll}
+          threadList
+          {...threadProps}
+          {...(virtualized
+            ? additionalVirtualizedMessageListProps
+            : additionalMessageListProps)}
+        />
+        <MessageInput
+          focus={autoFocus}
+          Input={ThreadInput}
+          isThreadInput
+          parent={thread ?? parentMessage}
+          {...additionalMessageInputProps}
+        />
+      </div>
+    </LegacyThreadContext.Provider>
   );
 };

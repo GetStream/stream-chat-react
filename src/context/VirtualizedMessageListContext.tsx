@@ -1,4 +1,5 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 
 export type VirtualizedMessageListContextValue = {
   /** Function that scrolls the list to the bottom. */

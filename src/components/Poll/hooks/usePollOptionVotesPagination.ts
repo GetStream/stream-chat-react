@@ -1,20 +1,17 @@
 import { useCallback } from 'react';
 import { useManagePollVotesRealtime } from './useManagePollVotesRealtime';
-import {
+import type {
   CursorPaginatorState,
   PaginationFn,
-  useCursorPaginator,
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+import { useCursorPaginator } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 import { useStateStore } from '../../../store';
 import { usePollContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollOptionVotesQueryParams, PollVote } from 'stream-chat';
 
-const paginationStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  state: CursorPaginatorState<PollVote<StreamChatGenerics>>,
+const paginationStateSelector = (
+  state: CursorPaginatorState<PollVote>,
 ): [Error | undefined, boolean, boolean] => [
   state.error,
   state.hasNextPage,
@@ -25,14 +22,12 @@ type UsePollOptionVotesPaginationParams = {
   paginationParams: PollOptionVotesQueryParams;
 };
 
-export const usePollOptionVotesPagination = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const usePollOptionVotesPagination = ({
   paginationParams,
 }: UsePollOptionVotesPaginationParams) => {
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
 
-  const paginationFn = useCallback<PaginationFn<PollVote<StreamChatGenerics>>>(
+  const paginationFn = useCallback<PaginationFn<PollVote>>(
     async (next) => {
       const { next: newNext, votes } = await poll.queryOptionVotes({
         filter: paginationParams.filter,
@@ -47,10 +42,11 @@ export const usePollOptionVotesPagination = <
   );
 
   const { cursorPaginatorState, loadMore } = useCursorPaginator(paginationFn, true);
-  const votes = useManagePollVotesRealtime<
-    StreamChatGenerics,
-    PollVote<StreamChatGenerics>
-  >('vote', cursorPaginatorState, paginationParams.filter.option_id);
+  const votes = useManagePollVotesRealtime<PollVote>(
+    'vote',
+    cursorPaginatorState,
+    paginationParams.filter.option_id,
+  );
   const [error, hasNextPage, loading] = useStateStore(
     cursorPaginatorState,
     paginationStateSelector,

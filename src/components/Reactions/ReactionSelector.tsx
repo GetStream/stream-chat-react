@@ -11,12 +11,10 @@ import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import type { AvatarProps } from '../Avatar';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+
 import type { ReactionOptions } from './reactionOptions';
 
-export type ReactionSelectorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type ReactionSelectorProps = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
   /** If true, shows the user's avatar with the reaction */
@@ -27,9 +25,9 @@ export type ReactionSelectorProps<
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
   /** An array of the reaction objects to display in the list */
-  latest_reactions?: ReactionResponse<StreamChatGenerics>[];
+  latest_reactions?: ReactionResponse[];
   /** An array of the own reaction objects to distinguish own reactions visually */
-  own_reactions?: ReactionResponse<StreamChatGenerics>[];
+  own_reactions?: ReactionResponse[];
   /**
    * An object that keeps track of the count of each type of reaction on a message
    * @deprecated This override value is no longer taken into account. Use `reaction_groups` to override reaction counts instead.
@@ -46,11 +44,7 @@ export type ReactionSelectorProps<
   reverse?: boolean;
 };
 
-const UnMemoizedReactionSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ReactionSelectorProps<StreamChatGenerics>,
-) => {
+const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
   const {
     Avatar: propAvatar,
     detailedView = true,
@@ -65,12 +59,12 @@ const UnMemoizedReactionSelector = <
   const {
     Avatar: contextAvatar,
     reactionOptions: contextReactionOptions = defaultReactionOptions,
-  } = useComponentContext<StreamChatGenerics>('ReactionSelector');
+  } = useComponentContext('ReactionSelector');
   const {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
-  } = useMessageContext<StreamChatGenerics>('ReactionSelector');
+  } = useMessageContext('ReactionSelector');
   const dialogId = `reaction-selector--${message.id}`;
   const dialog = useDialog({ id: dialogId });
   const reactionOptions = propReactionOptions ?? contextReactionOptions;

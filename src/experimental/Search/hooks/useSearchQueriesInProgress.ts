@@ -1,25 +1,17 @@
 import { useEffect, useState } from 'react';
+import type { SearchController, SearchControllerState, SearchSource } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
-
-import type { SearchController, SearchControllerState, SearchSource } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 const searchControllerStateSelector = (value: SearchControllerState) => ({
   sources: value.sources,
 });
 
-export type UseSearchQueriesInProgressParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  searchController: SearchController<StreamChatGenerics>;
+export type UseSearchQueriesInProgressParams = {
+  searchController: SearchController;
 };
 
-export const useSearchQueriesInProgress = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  searchController: SearchController<StreamChatGenerics>,
-) => {
+export const useSearchQueriesInProgress = (searchController: SearchController) => {
   const [queriesInProgress, setQueriesInProgress] = useState<string[]>([]);
   const { sources } = useStateStore(
     searchController.state,

@@ -1,13 +1,9 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { StreamChat } from 'stream-chat';
+import type { PropsWithChildren } from 'react';
+import type { OwnUserResponse, TokenOrProvider, UserResponse } from 'stream-chat';
+
 import { Chat } from '../';
-import {
-  DefaultGenerics,
-  ExtendableGenerics,
-  OwnUserResponse,
-  StreamChat,
-  TokenOrProvider,
-  UserResponse,
-} from 'stream-chat';
 
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
@@ -15,42 +11,24 @@ if (!appKey || typeof appKey !== 'string') {
 }
 export const streamAPIKey = appKey;
 
-type LocalAttachmentType = Record<string, unknown>;
-type LocalChannelType = Record<string, unknown>;
-type LocalCommandType = string;
-type LocalEventType = Record<string, unknown>;
-type LocalMessageType = Record<string, unknown>;
-type LocalReactionType = Record<string, unknown>;
-type LocalUserType = Record<string, unknown>;
-
-export type StreamChatGenerics = {
-  attachmentType: LocalAttachmentType;
-  channelType: LocalChannelType;
-  commandType: LocalCommandType;
-  eventType: LocalEventType;
-  messageType: LocalMessageType;
-  reactionType: LocalReactionType;
-  userType: LocalUserType;
-};
-
 export type ConnectedUserProps = PropsWithChildren<{
   token: string;
   userId: string;
 }>;
 
-const useClient = <SCG extends ExtendableGenerics = DefaultGenerics>({
+const useClient = ({
   apiKey,
   tokenOrProvider,
   userData,
 }: {
   apiKey: string;
   tokenOrProvider: TokenOrProvider;
-  userData: OwnUserResponse<SCG> | UserResponse<SCG>;
+  userData: OwnUserResponse | UserResponse;
 }) => {
-  const [chatClient, setChatClient] = useState<StreamChat<SCG> | null>(null);
+  const [chatClient, setChatClient] = useState<StreamChat | null>(null);
 
   useEffect(() => {
-    const client = new StreamChat<SCG>(apiKey);
+    const client = new StreamChat(apiKey);
 
     let didUserConnectInterrupt = false;
     const connectionPromise = client.connectUser(userData, tokenOrProvider).then(() => {
@@ -72,12 +50,8 @@ const useClient = <SCG extends ExtendableGenerics = DefaultGenerics>({
   return chatClient;
 };
 
-export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>({
-  children,
-  token,
-  userId,
-}: ConnectedUserProps) => {
-  const client = useClient<SCG>({
+export const ConnectedUser = ({ children, token, userId }: ConnectedUserProps) => {
+  const client = useClient({
     apiKey: streamAPIKey,
     tokenOrProvider: token,
     userData: { id: userId },

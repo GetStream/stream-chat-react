@@ -145,7 +145,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0 || ^16.14.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0 || ^16.14.0",
-    "stream-chat": "^8.55.0"
+    "stream-chat": "^9.0.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -186,7 +186,7 @@
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@stream-io/stream-chat-css": "^5.8.1",
+    "@stream-io/stream-chat-css": "^5.9.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -239,7 +239,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "semantic-release": "^24.2.3",
-    "stream-chat": "^8.55.0",
+    "stream-chat": "^9.0.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0"
@@ -260,7 +260,7 @@
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",
-    "types": "tsc --noEmit --skipLibCheck false",
+    "types": "tsc --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",

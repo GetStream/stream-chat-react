@@ -1,18 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import type { Channel, ExtendableGenerics } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 
 import { useChannelMembershipState } from '../ChannelList';
 import { Icon } from './icons';
 import { useTranslationContext } from '../../context';
 
-export type ChannelPreviewActionButtonsProps<SCG extends ExtendableGenerics> = {
-  channel: Channel<SCG>;
+export type ChannelPreviewActionButtonsProps = {
+  channel: Channel;
 };
 
-export function ChannelPreviewActionButtons<SCG extends ExtendableGenerics>({
+export function ChannelPreviewActionButtons({
   channel,
-}: ChannelPreviewActionButtonsProps<SCG>) {
+}: ChannelPreviewActionButtonsProps) {
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
 

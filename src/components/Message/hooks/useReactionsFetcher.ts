@@ -1,31 +1,28 @@
-import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
-import { DefaultStreamChatGenerics } from '../../../types/types';
-import { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
-import { ReactionType } from '../../Reactions/types';
+import { useChatContext, useTranslationContext } from '../../../context';
+import type {
+  LocalMessage,
+  ReactionResponse,
+  ReactionSort,
+  StreamChat,
+} from 'stream-chat';
+import type { ReactionType } from '../../Reactions/types';
 
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 
-type FetchMessageReactionsNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+type FetchMessageReactionsNotifications = {
+  getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export function useReactionsFetcher<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message: StreamMessage<StreamChatGenerics>,
-  notifications: FetchMessageReactionsNotifications<StreamChatGenerics> = {},
+export function useReactionsFetcher(
+  message: LocalMessage,
+  notifications: FetchMessageReactionsNotifications = {},
 ) {
   const { client } = useChatContext('useRectionsFetcher');
   const { t } = useTranslationContext('useReactionFetcher');
   const { getErrorNotification, notify } = notifications;
 
-  return async (
-    reactionType?: ReactionType<StreamChatGenerics>,
-    sort?: ReactionSort<StreamChatGenerics>,
-  ) => {
+  return async (reactionType?: ReactionType, sort?: ReactionSort) => {
     try {
       return await fetchMessageReactions(client, message.id, reactionType, sort);
     } catch (e) {
@@ -36,15 +33,13 @@ export function useReactionsFetcher<
   };
 }
 
-async function fetchMessageReactions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  client: StreamChat<StreamChatGenerics>,
+async function fetchMessageReactions(
+  client: StreamChat,
   messageId: string,
-  reactionType?: ReactionType<StreamChatGenerics>,
-  sort?: ReactionSort<StreamChatGenerics>,
+  reactionType?: ReactionType,
+  sort?: ReactionSort,
 ) {
-  const reactions: ReactionResponse<StreamChatGenerics>[] = [];
+  const reactions: ReactionResponse[] = [];
   const limit = 25;
   let next: string | undefined;
   let hasNext = true;

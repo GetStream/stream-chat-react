@@ -1,22 +1,19 @@
 import { useMemo, useRef } from 'react';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { RenderedMessage } from '../../utils';
+import { isLocalMessage } from '../../utils';
 
 const STATUSES_EXCLUDED_FROM_PREPEND = {
   failed: true,
   sending: true,
 } as const as Record<string, boolean>;
 
-export function usePrependedMessagesCount<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
+export function usePrependedMessagesCount(
+  messages: RenderedMessage[],
+  hasDateSeparator: boolean,
+) {
   const firstRealMessageIndex = hasDateSeparator ? 1 : 0;
-  const firstMessageOnFirstLoadedPage =
-    useRef<StreamMessage<StreamChatGenerics>>(undefined);
-  const previousFirstMessageOnFirstLoadedPage =
-    useRef<StreamMessage<StreamChatGenerics>>(undefined);
+  const firstMessageOnFirstLoadedPage = useRef<RenderedMessage>(undefined);
+  const previousFirstMessageOnFirstLoadedPage = useRef<RenderedMessage>(undefined);
   const previousNumItemsPrepended = useRef(0);
 
   const numItemsPrepended = useMemo(() => {
@@ -41,9 +38,12 @@ export function usePrependedMessagesCount<
     // That in turn leads to incorrect index calculation in VirtualizedMessageList trying to access a message
     // at non-existent index. Therefore, we ignore messages of status "sending" / "failed" in order they are
     // not considered as prepended messages.
+    const currentFirstMessageStatus = isLocalMessage(currentFirstMessage)
+      ? currentFirstMessage.status
+      : undefined;
     const firstMsgMovedAfterMessagesInExcludedStatus = !!(
-      currentFirstMessage?.status &&
-      STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessage.status]
+      currentFirstMessageStatus &&
+      STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessageStatus]
     );
 
     if (noNewMessages || firstMsgMovedAfterMessagesInExcludedStatus) {

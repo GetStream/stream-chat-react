@@ -3,7 +3,7 @@ import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 
 type FileSizeIndicatorProps = {
   /** file size in byte */
-  fileSize?: number;
+  fileSize?: number | string;
   /**
    The maximum number of fraction digits to display. If not set, the default behavior is to round to 3 significant digits.
    @default undefined
@@ -15,14 +15,18 @@ export const FileSizeIndicator = ({
   fileSize,
   maximumFractionDigits,
 }: FileSizeIndicatorProps) => {
-  if (!(fileSize && Number.isFinite(Number(fileSize)))) return null;
+  const actualFileSize = typeof fileSize === 'string' ? parseFloat(fileSize) : fileSize;
+
+  if (typeof actualFileSize === 'undefined' || !Number.isFinite(Number(actualFileSize))) {
+    return null;
+  }
 
   return (
     <span
       className='str-chat__message-attachment-file--item-size'
       data-testid='file-size-indicator'
     >
-      {prettifyFileSize(fileSize, maximumFractionDigits)}
+      {prettifyFileSize(actualFileSize, maximumFractionDigits)}
     </span>
   );
 };

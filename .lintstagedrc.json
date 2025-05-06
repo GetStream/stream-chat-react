@@ -1,5 +1,5 @@
 {
-  "src/**/*.{js,ts,tsx,md}": "eslint --max-warnings 0",
+  "src/**/*.{js,ts,tsx,md}": "eslint --max-warnings 0 --no-warn-ignored",
   "**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}": "prettier --list-different",
   "src/i18n/*.json": "yarn run validate-translations"
 }

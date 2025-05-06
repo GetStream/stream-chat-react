@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
-import {
-  ReactionsListModal as DefaultReactionsListModal,
-  ReactionsListModalProps,
-} from './ReactionsListModal';
+import type { ReactionsListModalProps } from './ReactionsListModal';
+import { ReactionsListModal as DefaultReactionsListModal } from './ReactionsListModal';
 import { useProcessReactions } from './hooks/useProcessReactions';
-import {
-  MessageContextValue,
-  useComponentContext,
-  useTranslationContext,
-} from '../../context';
+import type { MessageContextValue } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
-import type { ReactionGroupResponse, ReactionResponse, ReactionSort } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import type { ReactionOptions } from './reactionOptions';
 import type {
   ReactionDetailsComparator,
@@ -23,16 +17,11 @@ import type {
   ReactionType,
 } from './types';
 
-export type ReactionsListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Partial<
-  Pick<
-    MessageContextValue<StreamChatGenerics>,
-    'handleFetchReactions' | 'reactionDetailsSort'
-  >
+export type ReactionsListProps = Partial<
+  Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
 > & {
   /** An array of the own reaction objects to distinguish own reactions visually */
-  own_reactions?: ReactionResponse<StreamChatGenerics>[];
+  own_reactions?: ReactionResponse[];
   /**
    * An object that keeps track of the count of each type of reaction on a message
    * @deprecated This override value is no longer taken into account. Use `reaction_groups` to override reaction counts instead.
@@ -46,22 +35,18 @@ export type ReactionsListProps<
    * */
   reactionOptions?: ReactionOptions;
   /** An array of the reaction objects to display in the list */
-  reactions?: ReactionResponse<StreamChatGenerics>[];
+  reactions?: ReactionResponse[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
-  sortReactionDetails?: ReactionDetailsComparator<StreamChatGenerics>;
+  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
 };
 
-const UnMemoizedReactionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: ReactionsListProps<StreamChatGenerics>,
-) => {
+const UnMemoizedReactionsList = (props: ReactionsListProps) => {
   const {
     handleFetchReactions,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -72,8 +57,9 @@ const UnMemoizedReactionsList = <
   } = props;
   const { existingReactions, hasReactions, totalReactionCount } =
     useProcessReactions(rest);
-  const [selectedReactionType, setSelectedReactionType] =
-    useState<ReactionType<StreamChatGenerics> | null>(null);
+  const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
+    null,
+  );
   const { t } = useTranslationContext('ReactionsList');
   const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
 
@@ -82,7 +68,7 @@ const UnMemoizedReactionsList = <
       return;
     }
 
-    setSelectedReactionType(reactionType as ReactionType<StreamChatGenerics>);
+    setSelectedReactionType(reactionType as ReactionType);
   };
 
   if (!hasReactions) return null;
@@ -135,12 +121,7 @@ const UnMemoizedReactionsList = <
       </div>
       {selectedReactionType !== null && (
         <ReactionsListModal
-          handleFetchReactions={
-            handleFetchReactions as (
-              reactionType?: string,
-              sort?: ReactionSort<StreamChatGenerics>,
-            ) => Promise<Array<ReactionResponse<StreamChatGenerics>>>
-          }
+          handleFetchReactions={handleFetchReactions}
           onClose={() => setSelectedReactionType(null)}
           onSelectedReactionTypeChange={
             setSelectedReactionType as ReactionsListModalProps['onSelectedReactionTypeChange']
@@ -148,12 +129,7 @@ const UnMemoizedReactionsList = <
           open={selectedReactionType !== null}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}
-          sortReactionDetails={
-            sortReactionDetails as (
-              a: ReactionResponse<StreamChatGenerics>,
-              b: ReactionResponse<StreamChatGenerics>,
-            ) => number
-          }
+          sortReactionDetails={sortReactionDetails}
         />
       )}
     </>

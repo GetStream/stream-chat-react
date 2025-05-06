@@ -1,4 +1,5 @@
-import { visit, Visitor } from 'unist-util-visit';
+import type { Visitor } from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
 
 import type { Nodes } from 'hast-util-find-and-replace/lib';
 

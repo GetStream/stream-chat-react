@@ -1,22 +1,15 @@
 import type { User } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
+import type { LocalMessage } from 'stream-chat';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+export type UserEventHandler = (event: React.BaseSyntheticEvent, user: User) => void;
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type UserEventHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (event: React.BaseSyntheticEvent, user: User<StreamChatGenerics>) => void;
-
-export const useUserHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  message?: StreamMessage<StreamChatGenerics>,
+export const useUserHandler = (
+  message?: LocalMessage,
   eventHandlers?: {
-    onUserClickHandler?: UserEventHandler<StreamChatGenerics>;
-    onUserHoverHandler?: UserEventHandler<StreamChatGenerics>;
+    onUserClickHandler?: UserEventHandler;
+    onUserHoverHandler?: UserEventHandler;
   },
 ): {
   onUserClick: ReactEventHandler;

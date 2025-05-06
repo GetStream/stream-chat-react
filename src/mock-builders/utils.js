@@ -5,6 +5,7 @@ import {
   generateUser,
 } from './generator';
 import { getOrCreateChannelApi, getTestClientWithUser, useMockedApis } from './index';
+import { generateMessageDraft } from './generator/messageDraft';
 
 export async function createClientWithChannel(
   { channelData, empty, existingClient, existingUsers, memberCount, messageCount } = {
@@ -57,6 +58,9 @@ export const initChannelFromData = async ({
   jest
     .spyOn(channel, 'getConfig')
     .mockImplementation(() => mockedChannelData.channel.config);
+  jest
+    .spyOn(channel, 'getDraft')
+    .mockImplementation(() => generateMessageDraft({ channel_cid: channel.cid }));
   return channel;
 };
 

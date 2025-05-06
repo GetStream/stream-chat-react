@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageDeliveredIcon } from './icons';
-import { getReadByTooltipText, mapToUserNameOrId, TooltipUsernameMapper } from './utils';
+import type { TooltipUsernameMapper } from './utils';
+import { getReadByTooltipText, mapToUserNameOrId } from './utils';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
@@ -13,8 +15,6 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageStatusProps = {
   /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
@@ -31,11 +31,7 @@ export type MessageStatusProps = {
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
-const UnMemoizedMessageStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageStatusProps,
-) => {
+const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const {
     Avatar: propAvatar,
     MessageDeliveredStatus,
@@ -48,11 +44,10 @@ const UnMemoizedMessageStatus = <
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
-  const { Avatar: contextAvatar } =
-    useComponentContext<StreamChatGenerics>('MessageStatus');
+  const { client } = useChatContext('MessageStatus');
+  const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
   const { isMyMessage, lastReceivedId, message, readBy, threadList } =
-    useMessageContext<StreamChatGenerics>('MessageStatus');
+    useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 

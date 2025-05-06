@@ -4,30 +4,20 @@ import { PollOptionSelector as DefaultPollOptionSelector } from './PollOptionSel
 import { useStateStore } from '../../store';
 import { useComponentContext, usePollContext } from '../../context';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = { options: PollOption<StreamChatGenerics>[] };
+type PollStateSelectorReturnValue = { options: PollOption[] };
 
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({ options: nextValue.options });
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
+  options: nextValue.options,
+});
 
 export type PollOptionListProps = {
   optionsDisplayCount?: number;
 };
 
-export const PollOptionList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
-  optionsDisplayCount,
-}: PollOptionListProps) => {
-  const { PollOptionSelector = DefaultPollOptionSelector } =
-    useComponentContext<StreamChatGenerics>();
-  const { poll } = usePollContext<StreamChatGenerics>();
+export const PollOptionList = ({ optionsDisplayCount }: PollOptionListProps) => {
+  const { PollOptionSelector = DefaultPollOptionSelector } = useComponentContext();
+  const { poll } = usePollContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
 
   return (

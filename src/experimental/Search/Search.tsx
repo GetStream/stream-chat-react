@@ -1,14 +1,12 @@
 import clsx from 'clsx';
 import React from 'react';
+import type { SearchControllerState } from 'stream-chat';
 
 import { SearchBar as DefaultSearchBar } from './SearchBar/SearchBar';
 import { SearchResults as DefaultSearchResults } from './SearchResults/SearchResults';
 import { SearchContextProvider } from './SearchContext';
 import { useChatContext, useComponentContext } from '../../context';
 import { useStateStore } from '../../store';
-
-import type { SearchControllerState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
 type SearchControllerStateSelectorReturnValue = {
   isActive: boolean;
@@ -28,9 +26,7 @@ export type SearchProps = {
   placeholder?: string;
 };
 
-export const Search = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const Search = ({
   directMessagingChannelType = 'messaging',
   disabled,
   exitSearchOnInputBlur,
@@ -39,7 +35,7 @@ export const Search = <
   const { SearchBar = DefaultSearchBar, SearchResults = DefaultSearchResults } =
     useComponentContext();
 
-  const { searchController } = useChatContext<StreamChatGenerics>();
+  const { searchController } = useChatContext();
 
   const { isActive } = useStateStore<
     SearchControllerState,
@@ -47,7 +43,7 @@ export const Search = <
   >(searchController.state, searchControllerStateSelector);
 
   return (
-    <SearchContextProvider<StreamChatGenerics>
+    <SearchContextProvider
       value={{
         directMessagingChannelType,
         disabled,

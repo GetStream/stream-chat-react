@@ -1,4 +1,5 @@
-import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
+import type { ReplaceFunction } from 'hast-util-find-and-replace';
+import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import emojiRegex from 'emoji-regex';
 

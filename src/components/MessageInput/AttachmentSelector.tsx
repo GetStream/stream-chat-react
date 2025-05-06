@@ -1,13 +1,8 @@
 import { nanoid } from 'nanoid';
-import React, {
-  ElementRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { ElementRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
@@ -25,7 +20,6 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
-import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {
   const {
@@ -99,10 +93,12 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { isUploadEnabled } = useAttachmentManagerState();
 
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!isUploadEnabled} // todo: add styles for disabled state
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();
@@ -141,14 +137,9 @@ export type AttachmentSelectorProps = {
   getModalPortalDestination?: () => HTMLElement | null;
 };
 
-const useAttachmentSelectorActionsFiltered = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  original: AttachmentSelectorAction[],
-) => {
+const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction[]) => {
   const { PollCreationDialog = DefaultPollCreationDialog } = useComponentContext();
-  const { channelCapabilities, channelConfig } =
-    useChannelStateContext<StreamChatGenerics>();
+  const { channelCapabilities, channelConfig } = useChannelStateContext();
   const { isThreadInput } = useMessageInputContext();
 
   return original
@@ -170,19 +161,15 @@ const useAttachmentSelectorActionsFiltered = <
     });
 };
 
-export const AttachmentSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+export const AttachmentSelector = ({
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
-  const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
+  const { channelCapabilities } = useChannelStateContext();
   const { isThreadInput } = useMessageInputContext();
 
-  const actions = useAttachmentSelectorActionsFiltered<StreamChatGenerics>(
-    attachmentSelectorActionSet,
-  );
+  const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${isThreadInput ? '-thread' : ''}`;
   const menuDialog = useDialog({ id: menuDialogId });
@@ -235,6 +222,7 @@ export const AttachmentSelector = <
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}
+          tabIndex={-1}
           trapFocus
         >
           <div

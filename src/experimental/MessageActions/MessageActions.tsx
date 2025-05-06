@@ -1,14 +1,14 @@
 import clsx from 'clsx';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { useState } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 import { ActionsIcon } from '../../components/Message/icons';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../../components/Dialog';
 import { MessageActionsWrapper } from '../../components/MessageActions/MessageActions';
-import { MESSAGE_ACTIONS } from '../../components';
-
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
+import type { MESSAGE_ACTIONS } from '../../components';
 
 export type MessageActionSetItem = {
   Component: React.ComponentType;
@@ -81,6 +81,7 @@ export const MessageActions = ({
             id={dropdownDialogId}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
+            tabIndex={-1}
             trapFocus
           >
             <DropdownBox open={dropdownDialogIsOpen}>

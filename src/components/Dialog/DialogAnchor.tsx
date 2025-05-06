@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { Placement } from '@popperjs/core';
-import React, { ComponentProps, PropsWithChildren, useEffect, useState } from 'react';
+import type { Placement } from '@popperjs/core';
+import type { ComponentProps, PropsWithChildren } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
 import { usePopper } from 'react-popper';
 import { DialogPortalEntry } from './DialogPortal';
@@ -66,6 +67,7 @@ export const DialogAnchor = ({
   id,
   placement = 'auto',
   referenceElement = null,
+  tabIndex,
   trapFocus,
   ...restDivProps
 }: DialogAnchorProps) => {
@@ -106,7 +108,7 @@ export const DialogAnchor = ({
           data-testid='str-chat__dialog-contents'
           ref={setPopperElement}
           style={styles.popper}
-          tabIndex={0}
+          tabIndex={typeof tabIndex !== 'undefined' ? tabIndex : 0}
         >
           {children}
         </div>

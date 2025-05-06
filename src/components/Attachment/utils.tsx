@@ -1,17 +1,6 @@
-import { ReactNode } from 'react';
-
+import type { ReactNode } from 'react';
 import type { Attachment } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
-import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
-import type {
-  LocalAttachment,
-  LocalAudioAttachment,
-  LocalFileAttachment,
-  LocalImageAttachment,
-  LocalVideoAttachment,
-  LocalVoiceRecordingAttachment,
-  VoiceRecordingAttachment,
-} from '../MessageInput';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
@@ -24,117 +13,25 @@ export type AttachmentComponentType = (typeof ATTACHMENT_GROUPS_ORDER)[number];
 
 export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
 
-export type GalleryAttachment<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  images: Attachment<StreamChatGenerics>[];
+export type GalleryAttachment = {
+  images: Attachment[];
   type: 'gallery';
 };
 
-export type RenderAttachmentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<AttachmentProps<StreamChatGenerics>, 'attachments'> & {
-  attachment: Attachment<StreamChatGenerics>;
+export type RenderAttachmentProps = Omit<AttachmentProps, 'attachments'> & {
+  attachment: Attachment;
 };
 
-export type RenderGalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Omit<AttachmentProps<StreamChatGenerics>, 'attachments'> & {
-  attachment: GalleryAttachment<StreamChatGenerics>;
+export type RenderGalleryProps = Omit<AttachmentProps, 'attachments'> & {
+  attachment: GalleryAttachment;
 };
 
-export const isLocalAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: UnknownType,
-): attachment is LocalAttachment<StreamChatGenerics> =>
-  !!(attachment.localMetadata as LocalAttachment)?.id;
-
-export const isScrapedContent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics>,
-) => attachment.og_scrape_url || attachment.title_link;
-
-export const isUploadedImage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics>,
-) => attachment.type === 'image' && !isScrapedContent(attachment);
-
-export const isLocalImageAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is LocalImageAttachment<StreamChatGenerics> =>
-  isUploadedImage(attachment) && isLocalAttachment(attachment);
-
-export const isGalleryAttachmentType = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  output: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>,
-): output is GalleryAttachment<StreamChatGenerics> => Array.isArray(output.images);
-
-export const isAudioAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-) => attachment.type === 'audio';
-
-export const isLocalAudioAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is LocalAudioAttachment<StreamChatGenerics> =>
-  isAudioAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isVoiceRecordingAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is VoiceRecordingAttachment => attachment.type === 'voiceRecording';
-
-export const isLocalVoiceRecordingAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is LocalVoiceRecordingAttachment<StreamChatGenerics> =>
-  isVoiceRecordingAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isFileAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-) =>
-  attachment.type === 'file' ||
-  !!(
-    attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
-    attachment.type !== 'video'
-  );
-
-export const isLocalFileAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is LocalFileAttachment<StreamChatGenerics> =>
-  isFileAttachment(attachment) && isLocalAttachment(attachment);
-
-export const isMediaAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-) =>
-  (attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
-  attachment.type === 'video';
-
-export const isLocalMediaAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
-): attachment is LocalVideoAttachment<StreamChatGenerics> =>
-  isMediaAttachment(attachment) && isLocalAttachment(attachment);
+// This identity function determines attachment type specific to React.
+// Once made sure other SDKs support the same logic, move to stream-chat-js
+export const isGalleryAttachmentType = (
+  attachment: Attachment | GalleryAttachment,
+): attachment is GalleryAttachment =>
+  Array.isArray((attachment as GalleryAttachment).images);
 
 export const isSvgAttachment = (attachment: Attachment) => {
   const filename = attachment.fallback || '';

@@ -9,7 +9,6 @@ export type {
   VoiceRecordingPreviewProps,
 } from './AttachmentPreviewList';
 export * from './CooldownTimer';
-export * from './DefaultTriggerProvider';
 export * from './EditMessageForm';
 export * from './hooks';
 export * from './icons';
@@ -19,4 +18,3 @@ export * from './MessageInputFlat';
 export * from './QuotedMessagePreview';
 export * from './SendButton';
 export { WithDragAndDropUpload } from './WithDragAndDropUpload';
-export * from './types';

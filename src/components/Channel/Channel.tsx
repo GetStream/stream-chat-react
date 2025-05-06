@@ -1,6 +1,5 @@
+import type { ComponentProps, PropsWithChildren } from 'react';
 import React, {
-  ComponentProps,
-  PropsWithChildren,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,36 +8,51 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
+import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
-import { nanoid } from 'nanoid';
-import clsx from 'clsx';
+import type {
+  APIErrorResponse,
+  ChannelAPIResponse,
+  ChannelMemberResponse,
+  ChannelQueryOptions,
+  ChannelState,
+  ErrorFromResponse,
+  Event,
+  EventAPIResponse,
+  LocalMessage,
+  Message,
+  MessageResponse,
+  SendMessageAPIResponse,
+  SendMessageOptions,
+  Channel as StreamChannel,
+  StreamChat,
+  UpdateMessageOptions,
+} from 'stream-chat';
+import { localMessageToNewMessagePayload } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
-import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
+import type { OnMentionAction } from './hooks/useMentionsHandlers';
+import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import {
-  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
-  LoadingErrorIndicatorProps,
-} from '../Loading';
+import type { LoadingErrorIndicatorProps } from '../Loading';
+import { LoadingErrorIndicator as DefaultLoadingErrorIndicator } from '../Loading';
 import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
-import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
-import {
+import type {
   ChannelActionContextValue,
-  ChannelActionProvider,
   ChannelNotifications,
-  ChannelStateProvider,
   ComponentContextValue,
   MarkReadWrapperOptions,
-  MessageToSend,
-  StreamMessage,
+} from '../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
   TypingProvider,
   useChatContext,
   useTranslationContext,
@@ -63,46 +77,20 @@ import {
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
-
-import type {
-  APIErrorResponse,
-  ChannelAPIResponse,
-  ChannelMemberResponse,
-  ChannelQueryOptions,
-  ChannelState,
-  ErrorFromResponse,
-  Event,
-  EventAPIResponse,
-  Message,
-  MessageResponse,
-  SendMessageAPIResponse,
-  Channel as StreamChannel,
-  StreamChat,
-  UpdatedMessage,
-  UserResponse,
-} from 'stream-chat';
-import type { MessageInputProps } from '../MessageInput';
 import type {
   ChannelUnreadUiState,
-  CustomTrigger,
-  DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
-  SendMessageOptions,
-  UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
 import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
-import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 
-type ChannelPropsForwardedToComponentContext<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = Pick<
-  ComponentContextValue<StreamChatGenerics>,
+type ChannelPropsForwardedToComponentContext = Pick<
+  ComponentContextValue,
   | 'Attachment'
   | 'AttachmentPreviewList'
   | 'AttachmentSelector'
@@ -154,11 +142,11 @@ type ChannelPropsForwardedToComponentContext<
   | 'ReactionsListModal'
   | 'SendButton'
   | 'StartRecordingAudioButton'
+  | 'TextareaComposer'
   | 'ThreadHead'
   | 'ThreadHeader'
   | 'ThreadStart'
   | 'Timestamp'
-  | 'TriggerProvider'
   | 'TypingIndicator'
   | 'UnreadMessagesNotification'
   | 'UnreadMessagesSeparator'
@@ -167,66 +155,39 @@ type ChannelPropsForwardedToComponentContext<
   | 'StreamedMessageText'
 >;
 
-const isUserResponseArray = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  output: string[] | UserResponse<StreamChatGenerics>[],
-): output is UserResponse<StreamChatGenerics>[] =>
-  (output as UserResponse<StreamChatGenerics>[])[0]?.id != null;
-
-export type ChannelProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
-> = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
-  /** List of accepted file types */
-  acceptedFiles?: string[];
+export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** The connected and active channel */
-  channel?: StreamChannel<StreamChatGenerics>;
+  channel?: StreamChannel;
   /**
    * Optional configuration parameters used for the initial channel query.
    * Applied only if the value of channel.initialized is false.
    * If the channel instance has already been initialized (channel has been queried),
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
-  channelQueryOptions?: ChannelQueryOptions<StreamChatGenerics>;
+  channelQueryOptions?: ChannelQueryOptions;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-  doDeleteMessageRequest?: (
-    message: StreamMessage<StreamChatGenerics>,
-  ) => Promise<MessageResponse<StreamChatGenerics>>;
+  doDeleteMessageRequest?: (message: LocalMessage) => Promise<MessageResponse>;
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
-    channel: StreamChannel<StreamChatGenerics>,
+    channel: StreamChannel,
     setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-  ) => Promise<EventAPIResponse<StreamChatGenerics>> | void;
+  ) => Promise<EventAPIResponse> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
-    channel: StreamChannel<StreamChatGenerics>,
-    message: Message<StreamChatGenerics>,
+    channel: StreamChannel,
+    message: Message,
     options?: SendMessageOptions,
-  ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
+  ) => ReturnType<StreamChannel['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
   doUpdateMessageRequest?: (
     cid: string,
-    updatedMessage: UpdatedMessage<StreamChatGenerics>,
+    updatedMessage: LocalMessage | MessageResponse,
     options?: UpdateMessageOptions,
-  ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
-  /**
-   * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-   * @description If true, chat users will be able to drag and drop file uploads to the entire channel window
-   */
-  dragAndDropWindow?: boolean;
+  ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /**
-   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
-   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-   * or directly on MessageInput level through urlEnrichmentConfig.
-   */
-  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-  /** Global configuration for link preview generation in all the MessageInput components */
-  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
   /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
   giphyVersion?: GiphyVersions;
   /** A custom function to provide size configuration for image attachments */
@@ -241,19 +202,10 @@ export type ChannelProps<
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
-  /** Maximum number of attachments allowed per message */
-  maxNumberOfFiles?: number;
-  /** Whether to allow multiple attachment uploads */
-  multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
-  onMentionsClick?: OnMentionAction<StreamChatGenerics>;
+  onMentionsClick?: OnMentionAction;
   /** Custom action handler function to run on hover of an @mention in a message */
-  onMentionsHover?: OnMentionAction<StreamChatGenerics>;
-  /**
-   * @deprecated Use `WithDragAndDropUpload` instead (wrap draggable-to elements with this component).
-   * @description If `dragAndDropWindow` prop is `true`, the props to pass to the `MessageInput` component (overrides props placed directly on `MessageInput`)
-   */
-  optionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
+  onMentionsHover?: OnMentionAction;
   /** You can turn on/off thumbnail generation for video attachments */
   shouldGenerateVideoThumbnail?: boolean;
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
@@ -262,14 +214,12 @@ export type ChannelProps<
   videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
 };
 
-const ChannelContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->({
+const ChannelContainer = ({
   children,
   className: additionalClassName,
   ...props
 }: PropsWithChildren<ComponentProps<'div'>>) => {
-  const { customClasses, theme } = useChatContext<StreamChatGenerics>('Channel');
+  const { customClasses, theme } = useChatContext('Channel');
   const { channelClass, chatClass } = useChannelContainerClasses({
     customClasses,
   });
@@ -281,12 +231,7 @@ const ChannelContainer = <
   );
 };
 
-const UnMemoizedChannel = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
-  props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
-) => {
+const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
   const {
     channel: propsChannel,
     EmptyPlaceholder = null,
@@ -294,8 +239,7 @@ const UnMemoizedChannel = <
     LoadingIndicator = DefaultLoadingIndicator,
   } = props;
 
-  const { channel: contextChannel, channelsQueryState } =
-    useChatContext<StreamChatGenerics>('Channel');
+  const { channel: contextChannel, channelsQueryState } = useChatContext('Channel');
 
   const channel = propsChannel || contextChannel;
 
@@ -322,19 +266,15 @@ const UnMemoizedChannel = <
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
-const ChannelInner = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger,
->(
+const ChannelInner = (
   props: PropsWithChildren<
-    ChannelProps<StreamChatGenerics, V> & {
-      channel: StreamChannel<StreamChatGenerics>;
+    ChannelProps & {
+      channel: StreamChannel;
       key: string;
     }
   >,
 ) => {
   const {
-    acceptedFiles,
     activeUnreadHandler,
     channel,
     channelQueryOptions: propChannelQueryOptions,
@@ -343,21 +283,16 @@ const ChannelInner = <
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
-    dragAndDropWindow = false,
-    enrichURLForPreviewConfig,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
-    maxNumberOfFiles,
-    multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
-    optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
 
-  const channelQueryOptions: ChannelQueryOptions<StreamChatGenerics> & {
+  const channelQueryOptions: ChannelQueryOptions & {
     messages: { limit: number };
   } = useMemo(
     () =>
@@ -368,7 +303,7 @@ const ChannelInner = <
   );
 
   const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
-    useChatContext<StreamChatGenerics>('Channel');
+    useChatContext('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
@@ -376,13 +311,12 @@ const ChannelInner = <
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
+  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
+
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
 
-  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
-
-  const channelReducer = useMemo(() => makeChannelReducer<StreamChatGenerics>(), []);
+  const channelReducer = useMemo(() => makeChannelReducer(), []);
 
   const [state, dispatch] = useReducer(
     channelReducer,
@@ -475,7 +409,7 @@ const ChannelInner = <
     ],
   );
 
-  const handleEvent = async (event: Event<StreamChatGenerics>) => {
+  const handleEvent = async (event: Event) => {
     if (event.message) {
       dispatch({
         channel,
@@ -581,8 +515,7 @@ const ChannelInner = <
               if (typeof member === 'string') {
                 userId = member;
               } else if (typeof member === 'object') {
-                const { user, user_id } =
-                  member as ChannelMemberResponse<StreamChatGenerics>;
+                const { user, user_id } = member as ChannelMemberResponse;
                 userId = user_id || user?.id;
               }
               if (userId) {
@@ -701,7 +634,7 @@ const ChannelInner = <
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
     debounce(
-      (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
+      (hasMore: boolean, messages: ChannelState['messages']) => {
         if (!isMounted.current) return;
         dispatch({ hasMore, messages, type: 'loadMoreFinished' });
       },
@@ -734,7 +667,7 @@ const ChannelInner = <
 
     const oldestID = oldestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse<StreamChatGenerics>;
+    let queryResponse: ChannelAPIResponse;
 
     try {
       queryResponse = await channel.query({
@@ -767,7 +700,7 @@ const ChannelInner = <
 
     const newestId = newestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse<StreamChatGenerics>;
+    let queryResponse: ChannelAPIResponse;
 
     try {
       queryResponse = await channel.query({
@@ -788,26 +721,25 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] =
-    useCallback(
-      async (
-        messageId,
-        messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
-        highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
-      ) => {
-        dispatch({ loadingMore: true, type: 'setLoadingMore' });
-        await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
+  const jumpToMessage: ChannelActionContextValue['jumpToMessage'] = useCallback(
+    async (
+      messageId,
+      messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+    ) => {
+      dispatch({ loadingMore: true, type: 'setLoadingMore' });
+      await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
-        loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-        handleHighlightedMessageChange({
-          highlightDuration,
-          highlightedMessageId: messageId,
-        });
-      },
-      [channel, handleHighlightedMessageChange, loadMoreFinished],
-    );
+      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
+      handleHighlightedMessageChange({
+        highlightDuration,
+        highlightedMessageId: messageId,
+      });
+    },
+    [channel, handleHighlightedMessageChange, loadMoreFinished],
+  );
 
-  const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] =
+  const jumpToLatestMessage: ChannelActionContextValue['jumpToLatestMessage'] =
     useCallback(async () => {
       await channel.state.loadMessageIntoState('latest');
       loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
@@ -816,7 +748,7 @@ const ChannelInner = <
       });
     }, [channel, loadMoreFinished]);
 
-  const jumpToFirstUnreadMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToFirstUnreadMessage'] =
+  const jumpToFirstUnreadMessage: ChannelActionContextValue['jumpToFirstUnreadMessage'] =
     useCallback(
       async (
         queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
@@ -961,9 +893,7 @@ const ChannelInner = <
     );
 
   const deleteMessage = useCallback(
-    async (
-      message: StreamMessage<StreamChatGenerics>,
-    ): Promise<MessageResponse<StreamChatGenerics>> => {
+    async (message: LocalMessage): Promise<MessageResponse> => {
       if (!message?.id) {
         throw new Error('Cannot delete a message - missing message ID.');
       }
@@ -980,14 +910,9 @@ const ChannelInner = <
     [client, doDeleteMessageRequest],
   );
 
-  const updateMessage = (
-    updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
-  ) => {
+  const updateMessage = (updatedMessage: MessageResponse | LocalMessage) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(
-      updatedMessage as MessageResponse<StreamChatGenerics>,
-      true,
-    );
+    channel.state.addMessageSorted(updatedMessage, true);
 
     dispatch({
       channel,
@@ -996,42 +921,28 @@ const ChannelInner = <
     });
   };
 
-  const doSendMessage = async (
-    message: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
-    options?: SendMessageOptions,
-  ) => {
-    const { attachments, id, mentioned_users = [], parent_id, text } = message;
-
-    // channel.sendMessage expects an array of user id strings
-    const mentions = isUserResponseArray<StreamChatGenerics>(mentioned_users)
-      ? mentioned_users.map(({ id }) => id)
-      : mentioned_users;
-
-    const messageData = {
-      attachments,
-      id,
-      mentioned_users: mentions,
-      parent_id,
-      quoted_message_id:
-        parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
-      text,
-      ...customMessageData,
-    } as Message<StreamChatGenerics>;
-
+  const doSendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     try {
-      let messageResponse: void | SendMessageAPIResponse<StreamChatGenerics>;
+      let messageResponse: void | SendMessageAPIResponse;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel, messageData, options);
+        messageResponse = await doSendMessageRequest(channel, message, options);
       } else {
-        messageResponse = await channel.sendMessage(messageData, options);
+        messageResponse = await channel.sendMessage(message, options);
       }
 
-      let existingMessage;
+      let existingMessage: LocalMessage | undefined = undefined;
       for (let i = channel.state.messages.length - 1; i >= 0; i--) {
         const msg = channel.state.messages[i];
-        if (msg.id && msg.id === messageData.id) {
+        if (msg.id && msg.id === message.id) {
           existingMessage = msg;
           break;
         }
@@ -1055,9 +966,6 @@ const ChannelInner = <
           status: 'received',
         });
       }
-
-      if (quotedMessage && parent_id === quotedMessage?.parent_id)
-        setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -1078,23 +986,20 @@ const ChannelInner = <
         error.message.includes('already exists')
       ) {
         updateMessage({
-          ...message,
+          ...localMessage,
           status: 'received',
         });
       } else {
         updateMessage({
-          ...message,
+          ...localMessage,
           error: parsedError,
-          errorStatusCode: parsedError.status || undefined,
           status: 'failed',
         });
 
         thread?.upsertReplyLocally({
-          // @ts-expect-error message type mismatch
           message: {
-            ...message,
+            ...localMessage,
             error: parsedError,
-            errorStatusCode: parsedError.status || undefined,
             status: 'failed',
           },
         });
@@ -1102,60 +1007,40 @@ const ChannelInner = <
     }
   };
 
-  const sendMessage = async (
-    {
-      attachments = [],
-      mentioned_users = [],
-      parent,
-      text = '',
-    }: MessageToSend<StreamChatGenerics>,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
-    options?: SendMessageOptions,
-  ) => {
+  const sendMessage = async ({
+    localMessage,
+    message,
+    options,
+  }: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) => {
     channel.state.filterErrorMessages();
 
-    const messagePreview = {
-      attachments,
-      created_at: new Date(),
-      html: text,
-      id: customMessageData?.id ?? `${client.userID}-${nanoid()}`,
-      mentioned_users,
-      parent_id: parent?.id,
-      reactions: [],
-      status: 'sending',
-      text,
-      type: 'regular',
-      user: client.user,
-    };
-
     thread?.upsertReplyLocally({
-      // @ts-expect-error message type mismatch
-      message: messagePreview,
+      message: localMessage,
     });
 
-    updateMessage(messagePreview);
+    updateMessage(localMessage);
 
-    await doSendMessage(messagePreview, customMessageData, options);
+    await doSendMessage({ localMessage, message, options });
   };
 
-  const retrySendMessage = async (message: StreamMessage<StreamChatGenerics>) => {
+  const retrySendMessage = async (localMessage: LocalMessage) => {
     updateMessage({
-      ...message,
-      errorStatusCode: undefined,
+      ...localMessage,
+      error: undefined,
       status: 'sending',
     });
 
-    if (message.attachments) {
-      // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
-      message.attachments = message.attachments.filter(
-        (attachment) => !attachment.og_scrape_url,
-      );
-    }
-
-    await doSendMessage(message);
+    await doSendMessage({
+      localMessage,
+      message: localMessageToNewMessagePayload(localMessage),
+    });
   };
 
-  const removeMessage = (message: StreamMessage<StreamChatGenerics>) => {
+  const removeMessage = (message: LocalMessage) => {
     channel.state.removeMessage(message);
 
     dispatch({
@@ -1167,18 +1052,8 @@ const ChannelInner = <
 
   /** THREAD */
 
-  const openThread = (
-    message: StreamMessage<StreamChatGenerics>,
-    event?: React.BaseSyntheticEvent,
-  ) => {
+  const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    setQuotedMessage((current) => {
-      if (current?.parent_id !== message?.parent_id) {
-        return undefined;
-      } else {
-        return current;
-      }
-    });
     dispatch({ channel, message, type: 'openThread' });
   };
 
@@ -1192,9 +1067,7 @@ const ChannelInner = <
     debounce(
       (
         threadHasMore: boolean,
-        threadMessages: Array<
-          ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>
-        >,
+        threadMessages: Array<ReturnType<ChannelState['formatMessage']>>,
       ) => {
         dispatch({
           threadHasMore,
@@ -1247,76 +1120,61 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue = useCreateChannelStateContext<StreamChatGenerics>({
+  const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
-    acceptedFiles,
     channel,
     channelCapabilitiesArray,
     channelConfig,
     channelUnreadUiState,
-    debounceURLEnrichmentMs: enrichURLForPreviewConfig?.debounceURLEnrichmentMs,
-    dragAndDropWindow,
-    enrichURLForPreview: props.enrichURLForPreview,
-    findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
-    maxNumberOfFiles,
-    multipleUploads,
     mutes,
     notifications,
-    onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-    quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
     watcher_count: state.watcherCount,
   });
 
-  const channelActionContextValue: ChannelActionContextValue<StreamChatGenerics> =
-    useMemo(
-      () => ({
-        addNotification,
-        closeThread,
-        deleteMessage,
-        dispatch,
-        editMessage,
-        jumpToFirstUnreadMessage,
-        jumpToLatestMessage,
-        jumpToMessage,
-        loadMore,
-        loadMoreNewer,
-        loadMoreThread,
-        markRead,
-        onMentionsClick: onMentionsHoverOrClick,
-        onMentionsHover: onMentionsHoverOrClick,
-        openThread,
-        removeMessage,
-        retrySendMessage,
-        sendMessage,
-        setChannelUnreadUiState,
-        setQuotedMessage,
-        skipMessageDataMemoization,
-        updateMessage,
-      }),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [
-        channel.cid,
-        deleteMessage,
-        enrichURLForPreviewConfig?.findURLFn,
-        enrichURLForPreviewConfig?.onLinkPreviewDismissed,
-        loadMore,
-        loadMoreNewer,
-        markRead,
-        quotedMessage,
-        jumpToFirstUnreadMessage,
-        jumpToMessage,
-        jumpToLatestMessage,
-        setChannelUnreadUiState,
-      ],
-    );
+  const channelActionContextValue: ChannelActionContextValue = useMemo(
+    () => ({
+      addNotification,
+      closeThread,
+      deleteMessage,
+      dispatch,
+      editMessage,
+      jumpToFirstUnreadMessage,
+      jumpToLatestMessage,
+      jumpToMessage,
+      loadMore,
+      loadMoreNewer,
+      loadMoreThread,
+      markRead,
+      onMentionsClick: onMentionsHoverOrClick,
+      onMentionsHover: onMentionsHoverOrClick,
+      openThread,
+      removeMessage,
+      retrySendMessage,
+      sendMessage,
+      setChannelUnreadUiState,
+      skipMessageDataMemoization,
+      updateMessage,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      channel.cid,
+      deleteMessage,
+      loadMore,
+      loadMoreNewer,
+      markRead,
+      jumpToFirstUnreadMessage,
+      jumpToMessage,
+      jumpToLatestMessage,
+      setChannelUnreadUiState,
+    ],
+  );
 
-  // @ts-expect-error message type mismatch
   const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({
       Attachment: props.Attachment,
@@ -1372,11 +1230,11 @@ const ChannelInner = <
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
       StreamedMessageText: props.StreamedMessageText,
+      TextareaComposer: props.TextareaComposer,
       ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
       Timestamp: props.Timestamp,
-      TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
       UnreadMessagesSeparator: props.UnreadMessagesSeparator,
@@ -1435,11 +1293,11 @@ const ChannelInner = <
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,
       props.StreamedMessageText,
+      props.TextareaComposer,
       props.ThreadHead,
       props.ThreadHeader,
       props.ThreadStart,
       props.Timestamp,
-      props.TriggerProvider,
       props.TypingIndicator,
       props.UnreadMessagesNotification,
       props.UnreadMessagesSeparator,
@@ -1481,14 +1339,7 @@ const ChannelInner = <
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
-              <div className={`${chatContainerClass}`}>
-                {dragAndDropWindow && (
-                  <DropzoneProvider {...optionalMessageInputProps}>
-                    {children}
-                  </DropzoneProvider>
-                )}
-                {!dragAndDropWindow && <>{children}</>}
-              </div>
+              <div className={clsx(chatContainerClass)}>{children}</div>
             </TypingProvider>
           </WithComponents>
         </ChannelActionProvider>

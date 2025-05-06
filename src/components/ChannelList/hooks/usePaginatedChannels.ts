@@ -4,16 +4,17 @@ import uniqBy from 'lodash.uniqby';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type {
+  APIErrorResponse,
   Channel,
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
+  ErrorFromResponse,
   StreamChat,
 } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { ChannelsQueryState } from '../../Chat/hooks/useChannelsQueryState';
 import { DEFAULT_INITIAL_CHANNEL_PAGE_SIZE } from '../../../constants/limits';
 
@@ -25,37 +26,31 @@ type AllowedQueryType = Extract<
   'reload' | 'load-more'
 >;
 
-export type CustomQueryChannelParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
-  currentChannels: Array<Channel<StreamChatGenerics>>;
+export type CustomQueryChannelParams = {
+  currentChannels: Array<Channel>;
   queryType: AllowedQueryType;
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>;
   setHasNextPage: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export type CustomQueryChannelsFn<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = (params: CustomQueryChannelParams<StreamChatGenerics>) => Promise<void>;
+export type CustomQueryChannelsFn = (params: CustomQueryChannelParams) => Promise<void>;
 
-export const usePaginatedChannels = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  client: StreamChat<StreamChatGenerics>,
-  filters: ChannelFilters<StreamChatGenerics>,
-  sort: ChannelSort<StreamChatGenerics>,
+export const usePaginatedChannels = (
+  client: StreamChat,
+  filters: ChannelFilters,
+  sort: ChannelSort,
   options: ChannelOptions,
   activeChannelHandler: (
-    channels: Array<Channel<StreamChatGenerics>>,
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    channels: Array<Channel>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   ) => void,
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
-  customQueryChannels?: CustomQueryChannelsFn<StreamChatGenerics>,
+  customQueryChannels?: CustomQueryChannelsFn,
 ) => {
   const {
     channelsQueryState: { error, setError, setQueryInProgress },
   } = useChatContext('usePaginatedChannels');
-  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
+  const [channels, setChannels] = useState<Array<Channel>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
   const lastRecoveryTimestamp = useRef<number | undefined>(undefined);
 
@@ -113,9 +108,9 @@ export const usePaginatedChannels = <
           activeChannelHandler(newChannels, setChannels);
         }
       }
-    } catch (err) {
-      console.warn(err);
-      setError(err as Error);
+    } catch (error) {
+      console.warn(error);
+      setError(error as ErrorFromResponse<APIErrorResponse>);
     }
 
     setQueryInProgress(null);

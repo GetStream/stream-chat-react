@@ -10,12 +10,13 @@ import {
   PauseIcon,
   SendIcon,
 } from '../../MessageInput';
-import { useMessageInputContext } from '../../../context';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 
 export const AudioRecorder = () => {
+  const messageInputContext = useMessageInputContext();
   const {
     recordingController: { completeRecording, recorder, recording, recordingState },
-  } = useMessageInputContext();
+  } = messageInputContext;
 
   const isUploadingFile = recording?.localMetadata?.uploadState === 'uploading';
 

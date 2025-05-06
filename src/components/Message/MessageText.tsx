@@ -12,28 +12,21 @@ import {
 import { renderText as defaultRenderText } from './renderText';
 import { MessageErrorText } from './MessageErrorText';
 
-import type { TranslationLanguages } from 'stream-chat';
-import type { MessageContextValue, StreamMessage } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
 
-export type MessageTextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type MessageTextProps = {
   /* Replaces the CSS class name placed on the component's inner `div` container */
   customInnerClass?: string;
   /* Adds a CSS class name to the component's outer `div` container */
   customWrapperClass?: string;
   /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`) */
-  message?: StreamMessage<StreamChatGenerics>;
+  message?: LocalMessage;
   /* Theme string to be added to CSS class names */
   theme?: string;
-} & Pick<MessageContextValue<StreamChatGenerics>, 'renderText'>;
+} & Pick<MessageContextValue, 'renderText'>;
 
-const UnMemoizedMessageTextComponent = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(
-  props: MessageTextProps<StreamChatGenerics>,
-) => {
+const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const {
     customInnerClass,
     customWrapperClass = '',
@@ -42,8 +35,7 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } =
-    useComponentContext<StreamChatGenerics>('MessageText');
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext('MessageText');
 
   const {
     message: contextMessage,
@@ -51,7 +43,7 @@ const UnMemoizedMessageTextComponent = <
     onMentionsHoverMessage,
     renderText: contextRenderText,
     unsafeHTML,
-  } = useMessageContext<StreamChatGenerics>('MessageText');
+  } = useMessageContext('MessageText');
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 

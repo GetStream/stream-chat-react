@@ -1,21 +1,16 @@
 import { useLayoutEffect, useRef } from 'react';
 
 import { useChatContext } from '../../../../context/ChatContext';
-
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { LocalMessage } from 'stream-chat';
 
 export type ContainerMeasures = {
   offsetHeight: number;
   scrollHeight: number;
 };
 
-export type UseMessageListScrollManagerParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-> = {
+export type UseMessageListScrollManagerParams = {
   loadMoreScrollThreshold: number;
-  messages: StreamMessage<StreamChatGenerics>[];
+  messages: LocalMessage[];
   onScrollBy: (scrollBy: number) => void;
   scrollContainerMeasures: () => ContainerMeasures;
   scrolledUpThreshold: number;
@@ -24,9 +19,7 @@ export type UseMessageListScrollManagerParams<
 };
 
 // FIXME: change this generic name to something like useAdjustScrollPositionToListSize
-export function useMessageListScrollManager<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
->(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
+export function useMessageListScrollManager(params: UseMessageListScrollManagerParams) {
   const {
     loadMoreScrollThreshold,
     onScrollBy,
@@ -36,13 +29,13 @@ export function useMessageListScrollManager<
     showNewMessages,
   } = params;
 
-  const { client } = useChatContext<StreamChatGenerics>('useMessageListScrollManager');
+  const { client } = useChatContext('useMessageListScrollManager');
 
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,
     scrollHeight: 0,
   });
-  const messages = useRef<StreamMessage<StreamChatGenerics>[]>(undefined);
+  const messages = useRef<LocalMessage[]>(undefined);
   const scrollTop = useRef(0);
 
   useLayoutEffect(() => {

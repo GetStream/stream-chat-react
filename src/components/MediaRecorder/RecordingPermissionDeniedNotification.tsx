@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslationContext } from '../../context';
 
-import { RecordingPermission } from './classes/BrowserPermission';
+import type { RecordingPermission } from './classes/BrowserPermission';
 
 export type RecordingPermissionDeniedNotificationProps = {
   onClose: () => void;
