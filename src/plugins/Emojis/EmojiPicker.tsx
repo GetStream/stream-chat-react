@@ -4,8 +4,9 @@ import Picker from '@emoji-mart/react';
 
 import type { Options } from '@popperjs/core';
 
-import { useMessageInputContext, useTranslationContext } from '../../context';
 import { EmojiPickerIcon } from './icons';
+import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useMessageComposer } from '../../components';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -35,7 +36,8 @@ const classNames: EmojiPickerProps = {
 
 export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
-  const { insertText, textareaRef } = useMessageInputContext('EmojiPicker');
+  const { textareaRef } = useMessageInputContext('EmojiPicker');
+  const { textComposer } = useMessageComposer();
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -84,8 +86,10 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           <Picker
             data={async () => (await import('@emoji-mart/data')).default}
             onEmojiSelect={(e: { native: string }) => {
-              insertText(e.native);
-              textareaRef.current?.focus();
+              const textarea = textareaRef.current;
+              if (!textarea) return;
+              textComposer.insertText({ text: e.native });
+              textarea.focus();
               if (props.closeOnEmojiSelect) {
                 setDisplayPicker(false);
               }

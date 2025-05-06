@@ -142,6 +142,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ReactionsListModal'
   | 'SendButton'
   | 'StartRecordingAudioButton'
+  | 'TextareaComposer'
   | 'ThreadHead'
   | 'ThreadHeader'
   | 'ThreadStart'
@@ -1229,6 +1230,7 @@ const ChannelInner = (
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
       StreamedMessageText: props.StreamedMessageText,
+      TextareaComposer: props.TextareaComposer,
       ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
@@ -1291,6 +1293,7 @@ const ChannelInner = (
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,
       props.StreamedMessageText,
+      props.TextareaComposer,
       props.ThreadHead,
       props.ThreadHeader,
       props.ThreadStart,

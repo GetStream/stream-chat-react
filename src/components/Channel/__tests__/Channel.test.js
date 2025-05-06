@@ -32,6 +32,7 @@ import { Thread } from '../../Thread';
 import { MessageProvider } from '../../../context';
 import { MessageActionsBox } from '../../MessageActions';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
+import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -173,6 +174,9 @@ describe('Channel', () => {
       pinnedMessages,
       user,
     }));
+    jest.spyOn(channel, 'getDraft').mockResolvedValue({
+      draft: generateMessageDraft({ channel, channel_cid: channel.cid }),
+    });
   });
 
   afterEach(() => {

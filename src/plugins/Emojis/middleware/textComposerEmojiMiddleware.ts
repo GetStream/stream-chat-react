@@ -1,9 +1,10 @@
 import mergeWith from 'lodash.mergewith';
 import type {
+  Middleware,
   SearchSourceOptions,
   SearchSourceType,
+  TextComposerMiddlewareExecutorState,
   TextComposerMiddlewareOptions,
-  TextComposerMiddlewareParams,
   TextComposerSuggestion,
 } from 'stream-chat';
 import {
@@ -17,6 +18,9 @@ import type {
   EmojiSearchIndex,
   EmojiSearchIndexResult,
 } from '../../../components/MessageInput';
+
+export type EmojiSuggestion<T extends EmojiSearchIndexResult = EmojiSearchIndexResult> =
+  TextComposerSuggestion<T>;
 
 class EmojiSearchSource<
   T extends TextComposerSuggestion<EmojiSearchIndexResult>,
@@ -67,6 +71,12 @@ class EmojiSearchSource<
 
 const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: ':' };
 
+export type EmojiMiddleware<T extends EmojiSearchIndexResult = EmojiSearchIndexResult> =
+  Middleware<
+    TextComposerMiddlewareExecutorState<EmojiSuggestion<T>>,
+    'onChange' | 'onSuggestionItemSelect'
+  >;
+
 /**
  * TextComposer middleware for mentions
  * Usage:
@@ -84,102 +94,90 @@ const DEFAULT_OPTIONS: TextComposerMiddlewareOptions = { minChars: 1, trigger: '
  *   }} options
  * @returns
  */
-export const createTextComposerEmojiMiddleware = <
-  T extends EmojiSearchIndexResult = EmojiSearchIndexResult,
->(
+export const createTextComposerEmojiMiddleware = (
   emojiSearchIndex: EmojiSearchIndex,
   options?: Partial<TextComposerMiddlewareOptions>,
-) => {
+): EmojiMiddleware => {
   const finalOptions = mergeWith(DEFAULT_OPTIONS, options ?? {});
   const emojiSearchSource = new EmojiSearchSource(emojiSearchIndex);
   emojiSearchSource.activate();
 
   return {
     id: 'stream-io/emoji-middleware',
-    onChange: async ({ input, nextHandler }: TextComposerMiddlewareParams<T>) => {
-      const { state } = input;
-      if (!state.selection) return nextHandler(input);
+    // eslint-disable-next-line sort-keys
+    handlers: {
+      onChange: async ({ complete, forward, next, state }) => {
+        if (!state.selection) return forward();
 
-      const triggerWithToken = getTriggerCharWithToken({
-        acceptTrailingSpaces: false,
-        text: state.text.slice(0, state.selection.end),
-        trigger: finalOptions.trigger,
-      });
+        const triggerWithToken = getTriggerCharWithToken({
+          acceptTrailingSpaces: false,
+          text: state.text.slice(0, state.selection.end),
+          trigger: finalOptions.trigger,
+        });
 
-      const triggerWasRemoved =
-        !triggerWithToken || triggerWithToken.length < finalOptions.minChars;
+        const triggerWasRemoved =
+          !triggerWithToken || triggerWithToken.length < finalOptions.minChars;
 
-      if (triggerWasRemoved) {
-        const hasSuggestionsForTrigger =
-          input.state.suggestions?.trigger === finalOptions.trigger;
-        const newInput = { ...input };
-        if (hasSuggestionsForTrigger && newInput.state.suggestions) {
-          delete newInput.state.suggestions;
+        if (triggerWasRemoved) {
+          const hasSuggestionsForTrigger =
+            state.suggestions?.trigger === finalOptions.trigger;
+          const newState = { ...state };
+          if (hasSuggestionsForTrigger && newState.suggestions) {
+            delete newState.suggestions;
+          }
+          return next(newState);
         }
-        return nextHandler(newInput);
-      }
 
-      const newSearchTriggerred =
-        triggerWithToken && triggerWithToken === finalOptions.trigger;
+        const newSearchTriggerred =
+          triggerWithToken && triggerWithToken === finalOptions.trigger;
 
-      if (newSearchTriggerred) {
-        emojiSearchSource.resetStateAndActivate();
-      }
+        if (newSearchTriggerred) {
+          emojiSearchSource.resetStateAndActivate();
+        }
 
-      const textWithReplacedWord = await replaceWordWithEntity({
-        caretPosition: state.selection.end,
-        getEntityString: async (word: string) => {
-          const { items } = await emojiSearchSource.query(word);
+        const textWithReplacedWord = await replaceWordWithEntity({
+          caretPosition: state.selection.end,
+          getEntityString: async (word: string) => {
+            const { items } = await emojiSearchSource.query(word);
 
-          const emoji = items
-            .filter(Boolean)
-            .slice(0, 10)
-            .find(({ emoticons }) => !!emoticons?.includes(word));
+            const emoji = items
+              .filter(Boolean)
+              .slice(0, 10)
+              .find(({ emoticons }) => !!emoticons?.includes(word));
 
-          if (!emoji) return null;
+            if (!emoji) return null;
 
-          const [firstSkin] = emoji.skins ?? [];
+            const [firstSkin] = emoji.skins ?? [];
 
-          return emoji.native ?? firstSkin.native;
-        },
-        text: state.text,
-      });
+            return emoji.native ?? firstSkin.native;
+          },
+          text: state.text,
+        });
 
-      if (textWithReplacedWord !== state.text) {
-        return {
-          state: {
+        if (textWithReplacedWord !== state.text) {
+          return complete({
             ...state,
             suggestions: undefined, // to prevent the TextComposerMiddlewareExecutor to run the first page query
             text: textWithReplacedWord,
-          },
-          stop: true, // Stop other middleware from processing '@' character
-        };
-      }
+          });
+        }
 
-      return {
-        state: {
+        return complete({
           ...state,
           suggestions: {
             query: triggerWithToken.slice(1),
             searchSource: emojiSearchSource,
             trigger: finalOptions.trigger,
           },
-        },
-        stop: true, // Stop other middleware from processing '@' character
-      };
-    },
-    onSuggestionItemSelect: ({
-      input,
-      nextHandler,
-      selectedSuggestion,
-    }: TextComposerMiddlewareParams<T>) => {
-      const { state } = input;
-      if (!selectedSuggestion || state.suggestions?.trigger !== finalOptions.trigger)
-        return nextHandler(input);
+        });
+      },
+      onSuggestionItemSelect: ({ complete, forward, state }) => {
+        const { selectedSuggestion } = state.change ?? {};
+        if (!selectedSuggestion || state.suggestions?.trigger !== finalOptions.trigger)
+          return forward();
 
-      emojiSearchSource.resetStateAndActivate();
-      return Promise.resolve({
-        state: {
+        emojiSearchSource.resetStateAndActivate();
+        return complete({
           ...state,
           ...insertItemWithTrigger({
             insertText: `${'native' in selectedSuggestion ? selectedSuggestion.native : ''} `,
@@ -188,8 +186,8 @@ export const createTextComposerEmojiMiddleware = <
             trigger: finalOptions.trigger,
           }),
           suggestions: undefined, // Clear suggestions after selection
-        },
-      });
+        });
+      },
     },
   };
 };

@@ -19,7 +19,7 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
-import { TextareaComposer } from '../TextareaComposer';
+import { TextareaComposer as DefaultTextareaComposer } from '../TextareaComposer';
 import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
@@ -53,7 +53,8 @@ export const MessageInputFlat = () => {
     SendButton = DefaultSendButton,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
-  } = useComponentContext('MessageInputFlat');
+    TextareaComposer = DefaultTextareaComposer,
+  } = useComponentContext();
   const { channel } = useChatContext('MessageInputFlat');
   const { aiState } = useAIState(channel);
 

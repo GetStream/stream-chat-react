@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useMessageInputText } from './useMessageInputText';
+import { useTextareaRef } from './useTextareaRef';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
@@ -12,7 +12,6 @@ export type MessageInputHookProps = {
     event?: React.BaseSyntheticEvent,
     customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
   ) => void;
-  insertText: (textToInsert: string) => void;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   recordingController: RecordingController;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
@@ -24,7 +23,7 @@ export const useMessageInputControls = (
   const { asyncMessagesMultiSendEnabled, audioRecordingConfig, audioRecordingEnabled } =
     props;
 
-  const { insertText, textareaRef } = useMessageInputText(props);
+  const { textareaRef } = useTextareaRef(props);
 
   const { handleSubmit } = useSubmitHandler(props);
 
@@ -35,11 +34,10 @@ export const useMessageInputControls = (
     recordingConfig: audioRecordingConfig,
   });
 
-  const { onPaste } = usePasteHandler(insertText);
+  const { onPaste } = usePasteHandler();
 
   return {
     handleSubmit,
-    insertText,
     onPaste,
     recordingController,
     textareaRef,

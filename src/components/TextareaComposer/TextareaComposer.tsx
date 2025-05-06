@@ -1,5 +1,12 @@
+import debounce from 'lodash.debounce';
 import clsx from 'clsx';
-import type { ChangeEventHandler, TextareaHTMLAttributes, UIEventHandler } from 'react';
+import type {
+  ChangeEventHandler,
+  SyntheticEvent,
+  TextareaHTMLAttributes,
+  UIEventHandler,
+} from 'react';
+import { useMemo } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
@@ -40,17 +47,15 @@ const configStateSelector = (state: MessageComposerConfig) => ({
 const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
-export type TextComposerProps = Omit<
+export type TextareaComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
-  'style' | 'defaultValue' | 'disabled'
+  'style' | 'defaultValue' | 'disabled' | 'value'
 > & {
   closeSuggestionsOnClickOutside?: boolean;
   containerClassName?: string;
-  dropdownClassName?: string;
-  grow?: boolean;
-  itemClassName?: string;
   listClassName?: string;
   maxRows?: number;
+  minRows?: number;
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
 };
 
@@ -58,34 +63,33 @@ export const TextareaComposer = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,
-  // dropdownClassName, // todo: X find a different way to prevent prop drilling
-  grow: growProp,
-  // itemClassName, // todo: X find a different way to prevent prop drilling
   listClassName,
   maxRows: maxRowsProp = 1,
+  minRows: minRowsProp,
   onBlur,
   onChange,
   onKeyDown,
   onScroll,
+  onSelect,
   placeholder: placeholderProp,
   shouldSubmit: shouldSubmitProp,
-  ...restProps
-}: TextComposerProps) => {
+  ...restTextareaProps
+}: TextareaComposerProps) => {
   const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const {
     additionalTextareaProps,
     cooldownRemaining,
-    grow: growContext,
     handleSubmit,
     maxRows: maxRowsContext,
+    minRows: minRowsContext,
     onPaste,
     shouldSubmit: shouldSubmitContext,
     textareaRef,
   } = useMessageInputContext();
 
-  const grow = growProp ?? growContext;
   const maxRows = maxRowsProp ?? maxRowsContext;
+  const minRows = minRowsProp ?? minRowsContext;
   const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
@@ -205,6 +209,22 @@ export const TextareaComposer = ({
     [onScroll, textComposer],
   );
 
+  const setSelectionDebounced = useMemo(
+    () =>
+      debounce(
+        (e: SyntheticEvent<HTMLTextAreaElement>) => {
+          onSelect?.(e);
+          textComposer.setSelection({
+            end: (e.target as HTMLTextAreaElement).selectionEnd,
+            start: (e.target as HTMLTextAreaElement).selectionStart,
+          });
+        },
+        100,
+        { leading: false, trailing: true },
+      ),
+    [onSelect, textComposer],
+  );
+
   useEffect(() => {
     // FIXME: find the real reason for cursor being set to the end on each change
     // This is a workaround to prevent the cursor from jumping
@@ -235,7 +255,7 @@ export const TextareaComposer = ({
       ref={containerRef}
     >
       <Textarea
-        {...restProps}
+        {...{ ...additionalTextareaProps, ...restTextareaProps }}
         aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
         className={clsx(
           'rta__textarea',
@@ -244,7 +264,8 @@ export const TextareaComposer = ({
         )}
         data-testid='message-input'
         disabled={!enabled || !!cooldownRemaining}
-        maxRows={grow ? maxRows : 1}
+        maxRows={maxRows}
+        minRows={minRows}
         onBlur={onBlur}
         onChange={changeHandler}
         onCompositionEnd={onCompositionEnd}
@@ -252,6 +273,7 @@ export const TextareaComposer = ({
         onKeyDown={keyDownHandler}
         onPaste={onPaste}
         onScroll={scrollHandler}
+        onSelect={setSelectionDebounced}
         placeholder={placeholder || t('Type your message')}
         ref={(ref) => {
           textareaRef.current = ref;
