@@ -1,4 +1,5 @@
 import { DialogManager } from '../DialogManager';
+import * as nanoid from 'nanoid';
 
 const dialogId = 'dialogId';
 
@@ -10,11 +11,9 @@ describe('DialogManager', () => {
   });
 
   it('initiates with default options', () => {
-    const mockedId = '12345';
-    const spy = jest.spyOn(Date.prototype, 'getTime').mockReturnValueOnce(mockedId);
+    jest.spyOn(nanoid, 'nanoid').mockReturnValue('mockedId');
     const dialogManager = new DialogManager();
-    expect(dialogManager.id).toBe(mockedId);
-    spy.mockRestore();
+    expect(dialogManager.id).toBe('mockedId');
   });
 
   it('creates a new closed dialog', () => {

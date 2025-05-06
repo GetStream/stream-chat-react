@@ -1,12 +1,4 @@
-import { nanoid } from 'nanoid';
-import React, {
-  ElementRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ElementRef, useCallback, useEffect, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
@@ -25,6 +17,7 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
+import { useStableId } from '../UtilityComponents/useStableId';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {
@@ -32,9 +25,9 @@ export const SimpleAttachmentSelector = () => {
     AttachmentSelectorInitiationButtonContents,
     FileUploadIcon = DefaultUploadIcon,
   } = useComponentContext();
-  const inputRef = useRef<ElementRef<'input'>>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
-  const id = useMemo(() => nanoid(), []);
+  const id = useStableId();
 
   useEffect(() => {
     if (!labelElement) return;

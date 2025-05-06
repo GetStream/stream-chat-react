@@ -1,5 +1,6 @@
 import React, { act } from 'react';
 import { cleanup, render } from '@testing-library/react';
+import * as nanoid from 'nanoid';
 
 import '@testing-library/jest-dom';
 
@@ -75,6 +76,8 @@ describe('VirtualizedMessageList', () => {
 
   it('should render the list without any message', async () => {
     const { channel, client } = await createChannel(true);
+    jest.spyOn(nanoid, 'nanoid').mockReturnValue('mockedId');
+
     let result;
     await act(() => {
       result = render(

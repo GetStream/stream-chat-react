@@ -34,7 +34,7 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
-
+import { useStableId } from '../UtilityComponents/useStableId';
 import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
 import type { GroupStyle, ProcessMessagesParams } from './utils';
@@ -225,10 +225,13 @@ const MessageListWithContext = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightedMessageId]);
 
+  const id = useStableId();
+
   const showEmptyStateIndicator = elements.length === 0 && !threadList;
   const dialogManagerId = threadList
-    ? 'message-list-dialog-manager-thread'
-    : 'message-list-dialog-manager';
+    ? `message-list-dialog-manager-thread-${id}`
+    : `message-list-dialog-manager-${id}`;
+
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
