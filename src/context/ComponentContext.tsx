@@ -40,6 +40,7 @@ import type {
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
+  TextareaComposerProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
@@ -199,6 +200,8 @@ export type ComponentContextValue = {
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
   StreamedMessageText?: React.ComponentType<StreamedMessageTextProps>;
+  /** Custom UI component to handle message text input, defaults to and accepts same props as [TextareaComposer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TextareaComposer/TextareaComposer.tsx) */
+  TextareaComposer?: React.ComponentType<TextareaComposerProps>;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   ThreadHead?: React.ComponentType<MessageProps>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
@@ -213,8 +216,6 @@ export type ComponentContextValue = {
   ThreadStart?: React.ComponentType;
   /** Custom UI component to display a date used in timestamps. It's used internally by the default `MessageTimestamp`, and to display a timestamp for edited messages. */
   Timestamp?: React.ComponentType<TimestampProps>;
-  /** Optional context provider that lets you override the default autocomplete triggers, defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) */
-  TriggerProvider?: React.ComponentType;
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   /** Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to UnreadMessagesSeparator. Defaults to and accepts same props as: [UnreadMessagesNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesNotification.tsx) */
