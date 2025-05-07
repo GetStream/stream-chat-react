@@ -64,7 +64,7 @@ describe('Chat', () => {
       expect(context.openMobileNav).toBeInstanceOf(Function);
       expect(context.closeMobileNav).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toBe(
-        `stream-chat-react-undefined-${originalUserAgent}`,
+        `stream-chat-react-__STREAM_CHAT_REACT_VERSION__-${originalUserAgent}`,
       );
     });
   });

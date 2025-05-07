@@ -219,6 +219,7 @@
     "dotenv": "^8.6.0",
     "emoji-mart": "^5.5.2",
     "esbuild": "^0.23.1",
+    "esbuild-plugin-replace": "^1.4.0",
     "eslint": "^9.16.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
