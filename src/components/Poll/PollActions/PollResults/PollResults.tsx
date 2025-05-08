@@ -14,7 +14,7 @@ type PollStateSelectorReturnValue = {
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   name: nextValue.name,
-  options: nextValue.options,
+  options: [...nextValue.options],
   vote_counts_by_option: nextValue.vote_counts_by_option,
 });
 
