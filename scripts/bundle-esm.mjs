@@ -21,10 +21,7 @@ const bundleEsm = async () => {
   await Promise.all(
     files.map(async (file) => {
       const content = await readFile(file, 'utf8');
-      const newContent = content.replace(
-        /process.env.STREAM_CHAT_REACT_VERSION/g,
-        JSON.stringify(version),
-      );
+      const newContent = content.replace(/__STREAM_CHAT_REACT_VERSION__/g, version);
       await writeFile(file, newContent);
     }),
   );
@@ -32,4 +29,4 @@ const bundleEsm = async () => {
   console.log('ESM build complete');
 };
 
-bundleEsm().catch(console.error);
+bundleEsm();

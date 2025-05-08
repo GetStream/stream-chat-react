@@ -55,7 +55,7 @@ export const useChat = ({
   useEffect(() => {
     if (!client) return;
 
-    const version = process.env.STREAM_CHAT_REACT_VERSION;
+    const version = '__STREAM_CHAT_REACT_VERSION__';
 
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {

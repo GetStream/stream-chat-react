@@ -3,6 +3,7 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import { replace } from 'esbuild-plugin-replace';
 import getPackageVersion from './get-package-version.mjs';
 import packageJson from '../package.json' with { type: 'json' };
 
@@ -56,9 +57,11 @@ const bundles = ['browser', 'node'].map((platform) =>
     ...cjsBundleConfig,
     entryNames: `[dir]/[name].${platform}`,
     platform,
-    define: {
-      'process.env.STREAM_CHAT_REACT_VERSION': JSON.stringify(getPackageVersion()),
-    },
+    plugins: [
+      replace({
+        __STREAM_CHAT_REACT_VERSION__: getPackageVersion(),
+      }),
+    ],
   }),
 );
 await Promise.all(bundles);
