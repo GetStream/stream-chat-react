@@ -123,8 +123,9 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                     id='max_votes_allowed'
                     onChange={(e) => {
                       const isValidValue =
-                        !e.target.value ||
-                        e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX);
+                        e.target.validity.valid &&
+                        (!e.target.value ||
+                          e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX));
                       if (!isValidValue) {
                         setMultipleAnswerCountError(
                           t<string>('Type a number from 2 to 10'),
