@@ -1,0 +1,44 @@
+{
+  "name": "tutorial",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:client-setup": "vite --mode 1-client-setup",
+    "dev:core-component-setup": "vite --mode 2-core-component-setup",
+    "dev:channel-list": "vite --mode 3-channel-list",
+    "dev:custom-ui-components": "vite --mode 4-custom-ui-components",
+    "dev:custom-attachment-type": "vite --mode 5-custom-attachment-type",
+    "dev:emoji-picker": "vite --mode 6-emoji-picker",
+    "dev:livestream": "vite --mode 7-livestream",
+    "build:client-setup": "vite build --mode 1-client-setup",
+    "build:core-component-setup": "vite build --mode 2-core-component-setup",
+    "build:channel-list": "vite build --mode 3-channel-list",
+    "build:custom-ui-components": "vite build --mode 4-custom-ui-components",
+    "build:custom-attachment-type": "vite build --mode 5-custom-attachment-type",
+    "build:emoji-picker": "vite build --mode 6-emoji-picker",
+    "build:livestream": "vite build --mode 7-livestream",
+    "build:all": "concurrently \"npm run build:client-setup\" \"npm run build:core-component-setup\" \"npm run build:channel-list\" \"npm run build:custom-ui-components\" \"npm run build:custom-attachment-type\" \"npm run build:emoji-picker\" \"npm run build:livestream\"",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "stream-chat": "^9.0.0",
+    "stream-chat-react": "^13.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  }
+}

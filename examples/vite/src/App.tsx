@@ -15,7 +15,6 @@ import {
   Chat,
   ChatView,
   MessageInput,
-  SendButtonProps,
   Thread,
   ThreadList,
   useCreateChatClient,
@@ -23,7 +22,7 @@ import {
   VirtualizedMessageList as MessageList,
   Window,
 } from 'stream-chat-react';
-import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
+import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
@@ -92,7 +91,7 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel emojiSearchIndex={SearchIndex}>
+          <Channel emojiSearchIndex={SearchIndex} EmojiPicker={EmojiPicker}>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
