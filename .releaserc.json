@@ -6,7 +6,8 @@
     },
     {
       "name": "release-v12",
-      "channel": "latest"
+      "channel": "v12",
+      "range": "12.x"
     },
     {
       "name": "release-v11",
