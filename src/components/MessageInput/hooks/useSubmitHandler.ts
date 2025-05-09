@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { MessageComposer } from 'stream-chat';
 import { useMessageComposer } from './useMessageComposer';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -41,7 +42,18 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           } else {
             await sendMessage({ localMessage, message, options: sendOptions });
           }
-          messageComposer.clear();
+
+          // FIXME: once MessageComposer has sendMessage method, then the following condition should be encapsulated by it
+          // keep attachments, text, quoted message (treat them as draft) ... if sending a poll
+          const sentPollMessage = !!message.poll_id;
+          if (sentPollMessage) {
+            messageComposer.state.partialNext({
+              id: MessageComposer.generateId(),
+              pollId: null,
+            });
+          } else {
+            messageComposer.clear();
+          }
           if (messageComposer.config.text.publishTypingEvents)
             await messageComposer.channel.stopTyping();
         } catch (err) {
