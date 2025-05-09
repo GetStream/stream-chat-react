@@ -88,12 +88,13 @@ export const useSubmitHandler = <
       return addNotification(t('Wait until all attachments have uploaded'), 'error');
     }
 
-    const attachmentsFromUploads = attachments
-      .filter(
-        (att) =>
-          att.localMetadata?.uploadState !== 'failed' ||
-          (findAndEnqueueURLsToEnrich && !att.og_scrape_url), // filter out all the attachments scraped before the message was edited
-      )
+    const attachmentsWithoutLinkPreviews = attachments
+      .filter((att) => {
+        const isSuccessfulUpload = att.localMetadata?.uploadState === 'finished';
+        const isNotUpload = !att.localMetadata?.uploadState;
+        const isNotLinkPreview = !att.og_scrape_url;
+        return isNotLinkPreview && (isSuccessfulUpload || isNotUpload);
+      })
       .map((localAttachment) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { localMetadata: _, ...attachment } = localAttachment;
@@ -116,14 +117,7 @@ export const useSubmitHandler = <
       attachmentsFromLinkPreviews = someLinkPreviewsLoading
         ? []
         : Array.from(linkPreviews.values())
-            .filter(
-              (linkPreview) =>
-                linkPreview.state === LinkPreviewState.LOADED &&
-                !attachmentsFromUploads.find(
-                  (attFromUpload) =>
-                    attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
-                ),
-            )
+            .filter((linkPreview) => linkPreview.state === LinkPreviewState.LOADED)
 
             .map(
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -137,7 +131,10 @@ export const useSubmitHandler = <
         someLinkPreviewsDismissed;
     }
 
-    const newAttachments = [...attachmentsFromUploads, ...attachmentsFromLinkPreviews];
+    const newAttachments = [
+      ...attachmentsWithoutLinkPreviews,
+      ...attachmentsFromLinkPreviews,
+    ];
 
     // Instead of checking if a user is still mentioned every time the text changes,
     // just filter out non-mentioned users before submit, which is cheaper
