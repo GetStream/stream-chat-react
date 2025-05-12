@@ -1,3 +1,9 @@
+## [12.15.1](https://github.com/GetStream/stream-chat-react/compare/v12.15.0...v12.15.1) (2025-05-09)
+
+### Bug Fixes
+
+* send messages with successfully uploaded attachments only ([#2704](https://github.com/GetStream/stream-chat-react/issues/2704)) ([8a66f6a](https://github.com/GetStream/stream-chat-react/commit/8a66f6a6230b2dfbfd42a24f0e42f5304c4714f8))
+
 ## [12.15.0](https://github.com/GetStream/stream-chat-react/compare/v12.14.0...v12.15.0) (2025-05-02)
 
 ### Features
