@@ -29,7 +29,9 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           addNotification(t('Edit message request failed'), 'error');
         }
       } else {
+        const composerStateSnapshot = messageComposer.takeStateSnapshot();
         try {
+          messageComposer.clear();
           // todo: get rid of overrideSubmitHandler once MessageComposer supports submission flow
           if (overrideSubmitHandler) {
             await overrideSubmitHandler({
@@ -41,10 +43,10 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           } else {
             await sendMessage({ localMessage, message, options: sendOptions });
           }
-          messageComposer.clear();
           if (messageComposer.config.text.publishTypingEvents)
             await messageComposer.channel.stopTyping();
         } catch (err) {
+          composerStateSnapshot.restore();
           addNotification(t('Send message request failed'), 'error');
         }
       }
