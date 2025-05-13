@@ -64,7 +64,7 @@ export const TextareaComposer = ({
   closeSuggestionsOnClickOutside,
   containerClassName,
   listClassName,
-  maxRows: maxRowsProp = 1,
+  maxRows: maxRowsProp,
   minRows: minRowsProp,
   onBlur,
   onChange,
@@ -88,7 +88,7 @@ export const TextareaComposer = ({
     textareaRef,
   } = useMessageInputContext();
 
-  const maxRows = maxRowsProp ?? maxRowsContext;
+  const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
   const minRows = minRowsProp ?? minRowsContext;
   const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
@@ -143,11 +143,6 @@ export const TextareaComposer = ({
         return;
       }
 
-      if (event.key === 'Enter') {
-        // allow next line only on Shift + Enter. Enter is reserved for submission.
-        event.preventDefault();
-      }
-
       if (
         textComposer.suggestions &&
         textComposer.suggestions.searchSource.items?.length
@@ -155,6 +150,7 @@ export const TextareaComposer = ({
         if (event.key === 'Escape') return textComposer.closeSuggestions();
         const loadedItems = textComposer.suggestions.searchSource.items;
         if (event.key === 'Enter') {
+          event.preventDefault();
           textComposer.handleSelect(loadedItems[focusedItemIndex]);
         }
         if (event.key === 'ArrowUp') {
