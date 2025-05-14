@@ -52,9 +52,19 @@ export const MultipleAnswersField = () => {
                 pollComposer.handleFieldBlur('max_votes_allowed');
               }}
               onChange={(e) => {
-                pollComposer.updateFields({
-                  max_votes_allowed: e.target.value,
-                });
+                const nativeFieldValidation = !e.target.validity.valid
+                  ? {
+                      max_votes_allowed: t('Only numbers are allowed'),
+                    }
+                  : undefined;
+                pollComposer.updateFields(
+                  {
+                    max_votes_allowed: !nativeFieldValidation
+                      ? e.target.value
+                      : pollComposer.max_votes_allowed,
+                  },
+                  nativeFieldValidation,
+                );
               }}
               placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
               type='number'
