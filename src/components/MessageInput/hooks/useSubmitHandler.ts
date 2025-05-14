@@ -6,6 +6,25 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageInputProps } from '../MessageInput';
 
+const takeStateSnapshot = (messageComposer: MessageComposer) => {
+  const textComposerState = messageComposer.textComposer.state.getLatestValue();
+  const attachmentManagerState = messageComposer.attachmentManager.state.getLatestValue();
+  const linkPreviewsManagerState =
+    messageComposer.linkPreviewsManager.state.getLatestValue();
+  const pollComposerState = messageComposer.pollComposer.state.getLatestValue();
+  const customDataManagerState = messageComposer.customDataManager.state.getLatestValue();
+  const state = messageComposer.state.getLatestValue();
+
+  return () => {
+    messageComposer.state.next(state);
+    messageComposer.textComposer.state.next(textComposerState);
+    messageComposer.attachmentManager.state.next(attachmentManagerState);
+    messageComposer.linkPreviewsManager.state.next(linkPreviewsManagerState);
+    messageComposer.pollComposer.state.next(pollComposerState);
+    messageComposer.customDataManager.state.next(customDataManagerState);
+  };
+};
+
 export const useSubmitHandler = (props: MessageInputProps) => {
   const { clearEditingState, overrideSubmitHandler } = props;
 
@@ -30,19 +49,8 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           addNotification(t('Edit message request failed'), 'error');
         }
       } else {
+        const restoreComposerStateSnapshot = takeStateSnapshot(messageComposer);
         try {
-          // todo: get rid of overrideSubmitHandler once MessageComposer supports submission flow
-          if (overrideSubmitHandler) {
-            await overrideSubmitHandler({
-              cid: messageComposer.channel.cid,
-              localMessage,
-              message,
-              sendOptions,
-            });
-          } else {
-            await sendMessage({ localMessage, message, options: sendOptions });
-          }
-
           // FIXME: once MessageComposer has sendMessage method, then the following condition should be encapsulated by it
           // keep attachments, text, quoted message (treat them as draft) ... if sending a poll
           const sentPollMessage = !!message.poll_id;
@@ -54,9 +62,21 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           } else {
             messageComposer.clear();
           }
+          // todo: get rid of overrideSubmitHandler once MessageComposer supports submission flow
+          if (overrideSubmitHandler) {
+            await overrideSubmitHandler({
+              cid: messageComposer.channel.cid,
+              localMessage,
+              message,
+              sendOptions,
+            });
+          } else {
+            await sendMessage({ localMessage, message, options: sendOptions });
+          }
           if (messageComposer.config.text.publishTypingEvents)
             await messageComposer.channel.stopTyping();
         } catch (err) {
+          restoreComposerStateSnapshot();
           addNotification(t('Send message request failed'), 'error');
         }
       }
