@@ -12,6 +12,8 @@ import {
 } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
+import { useRegisterDropHandlers } from './WithDragAndDropUpload';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
 
@@ -26,7 +28,6 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
-import { useRegisterDropHandlers } from './WithDragAndDropUpload';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -174,10 +175,12 @@ const UnMemoizedMessageInput = <
   const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } =
     useComponentContext<StreamChatGenerics, V>('MessageInput');
 
+  const id = useStableId();
+
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
-    ? 'message-input-dialog-manager-thread'
-    : 'message-input-dialog-manager';
+    ? `message-input-dialog-manager-thread-${id}`
+    : `message-input-dialog-manager-${id}`;
 
   if (dragAndDropWindow)
     return (
