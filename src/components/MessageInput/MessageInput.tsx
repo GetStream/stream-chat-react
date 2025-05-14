@@ -10,6 +10,7 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { DialogManagerProvider } from '../../context';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { LocalMessage, Message, SendMessageOptions } from 'stream-chat';
 
@@ -134,10 +135,12 @@ const UnMemoizedMessageInput = (props: MessageInputProps) => {
 
   const { Input: ContextInput } = useComponentContext('MessageInput');
 
+  const id = useStableId();
+
   const Input = PropInput || ContextInput || MessageInputFlat;
   const dialogManagerId = props.isThreadInput
-    ? 'message-input-dialog-manager-thread'
-    : 'message-input-dialog-manager';
+    ? `message-input-dialog-manager-thread-${id}`
+    : `message-input-dialog-manager-${id}`;
 
   return (
     <DialogManagerProvider id={dialogManagerId}>

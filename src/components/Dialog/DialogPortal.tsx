@@ -19,7 +19,7 @@ export const DialogPortalDestination = () => {
           '--str-chat__dialog-overlay-height': openedDialogCount > 0 ? '100%' : '0',
         } as React.CSSProperties
       }
-    ></div>
+    />
   );
 };
 
