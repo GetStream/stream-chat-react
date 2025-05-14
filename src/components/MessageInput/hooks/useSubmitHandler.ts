@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
+import { MessageComposer } from 'stream-chat';
 import { useMessageComposer } from './useMessageComposer';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageInputProps } from '../MessageInput';
-import type { MessageComposer } from 'stream-chat';
 
 const takeStateSnapshot = (messageComposer: MessageComposer) => {
   const textComposerState = messageComposer.textComposer.state.getLatestValue();
@@ -51,7 +51,17 @@ export const useSubmitHandler = (props: MessageInputProps) => {
       } else {
         const restoreComposerStateSnapshot = takeStateSnapshot(messageComposer);
         try {
-          messageComposer.clear();
+          // FIXME: once MessageComposer has sendMessage method, then the following condition should be encapsulated by it
+          // keep attachments, text, quoted message (treat them as draft) ... if sending a poll
+          const sentPollMessage = !!message.poll_id;
+          if (sentPollMessage) {
+            messageComposer.state.partialNext({
+              id: MessageComposer.generateId(),
+              pollId: null,
+            });
+          } else {
+            messageComposer.clear();
+          }
           // todo: get rid of overrideSubmitHandler once MessageComposer supports submission flow
           if (overrideSubmitHandler) {
             await overrideSubmitHandler({
