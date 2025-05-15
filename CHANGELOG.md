@@ -1,3 +1,9 @@
+## [12.15.3](https://github.com/GetStream/stream-chat-react/compare/v12.15.2...v12.15.3) (2025-05-15)
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css from 5.9.0 to 5.9.1 ([9121f4f](https://github.com/GetStream/stream-chat-react/commit/9121f4f4fe1817393127f0d96fd3cf34042de3c6))
+
 ## [12.15.2](https://github.com/GetStream/stream-chat-react/compare/v12.15.1...v12.15.2) (2025-05-15)
 
 ### Bug Fixes
