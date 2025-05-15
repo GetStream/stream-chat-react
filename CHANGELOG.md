@@ -1,3 +1,10 @@
+## [12.15.2](https://github.com/GetStream/stream-chat-react/compare/v12.15.1...v12.15.2) (2025-05-15)
+
+### Bug Fixes
+
+* extend dialogManagerId's with dictinct strings ([#2696](https://github.com/GetStream/stream-chat-react/issues/2696)) ([d19a425](https://github.com/GetStream/stream-chat-react/commit/d19a425d131b3d833ba0e028489051780837145a)), closes [#2685](https://github.com/GetStream/stream-chat-react/issues/2685) [#2682](https://github.com/GetStream/stream-chat-react/issues/2682)
+* validate max number of poll votes based on input validity ([#2701](https://github.com/GetStream/stream-chat-react/issues/2701)) ([3ca37b7](https://github.com/GetStream/stream-chat-react/commit/3ca37b77892762b895064b99c57178f6754eb7df))
+
 ## [12.15.1](https://github.com/GetStream/stream-chat-react/compare/v12.15.0...v12.15.1) (2025-05-09)
 
 ### Bug Fixes
