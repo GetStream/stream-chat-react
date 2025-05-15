@@ -1,3 +1,13 @@
+## [13.0.1](https://github.com/GetStream/stream-chat-react/compare/v13.0.0...v13.0.1) (2025-05-15)
+
+### Bug Fixes
+
+* clear composer state optimistically with snapshot restoration upon sending a message ([#2710](https://github.com/GetStream/stream-chat-react/issues/2710)) ([b6e91a2](https://github.com/GetStream/stream-chat-react/commit/b6e91a2c6caf087e77c5d12ac67cca996b4c2e9d))
+* inject error into PollComposer state if native numeric field validation fails ([#2702](https://github.com/GetStream/stream-chat-react/issues/2702)) ([8bca9f0](https://github.com/GetStream/stream-chat-react/commit/8bca9f098cc5a26409dc98a342e7180af353c3d1))
+* prevent sorting poll options in place ([#2699](https://github.com/GetStream/stream-chat-react/issues/2699)) ([88590f1](https://github.com/GetStream/stream-chat-react/commit/88590f194eb4d8a0627a4ca7b8876c1166094ca0))
+* reflect maxRows in TextareaComposer and allow to add lines ([#2709](https://github.com/GetStream/stream-chat-react/issues/2709)) ([990e15c](https://github.com/GetStream/stream-chat-react/commit/990e15c91d94d42e31e2479f05606c5370e408e8))
+* reset message composer state partially when poll message is sent ([#2703](https://github.com/GetStream/stream-chat-react/issues/2703)) ([5708807](https://github.com/GetStream/stream-chat-react/commit/5708807fbde65950df1be3ab98f07e2ac81474f5))
+
 ## [13.0.0](https://github.com/GetStream/stream-chat-react/compare/v12.15.0...v13.0.0) (2025-05-06)
 
 ### ⚠ BREAKING CHANGES
