@@ -72,4 +72,34 @@ describe('PollHeader', () => {
     expect(nameDiv).toHaveTextContent(pollData.name);
     expect(subtitleDiv).toHaveTextContent('Select one or more');
   });
+
+  it('should render Select one header if only one option is available', () => {
+    const pollData = generatePoll({
+      max_votes_allowed: undefined,
+      options: [
+        {
+          id: '85610252-7d50-429c-8183-51a7eba46246',
+          text: 'A',
+        },
+      ],
+    });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
+    const nameDiv = container.querySelector(TITLE_SELECTOR);
+    const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
+    expect(nameDiv).toHaveTextContent(pollData.name);
+    expect(subtitleDiv).toHaveTextContent('Select one');
+  });
+
+  it('should render no header text if no options available', () => {
+    const pollData = generatePoll({ max_votes_allowed: undefined, options: [] });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
+    const nameDiv = container.querySelector(TITLE_SELECTOR);
+    const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
+    expect(nameDiv).toHaveTextContent(pollData.name);
+    expect(subtitleDiv).toHaveTextContent('');
+  });
 });
