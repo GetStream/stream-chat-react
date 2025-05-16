@@ -27,12 +27,13 @@ export const PollHeader = () => {
 
   const selectionInstructions = useMemo(() => {
     if (is_closed) return t<string>('Vote ended');
-    if (enforce_unique_vote) return t<string>('Select one');
+    if (enforce_unique_vote || options.length === 1) return t<string>('Select one');
     if (max_votes_allowed)
       return t<string>('Select up to {{count}}', {
         count: max_votes_allowed > options.length ? options.length : max_votes_allowed,
       });
-    return t<string>('Select one or more');
+    if (options.length > 1) return t<string>('Select one or more');
+    return '';
   }, [is_closed, enforce_unique_vote, max_votes_allowed, options.length, t]);
 
   if (!name) return;
