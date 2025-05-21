@@ -1,3 +1,9 @@
+## [12.15.4](https://github.com/GetStream/stream-chat-react/compare/v12.15.3...v12.15.4) (2025-05-21)
+
+### Bug Fixes
+
+* export useAudioController hook ([#2717](https://github.com/GetStream/stream-chat-react/issues/2717)) ([e7a1cb1](https://github.com/GetStream/stream-chat-react/commit/e7a1cb13695f48eae7d8370d6106ec5120aeb21f))
+
 ## [12.15.3](https://github.com/GetStream/stream-chat-react/compare/v12.15.2...v12.15.3) (2025-05-15)
 
 ### Chores
