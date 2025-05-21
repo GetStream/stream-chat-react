@@ -1,3 +1,11 @@
+## [13.0.2](https://github.com/GetStream/stream-chat-react/compare/v13.0.1...v13.0.2) (2025-05-21)
+
+### Bug Fixes
+
+* account for polls with no options in PollHeader text ([#2713](https://github.com/GetStream/stream-chat-react/issues/2713)) ([4c1cff7](https://github.com/GetStream/stream-chat-react/commit/4c1cff775ab2479dd8343e58ba84339aa62a414d))
+* export useAudioController hook ([#2717](https://github.com/GetStream/stream-chat-react/issues/2717)) ([8829e94](https://github.com/GetStream/stream-chat-react/commit/8829e94a3c9239f147784b9c63063facef65e10f))
+* prevent page reload on FormDialog submission with Enter key ([#2715](https://github.com/GetStream/stream-chat-react/issues/2715)) ([7c7f26e](https://github.com/GetStream/stream-chat-react/commit/7c7f26ec8d10500b36653c6ee83d97d3986c856b))
+
 ## [13.0.1](https://github.com/GetStream/stream-chat-react/compare/v13.0.0...v13.0.1) (2025-05-15)
 
 ### Bug Fixes
