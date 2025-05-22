@@ -1,3 +1,9 @@
+## [13.0.4](https://github.com/GetStream/stream-chat-react/compare/v13.0.3...v13.0.4) (2025-05-22)
+
+### Bug Fixes
+
+* extend dialogManagerId's with dictinct strings ([#2696](https://github.com/GetStream/stream-chat-react/issues/2696)) ([137c2e7](https://github.com/GetStream/stream-chat-react/commit/137c2e723c0e8c9c77c49b01788136d012e7a82b)), closes [#2685](https://github.com/GetStream/stream-chat-react/issues/2685) [#2682](https://github.com/GetStream/stream-chat-react/issues/2682)
+
 ## [13.0.3](https://github.com/GetStream/stream-chat-react/compare/v13.0.2...v13.0.3) (2025-05-22)
 
 ### Chores
