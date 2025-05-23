@@ -6,6 +6,7 @@ import moment from 'moment-timezone';
 import { nlTranslations, frTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
+import { NotificationTranslationTopic } from '../TranslationBuilder';
 Dayjs.extend(localeData);
 
 const customDayjsLocaleConfig = {
@@ -66,8 +67,8 @@ describe('Jest Timezone', () => {
   });
 });
 
+const streami18nOptions = { logger: () => null };
 describe('Streami18n instance - default', () => {
-  const streami18nOptions = { logger: () => null };
   const streami18n = new Streami18n(streami18nOptions);
 
   it('should provide default english translator', async () => {
@@ -314,5 +315,55 @@ describe('Streami18n timezone', () => {
         expect(i18n.t('abc')).toBe('custom');
       });
     });
+  });
+});
+
+describe('Streami18n translationBuilder', () => {
+  it('is created at construction time', () => {
+    const streami18n = new Streami18n(streami18nOptions);
+    expect(streami18n.translationBuilder).toBeDefined();
+    expect(streami18n.translationBuilder.topics.size).toBe(0);
+  });
+  it('registers topics on init', async () => {
+    const streami18n = new Streami18n(streami18nOptions);
+    await streami18n.init();
+    expect(streami18n.translationBuilder).toBeDefined();
+    expect(streami18n.translationBuilder.topics.size).toBe(1);
+    expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
+      NotificationTranslationTopic,
+    );
+  });
+
+  it('registers custom topics', async () => {
+    class CustomTopic {
+      constructor() {}
+    }
+    const streami18n = new Streami18n({
+      ...streami18nOptions,
+      translationBuilderTopics: { test: CustomTopic },
+    });
+    await streami18n.init();
+    expect(streami18n.translationBuilder).toBeDefined();
+    expect(streami18n.translationBuilder.topics.size).toBe(2);
+    expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
+      NotificationTranslationTopic,
+    );
+    expect(streami18n.translationBuilder.getTopic('test')).toBeInstanceOf(CustomTopic);
+  });
+
+  it('overrides default topics', async () => {
+    class CustomNotificationTranslationTopic {
+      constructor() {}
+    }
+    const streami18n = new Streami18n({
+      ...streami18nOptions,
+      translationBuilderTopics: { notification: CustomNotificationTranslationTopic },
+    });
+    await streami18n.init();
+    expect(streami18n.translationBuilder).toBeDefined();
+    expect(streami18n.translationBuilder.topics.size).toBe(1);
+    expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
+      CustomNotificationTranslationTopic,
+    );
   });
 });
