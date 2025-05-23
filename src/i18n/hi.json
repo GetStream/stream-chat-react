@@ -53,6 +53,8 @@
   "Error uploading image": "छवि अपलोड करने में त्रुटि",
   "Error · Unsent": "फेल",
   "Error: {{ errorMessage }}": "फेल: {{ errorMessage }}",
+  "Failed to create the poll": "मतदान बनाने में विफल",
+  "Failed to create the poll due to {{reason}}": "मतदान {{reason}} के कारण नहीं बन सका",
   "Failed to jump to the first unread message": "पहले अपठित संदेश पर जाने में विफल",
   "Failed to mark channel as read": "चैनल को पढ़ा हुआ चिह्नित करने में विफल।",
   "Failed to play the recording": "रेकॉर्डिंग प्ले करने में विफल",

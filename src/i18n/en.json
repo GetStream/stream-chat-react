@@ -52,6 +52,8 @@
   "Error uploading image": "Error uploading image",
   "Error · Unsent": "Error · Unsent",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
+  "Failed to create the poll": "Failed to create the poll",
+  "Failed to create the poll due to {{reason}}": "Failed to create the poll due to {{reason}}",
   "Failed to jump to the first unread message": "Failed to jump to the first unread message",
   "Failed to mark channel as read": "Failed to mark channel as read",
   "Failed to play the recording": "Failed to play the recording",

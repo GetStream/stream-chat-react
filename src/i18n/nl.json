@@ -52,6 +52,8 @@
   "Error uploading image": "Fout bij uploaden afbeelding",
   "Error · Unsent": "Fout · niet verzonden",
   "Error: {{ errorMessage }}": "Fout: {{ errorMessage }}",
+  "Failed to create the poll": "Fout bij het maken van de peiling",
+  "Failed to create the poll due to {{reason}}": "Peiling kon niet worden aangemaakt vanwege {{reason}}",
   "Failed to jump to the first unread message": "Niet gelukt om naar het eerste ongelezen bericht te springen",
   "Failed to mark channel as read": "Kanaal kon niet als gelezen worden gemarkeerd",
   "Failed to play the recording": "Kan de opname niet afspelen",

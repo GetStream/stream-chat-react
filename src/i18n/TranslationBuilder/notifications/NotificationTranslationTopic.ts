@@ -2,10 +2,11 @@ import {
   attachmentUploadBlockedNotificationTranslator,
   attachmentUploadFailedNotificationTranslator,
 } from './attachmentUpload';
-import { TranslationTopic } from '../../index';
+import { TranslationTopic } from '../../TranslationBuilder';
 import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import type { TranslationTopicOptions, Translator } from '../../index';
+import { pollCreationFailedNotificationTranslator } from './pollComposition';
 
 export const defaultNotificationTranslators: Record<
   string,
@@ -13,6 +14,7 @@ export const defaultNotificationTranslators: Record<
 > = {
   'attachment.upload.blocked': attachmentUploadBlockedNotificationTranslator,
   'attachment.upload.failed': attachmentUploadFailedNotificationTranslator,
+  'poll.creation.failed': pollCreationFailedNotificationTranslator,
 };
 
 export class NotificationTranslationTopic extends TranslationTopic<NotificationTranslatorOptions> {

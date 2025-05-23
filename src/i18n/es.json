@@ -52,6 +52,8 @@
   "Error uploading image": "Error al subir la imagen",
   "Error · Unsent": "Error · No enviado",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
+  "Failed to create the poll": "Error al crear la encuesta",
+  "Failed to create the poll due to {{reason}}": "No se pudo crear la encuesta debido a {{reason}}",
   "Failed to jump to the first unread message": "Error al saltar al primer mensaje no leído",
   "Failed to mark channel as read": "Error al marcar el canal como leído",
   "Failed to play the recording": "No se pudo reproducir la grabación",

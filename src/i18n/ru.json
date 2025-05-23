@@ -52,6 +52,8 @@
   "Error uploading image": "Ошибка загрузки изображения",
   "Error · Unsent": "Ошибка · Не отправлено",
   "Error: {{ errorMessage }}": "Ошибка: {{ errorMessage }}",
+  "Failed to create the poll": "Не удалось создать опрос",
+  "Failed to create the poll due to {{reason}}": "Не удалось создать опрос из-за {{reason}}",
   "Failed to jump to the first unread message": "Не удалось перейти к первому непрочитанному сообщению",
   "Failed to mark channel as read": "Не удалось пометить канал как прочитанный",
   "Failed to play the recording": "Не удалось воспроизвести запись",

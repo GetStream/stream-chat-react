@@ -52,6 +52,8 @@
   "Error uploading image": "Resmi yüklerken hata",
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
+  "Failed to create the poll": "Anket oluşturulurken hata oluştu",
+  "Failed to create the poll due to {{reason}}": "{{reason}} nedeniyle anket oluşturulamadı",
   "Failed to jump to the first unread message": "İlk okunmamış mesaja atlamada hata oluştu",
   "Failed to mark channel as read": "Kanalı okundu olarak işaretleme başarısız oldu",
   "Failed to play the recording": "Kayıt oynatılamadı",

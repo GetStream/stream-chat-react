@@ -52,6 +52,8 @@
   "Error uploading image": "画像をアップロードのエラーが発生しました",
   "Error · Unsent": "エラー・未送信",
   "Error: {{ errorMessage }}": "エラー: {{ errorMessage }}",
+  "Failed to create the poll": "投票の作成に失敗しました",
+  "Failed to create the poll due to {{reason}}": "{{reason}} のため投票の作成に失敗しました",
   "Failed to jump to the first unread message": "最初の未読メッセージにジャンプできませんでした",
   "Failed to mark channel as read": "チャンネルを既読にすることができませんでした",
   "Failed to play the recording": "録音の再生に失敗しました",

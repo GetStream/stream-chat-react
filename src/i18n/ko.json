@@ -52,6 +52,8 @@
   "Error uploading image": "이미지를 업로드하는 동안 오류가 발생했습니다.",
   "Error · Unsent": "오류 · 전송되지 않음",
   "Error: {{ errorMessage }}": "오류: {{ errorMessage }}",
+  "Failed to create the poll": "투표 생성 실패",
+  "Failed to create the poll due to {{reason}}": "{{reason}} 때문에 투표를 생성하지 못했습니다",
   "Failed to jump to the first unread message": "첫 번째 읽지 않은 메시지로 이동하지 못했습니다",
   "Failed to mark channel as read": "채널을 읽음으로 표시하는 데 실패했습니다",
   "Failed to play the recording": "녹음을 재생하지 못했습니다",
