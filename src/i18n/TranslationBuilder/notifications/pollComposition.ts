@@ -8,9 +8,9 @@ export const pollCreationFailedNotificationTranslator: Translator<
     typeof notification?.metadata?.reason === 'string' &&
     notification.metadata.reason.length
   ) {
-    return t<string>('Failed to create the poll due to {{reason}}', {
+    return t('Failed to create the poll due to {{reason}}', {
       reason: notification.metadata.reason.toLowerCase(),
     });
   }
-  return t<string>('Failed to create the poll');
+  return t('Failed to create the poll');
 };

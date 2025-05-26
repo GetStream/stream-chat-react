@@ -91,7 +91,7 @@ export const PollActions = ({
     <div className='str-chat__poll-actions'>
       {options.length > MAX_OPTIONS_DISPLAYED && (
         <PollAction
-          buttonText={t<string>('See all options ({{count}})', {
+          buttonText={t('See all options ({{count}})', {
             count: options.length,
           })}
           closeModal={closeModal}
@@ -106,7 +106,7 @@ export const PollActions = ({
         allow_user_suggested_options &&
         options.length < MAX_POLL_OPTIONS && (
           <PollAction
-            buttonText={t<string>('Suggest an option')}
+            buttonText={t('Suggest an option')}
             closeModal={closeModal}
             modalClassName='str-chat__suggest-poll-option-modal'
             modalIsOpen={modalOpen === 'suggest-option'}
@@ -118,9 +118,7 @@ export const PollActions = ({
 
       {!is_closed && allow_answers && (
         <PollAction
-          buttonText={
-            ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')
-          }
+          buttonText={ownAnswer ? t('Update your comment') : t('Add a comment')}
           closeModal={closeModal}
           modalClassName='str-chat__add-poll-answer-modal'
           modalIsOpen={modalOpen === 'add-comment'}
@@ -132,7 +130,7 @@ export const PollActions = ({
 
       {answers_count > 0 && channelCapabilities['query-poll-votes'] && (
         <PollAction
-          buttonText={t<string>('View {{count}} comments', { count: answers_count })}
+          buttonText={t('View {{count}} comments', { count: answers_count })}
           closeModal={closeModal}
           modalClassName='str-chat__poll-answer-list-modal'
           modalIsOpen={modalOpen === 'view-comments'}
@@ -146,7 +144,7 @@ export const PollActions = ({
       )}
 
       <PollAction
-        buttonText={t<string>('View results')}
+        buttonText={t('View results')}
         closeModal={closeModal}
         modalClassName='str-chat__poll-results-modal'
         modalIsOpen={modalOpen === 'view-results'}
@@ -157,7 +155,7 @@ export const PollActions = ({
 
       {!is_closed && created_by_id === client.user?.id && (
         <PollAction
-          buttonText={t<string>('End vote')}
+          buttonText={t('End vote')}
           closeModal={closeModal}
           modalClassName='str-chat__end-poll-modal'
           modalIsOpen={modalOpen === 'end-vote'}

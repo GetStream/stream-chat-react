@@ -42,7 +42,7 @@ export const AddCommentForm = ({ close, messageId }: AddCommentFormProps) => {
       shouldDisableSubmitButton={(value) =>
         !value.comment || value.comment === ownAnswer?.answer_text
       }
-      title={ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
+      title={ownAnswer ? t('Update your comment') : t('Add a comment')}
     />
   );
 };

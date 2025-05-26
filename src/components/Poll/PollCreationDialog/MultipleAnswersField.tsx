@@ -29,7 +29,7 @@ export const MultipleAnswersField = () => {
       <SimpleSwitchField
         checked={!enforce_unique_vote}
         id='enforce_unique_vote'
-        labelText={t<string>('Multiple answers')}
+        labelText={t('Multiple answers')}
         onChange={(e) => {
           pollComposer.updateFields({ enforce_unique_vote: !e.target.checked });
         }}
@@ -66,7 +66,7 @@ export const MultipleAnswersField = () => {
                   nativeFieldValidation,
                 );
               }}
-              placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
+              placeholder={t('Maximum number of votes (from 2 to 10)')}
               type='number'
               value={max_votes_allowed}
             />

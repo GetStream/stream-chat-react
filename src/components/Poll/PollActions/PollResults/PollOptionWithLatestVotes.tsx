@@ -48,7 +48,7 @@ export const PollOptionWithLatestVotes = ({
             className='str-chat__poll-option__show-all-votes-button'
             onClick={showAllVotes}
           >
-            {t<string>('Show all')}
+            {t('Show all')}
           </button>
         )}
     </div>

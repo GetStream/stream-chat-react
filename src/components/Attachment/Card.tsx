@@ -34,7 +34,7 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
     >
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--text'>
-          {t<string>('this content could not be displayed')}
+          {t('this content could not be displayed')}
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ const ClientNotifications = () => {
           key={notification.id}
           type={notification.severity}
         >
-          {t<string>('translationBuilderTopic/notification', { notification })}
+          {t('translationBuilderTopic/notification', { notification })}
         </CustomNotification>
       ))}
     </>
@@ -68,9 +68,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
         threadList={threadList}
         unreadCount={unreadCount}
       >
-        {isNotAtLatestMessageSet
-          ? t<string>('Latest Messages')
-          : t<string>('New Messages!')}
+        {isNotAtLatestMessageSet ? t('Latest Messages') : t('New Messages!')}
       </MessageNotification>
     </div>
   );

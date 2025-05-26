@@ -27,7 +27,7 @@ export const MessageDeleted = (props: MessageDeletedProps) => {
       key={message.id}
     >
       <div className='str-chat__message--deleted-inner'>
-        {t<string>('This message was deleted...')}
+        {t('This message was deleted...')}
       </div>
     </div>
   );

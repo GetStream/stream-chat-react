@@ -21,7 +21,7 @@ export const UnsupportedAttachment = ({ attachment }: UnsupportedAttachmentProps
           className='str-chat__message-attachment-unsupported__title'
           data-testid='unsupported-attachment-title'
         >
-          {attachment.title || t<string>('Unsupported attachment')}
+          {attachment.title || t('Unsupported attachment')}
         </div>
       </div>
     </div>

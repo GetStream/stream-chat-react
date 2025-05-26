@@ -25,8 +25,8 @@ export const UnreadMessagesSeparator = ({
       data-testid='unread-messages-separator'
     >
       {unreadCount && showCount
-        ? t<string>('unreadMessagesSeparatorText', { count: unreadCount })
-        : t<string>('Unread messages')}
+        ? t('unreadMessagesSeparatorText', { count: unreadCount })
+        : t('Unread messages')}
     </div>
   );
 };

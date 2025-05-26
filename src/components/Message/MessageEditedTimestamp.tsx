@@ -39,7 +39,7 @@ export function MessageEditedTimestamp({
       )}
       data-testid='message-edited-timestamp'
     >
-      {t<string>('Edited')}{' '}
+      {t('Edited')}{' '}
       <Timestamp timestamp={message.message_text_updated_at} {...timestampProps} />
     </div>
   );

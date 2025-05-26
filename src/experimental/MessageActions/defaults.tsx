@@ -48,7 +48,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleQuote}>
-          {t<string>('Quote')}
+          {t('Quote')}
         </DefaultDropdownActionButton>
       );
     },
@@ -58,7 +58,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handlePin}>
-          {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
+          {!message.pinned ? t('Pin') : t('Unpin')}
         </DefaultDropdownActionButton>
       );
     },
@@ -68,7 +68,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleMarkUnread}>
-          {t<string>('Mark as unread')}
+          {t('Mark as unread')}
         </DefaultDropdownActionButton>
       );
     },
@@ -78,7 +78,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleFlag}>
-          {t<string>('Flag')}
+          {t('Flag')}
         </DefaultDropdownActionButton>
       );
     },
@@ -89,7 +89,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleMute}>
-          {isUserMuted(message, mutes) ? t<string>('Unmute') : t<string>('Mute')}
+          {isUserMuted(message, mutes) ? t('Unmute') : t('Mute')}
         </DefaultDropdownActionButton>
       );
     },
@@ -99,7 +99,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleEdit}>
-          {t<string>('Edit Message')}
+          {t('Edit Message')}
         </DefaultDropdownActionButton>
       );
     },
@@ -109,7 +109,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleDelete}>
-          {t<string>('Delete')}
+          {t('Delete')}
         </DefaultDropdownActionButton>
       );
     },

@@ -63,9 +63,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         <p className='str-chat__channel-header-title'>
           {displayTitle}{' '}
           {live && (
-            <span className='str-chat__header-livestream-livelabel'>
-              {t<string>('live')}
-            </span>
+            <span className='str-chat__header-livestream-livelabel'>{t('live')}</span>
           )}
         </p>
         {subtitle && <p className='str-chat__channel-header-subtitle'>{subtitle}</p>}
@@ -78,7 +76,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
               ,{' '}
             </>
           )}
-          {t<string>('{{ watcherCount }} online', { watcherCount: watcher_count })}
+          {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
         </p>
       </div>
     </div>

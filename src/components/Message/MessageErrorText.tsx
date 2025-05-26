@@ -18,7 +18,7 @@ export function MessageErrorText({ message, theme }: MessageErrorTextProps) {
       <div
         className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
       >
-        {t<string>('Error · Unsent')}
+        {t('Error · Unsent')}
       </div>
     );
   }
@@ -29,8 +29,8 @@ export function MessageErrorText({ message, theme }: MessageErrorTextProps) {
         className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
       >
         {message.error?.status !== 403
-          ? t<string>('Message Failed · Click to try again')
-          : t<string>('Message Failed · Unauthorized')}
+          ? t('Message Failed · Click to try again')
+          : t('Message Failed · Unauthorized')}
       </div>
     );
   }

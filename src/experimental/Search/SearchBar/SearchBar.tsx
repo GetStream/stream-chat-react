@@ -93,7 +93,7 @@ export const SearchBar = () => {
             searchController.exit();
           }}
         >
-          {t<string>('Cancel')}
+          {t('Cancel')}
         </button>
       ) : null}
     </div>

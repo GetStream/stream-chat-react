@@ -104,7 +104,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t<string>('File')}
+        {t('File')}
       </DialogMenuButton>
     );
   },
@@ -118,7 +118,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t<string>('Poll')}
+        {t('Poll')}
       </DialogMenuButton>
     );
   },
