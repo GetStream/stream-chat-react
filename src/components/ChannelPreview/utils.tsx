@@ -38,20 +38,20 @@ export const getLatestMessagePreview = (
   const poll = latestMessage?.poll;
 
   if (!latestMessage) {
-    return t<string>('Nothing yet...');
+    return t('Nothing yet...');
   }
 
   if (latestMessage.deleted_at) {
-    return t<string>('Message deleted');
+    return t('Message deleted');
   }
 
   if (poll) {
     if (!poll.vote_count) {
       const createdBy =
         poll.created_by?.id === channel.getClient().userID
-          ? t<string>('You')
-          : (poll.created_by?.name ?? t<string>('Poll'));
-      return t<string>('📊 {{createdBy}} created: {{ pollName}}', {
+          ? t('You')
+          : (poll.created_by?.name ?? t('Poll'));
+      return t('📊 {{createdBy}} created: {{ pollName}}', {
         createdBy,
         pollName: poll.name,
       });
@@ -63,12 +63,12 @@ export const getLatestMessagePreview = (
         latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);
 
       if (option && latestVote) {
-        return t<string>('📊 {{votedBy}} voted: {{pollOptionText}}', {
+        return t('📊 {{votedBy}} voted: {{pollOptionText}}', {
           pollOptionText: option.text,
           votedBy:
             latestVote?.user?.id === channel.getClient().userID
-              ? t<string>('You')
-              : (latestVote.user?.name ?? t<string>('Poll')),
+              ? t('You')
+              : (latestVote.user?.name ?? t('Poll')),
         });
       }
     }
@@ -85,10 +85,10 @@ export const getLatestMessagePreview = (
   }
 
   if (latestMessage.attachments?.length) {
-    return t<string>('🏙 Attachment...');
+    return t('🏙 Attachment...');
   }
 
-  return t<string>('Empty message...');
+  return t('Empty message...');
 };
 
 export type GroupChannelDisplayInfo = { image?: string; name?: string }[];

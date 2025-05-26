@@ -393,7 +393,7 @@ const ChannelInner = (
               document.title = originalTitle.current;
             }
           } catch (e) {
-            console.error(t<string>('Failed to mark channel as read'));
+            console.error(t('Failed to mark channel as read'));
           }
         },
         500,
@@ -1328,7 +1328,7 @@ const ChannelInner = (
   if (!channel.watch) {
     return (
       <ChannelContainer>
-        <div>{t<string>('Channel Missing')}</div>
+        <div>{t('Channel Missing')}</div>
       </ChannelContainer>
     );
   }

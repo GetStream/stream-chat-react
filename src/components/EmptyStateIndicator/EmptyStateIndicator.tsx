@@ -16,7 +16,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   if (listType === 'thread') return null;
 
   if (listType === 'channel') {
-    const text = t<string>('You have no channels currently');
+    const text = t('You have no channels currently');
     return (
       <>
         <div className='str-chat__channel-list-empty'>
@@ -28,7 +28,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   }
 
   if (listType === 'message') {
-    const text = t<string>('No chats here yet…');
+    const text = t('No chats here yet…');
     return (
       <div className='str-chat__empty-channel'>
         <ChatBubble />

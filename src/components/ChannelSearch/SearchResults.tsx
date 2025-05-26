@@ -15,7 +15,7 @@ const DefaultSearchEmpty = () => {
   return (
     <div aria-live='polite' className='str-chat__channel-search-container-empty'>
       <SearchIcon />
-      {t<string>('No results found')}
+      {t('No results found')}
     </div>
   );
 };
@@ -29,7 +29,7 @@ const DefaultSearchResultsHeader = ({ results }: SearchResultsHeaderProps) => {
       className='str-chat__channel-search-results-header'
       data-testid='channel-search-results-header'
     >
-      {t<string>('searchResultsCount', {
+      {t('searchResultsCount', {
         count: results.length,
       })}
     </div>
@@ -212,7 +212,7 @@ export const SearchResults = (props: SearchResultsProps) => {
             className='str-chat__channel-search-container-searching'
             data-testid='search-in-progress-indicator'
           >
-            {t<string>('Searching...')}
+            {t('Searching...')}
           </div>
         )}
       </ResultsContainer>

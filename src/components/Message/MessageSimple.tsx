@@ -215,9 +215,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               )}
               <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
               {isEdited && (
-                <span className='str-chat__mesage-simple-edited'>
-                  {t<string>('Edited')}
-                </span>
+                <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
               )}
               {isEdited && (
                 <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />

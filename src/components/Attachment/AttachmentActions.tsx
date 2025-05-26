@@ -38,7 +38,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
             key={`${id}-${action.value}`}
             onClick={(event) => handleActionClick(event, action.name, action.value)}
           >
-            {action.text ? t<string>(action.text) : null}
+            {action.text ? t(action.text) : null}
           </button>
         ))}
       </div>

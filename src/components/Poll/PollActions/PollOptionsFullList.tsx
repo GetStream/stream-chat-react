@@ -22,7 +22,7 @@ export const PollOptionsFullList = ({ close }: FullPollOptionsListingProps) => {
 
   return (
     <div className={'str-chat__modal__poll-option-list'}>
-      <ModalHeader close={close} title={t<string>('Poll options')} />
+      <ModalHeader close={close} title={t('Poll options')} />
       <div className='str-chat__modal__poll-option-list__body'>
         <div className='str-chat__modal__poll-option-list__title'>{name}</div>
         <PollOptionList />

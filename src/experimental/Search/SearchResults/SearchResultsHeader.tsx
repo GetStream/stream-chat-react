@@ -36,7 +36,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
         }
       }}
     >
-      {t<string>(label)}
+      {t(label)}
     </button>
   );
 };

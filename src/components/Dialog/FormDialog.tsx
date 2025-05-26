@@ -140,7 +140,7 @@ export const FormDialog = <
               className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
               onClick={close}
             >
-              {t<string>('Cancel')}
+              {t('Cancel')}
             </button>
             <button
               className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
@@ -149,7 +149,7 @@ export const FormDialog = <
               }
               type='submit'
             >
-              {t<string>('Send')}
+              {t('Send')}
             </button>
           </div>
         </form>

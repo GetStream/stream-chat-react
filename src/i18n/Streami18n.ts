@@ -7,11 +7,14 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { NotificationTranslationTopic, TranslationBuilder } from './TranslationBuilder';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
+
 import type { TFunction } from 'i18next';
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
+import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
 import type { CustomFormatters, PredefinedFormatters, TDateTimeParser } from './types';
 
@@ -90,7 +93,7 @@ Dayjs.updateLocale('fr', {
     lastWeek: 'dddd [dernier à] LT',
     nextDay: '[Demain à] LT',
     nextWeek: 'dddd [à] LT',
-    sameDay: '[Aujourd’hui à] LT',
+    sameDay: "[Aujourd'hui à] LT",
     sameElse: 'L',
   },
 });
@@ -258,15 +261,16 @@ export type Streami18nOptions = {
   formatters?: Partial<PredefinedFormatters> & CustomFormatters;
   language?: TranslationLanguages;
   logger?: (message?: string) => void;
+  translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
   translationsForLanguage?: Partial<typeof enTranslations>;
 };
 
 /**
- * Wrapper around [i18next](https://www.i18next.com/) class for Stream related translations.
- * Instance of this class should be provided to Chat component to handle translations.
- * Stream provides following list of in-built translations:
+ * Wrapper around [i18next](https://www.i18next.com/) class for Stream related i18n.
+ * Instance of this class should be provided to Chat component to handle i18n.
+ * Stream provides following list of in-built i18n:
  * 1. English (en)
  * 2. Dutch (nl)
  * 3. Russian (ru)
@@ -330,7 +334,7 @@ export type Streami18nOptions = {
  * </Chat>
  * ```
  *
- * ## Datetime translations
+ * ## Datetime i18n
  *
  * Stream react chat components uses [dayjs](https://day.js.org/en/) internally by default to format datetime stamp.
  * e.g., in ChannelPreview, MessageContent components.
@@ -422,10 +426,24 @@ const defaultStreami18nOptions = {
   disableDateTimeTranslations: false,
   language: 'en' as TranslationLanguages,
   logger: (message?: string) => console.warn(message),
+  /**
+   * Key in the translationBuilderTopics has to match postProcessorName in the translation value.
+   *
+   * {
+   *   "key": "{{value, postProcessorName}}"
+   * }
+   *
+   * At least the default topics will be supported.
+   */
+  translationBuilderTopics: {
+    notification: NotificationTranslationTopic,
+  },
 };
 
 export class Streami18n {
   i18nInstance = i18n.createInstance();
+  translationBuilder: TranslationBuilder;
+  private translationBuilderTopics: Record<string, TranslationTopicConstructor> = {};
   Dayjs = null;
   setLanguageCallback: (t: TFunction) => void = () => null;
   initialized = false;
@@ -477,6 +495,7 @@ export class Streami18n {
     lng: string;
     nsSeparator: false;
     parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
+    postProcess?: string[];
   };
   /**
    * A valid TZ identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
@@ -519,6 +538,11 @@ export class Streami18n {
     this.DateTimeParser = finalOptions.DateTimeParser;
     this.timezone = finalOptions.timezone;
     this.formatters = { ...predefinedFormatters, ...options?.formatters };
+    this.translationBuilder = new TranslationBuilder(this.i18nInstance);
+    this.translationBuilderTopics = {
+      ...defaultStreami18nOptions.translationBuilderTopics,
+      ...options.translationBuilderTopics,
+    };
 
     try {
       if (this.DateTimeParser && isDayJs(this.DateTimeParser)) {
@@ -564,6 +588,12 @@ export class Streami18n {
       lng: this.currentLanguage,
       nsSeparator: false,
     };
+
+    const postProcess = Object.keys(this.translationBuilderTopics);
+
+    if (postProcess.length > 0) {
+      this.i18nextConfig.postProcess = postProcess;
+    }
 
     if (finalOptions.parseMissingKeyHandler) {
       this.i18nextConfig.parseMissingKeyHandler = finalOptions.parseMissingKeyHandler;
@@ -624,6 +654,12 @@ export class Streami18n {
           this.i18nInstance.services.formatter?.add(name, formatterFactory(this));
         });
       }
+      // Register post-processors after initialization
+      Object.entries(this.translationBuilderTopics).forEach(
+        ([topic, TranslationTopic]) => {
+          this.translationBuilder.registerTopic(topic, TranslationTopic);
+        },
+      );
     } catch (error) {
       this.logger(`Something went wrong with init: ${JSON.stringify(error)}`);
     }

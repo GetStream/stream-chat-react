@@ -35,7 +35,7 @@ export const PollAnswerList = ({
 
   return (
     <div className='str-chat__modal__poll-answer-list'>
-      <ModalHeader close={close} title={t<string>('Poll comments')} />
+      <ModalHeader close={close} title={t('Poll comments')} />
       <div className='str-chat__modal__poll-answer-list__body'>
         <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
           <div className='str-chat__poll-answer-list'>
@@ -58,7 +58,7 @@ export const PollAnswerList = ({
       </div>
       {answers.length > 0 && !is_closed && (
         <button className='str-chat__poll-action' onClick={onUpdateOwnAnswerClick}>
-          {ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
+          {ownAnswer ? t('Update your comment') : t('Add a comment')}
         </button>
       )}
     </div>
