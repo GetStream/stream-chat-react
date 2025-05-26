@@ -1,3 +1,14 @@
+## [12.15.5](https://github.com/GetStream/stream-chat-react/compare/v12.15.4...v12.15.5) (2025-05-26)
+
+### Bug Fixes
+
+* account for polls with no options in PollHeader text ([5258afd](https://github.com/GetStream/stream-chat-react/commit/5258afdf62c467ba4ef5b1e5ed644778d8c1eee6))
+* prevent page reload on FormDialog submission with Enter key ([#2715](https://github.com/GetStream/stream-chat-react/issues/2715)) ([2d299ae](https://github.com/GetStream/stream-chat-react/commit/2d299aed64c4aeab97b239e41315d6a088a2e378))
+
+### Chores
+
+* **deps:** upgrade stream-chat-css to version 5.9.2 ([ea29f15](https://github.com/GetStream/stream-chat-react/commit/ea29f15c39266f61f6478b86a639e2d2c0d47148))
+
 ## [12.15.4](https://github.com/GetStream/stream-chat-react/compare/v12.15.3...v12.15.4) (2025-05-21)
 
 ### Bug Fixes
