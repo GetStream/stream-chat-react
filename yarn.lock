@@ -8592,12 +8592,7 @@ linkifyjs@^2.1.9:
   resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-2.1.9.tgz#af06e45a2866ff06c4766582590d098a4d584702"
   integrity sha512-74ivurkK6WHvHFozVaGtQWV38FzBwSTGNmJolEgFp7QgR2bl6ArUWlvT4GcHKbPe1z3nWYi+VUdDZk16zDOVug==
 
-linkifyjs@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.1.0.tgz#0460bfcc37d3348fa80e078d92e7bbc82588db15"
-  integrity sha512-Ffv8VoY3+ixI1b3aZ3O+jM6x17cOsgwfB1Wq7pkytbo1WlyRp6ZO0YDMqiWT/gQPY/CmtiGuKfzDIVqxh1aCTA==
-
-linkifyjs@^4.2.0:
+linkifyjs@^4.1.0, linkifyjs@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.2.0.tgz#9dd30222b9cbabec9c950e725ec00031c7fa3f08"
   integrity sha512-pCj3PrQyATaoTYKHrgWRF3SJwsm61udVh+vuls/Rl6SptiDhgE7ziUIudAedRY9QEfynmM7/RmLEfPUyw1HPCw==
@@ -12155,10 +12150,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.1.1.tgz#c81ffa84a7ca579d9812065bc159010191b59090"
-  integrity sha512-7Y23aIVQMppNZgRj/rTFwIx9pszxgDcS99idkSXJSgdV8C7FlyDtiF1yQSdP0oiNFAt7OUP/xSqmbJTljrm24Q==
+stream-chat@9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.3.0.tgz#35ca4db9e841eb92d07413ae156de0500ad77b23"
+  integrity sha512-S73B3HrvmQvJjq58Zjo50vh74juhsWsVRpT+OBjGAxSGxlA+ITkZ3vKs8Y/r2eDK7mBTMmX5QCruFaDJH5dRuw==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
@@ -13685,12 +13680,7 @@ write-file-atomic@^6.0.0:
     imurmurhash "^0.1.4"
     signal-exit "^4.0.1"
 
-ws@^8.11.0, ws@^8.18.0:
-  version "8.18.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.0.tgz#0d7505a6eafe2b0e712d232b42279f53bc289bbc"
-  integrity sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==
-
-ws@^8.18.1:
+ws@^8.11.0, ws@^8.18.0, ws@^8.18.1:
   version "8.18.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.1.tgz#ea131d3784e1dfdff91adb0a4a116b127515e3cb"
   integrity sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==
