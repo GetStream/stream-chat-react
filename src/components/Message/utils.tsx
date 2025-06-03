@@ -168,20 +168,6 @@ export const getMessageActions = (
     return [];
   }
 
-  if (
-    channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.remindMe)
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
-  }
-
-  if (
-    channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater)
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
-  }
-
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
   }
@@ -214,8 +200,22 @@ export const getMessageActions = (
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.react);
   }
 
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.remindMe)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
+  }
+
   if (canReply && messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.reply);
+  }
+
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
   }
 
   return messageActionsAfterPermission;
