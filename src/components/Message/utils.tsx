@@ -3,6 +3,7 @@ import emojiRegex from 'emoji-regex';
 
 import type { TFunction } from 'i18next';
 import type {
+  ChannelConfigWithInfo,
   LocalMessage,
   LocalMessageBase,
   MessageResponse,
@@ -60,7 +61,9 @@ export const MESSAGE_ACTIONS = {
   pin: 'pin',
   quote: 'quote',
   react: 'react',
+  remindMe: 'remindMe',
   reply: 'reply',
+  saveForLater: 'saveForLater',
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
@@ -151,6 +154,7 @@ export const getMessageActions = (
     canReact,
     canReply,
   }: Capabilities,
+  channelConfig?: ChannelConfigWithInfo,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -162,6 +166,20 @@ export const getMessageActions = (
     messageActions = [...actions];
   } else {
     return [];
+  }
+
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.remindMe)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
+  }
+
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
   }
 
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {

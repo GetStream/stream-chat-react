@@ -37,6 +37,8 @@ import type { MessageUIComponentProps } from './types';
 
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
+import { ReminderNotification } from './ReminderNotification';
+import { useMessageReminder } from './hooks';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
@@ -63,6 +65,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const { t } = useTranslationContext('MessageSimple');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
+  const reminder = useMessageReminder(message.id);
 
   const {
     Attachment = DefaultAttachment,
@@ -155,6 +158,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       {
         <div className={rootClassName} key={message.id}>
           {PinIndicator && <PinIndicator />}
+          {!!reminder && <ReminderNotification reminder={reminder} />}
           {message.user && (
             <Avatar
               image={message.user.image}
