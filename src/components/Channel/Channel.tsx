@@ -140,6 +140,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ReactionSelector'
   | 'ReactionsList'
   | 'ReactionsListModal'
+  | 'ReminderNotification'
   | 'SendButton'
   | 'StartRecordingAudioButton'
   | 'TextareaComposer'
@@ -1226,6 +1227,7 @@ const ChannelInner = (
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       ReactionsListModal: props.ReactionsListModal,
+      ReminderNotification: props.ReminderNotification,
       SendButton: props.SendButton,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
@@ -1289,6 +1291,7 @@ const ChannelInner = (
       props.ReactionSelector,
       props.ReactionsList,
       props.ReactionsListModal,
+      props.ReminderNotification,
       props.SendButton,
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,

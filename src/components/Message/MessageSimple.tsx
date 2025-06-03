@@ -37,7 +37,7 @@ import type { MessageUIComponentProps } from './types';
 
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
-import { ReminderNotification } from './ReminderNotification';
+import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
 import { useMessageReminder } from './hooks';
 
 type MessageSimpleWithContextProps = MessageContextValue;
@@ -81,6 +81,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionsList = DefaultReactionList,
+    ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext('MessageSimple');

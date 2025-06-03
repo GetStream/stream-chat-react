@@ -37,6 +37,7 @@ import type {
   ReactionsListModalProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
+  ReminderNotificationProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
@@ -172,6 +173,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
   ReactionsListModal?: React.ComponentType<ReactionsListModalProps>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
+  ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType<SearchProps>;
   /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */
