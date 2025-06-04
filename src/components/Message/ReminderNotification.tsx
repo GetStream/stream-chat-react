@@ -17,10 +17,11 @@ export const ReminderNotification = ({ reminder }: ReminderNotificationProps) =>
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
   const isBehindRefreshBoundary = useMemo(() => {
-    const { stopRefreshBoundaryMs } = client.reminders.timers.config;
-    const stopRefreshTimeStamp = reminder?.remindAt
-      ? reminder?.remindAt.getTime() + stopRefreshBoundaryMs
-      : undefined;
+    const stopRefreshBoundaryMs = client.reminders.stopTimerRefreshBoundaryMs;
+    const stopRefreshTimeStamp =
+      reminder?.remindAt && stopRefreshBoundaryMs
+        ? reminder?.remindAt.getTime() + stopRefreshBoundaryMs
+        : undefined;
     return !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
   }, [client, reminder]);
 

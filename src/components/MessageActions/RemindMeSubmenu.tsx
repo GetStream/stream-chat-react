@@ -36,7 +36,7 @@ export const RemindMeSubmenu = () => {
           className='str-chat__message-actions-list-item-button'
           key={`reminder-offset-option--${offsetMs}`}
           onClick={() => {
-            client.reminders.createOrUpdateReminder({
+            client.reminders.upsertReminder({
               messageId: message.id,
               remind_at: new Date(new Date().getTime() + offsetMs).toISOString(),
             });
