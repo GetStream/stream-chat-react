@@ -5,6 +5,7 @@ import updateLocale from 'dayjs/plugin/updateLocale';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import duration from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
@@ -526,6 +527,7 @@ export class Streami18n {
         this.DateTimeParser.extend(calendar);
         this.DateTimeParser.extend(localeData);
         this.DateTimeParser.extend(relativeTime);
+        this.DateTimeParser.extend(duration);
       }
     } catch (error) {
       throw Error(

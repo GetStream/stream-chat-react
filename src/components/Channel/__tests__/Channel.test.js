@@ -1509,7 +1509,7 @@ describe('Channel', () => {
             if (!hasSent) {
               const m = generateMessage({
                 id: messageId,
-                status: 'sending', // FIXME: had to have been explicitly added
+                status: 'sending', // FIXME: had to be explicitly added
                 text: messageText,
               });
               sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });

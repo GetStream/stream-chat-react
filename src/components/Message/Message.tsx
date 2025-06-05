@@ -40,13 +40,13 @@ type MessagePropsToOmit =
 type MessageContextPropsToPick =
   | 'handleAction'
   | 'handleDelete'
+  | 'handleFetchReactions'
   | 'handleFlag'
   | 'handleMarkUnread'
   | 'handleMute'
   | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
-  | 'handleFetchReactions'
   | 'handleRetry'
   | 'mutes'
   | 'onMentionsClickMessage'
@@ -74,7 +74,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   } = props;
 
   const { client, isMessageAIGenerated } = useChatContext('Message');
-  const { read } = useChannelStateContext('Message');
+  const { channelConfig, read } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
@@ -115,17 +115,22 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   const messageActionsHandler = useCallback(
     () =>
-      getMessageActions(messageActions, {
-        canDelete,
-        canEdit,
-        canFlag,
-        canMarkUnread,
-        canMute,
-        canPin,
-        canQuote,
-        canReact,
-        canReply,
-      }),
+      getMessageActions(
+        messageActions,
+        {
+          canDelete,
+          canEdit,
+          canFlag,
+          canMarkUnread,
+          canMute,
+          canPin,
+          canQuote,
+          canReact,
+          canReply,
+        },
+        channelConfig,
+      ),
+
     [
       messageActions,
       canDelete,
@@ -137,6 +142,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
       canQuote,
       canReact,
       canReply,
+      channelConfig,
     ],
   );
 
