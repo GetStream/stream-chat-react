@@ -13,8 +13,8 @@ describe('NotificationTranslationTopic', () => {
 
   it('gets initiated with custom translators', () => {
     const translators = {
-      'attachment.upload.blocked': jest.fn(),
       test: jest.fn(),
+      'validation:attachment:upload:blocked': jest.fn(),
     };
     const builder = new NotificationTranslationTopic({
       i18next: mockI18Next,
@@ -24,14 +24,14 @@ describe('NotificationTranslationTopic', () => {
       Object.keys(defaultNotificationTranslators).length + 1,
     );
     expect(builder.translators.get('test')).toEqual(translators.test);
-    expect(builder.translators.get('attachment.upload.blocked')).toEqual(
-      translators['attachment.upload.blocked'],
+    expect(builder.translators.get('validation:attachment:upload:blocked')).toEqual(
+      translators['validation:attachment:upload:blocked'],
     );
   });
   it('builds the translation', () => {
     const translators = {
-      'attachment.upload.blocked': jest.fn().mockReturnValue('blocked'),
-      'attachment.upload.failed': jest.fn().mockReturnValue('failed'),
+      'api:attachment:upload:failed': jest.fn().mockReturnValue('failed'),
+      'validation:attachment:upload:blocked': jest.fn().mockReturnValue('blocked'),
     };
     const builder = new NotificationTranslationTopic({
       i18next: mockI18Next,
@@ -45,10 +45,10 @@ describe('NotificationTranslationTopic', () => {
       translatedString,
     );
 
-    notification = { code: 'attachment.upload.blocked' };
+    notification = { code: 'validation:attachment:upload:blocked' };
     expect(builder.translate(translatedString, key, { notification })).toBe('blocked');
 
-    notification = { code: 'attachment.upload.failed' };
+    notification = { code: 'api:attachment:upload:failed' };
     expect(builder.translate(translatedString, key, { notification })).toBe('failed');
   });
 });

@@ -12,9 +12,9 @@ export const defaultNotificationTranslators: Record<
   string,
   Translator<NotificationTranslatorOptions>
 > = {
-  'attachment.upload.blocked': attachmentUploadBlockedNotificationTranslator,
-  'attachment.upload.failed': attachmentUploadFailedNotificationTranslator,
-  'poll.creation.failed': pollCreationFailedNotificationTranslator,
+  'api:attachment:upload:failed': attachmentUploadFailedNotificationTranslator,
+  'api:poll:create:failed': pollCreationFailedNotificationTranslator,
+  'validation:attachment:upload:blocked': attachmentUploadBlockedNotificationTranslator,
 };
 
 export class NotificationTranslationTopic extends TranslationTopic<NotificationTranslatorOptions> {
