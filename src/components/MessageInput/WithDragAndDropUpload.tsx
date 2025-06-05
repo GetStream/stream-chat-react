@@ -139,8 +139,8 @@ export const WithDragAndDropUpload = ({
               'str-chat__dropzone-container--not-accepted': isDragReject,
             })}
           >
-            {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
-            {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
+            {!isDragReject && <p>{t('Drag your files here')}</p>}
+            {isDragReject && <p>{t('Some of the files will not be accepted')}</p>}
           </div>
         )}
         {children}

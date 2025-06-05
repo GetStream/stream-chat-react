@@ -32,7 +32,7 @@ export const PollResultOptionVoteCounter = ({
         <div className='str-chat__poll-result-winning-option-icon' />
       )}
       <span className='str-chat__poll-result-option-vote-count'>
-        {t<string>('{{count}} votes', { count: vote_counts_by_option[optionId] ?? 0 })}
+        {t('{{count}} votes', { count: vote_counts_by_option[optionId] ?? 0 })}
       </span>
     </div>
   );

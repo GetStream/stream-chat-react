@@ -100,7 +100,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.blur(nameInput);
     });
     expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).toHaveTextContent(
-      'Name is required',
+      'Question is required',
     );
     expect(nameInput).toHaveValue('');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();

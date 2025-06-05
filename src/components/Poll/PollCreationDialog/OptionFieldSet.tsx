@@ -32,7 +32,7 @@ export const OptionFieldSet = () => {
 
   return (
     <fieldset className='str-chat__form__field str-chat__form__input-fieldset'>
-      <legend className='str-chat__form__field-label'>{t<string>('Options')}</legend>
+      <legend className='str-chat__form__field-label'>{t('Options')}</legend>
       <DragAndDropContainer
         className='str-chat__form__input-fieldset__values'
         draggable={draggable}
@@ -70,7 +70,7 @@ export const OptionFieldSet = () => {
                       document.getElementById(nextInputId)?.focus();
                     }
                   }}
-                  placeholder={t<string>('Add an option')}
+                  placeholder={t('Add an option')}
                   type='text'
                   value={option.text}
                 />

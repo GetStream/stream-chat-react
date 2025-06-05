@@ -23,7 +23,7 @@ export const PollCreationDialogControls = ({
           close();
         }}
       >
-        {t<string>('Cancel')}
+        {t('Cancel')}
       </button>
       <button
         className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
@@ -37,7 +37,7 @@ export const PollCreationDialogControls = ({
         }}
         type='submit'
       >
-        {t<string>('Create')}
+        {t('Create')}
       </button>
     </div>
   );

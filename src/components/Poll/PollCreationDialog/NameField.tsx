@@ -25,7 +25,7 @@ export const NameField = () => {
       )}
     >
       <label className='str-chat__form__field-label' htmlFor='name'>
-        {t<string>('Question')}
+        {t('Question')}
       </label>
       <div className={clsx('str-chat__form__input-field__value')}>
         <FieldError
@@ -41,7 +41,7 @@ export const NameField = () => {
           onChange={(e) => {
             pollComposer.updateFields({ name: e.target.value });
           }}
-          placeholder={t<string>('Ask a question')}
+          placeholder={t('Ask a question')}
           type='text'
           value={name}
         />

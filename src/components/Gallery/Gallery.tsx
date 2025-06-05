@@ -69,7 +69,7 @@ const UnMemoizedGallery = (props: GalleryProps) => {
         })}
       >
         <p>
-          {t<string>('{{ imageCount }} more', {
+          {t('{{ imageCount }} more', {
             imageCount: images.length - countImagesDisplayedInPreview,
           })}
         </p>

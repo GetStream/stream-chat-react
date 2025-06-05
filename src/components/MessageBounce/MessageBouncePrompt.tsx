@@ -24,7 +24,7 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
   return (
     <div className='str-chat__message-bounce-prompt' data-testid='message-bounce-prompt'>
       <div className='str-chat__message-bounce-prompt-header'>
-        {children ?? t<string>('This message did not meet our content guidelines')}
+        {children ?? t('This message did not meet our content guidelines')}
       </div>
       <div className='str-chat__message-bounce-actions'>
         <button
@@ -33,21 +33,21 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
           onClick={createHandler(handleEdit)}
           type='button'
         >
-          {t<string>('Edit Message')}
+          {t('Edit Message')}
         </button>
         <button
           className='str-chat__message-bounce-send'
           data-testid='message-bounce-send'
           onClick={createHandler(handleRetry)}
         >
-          {t<string>('Send Anyway')}
+          {t('Send Anyway')}
         </button>
         <button
           className='str-chat__message-bounce-delete'
           data-testid='message-bounce-delete'
           onClick={createHandler(handleDelete)}
         >
-          {t<string>('Delete')}
+          {t('Delete')}
         </button>
       </div>
     </div>

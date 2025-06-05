@@ -27,7 +27,7 @@ export const MessageBlocked = () => {
       key={message.id}
     >
       <div className='str-chat__message--blocked-inner'>
-        {t<string>('Message was blocked by moderation policies')}
+        {t('Message was blocked by moderation policies')}
       </div>
     </div>
   );

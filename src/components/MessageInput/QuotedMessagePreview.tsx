@@ -32,7 +32,7 @@ export const QuotedMessagePreviewHeader = () => {
   return (
     <div className='str-chat__quoted-message-preview-header'>
       <div className='str-chat__quoted-message-reply-to-message'>
-        {t<string>('Reply to Message')}
+        {t('Reply to Message')}
       </div>
       <button
         aria-label={t('aria/Cancel Reply')}

@@ -10,7 +10,7 @@ export const SearchSourceResultsLoadingIndicator = () => {
       className='str-chat__search-source-results__loading-indicator'
       data-testid='search-loading-indicator'
     >
-      {t<string>(`Searching for ${searchSource.type}...`)}
+      {t(`Searching for ${searchSource.type}...`)}
     </div>
   );
 };

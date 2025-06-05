@@ -90,7 +90,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t<string>('Sending...')}
+              {t('Sending...')}
             </PopperTooltip>
             <LoadingIndicator />
           </>
@@ -107,7 +107,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t<string>('Delivered')}
+              {t('Delivered')}
             </PopperTooltip>
             <MessageDeliveredIcon />
           </>

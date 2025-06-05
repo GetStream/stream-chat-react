@@ -37,7 +37,7 @@ export const RecordingPermissionDeniedNotification = ({
           className='str-chat__recording-permission-denied-notification__dismiss-button'
           onClick={onClose}
         >
-          {t<string>('Ok')}
+          {t('Ok')}
         </button>
       </div>
     </div>

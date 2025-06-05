@@ -31,7 +31,7 @@ export const SearchSourceResultListFooter = () => {
         <SearchSourceResultsLoadingIndicator />
       ) : !hasNext ? (
         <div className='str-chat__search-source-results---empty'>
-          {t<string>('All results loaded')}
+          {t('All results loaded')}
         </div>
       ) : null}
     </div>

@@ -125,7 +125,7 @@ export const useAudioController = ({
     audioElement.addEventListener('ended', handleEnded);
 
     const handleError = () => {
-      addNotification(t<string>('Error reproducing the recording'), 'error');
+      addNotification(t('Error reproducing the recording'), 'error');
       setIsPlaying(false);
     };
     audioElement.addEventListener('error', handleError);
