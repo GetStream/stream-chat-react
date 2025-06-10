@@ -362,14 +362,14 @@ export const useChannelListShapeDefaults = <SCG extends ExtendableGenerics>() =>
         return customHandler(setChannels, event);
       }
 
-      if (!event.channel) {
+      if (!event.channel_id && !event.channel_type) {
         return;
       }
 
       const channel = await getChannel({
         client,
-        id: event.channel.id,
-        type: event.channel.type,
+        id: event.channel_id,
+        type: event.channel_type,
       });
 
       const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
