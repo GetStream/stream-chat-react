@@ -1,5 +1,5 @@
 import React from 'react';
-import { useChatContext, useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
 
@@ -12,11 +12,10 @@ const reminderStateSelector = (state: ReminderState) => ({
 });
 
 export const ReminderNotification = ({ reminder }: ReminderNotificationProps) => {
-  const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
-  const stopRefreshBoundaryMs = client.reminders.stopTimerRefreshBoundaryMs;
+  const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
   const stopRefreshTimeStamp =
     reminder?.remindAt && stopRefreshBoundaryMs
       ? reminder?.remindAt.getTime() + stopRefreshBoundaryMs

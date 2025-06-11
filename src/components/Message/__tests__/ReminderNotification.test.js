@@ -1,4 +1,5 @@
 import React from 'react';
+import { Reminder } from 'stream-chat';
 import { act, render } from '@testing-library/react';
 import { Chat } from '../../Chat';
 import { ReminderNotification } from '../ReminderNotification';
@@ -6,7 +7,8 @@ import { generateUser, getTestClientWithUser } from '../../../mock-builders';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
 const user = generateUser();
-const renderComponent = async ({ client, reminder }) => {
+const renderComponent = async ({ reminder }) => {
+  const client = await getTestClientWithUser(user);
   let result;
   await act(() => {
     result = render(
@@ -20,37 +22,26 @@ const renderComponent = async ({ client, reminder }) => {
 
 describe('ReminderNotification', () => {
   it('displays text for bookmark notifications', async () => {
-    const client = await getTestClientWithUser(user);
-    const reminderResponse = generateReminderResponse();
-    client.reminders.upsertToState({
-      data: reminderResponse,
-    });
-    const reminder = client.reminders.getFromState(reminderResponse.message_id);
-    const { container } = await renderComponent({ client, reminder });
+    const reminder = new Reminder({ data: generateReminderResponse() });
+    const { container } = await renderComponent({ reminder });
     expect(container).toMatchSnapshot();
   });
   it('displays text for time due in case of timed reminders', async () => {
-    const client = await getTestClientWithUser(user);
-    const reminderResponse = generateReminderResponse({
-      scheduleOffsetMs: 60 * 1000,
+    const reminder = new Reminder({
+      data: generateReminderResponse({
+        scheduleOffsetMs: 60 * 1000,
+      }),
     });
-    client.reminders.upsertToState({
-      data: reminderResponse,
-    });
-    const reminder = client.reminders.getFromState(reminderResponse.message_id);
-    const { container } = await renderComponent({ client, reminder });
+    const { container } = await renderComponent({ reminder });
     expect(container).toMatchSnapshot();
   });
   it('displays text for reminder deadline if trespassed the refresh boundary', async () => {
-    const client = await getTestClientWithUser(user);
-    const reminderResponse = generateReminderResponse({
-      data: { remind_at: new Date(0).toISOString() },
+    const reminder = new Reminder({
+      data: generateReminderResponse({
+        data: { remind_at: new Date(0).toISOString() },
+      }),
     });
-    client.reminders.upsertToState({
-      data: reminderResponse,
-    });
-    const reminder = client.reminders.getFromState(reminderResponse.message_id);
-    const { container } = await renderComponent({ client, reminder });
+    const { container } = await renderComponent({ reminder });
     expect(container).toMatchSnapshot();
   });
 });
