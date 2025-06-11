@@ -29,7 +29,7 @@ describe('ReminderNotification', () => {
     const { container } = await renderComponent({ client, reminder });
     expect(container).toMatchSnapshot();
   });
-  it('displays text for bookmark notifications and time due in case of timed reminders', async () => {
+  it('displays text for time due in case of timed reminders', async () => {
     const client = await getTestClientWithUser(user);
     const reminderResponse = generateReminderResponse({
       scheduleOffsetMs: 60 * 1000,
@@ -41,7 +41,7 @@ describe('ReminderNotification', () => {
     const { container } = await renderComponent({ client, reminder });
     expect(container).toMatchSnapshot();
   });
-  it('displays text for bookmark notifications and reminder deadline if trespassed the refresh boundary', async () => {
+  it('displays text for reminder deadline if trespassed the refresh boundary', async () => {
     const client = await getTestClientWithUser(user);
     const reminderResponse = generateReminderResponse({
       data: { remind_at: new Date(0).toISOString() },

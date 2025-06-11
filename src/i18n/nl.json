@@ -28,7 +28,7 @@
   "Drag your files here": "Sleep je bestanden hier naartoe",
   "Drag your files here to add to your post": "Sleep je bestanden hier naartoe om aan je bericht toe te voegen",
   "Due since {{ dueSince }}": "Vervallen sinds {{ dueSince }}",
-  "Due {{ dueTimeElapsed }}": "Vervallen {{ dueTimeElapsed }}",
+  "Due {{ timeLeft }}": "Vervallen in {{ timeLeft }}",
   "Edit Message": "Bericht bewerken",
   "Edit message request failed": "Verzoek om bericht bewerken mislukt",
   "Edited": "Bewerkt",

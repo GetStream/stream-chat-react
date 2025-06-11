@@ -28,7 +28,7 @@
   "Drag your files here": "Drag your files here",
   "Drag your files here to add to your post": "Drag your files here to add to your post",
   "Due since {{ dueSince }}": "Due since {{ dueSince }}",
-  "Due {{ dueTimeElapsed }}": "Due {{ dueTimeElapsed }}",
+  "Due {{ timeLeft }}": "Due {{ timeLeft }}",
   "Edit Message": "Edit Message",
   "Edit message request failed": "Edit message request failed",
   "Edited": "Edited",

@@ -28,7 +28,7 @@
   "Drag your files here": "Dosyalarınızı buraya sürükleyin",
   "Drag your files here to add to your post": "Gönderinize eklemek için dosyalarınızı buraya sürükleyin",
   "Due since {{ dueSince }}": "{{ dueSince }}'den beri süresi dolmuş",
-  "Due {{ dueTimeElapsed }}": "{{ dueTimeElapsed }}'de süresi dolacak",
+  "Due {{ timeLeft }}": "{{ timeLeft }} içinde süresi dolacak",
   "Edit Message": "Mesajı Düzenle",
   "Edit message request failed": "Mesaj düzenleme isteği başarısız oldu",
   "Edited": "Düzenlendi",

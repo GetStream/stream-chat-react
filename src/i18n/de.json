@@ -28,7 +28,7 @@
   "Drag your files here": "Ziehen Sie Ihre Dateien hierher",
   "Drag your files here to add to your post": "Ziehen Sie Ihre Dateien hierher, um sie Ihrem Beitrag hinzuzufügen",
   "Due since {{ dueSince }}": "Fällig seit {{ dueSince }}",
-  "Due {{ dueTimeElapsed }}": "Fällig {{ dueTimeElapsed }}",
+  "Due {{ timeLeft }}": "Fällig {{ timeLeft }}",
   "Edit Message": "Nachricht bearbeiten",
   "Edit message request failed": "Anfrage zum Bearbeiten der Nachricht fehlgeschlagen",
   "Edited": "Bearbeitet",

@@ -28,7 +28,7 @@
   "Drag your files here": "Trascina i tuoi file qui",
   "Drag your files here to add to your post": "Trascina i tuoi file qui per aggiungerli al tuo post",
   "Due since {{ dueSince }}": "Scaduto dal {{ dueSince }}",
-  "Due {{ dueTimeElapsed }}": "Scadenza {{ dueTimeElapsed }}",
+  "Due {{ timeLeft }}": "Scadenza tra {{ timeLeft }}",
   "Edit Message": "Modifica messaggio",
   "Edit message request failed": "Richiesta di modifica del messaggio non riuscita",
   "Edited": "Modificato",

@@ -28,7 +28,7 @@
   "Drag your files here": "Перетащите ваши файлы сюда",
   "Drag your files here to add to your post": "Перетащите ваши файлы сюда, чтобы добавить их в ваш пост",
   "Due since {{ dueSince }}": "Просрочено с {{ dueSince }}",
-  "Due {{ dueTimeElapsed }}": "Просрочено {{ dueTimeElapsed }}",
+  "Due {{ timeLeft }}": "Просрочено в {{ timeLeft }}",
   "Edit Message": "Редактировать сообщение",
   "Edit message request failed": "Не удалось изменить запрос сообщения",
   "Edited": "Отредактировано",

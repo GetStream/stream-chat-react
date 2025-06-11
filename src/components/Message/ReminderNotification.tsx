@@ -38,8 +38,8 @@ export const ReminderNotification = ({ reminder }: ReminderNotificationProps) =>
                     timestamp: reminder.remindAt,
                   }),
                 })
-              : t<string>(`Due {{ dueTimeElapsed }}`, {
-                  dueTimeElapsed: t<string>('duration/Message reminder', {
+              : t<string>(`Due {{ timeLeft }}`, {
+                  timeLeft: t<string>('duration/Message reminder', {
                     milliseconds: timeLeftMs,
                   }),
                 })}

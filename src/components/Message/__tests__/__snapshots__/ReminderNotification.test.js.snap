@@ -47,3 +47,39 @@ exports[`ReminderNotification displays text for bookmark notifications and time 
   </p>
 </div>
 `;
+
+exports[`ReminderNotification displays text for reminder deadline if trespassed the refresh boundary 1`] = `
+<div>
+  <p
+    class="str-chat__message-reminder"
+  >
+    <span>
+      Saved for later
+    </span>
+    <span>
+       | 
+    </span>
+    <span>
+      Due 55 years ago
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ReminderNotification displays text for time due in case of timed reminders 1`] = `
+<div>
+  <p
+    class="str-chat__message-reminder"
+  >
+    <span>
+      Saved for later
+    </span>
+    <span>
+       | 
+    </span>
+    <span>
+      Due in a minute
+    </span>
+  </p>
+</div>
+`;

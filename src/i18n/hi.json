@@ -28,7 +28,7 @@
   "Drag your files here": "अपनी फ़ाइलें यहाँ खींचें",
   "Drag your files here to add to your post": "अपनी फ़ाइलें यहाँ खींचें और अपने पोस्ट में जोड़ने के लिए",
   "Due since {{ dueSince }}": "{{ dueSince }} से देय",
-  "Due {{ dueTimeElapsed }}": "{{ dueTimeElapsed }} में देय",
+  "Due {{ timeLeft }}": "{{ timeLeft }} में देय",
   "Edit Message": "मैसेज में बदलाव करे",
   "Edit message request failed": "संदेश संपादित करने का अनुरोध विफल रहा",
   "Edited": "संपादित",

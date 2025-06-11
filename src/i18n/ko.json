@@ -28,7 +28,7 @@
   "Drag your files here": "여기로 파일을 끌어다 놓으세요",
   "Drag your files here to add to your post": "게시물에 추가하려면 파일을 여기로 끌어다 놓으세요",
   "Due since {{ dueSince }}": "{{ dueSince }}부터 기한",
-  "Due {{ dueTimeElapsed }}": "{{ dueTimeElapsed }}에 기한",
+  "Due {{ timeLeft }}": "{{ timeLeft }}에 기한",
   "Edit Message": "메시지 수정",
   "Edit message request failed": "메시지 수정 요청 실패",
   "Edited": "편집됨",

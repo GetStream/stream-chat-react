@@ -28,7 +28,7 @@
   "Drag your files here": "ここにファイルをドラッグ",
   "Drag your files here to add to your post": "投稿に追加するためにここにファイルをドラッグ",
   "Due since {{ dueSince }}": "{{ dueSince }}から期限切れ",
-  "Due {{ dueTimeElapsed }}": "{{ dueTimeElapsed }}に期限切れ",
+  "Due {{ timeLeft }}": "{{ timeLeft }}に期限切れ",
   "Edit Message": "メッセージを編集",
   "Edit message request failed": "メッセージの編集要求が失敗しました",
   "Edited": "編集済み",
