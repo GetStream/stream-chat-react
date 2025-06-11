@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
@@ -16,14 +16,14 @@ export const ReminderNotification = ({ reminder }: ReminderNotificationProps) =>
   const { t } = useTranslationContext();
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
-  const isBehindRefreshBoundary = useMemo(() => {
-    const stopRefreshBoundaryMs = client.reminders.stopTimerRefreshBoundaryMs;
-    const stopRefreshTimeStamp =
-      reminder?.remindAt && stopRefreshBoundaryMs
-        ? reminder?.remindAt.getTime() + stopRefreshBoundaryMs
-        : undefined;
-    return !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
-  }, [client, reminder]);
+  const stopRefreshBoundaryMs = client.reminders.stopTimerRefreshBoundaryMs;
+  const stopRefreshTimeStamp =
+    reminder?.remindAt && stopRefreshBoundaryMs
+      ? reminder?.remindAt.getTime() + stopRefreshBoundaryMs
+      : undefined;
+
+  const isBehindRefreshBoundary =
+    !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
 
   return (
     <p className='str-chat__message-reminder'>
