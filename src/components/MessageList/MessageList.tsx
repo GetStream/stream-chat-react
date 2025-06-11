@@ -29,6 +29,7 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { defaultRenderMessages } from './renderMessages';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { LocalMessage } from 'stream-chat';
 import type { MessageRenderer } from './renderMessages';
@@ -215,10 +216,13 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightedMessageId]);
 
+  const id = useStableId();
+
   const showEmptyStateIndicator = elements.length === 0 && !threadList;
   const dialogManagerId = threadList
-    ? 'message-list-dialog-manager-thread'
-    : 'message-list-dialog-manager';
+    ? `message-list-dialog-manager-thread-${id}`
+    : `message-list-dialog-manager-${id}`;
+
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>

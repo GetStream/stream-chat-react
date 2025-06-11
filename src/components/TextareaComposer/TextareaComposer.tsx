@@ -179,6 +179,10 @@ export const TextareaComposer = ({
           });
         }
       } else if (shouldSubmit(event) && textareaRef.current) {
+        if (event.key === 'Enter') {
+          // prevent adding newline when submitting a message with
+          event.preventDefault();
+        }
         handleSubmit();
         textareaRef.current.selectionEnd = 0;
       }

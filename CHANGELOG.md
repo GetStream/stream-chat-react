@@ -1,3 +1,29 @@
+## [13.0.5](https://github.com/GetStream/stream-chat-react/compare/v13.0.4...v13.0.5) (2025-05-28)
+
+### Chores
+
+* **deps:** upgrade @stream-io/stream-chat-css to v5.9.3 ([#2722](https://github.com/GetStream/stream-chat-react/issues/2722)) ([52abc83](https://github.com/GetStream/stream-chat-react/commit/52abc835b736963808b911db4c0bd1b1abb4cd7d))
+
+## [13.0.4](https://github.com/GetStream/stream-chat-react/compare/v13.0.3...v13.0.4) (2025-05-22)
+
+### Bug Fixes
+
+* extend dialogManagerId's with dictinct strings ([#2696](https://github.com/GetStream/stream-chat-react/issues/2696)) ([137c2e7](https://github.com/GetStream/stream-chat-react/commit/137c2e723c0e8c9c77c49b01788136d012e7a82b)), closes [#2685](https://github.com/GetStream/stream-chat-react/issues/2685) [#2682](https://github.com/GetStream/stream-chat-react/issues/2682)
+
+## [13.0.3](https://github.com/GetStream/stream-chat-react/compare/v13.0.2...v13.0.3) (2025-05-22)
+
+### Chores
+
+* **deps:** upgrade stream-chat-css to version 5.9.2 ([b53e03d](https://github.com/GetStream/stream-chat-react/commit/b53e03d94370850e612455290e4988834ec0c6ca))
+
+## [13.0.2](https://github.com/GetStream/stream-chat-react/compare/v13.0.1...v13.0.2) (2025-05-21)
+
+### Bug Fixes
+
+* account for polls with no options in PollHeader text ([#2713](https://github.com/GetStream/stream-chat-react/issues/2713)) ([4c1cff7](https://github.com/GetStream/stream-chat-react/commit/4c1cff775ab2479dd8343e58ba84339aa62a414d))
+* export useAudioController hook ([#2717](https://github.com/GetStream/stream-chat-react/issues/2717)) ([8829e94](https://github.com/GetStream/stream-chat-react/commit/8829e94a3c9239f147784b9c63063facef65e10f))
+* prevent page reload on FormDialog submission with Enter key ([#2715](https://github.com/GetStream/stream-chat-react/issues/2715)) ([7c7f26e](https://github.com/GetStream/stream-chat-react/commit/7c7f26ec8d10500b36653c6ee83d97d3986c856b))
+
 ## [13.0.1](https://github.com/GetStream/stream-chat-react/compare/v13.0.0...v13.0.1) (2025-05-15)
 
 ### Bug Fixes

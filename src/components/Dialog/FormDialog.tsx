@@ -107,7 +107,13 @@ export const FormDialog = <
     <div className={clsx('str-chat__dialog str-chat__dialog--form', className)}>
       <div className='str-chat__dialog__body'>
         {title && <div className='str-chat__dialog__title'>{title}</div>}
-        <form autoComplete='off'>
+        <form
+          autoComplete='off'
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           {Object.entries(fields).map(([id, fieldConfig]) => (
             <div className='str-chat__dialog__field' key={`dialog-field-${id}`}>
               {fieldConfig.label && (
@@ -129,25 +135,24 @@ export const FormDialog = <
               <FieldError text={fieldErrors[id]?.message} />
             </div>
           ))}
+          <div className='str-chat__dialog__controls'>
+            <button
+              className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
+              onClick={close}
+            >
+              {t<string>('Cancel')}
+            </button>
+            <button
+              className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
+              disabled={
+                Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)
+              }
+              type='submit'
+            >
+              {t<string>('Send')}
+            </button>
+          </div>
         </form>
-      </div>
-      <div className='str-chat__dialog__controls'>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
-          onClick={close}
-        >
-          {t<string>('Cancel')}
-        </button>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-          disabled={
-            Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)
-          }
-          onClick={handleSubmit}
-          type='submit'
-        >
-          {t<string>('Send')}
-        </button>
       </div>
     </div>
   );
