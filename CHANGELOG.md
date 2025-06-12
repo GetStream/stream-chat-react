@@ -1,3 +1,21 @@
+## [13.1.0](https://github.com/GetStream/stream-chat-react/compare/v13.0.5...v13.1.0) (2025-06-12)
+
+### Bug Fixes
+
+* prevent adding newline in message text composer upon submitting with Enter key ([#2729](https://github.com/GetStream/stream-chat-react/issues/2729)) ([c69e8d0](https://github.com/GetStream/stream-chat-react/commit/c69e8d0cf830beecaff676e8c61287d1818554df))
+* prevent rendering placeholder for empty message list if messages are actually loaded  ([#2731](https://github.com/GetStream/stream-chat-react/issues/2731)) ([759bf44](https://github.com/GetStream/stream-chat-react/commit/759bf440c518bb26831108966628f9abaa0bc314))
+* use channel_id and channel_type values from event channel.visible ([#2730](https://github.com/GetStream/stream-chat-react/issues/2730)) ([d5f743b](https://github.com/GetStream/stream-chat-react/commit/d5f743b822b304af56ab46599e76b2175e8aea45))
+
+### Features
+
+* add message reminders ([#2724](https://github.com/GetStream/stream-chat-react/issues/2724)) ([37264db](https://github.com/GetStream/stream-chat-react/commit/37264dbae762b8480e829ffc1d53383757fb94de))
+* add translation building capability to Streami18n and useNotifications hook ([#2719](https://github.com/GetStream/stream-chat-react/issues/2719)) ([20c4889](https://github.com/GetStream/stream-chat-react/commit/20c4889d43d2e7e04825b4a978221661418fa182))
+* allow to send thread reply to channel ([#2733](https://github.com/GetStream/stream-chat-react/issues/2733)) ([7fbc478](https://github.com/GetStream/stream-chat-react/commit/7fbc47890b501a42179b6a5d764d0e218689b851))
+
+### Chores
+
+* **deps:** remove unused dependencies prop-types and textarea-caret ([#2720](https://github.com/GetStream/stream-chat-react/issues/2720)) ([e7708fd](https://github.com/GetStream/stream-chat-react/commit/e7708fdae001b7b1a47c9e3fc2ce560f2412455c))
+
 ## [13.0.5](https://github.com/GetStream/stream-chat-react/compare/v13.0.4...v13.0.5) (2025-05-28)
 
 ### Chores
