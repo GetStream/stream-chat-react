@@ -101,6 +101,14 @@ export const EmptyPlaceholder = <
 }: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
   const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
     useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
+
+  // prevent showing that there are no messages if there actually are messages (for some reason virtuoso decides to render empty placeholder first, even though it has the totalCount prop > 0)
+  if (
+    typeof context?.processedMessages !== 'undefined' &&
+    context.processedMessages.length > 0
+  )
+    return null;
+
   return (
     <>
       {EmptyStateIndicator && (
