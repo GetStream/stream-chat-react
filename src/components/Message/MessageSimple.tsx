@@ -12,7 +12,7 @@ import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
-import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
+import { MessageThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageThreadReplyInChannelButtonIndicator';
 import {
   areMessageUIPropsEqual,
   isMessageBlocked,

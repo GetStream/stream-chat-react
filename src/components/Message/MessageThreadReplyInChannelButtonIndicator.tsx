@@ -4,11 +4,13 @@ import { formatMessage } from 'stream-chat';
 import {
   useChannelActionContext,
   useChannelStateContext,
+  useChatContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 
-export const MessageIsThreadReplyInChannelButtonIndicator = () => {
+export const MessageThreadReplyInChannelButtonIndicator = () => {
+  const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
   const { openThread } = useChannelActionContext();
@@ -20,8 +22,23 @@ export const MessageIsThreadReplyInChannelButtonIndicator = () => {
       .getClient()
       .search({ cid: channel.cid }, { id: message.parent_id })
       .then(({ results }) => {
-        if (!results.length) return;
+        if (!results.length) {
+          throw new Error('Thread has not been found');
+        }
         parentMessageRef.current = formatMessage(results[0].message);
+      })
+      .catch((error: Error) => {
+        client.notifications.addError({
+          message: t<string>('Thread has not been found'),
+          options: {
+            originalError: error,
+            type: 'api:message:search:not-found',
+          },
+          origin: {
+            context: { threadReply: message },
+            emitter: 'MessageThreadReplyInChannelButtonIndicator',
+          },
+        });
       });
 
   useEffect(() => {
@@ -60,6 +77,7 @@ export const MessageIsThreadReplyInChannelButtonIndicator = () => {
           }
           openThread(parentMessageRef.current);
         }}
+        type='button'
       >
         {t<string>('Thread reply')}
       </button>
