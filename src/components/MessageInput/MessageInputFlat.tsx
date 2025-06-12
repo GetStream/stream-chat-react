@@ -79,7 +79,7 @@ export const MessageInputFlat = () => {
 
   /**
    * This bit here is needed to make sure that we can get rid of the default behaviour
-   * if need be. Essentially this allows us to pass StopAIGenerationButton={null} and
+   * if need be. Essentially, this allows us to pass StopAIGenerationButton={null} and
    * completely circumvent the default logic if it's not what we want. We need it as a
    * prop because there is no other trivial way to override the SendMessage button otherwise.
    */

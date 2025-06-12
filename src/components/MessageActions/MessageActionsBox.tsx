@@ -97,7 +97,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handleQuote}
             role='option'
           >
-            {t<string>('Reply')}
+            {t('Reply')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
@@ -107,7 +107,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handlePin}
             role='option'
           >
-            {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
+            {!message.pinned ? t('Pin') : t('Unpin')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
@@ -119,7 +119,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
               onClick={handleMarkUnread}
               role='option'
             >
-              {t<string>('Mark as unread')}
+              {t('Mark as unread')}
             </button>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
@@ -129,7 +129,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handleFlag}
             role='option'
           >
-            {t<string>('Flag')}
+            {t('Flag')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
@@ -139,7 +139,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handleMute}
             role='option'
           >
-            {isUserMuted() ? t<string>('Unmute') : t<string>('Mute')}
+            {isUserMuted() ? t('Unmute') : t('Mute')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
@@ -149,7 +149,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handleEdit}
             role='option'
           >
-            {t<string>('Edit Message')}
+            {t('Edit Message')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
@@ -159,7 +159,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             onClick={handleDelete}
             role='option'
           >
-            {t<string>('Delete')}
+            {t('Delete')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1 && (
@@ -176,7 +176,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             }
             role='option'
           >
-            {reminder ? t<string>('Remove reminder') : t<string>('Save for later')}
+            {reminder ? t('Remove reminder') : t('Save for later')}
           </button>
         )}
       </div>

@@ -28,7 +28,7 @@ export const VoiceRecordingPlayer = ({
     asset_url,
     duration = 0,
     mime_type,
-    title = t<string>('Voice message'),
+    title = t('Voice message'),
     waveform_data,
   } = attachment;
 
@@ -100,7 +100,7 @@ export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { t } = useTranslationContext();
-  const title = attachment.title || t<string>('Voice message');
+  const title = attachment.title || t('Voice message');
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>

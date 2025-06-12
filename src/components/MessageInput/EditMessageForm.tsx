@@ -22,7 +22,7 @@ const EditMessageFormSendButton = () => {
       disabled={!hasSendableData}
       type='submit'
     >
-      {t<string>('Send')}
+      {t('Send')}
     </button>
   );
 };
@@ -59,7 +59,7 @@ export const EditMessageForm = () => {
           data-testid='cancel-button'
           onClick={cancel}
         >
-          {t<string>('Cancel')}
+          {t('Cancel')}
         </button>
         <EditMessageFormSendButton />
       </div>

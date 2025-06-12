@@ -29,7 +29,7 @@ export const MessageThreadReplyInChannelButtonIndicator = () => {
       })
       .catch((error: Error) => {
         client.notifications.addError({
-          message: t<string>('Thread has not been found'),
+          message: t('Thread has not been found'),
           options: {
             originalError: error,
             type: 'api:message:search:not-found',
@@ -79,7 +79,7 @@ export const MessageThreadReplyInChannelButtonIndicator = () => {
         }}
         type='button'
       >
-        {t<string>('Thread reply')}
+        {t('Thread reply')}
       </button>
     </div>
   );

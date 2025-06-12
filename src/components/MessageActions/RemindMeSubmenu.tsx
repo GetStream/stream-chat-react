@@ -16,7 +16,7 @@ export const RemindMeActionButton = ({
       placement={isMine ? 'left-start' : 'right-start'}
       Submenu={RemindMeSubmenu}
     >
-      {t<string>('Remind Me')}
+      {t('Remind Me')}
     </ButtonWithSubmenu>
   );
 };
@@ -42,7 +42,7 @@ export const RemindMeSubmenu = () => {
             });
           }}
         >
-          {t<string>('duration/Remind Me', { milliseconds: offsetMs })}
+          {t('duration/Remind Me', { milliseconds: offsetMs })}
         </button>
       ))}
       {/* todo: potential improvement to add a custom option that would trigger rendering modal with custom date picker - we need date picker */}

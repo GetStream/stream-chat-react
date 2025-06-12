@@ -34,8 +34,8 @@ export const UnreadMessagesNotification = ({
     >
       <button onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}>
         {unreadCount && showCount
-          ? t<string>('{{count}} unread', { count: unreadCount ?? 0 })
-          : t<string>('Unread messages')}
+          ? t('{{count}} unread', { count: unreadCount ?? 0 })
+          : t('Unread messages')}
       </button>
       <button onClick={() => markRead()}>
         <CloseIcon />

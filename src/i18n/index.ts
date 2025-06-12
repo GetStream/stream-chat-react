@@ -1,5 +1,6 @@
 export * from './translations';
 export * from './Streami18n';
+export * from './TranslationBuilder/TranslationBuilder';
 export {
   defaultDateTimeParser,
   defaultTranslatorFunction,

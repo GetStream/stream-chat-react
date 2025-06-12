@@ -33,7 +33,7 @@ export const ThreadHeader = (
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header-details'>
-        <div className='str-chat__thread-header-title'>{t<string>('Thread')}</div>
+        <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <div className='str-chat__thread-header-subtitle'>{displayTitle}</div>
       </div>
       <button

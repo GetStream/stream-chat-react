@@ -37,7 +37,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
       className='str-chat__dialog str-chat__poll-creation-dialog'
       data-testid='poll-creation-dialog'
     >
-      <ModalHeader close={onClose} title={t<string>('Create poll')} />
+      <ModalHeader close={onClose} title={t('Create poll')} />
       <div className='str-chat__dialog__body'>
         <form autoComplete='off'>
           <NameField />
@@ -46,7 +46,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
           <SimpleSwitchField
             checked={voting_visibility === 'anonymous'}
             id='voting_visibility'
-            labelText={t<string>('Anonymous poll')}
+            labelText={t('Anonymous poll')}
             onChange={(e) =>
               pollComposer.updateFields({
                 voting_visibility: e.target.checked
@@ -58,7 +58,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
           <SimpleSwitchField
             checked={allow_user_suggested_options}
             id='allow_user_suggested_options'
-            labelText={t<string>('Allow option suggestion')}
+            labelText={t('Allow option suggestion')}
             onChange={(e) =>
               pollComposer.updateFields({
                 allow_user_suggested_options: e.target.checked,
@@ -68,7 +68,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
           <SimpleSwitchField
             checked={allow_answers}
             id='allow_answers'
-            labelText={t<string>('Allow comments')}
+            labelText={t('Allow comments')}
             onChange={(e) =>
               pollComposer.updateFields({ allow_answers: e.target.checked })
             }

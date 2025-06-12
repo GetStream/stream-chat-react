@@ -26,19 +26,19 @@ export const ReminderNotification = ({ reminder }: ReminderNotificationProps) =>
 
   return (
     <p className='str-chat__message-reminder'>
-      <span>{t<string>('Saved for later')}</span>
+      <span>{t('Saved for later')}</span>
       {reminder?.remindAt && timeLeftMs !== null && (
         <>
           <span> | </span>
           <span>
             {isBehindRefreshBoundary
-              ? t<string>('Due since {{ dueSince }}', {
-                  dueSince: t<string>(`timestamp/ReminderNotification`, {
+              ? t('Due since {{ dueSince }}', {
+                  dueSince: t(`timestamp/ReminderNotification`, {
                     timestamp: reminder.remindAt,
                   }),
                 })
-              : t<string>(`Due {{ timeLeft }}`, {
-                  timeLeft: t<string>('duration/Message reminder', {
+              : t(`Due {{ timeLeft }}`, {
+                  timeLeft: t('duration/Message reminder', {
                     milliseconds: timeLeftMs,
                   }),
                 })}

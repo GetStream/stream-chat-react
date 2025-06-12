@@ -22,6 +22,7 @@ export * from './MessageInput';
 export * from './MessageList';
 export * from './MML';
 export * from './Modal';
+export * from './Notifications';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';

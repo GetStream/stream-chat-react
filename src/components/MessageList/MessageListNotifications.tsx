@@ -4,10 +4,28 @@ import { ConnectionStatus } from './ConnectionStatus';
 import { CustomNotification } from './CustomNotification';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-
+import { useNotifications } from '../Notifications/hooks/useNotifications';
 import type { MessageNotificationProps } from './MessageNotification';
-
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
+
+const ClientNotifications = () => {
+  const clientNotifications = useNotifications();
+  const { t } = useTranslationContext();
+
+  return (
+    <>
+      {clientNotifications.map((notification) => (
+        <CustomNotification
+          active={true}
+          key={notification.id}
+          type={notification.severity}
+        >
+          {t('translationBuilderTopic/notification', { notification })}
+        </CustomNotification>
+      ))}
+    </>
+  );
+};
 
 export type MessageListNotificationsProps = {
   hasNewMessages: boolean;
@@ -41,6 +59,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
           {notification.text}
         </CustomNotification>
       ))}
+      <ClientNotifications />
       <ConnectionStatus />
       <MessageNotification
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}
@@ -49,9 +68,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
         threadList={threadList}
         unreadCount={unreadCount}
       >
-        {isNotAtLatestMessageSet
-          ? t<string>('Latest Messages')
-          : t<string>('New Messages!')}
+        {isNotAtLatestMessageSet ? t('Latest Messages') : t('New Messages!')}
       </MessageNotification>
     </div>
   );

@@ -4,8 +4,6 @@ import { useTranslationContext } from '../../../context';
 export const SearchSourceResultsEmpty = () => {
   const { t } = useTranslationContext();
   return (
-    <div className='str-chat__search-source-results-empty'>
-      {t<string>('No results found')}
-    </div>
+    <div className='str-chat__search-source-results-empty'>{t('No results found')}</div>
   );
 };

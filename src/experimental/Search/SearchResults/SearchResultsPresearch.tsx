@@ -12,7 +12,7 @@ export const SearchResultsPresearch = () => {
   const { t } = useTranslationContext();
   return (
     <div className='str-chat__search-results-presearch'>
-      {t<string>('Start typing to search')}
+      {t('Start typing to search')}
     </div>
   );
 };

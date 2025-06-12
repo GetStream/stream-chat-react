@@ -24,7 +24,7 @@ const UnMemoizedLoadMoreButton = ({
 }: PropsWithChildren<LoadMoreButtonProps>) => {
   const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
 
-  const childrenOrDefaultString = children ?? t<string>('Load more');
+  const childrenOrDefaultString = children ?? t('Load more');
   const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
 
   useEffect(() => {

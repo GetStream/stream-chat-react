@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { SupportedTranslations } from '../../../i18n';
-import { defaultDateTimeParser, isLanguageSupported, Streami18n } from '../../../i18n';
+import {
+  defaultDateTimeParser,
+  defaultTranslatorFunction,
+  isLanguageSupported,
+  Streami18n,
+} from '../../../i18n';
 
 import type {
   AppSettingsAPIResponse,
@@ -27,7 +32,7 @@ export const useChat = ({
   initialNavOpen,
 }: UseChatParams) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: (key: string) => key,
+    t: defaultTranslatorFunction,
     tDateTimeParser: defaultDateTimeParser,
     userLanguage: 'en',
   });

@@ -145,8 +145,7 @@ export const predefinedFormatters: PredefinedFormatters = {
     },
 };
 
-export const defaultTranslatorFunction: TFunction = <tResult = string>(key: tResult) =>
-  key;
+export const defaultTranslatorFunction = ((key: string) => key) as TFunction;
 
 export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
 

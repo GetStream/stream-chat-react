@@ -26,8 +26,8 @@ export const SendToChannelCheckbox = () => {
         />
         <label htmlFor='send-to-channel-checkbox'>
           {Object.keys(messageComposer.channel.state.members).length === 2
-            ? t<string>('Also send as a direct message')
-            : t<string>('Also send in channel')}
+            ? t('Also send as a direct message')
+            : t('Also send in channel')}
         </label>
       </div>
     </div>

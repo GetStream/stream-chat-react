@@ -51,7 +51,7 @@ export const PollResults = ({ close }: PollResultsProps) => {
         </>
       ) : (
         <>
-          <ModalHeader close={close} title={t<string>('Poll results')} />
+          <ModalHeader close={close} title={t('Poll results')} />
           <div className='str-chat__modal__poll-results__body'>
             <div className='str-chat__modal__poll-results__title'>{name}</div>
             <div className='str-chat__modal__poll-results__option-list'>

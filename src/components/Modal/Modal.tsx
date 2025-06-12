@@ -59,7 +59,7 @@ export const Modal = ({
         <button
           className='str-chat__modal__close-button'
           ref={closeRef}
-          title={t<string>('Close')}
+          title={t('Close')}
         >
           <CloseIconRound />
         </button>
