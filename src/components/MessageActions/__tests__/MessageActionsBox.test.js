@@ -89,7 +89,7 @@ describe('MessageActionsBox', () => {
   it('should not show any of the action buttons if no actions are returned by getMessageActions', async () => {
     const {
       result: { container, queryByText },
-    } = await renderComponent({});
+    } = await renderComponent({ message: generateMessage() });
     expect(queryByText('Flag')).not.toBeInTheDocument();
     expect(queryByText('Mute')).not.toBeInTheDocument();
     expect(queryByText('Unmute')).not.toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('MessageActionsBox', () => {
     const handleFlag = jest.fn();
     const {
       result: { container, getByText },
-    } = await renderComponent({ handleFlag });
+    } = await renderComponent({ handleFlag, message: generateMessage() });
     await act(async () => {
       await fireEvent.click(getByText('Flag'));
     });
@@ -123,6 +123,7 @@ describe('MessageActionsBox', () => {
     } = await renderComponent({
       handleMute,
       isUserMuted: () => false,
+      message: generateMessage(),
     });
     await act(async () => {
       await fireEvent.click(getByText('Mute'));
@@ -140,6 +141,7 @@ describe('MessageActionsBox', () => {
     } = await renderComponent({
       handleMute,
       isUserMuted: () => true,
+      message: generateMessage(),
     });
     await act(async () => {
       await fireEvent.click(getByText('Unmute'));
@@ -154,7 +156,7 @@ describe('MessageActionsBox', () => {
     const handleEdit = jest.fn();
     const {
       result: { container, getByText },
-    } = await renderComponent({ handleEdit });
+    } = await renderComponent({ handleEdit, message: generateMessage() });
     await act(async () => {
       await fireEvent.click(getByText('Edit Message'));
     });
@@ -168,7 +170,7 @@ describe('MessageActionsBox', () => {
     const handleDelete = jest.fn();
     const {
       result: { container, getByText },
-    } = await renderComponent({ handleDelete });
+    } = await renderComponent({ handleDelete, message: generateMessage() });
     await act(async () => {
       await fireEvent.click(getByText('Delete'));
     });
@@ -180,7 +182,7 @@ describe('MessageActionsBox', () => {
   it('should call the handlePin prop if the pin button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['pin']);
     const handlePin = jest.fn();
-    const message = generateMessage({ pinned: false });
+    const message = generateMessage({ message: generateMessage(), pinned: false });
     const {
       result: { container, getByText },
     } = await renderComponent({ handlePin, message });
@@ -195,7 +197,7 @@ describe('MessageActionsBox', () => {
   it('should call the handlePin prop if the unpin button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['pin']);
     const handlePin = jest.fn();
-    const message = generateMessage({ pinned: true });
+    const message = generateMessage({ message: generateMessage(), pinned: true });
     const {
       result: { container, getByText },
     } = await renderComponent({ handlePin, message });

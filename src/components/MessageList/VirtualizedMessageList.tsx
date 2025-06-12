@@ -66,6 +66,7 @@ import type {
 } from 'stream-chat';
 import type { UnknownType } from '../../types/types';
 import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
@@ -437,11 +438,13 @@ const VirtualizedMessageListWithContext = (
     };
   }, [highlightedMessageId, processedMessages]);
 
+  const id = useStableId();
+
   if (!processedMessages) return null;
 
   const dialogManagerId = threadList
-    ? 'virtualized-message-list-dialog-manager-thread'
-    : 'virtualized-message-list-dialog-manager';
+    ? `virtualized-message-list-dialog-manager-thread-${id}`
+    : `virtualized-message-list-dialog-manager-${id}`;
 
   return (
     <VirtualizedMessageListContextProvider value={{ scrollToBottom }}>

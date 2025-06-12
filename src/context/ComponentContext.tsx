@@ -37,6 +37,7 @@ import type {
   ReactionsListModalProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
+  ReminderNotificationProps,
   SendButtonProps,
   StartRecordingAudioButtonProps,
   StreamedMessageTextProps,
@@ -124,6 +125,8 @@ export type ComponentContextValue = {
   MessageBlocked?: React.ComponentType;
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: React.ComponentType<MessageDeletedProps>;
+  /** Custom UI component for an indicator that a message is a thread reply sent to channel list: [MessageThreadReplyInChannelButtonIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageIsThreadReplyInChannelButtonIndicator.tsx) */
+  MessageIsThreadReplyInChannelButtonIndicator?: React.ComponentType;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
@@ -172,6 +175,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
   ReactionsListModal?: React.ComponentType<ReactionsListModalProps>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
+  ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType<SearchProps>;
   /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */
@@ -196,6 +200,8 @@ export type ComponentContextValue = {
   SearchSourceResultsLoadingIndicator?: React.ComponentType;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps>;
+  /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/SendToChannelCheckbox.tsx) */
+  SendToChannelCheckbox?: React.ComponentType;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;

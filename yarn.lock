@@ -2575,10 +2575,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^5.9.2":
-  version "5.9.2"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.9.2.tgz#f42f41a50378a8426ef63331e83a94212661a42b"
-  integrity sha512-FCoVzvwr0bJ4/NsvqYmPSi715JHwAPKc11a+s3q7vp8PswIVkGIMB4yI77OBPs0JxVwZDh/JlrUY35hZzjbBww==
+"@stream-io/stream-chat-css@^5.11.0":
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.11.0.tgz#9ca86d4539400133b766fdf3e02256dbdce22c78"
+  integrity sha512-+yS+TB+g7uD0D0OyHIz5h0EIlWYjrhtu8hmdkvjhh3xlcdBX+mMANviO6gRZ2CYKYAtivqbmShawc5USzaCyjg==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -12260,10 +12260,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.1.1.tgz#c81ffa84a7ca579d9812065bc159010191b59090"
-  integrity sha512-7Y23aIVQMppNZgRj/rTFwIx9pszxgDcS99idkSXJSgdV8C7FlyDtiF1yQSdP0oiNFAt7OUP/xSqmbJTljrm24Q==
+stream-chat@^9.6.0:
+  version "9.6.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.6.0.tgz#d281e0c6a440d9590ae344883a9a74caac13caf2"
+  integrity sha512-up2PmyVKeuxe28SC1piEgagwNsMYEi4Xz3PN6oKsiLa7FXzNhgvjuGXQtgGNuo2Qwg39UsrdkhOxvAPwkvi5Kw==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
@@ -12688,11 +12688,6 @@ text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
-
-textarea-caret@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/textarea-caret/-/textarea-caret-3.1.0.tgz#5d5a35bb035fd06b2ff0e25d5359e97f2655087f"
-  integrity sha512-cXAvzO9pP5CGa6NKx0WYHl+8CHKZs8byMkt3PCJBCmq2a34YA9pO1NrQET5pzeqnBjBdToF5No4rrmkDUgQC2Q==
 
 thenify-all@^1.0.0:
   version "1.6.0"

@@ -131,7 +131,9 @@ describe('<MessageActions /> component', () => {
     expect(MessageActionsBoxMock).not.toHaveBeenCalled();
     const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     expect(dialogOverlay.children).toHaveLength(0);
-    await toggleOpenMessageActions();
+    await act(async () => {
+      await toggleOpenMessageActions();
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       undefined,

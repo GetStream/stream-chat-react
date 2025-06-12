@@ -1177,6 +1177,8 @@ describe(`EditMessageForm`, () => {
 
     await act(() => submit());
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { mutes, ...userWithoutMutes } = mainListMessage.user;
     expect(editMock.mock.calls[1]).toEqual([
       customChannel.cid,
       expect.objectContaining({
@@ -1199,6 +1201,8 @@ describe(`EditMessageForm`, () => {
         quoted_message: null,
         reaction_groups: null,
         text: '@mention-name ',
+        user: userWithoutMutes,
+        user_id: 'userId',
       }),
       {},
     ]);
@@ -1469,5 +1473,14 @@ describe(`EditMessageForm`, () => {
       expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
       jest.useRealTimers();
     });
+  });
+
+  it('should not render the SendToChannelCheckbox content', async () => {
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
+    expect(screen.queryByTestId('send-to-channel-checkbox')).not.toBeInTheDocument();
   });
 });

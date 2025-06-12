@@ -1,6 +1,4 @@
-import { nanoid } from 'nanoid';
-import type { ElementRef } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
 import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
@@ -20,15 +18,16 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 export const SimpleAttachmentSelector = () => {
   const {
     AttachmentSelectorInitiationButtonContents,
     FileUploadIcon = DefaultUploadIcon,
   } = useComponentContext();
-  const inputRef = useRef<ElementRef<'input'>>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
-  const id = useMemo(() => nanoid(), []);
+  const id = useStableId();
 
   useEffect(() => {
     if (!labelElement) return;
@@ -189,7 +188,7 @@ export const AttachmentSelector = ({
   const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
-  const menuButtonRef = useRef<ElementRef<'button'>>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const getDefaultPortalDestination = useCallback(
     () => document.getElementById(CHANNEL_CONTAINER_ID),

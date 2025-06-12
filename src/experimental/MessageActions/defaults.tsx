@@ -1,23 +1,24 @@
 /* eslint-disable sort-keys */
+import type { ComponentPropsWithoutRef } from 'react';
 import React from 'react';
 
-import { isUserMuted } from '../../components';
+import { isUserMuted, useMessageComposer, useMessageReminder } from '../../components';
 import {
   ReactionIcon as DefaultReactionIcon,
   ThreadIcon,
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
-import { useMessageComposer } from '../../components';
-
-import type { ComponentPropsWithoutRef } from 'react';
-
+import { RemindMeActionButton } from '../../components/MessageActions/RemindMeSubmenu';
 import type { MessageActionSetItem } from './MessageActions';
+
+const msgActionsBoxButtonClassName =
+  'str-chat__message-actions-list-item-button' as const;
 
 export const DefaultDropdownActionButton = ({
   'aria-selected': ariaSelected = 'false',
   children,
-  className = 'str-chat__message-actions-list-item-button',
+  className = msgActionsBoxButtonClassName,
   role = 'option',
   ...rest
 }: ComponentPropsWithoutRef<'button'>) => (
@@ -113,6 +114,33 @@ const DefaultMessageActionComponents = {
         </DefaultDropdownActionButton>
       );
     },
+    RemindMe() {
+      const { isMyMessage } = useMessageContext();
+      return (
+        <RemindMeActionButton
+          className={msgActionsBoxButtonClassName}
+          isMine={isMyMessage()}
+        />
+      );
+    },
+    SaveForLater() {
+      const { client } = useChatContext();
+      const { message } = useMessageContext();
+      const { t } = useTranslationContext();
+      const reminder = useMessageReminder(message.id);
+
+      return (
+        <DefaultDropdownActionButton
+          onClick={() =>
+            reminder
+              ? client.reminders.deleteReminder(reminder.id)
+              : client.reminders.createReminder({ messageId: message.id })
+          }
+        >
+          {reminder ? t<string>('Remove reminder') : t<string>('Save for later')}
+        </DefaultDropdownActionButton>
+      );
+    },
   },
   quick: {
     React() {
@@ -182,5 +210,15 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
     Component: DefaultMessageActionComponents.dropdown.MarkUnread,
     placement: 'dropdown',
     type: 'markUnread',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.RemindMe,
+    placement: 'dropdown',
+    type: 'remindMe',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.SaveForLater,
+    placement: 'dropdown',
+    type: 'saveForLater',
   },
 ] as const;

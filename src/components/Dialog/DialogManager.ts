@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { StateStore } from 'stream-chat';
 
 export type GetOrCreateDialogParams = {
@@ -43,7 +44,7 @@ export class DialogManager {
   });
 
   constructor({ id }: DialogManagerOptions = {}) {
-    this.id = id ?? new Date().getTime().toString();
+    this.id = id ?? nanoid();
   }
 
   get openDialogCount() {
