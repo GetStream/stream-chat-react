@@ -1,3 +1,10 @@
+## [12.15.7](https://github.com/GetStream/stream-chat-react/compare/v12.15.6...v12.15.7) (2025-06-12)
+
+### Bug Fixes
+
+* prevent rendering placeholder for empty message list if messages are actually loaded ([d47b87a](https://github.com/GetStream/stream-chat-react/commit/d47b87a83ab8f5c32eefaeaf0236a90b51700ecc))
+* use channel_id and channel_type values from event channel.visible ([#2730](https://github.com/GetStream/stream-chat-react/issues/2730)) ([ef467cd](https://github.com/GetStream/stream-chat-react/commit/ef467cd6c2d1ed51a40b4cf04dd9eb55f5128af9))
+
 ## [12.15.6](https://github.com/GetStream/stream-chat-react/compare/v12.15.5...v12.15.6) (2025-05-28)
 
 ### Chores
