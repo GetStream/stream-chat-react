@@ -45,10 +45,10 @@ describe('NotificationTranslationTopic', () => {
       translatedString,
     );
 
-    notification = { code: 'validation:attachment:upload:blocked' };
+    notification = { type: 'validation:attachment:upload:blocked' };
     expect(builder.translate(translatedString, key, { notification })).toBe('blocked');
 
-    notification = { code: 'api:attachment:upload:failed' };
+    notification = { type: 'api:attachment:upload:failed' };
     expect(builder.translate(translatedString, key, { notification })).toBe('failed');
   });
 });

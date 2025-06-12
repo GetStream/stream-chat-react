@@ -137,7 +137,7 @@ const DefaultMessageActionComponents = {
               : client.reminders.createReminder({ messageId: message.id })
           }
         >
-          {reminder ? t<string>('Remove reminder') : t<string>('Save for later')}
+          {reminder ? t('Remove reminder') : t('Save for later')}
         </DefaultDropdownActionButton>
       );
     },

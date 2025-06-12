@@ -176,7 +176,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             }
             role='option'
           >
-            {reminder ? t<string>('Remove reminder') : t<string>('Save for later')}
+            {reminder ? t('Remove reminder') : t('Save for later')}
           </button>
         )}
       </div>

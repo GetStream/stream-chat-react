@@ -30,7 +30,7 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
   translate = (value: string, key: string, options: { notification?: Notification }) => {
     const { notification } = options;
     if (!notification) return value;
-    const translator = notification.code && this.translators.get(notification.code);
+    const translator = notification.type && this.translators.get(notification.type);
     if (!translator) return value;
     return translator({ key, options, t: this.i18next.t, value }) || value;
   };
