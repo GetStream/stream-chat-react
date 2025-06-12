@@ -10,6 +10,7 @@ export * from './MessageStatus';
 export * from './MessageText';
 export * from './MessageTimestamp';
 export * from './QuotedMessage';
+export * from './ReminderNotification';
 export * from './renderText';
 export * from './types';
 export * from './utils';

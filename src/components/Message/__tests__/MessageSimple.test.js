@@ -36,6 +36,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
+import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
 expect.extend(toHaveNoViolations);
 
@@ -262,6 +263,28 @@ describe('<MessageSimple />', () => {
     });
 
     expect(await screen.findByTestId('custom-edit-message-input')).toBeInTheDocument();
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render custom ReminderNotification component when one is given', async () => {
+    const message = generateAliceMessage({ reminder: generateReminderResponse() });
+    client.reminders.hydrateState([message]);
+    const testId = 'custom-reminder-notification';
+    const CustomReminderNotification = () => <div data-testid={testId} />;
+
+    const { container } = await renderMessageSimple({
+      channelConfigOverrides: {
+        user_message_reminder: true,
+      },
+      components: {
+        ReminderNotification: CustomReminderNotification,
+      },
+      message,
+    });
+
+    expect(await screen.findByTestId(testId)).toBeInTheDocument();
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

@@ -1,18 +1,18 @@
 import clsx from 'clsx';
 import type { ComponentProps } from 'react';
 import React from 'react';
-
-import { MESSAGE_ACTIONS } from '../Message/utils';
-
-import type { MessageContextValue } from '../../context';
+import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
+import { RemindMeActionButton } from './RemindMeSubmenu';
+import { useMessageReminder } from '../Message';
+import { useMessageComposer } from '../MessageInput';
 import {
+  useChatContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-
-import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
-import { useMessageComposer } from '../MessageInput';
+import { MESSAGE_ACTIONS } from '../Message/utils';
+import type { MessageContextValue } from '../../context';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -43,18 +43,19 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
     handleMute,
     handlePin,
     isUserMuted,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mine,
     open,
     ...restDivProps
   } = props;
 
+  const { client } = useChatContext();
   const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
     useComponentContext('MessageActionsBox');
   const { customMessageActions, message, threadList } =
     useMessageContext('MessageActionsBox');
   const { t } = useTranslationContext('MessageActionsBox');
   const messageComposer = useMessageComposer();
+  const reminder = useMessageReminder(message.id);
 
   const messageActions = getMessageActions();
 
@@ -159,6 +160,23 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             role='option'
           >
             {t<string>('Delete')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1 && (
+          <RemindMeActionButton className={buttonClassName} isMine={mine} />
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1 && (
+          <button
+            aria-selected='false'
+            className={buttonClassName}
+            onClick={() =>
+              reminder
+                ? client.reminders.deleteReminder(reminder.id)
+                : client.reminders.createReminder({ messageId: message.id })
+            }
+            role='option'
+          >
+            {reminder ? t<string>('Remove reminder') : t<string>('Save for later')}
           </button>
         )}
       </div>

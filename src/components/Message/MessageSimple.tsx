@@ -13,6 +13,8 @@ import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp'
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
 import { MessageThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageThreadReplyInChannelButtonIndicator';
+import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
+import { useMessageReminder } from './hooks';
 import {
   areMessageUIPropsEqual,
   isMessageBlocked,
@@ -63,6 +65,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const { t } = useTranslationContext('MessageSimple');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
+  const reminder = useMessageReminder(message.id);
 
   const {
     Attachment = DefaultAttachment,
@@ -79,6 +82,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionsList = DefaultReactionList,
+    ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
   } = useComponentContext('MessageSimple');
@@ -158,6 +162,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       {
         <div className={rootClassName} key={message.id}>
           {PinIndicator && <PinIndicator />}
+          {!!reminder && <ReminderNotification reminder={reminder} />}
           {message.user && (
             <Avatar
               image={message.user.image}

@@ -102,9 +102,18 @@ describe('Message utils', () => {
       },
     );
 
-    it('should return all message actions if actions are set to true', () => {
+    it('should return all message actions not depending on channel config if actions are set to true', () => {
       const result = getMessageActions(true, defaultCapabilities);
-      expect(result).toStrictEqual(actions);
+      expect(result).toStrictEqual(
+        actions.filter((a) => !['remindMe', 'saveForLater'].includes(a)),
+      );
+    });
+
+    it('should include reminder actions if enabled in channel config', () => {
+      const result = getMessageActions(true, defaultCapabilities, {
+        user_message_reminders: true,
+      });
+      expect(result).toEqual(actions);
     });
 
     it.each([
