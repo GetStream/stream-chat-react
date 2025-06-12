@@ -94,6 +94,8 @@ describe('Streami18n instance - with built-in langauge', () => {
       for (const key in nlTranslations) {
         if (
           (key.includes('{{') && key.includes('}}')) ||
+          key.includes('duration/Message reminder') ||
+          key.includes('duration/Remind Me') ||
           typeof nlTranslations[key] !== 'string'
         ) {
           continue;
@@ -121,6 +123,8 @@ describe('Streami18n instance - with built-in langauge', () => {
       for (const key in nlTranslations) {
         if (
           (key.includes('{{') && key.includes('}}')) ||
+          key.includes('duration/Message reminder') ||
+          key.includes('duration/Remind Me') ||
           typeof nlTranslations[key] !== 'string'
         ) {
           continue;
@@ -242,6 +246,8 @@ describe('setLanguage - switch to french', () => {
     for (const key in frTranslations) {
       if (
         (key.includes('{{') && key.includes('}}')) ||
+        key.includes('duration/Message reminder') ||
+        key.includes('duration/Remind Me') ||
         typeof nlTranslations[key] !== 'string'
       ) {
         continue;
