@@ -19,6 +19,7 @@ import {
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
+import { SendToChannelCheckbox as DefaultSendToChannelCheckbox } from './SendToChannelCheckbox';
 import { TextareaComposer as DefaultTextareaComposer } from '../TextareaComposer';
 import { AIStates, useAIState } from '../AIStateIndicator';
 import { RecordingAttachmentType } from '../MediaRecorder/classes';
@@ -51,6 +52,7 @@ export const MessageInputFlat = () => {
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
+    SendToChannelCheckbox = DefaultSendToChannelCheckbox,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
     TextareaComposer = DefaultTextareaComposer,
@@ -146,6 +148,7 @@ export const MessageInputFlat = () => {
           )
         )}
       </div>
+      <SendToChannelCheckbox />
     </WithDragAndDropUpload>
   );
 };

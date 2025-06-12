@@ -1470,4 +1470,13 @@ describe(`EditMessageForm`, () => {
       jest.useRealTimers();
     });
   });
+
+  it('should not render the SendToChannelCheckbox content', async () => {
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
+    expect(screen.queryByTestId('send-to-channel-checkbox')).not.toBeInTheDocument();
+  });
 });
