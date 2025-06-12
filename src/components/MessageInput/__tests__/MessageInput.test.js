@@ -1343,4 +1343,15 @@ describe(`MessageInputFlat`, () => {
       jest.useRealTimers();
     });
   });
+
+  describe('SendToChannelCheckbox', () => {
+    it('does not render in the channel context', async () => {
+      const { customChannel, customClient } = await setup();
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(screen.queryByTestId('send-to-channel-checkbox')).not.toBeInTheDocument();
+    });
+  });
 });

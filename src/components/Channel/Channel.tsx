@@ -118,6 +118,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'MessageBouncePrompt'
   | 'MessageBlocked'
   | 'MessageDeleted'
+  | 'MessageIsThreadReplyInChannelButtonIndicator'
   | 'MessageListNotifications'
   | 'MessageListMainPanel'
   | 'MessageNotification'
@@ -141,6 +142,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ReactionsList'
   | 'ReactionsListModal'
   | 'SendButton'
+  | 'SendToChannelCheckbox'
   | 'StartRecordingAudioButton'
   | 'TextareaComposer'
   | 'ThreadHead'
@@ -1206,6 +1208,8 @@ const ChannelInner = (
       MessageBlocked: props.MessageBlocked,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
+      MessageIsThreadReplyInChannelButtonIndicator:
+        props.MessageIsThreadReplyInChannelButtonIndicator,
       MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
@@ -1228,6 +1232,7 @@ const ChannelInner = (
       ReactionsList: props.ReactionsList,
       ReactionsListModal: props.ReactionsListModal,
       SendButton: props.SendButton,
+      SendToChannelCheckbox: props.SendToChannelCheckbox,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
       StreamedMessageText: props.StreamedMessageText,
@@ -1269,6 +1274,7 @@ const ChannelInner = (
       props.MessageBlocked,
       props.MessageBouncePrompt,
       props.MessageDeleted,
+      props.MessageIsThreadReplyInChannelButtonIndicator,
       props.MessageListNotifications,
       props.MessageNotification,
       props.MessageOptions,
@@ -1291,6 +1297,7 @@ const ChannelInner = (
       props.ReactionsList,
       props.ReactionsListModal,
       props.SendButton,
+      props.SendToChannelCheckbox,
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,
       props.StreamedMessageText,
