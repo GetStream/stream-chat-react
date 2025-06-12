@@ -1,6 +1,7 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 
+import { LegacyThreadContext } from './LegacyThreadContext';
 import { MESSAGE_ACTIONS } from '../Message';
 import type { MessageInputProps } from '../MessageInput';
 import { MessageInput, MessageInputFlat } from '../MessageInput';
@@ -20,7 +21,7 @@ import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
-import type { LocalMessage, ThreadState } from 'stream-chat';
+import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -44,12 +45,6 @@ export type ThreadProps = {
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
-
-const LegacyThreadContext = React.createContext<{
-  legacyThread: LocalMessage | undefined;
-}>({ legacyThread: undefined });
-
-export const useLegacyThreadContext = () => useContext(LegacyThreadContext);
 
 /**
  * The Thread component renders a parent Message with a list of replies

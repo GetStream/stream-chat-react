@@ -118,6 +118,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'MessageBouncePrompt'
   | 'MessageBlocked'
   | 'MessageDeleted'
+  | 'MessageIsThreadReplyInChannelButtonIndicator'
   | 'MessageListNotifications'
   | 'MessageListMainPanel'
   | 'MessageNotification'
@@ -142,6 +143,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'ReactionsListModal'
   | 'ReminderNotification'
   | 'SendButton'
+  | 'SendToChannelCheckbox'
   | 'StartRecordingAudioButton'
   | 'TextareaComposer'
   | 'ThreadHead'
@@ -327,6 +329,7 @@ const ChannelInner = (
       ...initialState,
       hasMore: channel.state.messagePagination.hasPrev,
       loading: !channel.initialized,
+      messages: channel.state.messages,
     },
   );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
@@ -1206,6 +1209,8 @@ const ChannelInner = (
       MessageBlocked: props.MessageBlocked,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
+      MessageIsThreadReplyInChannelButtonIndicator:
+        props.MessageIsThreadReplyInChannelButtonIndicator,
       MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
@@ -1229,6 +1234,7 @@ const ChannelInner = (
       ReactionsListModal: props.ReactionsListModal,
       ReminderNotification: props.ReminderNotification,
       SendButton: props.SendButton,
+      SendToChannelCheckbox: props.SendToChannelCheckbox,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
       StreamedMessageText: props.StreamedMessageText,
@@ -1270,6 +1276,7 @@ const ChannelInner = (
       props.MessageBlocked,
       props.MessageBouncePrompt,
       props.MessageDeleted,
+      props.MessageIsThreadReplyInChannelButtonIndicator,
       props.MessageListNotifications,
       props.MessageNotification,
       props.MessageOptions,
@@ -1293,6 +1300,7 @@ const ChannelInner = (
       props.ReactionsListModal,
       props.ReminderNotification,
       props.SendButton,
+      props.SendToChannelCheckbox,
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,
       props.StreamedMessageText,

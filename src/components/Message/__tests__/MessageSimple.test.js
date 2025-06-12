@@ -217,6 +217,23 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should render message with custom message-is-reply indicator', async () => {
+    const message = generateAliceMessage({ parent_id: 'x', show_in_channel: true });
+    const CustomMessageIsThreadReplyInChannelButtonIndicator = () => (
+      <div data-testid='custom-message-is-reply'>Is Reply</div>
+    );
+    const { container, getByTestId } = await renderMessageSimple({
+      components: {
+        MessageIsThreadReplyInChannelButtonIndicator:
+          CustomMessageIsThreadReplyInChannelButtonIndicator,
+      },
+      message,
+    });
+    expect(getByTestId('custom-message-is-reply')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should render message with custom options component when one is given', async () => {
     const message = generateAliceMessage({ text: '' });
     const CustomOptions = () => <div data-testid='custom-message-options'>Options</div>;
@@ -632,6 +649,69 @@ describe('<MessageSimple />', () => {
     });
     const { container, getByTestId } = await renderMessageSimple({ message });
     expect(getByTestId('replies-count-button')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should display is-message-reply button', async () => {
+    const message = generateAliceMessage({
+      parent_id: 'x',
+      show_in_channel: true,
+    });
+    const { container, getByTestId } = await renderMessageSimple({ message });
+    expect(getByTestId('message-is-thread-reply-button')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should open thread when is-message-reply button is clicked', async () => {
+    const parentMessage = generateMessage({ id: 'x' });
+    const message = generateAliceMessage({
+      parent_id: parentMessage.id,
+      show_in_channel: true,
+    });
+    channel.state.messageSets[0].messages.unshift(parentMessage);
+    const { container, getByTestId } = await renderMessageSimple({
+      message,
+    });
+    expect(openThreadMock).not.toHaveBeenCalled();
+    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    expect(openThreadMock).toHaveBeenCalledWith(expect.any(Object));
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should not open thread when is-message-reply button is clicked and parent message is not found', async () => {
+    const parentMessage = generateMessage({ id: 'x' });
+    const message = generateAliceMessage({
+      parent_id: parentMessage.id,
+      show_in_channel: true,
+    });
+    const { container, getByTestId } = await renderMessageSimple({
+      message,
+    });
+    expect(openThreadMock).not.toHaveBeenCalled();
+    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    expect(openThreadMock).not.toHaveBeenCalled();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should query the parent if not found in local state', async () => {
+    const parentMessage = generateMessage({ id: 'x' });
+    const message = generateAliceMessage({
+      parent_id: parentMessage.id,
+      show_in_channel: true,
+    });
+    const searchSpy = jest.spyOn(client, 'search');
+    const { container, getByTestId } = await renderMessageSimple({
+      message,
+    });
+    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    expect(searchSpy).toHaveBeenCalledWith(
+      { cid: channel.cid },
+      { id: parentMessage.id },
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

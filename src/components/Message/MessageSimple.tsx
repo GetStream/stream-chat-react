@@ -10,6 +10,11 @@ import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from '.
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
+import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
+import { isDateSeparatorMessage } from '../MessageList';
+import { MessageThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageThreadReplyInChannelButtonIndicator';
+import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
+import { useMessageReminder } from './hooks';
 import {
   areMessageUIPropsEqual,
   isMessageBlocked,
@@ -34,11 +39,6 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
-
-import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
-import { isDateSeparatorMessage } from '../MessageList';
-import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
-import { useMessageReminder } from './hooks';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
@@ -75,8 +75,9 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     // major release and use the new default instead
     MessageActions = MessageOptions,
     MessageBlocked = DefaultMessageBlocked,
-    MessageDeleted = DefaultMessageDeleted,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
+    MessageDeleted = DefaultMessageDeleted,
+    MessageIsThreadReplyInChannelButtonIndicator = DefaultMessageIsThreadReplyInChannelButtonIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
@@ -106,6 +107,8 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
+  const showIsReplyInChannel =
+    !threadList && message.show_in_channel && message.parent_id;
   const allowRetry = message.status === 'failed' && message.error?.status !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
@@ -135,7 +138,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.error?.status !== 403,
-      'str-chat__message-with-thread-link': showReplyCountButton,
+      'str-chat__message-with-thread-link': showReplyCountButton || showIsReplyInChannel,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
       'str-chat__virtual-message__wrapper--group': groupedByUser,
@@ -210,6 +213,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               reply_count={message.reply_count}
             />
           )}
+          {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
           {showMetadata && (
             <div className='str-chat__message-metadata'>
               <MessageStatus />
