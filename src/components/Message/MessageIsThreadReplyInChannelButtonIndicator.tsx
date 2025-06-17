@@ -9,7 +9,7 @@ import {
   useTranslationContext,
 } from '../../context';
 
-export const MessageThreadReplyInChannelButtonIndicator = () => {
+export const MessageIsThreadReplyInChannelButtonIndicator = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
@@ -36,7 +36,7 @@ export const MessageThreadReplyInChannelButtonIndicator = () => {
           },
           origin: {
             context: { threadReply: message },
-            emitter: 'MessageThreadReplyInChannelButtonIndicator',
+            emitter: 'MessageIsThreadReplyInChannelButtonIndicator',
           },
         });
       });
