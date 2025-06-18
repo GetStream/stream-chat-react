@@ -175,6 +175,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
   ReactionsListModal?: React.ComponentType<ReactionsListModalProps>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
+  /** Custom UI component to display the message reminder information in the Message UI, defaults to and accepts same props as: [ReminderNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/ReminderNotification.tsx) */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType<SearchProps>;
