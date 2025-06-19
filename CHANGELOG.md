@@ -1,3 +1,10 @@
+## [13.1.1](https://github.com/GetStream/stream-chat-react/compare/v13.1.0...v13.1.1) (2025-06-19)
+
+### Bug Fixes
+
+* allow to pre-register TranslationTopic translator functions ([#2737](https://github.com/GetStream/stream-chat-react/issues/2737)) ([1e53bed](https://github.com/GetStream/stream-chat-react/commit/1e53bedc5f767999090b05e06f3380b9033a745a))
+* make MessageThreadReplyInChannelButtonIndicator to MessageIsThreadReplyInChannelButtonIndicator ([#2735](https://github.com/GetStream/stream-chat-react/issues/2735)) ([f709eb6](https://github.com/GetStream/stream-chat-react/commit/f709eb6bcab675a3fc11e66472a6eb9a1ce19502))
+
 ## [13.1.0](https://github.com/GetStream/stream-chat-react/compare/v13.0.5...v13.1.0) (2025-06-12)
 
 ### Bug Fixes
