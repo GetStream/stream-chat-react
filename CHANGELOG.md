@@ -1,3 +1,9 @@
+## [13.1.2](https://github.com/GetStream/stream-chat-react/compare/v13.1.1...v13.1.2) (2025-06-19)
+
+### Bug Fixes
+
+* **InfiniteScroll:** replace refs with state-based deps ([#2740](https://github.com/GetStream/stream-chat-react/issues/2740)) ([148db93](https://github.com/GetStream/stream-chat-react/commit/148db930f28ec7949eeab8935e6c3572948f8d82))
+
 ## [13.1.1](https://github.com/GetStream/stream-chat-react/compare/v13.1.0...v13.1.1) (2025-06-19)
 
 ### Bug Fixes
