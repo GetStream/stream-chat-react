@@ -10,6 +10,14 @@ export type ChannelListContextValue = {
    */
   channels: Channel[];
   /**
+   * Indicator for channel pagination to determine whether more items can be loaded
+   */
+  hasNextPage: boolean;
+  /**
+   * Pagination function to load more channels
+   */
+  loadNextPage(): Promise<void>;
+  /**
    * Sets the list of Channel objects to be rendered by ChannelList component.
    */
   setChannels: Dispatch<SetStateAction<Channel[]>>;

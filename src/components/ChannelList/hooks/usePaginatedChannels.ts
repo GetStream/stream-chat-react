@@ -135,9 +135,7 @@ export const usePaginatedChannels = (
     queryChannels('reload');
   }, [error, queryChannels, recoveryThrottleInterval]);
 
-  const loadNextPage = () => {
-    queryChannels();
-  };
+  const loadNextPage = () => queryChannels();
 
   useEffect(() => {
     if (client.recoverStateOnReconnect) return;

@@ -381,7 +381,9 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   const showChannelList =
     (!searchActive && !searchIsActive) || additionalChannelSearchProps?.popupResults;
   return (
-    <ChannelListContextProvider value={{ channels, setChannels }}>
+    <ChannelListContextProvider
+      value={{ channels, hasNextPage, loadNextPage, setChannels }}
+    >
       <div className={className} ref={channelListRef}>
         {showChannelSearch &&
           (Search ? (
