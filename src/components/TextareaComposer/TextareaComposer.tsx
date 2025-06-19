@@ -1,4 +1,3 @@
-import debounce from 'lodash.debounce';
 import clsx from 'clsx';
 import type {
   ChangeEventHandler,
@@ -6,7 +5,6 @@ import type {
   TextareaHTMLAttributes,
   UIEventHandler,
 } from 'react';
-import { useMemo } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
@@ -209,19 +207,14 @@ export const TextareaComposer = ({
     [onScroll, textComposer],
   );
 
-  const setSelectionDebounced = useMemo(
-    () =>
-      debounce(
-        (e: SyntheticEvent<HTMLTextAreaElement>) => {
-          onSelect?.(e);
-          textComposer.setSelection({
-            end: (e.target as HTMLTextAreaElement).selectionEnd,
-            start: (e.target as HTMLTextAreaElement).selectionStart,
-          });
-        },
-        100,
-        { leading: false, trailing: true },
-      ),
+  const setSelectionDebounced = useCallback(
+    (e: SyntheticEvent<HTMLTextAreaElement>) => {
+      onSelect?.(e);
+      textComposer.setSelection({
+        end: (e.target as HTMLTextAreaElement).selectionEnd,
+        start: (e.target as HTMLTextAreaElement).selectionStart,
+      });
+    },
     [onSelect, textComposer],
   );
 
