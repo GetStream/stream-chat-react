@@ -27,7 +27,6 @@ import {
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { EditMessageModal } from '../MessageInput';
-import { MML } from '../MML';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
@@ -196,13 +195,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
                 <StreamedMessageText message={message} renderText={renderText} />
               ) : (
                 <MessageText message={message} renderText={renderText} />
-              )}
-              {message.mml && (
-                <MML
-                  actionHandler={handleAction}
-                  align={isMyMessage() ? 'right' : 'left'}
-                  source={message.mml}
-                />
               )}
               <MessageErrorIcon />
             </div>

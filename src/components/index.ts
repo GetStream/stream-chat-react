@@ -20,7 +20,6 @@ export * from './MessageActions';
 export type { MessageBouncePromptProps } from './MessageBounce';
 export * from './MessageInput';
 export * from './MessageList';
-export * from './MML';
 export * from './Modal';
 export * from './Notifications';
 export * from './Poll';

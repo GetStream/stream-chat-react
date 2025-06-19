@@ -15,7 +15,6 @@ import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { getReadStates } from '../../MessageList';
-import { MML as MMLMock } from '../../MML';
 import { defaultReactionOptions } from '../../Reactions';
 
 import {
@@ -48,7 +47,6 @@ jest.mock('../MessageOptions', () => ({
 jest.mock('../MessageText', () => ({
   MessageText: jest.fn(() => <div data-testid='mocked-message-text' />),
 }));
-jest.mock('../../MML', () => ({ MML: jest.fn(() => <div data-testid='mocked-mml' />) }));
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div data-testid='mocked-avatar' />),
 }));
@@ -559,33 +557,6 @@ describe('<MessageSimple />', () => {
     });
 
     expect(MessageOptionsMock).toHaveBeenCalled();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render MML', async () => {
-    const mml = '<mml>text</mml>';
-    const message = generateAliceMessage({ mml });
-    const { container } = await renderMessageSimple({ message });
-    expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ align: 'right', source: mml }),
-      undefined,
-    );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render MML on left for others', async () => {
-    const mml = '<mml>text</mml>';
-    const message = generateBobMessage({ mml });
-    const { container } = await renderMessageSimple({
-      message,
-      props: { isMyMessage: () => false },
-    });
-    expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ align: 'left', source: mml }),
-      undefined,
-    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
