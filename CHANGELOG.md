@@ -1,3 +1,18 @@
+## [13.2.0](https://github.com/GetStream/stream-chat-react/compare/v13.1.2...v13.2.0) (2025-06-20)
+
+### Bug Fixes
+
+* prevent debouncing the selection state update in TextareaComposer ([#2741](https://github.com/GetStream/stream-chat-react/issues/2741)) ([e50d89a](https://github.com/GetStream/stream-chat-react/commit/e50d89a7bc117519d3cecc4bd37697f94ecaaeb8))
+
+### Features
+
+* add pagination tools to ChannelList context ([#2742](https://github.com/GetStream/stream-chat-react/issues/2742)) ([9599e9d](https://github.com/GetStream/stream-chat-react/commit/9599e9df22aea927b4109632f008ded18ffa6aeb))
+
+### Chores
+
+* **deps:** remove mml-react ([#2743](https://github.com/GetStream/stream-chat-react/issues/2743)) ([33e5fc9](https://github.com/GetStream/stream-chat-react/commit/33e5fc97f4639feb2d1dd3b73a5184cc7ea91c86))
+* **deps:** upgrade stream-chat to v9.8.0 ([2fd6d65](https://github.com/GetStream/stream-chat-react/commit/2fd6d65788a6ba1192949df7a7fae4992d68fc24))
+
 ## [13.1.2](https://github.com/GetStream/stream-chat-react/compare/v13.1.1...v13.1.2) (2025-06-19)
 
 ### Bug Fixes
