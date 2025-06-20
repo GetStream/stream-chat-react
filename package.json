@@ -133,8 +133,7 @@
     "use-sync-external-store": "^1.4.0"
   },
   "optionalDependencies": {
-    "@stream-io/transliterate": "^1.5.5",
-    "mml-react": "^0.4.7"
+    "@stream-io/transliterate": "^1.5.5"
   },
   "peerDependencies": {
     "@breezystack/lamejs": "^1.2.7",

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { useActionHandler, useDeleteHandler, useUserRole } from './hooks';
+import { useDeleteHandler, useUserRole } from './hooks';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 import { getMessageActions } from './utils';
@@ -8,7 +8,6 @@ import { getMessageActions } from './utils';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { MessageActions } from '../MessageActions';
-import { MML } from '../MML';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -56,7 +55,6 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
     propGroupedByUser !== undefined ? propGroupedByUser : contextGroupedByUser;
   const message = propMessage || contextMessage;
 
-  const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
   const role = useUserRole(message);
 
@@ -106,9 +104,6 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
             {images && <Gallery images={images} />}
             <div className='str-chat__virtual-message__text' data-testid='msg-text'>
               {renderedText}
-              {message.mml && (
-                <MML actionHandler={handleAction} align='left' source={message.mml} />
-              )}
               <div className='str-chat__virtual-message__data'>
                 <MessageActions
                   customWrapperClass='str-chat__virtual-message__actions'
