@@ -50,7 +50,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { cooldownRemaining } = useMessageInputContext();
+  const { cooldownRemaining, textareaRef } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -63,9 +63,10 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   const onFileChange = useCallback(
     (files: Array<File>) => {
       attachmentManager.uploadFiles(files);
+      textareaRef.current?.focus();
       onFileChangeCustom?.(files);
     },
-    [onFileChangeCustom, attachmentManager],
+    [onFileChangeCustom, attachmentManager, textareaRef],
   );
 
   return (
