@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
-import { AudioProps } from './Audio';
+import type { AudioProps } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
 import { PlayButton, ProgressBar } from './components';
@@ -34,15 +34,21 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
     >
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--text'>
-          {t<string>('this content could not be displayed')}
+          {t('this content could not be displayed')}
         </div>
       </div>
     </div>
   );
 };
 
-const SourceLink = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url: string }) => (
-  <div className='str-chat__message-attachment-card--source-link' data-testid='card-source-link'>
+const SourceLink = ({
+  author_name,
+  url,
+}: Pick<CardProps, 'author_name'> & { url: string }) => (
+  <div
+    className='str-chat__message-attachment-card--source-link'
+    data-testid='card-source-link'
+  >
     <SafeAnchor
       className='str-chat__message-attachment-card--url'
       href={url}
@@ -68,7 +74,13 @@ const CardHeader = (props: CardHeaderProps) => {
   let visual = null;
   if (asset_url && type === 'video') {
     visual = (
-      <ReactPlayer className='react-player' controls height='100%' url={asset_url} width='100%' />
+      <ReactPlayer
+        className='react-player'
+        controls
+        height='100%'
+        url={asset_url}
+        width='100%'
+      />
     );
   } else if (image) {
     visual = (
@@ -104,7 +116,9 @@ const CardContent = (props: CardContentProps) => {
       ) : (
         <div className='str-chat__message-attachment-card--flex'>
           {url && <SourceLink author_name={author_name} url={url} />}
-          {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
+          {title && (
+            <div className='str-chat__message-attachment-card--title'>{title}</div>
+          )}
           {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
         </div>
       )}
@@ -139,9 +153,13 @@ export const CardAudio = ({
       )}
       <div className='str-chat__message-attachment-audio-widget--second-row'>
         {url && <SourceLink author_name={author_name} url={url} />}
-        {title && <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>}
+        {title && (
+          <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>
+        )}
         {text && (
-          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
+          <div className='str-chat__message-attachment-audio-widget--description'>
+            {text}
+          </div>
         )}
       </div>
     </div>
@@ -158,7 +176,8 @@ const UnMemoizedCard = (props: CardProps) => {
   const dimensions: { height?: string; width?: string } = {};
 
   if (type === 'giphy' && typeof giphy !== 'undefined') {
-    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
+    const giphyVersion =
+      giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
     image = giphyVersion.url;
     dimensions.height = giphyVersion.height;
     dimensions.width = giphyVersion.width;
@@ -169,7 +188,9 @@ const UnMemoizedCard = (props: CardProps) => {
   }
 
   return (
-    <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
+    <div
+      className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
+    >
       <CardHeader {...props} dimensions={dimensions} image={image} />
       <CardContent {...props} />
     </div>

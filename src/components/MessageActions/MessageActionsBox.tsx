@@ -1,19 +1,18 @@
 import clsx from 'clsx';
-import React, { ComponentProps } from 'react';
-
-import { MESSAGE_ACTIONS } from '../Message/utils';
-
+import type { ComponentProps } from 'react';
+import React from 'react';
+import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
+import { RemindMeActionButton } from './RemindMeSubmenu';
+import { useMessageReminder } from '../Message';
+import { useMessageComposer } from '../MessageInput';
 import {
-  MessageContextValue,
-  useChannelActionContext,
+  useChatContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
+import { MESSAGE_ACTIONS } from '../Message/utils';
+import type { MessageContextValue } from '../../context';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -24,19 +23,16 @@ type PropsDrilledToMessageActionsBox =
   | 'handleMute'
   | 'handlePin';
 
-export type MessageActionsBoxProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<MessageContextValue<StreamChatGenerics>, PropsDrilledToMessageActionsBox> & {
+export type MessageActionsBoxProps = Pick<
+  MessageContextValue,
+  PropsDrilledToMessageActionsBox
+> & {
   isUserMuted: () => boolean;
   mine: boolean;
   open: boolean;
 } & ComponentProps<'div'>;
 
-const UnMemoizedMessageActionsBox = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageActionsBoxProps<StreamChatGenerics>,
-) => {
+const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
   const {
     className,
     getMessageActions,
@@ -52,20 +48,19 @@ const UnMemoizedMessageActionsBox = <
     ...restDivProps
   } = props;
 
-  const {
-    CustomMessageActionsList = DefaultCustomMessageActionsList,
-  } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
-  const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, threadList } = useMessageContext<StreamChatGenerics>(
-    'MessageActionsBox',
-  );
-
+  const { client } = useChatContext();
+  const { CustomMessageActionsList = DefaultCustomMessageActionsList } =
+    useComponentContext('MessageActionsBox');
+  const { customMessageActions, message, threadList } =
+    useMessageContext('MessageActionsBox');
   const { t } = useTranslationContext('MessageActionsBox');
+  const messageComposer = useMessageComposer();
+  const reminder = useMessageReminder(message.id);
 
   const messageActions = getMessageActions();
 
   const handleQuote = () => {
-    setQuotedMessage(message);
+    messageComposer.setQuotedMessage(message);
 
     const elements = message.parent_id
       ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')
@@ -91,7 +86,10 @@ const UnMemoizedMessageActionsBox = <
         className='str-chat__message-actions-list'
         role='listbox'
       >
-        <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
+        <CustomMessageActionsList
+          customMessageActions={customMessageActions}
+          message={message}
+        />
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
           <button
             aria-selected='false'
@@ -99,7 +97,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleQuote}
             role='option'
           >
-            {t<string>('Reply')}
+            {t('Reply')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
@@ -109,19 +107,21 @@ const UnMemoizedMessageActionsBox = <
             onClick={handlePin}
             role='option'
           >
-            {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
+            {!message.pinned ? t('Pin') : t('Unpin')}
           </button>
         )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 && !threadList && !!message.id && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleMarkUnread}
-            role='option'
-          >
-            {t<string>('Mark as unread')}
-          </button>
-        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
+          !threadList &&
+          !!message.id && (
+            <button
+              aria-selected='false'
+              className={buttonClassName}
+              onClick={handleMarkUnread}
+              role='option'
+            >
+              {t('Mark as unread')}
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button
             aria-selected='false'
@@ -129,7 +129,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleFlag}
             role='option'
           >
-            {t<string>('Flag')}
+            {t('Flag')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
@@ -139,7 +139,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleMute}
             role='option'
           >
-            {isUserMuted() ? t<string>('Unmute') : t<string>('Mute')}
+            {isUserMuted() ? t('Unmute') : t('Mute')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
@@ -149,7 +149,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleEdit}
             role='option'
           >
-            {t<string>('Edit Message')}
+            {t('Edit Message')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
@@ -159,7 +159,24 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleDelete}
             role='option'
           >
-            {t<string>('Delete')}
+            {t('Delete')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1 && (
+          <RemindMeActionButton className={buttonClassName} isMine={mine} />
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1 && (
+          <button
+            aria-selected='false'
+            className={buttonClassName}
+            onClick={() =>
+              reminder
+                ? client.reminders.deleteReminder(reminder.id)
+                : client.reminders.createReminder({ messageId: message.id })
+            }
+            role='option'
+          >
+            {reminder ? t('Remove reminder') : t('Save for later')}
           </button>
         )}
       </div>

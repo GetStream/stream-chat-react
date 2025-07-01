@@ -46,7 +46,9 @@ const defaultMessageContext = {
 const renderComponent = ({ channelStateContext, messageContext, poll }) =>
   render(
     <TranslationProvider value={{ t }}>
-      <ChannelStateProvider value={{ ...defaultChannelStateContext, ...channelStateContext }}>
+      <ChannelStateProvider
+        value={{ ...defaultChannelStateContext, ...channelStateContext }}
+      >
         <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
           <PollProvider poll={poll}>
             <PollOptionList />
@@ -63,13 +65,17 @@ describe('PollOptionList', () => {
 
   it('renders empty container if no options', () => {
     const pollData = generatePoll({ options: [] });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     expect(container.firstChild).toBeEmptyDOMElement();
   });
 
   it('renders votable poll option selectors', () => {
     const pollData = generatePoll();
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
     votableOptions.forEach((o) => {
@@ -126,7 +132,9 @@ describe('PollOptionList', () => {
 
   it('renders voter avatars with each option', () => {
     const pollData = generatePoll();
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
     votableOptions.forEach((o, i) => {
@@ -139,7 +147,9 @@ describe('PollOptionList', () => {
 
   it('does not renders voter avatars with options for anonymous poll', () => {
     const pollData = generatePoll({ voting_visibility: 'anonymous' });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
     votableOptions.forEach((o) => {
@@ -233,10 +243,14 @@ describe('PollOptionList', () => {
     await waitFor(() => {
       votableOptions.forEach((votableOption, i) => {
         if (i === 0) {
-          expect(votableOption.querySelector(CHECKMARK_CHECKED_SELECTOR)).toBeInTheDocument();
+          expect(
+            votableOption.querySelector(CHECKMARK_CHECKED_SELECTOR),
+          ).toBeInTheDocument();
           expect(votableOption.querySelector(VOTE_COUNT_SELECTOR)).toHaveTextContent('1');
         } else {
-          expect(votableOption.querySelector(CHECKMARK_CHECKED_SELECTOR)).not.toBeInTheDocument();
+          expect(
+            votableOption.querySelector(CHECKMARK_CHECKED_SELECTOR),
+          ).not.toBeInTheDocument();
           expect(votableOption.querySelector(VOTE_COUNT_SELECTOR)).toHaveTextContent('0');
         }
       });

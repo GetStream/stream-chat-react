@@ -1,15 +1,20 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
-import React, { ComponentProps, forwardRef, useCallback, useMemo } from 'react';
+import type { ComponentProps } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
-import {
-  useChannelStateContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types';
-import { PartialSelected } from '../../types/types';
+import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useMessageComposer } from '../MessageInput';
+import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
+import { useStateStore } from '../../store';
+import type { MessageComposerConfig } from 'stream-chat';
+import type { PartialSelected } from '../../types/types';
+
+const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => ({
+  acceptedFiles: state.attachments.acceptedFiles,
+  maxNumberOfFilesPerMessage: state.attachments.maxNumberOfFilesPerMessage,
+});
 
 /**
  * @deprecated Use FileInputProps instead.
@@ -36,9 +41,7 @@ export type FileInputProps = UploadButtonProps;
 
 export const FileInput = UploadButton;
 
-export const UploadFileInput = forwardRef(function UploadFileInput<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
+export const UploadFileInput = forwardRef(function UploadFileInput(
   {
     className,
     onFileChange: onFileChangeCustom,
@@ -47,22 +50,23 @@ export const UploadFileInput = forwardRef(function UploadFileInput<
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { acceptedFiles = [], multipleUploads } = useChannelStateContext<StreamChatGenerics>(
-    'UploadFileInput',
+  const { cooldownRemaining, textareaRef } = useMessageInputContext();
+  const messageComposer = useMessageComposer();
+  const { attachmentManager } = messageComposer;
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const { acceptedFiles, maxNumberOfFilesPerMessage } = useStateStore(
+    messageComposer.configState,
+    attachmentManagerConfigStateSelector,
   );
-  const {
-    isUploadEnabled,
-    maxFilesLeft,
-    uploadNewFiles,
-  } = useMessageInputContext<StreamChatGenerics>('UploadFileInput');
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(
     (files: Array<File>) => {
-      uploadNewFiles(files);
+      attachmentManager.uploadFiles(files);
+      textareaRef.current?.focus();
       onFileChangeCustom?.(files);
     },
-    [onFileChangeCustom, uploadNewFiles],
+    [onFileChangeCustom, attachmentManager, textareaRef],
   );
 
   return (
@@ -70,9 +74,9 @@ export const UploadFileInput = forwardRef(function UploadFileInput<
       accept={acceptedFiles?.join(',')}
       aria-label={t('aria/File upload')}
       data-testid='file-input'
-      disabled={!isUploadEnabled || maxFilesLeft === 0}
+      disabled={!isUploadEnabled || !!cooldownRemaining}
       id={id}
-      multiple={multipleUploads}
+      multiple={maxNumberOfFilesPerMessage > 1}
       {...props}
       className={clsx('str-chat__file-input', className)}
       onFileChange={onFileChange}

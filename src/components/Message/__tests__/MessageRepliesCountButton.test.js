@@ -8,7 +8,8 @@ const onClickMock = jest.fn();
 const defaultSingularText = '1 reply';
 const defaultPluralText = '2 replies';
 
-const i18nMock = (key, { count }) => (count > 1 ? defaultPluralText : defaultSingularText);
+const i18nMock = (key, { count }) =>
+  count > 1 ? defaultPluralText : defaultSingularText;
 
 const renderComponent = (props) =>
   render(
@@ -31,7 +32,10 @@ describe('MessageRepliesCountButton', () => {
 
   it('should render the right text when there is one reply, and labelSingle is defined', () => {
     const customSingularLabel = 'text';
-    const { getByText } = renderComponent({ labelSingle: customSingularLabel, reply_count: 1 });
+    const { getByText } = renderComponent({
+      labelSingle: customSingularLabel,
+      reply_count: 1,
+    });
 
     expect(getByText(`1 ${customSingularLabel}`)).toBeInTheDocument();
   });
@@ -44,7 +48,10 @@ describe('MessageRepliesCountButton', () => {
 
   it('should render the right text when there is more than one reply, and labelPlural is defined', () => {
     const customPluralLabel = 'text';
-    const { getByText } = renderComponent({ labelPlural: customPluralLabel, reply_count: 2 });
+    const { getByText } = renderComponent({
+      labelPlural: customPluralLabel,
+      reply_count: 2,
+    });
 
     expect(getByText(`2 ${customPluralLabel}`)).toBeInTheDocument();
   });

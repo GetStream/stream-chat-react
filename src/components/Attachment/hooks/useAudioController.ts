@@ -35,7 +35,7 @@ export const useAudioController = ({
   const [canPlayRecord, setCanPlayRecord] = useState(true);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [playbackRateIndex, setPlaybackRateIndex] = useState<number>(0);
-  const playTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const playTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const registerError = useCallback(
@@ -52,7 +52,9 @@ export const useAudioController = ({
     clearTimeout(playTimeout.current);
     playTimeout.current = undefined;
     if (mimeType && !audioRef.current.canPlayType(mimeType)) {
-      registerError(new Error(t('Recording format is not supported and cannot be reproduced')));
+      registerError(
+        new Error(t('Recording format is not supported and cannot be reproduced')),
+      );
       setCanPlayRecord(false);
       return;
     }
@@ -123,7 +125,7 @@ export const useAudioController = ({
     audioElement.addEventListener('ended', handleEnded);
 
     const handleError = () => {
-      addNotification(t<string>('Error reproducing the recording'), 'error');
+      addNotification(t('Error reproducing the recording'), 'error');
       setIsPlaying(false);
     };
     audioElement.addEventListener('error', handleError);
@@ -149,7 +151,9 @@ export const useAudioController = ({
     playbackError,
     playbackRate: playbackRates[playbackRateIndex],
     progress:
-      audioRef.current && secondsElapsed ? (secondsElapsed / audioRef.current.duration) * 100 : 0,
+      audioRef.current && secondsElapsed
+        ? (secondsElapsed / audioRef.current.duration) * 100
+        : 0,
     secondsElapsed,
     seek,
     togglePlay,

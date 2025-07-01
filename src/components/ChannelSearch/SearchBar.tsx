@@ -1,11 +1,5 @@
-import React, {
-  MouseEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { MouseEventHandler, PropsWithChildren } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import {
@@ -14,7 +8,8 @@ import {
   ReturnIcon,
   XIcon,
 } from './icons';
-import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
+import type { SearchInputProps } from './SearchInput';
+import { SearchInput as DefaultSearchInput } from './SearchInput';
 
 export type AppMenuProps = {
   close?: () => void;
@@ -47,7 +42,7 @@ export type SearchBarController = {
   /** Flag determining whether the search input is focused */
   inputIsFocused: boolean;
   /** Ref object for the input wrapper in the SearchBar */
-  searchBarRef: React.RefObject<HTMLDivElement>;
+  searchBarRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export type AdditionalSearchBarProps = {
@@ -65,7 +60,9 @@ export type AdditionalSearchBarProps = {
   SearchInputIcon?: React.ComponentType;
 };
 
-export type SearchBarProps = AdditionalSearchBarProps & SearchBarController & SearchInputProps;
+export type SearchBarProps = AdditionalSearchBarProps &
+  SearchBarController &
+  SearchInputProps;
 
 // todo: add context menu control logic
 export const SearchBar = (props: SearchBarProps) => {
@@ -115,7 +112,7 @@ export const SearchBar = (props: SearchBarProps) => {
 
   useEffect(() => {
     if (!props.inputRef.current) return;
-
+    const input = props.inputRef.current;
     const handleFocus = () => {
       activateSearch();
     };
@@ -124,25 +121,27 @@ export const SearchBar = (props: SearchBarProps) => {
       e.stopPropagation(); // handle blur/focus state with React state
     };
 
-    props.inputRef.current.addEventListener('focus', handleFocus);
-    props.inputRef.current.addEventListener('blur', handleBlur);
+    input.addEventListener('focus', handleFocus);
+    input.addEventListener('blur', handleBlur);
     return () => {
-      props.inputRef.current?.removeEventListener('focus', handleFocus);
-      props.inputRef.current?.addEventListener('blur', handleBlur);
+      input.removeEventListener('focus', handleFocus);
+      input.removeEventListener('blur', handleBlur);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activateSearch, props.inputRef]);
 
   const handleClearClick = useCallback(() => {
     exitSearch();
     inputProps.inputRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [exitSearch, inputProps.inputRef]);
 
   const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);
 
   return (
-    <div className='str-chat__channel-search-bar' data-testid='search-bar' ref={searchBarRef}>
+    <div
+      className='str-chat__channel-search-bar'
+      data-testid='search-bar'
+      ref={searchBarRef}
+    >
       {inputIsFocused ? (
         <SearchBarButton
           className='str-chat__channel-search-bar-button--exit-search'

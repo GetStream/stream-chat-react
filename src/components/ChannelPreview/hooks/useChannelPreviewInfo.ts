@@ -4,24 +4,18 @@ import type { Channel } from 'stream-chat';
 import { getDisplayImage, getDisplayTitle, getGroupChannelDisplayInfo } from '../utils';
 import { useChatContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamChatGenerics> = {
-  channel: Channel<StreamChatGenerics>;
+export type ChannelPreviewInfoParams = {
+  channel: Channel;
   /** Manually set the image to render, defaults to the Channel image */
   overrideImage?: string;
   /** Set title manually */
   overrideTitle?: string;
 };
 
-export const useChannelPreviewInfo = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ChannelPreviewInfoParams<StreamChatGenerics>,
-) => {
+export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const { channel, overrideImage, overrideTitle } = props;
 
-  const { client } = useChatContext<StreamChatGenerics>('useChannelPreviewInfo');
+  const { client } = useChatContext('useChannelPreviewInfo');
   const [displayTitle, setDisplayTitle] = useState(
     () => overrideTitle || getDisplayTitle(channel, client.user),
   );

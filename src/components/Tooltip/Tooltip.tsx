@@ -1,5 +1,7 @@
-import React, { ComponentProps, useState } from 'react';
-import { PopperProps, usePopper } from 'react-popper';
+import type { ComponentProps } from 'react';
+import React, { useState } from 'react';
+import type { PopperProps } from 'react-popper';
+import { usePopper } from 'react-popper';
 
 export const Tooltip = ({ children, ...rest }: ComponentProps<'div'>) => (
   <div className='str-chat__tooltip' {...rest}>
@@ -21,8 +23,8 @@ export type PopperTooltipProps<T extends HTMLElement> = React.PropsWithChildren<
 export const PopperTooltip = <T extends HTMLElement>({
   children,
   offset = [0, 10],
-  referenceElement,
   placement = 'top',
+  referenceElement,
   visible = false,
 }: PopperTooltipProps<T>) => {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);

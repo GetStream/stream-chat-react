@@ -1,29 +1,27 @@
 import React, { useMemo } from 'react';
-import type { ReactPlayerProps } from 'react-player';
-import type { Attachment as StreamAttachment } from 'stream-chat';
-
 import {
-  GroupedRenderedAttachment,
   isAudioAttachment,
   isFileAttachment,
-  isMediaAttachment,
+  isImageAttachment,
   isScrapedContent,
-  isUploadedImage,
+  isVideoAttachment,
   isVoiceRecordingAttachment,
-} from './utils';
+} from 'stream-chat';
 
 import {
   AudioContainer,
   CardContainer,
   FileContainer,
   GalleryContainer,
-  GeolocationContainer,
   ImageContainer,
   MediaContainer,
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
+import { SUPPORTED_VIDEO_FORMATS } from './utils';
 
+import type { ReactPlayerProps } from 'react-player';
+import type { Attachment as StreamAttachment } from 'stream-chat';
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
@@ -32,14 +30,12 @@ import type { FileAttachmentProps } from './FileAttachment';
 import type { GalleryProps, ImageProps } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { GroupedRenderedAttachment } from './utils';
 
 const CONTAINER_MAP = {
   audio: AudioContainer,
   card: CardContainer,
   file: FileContainer,
-  geolocation: GeolocationContainer,
   media: MediaContainer,
   unsupported: UnsupportedAttachmentContainer,
   voiceRecording: VoiceRecordingContainer,
@@ -53,30 +49,24 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'audio',
   'voiceRecording',
   'file',
-  'geolocation',
   'unsupported',
 ] as const;
 
-export type AttachmentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type AttachmentProps = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
-  attachments: StreamAttachment<StreamChatGenerics>[];
+  attachments: StreamAttachment[];
   /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
   /** Custom UI component for displaying attachment actions, defaults to and accepts same props as: [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) */
-  AttachmentActions?: React.ComponentType<AttachmentActionsProps<StreamChatGenerics>>;
+  AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
   /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
-  Audio?: React.ComponentType<AudioProps<StreamChatGenerics>>;
+  Audio?: React.ComponentType<AudioProps>;
   /** Custom UI component for displaying a card type attachment, defaults to and accepts same props as: [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) */
   Card?: React.ComponentType<CardProps>;
   /** Custom UI component for displaying a file type attachment, defaults to and accepts same props as: [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) */
-  File?: React.ComponentType<FileAttachmentProps<StreamChatGenerics>>;
+  File?: React.ComponentType<FileAttachmentProps>;
   /** Custom UI component for displaying a gallery of image type attachments, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
-  Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
-  Geolocation?: React.ComponentType<{
-    attachment: StreamAttachment<StreamChatGenerics>;
-  }>;
+  Gallery?: React.ComponentType<GalleryProps>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
   /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
@@ -86,21 +76,20 @@ export type AttachmentProps<
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
   /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [VoiceRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/VoiceRecording.tsx) */
-  VoiceRecording?: React.ComponentType<VoiceRecordingProps<StreamChatGenerics>>;
+  VoiceRecording?: React.ComponentType<VoiceRecordingProps>;
 };
 
 /**
  * A component used for rendering message attachments. By default, the component supports: AttachmentActions, Audio, Card, File, Gallery, Image, and Video
  */
-export const Attachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: AttachmentProps<StreamChatGenerics>,
-) => {
+export const Attachment = (props: AttachmentProps) => {
   const { attachments } = props;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const groupedAttachments = useMemo(() => renderGroupedAttachments(props), [attachments]);
+  const groupedAttachments = useMemo(
+    () => renderGroupedAttachments(props),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [attachments],
+  );
 
   return (
     <div className='str-chat__attachment-list'>
@@ -112,18 +101,16 @@ export const Attachment = <
   );
 };
 
-const renderGroupedAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+const renderGroupedAttachments = ({
   attachments,
   ...rest
-}: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
-  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments.filter((attachment) =>
-    isUploadedImage(attachment),
+}: AttachmentProps): GroupedRenderedAttachment => {
+  const uploadedImages: StreamAttachment[] = attachments.filter((attachment) =>
+    isImageAttachment(attachment),
   );
 
   const containers = attachments
-    .filter((attachment) => !isUploadedImage(attachment))
+    .filter((attachment) => !isImageAttachment(attachment))
     .reduce<GroupedRenderedAttachment>(
       (typeMap, attachment) => {
         const attachmentType = getAttachmentType(attachment);
@@ -150,7 +137,6 @@ const renderGroupedAttachments = <
         image: [],
         // eslint-disable-next-line sort-keys
         gallery: [],
-        geolocation: [],
         voiceRecording: [],
       },
     );
@@ -175,23 +161,19 @@ const renderGroupedAttachments = <
   return containers;
 };
 
-const getAttachmentType = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
+const getAttachmentType = (
+  attachment: AttachmentProps['attachments'][number],
 ): keyof typeof CONTAINER_MAP => {
   if (isScrapedContent(attachment)) {
     return 'card';
-  } else if (isMediaAttachment(attachment)) {
+  } else if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'media';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
   } else if (isVoiceRecordingAttachment(attachment)) {
     return 'voiceRecording';
-  } else if (isFileAttachment(attachment)) {
+  } else if (isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
     return 'file';
-  } else if (attachment.type === 'live_location' || attachment.type === 'static_location') {
-    return 'geolocation';
   }
 
   return 'unsupported';

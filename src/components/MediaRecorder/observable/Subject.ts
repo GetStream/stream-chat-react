@@ -1,6 +1,8 @@
 import { Observable } from './Observable';
-import { Subscription, SubscriptionLike } from './Subscription';
-import { createObserver, Observer, ObserverOrNext } from './Observer';
+import type { SubscriptionLike } from './Subscription';
+import { Subscription } from './Subscription';
+import type { Observer, ObserverOrNext } from './Observer';
+import { createObserver } from './Observer';
 
 export class Subject<T> extends Observable<T> implements SubscriptionLike {
   private _observers: Map<number, Observer<T>> = new Map();

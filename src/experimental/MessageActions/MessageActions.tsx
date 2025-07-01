@@ -1,23 +1,19 @@
-/* eslint-disable sort-keys */
 import clsx from 'clsx';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { useState } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 import { ActionsIcon } from '../../components/Message/icons';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../../components/Dialog';
 import { MessageActionsWrapper } from '../../components/MessageActions/MessageActions';
-import { MESSAGE_ACTIONS } from '../../components';
-
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
+import type { MESSAGE_ACTIONS } from '../../components';
 
 export type MessageActionSetItem = {
   Component: React.ComponentType;
   placement: 'quick' | 'dropdown';
-  type:
-    | keyof typeof MESSAGE_ACTIONS
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    | (string & {});
+  type: keyof typeof MESSAGE_ACTIONS | (string & {});
 };
 
 export type MessageActionsProps = {
@@ -38,16 +34,17 @@ export const MessageActions = ({
   const { theme } = useChatContext();
   const { isMyMessage, message } = useMessageContext();
   const { t } = useTranslationContext();
-  const [actionsBoxButtonElement, setActionsBoxButtonElement] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [actionsBoxButtonElement, setActionsBoxButtonElement] =
+    useState<HTMLButtonElement | null>(null);
 
   const filteredMessageActionSet = useBaseMessageActionSetFilter(
     messageActionSet,
     disableBaseMessageActionSetFilter,
   );
 
-  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet(filteredMessageActionSet);
+  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet(
+    filteredMessageActionSet,
+  );
 
   const dropdownDialogId = `message-actions--${message.id}`;
   const reactionSelectorDialogId = `reaction-selector--${message.id}`;
@@ -63,7 +60,8 @@ export const MessageActions = ({
   return (
     <div
       className={clsx(`str-chat__message-${theme}__actions str-chat__message-options`, {
-        'str-chat__message-options--active': dropdownDialogIsOpen || reactionSelectorDialogIsOpen,
+        'str-chat__message-options--active':
+          dropdownDialogIsOpen || reactionSelectorDialogIsOpen,
       })}
     >
       {dropdownActionSet.length > 0 && (
@@ -83,6 +81,7 @@ export const MessageActions = ({
             id={dropdownDialogId}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
+            tabIndex={-1}
             trapFocus
           >
             <DropdownBox open={dropdownDialogIsOpen}>

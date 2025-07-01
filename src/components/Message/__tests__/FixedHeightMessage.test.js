@@ -8,7 +8,6 @@ import { Avatar as AvatarMock } from '../../Avatar';
 import { Gallery as GalleryMock } from '../../Gallery';
 import { Message } from '../Message';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { MML as MMLMock } from '../../MML';
 
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
@@ -24,7 +23,6 @@ import {
 import { ComponentProvider } from '../../../context';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
-jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Gallery', () => ({ Gallery: jest.fn(() => <div />) }));
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn((props) => props.getMessageActions()),
@@ -83,29 +81,25 @@ describe('<FixedHeightMessage />', () => {
     const attachments = [image, image, image];
     const message = generateMessage({ attachments, user: alice });
     await renderMsg(message);
-    expect(GalleryMock).toHaveBeenCalledWith({ images: attachments }, {});
+    expect(GalleryMock).toHaveBeenCalledWith({ images: attachments }, undefined);
   });
 
   it('should render user avatar', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(AvatarMock).toHaveBeenCalledWith(expect.objectContaining(aliceProfile), {});
-  });
-
-  it('should render MML', async () => {
-    const mml = '<mml>text</mml>';
-    const message = generateMessage({ mml, user: alice });
-    await renderMsg(message);
-    expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ align: 'left', source: mml }),
-      {},
+    expect(AvatarMock).toHaveBeenCalledWith(
+      expect.objectContaining(aliceProfile),
+      undefined,
     );
   });
 
   it('should render message action for owner', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(MessageActionsMock).toHaveBeenCalledWith(expect.objectContaining({ message }), {});
+    expect(MessageActionsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ message }),
+      undefined,
+    );
     expect(MessageActionsMock).toHaveReturnedWith(['delete']);
   });
 

@@ -4,7 +4,6 @@ import type {
   QueryChannelAPIResponse,
   StreamChat,
 } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../types/types';
 
 /**
  * prevent from duplicate invocation of channel.watch()
@@ -15,14 +14,12 @@ const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
   Promise<QueryChannelAPIResponse> | undefined
 > = {};
 
-type GetChannelParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  client: StreamChat<StreamChatGenerics>;
-  channel?: Channel<StreamChatGenerics>;
+type GetChannelParams = {
+  client: StreamChat;
+  channel?: Channel;
   id?: string;
   members?: string[];
-  options?: ChannelQueryOptions<StreamChatGenerics>;
+  options?: ChannelQueryOptions;
   type?: string;
 };
 /**
@@ -34,16 +31,14 @@ type GetChannelParams<
  * @param id
  * @param channel
  */
-export const getChannel = async <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const getChannel = async ({
   channel,
   client,
   id,
   members,
   options,
   type,
-}: GetChannelParams<StreamChatGenerics>) => {
+}: GetChannelParams) => {
   if (!channel && !type) {
     throw new Error('Channel or channel type have to be provided to query a channel.');
   }
@@ -56,11 +51,13 @@ export const getChannel = async <
   const originalCid = theChannel?.id
     ? theChannel.cid
     : members && members.length
-    ? generateChannelTempCid(theChannel.type, members)
-    : undefined;
+      ? generateChannelTempCid(theChannel.type, members)
+      : undefined;
 
   if (!originalCid) {
-    throw new Error('Channel ID or channel members array have to be provided to query a channel.');
+    throw new Error(
+      'Channel ID or channel members array have to be provided to query a channel.',
+    );
   }
 
   const queryPromise = WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];

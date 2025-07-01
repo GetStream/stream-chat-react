@@ -59,7 +59,11 @@ async function renderComponent({
   return renderer(
     <ChatProvider value={{ client, ...clientOpts }}>
       <ChannelStateProvider
-        value={{ channel, channelCapabilities: { 'send-reaction': true }, ...channelStateOpts }}
+        value={{
+          channel,
+          channelCapabilities: { 'send-reaction': true },
+          ...channelStateOpts,
+        }}
       >
         <ChannelActionProvider
           value={{
@@ -71,8 +75,9 @@ async function renderComponent({
         >
           <ComponentProvider
             value={{
-              // eslint-disable-next-line react/display-name
-              Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+              Message: () => (
+                <CustomMessageUIComponent contextCallback={contextCallback} />
+              ),
               ...components,
             }}
           >
@@ -232,7 +237,9 @@ describe('<Message /> component', () => {
 
     await context.handleAction(action.name, action.value, mouseEventMock);
 
-    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, { [action.name]: action.value });
+    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
+      [action.name]: action.value,
+    });
     expect(updateMessage).toHaveBeenCalledWith(updatedMessage);
   });
 
@@ -254,7 +261,9 @@ describe('<Message /> component', () => {
 
     await context.handleAction(action.name, action.value, mouseEventMock);
 
-    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, { [action.name]: action.value });
+    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
+      [action.name]: action.value,
+    });
     expect(removeMessage).toHaveBeenCalledWith(currentMessage);
   });
 
@@ -625,7 +634,9 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
+      channelStateOpts: {
+        state: { members: {}, membership: { role: 'owner' }, watchers: {} },
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -822,7 +833,10 @@ describe('<Message /> component', () => {
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultFlagMessageFailedNotification, 'error');
+    expect(addNotification).toHaveBeenCalledWith(
+      defaultFlagMessageFailedNotification,
+      'error',
+    );
   });
 
   it('should allow user to pin messages when permissions allow', async () => {

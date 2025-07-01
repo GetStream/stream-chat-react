@@ -12,7 +12,8 @@ export const Geolocation = <SCG extends ExtendableGenerics = DefaultGenerics>({
 
   const stoppedSharing = !!attachment.stopped_sharing;
   const expired: boolean =
-    typeof attachment.end_time === 'string' && Date.now() > new Date(attachment.end_time).getTime();
+    typeof attachment.end_time === 'string' &&
+    Date.now() > new Date(attachment.end_time).getTime();
 
   return (
     <div
@@ -25,24 +26,29 @@ export const Geolocation = <SCG extends ExtendableGenerics = DefaultGenerics>({
         width: 'auto',
       }}
     >
-      {attachment.type === 'live_location' && !stoppedSharing && !expired && isMyMessage() && (
-        <button
-          onClick={() =>
-            channel?.stopLiveLocationSharing({
-              attachments: message.attachments,
-              id: message.id,
-              type: message.type,
-            })
-          }
-        >
-          Stop sharing
-        </button>
-      )}
+      {attachment.type === 'live_location' &&
+        !stoppedSharing &&
+        !expired &&
+        isMyMessage() && (
+          <button
+            onClick={() =>
+              channel?.stopLiveLocationSharing({
+                attachments: message.attachments,
+                id: message.id,
+                type: message.type,
+              })
+            }
+          >
+            Stop sharing
+          </button>
+        )}
       {/* TODO: {MAP} */}
       <span>
         lat: {attachment.latitude}, lng: {attachment.longitude}
       </span>
-      {(stoppedSharing || expired) && <span style={{ fontSize: 12 }}>Location sharing ended</span>}
+      {(stoppedSharing || expired) && (
+        <span style={{ fontSize: 12 }}>Location sharing ended</span>
+      )}
     </div>
   );
 };

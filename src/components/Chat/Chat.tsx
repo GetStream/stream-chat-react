@@ -1,24 +1,26 @@
-import React, { PropsWithChildren } from 'react';
+import React, { useMemo } from 'react';
+import {
+  ChannelSearchSource,
+  MessageSearchSource,
+  SearchController,
+  UserSearchSource,
+} from 'stream-chat';
+import type { PropsWithChildren } from 'react';
+import type { StreamChat } from 'stream-chat';
 
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
-
-import { ChatProvider, CustomClasses } from '../../context/ChatContext';
+import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
-
-import type { StreamChat } from 'stream-chat';
-
+import type { CustomClasses } from '../../context/ChatContext';
+import type { MessageContextValue } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
-import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { MessageContextValue } from '../../context';
 
-export type ChatProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type ChatProps = {
   /** The StreamChat client object */
-  client: StreamChat<StreamChatGenerics>;
+  client: StreamChat;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
@@ -27,6 +29,8 @@ export type ChatProps<
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
   initialNavOpen?: boolean;
+  /** Instance of SearchController class that allows to control all the search operations. */
+  searchController?: SearchController;
   /** Used for injecting className/s to the Channel and ChannelList components */
   theme?: string;
   /**
@@ -37,17 +41,13 @@ export type ChatProps<
    * Note: requires importing `stream-chat-react/css/v2/emoji-replacement.css` style sheet
    */
   useImageFlagEmojisOnWindows?: boolean;
-} & Partial<Pick<MessageContextValue<StreamChatGenerics>, 'isMessageAIGenerated'>>;
+} & Partial<Pick<MessageContextValue, 'isMessageAIGenerated'>>;
 
 /**
  * Wrapper component for a StreamChat application. Chat needs to be placed around any other chat components
  * as it provides the ChatContext.
  */
-export const Chat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: PropsWithChildren<ChatProps<StreamChatGenerics>>,
-) => {
+export const Chat = (props: PropsWithChildren<ChatProps>) => {
   const {
     children,
     client,
@@ -56,6 +56,7 @@ export const Chat = <
     i18nInstance,
     initialNavOpen = true,
     isMessageAIGenerated,
+    searchController: customChannelSearchController,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
   } = props;
@@ -74,6 +75,19 @@ export const Chat = <
 
   const channelsQueryState = useChannelsQueryState();
 
+  const searchController = useMemo(
+    () =>
+      customChannelSearchController ??
+      new SearchController({
+        sources: [
+          new ChannelSearchSource(client),
+          new UserSearchSource(client),
+          new MessageSearchSource(client),
+        ],
+      }),
+    [client, customChannelSearchController],
+  );
+
   const chatContextValue = useCreateChatContext({
     channel,
     channelsQueryState,
@@ -86,6 +100,7 @@ export const Chat = <
     mutes,
     navOpen,
     openMobileNav,
+    searchController,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,

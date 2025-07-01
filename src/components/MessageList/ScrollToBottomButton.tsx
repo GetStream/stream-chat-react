@@ -9,7 +9,10 @@ import type { Event } from 'stream-chat';
 import type { MessageNotificationProps } from './MessageNotification';
 
 const UnMemoizedScrollToBottomButton = (
-  props: Pick<MessageNotificationProps, 'isMessageListScrolledToBottom' | 'onClick' | 'threadList'>,
+  props: Pick<
+    MessageNotificationProps,
+    'isMessageListScrolledToBottom' | 'onClick' | 'threadList'
+  >,
 ) => {
   const { isMessageListScrolledToBottom, onClick, threadList } = props;
 

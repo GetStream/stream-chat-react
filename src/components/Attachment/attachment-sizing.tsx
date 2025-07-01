@@ -1,7 +1,10 @@
 import type { Attachment } from 'stream-chat';
 import * as linkify from 'linkifyjs';
 
-export const getImageAttachmentConfiguration = (attachment: Attachment, element: HTMLElement) => {
+export const getImageAttachmentConfiguration = (
+  attachment: Attachment,
+  element: HTMLElement,
+) => {
   let newUrl = undefined;
 
   const urlToTest = attachment.image_url || attachment.thumb_url || '';
@@ -60,7 +63,10 @@ const getSizingRestrictions = (url: URL, htmlElement: HTMLElement) => {
   const cssSizeRestriction = getCSSSizeRestrictions(htmlElement);
   let resizeDimensions: { height: number; width: number } | undefined;
 
-  if ((cssSizeRestriction.maxHeight || cssSizeRestriction.height) && cssSizeRestriction.maxWidth) {
+  if (
+    (cssSizeRestriction.maxHeight || cssSizeRestriction.height) &&
+    cssSizeRestriction.maxWidth
+  ) {
     resizeDimensions = getResizeDimensions(
       originalHeight,
       originalWidth,
@@ -87,7 +93,9 @@ const getResizeDimensions = (
 
 const getCSSSizeRestrictions = (htmlElement: HTMLElement) => {
   const computedStylesheet = getComputedStyle(htmlElement);
-  const height = getValueRepresentationOfCSSProperty(computedStylesheet.getPropertyValue('height'));
+  const height = getValueRepresentationOfCSSProperty(
+    computedStylesheet.getPropertyValue('height'),
+  );
   const maxHeight = getValueRepresentationOfCSSProperty(
     computedStylesheet.getPropertyValue('max-height'),
   );
@@ -112,7 +120,10 @@ const getValueRepresentationOfCSSProperty = (property: string) => {
   return isNaN(number) ? undefined : number;
 };
 
-const addResizingParamsToUrl = (resizeDimensions: { height: number; width: number }, url: URL) => {
+const addResizingParamsToUrl = (
+  resizeDimensions: { height: number; width: number },
+  url: URL,
+) => {
   url.searchParams.set('h', resizeDimensions.height.toString());
   url.searchParams.set('w', resizeDimensions.width.toString());
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import { useUserRole } from '../useUserRole';
 
@@ -67,7 +67,9 @@ describe('useUserRole custom hook', () => {
   ])('should tell if user is admin when user has %s role', async (role, expected) => {
     const adminUser = generateUser({ role });
     const clientMock = await getTestClientWithUser(adminUser);
-    const { isAdmin } = await renderUserRoleHook({ clientContextValue: { client: clientMock } });
+    const { isAdmin } = await renderUserRoleHook({
+      clientContextValue: { client: clientMock },
+    });
     expect(isAdmin).toBe(expected);
   });
 
@@ -185,25 +187,28 @@ describe('useUserRole custom hook', () => {
     ['moderator', true],
     ['channel_moderator', true],
     ['owner', false],
-  ])('should allow user to edit or delete message if user role is %s', async (role, expected) => {
-    const { canDelete, canEdit } = await renderUserRoleHook({
-      channelProps: {
-        state: {
-          membership: {
-            role,
+  ])(
+    'should allow user to edit or delete message if user role is %s',
+    async (role, expected) => {
+      const { canDelete, canEdit } = await renderUserRoleHook({
+        channelProps: {
+          state: {
+            membership: {
+              role,
+            },
           },
         },
-      },
-      channelStateContextValue: {
-        channelCapabilities: {
-          'delete-any-message': expected,
-          'update-any-message': expected,
+        channelStateContextValue: {
+          channelCapabilities: {
+            'delete-any-message': expected,
+            'update-any-message': expected,
+          },
         },
-      },
-    });
-    expect(canEdit).toBe(expected);
-    expect(canDelete).toBe(expected);
-  });
+      });
+      expect(canEdit).toBe(expected);
+      expect(canDelete).toBe(expected);
+    },
+  );
 
   describe('canDo flags', () => {
     it.each([
@@ -278,36 +283,42 @@ describe('useUserRole custom hook', () => {
       [true, bob, true],
       [false, alice, false],
       [false, bob, false],
-    ])('determine flag message permission', async (flagMessagePerm, messageAuthor, expected) => {
-      const message = generateMessage({ user: messageAuthor });
-      const { canFlag } = await renderUserRoleHook({
-        channelStateContextValue: {
-          channelCapabilities: {
-            'flag-message': flagMessagePerm,
+    ])(
+      'determine flag message permission',
+      async (flagMessagePerm, messageAuthor, expected) => {
+        const message = generateMessage({ user: messageAuthor });
+        const { canFlag } = await renderUserRoleHook({
+          channelStateContextValue: {
+            channelCapabilities: {
+              'flag-message': flagMessagePerm,
+            },
           },
-        },
-        message,
-      });
-      expect(canFlag).toBe(expected);
-    });
+          message,
+        });
+        expect(canFlag).toBe(expected);
+      },
+    );
 
     it.each([
       [true, alice, false],
       [true, bob, true],
       [false, alice, false],
       [false, bob, false],
-    ])('determine mute channel permission', async (muteChannelPerm, messageAuthor, expected) => {
-      const message = generateMessage({ user: messageAuthor });
-      const { canMute } = await renderUserRoleHook({
-        channelStateContextValue: {
-          channelCapabilities: {
-            'mute-channel': muteChannelPerm,
+    ])(
+      'determine mute channel permission',
+      async (muteChannelPerm, messageAuthor, expected) => {
+        const message = generateMessage({ user: messageAuthor });
+        const { canMute } = await renderUserRoleHook({
+          channelStateContextValue: {
+            channelCapabilities: {
+              'mute-channel': muteChannelPerm,
+            },
           },
-        },
-        message,
-      });
-      expect(canMute).toBe(expected);
-    });
+          message,
+        });
+        expect(canMute).toBe(expected);
+      },
+    );
 
     it.each([
       [true, true, false],

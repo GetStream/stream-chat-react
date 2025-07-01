@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle';
+import type { PointerEventHandler } from 'react';
 import React, {
-  PointerEventHandler,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -41,7 +41,7 @@ export const WaveProgressBar = ({
     barWidth: number;
     gap: number;
   }>();
-  const lastRootWidth = useRef<number>();
+  const lastRootWidth = useRef<number>(undefined);
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -144,7 +144,8 @@ export const WaveProgressBar = ({
           key={`amplitude-${i}`}
           style={
             {
-              '--str-chat__voice-recording-amplitude-bar-width': trackAxisX?.barWidth + 'px',
+              '--str-chat__voice-recording-amplitude-bar-width':
+                trackAxisX?.barWidth + 'px',
               '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
                 ? amplitude * 100 + '%'
                 : '0%',

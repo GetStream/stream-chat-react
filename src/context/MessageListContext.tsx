@@ -1,4 +1,5 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 
 export type MessageListContextValue = {
   /** The scroll container within which the messages and typing indicator are rendered */
@@ -7,7 +8,9 @@ export type MessageListContextValue = {
   scrollToBottom: () => void;
 };
 
-export const MessageListContext = createContext<MessageListContextValue | undefined>(undefined);
+export const MessageListContext = createContext<MessageListContextValue | undefined>(
+  undefined,
+);
 
 /**
  * Context provider for components rendered within the `MessageList`

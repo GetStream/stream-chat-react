@@ -4,6 +4,7 @@ export const generateChannel = (options = { channel: {} }) => {
   const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
 
   return {
@@ -11,10 +12,10 @@ export const generateChannel = (options = { channel: {} }) => {
     messages: [],
     pinnedMessages: [],
     ...optionsBesidesChannel,
-    // eslint-disable-next-line sort-keys
+
     channel: {
       cid: `${type}:${id}`,
-      // eslint-disable-next-line sort-keys
+
       config: {
         automod: 'disabled',
         automod_behavior: 'flag',

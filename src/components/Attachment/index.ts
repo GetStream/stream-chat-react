@@ -8,4 +8,5 @@ export * from './components';
 export * from './UnsupportedAttachment';
 export * from './FileAttachment';
 export * from './utils';
+export { useAudioController } from './hooks/useAudioController';
 export * from './hooks/useLiveLocationSharingManager';

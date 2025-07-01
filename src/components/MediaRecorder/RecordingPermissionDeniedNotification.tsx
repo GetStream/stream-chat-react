@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslationContext } from '../../context';
 
-import { RecordingPermission } from './classes/BrowserPermission';
+import type { RecordingPermission } from './classes/BrowserPermission';
 
 export type RecordingPermissionDeniedNotificationProps = {
   onClose: () => void;
@@ -37,7 +37,7 @@ export const RecordingPermissionDeniedNotification = ({
           className='str-chat__recording-permission-denied-notification__dismiss-button'
           onClick={onClose}
         >
-          {t<string>('Ok')}
+          {t('Ok')}
         </button>
       </div>
     </div>

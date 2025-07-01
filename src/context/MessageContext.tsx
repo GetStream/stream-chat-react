@@ -1,9 +1,15 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
+import React, { useContext } from 'react';
 
-import type { Mute, ReactionResponse, ReactionSort, UserResponse } from 'stream-chat';
+import type {
+  LocalMessage,
+  Mute,
+  ReactionResponse,
+  ReactionSort,
+  UserResponse,
+} from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
-import type { StreamMessage } from './ChannelStateContext';
 
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
@@ -18,20 +24,16 @@ import type {
 } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { UnknownType } from '../types/types';
 
-export type CustomMessageActions<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type CustomMessageActions = {
   [key: string]: (
-    message: StreamMessage<StreamChatGenerics>,
+    message: LocalMessage,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
 };
 
-export type MessageContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
   /** Function to exit edit state */
@@ -51,9 +53,9 @@ export type MessageContextValue<
   handleEdit: ReactEventHandler;
   /** Function to fetch the message reactions */
   handleFetchReactions: (
-    reactionType?: ReactionType<StreamChatGenerics>,
-    sort?: ReactionSort<StreamChatGenerics>,
-  ) => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
+    reactionType?: ReactionType,
+    sort?: ReactionSort,
+  ) => Promise<Array<ReactionResponse>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
   /** Function to mark message and the messages that follow it as unread in a Channel */
@@ -65,13 +67,16 @@ export type MessageContextValue<
   /** Function to pin a Message in a Channel */
   handlePin: ReactEventHandler;
   /** Function to post a reaction on a Message */
-  handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
+  handleReaction: (
+    reactionType: string,
+    event: React.BaseSyntheticEvent,
+  ) => Promise<void>;
   /** Function to retry sending a Message */
-  handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
+  handleRetry: ChannelActionContextValue['retrySendMessage'];
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
-  message: StreamMessage<StreamChatGenerics>;
+  message: LocalMessage;
   /** Indicates whether a message has not been read yet or has been marked unread */
   messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
@@ -85,13 +90,13 @@ export type MessageContextValue<
   /** Function to toggle the edit state on a Message */
   setEditingState: ReactEventHandler;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics>;
+  additionalMessageInputProps?: MessageInputProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
   /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
-  customMessageActions?: CustomMessageActions<StreamChatGenerics>;
+  customMessageActions?: CustomMessageActions;
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
   endOfGroup?: boolean;
   /** If true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
@@ -109,25 +114,25 @@ export type MessageContextValue<
   /**
    * A factory function that determines whether a message is AI generated or not.
    */
-  isMessageAIGenerated?: (message: StreamMessage<StreamChatGenerics>) => boolean;
+  isMessageAIGenerated?: (message: LocalMessage) => boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
-  mutes?: Mute<StreamChatGenerics>[];
+  mutes?: Mute[];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** Sort options to provide to a reactions query */
-  reactionDetailsSort?: ReactionSort<StreamChatGenerics>;
+  reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */
-  readBy?: UserResponse<StreamChatGenerics>[];
+  readBy?: UserResponse[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
   renderText?: (
     text?: string,
-    mentioned_users?: UserResponse<StreamChatGenerics>[],
+    mentioned_users?: UserResponse[],
     options?: RenderTextOptions,
-  ) => JSX.Element | null;
+  ) => ReactNode;
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
@@ -140,34 +145,32 @@ export type MessageContextValue<
   unsafeHTML?: boolean;
 };
 
-export const MessageContext = React.createContext<MessageContextValue | undefined>(undefined);
+export const MessageContext = React.createContext<MessageContextValue | undefined>(
+  undefined,
+);
 
-export const MessageProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const MessageProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageContextValue<StreamChatGenerics>;
+  value: MessageContextValue;
 }>) => (
-  <MessageContext.Provider value={(value as unknown) as MessageContextValue}>
+  <MessageContext.Provider value={value as unknown as MessageContextValue}>
     {children}
   </MessageContext.Provider>
 );
 
-export const useMessageContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+export const useMessageContext = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => {
   const contextValue = useContext(MessageContext);
 
   if (!contextValue) {
-    return {} as MessageContextValue<StreamChatGenerics>;
+    return {} as MessageContextValue;
   }
 
-  return (contextValue as unknown) as MessageContextValue<StreamChatGenerics>;
+  return contextValue as unknown as MessageContextValue;
 };
 
 /**
@@ -175,16 +178,11 @@ export const useMessageContext = <
  * typing is desired while using the HOC withMessageContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withMessageContext = <
-  P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
+export const withMessageContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
-  const WithMessageContextComponent = (
-    props: Omit<P, keyof MessageContextValue<StreamChatGenerics>>,
-  ) => {
-    const messageContext = useMessageContext<StreamChatGenerics>();
+  const WithMessageContextComponent = (props: Omit<P, keyof MessageContextValue>) => {
+    const messageContext = useMessageContext();
 
     return <Component {...(props as P)} {...messageContext} />;
   };

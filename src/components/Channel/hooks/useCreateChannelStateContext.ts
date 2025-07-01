@@ -4,54 +4,41 @@ import { isDate, isDayOrMoment } from '../../../i18n';
 
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useCreateChannelStateContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  value: Omit<ChannelStateContextValue<StreamChatGenerics>, 'channelCapabilities'> & {
+export const useCreateChannelStateContext = (
+  value: Omit<ChannelStateContextValue, 'channelCapabilities'> & {
     channelCapabilitiesArray: string[];
     skipMessageDataMemoization?: boolean;
   },
 ) => {
   const {
-    acceptedFiles,
     channel,
     channelCapabilitiesArray = [],
     channelConfig,
-    debounceURLEnrichmentMs,
-    dragAndDropWindow,
-    enrichURLForPreview,
-    giphyVersion,
+    channelUnreadUiState,
     error,
-    findURLFn,
+    giphyVersion,
     hasMore,
     hasMoreNewer,
-    imageAttachmentSizeHandler,
-    suppressAutoscroll,
     highlightedMessageId,
+    imageAttachmentSizeHandler,
     loading,
     loadingMore,
-    maxNumberOfFiles,
     members,
     messages = [],
-    multipleUploads,
     mutes,
     notifications,
-    onLinkPreviewDismissed,
     pinnedMessages,
-    quotedMessage,
     read = {},
     shouldGenerateVideoThumbnail,
     skipMessageDataMemoization,
+    suppressAutoscroll,
     thread,
     threadHasMore,
     threadLoadingMore,
     threadMessages = [],
-    channelUnreadUiState,
     videoAttachmentSizeHandler,
-    watcherCount,
     watcher_count,
+    watcherCount,
     watchers,
   } = value;
 
@@ -61,7 +48,9 @@ export const useCreateChannelStateContext = <
   const notificationsLength = notifications.length;
   const readUsers = Object.values(read);
   const readUsersLength = readUsers.length;
-  const readUsersLastReads = readUsers.map(({ last_read }) => last_read.toISOString()).join();
+  const readUsersLastReads = readUsers
+    .map(({ last_read }) => last_read.toISOString())
+    .join();
   const threadMessagesLength = threadMessages?.length;
 
   const channelCapabilities: Record<string, boolean> = {};
@@ -74,7 +63,15 @@ export const useCreateChannelStateContext = <
     ? messages
     : messages
         .map(
-          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at, user }) =>
+          ({
+            deleted_at,
+            latest_reactions,
+            pinned,
+            reply_count,
+            status,
+            updated_at,
+            user,
+          }) =>
             `${deleted_at}${
               latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
             }${pinned}${reply_count}${status}${
@@ -98,18 +95,13 @@ export const useCreateChannelStateContext = <
     )
     .join();
 
-  const channelStateContext: ChannelStateContextValue<StreamChatGenerics> = useMemo(
+  const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
-      acceptedFiles,
       channel,
       channelCapabilities,
       channelConfig,
       channelUnreadUiState,
-      debounceURLEnrichmentMs,
-      dragAndDropWindow,
-      enrichURLForPreview,
       error,
-      findURLFn,
       giphyVersion,
       hasMore,
       hasMoreNewer,
@@ -117,15 +109,11 @@ export const useCreateChannelStateContext = <
       imageAttachmentSizeHandler,
       loading,
       loadingMore,
-      maxNumberOfFiles,
       members,
       messages,
-      multipleUploads,
       mutes,
       notifications,
-      onLinkPreviewDismissed,
       pinnedMessages,
-      quotedMessage,
       read,
       shouldGenerateVideoThumbnail,
       suppressAutoscroll,
@@ -143,10 +131,7 @@ export const useCreateChannelStateContext = <
       channel.data?.name, // otherwise ChannelHeader will not be updated
       channelId,
       channelUnreadUiState,
-      debounceURLEnrichmentMs,
-      enrichURLForPreview,
       error,
-      findURLFn,
       hasMore,
       hasMoreNewer,
       highlightedMessageId,
@@ -157,8 +142,6 @@ export const useCreateChannelStateContext = <
       memoizedMessageData,
       memoizedThreadMessageData,
       notificationsLength,
-      onLinkPreviewDismissed,
-      quotedMessage,
       readUsersLength,
       readUsersLastReads,
       shouldGenerateVideoThumbnail,

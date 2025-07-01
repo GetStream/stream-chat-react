@@ -1,6 +1,5 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import testRenderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 import { MessageActions } from '../MessageActions';
@@ -15,7 +14,11 @@ import {
   TranslationProvider,
 } from '../../../context';
 
-import { generateMessage, getTestClient, mockTranslationContext } from '../../../mock-builders';
+import {
+  generateMessage,
+  getTestClient,
+  mockTranslationContext,
+} from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -46,8 +49,8 @@ const messageContextValue = {
 
 const chatClient = getTestClient();
 
-function renderMessageActions(customProps = {}, renderer = render) {
-  return renderer(
+function renderMessageActions(customProps = {}) {
+  return render(
     <ChatProvider value={{ client: chatClient }}>
       <DialogManagerProvider id='dialog-manager-provider-id'>
         <ChannelStateProvider value={{}}>
@@ -77,23 +80,22 @@ describe('<MessageActions /> component', () => {
   beforeEach(jest.clearAllMocks);
 
   it('should render correctly when not open', () => {
-    const tree = renderMessageActions({}, testRenderer.create);
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      [
+    const { container } = renderMessageActions();
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <div
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
+          class="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
-            aria-expanded={false}
+            aria-expanded="false"
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
-            className="str-chat__message-actions-box-button"
+            class="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
           >
             <svg
-              className="str-chat__message-action-icon"
+              class="str-chat__message-action-icon"
               height="4"
               viewBox="0 0 11 4"
               width="11"
@@ -101,23 +103,18 @@ describe('<MessageActions /> component', () => {
             >
               <path
                 d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                fillRule="nonzero"
+                fill-rule="nonzero"
               />
             </svg>
           </button>
-        </div>,
+        </div>
         <div
-          className="str-chat__dialog-overlay"
+          class="str-chat__dialog-overlay"
           data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
-          onClick={[Function]}
-          style={
-            {
-              "--str-chat__dialog-overlay-height": "0",
-            }
-          }
-        />,
-      ]
+          style="--str-chat__dialog-overlay-height: 0;"
+        />
+      </div>
     `);
   });
 
@@ -134,10 +131,12 @@ describe('<MessageActions /> component', () => {
     expect(MessageActionsBoxMock).not.toHaveBeenCalled();
     const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     expect(dialogOverlay.children).toHaveLength(0);
-    await toggleOpenMessageActions();
+    await act(async () => {
+      await toggleOpenMessageActions();
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
-      {},
+      undefined,
     );
     expect(dialogOverlay.children.length).toBeGreaterThan(0);
   });
@@ -149,7 +148,7 @@ describe('<MessageActions /> component', () => {
     await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
-      {},
+      undefined,
     );
     await toggleOpenMessageActions();
     expect(dialogOverlay.children).toHaveLength(0);
@@ -160,7 +159,7 @@ describe('<MessageActions /> component', () => {
     await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
-      {},
+      undefined,
     );
     const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     await act(async () => {
@@ -196,7 +195,7 @@ describe('<MessageActions /> component', () => {
         mine: false,
         open: true,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -215,33 +214,32 @@ describe('<MessageActions /> component', () => {
     expect(document.removeEventListener).not.toHaveBeenCalled();
     await toggleOpenMessageActions();
     unmount();
-    expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'keyup',
+      expect.any(Function),
+    );
     removeEventListener.mockClear();
   });
 
   it('should render with a custom wrapper class when one is set', () => {
-    const tree = renderMessageActions(
-      {
-        customWrapperClass: 'custom-wrapper-class',
-      },
-      testRenderer.create,
-    );
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      [
+    const { container } = renderMessageActions({
+      customWrapperClass: 'custom-wrapper-class',
+    });
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <div
-          className="custom-wrapper-class"
+          class="custom-wrapper-class"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
-            aria-expanded={false}
+            aria-expanded="false"
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
-            className="str-chat__message-actions-box-button"
+            class="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
           >
             <svg
-              className="str-chat__message-action-icon"
+              class="str-chat__message-action-icon"
               height="4"
               viewBox="0 0 11 4"
               width="11"
@@ -249,49 +247,40 @@ describe('<MessageActions /> component', () => {
             >
               <path
                 d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                fillRule="nonzero"
+                fill-rule="nonzero"
               />
             </svg>
           </button>
-        </div>,
+        </div>
         <div
-          className="str-chat__dialog-overlay"
+          class="str-chat__dialog-overlay"
           data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
-          onClick={[Function]}
-          style={
-            {
-              "--str-chat__dialog-overlay-height": "0",
-            }
-          }
-        />,
-      ]
+          style="--str-chat__dialog-overlay-height: 0;"
+        />
+      </div>
     `);
   });
 
   it('should render with an inline element wrapper when inline set', () => {
-    const tree = renderMessageActions(
-      {
-        inline: true,
-      },
-      testRenderer.create,
-    );
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      [
+    const { container } = renderMessageActions({
+      inline: true,
+    });
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <span
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
+          class="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
-            aria-expanded={false}
+            aria-expanded="false"
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
-            className="str-chat__message-actions-box-button"
+            class="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
           >
             <svg
-              className="str-chat__message-action-icon"
+              class="str-chat__message-action-icon"
               height="4"
               viewBox="0 0 11 4"
               width="11"
@@ -299,23 +288,18 @@ describe('<MessageActions /> component', () => {
             >
               <path
                 d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                fillRule="nonzero"
+                fill-rule="nonzero"
               />
             </svg>
           </button>
-        </span>,
+        </span>
         <div
-          className="str-chat__dialog-overlay"
+          class="str-chat__dialog-overlay"
           data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
-          onClick={[Function]}
-          style={
-            {
-              "--str-chat__dialog-overlay-height": "0",
-            }
-          }
-        />,
-      ]
+          style="--str-chat__dialog-overlay-height: 0;"
+        />
+      </div>
     `);
   });
 });

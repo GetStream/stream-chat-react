@@ -1,5 +1,6 @@
-import { FileLike, RecordedMediaType } from './types';
-import { ChangeEvent, useCallback } from 'react';
+import type { FileLike, RecordedMediaType } from './types';
+import type { ChangeEvent } from 'react';
+import { useCallback } from 'react';
 
 export const useHandleFileChangeWrapper = (
   resetOnChange = false,
@@ -34,7 +35,9 @@ export function dataTransferItemsHaveFiles(items?: DataTransferItem[]): boolean 
   return false;
 }
 
-export async function dataTransferItemsToFiles(items?: DataTransferItem[]): Promise<FileLike[]> {
+export async function dataTransferItemsToFiles(
+  items?: DataTransferItem[],
+): Promise<FileLike[]> {
   if (!items || !items.length) {
     return [];
   }
@@ -94,7 +97,9 @@ async function getImageSource(fileLikes: FileLike[], src: string) {
 }
 
 const extractImageSources = (s: string) => {
-  const imageTags = new DOMParser().parseFromString(s, 'text/html').getElementsByTagName('img');
+  const imageTags = new DOMParser()
+    .parseFromString(s, 'text/html')
+    .getElementsByTagName('img');
   return Array.from(imageTags, (tag) => tag.src).filter((tag) => tag);
 };
 
@@ -119,7 +124,9 @@ export const getExtensionFromMimeType = (mimeType: string) => {
   return match && match[1];
 };
 
-export const getRecordedMediaTypeFromMimeType = (mimeType: string): RecordedMediaType | null => {
+export const getRecordedMediaTypeFromMimeType = (
+  mimeType: string,
+): RecordedMediaType | null => {
   const match = mimeType.match(/^(audio|video)\/.*$/);
   return match && (match[1] as RecordedMediaType);
 };

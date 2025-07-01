@@ -1,6 +1,9 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
-import { MessageDeliveryStatus, useMessageDeliveryStatus } from '../useMessageDeliveryStatus';
+import { renderHook } from '@testing-library/react';
+import {
+  MessageDeliveryStatus,
+  useMessageDeliveryStatus,
+} from '../useMessageDeliveryStatus';
 import { ChatContext } from '../../../../context';
 import {
   dispatchMessageDeletedEvent,
@@ -44,7 +47,9 @@ const renderComponent = ({ channel, client, lastMessage }) => {
     <ChatContext.Provider value={{ client }}>{children}</ChatContext.Provider>
   );
 
-  return renderHook(() => useMessageDeliveryStatus({ channel, lastMessage }), { wrapper });
+  return renderHook(() => useMessageDeliveryStatus({ channel, lastMessage }), {
+    wrapper,
+  });
 };
 
 describe('Message delivery status', () => {

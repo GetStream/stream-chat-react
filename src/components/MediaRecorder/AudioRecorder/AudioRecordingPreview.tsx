@@ -16,10 +16,11 @@ export const AudioRecordingPreview = ({
   waveformData,
   ...props
 }: AudioRecordingPlayerProps) => {
-  const { audioRef, isPlaying, progress, secondsElapsed, seek, togglePlay } = useAudioController({
-    durationSeconds,
-    mimeType,
-  });
+  const { audioRef, isPlaying, progress, secondsElapsed, seek, togglePlay } =
+    useAudioController({
+      durationSeconds,
+      mimeType,
+    });
 
   const displayedDuration = secondsElapsed || durationSeconds;
 
@@ -37,7 +38,11 @@ export const AudioRecordingPreview = ({
       </button>
       <RecordingTimer durationSeconds={displayedDuration} />
       <div className='str-chat__wave-progress-bar__track-container'>
-        <WaveProgressBar progress={progress} seek={seek} waveformData={waveformData || []} />
+        <WaveProgressBar
+          progress={progress}
+          seek={seek}
+          waveformData={waveformData || []}
+        />
       </div>
     </React.Fragment>
   );

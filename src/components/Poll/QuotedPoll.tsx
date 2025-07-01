@@ -3,22 +3,20 @@ import React from 'react';
 import { usePollContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorQuotedPollReturnValue = { is_closed: boolean | undefined; name: string };
-const pollStateSelectorQuotedPoll = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: PollState<StreamChatGenerics>,
+type PollStateSelectorQuotedPollReturnValue = {
+  is_closed: boolean | undefined;
+  name: string;
+};
+const pollStateSelectorQuotedPoll = (
+  nextValue: PollState,
 ): PollStateSelectorQuotedPollReturnValue => ({
   is_closed: nextValue.is_closed,
   name: nextValue.name,
 });
 
-export const QuotedPoll = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
-  const { poll } = usePollContext<StreamChatGenerics>();
+export const QuotedPoll = () => {
+  const { poll } = usePollContext();
   const { is_closed, name } = useStateStore(poll.state, pollStateSelectorQuotedPoll);
 
   return (

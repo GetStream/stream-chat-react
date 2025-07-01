@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
 
@@ -43,7 +43,9 @@ async function renderUseHandleMuteHook(
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useMuteHandler(message, notificationOpts), { wrapper });
+  const { result } = renderHook(() => useMuteHandler(message, notificationOpts), {
+    wrapper,
+  });
   return result.current;
 }
 

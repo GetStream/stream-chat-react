@@ -1,6 +1,7 @@
 ## Deprecations
 
 You can deprecate a feature or a component once:
+
 1. an alternative exists.
 2. the support for the given functionality is scheduled for termination
 

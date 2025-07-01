@@ -2,16 +2,22 @@ import deepequal from 'react-fast-compare';
 import emojiRegex from 'emoji-regex';
 
 import type { TFunction } from 'i18next';
-import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  ChannelConfigWithInfo,
+  LocalMessage,
+  LocalMessageBase,
+  MessageResponse,
+  Mute,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
 import type {
   ComponentContextValue,
   CustomMessageActions,
   MessageContextValue,
-  StreamMessage,
 } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -25,9 +31,8 @@ export const validateAndGetMessage = <T extends unknown[]>(
 
   // below is due to tests passing a single argument
   // rather than an array.
-  if (!(args instanceof Array)) {
-    // @ts-expect-error
-    args = [args];
+  if (!Array.isArray(args)) {
+    args = [args] as unknown as T;
   }
 
   const returnValue = func(...args);
@@ -40,12 +45,7 @@ export const validateAndGetMessage = <T extends unknown[]>(
 /**
  * Tell if the owner of the current message is muted
  */
-export const isUserMuted = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message: StreamMessage<StreamChatGenerics>,
-  mutes?: Mute<StreamChatGenerics>[],
-) => {
+export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
   if (!mutes || !message) return false;
 
   const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
@@ -61,7 +61,9 @@ export const MESSAGE_ACTIONS = {
   pin: 'pin',
   quote: 'quote',
   react: 'react',
+  remindMe: 'remindMe',
   reply: 'reply',
+  saveForLater: 'saveForLater',
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
@@ -152,6 +154,7 @@ export const getMessageActions = (
     canReact,
     canReply,
   }: Capabilities,
+  channelConfig?: ChannelConfigWithInfo,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -197,8 +200,22 @@ export const getMessageActions = (
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.react);
   }
 
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.remindMe)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
+  }
+
   if (canReply && messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.reply);
+  }
+
+  if (
+    channelConfig?.['user_message_reminders'] &&
+    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater)
+  ) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
   }
 
   return messageActionsAfterPermission;
@@ -218,17 +235,15 @@ export const showMessageActionsBox = (
   inThread?: boolean | undefined,
 ) => shouldRenderMessageActions({ inThread, messageActions: actions });
 
-export const shouldRenderMessageActions = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const shouldRenderMessageActions = ({
   customMessageActions,
   CustomMessageActionsList,
   inThread,
   messageActions,
 }: {
   messageActions: MessageActionsArray;
-  customMessageActions?: CustomMessageActions<SCG>;
-  CustomMessageActionsList?: ComponentContextValue<SCG>['CustomMessageActionsList'];
+  customMessageActions?: CustomMessageActions;
+  CustomMessageActionsList?: ComponentContextValue['CustomMessageActionsList'];
   inThread?: boolean;
 }) => {
   if (
@@ -241,7 +256,8 @@ export const shouldRenderMessageActions = <
 
   if (
     inThread &&
-    messageActions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
+    messageActions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action))
+      .length === 0
   ) {
     return false;
   }
@@ -265,13 +281,11 @@ export const shouldRenderMessageActions = <
   return true;
 };
 
-function areMessagesEqual<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  prevMessage: StreamMessage<StreamChatGenerics>,
-  nextMessage: StreamMessage<StreamChatGenerics>,
-): boolean {
-  return (
+function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
+  const areBaseMessagesEqual = (
+    prevMessage: LocalMessageBase,
+    nextMessage: LocalMessageBase,
+  ) =>
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
@@ -281,25 +295,26 @@ function areMessagesEqual<
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.updated_at === nextMessage.user?.updated_at &&
+    prevMessage.user?.updated_at === nextMessage.user?.updated_at;
+
+  return (
+    areBaseMessagesEqual(prevMessage, nextMessage) &&
     Boolean(prevMessage.quoted_message) === Boolean(nextMessage.quoted_message) &&
-    (!prevMessage.quoted_message ||
-      areMessagesEqual(
-        prevMessage.quoted_message as StreamMessage<StreamChatGenerics>,
-        nextMessage.quoted_message as StreamMessage<StreamChatGenerics>,
+    ((!prevMessage.quoted_message && !nextMessage.quoted_message) ||
+      areBaseMessagesEqual(
+        prevMessage.quoted_message as LocalMessageBase,
+        nextMessage.quoted_message as LocalMessageBase,
       ))
   );
 }
 
-export const areMessagePropsEqual = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  prevProps: MessageProps<StreamChatGenerics> & {
-    mutes?: Mute<StreamChatGenerics>[];
+export const areMessagePropsEqual = (
+  prevProps: MessageProps & {
+    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageProps<StreamChatGenerics> & {
-    mutes?: Mute<StreamChatGenerics>[];
+  nextProps: MessageProps & {
+    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
 ) => {
@@ -335,13 +350,11 @@ export const areMessagePropsEqual = <
   );
 };
 
-export const areMessageUIPropsEqual = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  prevProps: MessageContextValue<StreamChatGenerics> & {
+export const areMessageUIPropsEqual = (
+  prevProps: MessageContextValue & {
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageContextValue<StreamChatGenerics> & {
+  nextProps: MessageContextValue & {
     showDetailedReactions?: boolean;
   },
 ) => {
@@ -369,34 +382,20 @@ export const areMessageUIPropsEqual = <
   return areMessagesEqual(prevMessage, nextMessage);
 };
 
-export const messageHasReactions = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: StreamMessage<StreamChatGenerics>,
-) => Object.values(message?.reaction_groups ?? {}).some(({ count }) => count > 0);
+export const messageHasReactions = (message?: LocalMessage) =>
+  Object.values(message?.reaction_groups ?? {}).some(({ count }) => count > 0);
 
-export const messageHasAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: StreamMessage<StreamChatGenerics>,
-) => !!message?.attachments && !!message.attachments.length;
+export const messageHasAttachments = (message?: LocalMessage) =>
+  !!message?.attachments && !!message.attachments.length;
 
-export const getImages = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: MessageResponse<StreamChatGenerics>,
-) => {
+export const getImages = (message?: MessageResponse) => {
   if (!message?.attachments) {
     return [];
   }
   return message.attachments.filter((item) => item.type === 'image');
 };
 
-export const getNonImageAttachments = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: MessageResponse<StreamChatGenerics>,
-) => {
+export const getNonImageAttachments = (message?: MessageResponse) => {
   if (!message?.attachments) {
     return [];
   }
@@ -404,9 +403,7 @@ export const getNonImageAttachments = <
 };
 
 export interface TooltipUsernameMapper {
-  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
-    user: UserResponse<StreamChatGenerics>,
-  ): string;
+  (user: UserResponse): string;
 }
 
 /**
@@ -416,18 +413,18 @@ export interface TooltipUsernameMapper {
  */
 export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
 
-export const getReadByTooltipText = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  users: UserResponse<StreamChatGenerics>[],
+export const getReadByTooltipText = (
+  users: UserResponse[],
   t: TFunction,
-  client: StreamChat<StreamChatGenerics>,
+  client: StreamChat,
   tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
   let outStr = '';
 
   if (!t) {
-    throw new Error('getReadByTooltipText was called, but translation function is not available');
+    throw new Error(
+      'getReadByTooltipText was called, but translation function is not available',
+    );
   }
 
   if (!tooltipUserNameMapper) {
@@ -482,17 +479,19 @@ export const isOnlyEmojis = (text?: string) => {
   return !noSpace;
 };
 
-export const isMessageBounced = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message: Pick<StreamMessage<StreamChatGenerics>, 'type' | 'moderation' | 'moderation_details'>,
+export const isMessageBounced = (
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
   message.type === 'error' &&
   (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE' ||
     message.moderation?.action === 'bounce');
 
-export const isMessageEdited = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message: Pick<StreamMessage<StreamChatGenerics>, 'message_text_updated_at'>,
-) => !!message.message_text_updated_at;
+export const isMessageBlocked = (
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
+) =>
+  message.type === 'error' &&
+  (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
+    message.moderation?.action === 'remove');
+
+export const isMessageEdited = (message: Pick<LocalMessage, 'message_text_updated_at'>) =>
+  !!message.message_text_updated_at;

@@ -9,7 +9,11 @@ import {
   TranslationProvider,
 } from '../../../context';
 import { MessageStatus } from '../MessageStatus';
-import { generateMessage, generateUser, getTestClientWithUser } from '../../../mock-builders';
+import {
+  generateMessage,
+  generateUser,
+  getTestClientWithUser,
+} from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
 const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-received';
@@ -244,7 +248,9 @@ describe('MessageStatus', () => {
       chatCtx: { client },
       messageCtx: { message: ownMessage, readBy: [user] },
     });
-    expect(screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('does not render count if read by 1 other user', async () => {
@@ -253,7 +259,9 @@ describe('MessageStatus', () => {
       chatCtx: { client },
       messageCtx: { message: ownMessage, readBy: [generateUser()] },
     });
-    expect(screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('renders count if read by 2 other users', async () => {

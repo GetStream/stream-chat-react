@@ -1,7 +1,11 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useMarkRead } from '../useMarkRead';
-import { ChannelActionProvider, ChannelStateProvider, ChatProvider } from '../../../../context';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+} from '../../../../context';
 import {
   dispatchMessageNewEvent,
   generateChannel,
@@ -9,7 +13,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../../mock-builders';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 const visibilityChangeScenario = 'visibilitychange event';
 const markRead = jest.fn();
@@ -29,41 +33,157 @@ const render = ({ channel, client, params }) => {
   return result.current;
 };
 
+const unreadLastMessageChannelData = () => {
+  const user = generateUser();
+  const messages = [
+    generateMessage({ created_at: new Date(1) }),
+    generateMessage({ created_at: new Date(2) }),
+  ];
+  return {
+    messages,
+    read: [
+      {
+        last_read: new Date(1).toISOString(),
+        last_read_message_id: messages[0].id,
+        unread_messages: 1,
+        user,
+      },
+    ],
+  };
+};
+
+const readLastMessageChannelData = () => {
+  const user = generateUser();
+  const messages = [
+    generateMessage({ created_at: new Date(1) }),
+    generateMessage({ created_at: new Date(2) }),
+  ];
+  return {
+    messages,
+    read: [
+      {
+        last_read: new Date(2).toISOString(),
+        last_read_message_id: messages[1].id,
+        unread_messages: 0,
+        user,
+      },
+    ],
+  };
+};
+
+const emptyChannelData = () => {
+  const user = generateUser();
+  return {
+    messages: [],
+    read: [
+      {
+        last_read: undefined,
+        last_read_message_id: undefined,
+        unread_messages: 0,
+        user,
+      },
+    ],
+  };
+};
+
 describe('useMarkRead', () => {
   const shouldMarkReadParams = {
     isMessageListScrolledToBottom: true,
     markReadOnScrolledToBottom: true,
     messageListIsThread: false,
-    unreadCount: 1,
     wasMarkedUnread: false,
   };
 
   beforeEach(jest.clearAllMocks);
 
-  describe.each([[visibilityChangeScenario], ['render'], ['message.new']])('on %s', (scenario) => {
-    it('should not mark channel read from thread message list', async () => {
+  describe.each([[visibilityChangeScenario], ['render']])('on %s', (scenario) => {
+    it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread with unread messages', async () => {
+      const channelData = unreadLastMessageChannelData();
       const {
         channels: [channel],
         client,
-      } = await initClientWithChannels();
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
 
-      render({
+      await render({
         channel,
         client,
-        params: {
-          ...shouldMarkReadParams,
-          messageListIsThread: true,
-        },
+        params: shouldMarkReadParams,
       });
       if (scenario === visibilityChangeScenario) {
-        document.dispatchEvent(new Event('visibilitychange'));
-      } else if (scenario === 'message.new') {
         await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel);
+          document.dispatchEvent(new Event('visibilitychange'));
         });
-        expect(setChannelUnreadUiState).not.toHaveBeenCalled();
+        expect(markRead).toHaveBeenCalledTimes(2);
+      } else {
+        expect(markRead).toHaveBeenCalledTimes(1);
       }
-      expect(markRead).not.toHaveBeenCalled();
+    });
+
+    it('should not mark channel read from non-thread message list scrolled to the bottom previously marked unread with unread messages', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: { ...shouldMarkReadParams, wasMarkedUnread: true },
+      });
+      expect(markRead).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not mark channel read from non-thread message list scrolled to the bottom not previously marked unread with 0 unread messages', async () => {
+      const channelData = readLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+      if (scenario === visibilityChangeScenario) {
+        await act(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+      }
+      expect(markRead).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not mark empty channel read', async () => {
+      const channelData = emptyChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+      if (scenario === visibilityChangeScenario) {
+        await act(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+      }
+      expect(markRead).toHaveBeenCalledTimes(0);
     });
 
     it('should not mark channel read from message list not scrolled to the bottom', async () => {
@@ -83,99 +203,40 @@ describe('useMarkRead', () => {
 
       if (scenario === visibilityChangeScenario) {
         document.dispatchEvent(new Event('visibilitychange'));
-      } else if (scenario === 'message.new') {
-        let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
-        await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel);
-        });
-        expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
-        const channelUnreadUiState = channelUnreadUiStateCb();
-        expect(channelUnreadUiState.unread_messages).toBe(1);
       }
       expect(markRead).not.toHaveBeenCalled();
     });
 
-    it('should not mark channel read from message list in channel with 0 unread messages', async () => {
+    it('should not mark channel read from thread message list', async () => {
       const {
         channels: [channel],
         client,
       } = await initClientWithChannels();
 
-      const countUnread = jest.spyOn(channel, 'countUnread').mockReturnValueOnce(0);
-
-      await render({
+      render({
         channel,
         client,
         params: {
           ...shouldMarkReadParams,
-          unreadCount: 0,
-        },
-      });
-
-      if (scenario === visibilityChangeScenario) {
-        document.dispatchEvent(new Event('visibilitychange'));
-      } else if (scenario === 'message.new') {
-        await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel);
-        });
-        expect(setChannelUnreadUiState).not.toHaveBeenCalled();
-      }
-
-      expect(markRead).not.toHaveBeenCalled();
-      countUnread.mockRestore();
-    });
-
-    it('should not mark channel read from non-thread message list scrolled to the bottom previously marked unread', async () => {
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels();
-
-      await render({
-        channel,
-        client,
-        params: {
-          shouldMarkReadParams,
-          wasMarkedUnread: true,
+          messageListIsThread: true,
         },
       });
       if (scenario === visibilityChangeScenario) {
         document.dispatchEvent(new Event('visibilitychange'));
-      } else if (scenario === 'message.new') {
-        let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
-        await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel);
-        });
-        expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
-        const channelUnreadUiState = channelUnreadUiStateCb();
-        expect(channelUnreadUiState.unread_messages).toBe(1);
       }
-
       expect(markRead).not.toHaveBeenCalled();
     });
+  });
 
-    it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread', async () => {
-      const user = generateUser();
-      const messages = [generateMessage(), generateMessage()];
+  describe('on message.new', () => {
+    it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread with unread messages', async () => {
+      const channelData = unreadLastMessageChannelData();
       const {
         channels: [channel],
         client,
       } = await initClientWithChannels({
-        channelsData: [
-          {
-            messages,
-            read: [
-              {
-                last_read: new Date(1).toISOString(),
-                unread_messages: messages.length,
-                user,
-              },
-            ],
-          },
-        ],
-        customUser: user,
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
       });
 
       await render({
@@ -183,54 +244,96 @@ describe('useMarkRead', () => {
         client,
         params: shouldMarkReadParams,
       });
-      if (scenario === visibilityChangeScenario) {
-        await act(() => {
-          document.dispatchEvent(new Event('visibilitychange'));
-        });
-        expect(markRead).toHaveBeenCalledTimes(1);
-      } else if (scenario === 'message.new') {
-        await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel);
-        });
-        expect(markRead).toHaveBeenCalledTimes(1);
-        expect(setChannelUnreadUiState).not.toHaveBeenCalled();
-      } else {
-        expect(markRead).toHaveBeenCalledTimes(0);
-      }
-    });
-  });
-
-  describe('on message.new', () => {
-    it('should not mark channel read for messages incoming to other channels', async () => {
-      const {
-        channels: [activeChannel, otherChannel],
-        client,
-      } = await initClientWithChannels({ channelsData: [generateChannel(), generateChannel()] });
-
-      await render({
-        channel: activeChannel,
-        client,
-        params: {
-          ...shouldMarkReadParams,
-          unreadCount: 0,
-        },
-      });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), otherChannel);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
-
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markRead).toHaveBeenCalledTimes(2);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
-    it('should not mark channel read for own messages', async () => {
-      const user = generateUser();
+    it('should mark channel read for own messages when scrolled to bottom in main message list', async () => {
+      const channelData = readLastMessageChannelData();
       const {
         channels: [channel],
         client,
       } = await initClientWithChannels({
-        customUser: user,
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+
+      await act(() => {
+        dispatchMessageNewEvent(
+          client,
+          generateMessage({ user: channelData.read[0].user }),
+          channel,
+        );
+      });
+
+      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(setChannelUnreadUiState).not.toHaveBeenCalled();
+    });
+
+    it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread with originally 0 unread messages', async () => {
+      const channelData = readLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(setChannelUnreadUiState).not.toHaveBeenCalled();
+    });
+
+    it('should mark originally empty channel read', async () => {
+      const channelData = emptyChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(setChannelUnreadUiState).not.toHaveBeenCalled();
+    });
+
+    it('should not mark channel read from non-thread message list scrolled to the bottom previously marked unread', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
       });
 
       await render({
@@ -238,12 +341,98 @@ describe('useMarkRead', () => {
         client,
         params: {
           ...shouldMarkReadParams,
-          unreadCount: 0,
+          wasMarkedUnread: true,
         },
       });
 
+      let channelUnreadUiStateCb;
+      setChannelUnreadUiState.mockImplementationOnce(
+        (cb) => (channelUnreadUiStateCb = cb),
+      );
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage({ user }), channel);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
+      const channelUnreadUiState = channelUnreadUiStateCb();
+      expect(channelUnreadUiState.unread_messages).toBe(1);
+      expect(markRead).not.toHaveBeenCalled();
+    });
+
+    it('should mark channel read from message list not scrolled to the bottom', async () => {
+      const channelData = readLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isMessageListScrolledToBottom: false,
+        },
+      });
+
+      let channelUnreadUiStateCb;
+      setChannelUnreadUiState.mockImplementationOnce(
+        (cb) => (channelUnreadUiStateCb = cb),
+      );
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
+      const channelUnreadUiState = channelUnreadUiStateCb();
+      expect(channelUnreadUiState.unread_messages).toBe(1);
+      expect(markRead).not.toHaveBeenCalled();
+    });
+
+    it('should not mark channel read from thread message list', async () => {
+      const channelData = readLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          messageListIsThread: true,
+        },
+      });
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(setChannelUnreadUiState).not.toHaveBeenCalled();
+      expect(markRead).not.toHaveBeenCalled();
+    });
+
+    it('should not mark channel read for messages incoming to other channels', async () => {
+      const channelData = readLastMessageChannelData();
+      const {
+        channels: [activeChannel, otherChannel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData, generateChannel()],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel: activeChannel,
+        client,
+        params: shouldMarkReadParams,
+      });
+
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), otherChannel);
       });
 
       expect(markRead).not.toHaveBeenCalled();
@@ -259,10 +448,7 @@ describe('useMarkRead', () => {
       await render({
         channel,
         client,
-        params: {
-          ...shouldMarkReadParams,
-          unreadCount: 0,
-        },
+        params: shouldMarkReadParams,
       });
 
       await act(() => {
@@ -282,10 +468,7 @@ describe('useMarkRead', () => {
       await render({
         channel,
         client,
-        params: {
-          ...shouldMarkReadParams,
-          unreadCount: 0,
-        },
+        params: shouldMarkReadParams,
       });
 
       await act(() => {
@@ -300,33 +483,12 @@ describe('useMarkRead', () => {
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
-    it('should mark channel read for not-own messages when scrolled to bottom in main message list', async () => {
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels();
-
-      await render({
-        channel,
-        client,
-        params: {
-          ...shouldMarkReadParams,
-          unreadCount: 0,
-        },
-      });
-
-      await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel);
-      });
-
-      expect(markRead).toHaveBeenCalledTimes(1);
-      expect(setChannelUnreadUiState).not.toHaveBeenCalled();
-    });
-
     describe('update unread UI state unread_messages', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -352,7 +514,9 @@ describe('useMarkRead', () => {
 
       it('should be performed when channel was marked unread and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -375,9 +539,12 @@ describe('useMarkRead', () => {
         const channelUnreadUiState = channelUnreadUiStateCb();
         expect(channelUnreadUiState.unread_messages).toBe(1);
       });
+
       it('should be performed when document is hidden and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const {
           channels: [channel],
           client,
@@ -389,7 +556,9 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        const docHiddenSpy = jest
+          .spyOn(document, 'hidden', 'get')
+          .mockReturnValueOnce(true);
         await act(() => {
           dispatchMessageNewEvent(client, generateMessage(), channel);
         });
@@ -404,7 +573,9 @@ describe('useMarkRead', () => {
     describe('update unread UI state last_read', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
         let channelUnreadUiStateCb;
-        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        setChannelUnreadUiState.mockImplementationOnce(
+          (cb) => (channelUnreadUiStateCb = cb),
+        );
         const channelsData = [
           generateChannel({ messages: Array.from({ length: 2 }, generateMessage) }),
         ];
@@ -499,7 +670,9 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        const docHiddenSpy = jest
+          .spyOn(document, 'hidden', 'get')
+          .mockReturnValueOnce(true);
         await act(async () => {
           await dispatchMessageNewEvent(client, generateMessage(), channel);
         });

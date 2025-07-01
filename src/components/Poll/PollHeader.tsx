@@ -2,22 +2,15 @@ import React, { useMemo } from 'react';
 import { usePollContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+type PollStateSelectorReturnValue = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
   max_votes_allowed: number;
   name: string;
-  options: PollOption<StreamChatGenerics>[];
+  options: PollOption[];
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   enforce_unique_vote: nextValue.enforce_unique_vote,
   is_closed: nextValue.is_closed,
   max_votes_allowed: nextValue.max_votes_allowed,
@@ -25,25 +18,22 @@ const pollStateSelector = <
   options: nextValue.options,
 });
 
-export const PollHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
+export const PollHeader = () => {
   const { t } = useTranslationContext('PollHeader');
 
-  const { poll } = usePollContext<StreamChatGenerics>();
-  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } = useStateStore(
-    poll.state,
-    pollStateSelector,
-  );
+  const { poll } = usePollContext();
+  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =
+    useStateStore(poll.state, pollStateSelector);
 
   const selectionInstructions = useMemo(() => {
-    if (is_closed) return t<string>('Vote ended');
-    if (enforce_unique_vote) return t<string>('Select one');
+    if (is_closed) return t('Vote ended');
+    if (enforce_unique_vote || options.length === 1) return t('Select one');
     if (max_votes_allowed)
-      return t<string>('Select up to {{count}}', {
+      return t('Select up to {{count}}', {
         count: max_votes_allowed > options.length ? options.length : max_votes_allowed,
       });
-    return t<string>('Select one or more');
+    if (options.length > 1) return t('Select one or more');
+    return '';
   }, [is_closed, enforce_unique_vote, max_votes_allowed, options.length, t]);
 
   if (!name) return;

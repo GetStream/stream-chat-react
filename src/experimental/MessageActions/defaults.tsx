@@ -1,24 +1,24 @@
 /* eslint-disable sort-keys */
+import type { ComponentPropsWithoutRef } from 'react';
 import React from 'react';
 
-import { isUserMuted } from '../../components';
-import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../../components/Message/icons';
-import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
+import { isUserMuted, useMessageComposer, useMessageReminder } from '../../components';
 import {
-  useChannelActionContext,
-  useChatContext,
-  useMessageContext,
-  useTranslationContext,
-} from '../../context';
-
-import type { ComponentPropsWithoutRef } from 'react';
-
+  ReactionIcon as DefaultReactionIcon,
+  ThreadIcon,
+} from '../../components/Message/icons';
+import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
+import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import { RemindMeActionButton } from '../../components/MessageActions/RemindMeSubmenu';
 import type { MessageActionSetItem } from './MessageActions';
+
+const msgActionsBoxButtonClassName =
+  'str-chat__message-actions-list-item-button' as const;
 
 export const DefaultDropdownActionButton = ({
   'aria-selected': ariaSelected = 'false',
   children,
-  className = 'str-chat__message-actions-list-item-button',
+  className = msgActionsBoxButtonClassName,
   role = 'option',
   ...rest
 }: ComponentPropsWithoutRef<'button'>) => (
@@ -30,12 +30,12 @@ export const DefaultDropdownActionButton = ({
 const DefaultMessageActionComponents = {
   dropdown: {
     Quote() {
-      const { setQuotedMessage } = useChannelActionContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
+      const messageComposer = useMessageComposer();
 
       const handleQuote = () => {
-        setQuotedMessage(message);
+        messageComposer.setQuotedMessage(message);
 
         const elements = message.parent_id
           ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')
@@ -49,7 +49,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleQuote}>
-          {t<string>('Quote')}
+          {t('Quote')}
         </DefaultDropdownActionButton>
       );
     },
@@ -59,7 +59,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handlePin}>
-          {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
+          {!message.pinned ? t('Pin') : t('Unpin')}
         </DefaultDropdownActionButton>
       );
     },
@@ -69,7 +69,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleMarkUnread}>
-          {t<string>('Mark as unread')}
+          {t('Mark as unread')}
         </DefaultDropdownActionButton>
       );
     },
@@ -79,7 +79,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleFlag}>
-          {t<string>('Flag')}
+          {t('Flag')}
         </DefaultDropdownActionButton>
       );
     },
@@ -90,7 +90,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleMute}>
-          {isUserMuted(message, mutes) ? t<string>('Unmute') : t<string>('Mute')}
+          {isUserMuted(message, mutes) ? t('Unmute') : t('Mute')}
         </DefaultDropdownActionButton>
       );
     },
@@ -100,7 +100,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleEdit}>
-          {t<string>('Edit Message')}
+          {t('Edit Message')}
         </DefaultDropdownActionButton>
       );
     },
@@ -110,7 +110,34 @@ const DefaultMessageActionComponents = {
 
       return (
         <DefaultDropdownActionButton onClick={handleDelete}>
-          {t<string>('Delete')}
+          {t('Delete')}
+        </DefaultDropdownActionButton>
+      );
+    },
+    RemindMe() {
+      const { isMyMessage } = useMessageContext();
+      return (
+        <RemindMeActionButton
+          className={msgActionsBoxButtonClassName}
+          isMine={isMyMessage()}
+        />
+      );
+    },
+    SaveForLater() {
+      const { client } = useChatContext();
+      const { message } = useMessageContext();
+      const { t } = useTranslationContext();
+      const reminder = useMessageReminder(message.id);
+
+      return (
+        <DefaultDropdownActionButton
+          onClick={() =>
+            reminder
+              ? client.reminders.deleteReminder(reminder.id)
+              : client.reminders.createReminder({ messageId: message.id })
+          }
+        >
+          {reminder ? t('Remove reminder') : t('Save for later')}
         </DefaultDropdownActionButton>
       );
     },
@@ -139,17 +166,41 @@ const DefaultMessageActionComponents = {
 
 export const defaultMessageActionSet: MessageActionSetItem[] = [
   // { placement: 'dropdown', type: 'block' },
-  { Component: DefaultMessageActionComponents.quick.Reply, placement: 'quick', type: 'reply' },
-  { Component: DefaultMessageActionComponents.quick.React, placement: 'quick', type: 'react' },
+  {
+    Component: DefaultMessageActionComponents.quick.Reply,
+    placement: 'quick',
+    type: 'reply',
+  },
+  {
+    Component: DefaultMessageActionComponents.quick.React,
+    placement: 'quick',
+    type: 'react',
+  },
   {
     Component: DefaultMessageActionComponents.dropdown.Delete,
     placement: 'dropdown',
     type: 'delete',
   },
-  { Component: DefaultMessageActionComponents.dropdown.Edit, placement: 'dropdown', type: 'edit' },
-  { Component: DefaultMessageActionComponents.dropdown.Mute, placement: 'dropdown', type: 'mute' },
-  { Component: DefaultMessageActionComponents.dropdown.Flag, placement: 'dropdown', type: 'flag' },
-  { Component: DefaultMessageActionComponents.dropdown.Pin, placement: 'dropdown', type: 'pin' },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Edit,
+    placement: 'dropdown',
+    type: 'edit',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Mute,
+    placement: 'dropdown',
+    type: 'mute',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Flag,
+    placement: 'dropdown',
+    type: 'flag',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Pin,
+    placement: 'dropdown',
+    type: 'pin',
+  },
   {
     Component: DefaultMessageActionComponents.dropdown.Quote,
     placement: 'dropdown',
@@ -159,5 +210,15 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
     Component: DefaultMessageActionComponents.dropdown.MarkUnread,
     placement: 'dropdown',
     type: 'markUnread',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.RemindMe,
+    placement: 'dropdown',
+    type: 'remindMe',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.SaveForLater,
+    placement: 'dropdown',
+    type: 'saveForLater',
   },
 ] as const;

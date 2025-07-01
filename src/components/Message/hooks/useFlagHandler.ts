@@ -3,30 +3,23 @@ import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
+import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
-
-import type { StreamMessage } from '../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
-export type FlagMessageNotifications<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
-  getSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+export type FlagMessageNotifications = {
+  getErrorNotification?: (message: LocalMessage) => string;
+  getSuccessNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
-export const useFlagHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: StreamMessage<StreamChatGenerics>,
-  notifications: FlagMessageNotifications<StreamChatGenerics> = {},
+export const useFlagHandler = (
+  message?: LocalMessage,
+  notifications: FlagMessageNotifications = {},
 ): ReactEventHandler => {
-  const { client } = useChatContext<StreamChatGenerics>('useFlagHandler');
+  const { client } = useChatContext('useFlagHandler');
   const { t } = useTranslationContext('useFlagHandler');
 
   return async (event) => {
@@ -47,7 +40,8 @@ export const useFlagHandler = <
       await client.flagMessage(message.id);
 
       const successMessage =
-        getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
+        getSuccessNotification &&
+        validateAndGetMessage(getSuccessNotification, [message]);
 
       notify(successMessage || t('Message has been successfully flagged'), 'success');
     } catch (e) {

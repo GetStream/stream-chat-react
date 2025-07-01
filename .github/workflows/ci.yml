@@ -1,52 +1,31 @@
 name: Test
 
 on: [push]
-env:
-  NODE_OPTIONS: --max_old_space_size=4096
 
 jobs:
   tsc:
     runs-on: ubuntu-latest
-    name: Typescript
+    name: TypeScript
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: 💾 Cache Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ./node_modules
-          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
-
-      - name: 🔨 Install Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+      - uses: ./.github/actions/setup-node
 
       - name: 🧪 tsc
-        run: yarn types --noEmit
+        run: yarn types
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16, 18]
-    name: Test with Node ${{ matrix.node }}
+    name: Lint & test with Node
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
+      - uses: actions/checkout@v4
 
-      - name: 💾 Cache Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ./node_modules
-          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - uses: ./.github/actions/setup-node
 
-      - name: 🔨 Install Dependencies & Build
-        run: |
-          yarn install --frozen-lockfile --ignore-engines
-          yarn build
+      - name: Build SDK
+        run: yarn build
 
-      - name: 🧪 Lint and Test with ${{ matrix.node }}
+      - name: 🧪 Lint and test with Node ${{ env.NODE_VERSION }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
@@ -54,5 +33,5 @@ jobs:
           yarn coverage
           yarn validate-translations
 
-      - name: 🧪 Validate CommonJS bundle with ${{ matrix.node }}
+      - name: 🧪 Validate CommonJS bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-cjs

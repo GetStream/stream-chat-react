@@ -6,22 +6,15 @@ import { ModalHeader } from '../../../Modal/ModalHeader';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
-type PollStateSelectorReturnValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+type PollStateSelectorReturnValue = {
   name: string;
-  options: PollOption<StreamChatGenerics>[];
+  options: PollOption[];
   vote_counts_by_option: Record<string, number>;
 };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   name: nextValue.name,
-  options: nextValue.options,
+  options: [...nextValue.options],
   vote_counts_by_option: nextValue.vote_counts_by_option,
 });
 
@@ -29,15 +22,14 @@ export type PollResultsProps = {
   close?: () => void;
 };
 
-export const PollResults = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  close,
-}: PollResultsProps) => {
+export const PollResults = ({ close }: PollResultsProps) => {
   const { t } = useTranslationContext();
-  const { poll } = usePollContext<StreamChatGenerics>();
-  const { name, options, vote_counts_by_option } = useStateStore(poll.state, pollStateSelector);
-  const [optionToView, setOptionToView] = useState<PollOption<StreamChatGenerics>>();
+  const { poll } = usePollContext();
+  const { name, options, vote_counts_by_option } = useStateStore(
+    poll.state,
+    pollStateSelector,
+  );
+  const [optionToView, setOptionToView] = useState<PollOption>();
 
   const goBack = useCallback(() => setOptionToView(undefined), []);
 
@@ -59,13 +51,14 @@ export const PollResults = <
         </>
       ) : (
         <>
-          <ModalHeader close={close} title={t<string>('Poll results')} />
+          <ModalHeader close={close} title={t('Poll results')} />
           <div className='str-chat__modal__poll-results__body'>
             <div className='str-chat__modal__poll-results__title'>{name}</div>
             <div className='str-chat__modal__poll-results__option-list'>
               {options
                 .sort((next, current) =>
-                  (vote_counts_by_option[current.id] ?? 0) >= (vote_counts_by_option[next.id] ?? 0)
+                  (vote_counts_by_option[current.id] ?? 0) >=
+                  (vote_counts_by_option[next.id] ?? 0)
                     ? 1
                     : -1,
                 )

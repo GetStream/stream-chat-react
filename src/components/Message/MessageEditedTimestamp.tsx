@@ -1,30 +1,27 @@
 import React from 'react';
 
 import clsx from 'clsx';
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { isMessageEdited } from './utils';
 
-import type { DefaultStreamChatGenerics } from '../../types';
 import type { MessageTimestampProps } from './MessageTimestamp';
 
-export type MessageEditedTimestampProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = MessageTimestampProps<StreamChatGenerics> & {
+export type MessageEditedTimestampProps = MessageTimestampProps & {
   open: boolean;
 };
 
-export function MessageEditedTimestamp<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export function MessageEditedTimestamp({
   message: propMessage,
   open,
   ...timestampProps
-}: MessageEditedTimestampProps<StreamChatGenerics>) {
+}: MessageEditedTimestampProps) {
   const { t } = useTranslationContext('MessageEditedTimestamp');
-  const { message: contextMessage } = useMessageContext<StreamChatGenerics>(
-    'MessageEditedTimestamp',
-  );
+  const { message: contextMessage } = useMessageContext('MessageEditedTimestamp');
   const { Timestamp = DefaultTimestamp } = useComponentContext('MessageEditedTimestamp');
   const message = propMessage || contextMessage;
 
@@ -42,7 +39,7 @@ export function MessageEditedTimestamp<
       )}
       data-testid='message-edited-timestamp'
     >
-      {t<string>('Edited')}{' '}
+      {t('Edited')}{' '}
       <Timestamp timestamp={message.message_text_updated_at} {...timestampProps} />
     </div>
   );

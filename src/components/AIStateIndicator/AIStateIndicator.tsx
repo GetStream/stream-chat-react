@@ -1,27 +1,19 @@
 import React from 'react';
-
-import { Channel } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 
 import { AIStates, useAIState } from './hooks/useAIState';
 
 import { useChannelStateContext, useTranslationContext } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type AIStateIndicatorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  channel?: Channel<StreamChatGenerics>;
+export type AIStateIndicatorProps = {
+  channel?: Channel;
 };
 
-export const AIStateIndicator = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const AIStateIndicator = ({
   channel: channelFromProps,
-}: AIStateIndicatorProps<StreamChatGenerics>) => {
+}: AIStateIndicatorProps) => {
   const { t } = useTranslationContext();
-  const { channel: channelFromContext } = useChannelStateContext<StreamChatGenerics>(
-    'AIStateIndicator',
-  );
+  const { channel: channelFromContext } = useChannelStateContext('AIStateIndicator');
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
   const allowedStates = {

@@ -1,11 +1,11 @@
 export type GeneralType = 'audio/' | 'video/' | 'image/' | 'text/';
 
 export type SupportedMimeType =
-  | typeof wordMimeTypes[number]
-  | typeof excelMimeTypes[number]
-  | typeof powerpointMimeTypes[number]
-  | typeof archiveFileTypes[number]
-  | typeof codeFileTypes[number];
+  | (typeof wordMimeTypes)[number]
+  | (typeof excelMimeTypes)[number]
+  | (typeof powerpointMimeTypes)[number]
+  | (typeof archiveFileTypes)[number]
+  | (typeof codeFileTypes)[number];
 
 export const wordMimeTypes = [
   // Microsoft Word

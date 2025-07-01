@@ -94,14 +94,26 @@ describe('Message utils', () => {
     it.each([
       ['empty', []],
       ['false', false],
-    ])('should return no message actions if message actions are %s', (_, messageActions) => {
-      const result = getMessageActions(messageActions, defaultCapabilities);
-      expect(result).toStrictEqual([]);
+    ])(
+      'should return no message actions if message actions are %s',
+      (_, messageActions) => {
+        const result = getMessageActions(messageActions, defaultCapabilities);
+        expect(result).toStrictEqual([]);
+      },
+    );
+
+    it('should return all message actions not depending on channel config if actions are set to true', () => {
+      const result = getMessageActions(true, defaultCapabilities);
+      expect(result).toStrictEqual(
+        actions.filter((a) => !['remindMe', 'saveForLater'].includes(a)),
+      );
     });
 
-    it('should return all message actions if actions are set to true', () => {
-      const result = getMessageActions(true, defaultCapabilities);
-      expect(result).toStrictEqual(actions);
+    it('should include reminder actions if enabled in channel config', () => {
+      const result = getMessageActions(true, defaultCapabilities, {
+        user_message_reminders: true,
+      });
+      expect(result).toEqual(actions);
     });
 
     it.each([
@@ -447,7 +459,9 @@ describe('Message utils', () => {
       expect(result).toStrictEqual(`1, 2, and 3`);
     });
     it('returns "1, 2, 3, 4, 5 and 5 more if read by ten users', () => {
-      const users = [...Array(10).keys()].map((n) => generateUser({ name: (n + 1).toString() }));
+      const users = [...Array(10).keys()].map((n) =>
+        generateUser({ name: (n + 1).toString() }),
+      );
       const result = getReadByTooltipText(
         users,
         mockTranslatorFunction,
@@ -472,7 +486,9 @@ describe('Message utils', () => {
       );
     });
     it('throws error if no tooltipUserNameMapper function provided', () => {
-      expect(() => getReadByTooltipText([], mockTranslatorFunction, client, undefined)).toThrow(
+      expect(() =>
+        getReadByTooltipText([], mockTranslatorFunction, client, undefined),
+      ).toThrow(
         'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
       );
     });

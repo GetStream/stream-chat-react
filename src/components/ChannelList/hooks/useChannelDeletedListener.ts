@@ -1,24 +1,19 @@
 import { useEffect } from 'react';
+import type { Channel, Event } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { Channel, Event } from 'stream-chat';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useChannelDeletedListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+export const useChannelDeletedListener = (
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   customHandler?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
-    event: Event<StreamChatGenerics>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    event: Event,
   ) => void,
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>('useChannelDeletedListener');
+  const { client } = useChatContext('useChannelDeletedListener');
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else {

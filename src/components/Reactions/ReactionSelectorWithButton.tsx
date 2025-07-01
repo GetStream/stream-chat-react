@@ -1,8 +1,13 @@
-import React, { ElementRef, useRef } from 'react';
+import type { ElementRef } from 'react';
+import React, { useRef } from 'react';
 import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
+
 import type { IconProps } from '../../types/types';
 
 type ReactionSelectorWithButtonProps = {
@@ -14,14 +19,13 @@ type ReactionSelectorWithButtonProps = {
  * Internal convenience component - not to be exported. It just groups the button and the dialog anchor and thus prevents
  * cluttering the parent component.
  */
-export const ReactionSelectorWithButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('MessageOptions');
-  const { ReactionSelector = DefaultReactionSelector } = useComponentContext('MessageOptions');
+  const { isMyMessage, message } = useMessageContext('MessageOptions');
+  const { ReactionSelector = DefaultReactionSelector } =
+    useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
   const dialogId = `reaction-selector--${message.id}`;
   const dialog = useDialog({ id: dialogId });

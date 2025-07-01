@@ -23,13 +23,17 @@ const renderComponent = ({ poll }) =>
 describe('PollHeader', () => {
   it('should not render if poll name is missing', () => {
     const pollData = generatePoll({ name: '' });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should render vote ended header', () => {
     const pollData = generatePoll({ is_closed: true });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
     expect(nameDiv).toHaveTextContent(pollData.name);
@@ -38,7 +42,9 @@ describe('PollHeader', () => {
 
   it('should render select one header', () => {
     const pollData = generatePoll({ enforce_unique_vote: true });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
     expect(nameDiv).toHaveTextContent(pollData.name);
@@ -47,7 +53,9 @@ describe('PollHeader', () => {
 
   it('should render Select up to {{count}} header', () => {
     const pollData = generatePoll({ max_votes_allowed: 2 });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
     expect(nameDiv).toHaveTextContent(pollData.name);
@@ -56,10 +64,42 @@ describe('PollHeader', () => {
 
   it('should render Select one or more header', () => {
     const pollData = generatePoll({ max_votes_allowed: undefined });
-    const { container } = renderComponent({ poll: new Poll({ client: {}, poll: pollData }) });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
     expect(nameDiv).toHaveTextContent(pollData.name);
     expect(subtitleDiv).toHaveTextContent('Select one or more');
+  });
+
+  it('should render Select one header if only one option is available', () => {
+    const pollData = generatePoll({
+      max_votes_allowed: undefined,
+      options: [
+        {
+          id: '85610252-7d50-429c-8183-51a7eba46246',
+          text: 'A',
+        },
+      ],
+    });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
+    const nameDiv = container.querySelector(TITLE_SELECTOR);
+    const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
+    expect(nameDiv).toHaveTextContent(pollData.name);
+    expect(subtitleDiv).toHaveTextContent('Select one');
+  });
+
+  it('should render no header text if no options available', () => {
+    const pollData = generatePoll({ max_votes_allowed: undefined, options: [] });
+    const { container } = renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
+    const nameDiv = container.querySelector(TITLE_SELECTOR);
+    const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
+    expect(nameDiv).toHaveTextContent(pollData.name);
+    expect(subtitleDiv).toHaveTextContent('');
   });
 });

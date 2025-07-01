@@ -11,7 +11,7 @@ export const ThreadStart = () => {
 
   return (
     <div className='str-chat__thread-start'>
-      {t<string>('replyCount', { count: thread.reply_count })}
+      {t('replyCount', { count: thread.reply_count })}
     </div>
   );
 };

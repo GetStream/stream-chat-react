@@ -2,81 +2,30 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      docs_only:
-        description: Skip package release and publish documentation only
-        default: false
-        type: boolean
-      skip_docs:
-        description: Skip publishing the documentation
-        default: false
-        type: boolean
       dry_run:
-        description: Run package release in "dry run" mode (does not publish either)
+        description: Run package release in "dry run" mode (does not publish)
         default: false
         type: boolean
-      docs_env:
-        description: Pick environment to publish documentation to
-        required: true
-        type: choice
-        default: staging
-        options:
-          - production
-          - staging
 
 jobs:
   package_release:
     name: Release from "${{ github.ref_name }}" branch
     runs-on: ubuntu-latest
     # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure
-    if: ${{ !inputs.docs_only && (startsWith(github.ref_name, 'release') || startsWith(github.ref_name, 'master')) }}
-    env:
-      NODE_OPTIONS: --max_old_space_size=4096
+    if: ${{ inputs.dry_run || startsWith(github.ref_name, 'release') || startsWith(github.ref_name, 'master') || startsWith(github.ref_name, 'rc')}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Install dependencies & Build
-        run: |
-          yarn install --frozen-lockfile
-          yarn run build
-      - name: Validate CommonJS bundle
-        run: yarn validate-cjs
+
+      - uses: ./.github/actions/setup-node
+
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # https://github.com/stream-ci-bot
-          GH_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
           HUSKY: 0
         run: >
           yarn semantic-release
           ${{ inputs.dry_run && '--dry-run' || '' }}
-
-  docs_release:
-    name: Publish documentation from "${{ github.ref_name }}" branch to ${{ inputs.docs_env }}
-    runs-on: ubuntu-latest
-    # skip during dry runs, publish to production only from master or branches with names starting with "release", publish to staging from anywhere
-    if: ${{ !inputs.dry_run && !inputs.skip_docs && (((github.ref_name == 'master' || startsWith(github.ref_name, 'release')) && inputs.docs_env == 'production') || inputs.docs_env == 'staging') }}
-    outputs:
-      target-version: $${{ steps.target-version.outputs }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
-      - name: Merge shared "@stream-io/stream-chat-css" docs
-        run: yarn docs:copy-css-docs
-      - name: Push to stream-chat-docusaurus
-        uses: GetStream/push-stream-chat-docusaurus-action@main
-        with:
-          target-branch: ${{ inputs.docs_env }}
-        env:
-          DOCUSAURUS_GH_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}

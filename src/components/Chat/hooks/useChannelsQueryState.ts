@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import type { APIErrorResponse, ErrorFromResponse } from 'stream-chat';
 
 type ChannelQueryState =
@@ -16,7 +17,8 @@ export interface ChannelsQueryState {
 
 export const useChannelsQueryState = (): ChannelsQueryState => {
   const [error, setError] = useState<ErrorFromResponse<APIErrorResponse> | null>(null);
-  const [queryInProgress, setQueryInProgress] = useState<ChannelQueryState>('uninitialized');
+  const [queryInProgress, setQueryInProgress] =
+    useState<ChannelQueryState>('uninitialized');
 
   return {
     error,

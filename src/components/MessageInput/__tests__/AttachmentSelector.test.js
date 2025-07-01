@@ -17,8 +17,10 @@ const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-m
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
 
 const ATTACHMENT_SELECTOR_CLASS = 'str-chat__attachment-selector';
-const UPLOAD_FILE_BUTTON_CLASS = 'str-chat__attachment-selector-actions-menu__upload-file-button';
-const CREATE_POLL_BUTTON_CLASS = 'str-chat__attachment-selector-actions-menu__create-poll-button';
+const UPLOAD_FILE_BUTTON_CLASS =
+  'str-chat__attachment-selector-actions-menu__upload-file-button';
+const CREATE_POLL_BUTTON_CLASS =
+  'str-chat__attachment-selector-actions-menu__create-poll-button';
 
 const translationContext = {
   t: (v) => v,
@@ -47,7 +49,9 @@ const renderComponent = async ({
   const {
     channels: [channel],
     client,
-  } = await initClientWithChannels();
+  } = await initClientWithChannels({
+    channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+  });
   let result;
   await act(() => {
     result = render(
@@ -59,7 +63,9 @@ const renderComponent = async ({
                 value={{ ...defaultChannelStateContext, channel, ...channelStateContext }}
               >
                 <div id={CHANNEL_CONTAINER_ID}>
-                  <MessageInput {...{ ...defaultMessageInputProps, ...messageInputProps }} />
+                  <MessageInput
+                    {...{ ...defaultMessageInputProps, ...messageInputProps }}
+                  />
                 </div>
               </ChannelStateProvider>
             </ChannelActionProvider>
@@ -85,7 +91,9 @@ describe('AttachmentSelector', () => {
     const { container } = await renderComponent({
       channelStateContext: { channelConfig: { polls: false } },
     });
-    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(
+      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
@@ -93,7 +101,9 @@ describe('AttachmentSelector', () => {
     const { container } = await renderComponent({
       channelStateContext: { channelCapabilities: { 'upload-file': true } },
     });
-    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(
+      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
@@ -101,7 +111,9 @@ describe('AttachmentSelector', () => {
     const { container } = await renderComponent({
       messageInputProps: { isThreadInput: true },
     });
-    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(
+      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
@@ -120,7 +132,9 @@ describe('AttachmentSelector', () => {
     await renderComponent({
       channelStateContext: { channelCapabilities: {} },
     });
-    expect(screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('opens poll creation dialog if Poll option is selected and closes the attachment selector menu', async () => {
@@ -143,7 +157,9 @@ describe('AttachmentSelector', () => {
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     const uploadFileMenuBtn = menu.querySelector(`.${UPLOAD_FILE_BUTTON_CLASS}`);
     expect(uploadFileMenuBtn).toBeInTheDocument();
-    fireEvent.click(uploadFileMenuBtn);
+    await act(async () => {
+      await fireEvent.click(uploadFileMenuBtn);
+    });
     await waitFor(() => {
       expect(menu).not.toBeInTheDocument();
     });
@@ -153,9 +169,13 @@ describe('AttachmentSelector', () => {
     const customText = 'Custom text';
     const ActionButton = () => <div>{customText}</div>;
     const CustomAttachmentSelector = () => (
-      <AttachmentSelector attachmentSelectorActionSet={[{ ActionButton, type: 'custom' }]} />
+      <AttachmentSelector
+        attachmentSelectorActionSet={[{ ActionButton, type: 'custom' }]}
+      />
     );
-    await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+    });
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     expect(menu).toBeInTheDocument();
@@ -183,7 +203,9 @@ describe('AttachmentSelector', () => {
         attachmentSelectorActionSet={[{ ActionButton, ModalContent, type: 'custom' }]}
       />
     );
-    await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+    });
     await invokeMenu();
     act(() => {
       fireEvent.click(screen.getByText(buttonText));
@@ -209,7 +231,9 @@ describe('AttachmentSelector', () => {
     const CustomAttachmentSelector = () => (
       <AttachmentSelector getModalPortalDestination={getModalPortalDestination} />
     );
-    await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+    });
     await invokeMenu();
     act(() => {
       fireEvent.click(screen.getByText('Poll'));
@@ -223,7 +247,9 @@ describe('AttachmentSelector', () => {
   it('allows to override PollCreationDialog', async () => {
     const testId = 'custom-poll-creation-dialog';
     const CustomPollCreationDialog = () => <div data-testid={testId} />;
-    await renderComponent({ componentContext: { PollCreationDialog: CustomPollCreationDialog } });
+    await renderComponent({
+      componentContext: { PollCreationDialog: CustomPollCreationDialog },
+    });
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     const createPollButton = menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`);

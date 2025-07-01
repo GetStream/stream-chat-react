@@ -1,10 +1,5 @@
-import React, {
-  ChangeEvent,
-  ChangeEventHandler,
-  ComponentProps,
-  useCallback,
-  useState,
-} from 'react';
+import type { ChangeEvent, ChangeEventHandler, ComponentProps } from 'react';
+import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 import { FieldError } from '../Form/FieldError';
 import { useTranslationContext } from '../../context';
@@ -36,7 +31,9 @@ type FormValue<F extends Record<FieldId, FieldConfig>> = {
 };
 
 export const FormDialog = <
-  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<Record<FieldId, FieldConfig>>
+  F extends FormValue<Record<FieldId, FieldConfig>> = FormValue<
+    Record<FieldId, FieldConfig>
+  >,
 >({
   className,
   close,
@@ -55,7 +52,9 @@ export const FormDialog = <
     return acc as F;
   });
 
-  const handleChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>>(
+  const handleChange = useCallback<
+    ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+  >(
     (event) => {
       const fieldId = event.target.id;
       const fieldConfig = fields[fieldId];
@@ -108,12 +107,20 @@ export const FormDialog = <
     <div className={clsx('str-chat__dialog str-chat__dialog--form', className)}>
       <div className='str-chat__dialog__body'>
         {title && <div className='str-chat__dialog__title'>{title}</div>}
-        <form autoComplete='off'>
+        <form
+          autoComplete='off'
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           {Object.entries(fields).map(([id, fieldConfig]) => (
             <div className='str-chat__dialog__field' key={`dialog-field-${id}`}>
               {fieldConfig.label && (
                 <label
-                  className={clsx(`str-chat__dialog__title str-chat__dialog__title--${id}`)}
+                  className={clsx(
+                    `str-chat__dialog__title str-chat__dialog__title--${id}`,
+                  )}
                   htmlFor={id}
                 >
                   {fieldConfig.label}
@@ -128,23 +135,24 @@ export const FormDialog = <
               <FieldError text={fieldErrors[id]?.message} />
             </div>
           ))}
+          <div className='str-chat__dialog__controls'>
+            <button
+              className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
+              onClick={close}
+            >
+              {t('Cancel')}
+            </button>
+            <button
+              className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
+              disabled={
+                Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)
+              }
+              type='submit'
+            >
+              {t('Send')}
+            </button>
+          </div>
         </form>
-      </div>
-      <div className='str-chat__dialog__controls'>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
-          onClick={close}
-        >
-          {t<string>('Cancel')}
-        </button>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-          disabled={Object.keys(fieldErrors).length > 0 || shouldDisableSubmitButton?.(value)}
-          onClick={handleSubmit}
-          type='submit'
-        >
-          {t<string>('Send')}
-        </button>
       </div>
     </div>
   );

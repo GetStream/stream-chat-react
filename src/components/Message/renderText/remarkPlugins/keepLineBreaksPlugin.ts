@@ -1,4 +1,5 @@
-import { visit, Visitor } from 'unist-util-visit';
+import type { Visitor } from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
 import { u } from 'unist-builder';
 
 import type { Break } from 'mdast';
@@ -18,8 +19,9 @@ const visitor: Visitor = (node, index, parent) => {
   const countTruncatedLineBreaks = ownStartLine - prevEndLine - 1;
   if (countTruncatedLineBreaks < 1) return;
 
-  const lineBreaks = Array.from<unknown, Break>({ length: countTruncatedLineBreaks }, () =>
-    u('break', { tagName: 'br' }),
+  const lineBreaks = Array.from<unknown, Break>(
+    { length: countTruncatedLineBreaks },
+    () => u('break', { tagName: 'br' }),
   );
 
   parent.children = [

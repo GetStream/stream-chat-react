@@ -2,14 +2,8 @@ import { useEffect } from 'react';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export const useConnectionRecoveredListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  forceUpdate?: () => void,
-) => {
-  const { client } = useChatContext<StreamChatGenerics>('useConnectionRecoveredListener');
+export const useConnectionRecoveredListener = (forceUpdate?: () => void) => {
+  const { client } = useChatContext('useConnectionRecoveredListener');
 
   useEffect(() => {
     const handleEvent = () => {

@@ -1,28 +1,13 @@
-import { useEffect, useState } from 'react';
-import type { Channel, ChannelState, ExtendableGenerics } from 'stream-chat';
+import type { Channel, ChannelMemberResponse, EventTypes } from 'stream-chat';
+import { useSelectedChannelState } from './useSelectedChannelState';
 
-import { useChatContext } from '../../../context';
+const selector = (c: Channel) => c.state.membership;
+const keys: EventTypes[] = ['member.updated'];
 
-export const useChannelMembershipState = <SCG extends ExtendableGenerics>(
-  channel?: Channel<SCG>,
-) => {
-  const [membership, setMembership] = useState<ChannelState<SCG>['membership']>(
-    channel?.state.membership || {},
-  );
-
-  const { client } = useChatContext<SCG>();
-
-  useEffect(() => {
-    if (!channel) return;
-
-    const subscriptions = ['member.updated'].map((v) =>
-      client.on(v, () => {
-        setMembership(channel.state.membership);
-      }),
-    );
-
-    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, [client, channel]);
-
-  return membership;
-};
+export function useChannelMembershipState(channel: Channel): ChannelMemberResponse;
+export function useChannelMembershipState(
+  channel?: Channel | undefined,
+): ChannelMemberResponse | undefined;
+export function useChannelMembershipState(channel?: Channel) {
+  return useSelectedChannelState({ channel, selector, stateChangeEventKeys: keys });
+}

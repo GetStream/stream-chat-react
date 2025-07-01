@@ -1,15 +1,12 @@
 import React from 'react';
 
 import { MenuIcon as DefaultMenuIcon } from './icons';
-
-import { ChannelAvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
-
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { ChannelAvatarProps } from '../Avatar';
 
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
@@ -27,21 +24,17 @@ export type ChannelHeaderProps = {
 /**
  * The ChannelHeader component renders some basic information about a Channel.
  */
-export const ChannelHeader = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ChannelHeaderProps,
-) => {
+export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
-    MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
+    MenuIcon = DefaultMenuIcon,
     title: overrideTitle,
   } = props;
 
-  const { channel, watcher_count } = useChannelStateContext<StreamChatGenerics>('ChannelHeader');
-  const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
+  const { channel, watcher_count } = useChannelStateContext('ChannelHeader');
+  const { openMobileNav } = useChatContext('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -70,7 +63,7 @@ export const ChannelHeader = <
         <p className='str-chat__channel-header-title'>
           {displayTitle}{' '}
           {live && (
-            <span className='str-chat__header-livestream-livelabel'>{t<string>('live')}</span>
+            <span className='str-chat__header-livestream-livelabel'>{t('live')}</span>
           )}
         </p>
         {subtitle && <p className='str-chat__channel-header-subtitle'>{subtitle}</p>}
@@ -83,7 +76,7 @@ export const ChannelHeader = <
               ,{' '}
             </>
           )}
-          {t<string>('{{ watcherCount }} online', { watcherCount: watcher_count })}
+          {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
         </p>
       </div>
     </div>

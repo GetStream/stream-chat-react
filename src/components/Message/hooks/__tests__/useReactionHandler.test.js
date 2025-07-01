@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandler';
 
@@ -47,7 +47,9 @@ async function renderUseReactionHandlerHook(params = {}) {
           ...channelStateContextOverrides,
         }}
       >
-        <ChannelActionProvider value={{ updateMessage }}>{children}</ChannelActionProvider>
+        <ChannelActionProvider value={{ updateMessage }}>
+          {children}
+        </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>
   );

@@ -16,7 +16,9 @@ const attachment = generateVoiceRecordingAttachment();
 
 window.ResizeObserver = ResizeObserverMock;
 
-jest.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 120 });
+jest
+  .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
+  .mockReturnValue({ width: 120 });
 
 const clickPlay = async () => {
   await act(async () => {
@@ -57,7 +59,9 @@ describe('VoiceRecordingPlayer', () => {
   afterAll(jest.restoreAllMocks);
 
   it('should not render the component if asset_url is missing', () => {
-    const { container } = renderComponent({ attachment: { ...attachment, asset_url: undefined } });
+    const { container } = renderComponent({
+      attachment: { ...attachment, asset_url: undefined },
+    });
     expect(container).toBeEmptyDOMElement();
   });
   it('should render title if present', () => {
@@ -65,7 +69,9 @@ describe('VoiceRecordingPlayer', () => {
     expect(getByTestId('voice-recording-title')).toHaveTextContent(attachment.title);
   });
   it('should render fallback title if attachment title not present', () => {
-    const { getByTestId } = renderComponent({ attachment: { ...attachment, title: undefined } });
+    const { getByTestId } = renderComponent({
+      attachment: { ...attachment, title: undefined },
+    });
     expect(getByTestId('voice-recording-title')).toHaveTextContent(FALLBACK_TITLE);
   });
 
@@ -129,8 +135,12 @@ describe('VoiceRecordingPlayer', () => {
   it('should show the correct progress', async () => {
     const { container } = renderComponent({ attachment });
 
-    jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
-    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
+    jest
+      .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
+      .mockImplementationOnce(() => 100);
+    jest
+      .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
+      .mockImplementationOnce(() => 50);
     const audioElement = container.querySelector('audio');
     fireEvent.timeUpdate(audioElement);
 

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
-import React, { PropsWithChildren, useEffect, useMemo, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
 /**
@@ -14,7 +15,12 @@ const mousewheelListener = (event: Event) => {
 };
 
 export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
-  listenToScroll?: (distanceFromBottom: number, distanceFromTop: number, threshold: number) => void;
+  listenToScroll?: (
+    distanceFromBottom: number,
+    distanceFromTop: number,
+    threshold: number,
+  ) => void;
+  loadNextDebounceMs?: number;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
   /** Offset from when to start the loadNextPage call */
@@ -22,15 +28,18 @@ export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
   useCapture?: boolean;
 };
 
-export const InfiniteScrollPaginator = (props: PropsWithChildren<InfiniteScrollPaginatorProps>) => {
+export const InfiniteScrollPaginator = (
+  props: PropsWithChildren<InfiniteScrollPaginatorProps>,
+) => {
   const {
     children,
+    className,
     listenToScroll,
+    loadNextDebounceMs = 500,
     loadNextOnScrollToBottom,
     loadNextOnScrollToTop,
     threshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
     useCapture = false,
-    className,
     ...componentProps
   } = props;
 
@@ -46,7 +55,8 @@ export const InfiniteScrollPaginator = (props: PropsWithChildren<InfiniteScrollP
           return;
         }
 
-        const distanceFromBottom = child.scrollHeight - root.scrollTop - root.clientHeight;
+        const distanceFromBottom =
+          child.scrollHeight - root.scrollTop - root.clientHeight;
         const distanceFromTop = root.scrollTop;
 
         if (listenToScroll) {
@@ -60,8 +70,14 @@ export const InfiniteScrollPaginator = (props: PropsWithChildren<InfiniteScrollP
         if (distanceFromBottom < Number(threshold)) {
           loadNextOnScrollToBottom?.();
         }
-      }, 500),
-    [listenToScroll, loadNextOnScrollToBottom, loadNextOnScrollToTop, threshold],
+      }, loadNextDebounceMs),
+    [
+      listenToScroll,
+      loadNextDebounceMs,
+      loadNextOnScrollToBottom,
+      loadNextOnScrollToTop,
+      threshold,
+    ],
   );
 
   useEffect(() => {

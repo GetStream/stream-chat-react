@@ -1,37 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, Event, LocalMessage, UserResponse } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-import type { StreamMessage } from '../../../context';
 
 export enum MessageDeliveryStatus {
   DELIVERED = 'delivered',
   READ = 'read',
 }
 
-type UseMessageStatusParamsChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  channel: Channel<StreamChatGenerics>;
+type UseMessageStatusParamsChannelPreviewProps = {
+  channel: Channel;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage<StreamChatGenerics>;
+  lastMessage?: LocalMessage;
 };
 
-export const useMessageDeliveryStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const useMessageDeliveryStatus = ({
   channel,
   lastMessage,
-}: UseMessageStatusParamsChannelPreviewProps<StreamChatGenerics>) => {
+}: UseMessageStatusParamsChannelPreviewProps) => {
   const { client } = useChatContext();
   const [messageDeliveryStatus, setMessageDeliveryStatus] = useState<
     MessageDeliveryStatus | undefined
   >();
 
   const isOwnMessage = useCallback(
-    (message?: StreamMessage<StreamChatGenerics>) =>
+    (message?: { user?: UserResponse | null }) =>
       client.user && message?.user?.id === client.user.id,
     [client],
   );
@@ -45,12 +38,12 @@ export const useMessageDeliveryStatus = <
         ? new Date(lastMessage.created_at)
         : lastMessage.created_at;
 
-    const channelReadByOthersAfterLastMessageUpdate = Object.values(channel.state.read).some(
-      ({ last_read: channelLastMarkedReadDate, user }) => {
-        const ignoreOwnReadStatus = client.user && user.id !== client.user.id;
-        return ignoreOwnReadStatus && lastMessageCreatedAtDate < channelLastMarkedReadDate;
-      },
-    );
+    const channelReadByOthersAfterLastMessageUpdate = Object.values(
+      channel.state.read,
+    ).some(({ last_read: channelLastMarkedReadDate, user }) => {
+      const ignoreOwnReadStatus = client.user && user.id !== client.user.id;
+      return ignoreOwnReadStatus && lastMessageCreatedAtDate < channelLastMarkedReadDate;
+    });
 
     setMessageDeliveryStatus(
       channelReadByOthersAfterLastMessageUpdate
@@ -60,7 +53,7 @@ export const useMessageDeliveryStatus = <
   }, [channel.state.read, client, isOwnMessage, lastMessage]);
 
   useEffect(() => {
-    const handleMessageNew = (event: Event<StreamChatGenerics>) => {
+    const handleMessageNew = (event: Event) => {
       // the last message is not mine, so do not show the delivery status
       if (!isOwnMessage(event.message)) {
         return setMessageDeliveryStatus(undefined);
@@ -78,8 +71,9 @@ export const useMessageDeliveryStatus = <
 
   useEffect(() => {
     if (!isOwnMessage(lastMessage)) return;
-    const handleMarkRead = (event: Event<StreamChatGenerics>) => {
-      if (event.user?.id !== client.user?.id) setMessageDeliveryStatus(MessageDeliveryStatus.READ);
+    const handleMarkRead = (event: Event) => {
+      if (event.user?.id !== client.user?.id)
+        setMessageDeliveryStatus(MessageDeliveryStatus.READ);
     };
     channel.on('message.read', handleMarkRead);
 

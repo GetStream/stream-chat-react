@@ -1,11 +1,11 @@
 import clsx from 'clsx';
-import React, {
+import type {
   ComponentProps,
   ElementRef,
   KeyboardEventHandler,
   PropsWithChildren,
-  useRef,
 } from 'react';
+import React, { useRef } from 'react';
 
 export type SwitchFieldProps = PropsWithChildren<ComponentProps<'input'>>;
 
@@ -20,7 +20,9 @@ export const SwitchField = ({ children, ...props }: SwitchFieldProps) => {
   return (
     <div className='str-chat__form__field str-chat__form__switch-field'>
       <label>
-        <div className='str-chat__form__field str-chat__form__switch-field-content'>{children}</div>
+        <div className='str-chat__form__field str-chat__form__switch-field-content'>
+          {children}
+        </div>
         <input type='checkbox' {...props} ref={inputRef} />
         <div
           className={clsx('str-chat__form__switch-field__switch', {
@@ -42,6 +44,8 @@ export type SimpleSwitchFieldProps = ComponentProps<'input'> & {
 
 export const SimpleSwitchField = ({ labelText, ...props }: SimpleSwitchFieldProps) => (
   <SwitchField {...props}>
-    <div className='str-chat__form__field str-chat__form__switch-field__text'>{labelText}</div>
+    <div className='str-chat__form__field str-chat__form__switch-field__text'>
+      {labelText}
+    </div>
   </SwitchField>
 );

@@ -1,26 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
-import { StreamMessage } from '../../../../context';
-import { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { LocalMessage } from 'stream-chat';
 
-type UseMessageSetKeyParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  messages?: StreamMessage<StreamChatGenerics>[];
+type UseMessageSetKeyParams = {
+  messages?: LocalMessage[];
 };
 
-export const useMessageSetKey = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  messages,
-}: UseMessageSetKeyParams<StreamChatGenerics>) => {
+export const useMessageSetKey = ({ messages }: UseMessageSetKeyParams) => {
   /**
    * Logic to update the key of the virtuoso component when the list jumps to a new location.
    */
   const [messageSetKey, setMessageSetKey] = useState(+new Date());
-  const firstMessageId = useRef<string | undefined>();
+  const firstMessageId = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
+    const continuousSet = messages?.find(
+      (message) => message.id === firstMessageId.current,
+    );
     if (!continuousSet) {
       setMessageSetKey(+new Date());
     }

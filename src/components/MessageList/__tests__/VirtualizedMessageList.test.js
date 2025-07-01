@@ -1,6 +1,7 @@
-import React from 'react';
-import { cleanup } from '@testing-library/react';
-import renderer from 'react-test-renderer';
+import React, { act } from 'react';
+import { cleanup, render } from '@testing-library/react';
+import * as nanoid from 'nanoid';
+
 import '@testing-library/jest-dom';
 
 import {
@@ -75,49 +76,38 @@ describe('VirtualizedMessageList', () => {
 
   it('should render the list without any message', async () => {
     const { channel, client } = await createChannel(true);
-    let tree;
+    jest.spyOn(nanoid, 'nanoid').mockReturnValue('mockedId');
 
-    function createNodeMock(element) {
-      if (element.type === 'div') {
-        return {
-          addEventListener() {},
-          removeEventListener() {},
-        };
-      }
-      return null;
-    }
-
-    await renderer.act(() => {
-      tree = renderer.create(
+    let result;
+    await act(() => {
+      result = render(
         <Chat client={client}>
           <Channel channel={channel}>
             <VirtualizedMessageList />
           </Channel>
         </Chat>,
-        {
-          createNodeMock,
-        },
       );
     });
-
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(result.container).toMatchSnapshot();
   });
 });
 
 describe('usePrependedMessagesCount', () => {
   const TestCase = ({ messages }) => {
     const prependCount = usePrependedMessagesCount(messages);
-    return <div>{prependCount}</div>;
+    return <div data-prepend-count={prependCount} id='prepend-counter' />;
   };
 
-  const expectPrependCount = (count, root) => {
-    expect(root.findByType('div').props.children).toStrictEqual(count);
+  const expectPrependCount = (count, container) => {
+    expect(container.querySelector('#prepend-counter')).toHaveAttribute(
+      'data-prepend-count',
+      count.toString(),
+    );
   };
 
   it('determines 0 prepended messages for empty message list', async () => {
-    const render = await renderer.create(<TestCase messages={[]} />);
-
-    expectPrependCount(0, render.root);
+    const { container } = await render(<TestCase messages={[]} />);
+    expectPrependCount(0, container);
   });
 
   const messageBatch = (ids, status) => ids.map((id) => ({ id, status }));
@@ -130,24 +120,24 @@ describe('usePrependedMessagesCount', () => {
     const secondMsgBatch = secondBatch(status);
     const thirdMsgBatch = thirdBatch(status);
 
-    const render = await renderer.create(<TestCase messages={[]} />);
+    const { container, rerender } = await render(<TestCase messages={[]} />);
 
-    await renderer.act(async () => {
-      await render.update(<TestCase messages={[...firstMessage]} />);
-      expectPrependCount(first, render.root);
+    await act(async () => {
+      await rerender(<TestCase messages={[...firstMessage]} />);
     });
+    expectPrependCount(first, container);
 
-    await renderer.act(async () => {
-      await render.update(<TestCase messages={[...secondMsgBatch, ...firstMessage]} />);
-      expectPrependCount(second, render.root);
+    await act(async () => {
+      await rerender(<TestCase messages={[...secondMsgBatch, ...firstMessage]} />);
     });
+    expectPrependCount(second, container);
 
-    await renderer.act(async () => {
-      await render.update(
+    await act(async () => {
+      await rerender(
         <TestCase messages={[...thirdMsgBatch, ...secondMsgBatch, ...firstMessage]} />,
       );
-      expectPrependCount(third, render.root);
     });
+    expectPrependCount(third, container);
   };
 
   it('calculates the prepended count for messages of status "received"', async () => {

@@ -1,30 +1,34 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator, PlaybackRateButton, PlayButton, WaveProgressBar } from './components';
+import {
+  FileSizeIndicator,
+  PlaybackRateButton,
+  PlayButton,
+  WaveProgressBar,
+} from './components';
 import { useAudioController } from './hooks/useAudioController';
 import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
 import { useTranslationContext } from '../../context';
 
-import type { DefaultStreamChatGenerics } from '../../types';
-
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
-export type VoiceRecordingPlayerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'> & {
+export type VoiceRecordingPlayerProps = Pick<VoiceRecordingProps, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
 
-export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordingPlayerProps) => {
+export const VoiceRecordingPlayer = ({
+  attachment,
+  playbackRates,
+}: VoiceRecordingPlayerProps) => {
   const { t } = useTranslationContext('VoiceRecordingPlayer');
   const {
     asset_url,
     duration = 0,
     mime_type,
-    title = t<string>('Voice message'),
+    title = t('Voice message'),
     waveform_data,
   } = attachment;
 
@@ -66,10 +70,17 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
             {attachment.duration ? (
               displayDuration(displayedDuration)
             ) : (
-              <FileSizeIndicator fileSize={attachment.file_size} maximumFractionDigits={0} />
+              <FileSizeIndicator
+                fileSize={attachment.file_size}
+                maximumFractionDigits={0}
+              />
             )}
           </div>
-          <WaveProgressBar progress={progress} seek={seek} waveformData={waveform_data || []} />
+          <WaveProgressBar
+            progress={progress}
+            seek={seek}
+            waveformData={waveform_data || []}
+          />
         </div>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
@@ -85,13 +96,11 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
   );
 };
 
-export type QuotedVoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'>;
+export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { t } = useTranslationContext();
-  const title = attachment.title || t<string>('Voice message');
+  const title = attachment.title || t('Voice message');
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
@@ -109,7 +118,10 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
             {attachment.duration ? (
               displayDuration(attachment.duration)
             ) : (
-              <FileSizeIndicator fileSize={attachment.file_size} maximumFractionDigits={0} />
+              <FileSizeIndicator
+                fileSize={attachment.file_size}
+                maximumFractionDigits={0}
+              />
             )}
           </div>
         </div>
@@ -119,11 +131,9 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
   );
 };
 
-export type VoiceRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type VoiceRecordingProps = {
   /** The attachment object from the message's attachment list. */
-  attachment: Attachment<StreamChatGenerics>;
+  attachment: Attachment;
   /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
   isQuoted?: boolean;
 };

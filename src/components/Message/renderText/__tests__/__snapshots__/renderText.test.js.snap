@@ -1,20 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`htmlToTextPlugin absent does not keep HTML in text 1`] = `null`;
+exports[`htmlToTextPlugin absent does not keep HTML in text 1`] = `<div />`;
 
 exports[`htmlToTextPlugin present keeps HTML in text 1`] = `
-"<div>
-<script>console.error('This error should not be logged from renderText.test.js!')</script>
-</div>"
+<div>
+  &lt;div&gt;
+&lt;script&gt;console.error('This error should not be logged from renderText.test.js!')&lt;/script&gt;
+&lt;/div&gt;
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a blockquote 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
+  </p>
+  
+
   <blockquote>
     
 
@@ -23,856 +25,892 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a blockquo
     </p>
     
 
-  </blockquote>,
-  "
-",
+  </blockquote>
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a code block 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     <code>
       b
     </code>
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a horizontal rule 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  "
-",
+  </p>
+  
+
+  
+
   <p>
     b
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a strikethrough 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     ~~xxx~~
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     b
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a table 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     | a | b  |  c |  d  |
 | - | :- | -: | :-: |
 | a | b  |  c |  d  |
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between paragraphs 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     b
-  </p>,
-  "
-",
+  </p>
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an ordered list 1`] = `
-<ol>
-  
-
-  <li>
+<div>
+  <ol>
     
 
-    <p>
-      item 1
-    </p>
+    <li>
+      
+
+      <p>
+        item 1
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
+    <li>
+      
 
-  <li>
+      <p>
+        item 2
+      </p>
+      
+
+    </li>
     
 
-    <p>
-      item 2
-    </p>
+    <li>
+      
+
+      <p>
+        item 3
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
-
-  <li>
-    
-
-    <p>
-      item 3
-    </p>
-    
-
-  </li>
-  
-
-</ol>
+  </ol>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an unordered list 1`] = `
-<ul>
-  
-
-  <li>
+<div>
+  <ul>
     
 
-    <p>
-      item 1
-    </p>
+    <li>
+      
+
+      <p>
+        item 1
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
+    <li>
+      
 
-  <li>
+      <p>
+        item 2
+      </p>
+      
+
+    </li>
     
 
-    <p>
-      item 2
-    </p>
+    <li>
+      
+
+      <p>
+        item 3
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
-
-  <li>
-    
-
-    <p>
-      item 3
-    </p>
-    
-
-  </li>
-  
-
-</ul>
+  </ul>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks under a heading 1`] = `
-[
-  "Heading",
-  "
-",
+<div>
+  Heading
+  
+
   <p>
     a
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line between lines with strong text 1`] = `
-[
+<div>
   <p>
     This is 
     <strong>
       the first
     </strong>
      line
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     This is the second line
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <blockquote>
+    
+
     <p>
       b
     </p>
     
 
-  </blockquote>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </blockquote>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     <code>
       b
     </code>
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     b
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     ~~xxx~~
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     b
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     | a | b  |  c |  d  |
 | - | :- | -: | :-: |
 | a | b  |  c |  d  |
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] = `
-[
+<div>
   <p>
     a
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     b
-  </p>,
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+  </p>
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     c
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks between the items in an ordered list 1`] = `
-<ol>
-  
-
-  <li>
+<div>
+  <ol>
     
 
-    <p>
-      item 1
-    </p>
+    <li>
+      
+
+      <p>
+        item 1
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <li>
-    <p>
-      item 2
-    </p>
+    <br />
     
 
-  </li>
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <li>
-    <p>
-      item 3
-    </p>
     
 
-  </li>
-  
+    
 
-</ol>
+    <br />
+    
+
+    
+
+    
+
+    <li>
+      
+
+      <p>
+        item 2
+      </p>
+      
+
+    </li>
+    
+
+    <br />
+    
+
+    
+
+    
+
+    <br />
+    
+
+    
+
+    
+
+    <li>
+      
+
+      <p>
+        item 3
+      </p>
+      
+
+    </li>
+    
+
+  </ol>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks between the items in an unordered list 1`] = `
-<ul>
-  
-
-  <li>
+<div>
+  <ul>
     
 
-    <p>
-      item 1
-    </p>
+    <li>
+      
+
+      <p>
+        item 1
+      </p>
+      
+
+    </li>
     
 
-  </li>
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <li>
-    <p>
-      item 2
-    </p>
+    <br />
     
 
-  </li>
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <br />
-  
-
-  
-
-  
-
-  <li>
-    <p>
-      item 3
-    </p>
     
 
-  </li>
-  
+    
 
-</ul>
+    <br />
+    
+
+    
+
+    
+
+    <li>
+      
+
+      <p>
+        item 2
+      </p>
+      
+
+    </li>
+    
+
+    <br />
+    
+
+    
+
+    
+
+    <br />
+    
+
+    
+
+    
+
+    <li>
+      
+
+      <p>
+        item 3
+      </p>
+      
+
+    </li>
+    
+
+  </ul>
+</div>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
-[
-  "Heading",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
-  <br />,
-  "
-",
-  "
-",
-  "
-",
+<div>
+  Heading
+  
+
+  <br />
+  
+
+  
+
+  
+
+  <br />
+  
+
+  
+
+  
+
   <p>
     a
-  </p>,
-]
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where there are pronouns in the name 1`] = `
-<p>
-  hey, 
-  <span
-    className="str-chat__message-mention"
-    data-user-id="john"
-  >
-    @John (they/them)
-  </span>
-  , how are you?
-</p>
+<div>
+  <p>
+    hey, 
+    <span
+      class="str-chat__message-mention"
+      data-user-id="john"
+    >
+      @John (they/them)
+    </span>
+    , how are you?
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where there is a backslash in the name 1`] = `
-<p>
-  hey, 
-  <span
-    className="str-chat__message-mention"
-    data-user-id="john"
-  >
-    @John\\Cena
-  </span>
-  , how are you?
-</p>
+<div>
+  <p>
+    hey, 
+    <span
+      class="str-chat__message-mention"
+      data-user-id="john"
+    >
+      @John\\Cena
+    </span>
+    , how are you?
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where there is a forward slash in the name 1`] = `
-<p>
-  hey, 
-  <span
-    className="str-chat__message-mention"
-    data-user-id="john"
-  >
-    @John/Cena
-  </span>
-  , how are you?
-</p>
+<div>
+  <p>
+    hey, 
+    <span
+      class="str-chat__message-mention"
+      data-user-id="john"
+    >
+      @John/Cena
+    </span>
+    , how are you?
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where there's at least one mention and @ symbol at the end 1`] = `
-<p>
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   @
-</p>
+<div>
+  <p>
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     @
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 1 1`] = `
-<p>
-  Hello 
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-  , is 
-  <a
-    className=""
-    href="mailto:username@email.com"
-    rel="nofollow noreferrer noopener"
-    target="_blank"
-  >
-    username@email.com
-  </a>
-   your @primary e-mail?
-</p>
+<div>
+  <p>
+    Hello 
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+    , is 
+    <a
+      class=""
+      href="mailto:username@email.com"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      username@email.com
+    </a>
+     your @primary e-mail?
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 2 1`] = `
-<p>
-  <a
-    className=""
-    href="mailto:username@email.com"
-    rel="nofollow noreferrer noopener"
-    target="_blank"
-  >
-    username@email.com
-  </a>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   is this the right address?
-</p>
+<div>
+  <p>
+    <a
+      class=""
+      href="mailto:username@email.com"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      username@email.com
+    </a>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     is this the right address?
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 3 1`] = `
-<p>
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-</p>
+<div>
+  <p>
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+  </p>
+</div>
 `;
 
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 4 1`] = `
-<p>
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <a
-    className=""
-    href="mailto:username@email.com"
-    rel="nofollow noreferrer noopener"
-    target="_blank"
-  >
-    username@email.com
-  </a>
-   
-  <span
-    className="str-chat__message-mention"
-    data-user-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-</p>
+<div>
+  <p>
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <a
+      class=""
+      href="mailto:username@email.com"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      username@email.com
+    </a>
+     
+    <span
+      class="str-chat__message-mention"
+      data-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+  </p>
+</div>
 `;
 
 exports[`renderText renders custom mention 1`] = `
-<p>
-  <span
-    className="my-mention"
-    data-node-mentionedUser-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <span
-    className="my-mention"
-    data-node-mentionedUser-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-   
-  <a
-    className=""
-    href="mailto:username@email.com"
-    rel="nofollow noreferrer noopener"
-    target="_blank"
-  >
-    username@email.com
-  </a>
-   
-  <span
-    className="my-mention"
-    data-node-mentionedUser-id="id-username@email.com"
-  >
-    @username@email.com
-  </span>
-</p>
+<div>
+  <p>
+    <span
+      class="my-mention"
+      data-node-mentioned-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <span
+      class="my-mention"
+      data-node-mentioned-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+     
+    <a
+      class=""
+      href="mailto:username@email.com"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      username@email.com
+    </a>
+     
+    <span
+      class="my-mention"
+      data-node-mentioned-user-id="id-username@email.com"
+    >
+      @username@email.com
+    </span>
+  </p>
+</div>
 `;
 
 exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
-[
+<div>
   <p>
     Pick a time to meet:
-  </p>,
-  "
-",
+  </p>
+  
+
   <ul>
     
 
@@ -898,16 +936,18 @@ exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
     </li>
     
 
-  </ul>,
-]
+  </ul>
+</div>
 `;
 
 exports[`renderText renders standard markdown text 1`] = `
-<p>
-  Hi, shall we meet on 
-  <strong>
-    Tuesday
-  </strong>
-  ?
-</p>
+<div>
+  <p>
+    Hi, shall we meet on 
+    <strong>
+      Tuesday
+    </strong>
+    ?
+  </p>
+</div>
 `;

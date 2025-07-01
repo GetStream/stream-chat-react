@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { useEditHandler } from '../useEditHandler';
 
 const mouseEventMock = {
@@ -66,7 +66,11 @@ describe('useEditHandler custom hook', () => {
 
   it('should call the custom clear editing handler when one is set', () => {
     const customClearEditingHandler = jest.fn();
-    const renderedHook = renderUseEditHandler(undefined, undefined, customClearEditingHandler);
+    const renderedHook = renderUseEditHandler(
+      undefined,
+      undefined,
+      customClearEditingHandler,
+    );
     expect(customClearEditingHandler).not.toHaveBeenCalled();
     act(() => renderedHook.current.clearEdit(mouseEventMock));
     expect(customClearEditingHandler).toHaveBeenCalledWith(mouseEventMock);

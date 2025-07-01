@@ -1,35 +1,29 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { useContext } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import type { ChannelState as StreamChannelState } from 'stream-chat';
+import type { UnknownType } from '../types/types';
 
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
-
-export type TypingContextValue<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  typing?: StreamChannelState<StreamChatGenerics>['typing'];
+export type TypingContextValue = {
+  typing?: StreamChannelState['typing'];
 };
 
-export const TypingContext = React.createContext<TypingContextValue | undefined>(undefined);
+export const TypingContext = React.createContext<TypingContextValue | undefined>(
+  undefined,
+);
 
-export const TypingProvider = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const TypingProvider = ({
   children,
   value,
 }: PropsWithChildren<{
-  value: TypingContextValue<StreamChatGenerics>;
+  value: TypingContextValue;
 }>) => (
-  <TypingContext.Provider value={(value as unknown) as TypingContextValue}>
+  <TypingContext.Provider value={value as unknown as TypingContextValue}>
     {children}
   </TypingContext.Provider>
 );
 
-export const useTypingContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  componentName?: string,
-) => {
+export const useTypingContext = (componentName?: string) => {
   const contextValue = useContext(TypingContext);
 
   if (!contextValue) {
@@ -37,10 +31,10 @@ export const useTypingContext = <
       `The useTypingContext hook was called outside of the TypingContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as TypingContextValue<StreamChatGenerics>;
+    return {} as TypingContextValue;
   }
 
-  return contextValue as TypingContextValue<StreamChatGenerics>;
+  return contextValue as TypingContextValue;
 };
 
 /**
@@ -48,16 +42,11 @@ export const useTypingContext = <
  * typing is desired while using the HOC withTypingContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withTypingContext = <
-  P extends UnknownType,
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
+export const withTypingContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
 ) => {
-  const WithTypingContextComponent = (
-    props: Omit<P, keyof TypingContextValue<StreamChatGenerics>>,
-  ) => {
-    const typingContext = useTypingContext<StreamChatGenerics>();
+  const WithTypingContextComponent = (props: Omit<P, keyof TypingContextValue>) => {
+    const typingContext = useTypingContext();
 
     return <Component {...(props as P)} {...typingContext} />;
   };

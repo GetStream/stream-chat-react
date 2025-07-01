@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useCallback } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useCallback } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from './hooks';
 import { Portal } from '../Portal/Portal';
 import { useDialogManager } from '../../context';
@@ -18,7 +19,7 @@ export const DialogPortalDestination = () => {
           '--str-chat__dialog-overlay-height': openedDialogCount > 0 ? '100%' : '0',
         } as React.CSSProperties
       }
-    ></div>
+    />
   );
 };
 

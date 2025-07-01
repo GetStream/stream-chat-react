@@ -1,6 +1,15 @@
-import { generateFileAttachment, generateMessage, generateUser } from '../../../mock-builders';
+import {
+  generateFileAttachment,
+  generateMessage,
+  generateUser,
+} from '../../../mock-builders';
 
-import { getGroupStyles, getReadStates, makeDateMessageId, processMessages } from '../utils';
+import {
+  getGroupStyles,
+  getReadStates,
+  makeDateMessageId,
+  processMessages,
+} from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
@@ -307,8 +316,14 @@ describe('processMessages', () => {
       const expectedWhere = ['start'];
       const shouldExpectUnreadSeparator = true;
       const lastRead = new Date();
-      const oldMsg = { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') };
-      const unreadMsg = { created_at: new Date('9999-12-31'), updated_at: new Date('9999-12-31') };
+      const oldMsg = {
+        created_at: new Date('1970-01-01'),
+        updated_at: new Date('1970-01-01'),
+      };
+      const unreadMsg = {
+        created_at: new Date('9999-12-31'),
+        updated_at: new Date('9999-12-31'),
+      };
       const myNewMessages = [
         { user: { id: myUserId }, ...unreadMsg },
         { user: { id: myUserId }, ...unreadMsg },
@@ -371,7 +386,9 @@ describe('processMessages', () => {
 
     it('is set if provided with preview message setter and messages contain ephemeral giphy message', () => {
       const messagesData = [{}, { command: 'giphy', type: 'ephemeral' }, {}];
-      runMessageProcessing(messagesData, { setGiphyPreviewMessage: setGiphyPreviewMessageMock });
+      runMessageProcessing(messagesData, {
+        setGiphyPreviewMessage: setGiphyPreviewMessageMock,
+      });
       expect(setGiphyPreviewMessageMock).toHaveBeenLastCalledWith(
         expect.objectContaining(messagesData[1]),
       );
@@ -383,12 +400,16 @@ describe('processMessages', () => {
     });
     it('is set to undefined if messages do not contain ephemeral message', () => {
       const messagesData = [{}, { command: 'giphy' }, {}];
-      runMessageProcessing(messagesData, { setGiphyPreviewMessage: setGiphyPreviewMessageMock });
+      runMessageProcessing(messagesData, {
+        setGiphyPreviewMessage: setGiphyPreviewMessageMock,
+      });
       expect(setGiphyPreviewMessageMock).toHaveBeenLastCalledWith(undefined);
     });
     it('is no set to undefined if messages do not contain message of command giphy', () => {
       const messagesData = [{}, { type: 'ephemeral' }, {}];
-      runMessageProcessing(messagesData, { setGiphyPreviewMessage: setGiphyPreviewMessageMock });
+      runMessageProcessing(messagesData, {
+        setGiphyPreviewMessage: setGiphyPreviewMessageMock,
+      });
       expect(setGiphyPreviewMessageMock).toHaveBeenLastCalledWith(undefined);
     });
   });
@@ -446,7 +467,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = undefined;
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is intro message', () => {
@@ -456,17 +479,30 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.intro };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is date message', () => {
       if (position === 'bottom') {
-        nextMessage = { ...nextMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+        nextMessage = {
+          ...nextMessage,
+          customType: CUSTOM_MESSAGE_TYPE.date,
+          date: new Date(),
+        };
       }
       if (position === 'top') {
-        previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+        previousMessage = {
+          ...previousMessage,
+          customType: CUSTOM_MESSAGE_TYPE.date,
+          date: new Date(),
+        };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is a system message', () => {
@@ -476,7 +512,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, type: 'system' };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is an error message', () => {
@@ -486,7 +524,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, type: 'error' };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('has attachments', () => {
@@ -496,7 +536,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, attachments: [generateFileAttachment()] };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is posted by another user', () => {
@@ -507,7 +549,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, user };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
 
     it('is deleted', () => {
@@ -517,28 +561,38 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, deleted_at: new Date() };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+        position,
+      );
     });
   });
 
   it('marks a message as bottom when the message is edited', () => {
     message = { ...message, message_text_updated_at: new Date() };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('bottom');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'bottom',
+    );
   });
 
   it('marks a message as top when the previous message is edited', () => {
     previousMessage = { ...previousMessage, message_text_updated_at: new Date() };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('top');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'top',
+    );
   });
 
   it('marks a message a top if it has reactions', () => {
     message = { ...message, reaction_groups: { X: 'Y' } };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('top');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'top',
+    );
   });
 
   it('marks a message a bottom if next message has reactions', () => {
     nextMessage = { ...nextMessage, reaction_groups: { X: 'Y' } };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('bottom');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'bottom',
+    );
   });
 
   it('marks a message as top when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
@@ -597,29 +651,39 @@ describe('getGroupStyles', () => {
   });
 
   it('marks message as middle if not being top, neither bottom message', () => {
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('middle');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'middle',
+    );
   });
 
   it('marks message as single if not being top, neither bottom message being deleted', () => {
     message = { ...message, deleted_at: new Date() };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'single',
+    );
   });
 
   it('marks message as single if not being top, neither bottom message being error message', () => {
     message = { ...message, type: 'error' };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'single',
+    );
   });
 
   it('marks message at the bottom as single being deleted message', () => {
     message = { ...message, deleted_at: new Date() };
     nextMessage = undefined;
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'single',
+    );
   });
 
   it('marks message at the bottom as single being error message', () => {
     message = { ...message, type: 'error' };
     nextMessage = undefined;
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      'single',
+    );
   });
 });
 

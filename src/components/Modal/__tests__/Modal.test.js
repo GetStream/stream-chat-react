@@ -1,12 +1,12 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import renderer from 'react-test-renderer';
+
 import '@testing-library/jest-dom';
 
 import { Modal } from '../Modal';
 
 describe('Modal', () => {
-  afterEach(cleanup); // eslint-disable-line
+  afterEach(cleanup);
 
   it('should be closed (null) if the `open` prop is set to false', () => {
     const { container } = render(<Modal onClose={() => {}} open={false} />);
@@ -92,7 +92,7 @@ describe('Modal', () => {
   });
 
   it('should render the expected html', () => {
-    const tree = renderer.create(<Modal onClose={() => {}} open={false} />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`null`);
+    const { container } = render(<Modal onClose={() => {}} open={false} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

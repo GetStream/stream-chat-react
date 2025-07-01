@@ -77,7 +77,9 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages,
         };
 
-        const { container } = renderElements(<Item context={virtuosoContext} {...props} />);
+        const { container } = renderElements(
+          <Item context={virtuosoContext} {...props} />,
+        );
         expect(container).toMatchSnapshot();
       },
     );
@@ -109,7 +111,10 @@ describe('VirtualizedMessageComponents', () => {
     it('should render custom LoadingIndicator in Header when loading more messages', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { loadingMore: true };
-      const { container } = renderElements(<Header context={context} />, componentContext);
+      const { container } = renderElements(
+        <Header context={context} />,
+        componentContext,
+      );
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div
@@ -157,7 +162,10 @@ describe('VirtualizedMessageComponents', () => {
         LoadingIndicator: null,
       };
       const context = { head, loadingMore: true };
-      const { container } = renderElements(<Header context={context} />, componentContext);
+      const { container } = renderElements(
+        <Header context={context} />,
+        componentContext,
+      );
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
@@ -194,7 +202,10 @@ describe('VirtualizedMessageComponents', () => {
     it('should render custom LoadingIndicator instead of head when loading more', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { head, loadingMore: true };
-      const { container } = renderElements(<Header context={context} />, componentContext);
+      const { container } = renderElements(
+        <Header context={context} />,
+        componentContext,
+      );
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
@@ -230,7 +241,9 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should render empty for thread by default', () => {
-      const { container } = renderElements(<EmptyPlaceholder context={{ threadList: true }} />);
+      const { container } = renderElements(
+        <EmptyPlaceholder context={{ threadList: true }} />,
+      );
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div
@@ -295,7 +308,11 @@ describe('VirtualizedMessageComponents', () => {
     beforeAll(async () => {
       client = await getTestClientWithUser();
       const channelData = generateChannel();
-      channel = client.channel(channelData.channel.type, channelData.channel.id, channelData);
+      channel = client.channel(
+        channelData.channel.type,
+        channelData.channel.id,
+        channelData,
+      );
     });
 
     it('should allow to execute custom item rendering logic instead of the default', () => {
@@ -353,7 +370,9 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [generateMessage({ type: 'system' })],
         };
 
-        const { container } = render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
+        const { container } = render(
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+        );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
 
@@ -373,9 +392,13 @@ describe('VirtualizedMessageComponents', () => {
       it('should render nothing if DateSeparator component is undefined for custom message type date', () => {
         const virtuosoContext = {
           numItemsPrepended,
-          processedMessages: [generateMessage({ customType: 'message.date', date: new Date() })],
+          processedMessages: [
+            generateMessage({ customType: 'message.date', date: new Date() }),
+          ],
         };
-        const { container } = render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
+        const { container } = render(
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+        );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
 
@@ -385,7 +408,9 @@ describe('VirtualizedMessageComponents', () => {
         const virtuosoContext = {
           DateSeparator,
           numItemsPrepended,
-          processedMessages: [generateMessage({ customType: 'message.date', date: new Date() })],
+          processedMessages: [
+            generateMessage({ customType: 'message.date', date: new Date() }),
+          ],
         };
         render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
         expect(screen.getByText(text)).toBeInTheDocument();
@@ -398,7 +423,9 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [generateMessage()],
         };
 
-        const { container } = render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
+        const { container } = render(
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+        );
         expect(container).toMatchInlineSnapshot(`
                   <div>
                     <div
@@ -426,7 +453,11 @@ describe('VirtualizedMessageComponents', () => {
                 <ComponentProvider value={{}}>
                   <ChannelActionProvider value={{}}>
                     <ChannelStateProvider value={{ channel }}>
-                      {messageRenderer(virtuosoIndex ?? PREPEND_OFFSET, undefined, virtuosoContext)}
+                      {messageRenderer(
+                        virtuosoIndex ?? PREPEND_OFFSET,
+                        undefined,
+                        virtuosoContext,
+                      )}
                     </ChannelStateProvider>
                   </ChannelActionProvider>
                 </ComponentProvider>
@@ -435,51 +466,18 @@ describe('VirtualizedMessageComponents', () => {
           );
         };
 
-        it('should be rendered below the last read message if unread count is non-zero', async () => {
+        it('should be rendered above the first unread message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
+              lastReadDate: new Date(messages[0].created_at),
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 1,
-              UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
-            },
-          });
-          expect(container).toMatchInlineSnapshot(`
-            <div>
-              <div
-                class="message-component"
-              />
-              <div
-                class="str-chat__unread-messages-separator-wrapper"
-              >
-                <div
-                  class="str-chat__unread-messages-separator"
-                  data-testid="unread-messages-separator"
-                >
-                  Unread messages
-                </div>
-              </div>
-            </div>
-          `);
-        });
-
-        it('should be rendered above the last first unread message', async () => {
-          const { container } = await renderMarkUnread({
-            virtuosoContext: {
-              lastReadDate: new Date(1),
-              lastReceivedMessageId: messages[1].id,
-              Message,
-              messageGroupStyles: {},
-              numItemsPrepended,
-              ownMessagesReadByOthers: {},
-              processedMessages: messages,
-              unreadMessageCount: messages.length,
               UnreadMessagesSeparator,
               virtuosoRef: { current: {} },
             },
@@ -506,6 +504,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
+              lastReadDate: new Date(messages[1].created_at),
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
               Message,
@@ -527,7 +526,7 @@ describe('VirtualizedMessageComponents', () => {
           `);
         });
 
-        it('should be rendered if unread count is falsy and first unread message is known', async () => {
+        it('should be rendered if unread count is falsy and the first unread message is known', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
               firstUnreadMessageId: messages[1].id,
@@ -535,7 +534,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 0,
@@ -546,9 +545,6 @@ describe('VirtualizedMessageComponents', () => {
           expect(container).toMatchInlineSnapshot(`
             <div>
               <div
-                class="message-component"
-              />
-              <div
                 class="str-chat__unread-messages-separator-wrapper"
               >
                 <div
@@ -558,6 +554,9 @@ describe('VirtualizedMessageComponents', () => {
                   Unread messages
                 </div>
               </div>
+              <div
+                class="message-component"
+              />
             </div>
           `);
         });
@@ -569,7 +568,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended,
+              numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 0,
@@ -593,7 +592,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReceivedMessageId: messages[1].id,
               Message,
               messageGroupStyles: {},
-              numItemsPrepended: 1,
+              numItemsPrepended: 0,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
               unreadMessageCount: 1,
@@ -671,9 +670,15 @@ describe('VirtualizedMessageComponents', () => {
             expect(messageElements[0]).toHaveClass(firstGroupItemClass);
             expect(messageElements[0]).toHaveClass(lastGroupItemClass);
             expect(messageElements[1]).toHaveClass(firstGroupItemClass);
-            expect(messageElements[processedMessages.length - 2]).toHaveClass(lastGroupItemClass);
-            expect(messageElements[processedMessages.length - 1]).toHaveClass(firstGroupItemClass);
-            expect(messageElements[processedMessages.length - 1]).toHaveClass(lastGroupItemClass);
+            expect(messageElements[processedMessages.length - 2]).toHaveClass(
+              lastGroupItemClass,
+            );
+            expect(messageElements[processedMessages.length - 1]).toHaveClass(
+              firstGroupItemClass,
+            );
+            expect(messageElements[processedMessages.length - 1]).toHaveClass(
+              lastGroupItemClass,
+            );
           }
         },
       );

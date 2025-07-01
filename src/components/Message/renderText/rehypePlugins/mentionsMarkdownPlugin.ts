@@ -1,18 +1,14 @@
 import { escapeRegExp } from '../regex';
-import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
+import type { ReplaceFunction } from 'hast-util-find-and-replace';
+import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
 import type { Nodes } from 'hast-util-find-and-replace/lib';
-import type { Element } from 'react-markdown/lib/ast-to-react';
+import type { Element } from 'hast';
 import type { UserResponse } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types';
 
-export const mentionsMarkdownPlugin = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  mentioned_users: UserResponse<StreamChatGenerics>[],
-) => () => {
+export const mentionsMarkdownPlugin = (mentioned_users: UserResponse[]) => () => {
   const mentioned_usernames = mentioned_users
     .map((user) => user.name || user.id)
     .filter(Boolean)

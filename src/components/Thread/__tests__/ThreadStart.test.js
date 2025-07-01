@@ -4,7 +4,11 @@ import { cleanup, render, screen } from '@testing-library/react';
 
 import { ThreadStart } from '../ThreadStart';
 
-import { ChannelStateProvider, ChatProvider, TranslationProvider } from '../../../context';
+import {
+  ChannelStateProvider,
+  ChatProvider,
+  TranslationProvider,
+} from '../../../context';
 
 import { generateMessage, getTestClientWithUser } from '../../../mock-builders';
 

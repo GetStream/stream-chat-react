@@ -4,13 +4,20 @@ import clsx from 'clsx';
 import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
+import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
+import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
+import { isDateSeparatorMessage } from '../MessageList';
+import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
+import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
+import { useMessageReminder } from './hooks';
 import {
   areMessageUIPropsEqual,
+  isMessageBlocked,
   isMessageBounced,
   isMessageEdited,
   messageHasAttachments,
@@ -19,35 +26,24 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
-import { MML } from '../MML';
-import { Modal } from '../Modal';
+import { EditMessageModal } from '../MessageInput';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import type { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
-import type { DefaultStreamChatGenerics } from '../../types/types';
-import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
-type MessageSimpleWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = MessageContextValue<StreamChatGenerics>;
+type MessageSimpleWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageSimpleWithContextProps<StreamChatGenerics>,
-) => {
+const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     additionalMessageInputProps,
-    clearEditingState,
     editing,
     endOfGroup,
     firstOfGroup,
@@ -68,33 +64,35 @@ const MessageSimpleWithContext = <
   const { t } = useTranslationContext('MessageSimple');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
+  const reminder = useMessageReminder(message.id);
 
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    EditMessageInput = DefaultEditMessageForm,
     MessageOptions = DefaultMessageOptions,
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
     MessageActions = MessageOptions,
-    MessageDeleted = DefaultMessageDeleted,
+    MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
+    MessageDeleted = DefaultMessageDeleted,
+    MessageIsThreadReplyInChannelButtonIndicator = DefaultMessageIsThreadReplyInChannelButtonIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionsList = DefaultReactionList,
+    ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
     PinIndicator,
-  } = useComponentContext<StreamChatGenerics>('MessageSimple');
-
+  } = useComponentContext('MessageSimple');
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
-  const isAIGenerated = useMemo(() => isMessageAIGenerated?.(message), [
-    isMessageAIGenerated,
-    message,
-  ]);
+  const isAIGenerated = useMemo(
+    () => isMessageAIGenerated?.(message),
+    [isMessageAIGenerated, message],
+  );
 
-  if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
+  if (isDateSeparatorMessage(message)) {
     return null;
   }
 
@@ -102,9 +100,15 @@ const MessageSimpleWithContext = <
     return <MessageDeleted message={message} />;
   }
 
+  if (isMessageBlocked(message)) {
+    return <MessageBlocked />;
+  }
+
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
-  const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+  const showIsReplyInChannel =
+    !threadList && message.show_in_channel && message.parent_id;
+  const allowRetry = message.status === 'failed' && message.error?.status !== 403;
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
@@ -132,8 +136,8 @@ const MessageSimpleWithContext = <
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
-        message?.status === 'failed' && message?.errorStatusCode !== 403,
-      'str-chat__message-with-thread-link': showReplyCountButton,
+        message?.status === 'failed' && message?.error?.status !== 403,
+      'str-chat__message-with-thread-link': showReplyCountButton || showIsReplyInChannel,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
       'str-chat__virtual-message__wrapper--group': groupedByUser,
@@ -145,16 +149,7 @@ const MessageSimpleWithContext = <
   return (
     <>
       {editing && (
-        <Modal className='str-chat__edit-message-modal' onClose={clearEditingState} open={editing}>
-          <MessageInput
-            clearEditingState={clearEditingState}
-            grow
-            hideSendButton
-            Input={EditMessageInput}
-            message={message}
-            {...additionalMessageInputProps}
-          />
-        </Modal>
+        <EditMessageModal additionalMessageInputProps={additionalMessageInputProps} />
       )}
       {isBounceDialogOpen && (
         <MessageBounceModal
@@ -166,6 +161,7 @@ const MessageSimpleWithContext = <
       {
         <div className={rootClassName} key={message.id}>
           {PinIndicator && <PinIndicator />}
+          {!!reminder && <ReminderNotification reminder={reminder} />}
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -190,19 +186,15 @@ const MessageSimpleWithContext = <
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
               {message.attachments?.length && !message.quoted_message ? (
-                <Attachment actionHandler={handleAction} attachments={message.attachments} />
+                <Attachment
+                  actionHandler={handleAction}
+                  attachments={message.attachments}
+                />
               ) : null}
               {isAIGenerated ? (
                 <StreamedMessageText message={message} renderText={renderText} />
               ) : (
                 <MessageText message={message} renderText={renderText} />
-              )}
-              {message.mml && (
-                <MML
-                  actionHandler={handleAction}
-                  align={isMyMessage() ? 'right' : 'left'}
-                  source={message.mml}
-                />
               )}
               <MessageErrorIcon />
             </div>
@@ -213,6 +205,7 @@ const MessageSimpleWithContext = <
               reply_count={message.reply_count}
             />
           )}
+          {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
           {showMetadata && (
             <div className='str-chat__message-metadata'>
               <MessageStatus />
@@ -223,9 +216,11 @@ const MessageSimpleWithContext = <
               )}
               <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
               {isEdited && (
-                <span className='str-chat__mesage-simple-edited'>{t<string>('Edited')}</span>
+                <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
               )}
-              {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
+              {isEdited && (
+                <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />
+              )}
             </div>
           )}
         </div>
@@ -242,12 +237,8 @@ const MemoizedMessageSimple = React.memo(
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
-export const MessageSimple = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageUIComponentProps<StreamChatGenerics>,
-) => {
-  const messageContext = useMessageContext<StreamChatGenerics>('MessageSimple');
+export const MessageSimple = (props: MessageUIComponentProps) => {
+  const messageContext = useMessageContext('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

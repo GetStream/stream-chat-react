@@ -9,7 +9,8 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
 
 const PinnedMessagesList = () => {
   const { pinnedMessages } = useChannelStateContext();
@@ -18,9 +19,7 @@ const PinnedMessagesList = () => {
 
   return (
     <ul data-testid='pinned-messages-list'>
-      {pinnedMessages?.map((pm) => (
-        <li key={pm.id}>{pm.text}</li>
-      ))}
+      {pinnedMessages?.map((pm) => <li key={pm.id}>{pm.text}</li>)}
     </ul>
   );
 };

@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
-import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import type { ReactImageGalleryItem } from 'react-image-gallery';
+import ImageGallery from 'react-image-gallery';
 import { BaseImage } from './BaseImage';
 import { useTranslationContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type ModalGalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type ModalGalleryProps = {
   /** The images for the Carousel component */
-  images: Attachment<StreamChatGenerics>[];
+  images: Attachment[];
   /** The index for the component */
   index?: number;
 };
@@ -22,14 +20,15 @@ const onError: React.ReactEventHandler<HTMLImageElement> = (e) => {
 };
 
 const renderItem = ({ original, originalAlt }: ReactImageGalleryItem) => (
-  <BaseImage alt={originalAlt} className='image-gallery-image' onError={onError} src={original} />
+  <BaseImage
+    alt={originalAlt}
+    className='image-gallery-image'
+    onError={onError}
+    src={original}
+  />
 );
 
-export const ModalGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ModalGalleryProps<StreamChatGenerics>,
-) => {
+export const ModalGallery = (props: ModalGalleryProps) => {
   const { images, index } = props;
   const { t } = useTranslationContext('ModalGallery');
 
@@ -43,11 +42,11 @@ export const ModalGallery = <
           source: imageSrc,
         };
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [images],
+    [images, t],
   );
 
   return (
+    // @ts-expect-error ignore the TS error as react-image-gallery was on @types/react@18 while stream-chat-react being upgraded to React 19 (https://github.com/xiaolin/react-image-gallery/issues/809)
     <ImageGallery
       items={formattedArray}
       renderItem={renderItem}

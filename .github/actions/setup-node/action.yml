@@ -1,0 +1,30 @@
+name: Setup
+description: Sets up Node and installs dependencies
+
+inputs:
+  node-version:
+    description: 'Specify Node version'
+    required: false
+    default: '22'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Set NODE_VERSION env
+      shell: bash
+      run: echo "NODE_VERSION=$(node --version)" >> $GITHUB_ENV
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ./node_modules
+        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-modules-${{ hashFiles('./yarn.lock') }}
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+      shell: bash

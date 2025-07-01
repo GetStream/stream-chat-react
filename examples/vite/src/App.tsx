@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
+  LocalMessage,
+  TextComposerMiddleware,
   LiveLocationManagerConstructorParameters,
 } from 'stream-chat';
 import {
@@ -11,21 +14,25 @@ import {
   ChannelHeader,
   ChannelList,
   Chat,
-  MessageInput,
-  VirtualizedMessageList as MessageList,
-  Thread,
-  Window,
-  useCreateChatClient,
-  ThreadList,
   ChatView,
+  MessageInput,
+  Thread,
+  ThreadList,
+  useCreateChatClient,
+  VirtualizedMessageList as MessageList,
+  Window,
   useChatContext,
   useLiveLocationSharingManager,
 } from 'stream-chat-react';
-import 'stream-chat-react/css/v2/index.css';
+import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
+import { init, SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
 
-const params = (new Proxy(new URLSearchParams(window.location.search), {
+init({ data });
+
+const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown) as Record<string, string | null>;
+}) as unknown as Record<string, string | null>;
 
 const parseUserIdFromToken = (token: string) => {
   const [, payload] = token.split('.');
@@ -45,31 +52,10 @@ const filters: ChannelFilters = {
   archived: false,
 };
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
-const sort: ChannelSort = [{ pinned_at: 1 }, { last_message_at: -1 }, { updated_at: -1 }];
+const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
-type LocalAttachmentType = Record<string, unknown>;
-type LocalChannelType = Record<string, unknown>;
-type LocalCommandType = string;
-type LocalEventType = Record<string, unknown>;
-type LocalMemberType = Record<string, unknown>;
-type LocalMessageType = Record<string, unknown>;
-type LocalPollOptionType = Record<string, unknown>;
-type LocalPollType = Record<string, unknown>;
-type LocalReactionType = Record<string, unknown>;
-type LocalUserType = Record<string, unknown>;
-
-type StreamChatGenerics = {
-  attachmentType: LocalAttachmentType;
-  channelType: LocalChannelType;
-  commandType: LocalCommandType;
-  eventType: LocalEventType;
-  memberType: LocalMemberType;
-  messageType: LocalMessageType;
-  pollOptionType: LocalPollOptionType;
-  pollType: LocalPollType;
-  reactionType: LocalReactionType;
-  userType: LocalUserType;
-};
+// @ts-ignore
+const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
 const ShareLiveLocation = () => {
   const { channel } = useChatContext();
@@ -108,10 +94,15 @@ const watchLocationNormal: LiveLocationManagerConstructorParameters['watchLocati
   return () => navigator.geolocation.clearWatch(watch);
 };
 
-const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocation'] = (watcher) => {
+const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocation'] = (
+  watcher,
+) => {
   const timer = setInterval(() => {
     navigator.geolocation.getCurrentPosition((position) => {
-      watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+      watcher({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
     });
   }, 5000);
 
@@ -122,7 +113,7 @@ const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocatio
 };
 
 const App = () => {
-  const chatClient = useCreateChatClient<StreamChatGenerics>({
+  const chatClient = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
@@ -133,10 +124,24 @@ const App = () => {
     watchLocation: watchLocationNormal,
   });
 
+  useEffect(() => {
+    if (!chatClient) return;
+
+    chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [
+          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
+        ],
+        position: { before: 'stream-io/text-composer/mentions-middleware' },
+        unique: true,
+      });
+    });
+  }, [chatClient]);
+
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <Chat client={chatClient} isMessageAIGenerated={(message) => !!message?.ai_generated}>
+    <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
@@ -148,12 +153,12 @@ const App = () => {
             showChannelSearch
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
-          <Channel>
+          <Channel emojiSearchIndex={SearchIndex} EmojiPicker={EmojiPicker}>
             <Window>
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <AIStateIndicator />
-              <MessageInput focus />
+              <MessageInput focus audioRecordingEnabled />
               <ShareLiveLocation />
             </Window>
             <Thread virtualized />

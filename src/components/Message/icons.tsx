@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { PinIndicatorProps } from './types';
 
-import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
+import type { IconProps } from '../../types/types';
 
 export const ActionsIcon = ({ className = '' }: IconProps) => (
   <svg
@@ -52,12 +52,7 @@ export const PinIcon = () => (
   </svg>
 );
 
-export const PinIndicator = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  message,
-  t,
-}: PinIndicatorProps<StreamChatGenerics>) => {
+export const PinIndicator = ({ message, t }: PinIndicatorProps) => {
   if (!message || !t) return null;
 
   return (
@@ -72,8 +67,8 @@ export const PinIndicator = <
         }}
       >
         {message.pinned_by
-          ? `${t<string>('Pinned by')} ${message.pinned_by?.name || message.pinned_by?.id}`
-          : t<string>('Message pinned')}
+          ? `${t('Pinned by')} ${message.pinned_by?.name || message.pinned_by?.id}`
+          : t('Message pinned')}
       </div>
     </div>
   );

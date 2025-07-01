@@ -1,9 +1,13 @@
 import clsx from 'clsx';
 import React from 'react';
-import { Avatar, AvatarProps } from './Avatar';
-import { GroupChannelDisplayInfo } from '../ChannelPreview';
+import type { AvatarProps } from './Avatar';
+import { Avatar } from './Avatar';
+import type { GroupChannelDisplayInfo } from '../ChannelPreview';
 
-export type GroupAvatarProps = Pick<AvatarProps, 'className' | 'onClick' | 'onMouseOver'> & {
+export type GroupAvatarProps = Pick<
+  AvatarProps,
+  'className' | 'onClick' | 'onMouseOver'
+> & {
   /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
   groupChannelDisplayInfo: GroupChannelDisplayInfo;
 };

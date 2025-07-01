@@ -16,6 +16,7 @@ import {
   generateAudioAttachment,
   generateFileAttachment,
   generateImageAttachment,
+  generateLocalAttachmentData,
   generateVideoAttachment,
   generateVoiceRecordingAttachment,
   initClientWithChannels,
@@ -59,7 +60,9 @@ const DEFAULT_RENDER_PARAMS = {
 
 window.ResizeObserver = ResizeObserverMock;
 
-jest.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 120 });
+jest
+  .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
+  .mockReturnValue({ width: 120 });
 
 const renderComponent = async ({
   channelActionCtx,
@@ -77,15 +80,23 @@ const renderComponent = async ({
     result = await render(
       <ChatProvider
         value={{
-          ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
+          client,
+          ...DEFAULT_RENDER_PARAMS.chatCtx,
+          ...chatCtx,
         }}
       >
-        <ComponentProvider value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}>
+        <ComponentProvider
+          value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
+        >
           <ChannelActionProvider
             value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
           >
             <ChannelStateProvider
-              value={{ channel, ...DEFAULT_RENDER_PARAMS.channelStateCtx, ...channelStateCtx }}
+              value={{
+                channel,
+                ...DEFAULT_RENDER_PARAMS.channelStateCtx,
+                ...channelStateCtx,
+              }}
             >
               <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
             </ChannelStateProvider>
@@ -116,13 +127,10 @@ window.navigator.permissions = {
   query: jest.fn(),
 };
 
-// eslint-disable-next-line
 window.MediaRecorder = MediaRecorderMock;
 
-// eslint-disable-next-line
 window.AudioContext = AudioContextMock;
 
-// eslint-disable-next-line
 window.AnalyserNode = AnalyserNodeMock;
 
 const fileObjectURL = 'fileObjectURL';
@@ -141,13 +149,17 @@ describe('MessageInput', () => {
 
   it('does not render start recording button if disabled', async () => {
     await renderComponent({ props: { audioRecordingEnabled: false } });
-    expect(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('does not render start recording button if navigator.mediaDevices is undefined', async () => {
     window.navigator.mediaDevices = undefined;
     await renderComponent();
-    expect(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('renders start recording button when enabled and message input is empty', async () => {
@@ -158,23 +170,31 @@ describe('MessageInput', () => {
   });
 
   it('renders start recording button when message input contains text', async () => {
-    await renderComponent({ props: { message: { text: 'X' } } });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    channel.messageComposer.textComposer.setText('X');
+    await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
     expect(btn).toBeInTheDocument();
     expect(btn).toBeEnabled();
   });
 
   it('renders start recording button when message input contains attachments', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    channel.messageComposer.attachmentManager.upsertAttachments([
+      { ...generateLocalAttachmentData(), ...generateFileAttachment() },
+      { ...generateLocalAttachmentData(), ...generateImageAttachment() },
+      { ...generateLocalAttachmentData(), ...generateAudioAttachment() },
+      { ...generateLocalAttachmentData(), ...generateVideoAttachment() },
+    ]);
     await renderComponent({
-      props: {
-        attachments: [
-          generateFileAttachment(),
-          generateImageAttachment(),
-          generateAudioAttachment(),
-          generateVideoAttachment(),
-        ],
-        message: { text: 'X' },
-      },
+      channelStateCtx: { channel },
+      chatCtx: { client },
     });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
     expect(btn).toBeInTheDocument();
@@ -182,11 +202,16 @@ describe('MessageInput', () => {
   });
 
   it('disables start recording button if is asyncMessagesMultiSendEnabled is false and voiceRecording attachment already present', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    channel.messageComposer.attachmentManager.upsertAttachments([
+      { ...generateLocalAttachmentData(), ...generateVoiceRecordingAttachment() },
+    ]);
     await renderComponent({
-      props: {
-        attachments: [generateVoiceRecordingAttachment()],
-        message: { text: 'X' },
-      },
+      channelStateCtx: { channel },
+      chatCtx: { client },
     });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
     expect(btn).toBeInTheDocument();
@@ -201,7 +226,11 @@ describe('MessageInput', () => {
     expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
   });
 
-  it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING, MediaRecordingState.STOPPED])(
+  it.each([
+    MediaRecordingState.PAUSED,
+    MediaRecordingState.RECORDING,
+    MediaRecordingState.STOPPED,
+  ])(
     'renders message composer when recording cancelled while recording in state %s',
     async (state) => {
       const { container } = await renderComponent();
@@ -265,8 +294,16 @@ describe('MessageInput', () => {
   });
 
   it('uploads and submits the whole message with all the attachments on recording completion and multiple async messages disabled', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
     const sendMessage = jest.fn();
-    const doFileUploadRequest = jest.fn().mockResolvedValue({ file: fileObjectURL });
+    const sendFileSpy = jest
+      .spyOn(channel, 'sendFile')
+      .mockResolvedValue({ file: fileObjectURL });
     let recorder;
     let recording;
     const MessageInputFlatWithContextCatcher = () => {
@@ -285,40 +322,53 @@ describe('MessageInput', () => {
     };
     await renderComponent({
       channelActionCtx: { sendMessage },
+      channelStateCtx: { channel },
+      chatCtx: { client },
       componentCtx: { Input: MessageInputFlatWithContextCatcher },
-      props: { doFileUploadRequest },
     });
 
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
     recorder.mediaRecorder.state = 'recording';
 
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
     });
     recorder.mediaRecorder.state = 'paused';
 
     await act(async () => {
       await recorder.handleDataavailableEvent(generateDataavailableEvent());
     });
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
     });
 
-    expect(doFileUploadRequest).toHaveBeenCalledTimes(1);
+    expect(sendFileSpy).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { localMetadata, ...uploadedRecordingAtt } = recording;
-    expect(sendMessage.mock.calls[0][0]).toStrictEqual({
-      attachments: [uploadedRecordingAtt],
-      mentioned_users: [],
-      parent: undefined,
-      text: '',
+    expect(sendMessage).toHaveBeenCalledWith({
+      localMessage: expect.objectContaining({
+        attachments: [uploadedRecordingAtt],
+      }),
+      message: expect.objectContaining({
+        attachments: [uploadedRecordingAtt],
+      }),
+      options: {},
     });
   });
 
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
     const sendMessage = jest.fn();
-    const doFileUploadRequest = jest.fn().mockResolvedValue({ file: fileObjectURL });
+    const sendFileSpy = jest
+      .spyOn(channel, 'sendFile')
+      .mockResolvedValue({ file: fileObjectURL });
     let recorder;
     const MessageInputFlatWithContextCatcher = () => {
       const ctx = useMessageInputContext();
@@ -333,17 +383,19 @@ describe('MessageInput', () => {
     };
     await renderComponent({
       channelActionCtx: { sendMessage },
+      channelStateCtx: { channel },
+      chatCtx: { client },
       componentCtx: { Input: MessageInputFlatWithContextCatcher },
-      props: { asyncMessagesMultiSendEnabled: true, doFileUploadRequest },
+      props: { asyncMessagesMultiSendEnabled: true },
     });
 
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
     recorder.mediaRecorder.state = 'recording';
 
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
     });
     recorder.mediaRecorder.state = 'paused';
 
@@ -351,11 +403,11 @@ describe('MessageInput', () => {
       recorder.amplitudeRecorder.amplitudes.next([1]);
       await recorder.handleDataavailableEvent(generateDataavailableEvent());
     });
-    await act(() => {
-      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
+    await act(async () => {
+      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
     });
 
-    expect(doFileUploadRequest).toHaveBeenCalledTimes(1);
+    expect(sendFileSpy).toHaveBeenCalledTimes(1);
     expect(sendMessage).not.toHaveBeenCalled();
   });
 });
@@ -373,7 +425,9 @@ const renderAudioRecorder = (controller = {}) =>
   render(
     <ChannelActionProvider value={{}}>
       <MessageInputContextProvider
-        value={{ recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller } }}
+        value={{
+          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+        }}
       >
         <AudioRecorder />
       </MessageInputContextProvider>
@@ -425,7 +479,9 @@ describe('AudioRecorder', () => {
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({
-      recording: generateVoiceRecordingAttachment({ localMetadata: { uploadState: 'uploading' } }),
+      recording: generateVoiceRecordingAttachment({
+        localMetadata: { uploadState: 'uploading' },
+      }),
       recordingState: MediaRecordingState.STOPPED,
     });
     expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();

@@ -1,36 +1,25 @@
 import { useMemo } from 'react';
 
+import { isLocalMessage } from '../utils';
 import { getReadStates } from '../utils';
 
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { RenderedMessage } from '../utils';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-type UseLastReadDataParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  messages: StreamMessage<StreamChatGenerics>[];
+type UseLastReadDataParams = {
+  messages: RenderedMessage[];
   returnAllReadData: boolean;
   userID: string | undefined;
-  read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
+  read?: Record<string, { last_read: Date; user: UserResponse }>;
 };
 
-export const useLastReadData = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: UseLastReadDataParams<StreamChatGenerics>,
-) => {
+export const useLastReadData = (props: UseLastReadDataParams) => {
   const { messages, read, returnAllReadData, userID } = props;
 
-  return useMemo(
-    () =>
-      getReadStates(
-        messages.filter(({ user }) => user?.id === userID),
-        read,
-        returnAllReadData,
-      ),
-    [messages, read, returnAllReadData, userID],
-  );
+  return useMemo(() => {
+    const ownLocalMessages = messages.filter(
+      (msg) => isLocalMessage(msg) && msg.user?.id === userID,
+    ) as LocalMessage[];
+    return getReadStates(ownLocalMessages, read, returnAllReadData);
+  }, [messages, read, returnAllReadData, userID]);
 };

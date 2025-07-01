@@ -26,7 +26,8 @@ export default (page: Page) => ({
         .click();
     },
   },
-  get: (prependSelectors?: string) => page.locator(composeThreadSelector(prependSelectors)),
+  get: (prependSelectors?: string) =>
+    page.locator(composeThreadSelector(prependSelectors)),
   see: {
     empty() {
       const replies = page.locator(`${selectors.threadReplyList} ${selectors.message}`);
@@ -52,7 +53,10 @@ export default (page: Page) => ({
           ([selector]) => {
             const messageList = document.querySelector(selector);
             if (!messageList) return false;
-            return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+            return (
+              messageList.scrollTop + messageList.clientHeight ===
+              messageList.scrollHeight
+            );
           },
           [selector],
         ),
@@ -91,7 +95,10 @@ export default (page: Page) => ({
             ([selector]) => {
               const messageList = document.querySelector(selector);
               if (!messageList) return false;
-              return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+              return (
+                messageList.scrollTop + messageList.clientHeight ===
+                messageList.scrollHeight
+              );
             },
             [selector],
           ),

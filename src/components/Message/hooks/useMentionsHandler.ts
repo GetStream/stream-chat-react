@@ -1,27 +1,23 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type React from 'react';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+export type CustomMentionHandler = (
+  event: React.BaseSyntheticEvent,
+  mentioned_users: UserResponse[],
+) => void;
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+export type MentionedUserEventHandler = (
+  event: React.BaseSyntheticEvent,
+  mentionedUsers: UserResponse[],
+) => void;
 
-export type CustomMentionHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = (event: React.BaseSyntheticEvent, mentioned_users: UserResponse<StreamChatGenerics>[]) => void;
-
-export type MentionedUserEventHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = (event: React.BaseSyntheticEvent, mentionedUsers: UserResponse<StreamChatGenerics>[]) => void;
-
-function createEventHandler<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  fn?: CustomMentionHandler<StreamChatGenerics>,
-  message?: StreamMessage<StreamChatGenerics>,
+function createEventHandler(
+  fn?: CustomMentionHandler,
+  message?: LocalMessage,
 ): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
@@ -31,19 +27,17 @@ function createEventHandler<
   };
 }
 
-export const useMentionsHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: StreamMessage<StreamChatGenerics>,
+export const useMentionsHandler = (
+  message?: LocalMessage,
   customMentionHandler?: {
-    onMentionsClick?: CustomMentionHandler<StreamChatGenerics>;
-    onMentionsHover?: CustomMentionHandler<StreamChatGenerics>;
+    onMentionsClick?: CustomMentionHandler;
+    onMentionsHover?: CustomMentionHandler;
   },
 ) => {
   const {
     onMentionsClick: contextOnMentionsClick,
     onMentionsHover: contextOnMentionsHover,
-  } = useChannelActionContext<StreamChatGenerics>('useMentionsHandler');
+  } = useChannelActionContext('useMentionsHandler');
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);

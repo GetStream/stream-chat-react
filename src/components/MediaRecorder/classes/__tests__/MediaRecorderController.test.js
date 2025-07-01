@@ -3,12 +3,15 @@ import * as transcoder from '../../transcode';
 import * as wavTranscoder from '../../transcode/wav';
 import {
   DEFAULT_AUDIO_TRANSCODER_CONFIG,
-  DEFAULT_MEDIA_RECORDER_CONFIG,
   MediaRecorderController,
   MediaRecordingState,
+  RECORDED_MIME_TYPE_BY_BROWSER,
   RecordingAttachmentType,
 } from '../MediaRecorderController';
-import { AmplitudeRecorderState, DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../AmplitudeRecorder';
+import {
+  AmplitudeRecorderState,
+  DEFAULT_AMPLITUDE_RECORDER_CONFIG,
+} from '../AmplitudeRecorder';
 import { defaultTranslatorFunction } from '../../../../i18n';
 import * as audioSampling from '../../../Attachment/audioSampling';
 import * as reactFileUtils from '../../../ReactFileUtilities/utils';
@@ -30,7 +33,9 @@ jest
   .spyOn(wavTranscoder, 'encodeToWaw')
   .mockImplementation((file) => Promise.resolve(new Blob([file], { type: 'audio/wav' })));
 
-const mp3EncoderMock = jest.fn((file) => Promise.resolve(new Blob([file], { type: 'audio/mp3' })));
+const mp3EncoderMock = jest.fn((file) =>
+  Promise.resolve(new Blob([file], { type: 'audio/mp3' })),
+);
 
 jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
 
@@ -41,7 +46,12 @@ const createFileFromBlobsSpy = jest
   .mockReturnValue(fileMock);
 
 const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-const expectRegistersError = async ({ action, controller, errorMsg, notificationMsg }) => {
+const expectRegistersError = async ({
+  action,
+  controller,
+  errorMsg,
+  notificationMsg,
+}) => {
   let error, notification;
   const errorSubscription = controller.error.subscribe((e) => {
     error = e;
@@ -65,10 +75,8 @@ const expectRegistersError = async ({ action, controller, errorMsg, notification
   notificationSubscription?.unsubscribe();
 };
 
-// eslint-disable-next-line
 window.MediaRecorder = MediaRecorderMock;
 
-// eslint-disable-next-line
 window.AudioContext = AudioContextMock;
 
 // eslint-disable-next-line
@@ -84,10 +92,27 @@ describe('MediaRecorderController', () => {
   });
   afterEach(jest.clearAllMocks);
 
-  it('provides defaults on initiation', () => {
+  it('provides defaults on initiation (non-Safari)', () => {
     const controller = new MediaRecorderController();
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others }),
+    );
+    expect(controller.transcoderConfig).toStrictEqual(
+      expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
+    );
+    expect(controller.amplitudeRecorderConfig).toStrictEqual(
+      expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
+    );
+    expect(controller.t).toStrictEqual(defaultTranslatorFunction);
+    expect(controller.mediaType).toStrictEqual('audio');
+    expect(controller.customGenerateRecordingTitle).toBeUndefined();
+  });
+
+  it('provides defaults on initiation (Safari)', () => {
+    MediaRecorder.isTypeSupported.mockReturnValueOnce(false);
+    const controller = new MediaRecorderController();
+    expect(controller.mediaRecorderConfig).toStrictEqual(
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.safari }),
     );
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
@@ -143,7 +168,7 @@ describe('MediaRecorderController', () => {
     const controller = new MediaRecorderController({ generateRecordingTitle });
     expect(controller.customGenerateRecordingTitle).toStrictEqual(generateRecordingTitle);
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
+      expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others }),
     );
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
@@ -157,12 +182,16 @@ describe('MediaRecorderController', () => {
 
   it('generates a default recording audio title', () => {
     const controller = new MediaRecorderController();
-    expect(controller.generateRecordingTitle('audio/webm')).toMatch(/audio_recording_.+\.webm/);
+    expect(controller.generateRecordingTitle('audio/webm')).toMatch(
+      /audio_recording_.+\.webm/,
+    );
   });
 
   it('generates a custom recording audio title', () => {
     const title = 'Test title';
-    const controller = new MediaRecorderController({ generateRecordingTitle: () => title });
+    const controller = new MediaRecorderController({
+      generateRecordingTitle: () => title,
+    });
     expect(controller.generateRecordingTitle('audio/webm')).toBe(title);
   });
 
@@ -170,7 +199,9 @@ describe('MediaRecorderController', () => {
     it('checks device permission if unknown', async () => {
       const controller = new MediaRecorderController();
       controller.permission.state.next(undefined);
-      const permissionCheckSpy = jest.spyOn(controller.permission, 'check').mockImplementation();
+      const permissionCheckSpy = jest
+        .spyOn(controller.permission, 'check')
+        .mockImplementation();
       await controller.start();
       expect(permissionCheckSpy).toHaveBeenCalledWith();
     });
@@ -188,98 +219,111 @@ describe('MediaRecorderController', () => {
       },
     );
 
-    describe.each([undefined, MediaRecordingState.STOPPED])('recording in state %s', () => {
-      describe.each([['denied'], ['prompt'], ['granted']])('with permission "%s"', (permission) => {
-        it('registers error on unavailable navigator.mediaDevices', async () => {
-          window.navigator.mediaDevices = undefined;
-          const controller = new MediaRecorderController();
-          controller.permission.state.next(permission);
-          await expectRegistersError({
-            action: controller.start,
-            controller,
-            errorMsg: 'Media recording is not supported',
-            notificationMsg: 'Error starting recording',
-          });
-          expect(controller.recordingState.value).toBeUndefined();
-        });
-
-        it('registers error for video recording', async () => {
-          const controller = new MediaRecorderController({
-            config: { mediaRecorderConfig: { mimeType: 'video/webm' } },
-          });
-          controller.permission.state.next(permission);
-          await expectRegistersError({
-            action: controller.start,
-            controller,
-            errorMsg: 'Video recording is not supported. Provided MIME type: video/webm',
-            notificationMsg: 'Error starting recording',
-          });
-          expect(controller.recordingState.value).toBeUndefined();
-        });
-
-        it('does not check device permission', async () => {
-          const controller = new MediaRecorderController();
-          controller.permission.state.next(permission);
-          const permissionCheckSpy = jest
-            .spyOn(controller.permission, 'check')
-            .mockImplementation();
-          await controller.start();
-          expect(permissionCheckSpy).not.toHaveBeenCalledWith();
-        });
-
-        it.each([['prevents accessing'], ['accesses'], ['accesses']])(
-          '%s media devices',
-          async () => {
-            const controller = new MediaRecorderController();
-            controller.permission.state.next(permission);
-            await controller.start();
-            if (permission === 'denied') {
-              expect(window.navigator.mediaDevices.getUserMedia).not.toHaveBeenCalled();
+    describe.each([undefined, MediaRecordingState.STOPPED])(
+      'recording in state %s',
+      () => {
+        describe.each([['denied'], ['prompt'], ['granted']])(
+          'with permission "%s"',
+          (permission) => {
+            it('registers error on unavailable navigator.mediaDevices', async () => {
+              window.navigator.mediaDevices = undefined;
+              const controller = new MediaRecorderController();
+              controller.permission.state.next(permission);
+              await expectRegistersError({
+                action: controller.start,
+                controller,
+                errorMsg: 'Media recording is not supported',
+                notificationMsg: 'Error starting recording',
+              });
               expect(controller.recordingState.value).toBeUndefined();
-            } else {
-              expect(window.navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith(
-                expect.objectContaining({ audio: true }),
+            });
+
+            it('registers error for video recording', async () => {
+              const controller = new MediaRecorderController({
+                config: { mediaRecorderConfig: { mimeType: 'video/webm' } },
+              });
+              controller.permission.state.next(permission);
+              await expectRegistersError({
+                action: controller.start,
+                controller,
+                errorMsg:
+                  'Video recording is not supported. Provided MIME type: video/webm',
+                notificationMsg: 'Error starting recording',
+              });
+              expect(controller.recordingState.value).toBeUndefined();
+            });
+
+            it('does not check device permission', async () => {
+              const controller = new MediaRecorderController();
+              controller.permission.state.next(permission);
+              const permissionCheckSpy = jest
+                .spyOn(controller.permission, 'check')
+                .mockImplementation();
+              await controller.start();
+              expect(permissionCheckSpy).not.toHaveBeenCalledWith();
+            });
+
+            it.each([['prevents accessing'], ['accesses'], ['accesses']])(
+              '%s media devices',
+              async () => {
+                const controller = new MediaRecorderController();
+                controller.permission.state.next(permission);
+                await controller.start();
+                if (permission === 'denied') {
+                  expect(
+                    window.navigator.mediaDevices.getUserMedia,
+                  ).not.toHaveBeenCalled();
+                  expect(controller.recordingState.value).toBeUndefined();
+                } else {
+                  expect(window.navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith(
+                    expect.objectContaining({ audio: true }),
+                  );
+                  expect(controller.recordingState.value).toBe(
+                    MediaRecordingState.RECORDING,
+                  );
+                }
+              },
+            );
+
+            it.each([['does not initiate'], ['initiates'], ['initiates']])(
+              '%s amplitude recording for audio recording',
+              async () => {
+                const controller = new MediaRecorderController();
+                controller.permission.state.next(permission);
+                await controller.start();
+                if (permission === 'denied') {
+                  expect(controller.amplitudeRecorder).toBeUndefined();
+                } else {
+                  expect(controller.amplitudeRecorder.state.value).toBe(
+                    AmplitudeRecorderState.RECORDING,
+                  );
+                }
+              },
+            );
+            it('starts MediaRecorder', async () => {
+              const controller = new MediaRecorderController();
+              await controller.start();
+              expect(controller.mediaRecorder.start).toHaveBeenCalledWith();
+            });
+
+            it('handles runtime error', async () => {
+              const controller = new MediaRecorderController();
+              const errorMsg = 'User media error';
+              window.navigator.mediaDevices.getUserMedia.mockRejectedValueOnce(
+                new Error(errorMsg),
               );
-              expect(controller.recordingState.value).toBe(MediaRecordingState.RECORDING);
-            }
+              await expectRegistersError({
+                action: controller.start,
+                controller,
+                errorMsg,
+                notificationMsg: 'Error starting recording',
+              });
+              expect(controller.recordingState.value).toBeUndefined();
+            });
           },
         );
-
-        it.each([['does not initiate'], ['initiates'], ['initiates']])(
-          '%s amplitude recording for audio recording',
-          async () => {
-            const controller = new MediaRecorderController();
-            controller.permission.state.next(permission);
-            await controller.start();
-            if (permission === 'denied') {
-              expect(controller.amplitudeRecorder).toBeUndefined();
-            } else {
-              expect(controller.amplitudeRecorder.state.value).toBe(
-                AmplitudeRecorderState.RECORDING,
-              );
-            }
-          },
-        );
-        it('starts MediaRecorder', async () => {
-          const controller = new MediaRecorderController();
-          await controller.start();
-          expect(controller.mediaRecorder.start).toHaveBeenCalledWith();
-        });
-
-        it('handles runtime error', async () => {
-          const controller = new MediaRecorderController();
-          const errorMsg = 'User media error';
-          window.navigator.mediaDevices.getUserMedia.mockRejectedValueOnce(new Error(errorMsg));
-          await expectRegistersError({
-            action: controller.start,
-            controller,
-            errorMsg,
-            notificationMsg: 'Error starting recording',
-          });
-          expect(controller.recordingState.value).toBeUndefined();
-        });
-      });
-    });
+      },
+    );
   });
 
   describe('pause', () => {
@@ -291,7 +335,9 @@ describe('MediaRecorderController', () => {
       expect(controller.startTime).toBeUndefined();
       expect(controller.recordingState.value).toBe(MediaRecordingState.PAUSED);
       expect(controller.mediaRecorder.pause).toHaveBeenCalledWith();
-      expect(controller.amplitudeRecorder.state.value).toBe(AmplitudeRecorderState.STOPPED);
+      expect(controller.amplitudeRecorder.state.value).toBe(
+        AmplitudeRecorderState.STOPPED,
+      );
       controller.resume();
       controller.pause();
       expect(controller.recordedChunkDurations).toHaveLength(2);
@@ -317,7 +363,9 @@ describe('MediaRecorderController', () => {
       controller.resume();
       expect(controller.startTime).toBeDefined();
       expect(controller.mediaRecorder.resume).toHaveBeenCalledWith();
-      expect(controller.amplitudeRecorder.state.value).toBe(AmplitudeRecorderState.RECORDING);
+      expect(controller.amplitudeRecorder.state.value).toBe(
+        AmplitudeRecorderState.RECORDING,
+      );
       expect(controller.recordingState.value).toBe(MediaRecordingState.RECORDING);
     });
 
@@ -338,7 +386,9 @@ describe('MediaRecorderController', () => {
       const controller = new MediaRecorderController();
       const existingRecording = generateVoiceRecordingAttachment();
       controller.recording.next(existingRecording);
-      expect(await controller.stop()).toStrictEqual(expect.objectContaining(existingRecording));
+      expect(await controller.stop()).toStrictEqual(
+        expect.objectContaining(existingRecording),
+      );
     });
 
     it.each([MediaRecordingState.STOPPED, undefined])(
@@ -369,7 +419,9 @@ describe('MediaRecorderController', () => {
         expect(stopResult).toStrictEqual(expect.objectContaining(voiceRecording));
         expect(controller.startTime).toBeUndefined();
         expect(controller.mediaRecorder.stop).toHaveBeenCalledWith();
-        expect(controller.amplitudeRecorder.state.value).toBe(AmplitudeRecorderState.STOPPED);
+        expect(controller.amplitudeRecorder.state.value).toBe(
+          AmplitudeRecorderState.STOPPED,
+        );
         expect(controller.recordingState.value).toBe(MediaRecordingState.STOPPED);
       },
     );
@@ -418,7 +470,9 @@ describe('MediaRecorderController', () => {
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(voiceRecording);
       await controller.handleDataavailableEvent(generateDataavailableEvent());
-      expect(controller.recording.value).toStrictEqual(expect.objectContaining(voiceRecording));
+      expect(controller.recording.value).toStrictEqual(
+        expect.objectContaining(voiceRecording),
+      );
       makeVoiceRecordingSpy.mockRestore();
     });
   });
@@ -573,7 +627,9 @@ describe('MediaRecorderController', () => {
         },
       });
 
-      controller.recordedData = [new Blob(new Uint8Array(dataPoints), { type: recordedMimeType })];
+      controller.recordedData = [
+        new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+      ];
       controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
       const recordedFile = new File(controller.recordedData, fileMock);
       createFileFromBlobsSpy.mockReturnValue(recordedFile);

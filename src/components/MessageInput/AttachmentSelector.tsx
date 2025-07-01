@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
-import React, { ElementRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
+import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
@@ -18,16 +18,16 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
-import type { DefaultStreamChatGenerics } from '../../types';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 export const SimpleAttachmentSelector = () => {
   const {
     AttachmentSelectorInitiationButtonContents,
     FileUploadIcon = DefaultUploadIcon,
   } = useComponentContext();
-  const inputRef = useRef<ElementRef<'input'>>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
-  const id = useMemo(() => nanoid(), []);
+  const id = useStableId();
 
   useEffect(() => {
     if (!labelElement) return;
@@ -45,7 +45,12 @@ export const SimpleAttachmentSelector = () => {
   return (
     <div className='str-chat__file-input-container' data-testid='file-upload-button'>
       <UploadFileInput id={id} ref={inputRef} />
-      <label className='str-chat__file-input-label' htmlFor={id} ref={setLabelElement} tabIndex={0}>
+      <label
+        className='str-chat__file-input-label'
+        htmlFor={id}
+        ref={setLabelElement}
+        tabIndex={0}
+      >
         {AttachmentSelectorInitiationButtonContents ? (
           <AttachmentSelectorInitiationButtonContents />
         ) : (
@@ -57,9 +62,8 @@ export const SimpleAttachmentSelector = () => {
 };
 
 const AttachmentSelectorMenuInitButtonIcon = () => {
-  const { AttachmentSelectorInitiationButtonContents, FileUploadIcon } = useComponentContext(
-    'SimpleAttachmentSelector',
-  );
+  const { AttachmentSelectorInitiationButtonContents, FileUploadIcon } =
+    useComponentContext('SimpleAttachmentSelector');
   if (AttachmentSelectorInitiationButtonContents) {
     return <AttachmentSelectorInitiationButtonContents />;
   }
@@ -80,7 +84,6 @@ export type AttachmentSelectorActionProps = {
 
 export type AttachmentSelectorAction = {
   ActionButton: React.ComponentType<AttachmentSelectorActionProps>;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   type: 'uploadFile' | 'createPoll' | (string & {});
   ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
 };
@@ -89,16 +92,18 @@ export const DefaultAttachmentSelectorComponents = {
   File({ closeMenu }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { isUploadEnabled } = useAttachmentManagerState();
 
     return (
       <DialogMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!isUploadEnabled} // todo: add styles for disabled state
         onClick={() => {
           if (fileInput) fileInput.click();
           closeMenu();
         }}
       >
-        {t<string>('File')}
+        {t('File')}
       </DialogMenuButton>
     );
   },
@@ -112,7 +117,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t<string>('Poll')}
+        {t('Poll')}
       </DialogMenuButton>
     );
   },
@@ -131,18 +136,15 @@ export type AttachmentSelectorProps = {
   getModalPortalDestination?: () => HTMLElement | null;
 };
 
-const useAttachmentSelectorActionsFiltered = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  original: AttachmentSelectorAction[],
-) => {
+const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction[]) => {
   const { PollCreationDialog = DefaultPollCreationDialog } = useComponentContext();
-  const { channelCapabilities, channelConfig } = useChannelStateContext<StreamChatGenerics>();
+  const { channelCapabilities, channelConfig } = useChannelStateContext();
   const { isThreadInput } = useMessageInputContext();
 
   return original
     .filter((action) => {
-      if (action.type === 'uploadFile' && !channelCapabilities['upload-file']) return false;
+      if (action.type === 'uploadFile' && !channelCapabilities['upload-file'])
+        return false;
       if (
         action.type === 'createPoll' &&
         (!channelConfig?.polls || isThreadInput || !channelCapabilities['send-poll'])
@@ -158,25 +160,22 @@ const useAttachmentSelectorActionsFiltered = <
     });
 };
 
-export const AttachmentSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const AttachmentSelector = ({
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
-  const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
+  const { channelCapabilities } = useChannelStateContext();
   const { isThreadInput } = useMessageInputContext();
 
-  const actions = useAttachmentSelectorActionsFiltered<StreamChatGenerics>(
-    attachmentSelectorActionSet,
-  );
+  const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${isThreadInput ? '-thread' : ''}`;
   const menuDialog = useDialog({ id: menuDialogId });
   const menuDialogIsOpen = useDialogIsOpen(menuDialogId);
 
-  const [modalContentAction, setModalContentActionAction] = useState<AttachmentSelectorAction>();
+  const [modalContentAction, setModalContentActionAction] =
+    useState<AttachmentSelectorAction>();
   const openModal = useCallback(
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
@@ -189,7 +188,7 @@ export const AttachmentSelector = <
   const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
-  const menuButtonRef = useRef<ElementRef<'button'>>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const getDefaultPortalDestination = useCallback(
     () => document.getElementById(CHANNEL_CONTAINER_ID),
@@ -198,7 +197,8 @@ export const AttachmentSelector = <
 
   if (actions.length === 0) return null;
 
-  if (actions.length === 1 && actions[0].type === 'uploadFile') return <SimpleAttachmentSelector />;
+  if (actions.length === 1 && actions[0].type === 'uploadFile')
+    return <SimpleAttachmentSelector />;
 
   const ModalContent = modalContentAction?.ModalContent;
   const modalIsOpen = !!ModalContent;
@@ -221,6 +221,7 @@ export const AttachmentSelector = <
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}
+          tabIndex={-1}
           trapFocus
         >
           <div
@@ -240,7 +241,11 @@ export const AttachmentSelector = <
           getPortalDestination={getModalPortalDestination ?? getDefaultPortalDestination}
           isOpen={modalIsOpen}
         >
-          <Modal className='str-chat__create-poll-modal' onClose={closeModal} open={modalIsOpen}>
+          <Modal
+            className='str-chat__create-poll-modal'
+            onClose={closeModal}
+            open={modalIsOpen}
+          >
             {ModalContent && <ModalContent close={closeModal} />}
           </Modal>
         </Portal>

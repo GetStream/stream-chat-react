@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 
 export type CustomNotificationProps = {
@@ -7,7 +8,9 @@ export type CustomNotificationProps = {
   className?: string;
 };
 
-const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificationProps>) => {
+const UnMemoizedCustomNotification = (
+  props: PropsWithChildren<CustomNotificationProps>,
+) => {
   const { active, children, className, type } = props;
 
   if (!active) return null;

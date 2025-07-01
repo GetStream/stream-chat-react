@@ -11,7 +11,10 @@ import {
 let client;
 const channelData = generateChannel({
   channel: {
-    members: [generateMember({ user: generateUser() }), generateMember({ user: generateUser() })],
+    members: [
+      generateMember({ user: generateUser() }),
+      generateMember({ user: generateUser() }),
+    ],
   },
 });
 const memberIds = channelData.channel.members.map((m) => m.user_id);

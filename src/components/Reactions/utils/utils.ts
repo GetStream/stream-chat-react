@@ -1,6 +1,8 @@
-import { ForwardedRef, MutableRefObject } from 'react';
+import type { ForwardedRef, MutableRefObject } from 'react';
 
-export const isMutableRef = <T>(ref: ForwardedRef<T> | null): ref is MutableRefObject<T> => {
+export const isMutableRef = <T>(
+  ref: ForwardedRef<T> | null,
+): ref is MutableRefObject<T> => {
   if (ref) {
     return (ref as MutableRefObject<T>).current !== undefined;
   }

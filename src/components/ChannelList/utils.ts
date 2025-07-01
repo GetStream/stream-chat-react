@@ -1,25 +1,20 @@
 import uniqBy from 'lodash.uniqby';
-import type { Channel, ChannelSort, ExtendableGenerics } from 'stream-chat';
+import type { Channel, ChannelSort, ChannelSortBase } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ChannelListProps } from './ChannelList';
 
 export const MAX_QUERY_CHANNELS_LIMIT = 30;
 
-type MoveChannelUpParams<SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics> = {
-  channels: Array<Channel<SCG>>;
+type MoveChannelUpParams = {
+  channels: Array<Channel>;
   cid: string;
-  activeChannel?: Channel<SCG>;
+  activeChannel?: Channel;
 };
 
 /**
  * @deprecated
  */
-export const moveChannelUp = <SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>({
-  activeChannel,
-  channels,
-  cid,
-}: MoveChannelUpParams<SCG>) => {
+export const moveChannelUp = ({ activeChannel, channels, cid }: MoveChannelUpParams) => {
   // get index of channel to move up
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
 
@@ -36,11 +31,7 @@ export const moveChannelUp = <SCG extends DefaultStreamChatGenerics = DefaultStr
  *
  * TODO: add support for the `{ pinned_at: 1 }`
  */
-export function findLastPinnedChannelIndex<SCG extends ExtendableGenerics>({
-  channels,
-}: {
-  channels: Channel<SCG>[];
-}) {
+export function findLastPinnedChannelIndex({ channels }: { channels: Channel[] }) {
   let lastPinnedChannelIndex: number | null = null;
 
   for (const channel of channels) {
@@ -56,10 +47,10 @@ export function findLastPinnedChannelIndex<SCG extends ExtendableGenerics>({
   return lastPinnedChannelIndex;
 }
 
-type MoveChannelUpwardsParams<SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics> = {
-  channels: Array<Channel<SCG>>;
-  channelToMove: Channel<SCG>;
-  sort: ChannelSort<SCG>;
+type MoveChannelUpwardsParams = {
+  channels: Array<Channel>;
+  channelToMove: Channel;
+  sort: ChannelSort;
   /**
    * If the index of the channel within `channels` list which is being moved upwards
    * (`channelToMove`) is known, you can supply it to skip extra calculation.
@@ -67,17 +58,12 @@ type MoveChannelUpwardsParams<SCG extends DefaultStreamChatGenerics = DefaultStr
   channelToMoveIndexWithinChannels?: number;
 };
 
-/**
- * This function should not be used to move pinned already channels.
- */
-export const moveChannelUpwards = <
-  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const moveChannelUpwards = ({
   channels,
   channelToMove,
   channelToMoveIndexWithinChannels,
   sort,
-}: MoveChannelUpwardsParams<SCG>) => {
+}: MoveChannelUpwardsParams) => {
   // get index of channel to move up
   const targetChannelIndex =
     channelToMoveIndexWithinChannels ??
@@ -90,8 +76,11 @@ export const moveChannelUpwards = <
   // receive messages and are not pinned should move upwards but only under the last pinned channel
   // in the list
   const considerPinnedChannels = shouldConsiderPinnedChannels(sort);
+  const isTargetChannelPinned = isChannelPinned(channelToMove);
 
-  if (targetChannelAlreadyAtTheTop) return channels;
+  if (targetChannelAlreadyAtTheTop || (considerPinnedChannels && isTargetChannelPinned)) {
+    return channels;
+  }
 
   const newChannels = [...channels];
 
@@ -118,45 +107,80 @@ export const moveChannelUpwards = <
 };
 
 /**
- * Returns true only if `{ pinned_at: -1 }` or `{ pinned_at: 1 }` option is first within the `sort` array.
+ * Returns `true` only if object with `pinned_at` property is first within the `sort` array
+ * or if `pinned_at` key of the `sort` object gets picked first when using `for...in` looping mechanism
+ * and value of the `pinned_at` is either `1` or `-1`.
  */
-export const shouldConsiderPinnedChannels = <SCG extends ExtendableGenerics>(
-  sort: ChannelListProps<SCG>['sort'],
-) => {
-  if (!sort) return false;
+export const shouldConsiderPinnedChannels = (sort: ChannelListProps['sort']) => {
+  const value = extractSortValue({ atIndex: 0, sort, targetKey: 'pinned_at' });
 
-  if (!Array.isArray(sort)) return false;
+  if (typeof value !== 'number') return false;
 
-  const [option] = sort;
+  return Math.abs(value) === 1;
+};
 
-  if (!option?.pinned_at) return false;
+export const extractSortValue = ({
+  atIndex,
+  sort,
+  targetKey,
+}: {
+  atIndex: number;
+  targetKey: keyof ChannelSortBase;
+  sort?: ChannelListProps['sort'];
+}) => {
+  if (!sort) return null;
+  let option: null | ChannelSortBase = null;
 
-  return Math.abs(option.pinned_at) === 1;
+  if (Array.isArray(sort)) {
+    option = sort[atIndex] ?? null;
+  } else {
+    let index = 0;
+    for (const key in sort) {
+      if (index !== atIndex) {
+        index++;
+        continue;
+      }
+
+      if (key !== targetKey) {
+        return null;
+      }
+
+      option = sort;
+
+      break;
+    }
+  }
+
+  return option?.[targetKey] ?? null;
 };
 
 /**
- * Returns `true` only if `archived` property is set to `false` within `filters`.
+ * Returns `true` only if `archived` property is of type `boolean` within `filters` object.
  */
-export const shouldConsiderArchivedChannels = <SCG extends ExtendableGenerics>(
-  filters: ChannelListProps<SCG>['filters'],
-) => {
+export const shouldConsiderArchivedChannels = (filters: ChannelListProps['filters']) => {
   if (!filters) return false;
 
-  return !filters.archived;
+  return typeof filters.archived === 'boolean';
 };
 
-export const isChannelPinned = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
+/**
+ * Returns `true` only if `pinned_at` property is of type `string` within `membership` object.
+ */
+export const isChannelPinned = (channel: Channel) => {
   if (!channel) return false;
 
-  const member = channel.state.membership;
+  const membership = channel.state.membership;
 
-  return !!member?.pinned_at;
+  return typeof membership.pinned_at === 'string';
 };
 
-export const isChannelArchived = <SCG extends ExtendableGenerics>(channel: Channel<SCG>) => {
+/**
+ * Returns `true` only if `archived_at` property is of type `string` within `membership` object.
+ */
+export const isChannelArchived = (channel: Channel) => {
   if (!channel) return false;
 
-  const member = channel.state.membership;
+  const membership = channel.state.membership;
 
-  return !!member?.archived_at;
+  return typeof membership.archived_at === 'string';
 };

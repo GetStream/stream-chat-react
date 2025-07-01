@@ -1,19 +1,22 @@
-
 ## Creating PR
+
 To [create a PR](https://docs.github.com/en/enterprise-cloud@latest/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), we use a [PR template](../PULL_REQUEST_TEMPLATE.md) `PULL_REQUEST_TEMPLATE.md`. It consists of 3 sections:
 
-1. [🎯 Goal](#goal) *(mandatory)*
-2. [🛠 Implementation details](#implementation-details) *(recommended)*
-3. [🎨 UI Changes](#ui-changes) *(optional)*
-4. [References](#references) *(mandatory if exist)*
+1. [🎯 Goal](#goal) _(mandatory)_
+2. [🛠 Implementation details](#implementation-details) _(recommended)_
+3. [🎨 UI Changes](#ui-changes) _(optional)_
+4. [References](#references) _(mandatory if exist)_
 
 #### <a name="goal"></a>🎯 Goal
+
 High level description on what is changing and what benefits do the change bring. Without
 
 #### <a name="implementation-details"></a>🛠 Implementation details
+
 Should include an explanation of the logic applied to solving the problem. It provides a context that will make the review much easier.
 
 #### <a name="ui-changes"></a>🎨 UI Changes
+
 This is a great place to showcase:
 
 - screenshots of “before” and “after”
@@ -22,6 +25,7 @@ This is a great place to showcase:
 A good way to keep this section readable is to [include collapsed sections](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections)
 
 #### References
+
 If the PR solves one or more previously filed issues, then it should contain one reference per each issue - [link the issues](https://docs.github.com/en/enterprise-cloud@latest/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
 It may often be the case, that you are implementing a feature with changes in styling ([`stream-chat-css`](https://github.com/GetStream/stream-chat-css)) or Stream Chat API client (`stream-chat-js`). Those PRs may contain changes on which depends the functionality of the currently created PR in `stream-chat-react`. In such case, you should include references to PRs in those repos as well (e.g. `Depends on https://github.com/GetStream/stream-chat-css/issues/66`).
@@ -62,4 +66,3 @@ The PR should be returned for rework if any of the steps stumble upon shortcomin
 ## Merging the PR
 
 PRs should be squash-merged in order to keep the git history clean. The resulting commit message should follow the [Angular's Commit Messag Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
-

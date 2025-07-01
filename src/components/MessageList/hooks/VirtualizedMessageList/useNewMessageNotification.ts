@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
+import type { LocalMessage } from 'stream-chat';
+import type { RenderedMessage } from '../../utils';
 
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export function useNewMessageNotification<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  messages: StreamMessage<StreamChatGenerics>[],
+export function useNewMessageNotification(
+  messages: RenderedMessage[],
   currentUserId: string | undefined,
   hasMoreNewer?: boolean,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
-  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
+    useState(true);
   /**
    * use the flag to avoid the initial "new messages" quick blink
    */
@@ -40,7 +37,7 @@ export function useNewMessageNotification<
     if (atBottom.current) return;
 
     /* if the new message belongs to current user scroll to bottom */
-    if (lastMessage.user?.id !== currentUserId && didMount.current) {
+    if ((lastMessage as LocalMessage).user?.id !== currentUserId && didMount.current) {
       /* otherwise just show newMessage notification  */
       setNewMessagesNotification(true);
     }

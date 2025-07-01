@@ -1,212 +1,191 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Gallery should render component with 3 images 1`] = `
-<div
-  className="str-chat__gallery str-chat__gallery-two-rows"
->
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
+<div>
+  <div
+    class="str-chat__gallery str-chat__gallery-two-rows"
   >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+  </div>
 </div>
 `;
 
 exports[`Gallery should render component with 4 images 1`] = `
-<div
-  className="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
->
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
+<div>
+  <div
+    class="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
   >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+  </div>
 </div>
 `;
 
 exports[`Gallery should render component with 5 images 1`] = `
-<div
-  className="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
->
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
+<div>
+  <div
+    class="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
   >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-placeholder"
-    data-testid="gallery-image-last"
-    onClick={[Function]}
-    style={
-      {
-        "backgroundImage": "url(undefined)",
-      }
-    }
-  >
-    <p>
-      {{ imageCount }} more
-    </p>
-  </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-placeholder"
+      data-testid="gallery-image-last"
+      style="background-image: url(undefined);"
+    >
+      <p>
+        {{ imageCount }} more
+      </p>
+    </button>
+  </div>
 </div>
 `;
 
 exports[`Gallery should render component with default props 1`] = `
-<div
-  className="str-chat__gallery"
->
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
+<div>
+  <div
+    class="str-chat__gallery"
   >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
-  <button
-    className="str-chat__gallery-image"
-    data-testid="gallery-image"
-    onClick={[Function]}
-  >
-    <img
-      alt="User uploaded content"
-      className="str-chat__base-image"
-      data-testid="str-chat__base-image"
-      onError={[Function]}
-      src="about:blank"
-      title="User uploaded content"
-    />
-  </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+    <button
+      class="str-chat__gallery-image"
+      data-testid="gallery-image"
+    >
+      <img
+        alt="User uploaded content"
+        class="str-chat__base-image"
+        data-testid="str-chat__base-image"
+        src="about:blank"
+        title="User uploaded content"
+      />
+    </button>
+  </div>
 </div>
 `;
 

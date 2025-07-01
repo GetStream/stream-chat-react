@@ -1,51 +1,53 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { TranslationContextValue } from '../../../context/TranslationContext';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
+import type { SupportedTranslations } from '../../../i18n';
 import {
   defaultDateTimeParser,
+  defaultTranslatorFunction,
   isLanguageSupported,
   Streami18n,
-  SupportedTranslations,
 } from '../../../i18n';
 
-import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
+import type {
+  AppSettingsAPIResponse,
+  Channel,
+  Event,
+  Mute,
+  OwnUserResponse,
+  StreamChat,
+} from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
-
-export type UseChatParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  client: StreamChat<StreamChatGenerics>;
+export type UseChatParams = {
+  client: StreamChat;
   defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
   initialNavOpen?: boolean;
 };
 
-export const useChat = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const useChat = ({
   client,
   defaultLanguage = 'en',
   i18nInstance,
   initialNavOpen,
-}: UseChatParams<StreamChatGenerics>) => {
+}: UseChatParams) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: (key: string) => key,
+    t: defaultTranslatorFunction,
     tDateTimeParser: defaultDateTimeParser,
     userLanguage: 'en',
   });
 
-  const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
-  const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
+  const [channel, setChannel] = useState<Channel>();
+  const [mutes, setMutes] = useState<Array<Mute>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
-  const clientMutes = (client.user?.mutes as Array<Mute<StreamChatGenerics>>) || [];
+  const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
 
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
-  const appSettings = useRef<Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null>(null);
+  const appSettings = useRef<Promise<AppSettingsAPIResponse> | null>(null);
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -58,26 +60,32 @@ export const useChat = <
   useEffect(() => {
     if (!client) return;
 
+    const version = process.env.STREAM_CHAT_REACT_VERSION;
+
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {
       // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
       // the upper-case text between double underscores is replaced with the actual semantic version of the library
-      client.setUserAgent(`stream-chat-react-__STREAM_CHAT_REACT_VERSION__-${userAgent}`);
+      client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
     }
 
     client.threads.registerSubscriptions();
     client.polls.registerSubscriptions();
+    client.reminders.registerSubscriptions();
+    client.reminders.initTimers();
 
     return () => {
       client.threads.unregisterSubscriptions();
       client.polls.unregisterSubscriptions();
+      client.reminders.unregisterSubscriptions();
+      client.reminders.clearTimers();
     };
   }, [client]);
 
   useEffect(() => {
     setMutes(clientMutes);
 
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event) => {
       setMutes(event.me?.mutes || []);
     };
 
@@ -91,7 +99,9 @@ export const useChat = <
 
     if (!userLanguage) {
       const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
-      userLanguage = isLanguageSupported(browserLanguage) ? browserLanguage : defaultLanguage;
+      userLanguage = isLanguageSupported(browserLanguage)
+        ? browserLanguage
+        : defaultLanguage;
     }
 
     const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
@@ -111,7 +121,7 @@ export const useChat = <
 
   const setActiveChannel = useCallback(
     async (
-      activeChannel?: Channel<StreamChatGenerics>,
+      activeChannel?: Channel,
       watchers: { limit?: number; offset?: number } = {},
       event?: React.BaseSyntheticEvent,
     ) => {

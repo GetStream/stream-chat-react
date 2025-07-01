@@ -1,6 +1,8 @@
-import React, { PropsWithChildren, useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect } from 'react';
 
-import { LoadMoreButton as DefaultLoadMoreButton, LoadMoreButtonProps } from './LoadMoreButton';
+import type { LoadMoreButtonProps } from './LoadMoreButton';
+import { LoadMoreButton as DefaultLoadMoreButton } from './LoadMoreButton';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
@@ -11,7 +13,9 @@ export type LoadMorePaginatorProps = PaginatorProps & {
   reverse?: boolean;
 };
 
-export const UnMemoizedLoadMorePaginator = (props: PropsWithChildren<LoadMorePaginatorProps>) => {
+export const UnMemoizedLoadMorePaginator = (
+  props: PropsWithChildren<LoadMorePaginatorProps>,
+) => {
   const {
     children,
     hasNextPage,
@@ -24,7 +28,10 @@ export const UnMemoizedLoadMorePaginator = (props: PropsWithChildren<LoadMorePag
   const loadingState = typeof isLoading !== 'undefined' ? isLoading : refreshing;
 
   useEffect(() => {
-    deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMorePaginator');
+    deprecationAndReplacementWarning(
+      [[{ refreshing }, { isLoading }]],
+      'LoadMorePaginator',
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

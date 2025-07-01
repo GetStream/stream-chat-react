@@ -1,26 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { StreamMessage } from '../../../../context';
-import { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { RenderedMessage } from '../../utils';
 
-type UseScrollToBottomOnNewMessageParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+type UseScrollToBottomOnNewMessageParams = {
   scrollToBottom: () => void;
-  messages?: StreamMessage<StreamChatGenerics>[];
+  messages?: RenderedMessage[];
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
 };
 
-export const useScrollToBottomOnNewMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const useScrollToBottomOnNewMessage = ({
   messages,
   scrollToBottom,
   scrollToLatestMessageOnFocus,
-}: UseScrollToBottomOnNewMessageParams<StreamChatGenerics>) => {
-  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = useState(false);
+}: UseScrollToBottomOnNewMessageParams) => {
+  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] =
+    useState(false);
 
-  const scrollToBottomIfConfigured = useRef<(e: Event) => void>();
+  const scrollToBottomIfConfigured = useRef<(e: Event) => void>(undefined);
 
   scrollToBottomIfConfigured.current = (event: Event) => {
     if (

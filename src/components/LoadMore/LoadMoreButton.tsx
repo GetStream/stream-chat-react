@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 import { useTranslationContext } from '../../context';
@@ -23,7 +24,7 @@ const UnMemoizedLoadMoreButton = ({
 }: PropsWithChildren<LoadMoreButtonProps>) => {
   const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
 
-  const childrenOrDefaultString = children ?? t<string>('Load more');
+  const childrenOrDefaultString = children ?? t('Load more');
   const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
 
   useEffect(() => {

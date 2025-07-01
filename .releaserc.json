@@ -1,6 +1,11 @@
 {
   "branches": [
     {
+      "name": "rc",
+      "channel": "rc",
+      "prerelease": "rc"
+    },
+    {
       "name": "master",
       "channel": "latest"
     },
@@ -71,10 +76,6 @@
         }
       }
     ],
-    [
-      "@semantic-release/exec", {
-      "prepareCmd": "NEXT_VERSION=${nextRelease.version} npm run build"
-    }],
     [
       "@semantic-release/changelog",
       {

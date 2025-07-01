@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
+import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
 
 import type { Thread, ThreadManagerState } from 'stream-chat';
 
@@ -44,8 +45,8 @@ export const useThreadList = () => {
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
   const {
-    ThreadListItem = DefaultThreadListItem,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
+    ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();

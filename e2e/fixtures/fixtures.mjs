@@ -29,11 +29,14 @@ dotenv.config({ path: `.env.local` });
   // 'Jump to message' channel
   {
     const MESSAGES_COUNT = 150;
-    const channel = await setupChannel({client, channelName: E2E_JUMP_TO_MESSAGE_CHANNEL})
+    const channel = await setupChannel({
+      client,
+      channelName: E2E_JUMP_TO_MESSAGE_CHANNEL,
+    });
 
     await generateMessages({
       channel,
-      quoteMap: { '20': '140' },
+      quoteMap: { 20: '140' },
       start: 0,
       stop: MESSAGES_COUNT,
     });
@@ -43,7 +46,10 @@ dotenv.config({ path: `.env.local` });
 
   // 'navigate-long-message-lists` channel
   {
-    const channel = await setupChannel({client, channelName: E2E_LONG_MESSAGE_LISTS_CHANNEL})
+    const channel = await setupChannel({
+      client,
+      channelName: E2E_LONG_MESSAGE_LISTS_CHANNEL,
+    });
 
     const messages = await generateMessages({
       channel,
@@ -52,14 +58,16 @@ dotenv.config({ path: `.env.local` });
       stop: 150,
     });
 
-    await Promise.all([-51, -26, -13, -1].map((offset) => (
-      generateMessages({
-        channel,
-        parent_id: messages.slice(offset)[0].message.id,
-        start: 150,
-        stop: 300,
-      })
-    )))
+    await Promise.all(
+      [-51, -26, -13, -1].map((offset) =>
+        generateMessages({
+          channel,
+          parent_id: messages.slice(offset)[0].message.id,
+          start: 150,
+          stop: 300,
+        }),
+      ),
+    );
 
     process.stdout.write('\n');
   }
@@ -67,7 +75,10 @@ dotenv.config({ path: `.env.local` });
   // 'Attachment sizing' channel
   {
     const MESSAGES_COUNT = 150;
-    const channel = await setupChannel({client, channelName: E2E_ATTACHMENT_SIZING_CHANNEL})
+    const channel = await setupChannel({
+      client,
+      channelName: E2E_ATTACHMENT_SIZING_CHANNEL,
+    });
 
     await generateMessages({
       channel,
@@ -82,7 +93,7 @@ dotenv.config({ path: `.env.local` });
 
   // 'Add message' channel
   {
-    await setupChannel({client, channelName: E2E_ADD_MESSAGE_CHANNEL})
+    await setupChannel({ client, channelName: E2E_ADD_MESSAGE_CHANNEL });
   }
 
   // Create additional channels from .env
@@ -91,7 +102,7 @@ dotenv.config({ path: `.env.local` });
 
     for (const additionalChannel of additionalChannels) {
       if (!additionalChannel || !additionalChannel.length) continue;
-      await setupChannel({client, channelName: additionalChannel})
+      await setupChannel({ client, channelName: additionalChannel });
     }
   }
 })().catch((e) => console.error(e));

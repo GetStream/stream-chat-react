@@ -1,4 +1,5 @@
-import React, { CSSProperties, MutableRefObject, useState } from 'react';
+import type { CSSProperties, MutableRefObject } from 'react';
+import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
@@ -11,34 +12,25 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type GalleryProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type GalleryProps = {
   images: ((
     | {
         image_url?: string | undefined;
         thumb_url?: string | undefined;
       }
-    | Attachment<StreamChatGenerics>
+    | Attachment
   ) & { previewUrl?: string; style?: CSSProperties })[];
   innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
 };
 
-const UnMemoizedGallery = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: GalleryProps<StreamChatGenerics>,
-) => {
+const UnMemoizedGallery = (props: GalleryProps) => {
   const { images, innerRefs } = props;
 
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
-    'Gallery',
-  );
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } =
+    useComponentContext('Gallery');
   const { t } = useTranslationContext('Gallery');
 
   const imageFallbackTitle = t('User uploaded content');
@@ -70,10 +62,14 @@ const UnMemoizedGallery = <
           })`,
           ...image.style,
         }}
-        {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
+        {...(innerRefs?.current && {
+          ref: (r) => {
+            innerRefs.current[i] = r;
+          },
+        })}
       >
         <p>
-          {t<string>('{{ imageCount }} more', {
+          {t('{{ imageCount }} more', {
             imageCount: images.length - countImagesDisplayedInPreview,
           })}
         </p>
@@ -86,11 +82,15 @@ const UnMemoizedGallery = <
         onClick={() => toggleModal(i)}
       >
         <BaseImage
-          alt={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
+          alt={(image as Attachment)?.fallback || imageFallbackTitle}
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
-          title={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
-          {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
+          title={(image as Attachment)?.fallback || imageFallbackTitle}
+          {...(innerRefs?.current && {
+            ref: (r) => {
+              innerRefs.current[i] = r;
+            },
+          })}
         />
       </button>
     ),

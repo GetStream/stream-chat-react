@@ -1,40 +1,33 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
+import type { LocalMessage } from 'stream-chat';
 
-import type { StreamMessage } from '../../../../context/ChannelStateContext';
-
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
-
-export type UseScrollLocationLogicParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   loadMoreScrollThreshold: number;
   suppressAutoscroll: boolean;
-  messages?: StreamMessage<StreamChatGenerics>[];
+  messages?: LocalMessage[];
   scrolledUpThreshold?: number;
 };
 
-export const useScrollLocationLogic = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  params: UseScrollLocationLogicParams<StreamChatGenerics>,
-) => {
+export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => {
   const {
+    hasMoreNewer,
+    listElement,
     loadMoreScrollThreshold,
     messages = [],
     scrolledUpThreshold = 200,
-    hasMoreNewer,
     suppressAutoscroll,
-    listElement,
   } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
 
-  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
+    useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
 
@@ -84,7 +77,8 @@ export const useScrollLocationLogic = <
       const scrollHeight = element.scrollHeight;
 
       const prevCloseToBottom = closeToBottom.current;
-      closeToBottom.current = scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
+      closeToBottom.current =
+        scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
 
       if (closeToBottom.current) {

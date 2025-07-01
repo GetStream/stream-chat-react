@@ -1,48 +1,39 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MessageInputContextValue, useTranslationContext } from '../../../context';
-import {
-  CustomAudioRecordingConfig,
-  MediaRecorderController,
-  MediaRecordingState,
-} from '../classes';
+import { MediaRecorderController } from '../classes';
+import { useTranslationContext } from '../../../context';
+import { useMessageComposer } from '../../MessageInput';
 
-import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
-import type { DefaultStreamChatGenerics } from '../../../types';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
+import type { MessageInputContextValue } from '../../../context';
 
-export type RecordingController<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type RecordingController = {
   completeRecording: () => void;
   permissionState?: PermissionState;
   recorder?: MediaRecorderController;
-  recording?: LocalVoiceRecordingAttachment<StreamChatGenerics>;
+  recording?: LocalVoiceRecordingAttachment;
   recordingState?: MediaRecordingState;
 };
 
-type UseMediaRecorderParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<
-  MessageInputContextValue<StreamChatGenerics>,
-  'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
+type UseMediaRecorderParams = Pick<
+  MessageInputContextValue,
+  'asyncMessagesMultiSendEnabled' | 'handleSubmit'
 > & {
   enabled: boolean;
   generateRecordingTitle?: (mimeType: string) => string;
   recordingConfig?: CustomAudioRecordingConfig;
 };
 
-export const useMediaRecorder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export const useMediaRecorder = ({
   asyncMessagesMultiSendEnabled,
   enabled,
   generateRecordingTitle,
   handleSubmit,
   recordingConfig,
-  uploadAttachment,
-}: UseMediaRecorderParams<StreamChatGenerics>): RecordingController<StreamChatGenerics> => {
+}: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
-
-  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment<StreamChatGenerics>>();
+  const messageComposer = useMessageComposer();
+  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
   const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
@@ -63,13 +54,13 @@ export const useMediaRecorder = <
     if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
-    await uploadAttachment(recording);
+    await messageComposer.attachmentManager.uploadAttachment(recording);
     if (!asyncMessagesMultiSendEnabled) {
       // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
       scheduleForSubmit(true);
     }
     recorder.cleanUp();
-  }, [asyncMessagesMultiSendEnabled, recorder, uploadAttachment]);
+  }, [asyncMessagesMultiSendEnabled, messageComposer, recorder]);
 
   useEffect(() => {
     if (!isScheduledForSubmit) return;
@@ -81,8 +72,10 @@ export const useMediaRecorder = <
     if (!recorder) return;
     recorder.permission.watch();
     const recordingSubscription = recorder.recording.subscribe(setRecording);
-    const recordingStateSubscription = recorder.recordingState.subscribe(setRecordingState);
-    const permissionStateSubscription = recorder.permission.state.subscribe(setPermissionState);
+    const recordingStateSubscription =
+      recorder.recordingState.subscribe(setRecordingState);
+    const permissionStateSubscription =
+      recorder.permission.state.subscribe(setPermissionState);
 
     return () => {
       recorder.cancel();

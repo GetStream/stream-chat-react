@@ -1,6 +1,5 @@
-/* eslint-disable react/display-name */
 import React from 'react';
-import { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 // TODO: unify icons across SDK
 export const Icon = {

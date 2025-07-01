@@ -10,10 +10,10 @@ import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
 import clsx from 'clsx';
 
-const availableChatViews = ['channels', 'threads'] as const;
+type ChatView = 'channels' | 'threads';
 
 type ChatViewContextValue = {
-  activeChatView: typeof availableChatViews[number];
+  activeChatView: ChatView;
   setActiveChatView: (cv: ChatViewContextValue['activeChatView']) => void;
 };
 
@@ -23,9 +23,8 @@ const ChatViewContext = createContext<ChatViewContextValue>({
 });
 
 export const ChatView = ({ children }: PropsWithChildren) => {
-  const [activeChatView, setActiveChatView] = useState<ChatViewContextValue['activeChatView']>(
-    'channels',
-  );
+  const [activeChatView, setActiveChatView] =
+    useState<ChatViewContextValue['activeChatView']>('channels');
 
   const { theme } = useChatContext();
 
@@ -60,9 +59,8 @@ export const useThreadsViewContext = () => useContext(ThreadsViewContext);
 
 const ThreadsView = ({ children }: PropsWithChildren) => {
   const { activeChatView } = useContext(ChatViewContext);
-  const [activeThread, setActiveThread] = useState<ThreadsViewContextValue['activeThread']>(
-    undefined,
-  );
+  const [activeThread, setActiveThread] =
+    useState<ThreadsViewContextValue['activeThread']>(undefined);
 
   const value = useMemo(() => ({ activeThread, setActiveThread }), [activeThread]);
 

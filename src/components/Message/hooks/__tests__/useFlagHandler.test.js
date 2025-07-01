@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 
@@ -38,7 +38,9 @@ async function renderUseHandleFlagHook(
       </ChannelStateProvider>
     </ChatProvider>
   );
-  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), { wrapper });
+  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), {
+    wrapper,
+  });
   return result.current;
 }
 describe('useHandleFlag custom hook', () => {

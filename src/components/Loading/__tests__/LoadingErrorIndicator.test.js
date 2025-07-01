@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -9,7 +9,7 @@ import { Chat } from '../../Chat';
 
 import { getTestClientWithUser } from '../../../mock-builders';
 
-afterEach(cleanup); // eslint-disable-line
+afterEach(cleanup);
 
 describe('LoadingErrorIndicator', () => {
   it('should return null if no error is provided', () => {
@@ -18,12 +18,14 @@ describe('LoadingErrorIndicator', () => {
   });
 
   it('should render when an error is passed', () => {
-    const tree = renderer
-      .create(<LoadingErrorIndicator error={{ message: 'this is an error' }} />)
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
+    const { container } = render(
+      <LoadingErrorIndicator error={{ message: 'this is an error' }} />,
+    );
+    expect(container).toMatchInlineSnapshot(`
       <div>
-        Error: {{ errorMessage }}
+        <div>
+          Error: {{ errorMessage }}
+        </div>
       </div>
     `);
   });

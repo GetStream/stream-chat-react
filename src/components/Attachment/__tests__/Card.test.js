@@ -142,7 +142,8 @@ describe('Card', () => {
             thumb_url: undefined,
           },
           props: 'asset and neither og image URL is available',
-          render: 'content part with title and text only and without the header part of the Card',
+          render:
+            'content part with title and text only and without the header part of the Card',
         },
       );
     } else if (type === 'video') {

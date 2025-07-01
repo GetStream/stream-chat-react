@@ -15,7 +15,10 @@ export type CursorPaginatorStateStore<T> = StateStore<CursorPaginatorState<T>>;
 
 export type PaginationFn<T> = (next?: string) => Promise<{ items: T[]; next?: string }>;
 
-export const useCursorPaginator = <T>(paginationFn: PaginationFn<T>, loadFirstPage?: boolean) => {
+export const useCursorPaginator = <T>(
+  paginationFn: PaginationFn<T>,
+  loadFirstPage?: boolean,
+) => {
   const cursorPaginatorState = useMemo(
     () =>
       new StateStore<CursorPaginatorState<T>>({

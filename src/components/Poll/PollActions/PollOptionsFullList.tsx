@@ -5,31 +5,24 @@ import { useStateStore } from '../../../store';
 import { usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types';
 
 type PollStateSelectorReturnValue = { name: string };
-const pollStateSelector = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => ({ name: nextValue.name });
+const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
+  name: nextValue.name,
+});
 
 export type FullPollOptionsListingProps = {
   close?: () => void;
 };
 
-export const PollOptionsFullList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  close,
-}: FullPollOptionsListingProps) => {
+export const PollOptionsFullList = ({ close }: FullPollOptionsListingProps) => {
   const { t } = useTranslationContext();
-  const { poll } = usePollContext<StreamChatGenerics>();
+  const { poll } = usePollContext();
   const { name } = useStateStore(poll.state, pollStateSelector);
 
   return (
     <div className={'str-chat__modal__poll-option-list'}>
-      <ModalHeader close={close} title={t<string>('Poll options')} />
+      <ModalHeader close={close} title={t('Poll options')} />
       <div className='str-chat__modal__poll-option-list__body'>
         <div className='str-chat__modal__poll-option-list__title'>{name}</div>
         <PollOptionList />

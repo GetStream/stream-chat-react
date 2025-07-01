@@ -1,4 +1,4 @@
 {
   "src/**/*.{js,ts,tsx,md}": "eslint --fix",
-  "{src/**/*.{js,ts,tsx,md,json}, .eslintrc.json, .prettierrc, babel.config.js}": "prettier --write"
+  "**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}": "prettier --write"
 }

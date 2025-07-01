@@ -1,13 +1,8 @@
 import { useMemo } from 'react';
 
 import type { ChatContextValue } from '../../../context/ChatContext';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export const useCreateChatContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  value: ChatContextValue<StreamChatGenerics>,
-) => {
+export const useCreateChatContext = (value: ChatContextValue) => {
   const {
     channel,
     channelsQueryState,
@@ -20,6 +15,7 @@ export const useCreateChatContext = <
     mutes,
     navOpen,
     openMobileNav,
+    searchController,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
@@ -34,7 +30,7 @@ export const useCreateChatContext = <
   ${client.user?.id}`;
   const mutedUsersLength = mutes.length;
 
-  const chatContext: ChatContextValue<StreamChatGenerics> = useMemo(
+  const chatContext: ChatContextValue = useMemo(
     () => ({
       channel,
       channelsQueryState,
@@ -47,6 +43,7 @@ export const useCreateChatContext = <
       mutes,
       navOpen,
       openMobileNav,
+      searchController,
       setActiveChannel,
       theme,
       useImageFlagEmojisOnWindows,
@@ -58,6 +55,7 @@ export const useCreateChatContext = <
       channelsQueryInProgress,
       clientValues,
       getAppSettings,
+      searchController,
       mutedUsersLength,
       navOpen,
       isMessageAIGenerated,

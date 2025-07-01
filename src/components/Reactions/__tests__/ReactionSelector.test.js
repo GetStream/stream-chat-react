@@ -37,7 +37,9 @@ const handleReactionMock = jest.fn();
 const renderComponent = (props) =>
   render(
     <DialogManagerProvider>
-      <ComponentProvider value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}>
+      <ComponentProvider
+        value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}
+      >
         <MessageProvider value={{ message: generateMessage() }}>
           <ReactionSelector handleReaction={handleReactionMock} {...props} />
         </MessageProvider>
@@ -103,7 +105,7 @@ describe('ReactionSelector', () => {
         image: alice.image,
         name: alice.name,
       }),
-      {},
+      undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -143,7 +145,7 @@ describe('ReactionSelector', () => {
         image: alice.image,
         name: alice.name,
       }),
-      {},
+      undefined,
     );
 
     const avatarEl = getByTestId('avatar');

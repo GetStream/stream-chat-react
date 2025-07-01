@@ -1,18 +1,19 @@
 import clsx from 'clsx';
 import throttle from 'lodash.throttle';
 import React from 'react';
-import { ItemProps, ListItem } from 'react-virtuoso';
+import type { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { isMessageEdited, Message } from '../Message';
 
-import { StreamMessage, useComponentContext } from '../../context';
-import { isDateSeparatorMessage } from './utils';
+import { useComponentContext } from '../../context';
+import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 
-import type { GroupStyle } from './utils';
+import type { LocalMessage } from 'stream-chat';
+import type { GroupStyle, RenderedMessage } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
-import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
+import type { UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -24,11 +25,9 @@ export function calculateFirstItemIndex(numItemsPrepended: number) {
   return PREPEND_OFFSET - numItemsPrepended;
 }
 
-export const makeItemsRenderedHandler = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  renderedItemsActions: Array<(msg: StreamMessage<StreamChatGenerics>[]) => void>,
-  processedMessages: StreamMessage<StreamChatGenerics>[],
+export const makeItemsRenderedHandler = (
+  renderedItemsActions: Array<(msg: RenderedMessage[]) => void>,
+  processedMessages: RenderedMessage[],
 ) =>
   throttle((items: ListItem<UnknownType>[]) => {
     const renderedMessages = items
@@ -38,23 +37,16 @@ export const makeItemsRenderedHandler = <
       })
       .filter((msg) => !!msg);
     renderedItemsActions.forEach((action) =>
-      action(renderedMessages as StreamMessage<StreamChatGenerics>[]),
+      action(renderedMessages as RenderedMessage[]),
     );
   }, 200);
 
-type CommonVirtuosoComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  context?: VirtuosoContext<StreamChatGenerics>;
+type CommonVirtuosoComponentProps = {
+  context?: VirtuosoContext;
 };
 // using 'display: inline-block'
 // traps CSS margins of the item elements, preventing incorrect item measurements
-export const Item = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  context,
-  ...props
-}: ItemProps & CommonVirtuosoComponentProps<StreamChatGenerics>) => {
+export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
   const message =
@@ -75,12 +67,8 @@ export const Item = <
     />
   );
 };
-export const Header = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  context,
-}: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext<StreamChatGenerics>(
+export const Header = ({ context }: CommonVirtuosoComponentProps) => {
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
     'VirtualizedMessageListHeader',
   );
 
@@ -95,14 +83,17 @@ export const Header = <
     </>
   );
 };
-export const EmptyPlaceholder = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  context,
-}: CommonVirtuosoComponentProps<StreamChatGenerics>) => {
-  const {
-    EmptyStateIndicator = DefaultEmptyStateIndicator,
-  } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
+export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext(
+    'VirtualizedMessageList',
+  );
+  // prevent showing that there are no messages if there actually are messages (for some reason virtuoso decides to render empty placeholder first, even though it has the totalCount prop > 0)
+  if (
+    typeof context?.processedMessages !== 'undefined' &&
+    context.processedMessages.length > 0
+  )
+    return null;
+
   return (
     <>
       {EmptyStateIndicator && (
@@ -112,12 +103,10 @@ export const EmptyPlaceholder = <
   );
 };
 
-export const messageRenderer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
+export const messageRenderer = (
   virtuosoIndex: number,
   _data: UnknownType,
-  virtuosoContext: VirtuosoContext<StreamChatGenerics>,
+  virtuosoContext: VirtuosoContext,
 ) => {
   const {
     additionalMessageInputProps,
@@ -156,24 +145,28 @@ export const messageRenderer = <
 
   const message = messageList[streamMessageIndex];
 
-  if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
+  if (!message || isIntroMessage(message)) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
   if (isDateSeparatorMessage(message)) {
-    return DateSeparator ? <DateSeparator date={message.date} unread={message.unread} /> : null;
+    return DateSeparator ? (
+      <DateSeparator date={message.date} unread={message.unread} />
+    ) : null;
   }
 
   if (message.type === 'system') {
     return MessageSystem ? <MessageSystem message={message} /> : null;
   }
 
+  const maybePrevMessage = messageList[streamMessageIndex - 1] as
+    | LocalMessage
+    | undefined;
+  const maybeNextMessage = messageList[streamMessageIndex + 1] as
+    | LocalMessage
+    | undefined;
   const groupedByUser =
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
-    message.user?.id === messageList[streamMessageIndex - 1].user?.id;
-  const maybePrevMessage: StreamMessage<StreamChatGenerics> | undefined =
-    messageList[streamMessageIndex - 1];
-  const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
-    messageList[streamMessageIndex + 1];
+    message.user?.id === maybePrevMessage?.user?.id;
 
   // FIXME: firstOfGroup & endOfGroup should be derived from groupStyles which apply a more complex logic
   const firstOfGroup =
@@ -185,29 +178,19 @@ export const messageRenderer = <
     shouldGroupByUser &&
     (message.user?.id !== maybeNextMessage?.user?.id || isMessageEdited(message));
 
-  const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
-  const lastReadTimestamp = lastReadDate?.getTime();
-  const isFirstMessage = streamMessageIndex === 0;
-  const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
-  const isLastReadMessage =
-    message.id === lastReadMessageId ||
-    (!unreadMessageCount && createdAtTimestamp === lastReadTimestamp);
-  const isFirstUnreadMessage =
-    firstUnreadMessageId === message.id ||
-    (!!unreadMessageCount &&
-      createdAtTimestamp &&
-      lastReadTimestamp &&
-      createdAtTimestamp > lastReadTimestamp &&
-      isFirstMessage);
-
-  const showUnreadSeparatorAbove = !lastReadMessageId && isFirstUnreadMessage;
-
-  const showUnreadSeparatorBelow =
-    isLastReadMessage && !isNewestMessage && (firstUnreadMessageId || !!unreadMessageCount);
+  const isFirstUnreadMessage = getIsFirstUnreadMessage({
+    firstUnreadMessageId,
+    isFirstMessage: streamMessageIndex === 0,
+    lastReadDate,
+    lastReadMessageId,
+    message,
+    previousMessage: streamMessageIndex ? messageList[streamMessageIndex - 1] : undefined,
+    unreadMessageCount,
+  });
 
   return (
     <>
-      {showUnreadSeparatorAbove && (
+      {isFirstUnreadMessage && (
         <div className='str-chat__unread-messages-separator-wrapper'>
           <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
         </div>
@@ -233,11 +216,6 @@ export const messageRenderer = <
         sortReactions={sortReactions}
         threadList={threadList}
       />
-      {showUnreadSeparatorBelow && (
-        <div className='str-chat__unread-messages-separator-wrapper'>
-          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
-        </div>
-      )}
     </>
   );
 };

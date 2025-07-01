@@ -18,7 +18,8 @@ export function Timestamp(props: TimestampProps) {
   const { formatDate } = useMessageContext('MessageTimestamp');
   const { t, tDateTimeParser } = useTranslationContext('MessageTimestamp');
 
-  const normalizedTimestamp = timestamp && isDate(timestamp) ? timestamp.toISOString() : timestamp;
+  const normalizedTimestamp =
+    timestamp && isDate(timestamp) ? timestamp.toISOString() : timestamp;
 
   const when = useMemo(
     () =>
@@ -32,7 +33,15 @@ export function Timestamp(props: TimestampProps) {
         tDateTimeParser,
         timestampTranslationKey: 'timestamp/MessageTimestamp',
       }),
-    [calendar, calendarFormats, format, formatDate, normalizedTimestamp, t, tDateTimeParser],
+    [
+      calendar,
+      calendarFormats,
+      format,
+      formatDate,
+      normalizedTimestamp,
+      t,
+      tDateTimeParser,
+    ],
   );
 
   if (!when) {
@@ -40,7 +49,11 @@ export function Timestamp(props: TimestampProps) {
   }
 
   return (
-    <time className={customClass} dateTime={normalizedTimestamp} title={normalizedTimestamp}>
+    <time
+      className={customClass}
+      dateTime={normalizedTimestamp}
+      title={normalizedTimestamp}
+    >
       {when}
     </time>
   );

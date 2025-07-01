@@ -1,4 +1,4 @@
-import { Placement } from '@popperjs/core';
+import type { Placement } from '@popperjs/core';
 import { useEffect, useRef } from 'react';
 import { usePopper } from 'react-popper';
 
@@ -14,20 +14,24 @@ export function useMessageActionsBoxPopper<T extends HTMLElement>({
   referenceElement,
 }: MessageActionsBoxPopperOptions) {
   const popperElementRef = useRef<T>(null);
-  const { attributes, styles, update } = usePopper(referenceElement, popperElementRef.current, {
-    modifiers: [
-      {
-        name: 'eventListeners',
-        options: {
-          // It's not safe to update popper position on resize and scroll, since popper's
-          // reference element might not be visible at the time.
-          resize: false,
-          scroll: false,
+  const { attributes, styles, update } = usePopper(
+    referenceElement,
+    popperElementRef.current,
+    {
+      modifiers: [
+        {
+          name: 'eventListeners',
+          options: {
+            // It's not safe to update popper position on resize and scroll, since popper's
+            // reference element might not be visible at the time.
+            resize: false,
+            scroll: false,
+          },
         },
-      },
-    ],
-    placement,
-  });
+      ],
+      placement,
+    },
+  );
 
   useEffect(() => {
     if (open) {

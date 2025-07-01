@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+
+import { ConnectedUser } from './utils';
 import {
   Channel,
   ChannelHeader,
   ChannelList,
   MESSAGE_ACTIONS,
-  MessageActionsArray,
   MessageList,
   Thread,
   Window,
 } from '../components';
+import type { ConnectedUserProps } from './utils';
+import type { MessageActionsArray } from '../components';
 
 const allActions = Object.keys(MESSAGE_ACTIONS);
-const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => {
+const WrappedConnectedUser = ({
+  token,
+  userId,
+}: Omit<ConnectedUserProps, 'children'>) => {
   const [messageActions, setMessageActions] = useState<MessageActionsArray>(allActions);
   return (
     <ConnectedUser token={token} userId={userId}>
@@ -32,7 +37,10 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
             <button onClick={() => setMessageActions(['edit', 'react'])} type='button'>
               edit, react
             </button>
-            <button onClick={() => setMessageActions(['edit', 'react', 'reply'])} type='button'>
+            <button
+              onClick={() => setMessageActions(['edit', 'react', 'reply'])}
+              type='button'
+            >
               edit, react, reply
             </button>
             <button onClick={() => setMessageActions([])} type='button'>

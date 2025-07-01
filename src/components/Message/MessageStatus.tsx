@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageDeliveredIcon } from './icons';
-import { getReadByTooltipText, mapToUserNameOrId, TooltipUsernameMapper } from './utils';
+import type { TooltipUsernameMapper } from './utils';
+import { getReadByTooltipText, mapToUserNameOrId } from './utils';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import type { AvatarProps } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
@@ -13,8 +15,6 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageStatusProps = {
   /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
@@ -31,11 +31,7 @@ export type MessageStatusProps = {
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
-const UnMemoizedMessageStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageStatusProps,
-) => {
+const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const {
     Avatar: propAvatar,
     MessageDeliveredStatus,
@@ -45,17 +41,13 @@ const UnMemoizedMessageStatus = <
     tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
 
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
+  const { handleEnter, handleLeave, tooltipVisible } =
+    useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
-  const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
-  const {
-    isMyMessage,
-    lastReceivedId,
-    message,
-    readBy,
-    threadList,
-  } = useMessageContext<StreamChatGenerics>('MessageStatus');
+  const { client } = useChatContext('MessageStatus');
+  const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
+  const { isMyMessage, lastReceivedId, message, readBy, threadList } =
+    useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
@@ -67,7 +59,8 @@ const UnMemoizedMessageStatus = <
   const rootClassName = `str-chat__message-${messageType}-status str-chat__message-status`;
 
   const sending = message.status === 'sending';
-  const delivered = message.status === 'received' && message.id === lastReceivedId && !threadList;
+  const delivered =
+    message.status === 'received' && message.id === lastReceivedId && !threadList;
   const deliveredAndRead = !!(readBy?.length && !threadList && !justReadByMe);
 
   const readersWithoutOwnUser = deliveredAndRead
@@ -97,7 +90,7 @@ const UnMemoizedMessageStatus = <
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t<string>('Sending...')}
+              {t('Sending...')}
             </PopperTooltip>
             <LoadingIndicator />
           </>
@@ -114,7 +107,7 @@ const UnMemoizedMessageStatus = <
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t<string>('Delivered')}
+              {t('Delivered')}
             </PopperTooltip>
             <MessageDeliveredIcon />
           </>
@@ -154,4 +147,6 @@ const UnMemoizedMessageStatus = <
   );
 };
 
-export const MessageStatus = React.memo(UnMemoizedMessageStatus) as typeof UnMemoizedMessageStatus;
+export const MessageStatus = React.memo(
+  UnMemoizedMessageStatus,
+) as typeof UnMemoizedMessageStatus;

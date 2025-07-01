@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ChannelResponse } from 'stream-chat';
 
 import { useChannelStateContext, useChatContext } from '../../../context';
-
-import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type CooldownTimerState = {
   cooldownInterval: number;
@@ -11,17 +10,13 @@ export type CooldownTimerState = {
   cooldownRemaining?: number;
 };
 
-export const useCooldownTimer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(): CooldownTimerState => {
-  const { client, latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>(
-    'useCooldownTimer',
-  );
-  const { channel, messages = [] } = useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
+export const useCooldownTimer = (): CooldownTimerState => {
+  const { client, latestMessageDatesByChannels } = useChatContext('useCooldownTimer');
+  const { channel, messages = [] } = useChannelStateContext('useCooldownTimer');
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
   const { cooldown: cooldownInterval = 0, own_capabilities } = (channel.data ||
-    {}) as ChannelResponse<StreamChatGenerics>;
+    {}) as ChannelResponse;
 
   const skipCooldown = own_capabilities?.includes('skip-slow-mode');
 
@@ -29,7 +24,9 @@ export const useCooldownTimer = <
     () =>
       latestMessageDatesByChannels[channel.cid] ??
       [...messages]
-        .sort((a, b) => (b.created_at as Date)?.getTime() - (a.created_at as Date)?.getTime())
+        .sort(
+          (a, b) => (b.created_at as Date)?.getTime() - (a.created_at as Date)?.getTime(),
+        )
         .find((v) => v.user?.id === client.user?.id)?.created_at,
     [messages, client.user?.id, latestMessageDatesByChannels, channel.cid],
   ) as Date;

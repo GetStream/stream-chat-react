@@ -1,18 +1,15 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import { ChannelSearchControllerParams, useChannelSearch } from './hooks/useChannelSearch';
+import type { ChannelSearchControllerParams } from './hooks/useChannelSearch';
+import { useChannelSearch } from './hooks/useChannelSearch';
 
 import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 import { SearchBar as DefaultSearchBar } from './SearchBar';
-import {
-  AdditionalSearchInputProps,
-  SearchInput as DefaultSearchInput,
-  SearchInputProps,
-} from './SearchInput';
-import { AdditionalSearchResultsProps, SearchResults } from './SearchResults';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { AdditionalSearchInputProps, SearchInputProps } from './SearchInput';
+import { SearchInput as DefaultSearchInput } from './SearchInput';
+import type { AdditionalSearchResultsProps } from './SearchResults';
+import { SearchResults } from './SearchResults';
 
 export type AdditionalChannelSearchProps = {
   /** Custom UI component to display the search bar with text input */
@@ -21,19 +18,13 @@ export type AdditionalChannelSearchProps = {
   SearchInput?: React.ComponentType<SearchInputProps>;
 };
 
-export type ChannelSearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AdditionalSearchBarProps &
+export type ChannelSearchProps = AdditionalSearchBarProps &
   AdditionalSearchInputProps &
-  AdditionalSearchResultsProps<StreamChatGenerics> &
+  AdditionalSearchResultsProps &
   AdditionalChannelSearchProps &
-  ChannelSearchControllerParams<StreamChatGenerics>;
+  ChannelSearchControllerParams;
 
-const UnMemoizedChannelSearch = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ChannelSearchProps<StreamChatGenerics>,
-) => {
+const UnMemoizedChannelSearch = (props: ChannelSearchProps) => {
   const {
     AppMenu,
     ClearInputIcon,
@@ -44,11 +35,11 @@ const UnMemoizedChannelSearch = <
     SearchBar = DefaultSearchBar,
     SearchEmpty,
     SearchInput = DefaultSearchInput,
-    SearchLoading,
     SearchInputIcon,
+    SearchLoading,
     SearchResultItem,
-    SearchResultsList,
     SearchResultsHeader,
+    SearchResultsList,
     ...channelSearchParams
   } = props;
 
@@ -64,13 +55,15 @@ const UnMemoizedChannelSearch = <
     searchBarRef,
     searching,
     selectResult,
-  } = useChannelSearch<StreamChatGenerics>(channelSearchParams);
+  } = useChannelSearch(channelSearchParams);
 
   return (
     <div
       className={clsx(
         'str-chat__channel-search',
-        popupResults ? 'str-chat__channel-search--popup' : 'str-chat__channel-search--inline',
+        popupResults
+          ? 'str-chat__channel-search--popup'
+          : 'str-chat__channel-search--inline',
         {
           'str-chat__channel-search--with-results': results.length > 0,
         },
@@ -118,4 +111,6 @@ const UnMemoizedChannelSearch = <
  * Clicking on a list item will navigate you into a channel with the selected user. It can be used
  * on its own or added to the ChannelList component by setting the `showChannelSearch` prop to true.
  */
-export const ChannelSearch = React.memo(UnMemoizedChannelSearch) as typeof UnMemoizedChannelSearch;
+export const ChannelSearch = React.memo(
+  UnMemoizedChannelSearch,
+) as typeof UnMemoizedChannelSearch;

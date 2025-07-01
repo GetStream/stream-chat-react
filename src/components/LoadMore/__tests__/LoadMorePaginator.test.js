@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -14,94 +14,90 @@ describe('LoadMorePaginator', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const tree = renderer
-      .create(<LoadMorePaginator loadNextPage={jest.fn()}>children</LoadMorePaginator>)
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`"children"`);
+    const { container } = render(
+      <LoadMorePaginator loadNextPage={jest.fn()}>children</LoadMorePaginator>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        children
+      </div>
+    `);
   });
 
   it('should render default LoadMoreButton when hasNextPage', () => {
-    const tree = renderer
-      .create(
-        <LoadMorePaginator hasNextPage loadNextPage={jest.fn()}>
-          children
-        </LoadMorePaginator>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      [
-        "children",
+    const { container } = render(
+      <LoadMorePaginator hasNextPage loadNextPage={jest.fn()}>
+        children
+      </LoadMorePaginator>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        children
         <div
           data-testid="load-more-button"
-        />,
-      ]
+        />
+      </div>
     `);
   });
 
   it('should render LoadMoreButton prop when hasNextPage 1', () => {
-    const tree = renderer
-      .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>custom load more button</div>}
-          loadNextPage={jest.fn()}
-        >
-          children
-        </LoadMorePaginator>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      [
-        "children",
+    const { container } = render(
+      <LoadMorePaginator
+        hasNextPage
+        LoadMoreButton={() => <div>custom load more button</div>}
+        loadNextPage={jest.fn()}
+      >
+        children
+      </LoadMorePaginator>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        children
         <div>
           custom load more button
-        </div>,
-      ]
+        </div>
+      </div>
     `);
   });
 
   it('should render LoadMoreButton prop when hasNextPage 2', () => {
-    const tree = renderer
-      .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>load more button</div>}
-          loadNextPage={jest.fn()}
-        >
-          children
-        </LoadMorePaginator>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      [
-        "children",
+    const { container } = render(
+      <LoadMorePaginator
+        hasNextPage
+        LoadMoreButton={() => <div>load more button</div>}
+        loadNextPage={jest.fn()}
+      >
+        children
+      </LoadMorePaginator>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        children
         <div>
           load more button
-        </div>,
-      ]
+        </div>
+      </div>
     `);
   });
 
   it('should render children after loader in reverse mode', () => {
-    const tree = renderer
-      .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>load more button</div>}
-          loadNextPage={jest.fn()}
-          reverse
-        >
-          children
-        </LoadMorePaginator>,
-      )
-      .toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      [
+    const { container } = render(
+      <LoadMorePaginator
+        hasNextPage
+        LoadMoreButton={() => <div>load more button</div>}
+        loadNextPage={jest.fn()}
+        reverse
+      >
+        children
+      </LoadMorePaginator>,
+    );
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <div>
           load more button
-        </div>,
-        "children",
-      ]
+        </div>
+        children
+      </div>
     `);
   });
 
@@ -117,7 +113,7 @@ describe('LoadMorePaginator', () => {
     await waitFor(() => {
       expect(LoadMoreButton).toHaveBeenCalledWith(
         { isLoading: undefined, onClick: undefined, refreshing: undefined },
-        {},
+        undefined,
       );
     });
   });
@@ -139,7 +135,10 @@ describe('LoadMorePaginator', () => {
 
     consoleWarnSpy.mockRestore();
     await waitFor(() => {
-      expect(LoadMoreButton).toHaveBeenCalledWith({ isLoading: false, onClick: loadNextPage }, {});
+      expect(LoadMoreButton).toHaveBeenCalledWith(
+        { isLoading: false, onClick: loadNextPage },
+        undefined,
+      );
     });
   });
 });

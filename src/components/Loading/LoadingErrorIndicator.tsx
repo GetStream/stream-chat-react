@@ -15,11 +15,7 @@ const UnMemoizedLoadingErrorIndicator = ({ error }: LoadingErrorIndicatorProps) 
 
   if (!error) return null;
 
-  return (
-    <div>
-      {t<string>('Error: {{ errorMessage }}', { errorMessage: error.message })}
-    </div>
-  );
+  return <div>{t('Error: {{ errorMessage }}', { errorMessage: error.message })}</div>;
 };
 
 export const LoadingErrorIndicator = React.memo(

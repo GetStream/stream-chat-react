@@ -1,5 +1,5 @@
 import type { RecordedMediaType } from '../../ReactFileUtilities';
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { Subscription } from '../observable/Subscription';
 import { Subject } from '../observable/Subject';
 import { BehaviorSubject } from '../observable/BehaviorSubject';
@@ -42,7 +42,7 @@ export class BrowserPermission {
 
     const status = this.status.value;
     const handlePermissionChange = (e: Event) => {
-      const { state } = ((e as unknown) as ChangeEvent<PermissionStatus>).target;
+      const { state } = (e as unknown as ChangeEvent<PermissionStatus>).target;
       this.state.next(state);
     };
     status.addEventListener('change', handlePermissionChange);
@@ -67,7 +67,7 @@ export class BrowserPermission {
     let permissionState: PermissionState;
     try {
       const permissionStatus = await navigator.permissions.query({
-        name: (this.name as unknown) as PermissionName,
+        name: this.name as unknown as PermissionName,
       });
       permissionState = permissionStatus.state;
       this.status.next(permissionStatus);

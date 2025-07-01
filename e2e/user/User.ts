@@ -2,7 +2,9 @@ import type { Page } from '@playwright/test';
 
 export type TestingUser = ReturnType<typeof makeUser>;
 
-type F = (page: Page) => Partial<Record<'click' | 'get' | 'see' | 'submit' | 'typeTo', unknown>>;
+type F = (
+  page: Page,
+) => Partial<Record<'click' | 'get' | 'see' | 'submit' | 'typeTo', unknown>>;
 
 export function makeUser(page: Page) {
   return {

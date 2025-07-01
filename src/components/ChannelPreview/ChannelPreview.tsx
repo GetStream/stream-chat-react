@@ -1,28 +1,22 @@
 import throttle from 'lodash.throttle';
 import React, { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { Channel, Event, LocalMessage } from 'stream-chat';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
-
-import { ChatContextValue, useChatContext } from '../../context/ChatContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { MessageDeliveryStatus, useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
-
-import type { Channel, Event } from 'stream-chat';
-
+import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import type { ChatContextValue } from '../../context/ChatContext';
 import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
 import type { GroupChannelDisplayInfo } from './utils';
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type ChannelPreviewUIComponentProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = ChannelPreviewProps<StreamChatGenerics> & {
-  /** If the component's channel is the active (selected) Channel */
-  active?: boolean;
+export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
   /** Image of Channel to display */
   displayImage?: string;
   /** Title of Channel to display */
@@ -30,79 +24,78 @@ export type ChannelPreviewUIComponentProps<
   /** Title of Channel to display */
   groupChannelDisplayInfo?: GroupChannelDisplayInfo;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage<StreamChatGenerics>;
+  lastMessage?: LocalMessage;
   /** @deprecated Use latestMessagePreview prop instead. */
-  latestMessage?: string | JSX.Element;
+  latestMessage?: ReactNode;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
-  latestMessagePreview?: string | JSX.Element;
+  latestMessagePreview?: ReactNode;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
   unread?: number;
 };
 
-export type ChannelPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+export type ChannelPreviewProps = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
-  channel: Channel<StreamChatGenerics>;
+  channel: Channel;
+  /** If the component's channel is the active (selected) Channel */
+  active?: boolean;
   /** Current selected channel object */
-  activeChannel?: Channel<StreamChatGenerics>;
+  activeChannel?: Channel;
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
-  Avatar?: React.ComponentType<ChannelAvatarProps<StreamChatGenerics>>;
+  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
   /** Custom function that generates the message preview in ChannelPreview component */
   getLatestMessagePreview?: (
-    channel: Channel<StreamChatGenerics>,
+    channel: Channel,
     t: TranslationContextValue['t'],
     userLanguage: TranslationContextValue['userLanguage'],
-  ) => string | JSX.Element;
+    isMessageAIGenerated: ChatContextValue['isMessageAIGenerated'],
+  ) => ReactNode;
   key?: string;
   /** Custom ChannelPreview click handler function */
   onSelect?: (event: React.MouseEvent) => void;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps>;
   /** Setter for selected Channel */
-  setActiveChannel?: ChatContextValue<StreamChatGenerics>['setActiveChannel'];
+  setActiveChannel?: ChatContextValue['setActiveChannel'];
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
 
-export const ChannelPreview = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ChannelPreviewProps<StreamChatGenerics>,
-) => {
+export const ChannelPreview = (props: ChannelPreviewProps) => {
   const {
+    active,
     channel,
-    Preview = ChannelPreviewMessenger,
     channelUpdateCount,
     getLatestMessagePreview = defaultGetLatestMessagePreview,
+    Preview = ChannelPreviewMessenger,
   } = props;
   const {
     channel: activeChannel,
     client,
     isMessageAIGenerated,
     setActiveChannel,
-  } = useChatContext<StreamChatGenerics>('ChannelPreview');
+  } = useChatContext('ChannelPreview');
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
 
-  const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
+  const [lastMessage, setLastMessage] = useState<LocalMessage>(
     channel.state.messages[channel.state.messages.length - 1],
   );
   const [unread, setUnread] = useState(0);
-  const { messageDeliveryStatus } = useMessageDeliveryStatus<StreamChatGenerics>({
+  const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,
     lastMessage,
   });
 
-  const isActive = activeChannel?.cid === channel.cid;
+  const isActive =
+    typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
@@ -113,8 +106,7 @@ export const ChannelPreview = <
 
     client.on('notification.mark_read', handleEvent);
     return () => client.off('notification.mark_read', handleEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channel, client]);
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
@@ -144,7 +136,9 @@ export const ChannelPreview = <
     refreshUnreadCount();
 
     const handleEvent = () => {
-      setLastMessage(channel.state.latestMessages[channel.state.latestMessages.length - 1]);
+      setLastMessage(
+        channel.state.latestMessages[channel.state.latestMessages.length - 1],
+      );
       refreshUnreadCount();
     };
 

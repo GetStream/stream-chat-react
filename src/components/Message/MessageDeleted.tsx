@@ -1,24 +1,15 @@
 import React from 'react';
 
 import { useUserRole } from './hooks/useUserRole';
-
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { LocalMessage } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type MessageDeletedProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  message: StreamMessage<StreamChatGenerics>;
+export type MessageDeletedProps = {
+  message: LocalMessage;
 };
 
-export const MessageDeleted = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageDeletedProps<StreamChatGenerics>,
-) => {
+export const MessageDeleted = (props: MessageDeletedProps) => {
   const { message } = props;
 
   const { t } = useTranslationContext('MessageDeleted');
@@ -36,7 +27,7 @@ export const MessageDeleted = <
       key={message.id}
     >
       <div className='str-chat__message--deleted-inner'>
-        {t<string>('This message was deleted...')}
+        {t('This message was deleted...')}
       </div>
     </div>
   );

@@ -4,8 +4,8 @@ export const resampleWaveformData = (waveformData: number[], amplitudesCount: nu
   waveformData.length === amplitudesCount
     ? waveformData
     : waveformData.length > amplitudesCount
-    ? downSample(waveformData, amplitudesCount)
-    : upSample(waveformData, amplitudesCount);
+      ? downSample(waveformData, amplitudesCount)
+      : upSample(waveformData, amplitudesCount);
 
 /**
  * The downSample function uses the Largest-Triangle-Three-Buckets (LTTB) algorithm.
@@ -42,14 +42,21 @@ export function downSample(data: number[], targetOutputSize: number): number[] {
       currentPointIndex < nextBucketStartIndex;
       currentPointIndex++
     ) {
-      const countUnitsBetweenAtoB = Math.abs(currentPointIndex - currentBucketStartIndex) + 1;
+      const countUnitsBetweenAtoB =
+        Math.abs(currentPointIndex - currentBucketStartIndex) + 1;
       const countUnitsBetweenBtoC = countUnitsBetweenAtoC - countUnitsBetweenAtoB;
       const currentPointValue = data[currentPointIndex];
 
       triangleArea = triangleAreaHeron(
-        triangleBase(Math.abs(previousBucketRefPoint - currentPointValue), countUnitsBetweenAtoB),
+        triangleBase(
+          Math.abs(previousBucketRefPoint - currentPointValue),
+          countUnitsBetweenAtoB,
+        ),
         triangleBase(Math.abs(currentPointValue - nextBucketMean), countUnitsBetweenBtoC),
-        triangleBase(Math.abs(previousBucketRefPoint - nextBucketMean), countUnitsBetweenAtoC),
+        triangleBase(
+          Math.abs(previousBucketRefPoint - nextBucketMean),
+          countUnitsBetweenAtoC,
+        ),
       );
 
       if (triangleArea > maxArea) {
@@ -72,8 +79,13 @@ const triangleAreaHeron = (a: number, b: number, c: number) => {
   return Math.sqrt(s * (s - a) * (s - b) * (s - c));
 };
 const triangleBase = (a: number, b: number) => Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-const mean = (values: number[]) => values.reduce((acc, value) => acc + value, 0) / values.length;
-const getNextBucketMean = (data: number[], currentBucketIndex: number, bucketSize: number) => {
+const mean = (values: number[]) =>
+  values.reduce((acc, value) => acc + value, 0) / values.length;
+const getNextBucketMean = (
+  data: number[],
+  currentBucketIndex: number,
+  bucketSize: number,
+) => {
   const nextBucketStartIndex = Math.floor(currentBucketIndex * bucketSize) + 1;
   let nextNextBucketStartIndex = Math.floor((currentBucketIndex + 1) * bucketSize) + 1;
   nextNextBucketStartIndex =
@@ -88,7 +100,9 @@ export const upSample = (values: number[], targetSize: number) => {
   }
 
   if (values.length > targetSize) {
-    console.warn('Requested to extend the waveformData that is longer than the target list size');
+    console.warn(
+      'Requested to extend the waveformData that is longer than the target list size',
+    );
     return values;
   }
 

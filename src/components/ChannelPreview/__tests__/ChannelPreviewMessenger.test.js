@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import {
@@ -13,7 +12,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
-import { ChatProvider } from '../../../context';
+import { ChatProvider, ComponentProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -24,19 +23,21 @@ describe('ChannelPreviewMessenger', () => {
 
   let chatClient;
   let channel;
-  const renderComponent = (props) => (
+  const renderComponent = (props, componentOverrides = {}) => (
     <ChatProvider value={{ client: chatClient }}>
-      <div aria-label='Select Channel' role='listbox'>
-        <ChannelPreviewMessenger
-          channel={channel}
-          displayImage='https://randomimage.com/src.jpg'
-          displayTitle='Channel name'
-          latestMessagePreview='Latest message!'
-          setActiveChannel={jest.fn()}
-          unread={10}
-          {...props}
-        />
-      </div>
+      <ComponentProvider value={componentOverrides}>
+        <div aria-label='Select Channel' role='listbox'>
+          <ChannelPreviewMessenger
+            channel={channel}
+            displayImage='https://randomimage.com/src.jpg'
+            displayTitle='Channel name'
+            latestMessagePreview='Latest message!'
+            setActiveChannel={jest.fn()}
+            unread={10}
+            {...props}
+          />
+        </div>
+      </ComponentProvider>
     </ChatProvider>
   );
 
@@ -55,8 +56,8 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   it('should render correctly', () => {
-    const tree = renderer.create(renderComponent()).toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = render(renderComponent());
+    expect(container).toMatchSnapshot();
   });
 
   it('should call setActiveChannel on click', async () => {
@@ -75,7 +76,6 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
-      // eslint-disable-next-line jest/prefer-called-with
       expect(setActiveChannel).toHaveBeenCalledTimes(1);
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });

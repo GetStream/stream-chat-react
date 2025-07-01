@@ -1,12 +1,9 @@
-/* eslint-disable jest-dom/prefer-in-document */
-
-import React from 'react';
-
+import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AttachmentPreviewList } from '../AttachmentPreviewList';
-import { ChannelActionProvider, ComponentProvider } from '../../../context';
-import { MessageInputContextProvider } from '../../../context/MessageInputContext';
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
 
 import {
   generateAudioAttachment,
@@ -15,6 +12,7 @@ import {
   generateLocalImageUploadAttachmentData,
   generateVideoAttachment,
   generateVoiceRecordingAttachment,
+  initClientWithChannels,
 } from '../../../mock-builders';
 
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
@@ -25,40 +23,51 @@ const DELETE_BTN_TEST_ID = 'file-preview-item-delete-button';
 const DELETE_BTN_IMAGE_TEST_ID = 'image-preview-item-delete-button';
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 
-const generateMessageInputContextValue = ({ attachments = [] } = {}) => ({
+const renderComponent = async ({
   attachments,
-  removeAttachments: jest.fn(),
-  uploadAttachment: jest.fn(),
-});
-
-const renderComponent = ({ componentCtx, contextValue, props, renderFunction } = {}) =>
-  (renderFunction ?? render)(
-    <ComponentProvider value={componentCtx ?? {}}>
-      <ChannelActionProvider value={{}}>
-        <MessageInputContextProvider
-          value={{ ...generateMessageInputContextValue(), ...contextValue }}
-        >
+  channel: customChannel,
+  client: customClient,
+  componentCtx,
+  props,
+} = {}) => {
+  let channel = customChannel;
+  let client = customClient;
+  if (!(customChannel && customClient)) {
+    const initiated = await initClientWithChannels();
+    client = initiated.client;
+    channel = initiated.channels[0];
+  }
+  channel.messageComposer.attachmentManager.upsertAttachments(attachments ?? []);
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={client}>
+        <Channel {...componentCtx} channel={channel}>
           <AttachmentPreviewList {...props} />
-        </MessageInputContextProvider>
-      </ChannelActionProvider>
-    </ComponentProvider>,
-  );
+        </Channel>
+      </Chat>,
+    );
+  });
+  return { channel, ...result };
+};
 
 jest.mock('nanoid', () => ({
   nanoid: () => 'randomNanoId',
 }));
 
 describe('AttachmentPreviewList', () => {
-  it('renders without any attachments', () => {
-    const { getByTestId } = renderComponent();
+  it('does not render without attachments', async () => {
+    await renderComponent();
 
-    const attachmentList = getByTestId('attachment-list-scroll-container');
+    const attachmentList = screen.queryByTestId('attachment-list-scroll-container');
 
-    expect(attachmentList).toBeEmptyDOMElement();
+    expect(attachmentList).not.toBeInTheDocument();
   });
-  it.each(['uploading', 'failed', 'finished'])('renders previews with state "%s"', (state) => {
-    renderComponent({
-      contextValue: generateMessageInputContextValue({
+
+  it.each(['uploading', 'failed', 'finished'])(
+    'renders previews with state "%s"',
+    async (state) => {
+      await renderComponent({
         attachments: [
           generateAudioAttachment({
             localMetadata: { id: 'audio-attachment-id', uploadState: state },
@@ -81,15 +90,17 @@ describe('AttachmentPreviewList', () => {
             localMetadata: { id: 'image-attachment-id', uploadState: state },
           }),
         ],
-      }),
-    });
+      });
 
-    expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`voice-recording-attachment-${state}`)).toBeInTheDocument();
-    expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
-  });
+      expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
+      expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
+      expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
+      expect(
+        screen.getByTitle(`voice-recording-attachment-${state}`),
+      ).toBeInTheDocument();
+      expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
+    },
+  );
 
   describe.each(['audio', 'file', 'image', 'unsupported', 'voiceRecording', 'video'])(
     '%s attachments rendering',
@@ -112,7 +123,7 @@ describe('AttachmentPreviewList', () => {
         voiceRecording: generateVoiceRecordingAttachment,
       };
 
-      it('retries upload on upload button click', () => {
+      it('retries upload on upload button click', async () => {
         const state = 'failed';
         const title = `${type}-attachment-${state}`;
         const uploadedAttachmentData = generate[type]({
@@ -123,11 +134,20 @@ describe('AttachmentPreviewList', () => {
           localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
-        const contextValue = generateMessageInputContextValue({
-          attachments: [localAttachment],
-        });
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        const uploadAttachmentSpy = jest.spyOn(
+          channel.messageComposer.attachmentManager,
+          'uploadAttachment',
+        );
 
-        renderComponent({ contextValue });
+        await renderComponent({
+          attachments: [localAttachment],
+          channel,
+          client,
+        });
 
         const retryButton = screen.getByTestId(
           type === 'image' ? RETRY_BTN_IMAGE_TEST_ID : RETRY_BTN_TEST_ID,
@@ -135,12 +155,12 @@ describe('AttachmentPreviewList', () => {
 
         fireEvent.click(retryButton);
 
-        expect(contextValue.uploadAttachment).toHaveBeenCalledWith(
+        expect(uploadAttachmentSpy).toHaveBeenCalledWith(
           expect.objectContaining(uploadedAttachmentData),
         );
       });
 
-      it('renders loading indicator in preview', () => {
+      it('renders loading indicator in preview', async () => {
         const state = 'uploading';
         const title = `${type}-attachment-${state}`;
         const uploadedAttachmentData = generate[type]({
@@ -151,17 +171,15 @@ describe('AttachmentPreviewList', () => {
           localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
-        const contextValue = generateMessageInputContextValue({
+        await renderComponent({
           attachments: [localAttachment],
         });
-
-        renderComponent({ contextValue });
 
         expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
         expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
       });
 
-      it('removes retry button on successful upload', () => {
+      it('removes retry button on successful upload', async () => {
         const state = 'finished';
         const title = `${type}-attachment-${state}`;
         const uploadedAttachmentData = generate[type]({
@@ -172,16 +190,14 @@ describe('AttachmentPreviewList', () => {
           localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
-        const contextValue = generateMessageInputContextValue({
+        await renderComponent({
           attachments: [localAttachment],
         });
-
-        renderComponent({ contextValue });
 
         expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
       });
 
-      it('removes the preview', () => {
+      it('removes the preview', async () => {
         const state = 'finished';
         const title = `${type}-attachment-${state}`;
         const id = `${type}-id`;
@@ -193,22 +209,33 @@ describe('AttachmentPreviewList', () => {
           localMetadata: { id, uploadState: state },
         };
 
-        const contextValue = generateMessageInputContextValue({
-          attachments: [localAttachment],
-        });
-
-        renderComponent({ contextValue });
-
-        fireEvent.click(
-          screen.getByTestId(type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID),
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        const removeAttachmentsSpy = jest.spyOn(
+          channel.messageComposer.attachmentManager,
+          'removeAttachments',
         );
 
-        expect(contextValue.removeAttachments).toHaveBeenCalledWith([
+        await renderComponent({
+          attachments: [localAttachment],
+          channel,
+          client,
+        });
+
+        fireEvent.click(
+          screen.getByTestId(
+            type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID,
+          ),
+        );
+
+        expect(removeAttachmentsSpy).toHaveBeenCalledWith([
           localAttachment.localMetadata.id,
         ]);
       });
 
-      it('renders custom preview component', () => {
+      it('renders custom preview component', async () => {
         const previewComponentNames = {
           audio: 'AudioAttachmentPreview',
           file: 'FileAttachmentPreview',
@@ -227,13 +254,10 @@ describe('AttachmentPreviewList', () => {
           localMetadata: { id },
         };
 
-        const contextValue = generateMessageInputContextValue({
-          attachments: [localAttachment],
-        });
         const text = `custom-${title}`;
         const CustomPreviewComponent = () => <div>{text}</div>;
-        renderComponent({
-          contextValue,
+        await renderComponent({
+          attachments: [localAttachment],
           props: { [previewComponentNames[type]]: CustomPreviewComponent },
         });
 
@@ -242,18 +266,16 @@ describe('AttachmentPreviewList', () => {
     },
   );
 
-  it('should render custom BaseImage component', () => {
+  it('should render custom BaseImage component', async () => {
     const BaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
-    const { container } = renderComponent({
-      componentCtx: { BaseImage },
-      contextValue: generateMessageInputContextValue({
-        attachments: ['image-upload-1', 'image-upload-2'].map((id) =>
-          generateLocalImageUploadAttachmentData(
-            { id, uploadState: 'uploading' },
-            { fallback: id },
-          ),
+    const { container } = await renderComponent({
+      attachments: ['image-upload-1', 'image-upload-2'].map((id) =>
+        generateLocalImageUploadAttachmentData(
+          { id, uploadState: 'uploading' },
+          { fallback: id },
         ),
-      }),
+      ),
+      componentCtx: { BaseImage },
     });
     expect(container).toMatchSnapshot();
   });

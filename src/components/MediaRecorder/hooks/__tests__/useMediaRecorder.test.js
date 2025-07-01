@@ -1,15 +1,19 @@
-import { TranslationProvider } from '../../../../context';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
 import { useMediaRecorder } from '../useMediaRecorder';
-import { EventEmitterMock } from '../../../../mock-builders/browser';
-import { act } from '@testing-library/react';
+import { EventEmitterMock, MediaRecorderMock } from '../../../../mock-builders/browser';
 import { DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../../classes/AmplitudeRecorder';
 import { DEFAULT_AUDIO_TRANSCODER_CONFIG } from '../../classes';
-import { generateVoiceRecordingAttachment } from '../../../../mock-builders';
+import {
+  generateVoiceRecordingAttachment,
+  initClientWithChannels,
+} from '../../../../mock-builders';
+import { Chat } from '../../../Chat';
+import { Channel } from '../../../Channel';
+
+window.MediaRecorder = MediaRecorderMock;
 
 const handleSubmit = jest.fn();
-const uploadAttachment = jest.fn();
 
 const defaultMockPermissionState = 'prompt';
 const status = new EventEmitterMock();
@@ -18,19 +22,23 @@ window.navigator.permissions = {
   query: jest.fn().mockResolvedValue(status),
 };
 
-const translationContext = {
-  t: (s) => s,
-};
-
 const render = async (params = {}) => {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels();
   const wrapper = ({ children }) => (
-    <TranslationProvider value={translationContext}>{children}</TranslationProvider>
+    <Chat client={client}>
+      <Channel channel={channel}>{children}</Channel>
+    </Chat>
   );
   let result;
-  await act(() => {
-    result = renderHook(() => useMediaRecorder({ enabled: true, ...params }), { wrapper });
+  await act(async () => {
+    result = await renderHook(() => useMediaRecorder({ enabled: true, ...params }), {
+      wrapper,
+    });
   });
-  return result;
+  return { channel, ...result };
 };
 
 describe('useMediaRecorder', () => {
@@ -103,43 +111,62 @@ describe('useMediaRecorder', () => {
   describe('completeRecording', () => {
     it('does nothing if recording is disabled', async () => {
       const {
+        channel,
         result: {
           current: { completeRecording },
         },
-      } = await render({ enabled: false, handleSubmit, uploadAttachment });
+      } = await render({ enabled: false, handleSubmit });
+      const uploadAttachmentSpy = jest.spyOn(
+        channel.messageComposer.attachmentManager,
+        'uploadAttachment',
+      );
       await completeRecording();
-      expect(uploadAttachment).not.toHaveBeenCalled();
+      expect(uploadAttachmentSpy).not.toHaveBeenCalled();
       expect(handleSubmit).not.toHaveBeenCalled();
     });
 
     it('does nothing if recording attachment is not generated on stop', async () => {
       const {
+        channel,
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ handleSubmit, uploadAttachment });
+      } = await render({ handleSubmit });
+      const uploadAttachmentSpy = jest.spyOn(
+        channel.messageComposer.attachmentManager,
+        'uploadAttachment',
+      );
       const recorderStopSpy = jest.spyOn(recorder, 'stop').mockResolvedValue(undefined);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await completeRecording();
       expect(recorderStopSpy).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).not.toHaveBeenCalledWith();
-      expect(uploadAttachment).not.toHaveBeenCalled();
+      expect(uploadAttachmentSpy).not.toHaveBeenCalled();
       expect(handleSubmit).not.toHaveBeenCalled();
     });
 
     it('uploads and submits the attachment', async () => {
       const generatedVoiceRecording = generateVoiceRecordingAttachment();
       const {
+        channel,
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ handleSubmit, uploadAttachment });
+      } = await render({ handleSubmit });
+      const uploadAttachmentSpy = jest.spyOn(
+        channel.messageComposer.attachmentManager,
+        'uploadAttachment',
+      );
       jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await act(() => {
         completeRecording();
       });
-      expect(uploadAttachment).toHaveBeenCalledWith(generatedVoiceRecording);
+      expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(handleSubmit).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
     });
@@ -147,16 +174,26 @@ describe('useMediaRecorder', () => {
     it('uploads but does not submit the attachment if multiple async messages enabled', async () => {
       const generatedVoiceRecording = generateVoiceRecordingAttachment();
       const {
+        channel,
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ asyncMessagesMultiSendEnabled: true, handleSubmit, uploadAttachment });
+      } = await render({
+        asyncMessagesMultiSendEnabled: true,
+        handleSubmit,
+      });
+      const uploadAttachmentSpy = jest.spyOn(
+        channel.messageComposer.attachmentManager,
+        'uploadAttachment',
+      );
       jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = jest
+        .spyOn(recorder, 'cleanUp')
+        .mockResolvedValue(undefined);
       await act(() => {
         completeRecording();
       });
-      expect(uploadAttachment).toHaveBeenCalledWith(generatedVoiceRecording);
+      expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(handleSubmit).not.toHaveBeenCalled();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
     });

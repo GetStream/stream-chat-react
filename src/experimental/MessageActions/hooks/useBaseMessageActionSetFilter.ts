@@ -45,7 +45,8 @@ export const useBaseMessageActionSetFilter = (
 
     return messageActionSet.filter(({ type }: MessageActionSetItem) => {
       // filter out actions with types that do not work in thread
-      if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply) return false;
+      if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply)
+        return false;
 
       if (
         (type === 'delete' && !canDelete) ||

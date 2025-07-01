@@ -15,7 +15,7 @@ const originalConsoleError = console.error;
 jest.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg) => {
   const msg = Array.isArray(errorOrTextorArg)
     ? errorOrTextorArg[0]
-    : errorOrTextorArg.message ?? errorOrTextorArg;
+    : (errorOrTextorArg.message ?? errorOrTextorArg);
   if (msg.match('Not implemented')) return;
   originalConsoleError(...errorOrTextorArg);
 });
@@ -70,7 +70,9 @@ describe('Audio', () => {
       .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
       .mockImplementationOnce(() => ({ width: 120, x: 0 }));
 
-    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'set').mockImplementationOnce(() => {});
+    jest
+      .spyOn(HTMLAudioElement.prototype, 'currentTime', 'set')
+      .mockImplementationOnce(() => {});
     jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockReturnValue(120);
 
     act(() => {
@@ -171,7 +173,10 @@ describe('Audio', () => {
     jest.advanceTimersByTime(2000);
     await waitFor(() => {
       expect(audioPauseMock).toHaveBeenCalledWith();
-      expect(addNotificationSpy).toHaveBeenCalledWith('Failed to play the recording', 'error');
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        'Failed to play the recording',
+        'error',
+      );
     });
 
     jest.useRealTimers();
@@ -185,8 +190,12 @@ describe('Audio', () => {
       og: AUDIO,
     });
     const audio = container.querySelector('audio');
-    const audioPlayMock = jest.spyOn(audio, 'play').mockRejectedValueOnce(new Error(errorText));
-    const audioCanPlayTypeMock = jest.spyOn(audio, 'canPlayType').mockReturnValue('maybe');
+    const audioPlayMock = jest
+      .spyOn(audio, 'play')
+      .mockRejectedValueOnce(new Error(errorText));
+    const audioCanPlayTypeMock = jest
+      .spyOn(audio, 'canPlayType')
+      .mockReturnValue('maybe');
 
     expect(await playButton()).toBeInTheDocument();
     expect(await pauseButton()).not.toBeInTheDocument();
@@ -230,8 +239,12 @@ describe('Audio', () => {
   it('should show the correct progress', async () => {
     const { container } = renderComponent({ og: AUDIO });
 
-    jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
-    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
+    jest
+      .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
+      .mockImplementationOnce(() => 100);
+    jest
+      .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
+      .mockImplementationOnce(() => 50);
     const audioElement = container.querySelector('audio');
     fireEvent.timeUpdate(audioElement);
 

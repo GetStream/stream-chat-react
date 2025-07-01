@@ -33,7 +33,9 @@ export const printProgress = (progress) => {
   const BAR_LENGTH = 50;
   const filled = Math.ceil(BAR_LENGTH * progress);
   const empty = BAR_LENGTH - filled;
-  process.stdout.write(`[${'#'.repeat(filled)}${' '.repeat(empty)}] ${Math.ceil(progress * 100)}%`);
+  process.stdout.write(
+    `[${'#'.repeat(filled)}${' '.repeat(empty)}] ${Math.ceil(progress * 100)}%`,
+  );
 };
 
 export const generateMessages = async ({

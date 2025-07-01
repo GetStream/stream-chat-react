@@ -23,7 +23,9 @@ export default (page: Page) => {
       return {
         contains: {
           lastMessage(text: string | RegExp) {
-            return expect(target.locator(selectors.channelPreviewLastMessage)).toContainText(text);
+            return expect(
+              target.locator(selectors.channelPreviewLastMessage),
+            ).toContainText(text);
           },
           message(text: string | RegExp) {
             return expect(target).toContainText(text);
@@ -34,11 +36,15 @@ export default (page: Page) => {
         },
         not: {
           read() {
-            return expect(target).toHaveClass(/str-chat__channel-preview-messenger--unread/);
+            return expect(target).toHaveClass(
+              /str-chat__channel-preview-messenger--unread/,
+            );
           },
         },
         read() {
-          return expect(target).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
+          return expect(target).not.toHaveClass(
+            /str-chat__channel-preview-messenger--unread/,
+          );
         },
       };
     },

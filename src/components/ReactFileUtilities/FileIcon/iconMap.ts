@@ -1,11 +1,10 @@
 import * as fileIconSet from './FileIconSet';
+import type { GeneralType, SupportedMimeType } from './mimeTypes';
 import {
   archiveFileTypes,
   codeFileTypes,
   excelMimeTypes,
-  GeneralType,
   powerpointMimeTypes,
-  SupportedMimeType,
   wordMimeTypes,
 } from './mimeTypes';
 import type { ComponentType } from 'react';
@@ -94,7 +93,10 @@ function generateGeneralTypeToIconMap<Props>({
 export type IconType = 'standard' | 'alt';
 
 type IconMap = {
-  standard: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps>>;
+  standard: Record<
+    SupportedMimeType | GeneralType | 'fallback',
+    ComponentType<IconProps>
+  >;
   alt?: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps>>;
 };
 

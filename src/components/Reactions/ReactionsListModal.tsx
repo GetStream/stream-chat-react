@@ -3,33 +3,28 @@ import clsx from 'clsx';
 
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
-import { Modal, ModalProps } from '../Modal';
+import type { ModalProps } from '../Modal';
+import { Modal } from '../Modal';
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { LoadingIndicator } from '../Loading';
 import { Avatar } from '../Avatar';
-import { MessageContextValue, useMessageContext } from '../../context';
-import { DefaultStreamChatGenerics } from '../../types/types';
-import { ReactionSort } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
+import { useMessageContext } from '../../context';
+import type { ReactionSort } from 'stream-chat';
 
-type ReactionsListModalProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = ModalProps &
-  Partial<
-    Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions' | 'reactionDetailsSort'>
-  > & {
+export type ReactionsListModalProps = ModalProps &
+  Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>> & {
     reactions: ReactionSummary[];
-    selectedReactionType: ReactionType<StreamChatGenerics>;
-    onSelectedReactionTypeChange?: (reactionType: ReactionType<StreamChatGenerics>) => void;
-    sort?: ReactionSort<StreamChatGenerics>;
+    selectedReactionType: ReactionType;
+    onSelectedReactionTypeChange?: (reactionType: ReactionType) => void;
+    sort?: ReactionSort;
     /** @deprecated use `sort` instead */
-    sortReactionDetails?: ReactionDetailsComparator<StreamChatGenerics>;
+    sortReactionDetails?: ReactionDetailsComparator;
   };
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
-export function ReactionsListModal<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
+export function ReactionsListModal({
   handleFetchReactions,
   onSelectedReactionTypeChange,
   reactionDetailsSort: propReactionDetailsSort,
@@ -37,7 +32,7 @@ export function ReactionsListModal<
   selectedReactionType,
   sortReactionDetails: propSortReactionDetails,
   ...modalProps
-}: ReactionsListModalProps<StreamChatGenerics>) {
+}: ReactionsListModalProps) {
   const selectedReaction = reactions.find(
     ({ reactionType }) => reactionType === selectedReactionType,
   );
@@ -45,19 +40,17 @@ export function ReactionsListModal<
   const {
     reactionDetailsSort: contextReactionDetailsSort,
     sortReactionDetails: contextSortReactionDetails,
-  } = useMessageContext<StreamChatGenerics>('ReactionsListModal');
+  } = useMessageContext('ReactionsListModal');
   const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
-  const {
-    isLoading: areReactionsLoading,
-    reactions: reactionDetails,
-  } = useFetchReactions<StreamChatGenerics>({
-    handleFetchReactions,
-    reactionType: selectedReactionType,
-    shouldFetch: modalProps.open,
-    sort: reactionDetailsSort,
-  });
+  const { isLoading: areReactionsLoading, reactions: reactionDetails } =
+    useFetchReactions({
+      handleFetchReactions,
+      reactionType: selectedReactionType,
+      shouldFetch: modalProps.open,
+      sort: reactionDetailsSort,
+    });
 
   const reactionDetailsWithLegacyFallback = useMemo(
     () =>
@@ -72,7 +65,10 @@ export function ReactionsListModal<
       {...modalProps}
       className={clsx('str-chat__message-reactions-details-modal', modalProps.className)}
     >
-      <div className='str-chat__message-reactions-details' data-testid='reactions-list-modal'>
+      <div
+        className='str-chat__message-reactions-details'
+        data-testid='reactions-list-modal'
+      >
         <div className='str-chat__message-reactions-details-reaction-types'>
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
@@ -85,14 +81,16 @@ export function ReactionsListModal<
                   data-testid={`reaction-details-selector-${reactionType}`}
                   key={reactionType}
                   onClick={() =>
-                    onSelectedReactionTypeChange?.(reactionType as ReactionType<StreamChatGenerics>)
+                    onSelectedReactionTypeChange?.(reactionType as ReactionType)
                   }
                 >
                   <span className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
                     <EmojiComponent />
                   </span>
                   &nbsp;
-                  <span className='str-chat__message-reaction-count'>{reactionCount}</span>
+                  <span className='str-chat__message-reaction-count'>
+                    {reactionCount}
+                  </span>
                 </div>
               ),
           )}
@@ -110,14 +108,20 @@ export function ReactionsListModal<
             <LoadingIndicator />
           ) : (
             reactionDetailsWithLegacyFallback.map(({ user }) => (
-              <div className='str-chat__message-reactions-details-reacting-user' key={user?.id}>
+              <div
+                className='str-chat__message-reactions-details-reacting-user'
+                key={user?.id}
+              >
                 <Avatar
                   className='stream-chat__avatar--reaction'
                   data-testid='avatar'
                   image={user?.image as string | undefined}
                   name={user?.name || user?.id}
                 />
-                <span className='str-chat__user-item--name' data-testid='reaction-user-username'>
+                <span
+                  className='str-chat__user-item--name'
+                  data-testid='reaction-user-username'
+                >
                   {user?.name || user?.id}
                 </span>
               </div>

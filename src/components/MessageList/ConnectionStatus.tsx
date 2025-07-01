@@ -4,18 +4,15 @@ import type { Event } from 'stream-chat';
 
 import { CustomNotification } from './CustomNotification';
 import { useChatContext, useTranslationContext } from '../../context';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-const UnMemoizedConnectionStatus = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
-  const { client } = useChatContext<StreamChatGenerics>('ConnectionStatus');
+const UnMemoizedConnectionStatus = () => {
+  const { client } = useChatContext('ConnectionStatus');
   const { t } = useTranslationContext('ConnectionStatus');
 
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    const connectionChanged = ({ online: onlineStatus = false }: Event<StreamChatGenerics>) => {
+    const connectionChanged = ({ online: onlineStatus = false }: Event) => {
       if (online !== onlineStatus) {
         setOnline(onlineStatus);
       }
@@ -31,7 +28,7 @@ const UnMemoizedConnectionStatus = <
       className='str-chat__connection-status-notification'
       type='error'
     >
-      {t<string>('Connection failure, reconnecting now...')}
+      {t('Connection failure, reconnecting now...')}
     </CustomNotification>
   );
 };

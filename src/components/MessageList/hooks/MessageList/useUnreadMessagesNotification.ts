@@ -8,7 +8,10 @@ const targetScrolledAboveVisibleContainerArea = (element: Element) => {
   return targetBottom < 0;
 };
 
-const targetScrolledBelowVisibleContainerArea = (element: Element, container: Element) => {
+const targetScrolledBelowVisibleContainerArea = (
+  element: Element,
+  container: Element,
+) => {
   const { top: targetTop } = element.getBoundingClientRect();
   const { top: containerBottom } = container.getBoundingClientRect();
   return targetTop > containerBottom;
@@ -39,19 +42,26 @@ export const useUnreadMessagesNotification = ({
     const [msgListPanel] = document.getElementsByClassName(MESSAGE_LIST_MAIN_PANEL_CLASS);
     if (!msgListPanel) return;
 
-    const [observedTarget] = document.getElementsByClassName(UNREAD_MESSAGE_SEPARATOR_CLASS);
+    const [observedTarget] = document.getElementsByClassName(
+      UNREAD_MESSAGE_SEPARATOR_CLASS,
+    );
     if (!observedTarget) {
       setShow(true);
       return;
     }
 
-    const scrolledBelowSeparator = targetScrolledAboveVisibleContainerArea(observedTarget);
+    const scrolledBelowSeparator =
+      targetScrolledAboveVisibleContainerArea(observedTarget);
     const scrolledAboveSeparator = targetScrolledBelowVisibleContainerArea(
       observedTarget,
       msgListPanel,
     );
 
-    setShow(showAlways ? scrolledBelowSeparator || scrolledAboveSeparator : scrolledBelowSeparator);
+    setShow(
+      showAlways
+        ? scrolledBelowSeparator || scrolledAboveSeparator
+        : scrolledBelowSeparator,
+    );
 
     const observer = new IntersectionObserver(
       (elements) => {
@@ -87,7 +97,11 @@ export const useUnreadMessagesNotification = ({
      * and at the same time scrolled above the observed target.
      */
 
-    if (unreadCount && isMessageListScrolledToBottom && isScrolledAboveTargetTop.current) {
+    if (
+      unreadCount &&
+      isMessageListScrolledToBottom &&
+      isScrolledAboveTargetTop.current
+    ) {
       setShow(true);
       isScrolledAboveTargetTop.current = false;
     }

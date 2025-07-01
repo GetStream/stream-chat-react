@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
-import renderer from 'react-test-renderer';
 
 import {
   ChannelActionProvider,
@@ -71,16 +70,20 @@ const i18nMock = jest.fn((key, props) => {
 });
 
 const renderComponent = ({
-  chatClient,
-  threadProps = {},
-  channelStateOverrides = {},
   channelActionOverrides = {},
+  channelStateOverrides = {},
+  chatClient,
   componentOverrides = {},
+  threadProps = {},
 }) =>
   render(
     <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
-      <ChannelStateProvider value={{ ...channelStateContextMock, ...channelStateOverrides }}>
-        <ChannelActionProvider value={{ ...channelActionContextMock, ...channelActionOverrides }}>
+      <ChannelStateProvider
+        value={{ ...channelStateContextMock, ...channelStateOverrides }}
+      >
+        <ChannelActionProvider
+          value={{ ...channelActionContextMock, ...channelActionOverrides }}
+        >
           <ComponentProvider value={{ ...componentOverrides }}>
             <TranslationProvider value={{ t: i18nMock }}>
               <Thread {...threadProps} />
@@ -123,7 +126,9 @@ describe('Thread', () => {
       expect.objectContaining({
         disableDateSeparator: true,
         hasMore: channelStateContextMock.threadHasMore,
-        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
+        head: expect.objectContaining({
+          type: expect.objectContaining({ name: 'ThreadHead' }),
+        }),
         loadingMore: channelActionContextMock.threadLoadingMore,
         loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
@@ -131,7 +136,7 @@ describe('Thread', () => {
         threadList: true,
         ...additionalMessageListProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -155,7 +160,9 @@ describe('Thread', () => {
       expect.objectContaining({
         disableDateSeparator: false,
         hasMore: channelStateContextMock.threadHasMore,
-        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
+        head: expect.objectContaining({
+          type: expect.objectContaining({ name: 'ThreadHead' }),
+        }),
         loadingMore: channelActionContextMock.threadLoadingMore,
         loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
@@ -163,7 +170,7 @@ describe('Thread', () => {
         threadList: true,
         ...additionalMessageListProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -182,10 +189,9 @@ describe('Thread', () => {
         focus: props.autoFocus,
         Input: expect.any(Function),
         parent: expect.objectContaining(parentMessage),
-        publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -193,7 +199,10 @@ describe('Thread', () => {
     const CustomMessageInputMock = jest.fn();
     const CustomMessageInputMockAdditional = jest.fn();
     const props = {
-      additionalMessageInputProps: { Input: CustomMessageInputMockAdditional, propName: 'value' },
+      additionalMessageInputProps: {
+        Input: CustomMessageInputMockAdditional,
+        propName: 'value',
+      },
       autoFocus: true,
       Input: CustomMessageInputMock,
     };
@@ -208,17 +217,19 @@ describe('Thread', () => {
         focus: props.autoFocus,
         Input: CustomMessageInputMock,
         parent: expect.objectContaining(parentMessage),
-        publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
   it('should render a custom MessageInput from additional props', () => {
     const CustomMessageInputMockAdditional = jest.fn();
     const props = {
-      additionalMessageInputProps: { Input: CustomMessageInputMockAdditional, propName: 'value' },
+      additionalMessageInputProps: {
+        Input: CustomMessageInputMockAdditional,
+        propName: 'value',
+      },
       autoFocus: true,
     };
 
@@ -232,10 +243,9 @@ describe('Thread', () => {
         focus: props.autoFocus,
         Input: CustomMessageInputMockAdditional,
         parent: expect.objectContaining(parentMessage),
-        publishTypingEvent: false,
         ...props.additionalMessageInputProps,
       }),
-      {},
+      undefined,
     );
   });
 
@@ -254,7 +264,7 @@ describe('Thread', () => {
           closeThread: channelActionContextMock.closeThread,
           thread: parentMessage,
         }),
-        {},
+        undefined,
       );
     });
   });
@@ -280,7 +290,7 @@ describe('Thread', () => {
       expect.objectContaining({
         messageActions,
       }),
-      expect.anything(), // refOrContext
+      undefined,
     );
   });
 
@@ -297,7 +307,9 @@ describe('Thread', () => {
       chatClient,
       threadProps: { virtualized: false },
     });
-    expect(container.querySelector('.str-chat__thread--virtualized')).not.toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__thread--virtualized'),
+    ).not.toBeInTheDocument();
   });
 
   it('should not render anything if the thread in context is falsy', () => {
@@ -323,14 +335,14 @@ describe('Thread', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const tree = renderer
-      .create(
-        <ChannelStateProvider value={{ ...channelStateContextMock, channel, channelConfig }}>
-          <Thread />
-        </ChannelStateProvider>,
-      )
-      .toJSON();
+    const { container } = render(
+      <ChannelStateProvider
+        value={{ ...channelStateContextMock, channel, channelConfig }}
+      >
+        <Thread />
+      </ChannelStateProvider>,
+    );
 
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(container).toBeEmptyDOMElement();
   });
 });

@@ -18,8 +18,8 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
+import type { MessageContextValue } from '../../context';
 import {
-  MessageContextValue,
   MessageProvider,
   useChannelActionContext,
   useChannelStateContext,
@@ -30,20 +30,23 @@ import {
 import { MessageSimple as DefaultMessage } from './MessageSimple';
 
 import type { MessageProps } from './types';
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
-type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
+type MessagePropsToOmit =
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'openThread'
+  | 'retrySendMessage';
 
 type MessageContextPropsToPick =
   | 'handleAction'
   | 'handleDelete'
+  | 'handleFetchReactions'
   | 'handleFlag'
   | 'handleMarkUnread'
   | 'handleMute'
   | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
-  | 'handleFetchReactions'
   | 'handleRetry'
   | 'mutes'
   | 'onMentionsClickMessage'
@@ -52,19 +55,13 @@ type MessageContextPropsToPick =
   | 'sortReactions'
   | 'sortReactionDetails';
 
-type MessageWithContextProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit> &
-  Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick> & {
+type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
+  Pick<MessageContextValue, MessageContextPropsToPick> & {
     canPin: boolean;
     userRoles: ReturnType<typeof useUserRole>;
   };
 
-const MessageWithContext = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageWithContextProps<StreamChatGenerics>,
-) => {
+const MessageWithContext = (props: MessageWithContextProps) => {
   const {
     canPin,
     groupedByUser,
@@ -77,8 +74,8 @@ const MessageWithContext = <
   } = props;
 
   const { client, isMessageAIGenerated } = useChatContext('Message');
-  const { read } = useChannelStateContext('Message');
-  const { Message: contextMessage } = useComponentContext<StreamChatGenerics>('Message');
+  const { channelConfig, read } = useChannelStateContext('Message');
+  const { Message: contextMessage } = useComponentContext('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
@@ -110,24 +107,30 @@ const MessageWithContext = <
         read &&
         (!read[client.user.id] ||
           (message?.created_at &&
-            new Date(message.created_at).getTime() > read[client.user.id].last_read.getTime()))
+            new Date(message.created_at).getTime() >
+              read[client.user.id].last_read.getTime()))
       ),
     [client, isMyMessage, message.created_at, read],
   );
 
   const messageActionsHandler = useCallback(
     () =>
-      getMessageActions(messageActions, {
-        canDelete,
-        canEdit,
-        canFlag,
-        canMarkUnread,
-        canMute,
-        canPin,
-        canQuote,
-        canReact,
-        canReply,
-      }),
+      getMessageActions(
+        messageActions,
+        {
+          canDelete,
+          canEdit,
+          canFlag,
+          canMarkUnread,
+          canMute,
+          canPin,
+          canQuote,
+          canReact,
+          canReply,
+        },
+        channelConfig,
+      ),
+
     [
       messageActions,
       canDelete,
@@ -139,6 +142,7 @@ const MessageWithContext = <
       canQuote,
       canReact,
       canReply,
+      channelConfig,
     ],
   );
 
@@ -152,7 +156,7 @@ const MessageWithContext = <
     ...rest
   } = props;
 
-  const messageContextValue: MessageContextValue<StreamChatGenerics> = {
+  const messageContextValue: MessageContextValue = {
     ...rest,
     actionsEnabled,
     clearEditingState: clearEdit,
@@ -184,11 +188,7 @@ const MemoizedMessage = React.memo(
  * The Message component is a context provider which implements all the logic required for rendering
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
-export const Message = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageProps<StreamChatGenerics>,
-) => {
+export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,
     disableQuotedMessages,
@@ -213,8 +213,8 @@ export const Message = <
     sortReactions,
   } = props;
 
-  const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
-  const { highlightedMessageId, mutes } = useChannelStateContext<StreamChatGenerics>('Message');
+  const { addNotification } = useChannelActionContext('Message');
+  const { highlightedMessageId, mutes } = useChannelStateContext('Message');
 
   const handleAction = useActionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);

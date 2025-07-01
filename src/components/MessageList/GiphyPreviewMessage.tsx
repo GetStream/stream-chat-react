@@ -1,21 +1,13 @@
 import React from 'react';
 
 import { Message } from '../Message/Message';
+import type { LocalMessage } from 'stream-chat';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type GiphyPreviewMessageProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  message: StreamMessage<StreamChatGenerics>;
+export type GiphyPreviewMessageProps = {
+  message: LocalMessage;
 };
 
-export const GiphyPreviewMessage = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: GiphyPreviewMessageProps<StreamChatGenerics>,
-) => {
+export const GiphyPreviewMessage = (props: GiphyPreviewMessageProps) => {
   const { message } = props;
 
   return (

@@ -202,10 +202,22 @@ describe('getDateString', () => {
   });
   it.each([
     ['all enabled', { calendar: true, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
-    ['calendar disabled', { calendar: false, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
-    ['calendar formats omitted', { calendar: true, calendarFormats: undefined, format: 'hh:mm A' }],
-    ['only format provided', { calendar: false, calendarFormats: undefined, format: 'hh:mm A' }],
-    ['format undefined', { calendar: true, calendarFormats: { x: 'y' }, format: undefined }],
+    [
+      'calendar disabled',
+      { calendar: false, calendarFormats: { x: 'y' }, format: 'hh:mm A' },
+    ],
+    [
+      'calendar formats omitted',
+      { calendar: true, calendarFormats: undefined, format: 'hh:mm A' },
+    ],
+    [
+      'only format provided',
+      { calendar: false, calendarFormats: undefined, format: 'hh:mm A' },
+    ],
+    [
+      'format undefined',
+      { calendar: true, calendarFormats: { x: 'y' }, format: undefined },
+    ],
     [
       'calendar disabled and format undefined',
       { calendar: false, calendarFormats: { x: 'y' }, format: undefined },
@@ -218,7 +230,10 @@ describe('getDateString', () => {
       'calendar disabled and rest undefined',
       { calendar: false, calendarFormats: undefined, format: undefined },
     ],
-    ['calendar undefined', { calendar: undefined, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
+    [
+      'calendar undefined',
+      { calendar: undefined, calendarFormats: { x: 'y' }, format: 'hh:mm A' },
+    ],
     [
       'calendar and calendar formats undefined',
       { calendar: undefined, calendarFormats: undefined, format: 'hh:mm A' },
@@ -227,7 +242,10 @@ describe('getDateString', () => {
       'calendar and format undefined',
       { calendar: undefined, calendarFormats: { x: 'y' }, format: undefined },
     ],
-    ['all undefined', { calendar: undefined, calendarFormats: undefined, format: undefined }],
+    [
+      'all undefined',
+      { calendar: undefined, calendarFormats: undefined, format: undefined },
+    ],
   ])(
     'applies formatting via translation service with translation formatting params %s',
     (_, params) => {
@@ -280,7 +298,9 @@ describe('predefinedFormatters', () => {
         ).toBeFalsy();
       });
       it('should log error parsing invalid calendarFormats', () => {
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementationOnce(() => null);
+        const consoleErrorSpy = jest
+          .spyOn(console, 'error')
+          .mockImplementationOnce(() => null);
         timestampFormatter(yesterday, 'en', { calendar: true, calendarFormats: '}' });
         expect(consoleErrorSpy.mock.calls[0][0]).toBe('[TIMESTAMP FORMATTER]');
         expect(

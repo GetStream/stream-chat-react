@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect } from 'react';
 import type { ChannelSort } from 'stream-chat';
+
 import {
   Channel,
   ChannelHeader,
@@ -12,7 +13,8 @@ import {
   useChatContext,
   Window,
 } from '../index';
-import { ConnectedUser, ConnectedUserProps } from './utils';
+import { ConnectedUser } from './utils';
+import type { ConnectedUserProps } from './utils';
 
 const user1Id = import.meta.env.E2E_TEST_USER_1;
 const user1Token = import.meta.env.E2E_TEST_USER_1_TOKEN;
@@ -140,7 +142,10 @@ const OtherUserControls = () => {
         <div style={{ display: 'none' }}>
           <ChannelList
             customActiveChannel={channelId}
-            filters={{ id: { $eq: channelId }, members: { $in: [theOtherUserCredentials.userId] } }}
+            filters={{
+              id: { $eq: channelId },
+              members: { $in: [theOtherUserCredentials.userId] },
+            }}
             setActiveChannelOnMount={true}
             sort={sort}
           />
@@ -157,7 +162,10 @@ const OtherUserControls = () => {
   );
 };
 
-const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
+const WrappedConnectedUser = ({
+  token,
+  userId,
+}: Omit<ConnectedUserProps, 'children'>) => (
   <div style={{ display: 'flex', flexDirection: 'column' }}>
     {/* FIXME: temporary fix for screenshot tests */}
     <style>{`

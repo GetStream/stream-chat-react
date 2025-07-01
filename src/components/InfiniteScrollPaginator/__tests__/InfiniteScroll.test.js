@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import renderer from 'react-test-renderer';
 
 import { InfiniteScroll } from '../';
 
@@ -15,7 +14,10 @@ describe('InfiniteScroll', () => {
   // not sure if there is a more 'narrow' way of capturing event listeners being added
   const divAddEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
 
-  const divRemoveEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
+  const divRemoveEventListenerSpy = jest.spyOn(
+    HTMLDivElement.prototype,
+    'addEventListener',
+  );
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -41,11 +43,19 @@ describe('InfiniteScroll', () => {
 
       const addEventListenerSpy = divAddEventListenerSpy;
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), useCapture);
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        'scroll',
+        expect.any(Function),
+        useCapture,
+      );
       expect(addEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function), {
         passive: false,
       });
-      expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), useCapture);
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        'resize',
+        expect.any(Function),
+        useCapture,
+      );
     },
   );
 
@@ -105,31 +115,32 @@ describe('InfiniteScroll', () => {
       consoleWarnSpy.mockRestore();
 
       expect(oldLoaderSpy).not.toHaveBeenCalled();
-      // eslint-disable-next-line jest/prefer-called-with
+
       expect(newLoaderSpy).toHaveBeenCalled();
     },
   );
 
   describe('Rendering loader', () => {
     const getRenderResult = () =>
-      renderer
-        .create(
-          <InfiniteScroll
-            isLoading
-            loader={<div key='loader'>loader</div>}
-            loadPreviousPage={loadPreviousPage}
-          >
-            Content
-          </InfiniteScroll>,
-        )
-        .toJSON();
-    it('should render the loader in the right place if isLoading is true', () => {
-      expect(getRenderResult()).toMatchInlineSnapshot(`
+      render(
+        <InfiniteScroll
+          isLoading
+          loader={<div key='loader'>loader</div>}
+          loadPreviousPage={loadPreviousPage}
+        >
+          Content
+        </InfiniteScroll>,
+      );
+    it('should render the loader in the right place if queryInProgress is true', () => {
+      const { container } = getRenderResult();
+      expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
-            loader
+            <div>
+              loader
+            </div>
+            Content
           </div>
-          Content
         </div>
       `);
     });

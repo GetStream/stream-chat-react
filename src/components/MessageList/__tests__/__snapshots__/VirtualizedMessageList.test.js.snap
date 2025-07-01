@@ -1,88 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`VirtualizedMessageList should render the list without any message 1`] = `
-<div
-  className="str-chat messaging light str-chat__channel"
-  id="str-chat__channel"
->
+<div>
   <div
-    className="str-chat__container"
+    class="str-chat messaging light str-chat__channel"
+    id="str-chat__channel"
   >
     <div
-      className="str-chat__main-panel-inner str-chat__message-list-main-panel"
+      class="str-chat__container"
     >
       <div
-        className="str-chat__virtual-list"
+        class="str-chat__main-panel-inner str-chat__message-list-main-panel"
       >
         <div
-          className="str-chat__message-list-scroll"
-          data-test-id="virtuoso-scroller"
-          data-virtuoso-scroller={true}
-          style={
-            {
-              "WebkitOverflowScrolling": "touch",
-              "height": "100%",
-              "outline": "none",
-              "overflowX": "hidden",
-              "overflowY": "auto",
-              "position": "relative",
-            }
-          }
-          tabIndex={0}
+          class="str-chat__virtual-list"
         >
           <div
-            data-viewport-type="element"
-            style={
-              {
-                "height": "100%",
-                "position": "absolute",
-                "top": 0,
-                "width": "100%",
-              }
-            }
+            class="str-chat__message-list-scroll"
+            data-test-id="virtuoso-scroller"
+            data-virtuoso-scroller="true"
+            style="height: 100%; outline: none; overflow-y: auto; position: relative; overflow-x: hidden;"
+            tabindex="0"
           >
-            <div />
             <div
-              className="str-chat__empty-channel"
+              data-viewport-type="element"
+              style="width: 100%; height: 100%; position: absolute; top: 0px;"
             >
-              <svg
-                data-testid="chat-bubble"
-                fill="none"
-                height="96"
-                viewBox="0 0 136 136"
-                width="96"
-                xmlns="http://www.w3.org/2000/svg"
+              <div />
+              <div
+                class="str-chat__empty-channel"
               >
-                <path
-                  d="M106 24.5H30C24.775 24.5 20.5 28.775 20.5 34V119.5L39.5 100.5H106C111.225 100.5 115.5 96.225 115.5 91V34C115.5 28.775 111.225 24.5 106 24.5ZM106 91H39.5L30 100.5V34H106V91Z"
-                  fill="#B4B7BB"
-                />
-              </svg>
-              <p
-                className="str-chat__empty-channel-text"
-                role="listitem"
-              >
-                No chats here yet…
-              </p>
+                <svg
+                  data-testid="chat-bubble"
+                  fill="none"
+                  height="96"
+                  viewBox="0 0 136 136"
+                  width="96"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M106 24.5H30C24.775 24.5 20.5 28.775 20.5 34V119.5L39.5 100.5H106C111.225 100.5 115.5 96.225 115.5 91V34C115.5 28.775 111.225 24.5 106 24.5ZM106 91H39.5L30 100.5V34H106V91Z"
+                    fill="#B4B7BB"
+                  />
+                </svg>
+                <p
+                  class="str-chat__empty-channel-text"
+                  role="listitem"
+                >
+                  No chats here yet…
+                </p>
+              </div>
             </div>
           </div>
         </div>
+        <div
+          class="str-chat__dialog-overlay"
+          data-str-chat__portal-id="virtualized-message-list-dialog-manager-mockedId"
+          data-testid="str-chat__dialog-overlay"
+          style="--str-chat__dialog-overlay-height: 0;"
+        />
       </div>
       <div
-        className="str-chat__dialog-overlay"
-        data-str-chat__portal-id="virtualized-message-list-dialog-manager"
-        data-testid="str-chat__dialog-overlay"
-        onClick={[Function]}
-        style={
-          {
-            "--str-chat__dialog-overlay-height": "0",
-          }
-        }
+        class="str-chat__list-notifications"
       />
     </div>
-    <div
-      className="str-chat__list-notifications"
-    />
   </div>
 </div>
 `;

@@ -28,21 +28,28 @@ describe('WaveProgressBar', () => {
 
   it('is not rendered if no space available', () => {
     getBoundingClientRect.mockReturnValueOnce({ width: 0 });
-    render(<WaveProgressBar amplitudesCount={5} seek={jest.fn()} waveformData={originalSample} />);
+    render(
+      <WaveProgressBar
+        amplitudesCount={5}
+        seek={jest.fn()}
+        waveformData={originalSample}
+      />,
+    );
     expect(screen.queryByTestId(BAR_ROOT_TEST_ID)).not.toBeInTheDocument();
   });
 
   it('renders with default number of bars', () => {
     render(<WaveProgressBar seek={jest.fn()} waveformData={originalSample} />);
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
-      '1px',
-    );
+    expect(
+      root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width'),
+    ).toBe('1px');
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);
     expect(
       bars.every(
         (b) =>
-          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') === '2px',
+          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') ===
+          '2px',
       ),
     ).toBeTruthy();
     expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(40);
@@ -58,14 +65,15 @@ describe('WaveProgressBar', () => {
       />,
     );
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
-      '5px',
-    );
+    expect(
+      root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width'),
+    ).toBe('5px');
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);
     expect(
       bars.every(
         (b) =>
-          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') === '3px',
+          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') ===
+          '3px',
       ),
     ).toBeTruthy();
     expect(bars).toHaveLength(15);
@@ -80,14 +88,15 @@ describe('WaveProgressBar', () => {
       activeObserver.cb([{ contentRect: { width: 21 } }]);
     });
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
-      '1px',
-    );
+    expect(
+      root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width'),
+    ).toBe('1px');
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);
     expect(
       bars.every(
         (b) =>
-          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') === '2px',
+          b.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-width') ===
+          '2px',
       ),
     ).toBeTruthy();
     expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(7);
@@ -102,7 +111,11 @@ describe('WaveProgressBar', () => {
 
   it('is rendered with zero progress by default if waveform data is available', () => {
     const { container } = render(
-      <WaveProgressBar amplitudesCount={5} seek={jest.fn()} waveformData={originalSample} />,
+      <WaveProgressBar
+        amplitudesCount={5}
+        seek={jest.fn()}
+        waveformData={originalSample}
+      />,
     );
     expect(container).toMatchSnapshot();
     expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
