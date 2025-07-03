@@ -951,3 +951,39 @@ exports[`renderText renders standard markdown text 1`] = `
   </p>
 </div>
 `;
+
+exports[`renderText wraps every link entirely even though the link roots are the same 1`] = `
+<div>
+  <p>
+    <a
+      class="str-chat__message-url-link"
+      href="http://copilot.com"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      copilot.com
+    </a>
+    
+
+    <a
+      class="str-chat__message-url-link"
+      href="http://copilot.com/guide"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      copilot.com/guide
+    </a>
+    
+
+    <a
+      class="str-chat__message-url-link"
+      href="http://copilot.com/about"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      copilot.com/about
+    </a>
+    ?
+  </p>
+</div>
+`;
