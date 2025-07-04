@@ -1,15 +1,14 @@
 import React from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
-import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
 import type { ComponentType } from 'react';
 import type { Options } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
-import type { PluggableList } from 'unified'; // A subdependency of react-markdown. The type is not declared or re-exported from anywhere else
+import type { PluggableList } from 'unified'; // A sub-dependency of react-markdown. The type is not declared or re-exported from anywhere else
 
 import { Anchor, Emoji, Mention } from './componentRenderers';
-import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
+import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 import { ErrorBoundary } from '../../UtilityComponents';
@@ -108,60 +107,57 @@ export const renderText = (
   const markdownLinks = matchMarkdownLinks(newText);
   const codeBlocks = messageCodeBlocks(newText);
 
-  // extract all valid links/emails within text and replace it with proper markup
-  uniqBy([...find(newText, 'email'), ...find(newText, 'url')], 'value').forEach(
-    ({ href, type, value }) => {
-      const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
+  // Extract all valid links/emails within text and replace it with proper markup
+  // Revert the link order to avoid getting out of sync of the original start and end positions of links
+  // - due to the addition of new characters when creating Markdown links
+  const links = [...find(newText, 'email'), ...find(newText, 'url')];
+  for (let i = links.length - 1; i >= 0; i--) {
+    const { end, href, start, type, value } = links[i];
+    const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
 
-      // check if message is already  markdown
-      const noParsingNeeded =
-        markdownLinks &&
-        markdownLinks.filter((text) => {
-          const strippedHref = href?.replace(detectHttp, '');
-          const strippedText = text?.replace(detectHttp, '');
+    // check if message is already  markdown
+    const noParsingNeeded =
+      markdownLinks &&
+      markdownLinks.filter((text) => {
+        const strippedHref = href?.replace(detectHttp, '');
+        const strippedText = text?.replace(detectHttp, '');
 
-          if (!strippedHref || !strippedText) return false;
+        if (!strippedHref || !strippedText) return false;
 
-          return (
-            strippedHref.includes(strippedText) || strippedText.includes(strippedHref)
-          );
-        });
+        return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
+      });
 
-      if (noParsingNeeded.length > 0 || linkIsInBlock) return;
+    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
-      try {
-        // special case for mentions:
-        // it could happen that a user's name matches with an e-mail format pattern.
-        // in that case, we check whether the found e-mail is actually a mention
-        // by naively checking for an existence of @ sign in front of it.
-        if (type === 'email' && mentionedUsers) {
-          const emailMatchesWithName = mentionedUsers.some((u) => u.name === value);
-          if (emailMatchesWithName) {
-            newText = newText.replace(
-              new RegExp(escapeRegExp(value), 'g'),
-              (match, position) => {
-                const isMention = newText.charAt(position - 1) === '@';
-                // in case of mention, we leave the match in its original form,
-                // and we let `mentionsMarkdownPlugin` to do its job
-                return isMention ? match : `[${match}](${encodeDecode(href)})`;
-              },
-            );
-
-            return;
-          }
+    try {
+      // special case for mentions:
+      // it could happen that a user's name matches with an e-mail format pattern.
+      // in that case, we check whether the found e-mail is actually a mention
+      // by naively checking for an existence of @ sign in front of it.
+      if (type === 'email' && mentionedUsers) {
+        const emailMatchesWithName = mentionedUsers.find((u) => u.name === value);
+        if (emailMatchesWithName) {
+          // FIXME: breaks if the mention symbol is not '@'
+          const isMention = newText.charAt(start - 1) === '@';
+          // in case of mention, we leave the match in its original form,
+          // and we let `mentionsMarkdownPlugin` to do its job
+          newText =
+            newText.slice(0, start) +
+            (isMention ? value : `[${value}](${encodeDecode(href)})`) +
+            newText.slice(end);
         }
-
+      } else {
         const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
 
-        newText = newText.replace(
-          new RegExp(escapeRegExp(value), 'g'),
-          `[${displayLink}](${encodeDecode(href)})`,
-        );
-      } catch (e) {
-        void e;
+        newText =
+          newText.slice(0, start) +
+          `[${displayLink}](${encodeDecode(href)})` +
+          newText.slice(end);
       }
-    },
-  );
+    } catch (e) {
+      void e;
+    }
+  }
 
   const remarkPlugins: PluggableList = [
     htmlToTextPlugin,
