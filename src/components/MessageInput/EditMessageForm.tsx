@@ -86,6 +86,7 @@ export const EditMessageModal = ({
     >
       <MessageInput
         clearEditingState={clearEditingState}
+        focus
         hideSendButton
         Input={EditMessageInput}
         {...additionalMessageInputProps}
