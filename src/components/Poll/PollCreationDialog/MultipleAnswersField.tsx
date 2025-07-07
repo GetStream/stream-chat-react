@@ -67,7 +67,7 @@ export const MultipleAnswersField = () => {
                 );
               }}
               placeholder={t('Maximum number of votes (from 2 to 10)')}
-              type='number'
+              type='text'
               value={max_votes_allowed}
             />
           </div>
