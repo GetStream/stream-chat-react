@@ -9,7 +9,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
 import type {
+  AttachmentManagerState,
   MessageComposerConfig,
+  MessageComposerState,
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
@@ -34,6 +36,14 @@ const searchSourceStateSelector = (state: SearchSourceState) => ({
 
 const configStateSelector = (state: MessageComposerConfig) => ({
   enabled: state.text.enabled,
+});
+
+const messageComposerStateSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
+
+const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
+  attachments: state.attachments,
 });
 
 /**
@@ -78,6 +88,7 @@ export const TextareaComposer = ({
   const {
     additionalTextareaProps,
     cooldownRemaining,
+    focus,
     handleSubmit,
     maxRows: maxRowsContext,
     minRows: minRowsContext,
@@ -85,7 +96,6 @@ export const TextareaComposer = ({
     shouldSubmit: shouldSubmitContext,
     textareaRef,
   } = useMessageInputContext();
-
   const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
   const minRows = minRowsProp ?? minRowsContext;
   const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
@@ -99,6 +109,14 @@ export const TextareaComposer = ({
   );
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateSelector,
+  );
+  const { attachments } = useStateStore(
+    messageComposer.attachmentManager.state,
+    attachmentManagerStateSelector,
+  );
 
   const { isLoadingItems } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
@@ -234,6 +252,12 @@ export const TextareaComposer = ({
       setFocusedItemIndex(0);
     }
   }, [textComposer.suggestions]);
+
+  useEffect(() => {
+    const textareaIsFocused = textareaRef.current?.matches(':focus');
+    if (!textareaRef.current || textareaIsFocused || !focus) return;
+    textareaRef.current.focus();
+  }, [attachments, focus, quotedMessage, textareaRef]);
 
   useEffect(() => {
     /**
