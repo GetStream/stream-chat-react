@@ -1,7 +1,8 @@
 import type { ReminderResponse } from 'stream-chat';
+import { generateChannel } from './channel';
 
 const baseData = {
-  channel_cid: 'channel_cid',
+  channel_cid: 'messaging:id',
   message_id: 'message_id',
   user_id: 'user_id',
 } as const;
@@ -16,6 +17,7 @@ export const generateReminderResponse = ({
   const created_at = new Date().toISOString();
   const basePayload: ReminderResponse = {
     ...baseData,
+    channel: generateChannel({ channel: { cid: baseData.channel_cid } }).channel,
     created_at,
     message: { id: baseData.message_id, type: 'regular' },
     updated_at: created_at,
