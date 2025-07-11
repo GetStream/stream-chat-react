@@ -6,7 +6,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ChatProvider, MessageProvider, useChannelActionContext } from '../../../context';
 import { Channel } from '../../Channel';
 import { MessageActionsBox } from '../../MessageActions';
@@ -78,7 +78,9 @@ const setup = async ({ channelData } = {}) => {
   const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
-  const getDraftSpy = jest.spyOn(customChannel, 'getDraft').mockResolvedValue({});
+  const getDraftSpy = jest
+    .spyOn(customChannel, 'getDraft')
+    .mockResolvedValue({ draft: { message: { id: 'x' } } });
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
@@ -157,13 +159,68 @@ const renderComponent = async ({
 };
 
 describe('MessageInput in Thread', () => {
+  describe('draft', () => {
+    it('is queried when drafts are enabled', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).toHaveBeenCalledTimes(1);
+    });
+    it('prevents querying if composition is not empty', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+          composer.textComposer.setText('abc');
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+    it('prevents querying if not rendered inside a thread', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+          composer.compositionContext = customChannel;
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+    it('prevents querying if drafts are disabled (default)', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+  });
+
   it('renders in the thread context for direct messaging channel', async () => {
     const { customChannel, customClient } = await setup();
     await renderComponent({
       customChannel,
       customClient,
     });
-    expect(screen.getByLabelText('Also send as a direct message')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Also send as a direct message')).toBeInTheDocument();
+    });
   });
   it('renders in the thread context for non-direct messaging channel', async () => {
     const mainListMessage = generateMessage({ cid, user });
