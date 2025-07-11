@@ -197,4 +197,56 @@ describe('MessageInput in Thread', () => {
     });
     expect(screen.getByLabelText('Also send in channel')).toBeInTheDocument();
   });
+
+  describe('draft', () => {
+    it('is queried when drafts are enabled', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).toHaveBeenCalledTimes(1);
+    });
+    it('prevents querying if composition is not empty', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+          composer.textComposer.setText('abc');
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+    it('prevents querying if not rendered inside a thread', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: true } });
+          composer.compositionContext = customChannel;
+        });
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+    it('prevents querying if drafts are disabled (default)', async () => {
+      const { customChannel, customClient, getDraftSpy } = await setup();
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(getDraftSpy).not.toHaveBeenCalled();
+    });
+  });
 });
