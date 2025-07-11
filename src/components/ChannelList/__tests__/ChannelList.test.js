@@ -354,6 +354,28 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('provides the error object to LoadingErrorIndicator', async () => {
+    useMockedApis(chatClient, [erroredPostApi()]);
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+
+    const LoadingErrorIndicator = (props) => <div>{props.error.message}</div>;
+
+    await act(async () => {
+      await render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{}}
+            LoadingErrorIndicator={LoadingErrorIndicator}
+            options={{ presence: true, state: true, watch: true }}
+            Preview={ChannelPreviewComponent}
+          />
+        </Chat>,
+      );
+    });
+
+    expect(screen.getByText('StreamChat error HTTP code: 500')).toBeInTheDocument();
+  });
+
   it('should render loading indicator before the first channel list load and on reload', async () => {
     const channelsQueryStatesHistory = [];
     const channelListMessengerLoadingHistory = [];

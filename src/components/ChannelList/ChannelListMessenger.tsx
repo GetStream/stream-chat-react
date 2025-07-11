@@ -5,6 +5,7 @@ import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { NullComponent } from '../UtilityComponents';
 import { useTranslationContext } from '../../context';
+import type { LoadingErrorIndicatorProps } from '../Loading';
 
 export type ChannelListMessengerProps = {
   /** Whether the channel query request returned an errored response */
@@ -14,7 +15,7 @@ export type ChannelListMessengerProps = {
   /** Whether the channels are currently loading */
   loading?: boolean;
   /** Custom UI component to display the loading error indicator, defaults to component that renders null */
-  LoadingErrorIndicator?: React.ComponentType;
+  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to display a loading indicator, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
   /** Local state hook that resets the currently loaded channels */
@@ -37,7 +38,7 @@ export const ChannelListMessenger = (
   const { t } = useTranslationContext('ChannelListMessenger');
 
   if (error) {
-    return <LoadingErrorIndicator />;
+    return <LoadingErrorIndicator error={error} />;
   }
 
   if (loading) {
