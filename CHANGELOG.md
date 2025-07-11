@@ -1,3 +1,17 @@
+## [13.2.2](https://github.com/GetStream/stream-chat-react/compare/v13.2.1...v13.2.2) (2025-07-11)
+
+### Bug Fixes
+
+* change MultipleAnswersField input element to type text ([#2761](https://github.com/GetStream/stream-chat-react/issues/2761)) ([a590629](https://github.com/GetStream/stream-chat-react/commit/a5906297ef7273342707721cdf8d815ddb360046))
+* distinguish non-submit form buttons ([#2769](https://github.com/GetStream/stream-chat-react/issues/2769)) ([bdc3c3e](https://github.com/GetStream/stream-chat-react/commit/bdc3c3e1f11fae635895308487b000b814c7de29))
+* ensure all message links are properly wrapped when sharing same root domain ([#2754](https://github.com/GetStream/stream-chat-react/issues/2754)) ([adeb0e7](https://github.com/GetStream/stream-chat-react/commit/adeb0e73144755ef3d81d84dfdbbaf665c7e7d1c))
+* focus textarea upon file input change event ([#2752](https://github.com/GetStream/stream-chat-react/issues/2752)) ([22e0702](https://github.com/GetStream/stream-chat-react/commit/22e0702e69ef5a69138813eb418e219d08843d3b))
+* forward error object to LoadingErrorIndicator in ChannelList ([#2768](https://github.com/GetStream/stream-chat-react/issues/2768)) ([c014b1f](https://github.com/GetStream/stream-chat-react/commit/c014b1f21682b75abf9f889bfedd29b71be3be48))
+* keep focused textarea when message composer state changes ([#2759](https://github.com/GetStream/stream-chat-react/issues/2759)) ([e6d5a7f](https://github.com/GetStream/stream-chat-react/commit/e6d5a7ffb411932668d2c310843e9e629340cba8))
+* make character composition possible in textarea ([#2762](https://github.com/GetStream/stream-chat-react/issues/2762)) ([bbe09e5](https://github.com/GetStream/stream-chat-react/commit/bbe09e53a009655aea2dfc801c926f4a21d97cef))
+* prevent querying thread draft when drafts are disabled ([#2767](https://github.com/GetStream/stream-chat-react/issues/2767)) ([ff43179](https://github.com/GetStream/stream-chat-react/commit/ff4317987ab3aeff74e03235cd3bc1d44881b4be))
+* prevent setting unread UI state for channel non-members ([#2757](https://github.com/GetStream/stream-chat-react/issues/2757)) ([952612a](https://github.com/GetStream/stream-chat-react/commit/952612a7c84bddcccb083afd18874bcb3a65cd8e))
+
 ## [13.2.1](https://github.com/GetStream/stream-chat-react/compare/v13.2.0...v13.2.1) (2025-06-23)
 
 ### Chores
