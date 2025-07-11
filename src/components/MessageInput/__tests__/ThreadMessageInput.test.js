@@ -6,7 +6,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ChatProvider, MessageProvider, useChannelActionContext } from '../../../context';
 import { Channel } from '../../Channel';
 import { MessageActionsBox } from '../../MessageActions';
@@ -78,7 +78,9 @@ const setup = async ({ channelData } = {}) => {
   const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
-  const getDraftSpy = jest.spyOn(customChannel, 'getDraft').mockResolvedValue({});
+  const getDraftSpy = jest
+    .spyOn(customChannel, 'getDraft')
+    .mockResolvedValue({ draft: { message: { id: 'x' } } });
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
@@ -157,47 +159,6 @@ const renderComponent = async ({
 };
 
 describe('MessageInput in Thread', () => {
-  it('renders in the thread context for direct messaging channel', async () => {
-    const { customChannel, customClient } = await setup();
-    await renderComponent({
-      customChannel,
-      customClient,
-    });
-    expect(screen.getByLabelText('Also send as a direct message')).toBeInTheDocument();
-  });
-  it('renders in the thread context for non-direct messaging channel', async () => {
-    const mainListMessage = generateMessage({ cid, user });
-    const threadMessage = generateMessage({
-      parent_id: mainListMessage.id,
-      type: 'reply',
-      user,
-    });
-
-    const channelData = generateChannel({
-      channel: {
-        id: 'general',
-        own_capabilities: ['send-poll', 'upload-file'],
-        type: 'messaging',
-      },
-      members: [
-        generateMember({ user }),
-        generateMember({ user: mentionUser }),
-        generateMember({ user: generateUser() }),
-      ],
-      // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
-      // will retrieve the composer from the previous test
-      messages: [{ ...mainListMessage, id: 'x' }],
-      thread: [{ ...threadMessage, parent_id: 'x' }],
-    });
-    const { customChannel, customClient } = await setup({ channelData });
-    await renderComponent({
-      customChannel,
-      customClient,
-      thread: channelData.messages[0],
-    });
-    expect(screen.getByLabelText('Also send in channel')).toBeInTheDocument();
-  });
-
   describe('draft', () => {
     it('is queried when drafts are enabled', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
@@ -248,5 +209,49 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
     });
+  });
+
+  it('renders in the thread context for direct messaging channel', async () => {
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Also send as a direct message')).toBeInTheDocument();
+    });
+  });
+  it('renders in the thread context for non-direct messaging channel', async () => {
+    const mainListMessage = generateMessage({ cid, user });
+    const threadMessage = generateMessage({
+      parent_id: mainListMessage.id,
+      type: 'reply',
+      user,
+    });
+
+    const channelData = generateChannel({
+      channel: {
+        id: 'general',
+        own_capabilities: ['send-poll', 'upload-file'],
+        type: 'messaging',
+      },
+      members: [
+        generateMember({ user }),
+        generateMember({ user: mentionUser }),
+        generateMember({ user: generateUser() }),
+      ],
+      // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
+      // will retrieve the composer from the previous test
+      messages: [{ ...mainListMessage, id: 'x' }],
+      thread: [{ ...threadMessage, parent_id: 'x' }],
+    });
+    const { customChannel, customClient } = await setup({ channelData });
+    await renderComponent({
+      customChannel,
+      customClient,
+      thread: channelData.messages[0],
+    });
+    expect(screen.getByLabelText('Also send in channel')).toBeInTheDocument();
   });
 });
