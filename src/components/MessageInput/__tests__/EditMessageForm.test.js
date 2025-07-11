@@ -1275,7 +1275,14 @@ describe(`EditMessageForm`, () => {
         customChannel,
         customClient,
       });
-      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+      await quotedMessagePreviewIsDisplayedCorrectly(
+        messageWithQuotedMessage.quoted_message,
+      );
+      await waitFor(() => {
+        const textarea = screen.getByPlaceholderText(inputPlaceholder);
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.value).toBe(messageWithQuotedMessage.text);
+      });
     });
 
     it('renders proper markdown (through default renderText fn)', async () => {
@@ -1344,7 +1351,14 @@ describe(`EditMessageForm`, () => {
           customChannel,
         );
       });
-      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+      await quotedMessagePreviewIsDisplayedCorrectly(
+        messageWithQuotedMessage.quoted_message,
+      );
+      await waitFor(() => {
+        const textarea = screen.getByPlaceholderText(inputPlaceholder);
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.value).toBe(messageWithQuotedMessage.text);
+      });
     });
 
     it('is closed on original message delete', async () => {

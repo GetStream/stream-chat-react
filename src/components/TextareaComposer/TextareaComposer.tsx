@@ -259,6 +259,19 @@ export const TextareaComposer = ({
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
 
+  useEffect(() => {
+    /**
+     * The textarea value has to be overridden outside the render cycle so that the events like compositionend can be triggered.
+     * If we have overridden the value during the component rendering, the compositionend event would not be triggered, and
+     * it would not be possible to type composed characters (ô).
+     * On the other hand, just removing the value override via prop (value={text}) would not allow us to change the text based on
+     * middleware results (e.g. replace characters with emojis)
+     */
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.value = text;
+  }, [textareaRef, text]);
+
   return (
     <div
       className={clsx(
@@ -295,7 +308,6 @@ export const TextareaComposer = ({
         ref={(ref) => {
           textareaRef.current = ref;
         }}
-        value={text}
       />
       {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
       {!isComposing && (
