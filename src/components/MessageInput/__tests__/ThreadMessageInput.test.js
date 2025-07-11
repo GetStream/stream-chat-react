@@ -172,6 +172,11 @@ describe('MessageInput in Thread', () => {
         customClient,
       });
       expect(getDraftSpy).toHaveBeenCalledTimes(1);
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: false } });
+        });
+      });
     });
     it('prevents querying if composition is not empty', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
@@ -186,6 +191,11 @@ describe('MessageInput in Thread', () => {
         customClient,
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: false } });
+        });
+      });
     });
     it('prevents querying if not rendered inside a thread', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
@@ -200,6 +210,11 @@ describe('MessageInput in Thread', () => {
         customClient,
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
+      await act(() => {
+        customClient.setMessageComposerSetupFunction(({ composer }) => {
+          composer.updateConfig({ drafts: { enabled: false } });
+        });
+      });
     });
     it('prevents querying if drafts are disabled (default)', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
