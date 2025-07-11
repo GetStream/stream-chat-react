@@ -65,7 +65,8 @@ export const OptionFieldSet = () => {
                     });
                   }}
                   onKeyUp={(event) => {
-                    if (event.key === 'Enter') {
+                    const isFocusedLastOptionField = i === options.length - 1;
+                    if (event.key === 'Enter' && !isFocusedLastOptionField) {
                       const nextInputId = options[i + 1].id;
                       document.getElementById(nextInputId)?.focus();
                     }

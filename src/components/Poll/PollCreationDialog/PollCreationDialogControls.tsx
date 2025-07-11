@@ -22,6 +22,7 @@ export const PollCreationDialogControls = ({
           messageComposer.pollComposer.initState();
           close();
         }}
+        type='button'
       >
         {t('Cancel')}
       </button>

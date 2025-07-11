@@ -58,6 +58,7 @@ export const EditMessageForm = () => {
           className='str-chat__edit-message-cancel'
           data-testid='cancel-button'
           onClick={cancel}
+          type='button'
         >
           {t('Cancel')}
         </button>

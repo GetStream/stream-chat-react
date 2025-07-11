@@ -139,6 +139,7 @@ export const FormDialog = <
             <button
               className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
               onClick={close}
+              type='button'
             >
               {t('Cancel')}
             </button>
