@@ -3,6 +3,7 @@ export * from './hooks';
 export * from './icons';
 export * from './Message';
 export * from './MessageDeleted';
+export * from './MessageIsThreadReplyInChannelButtonIndicator';
 export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export * from './MessageSimple';
