@@ -109,19 +109,19 @@ export const GalleryContainer = ({
   >([]);
 
   useLayoutEffect(() => {
-    if (
-      imageElements.current &&
-      imageElements.current.every((element) => !!element) &&
-      imageAttachmentSizeHandler
-    ) {
-      const newConfigurations: ImageAttachmentConfiguration[] = [];
-      imageElements.current.forEach((element, i) => {
-        const config = imageAttachmentSizeHandler(attachment.images[i], element);
-        newConfigurations.push(config);
-      });
-      setAttachmentConfigurations(newConfigurations);
+    if (!imageElements.current || !imageAttachmentSizeHandler) return;
+    const newConfigurations: ImageAttachmentConfiguration[] = [];
+    const nonNullImageElements = imageElements.current.filter((e) => !!e);
+    if (nonNullImageElements.length < imageElements.current.length) {
+      imageElements.current = nonNullImageElements;
     }
-  }, [imageElements, imageAttachmentSizeHandler, attachment]);
+    imageElements.current.forEach((element, i) => {
+      if (!element) return;
+      const config = imageAttachmentSizeHandler(attachment.images[i], element);
+      newConfigurations.push(config);
+    });
+    setAttachmentConfigurations(newConfigurations);
+  }, [imageAttachmentSizeHandler, attachment]);
 
   const images = attachment.images.map((image, i) => ({
     ...image,
