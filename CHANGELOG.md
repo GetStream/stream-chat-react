@@ -1,3 +1,10 @@
+## [13.2.3](https://github.com/GetStream/stream-chat-react/compare/v13.2.2...v13.2.3) (2025-07-15)
+
+### Bug Fixes
+
+* export MessageIsThreadReplyInChannelButtonIndicator ([#2774](https://github.com/GetStream/stream-chat-react/issues/2774)) ([a87f500](https://github.com/GetStream/stream-chat-react/commit/a87f500f12b836b38e9cf6cd97779cc01d3c1b29))
+* regenerate image preview URL on image attachment removal when editing a message ([#2775](https://github.com/GetStream/stream-chat-react/issues/2775)) ([2c7d3ce](https://github.com/GetStream/stream-chat-react/commit/2c7d3ce80137a265e51ab1c47d1ae6e833c21843))
+
 ## [13.2.2](https://github.com/GetStream/stream-chat-react/compare/v13.2.1...v13.2.2) (2025-07-11)
 
 ### Bug Fixes
