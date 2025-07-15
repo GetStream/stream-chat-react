@@ -130,7 +130,7 @@ export const GalleryContainer = ({
       attachment.images[i]?.image_url || attachment.images[i]?.thumb_url || '',
     ),
   }));
-  console.log(images, imageElements, attachmentConfigurations);
+
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
       <Gallery images={images || []} innerRefs={imageElements} key='gallery' />
