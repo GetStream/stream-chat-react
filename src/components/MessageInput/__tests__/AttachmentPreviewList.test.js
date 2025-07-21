@@ -10,10 +10,13 @@ import {
   generateFileAttachment,
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
+  generateMessage,
+  generateStaticLocationResponse,
   generateVideoAttachment,
   generateVoiceRecordingAttachment,
   initClientWithChannels,
 } from '../../../mock-builders';
+import { MessageProvider } from '../../../context';
 
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 
@@ -28,6 +31,8 @@ const renderComponent = async ({
   channel: customChannel,
   client: customClient,
   componentCtx,
+  coords,
+  editedMessage,
   props,
 } = {}) => {
   let channel = customChannel;
@@ -38,12 +43,29 @@ const renderComponent = async ({
     channel = initiated.channels[0];
   }
   channel.messageComposer.attachmentManager.upsertAttachments(attachments ?? []);
+  if (coords) channel.messageComposer.locationComposer.setData(coords);
   let result;
   await act(() => {
     result = render(
       <Chat client={client}>
         <Channel {...componentCtx} channel={channel}>
-          <AttachmentPreviewList {...props} />
+          {editedMessage ? (
+            <MessageProvider
+              value={{
+                editing: true,
+                message: {
+                  ...editedMessage,
+                  cid: channel.cid,
+                  id: channel.id,
+                  type: channel.type,
+                },
+              }}
+            >
+              <AttachmentPreviewList {...props} />
+            </MessageProvider>
+          ) : (
+            <AttachmentPreviewList {...props} />
+          )}
         </Channel>
       </Chat>,
     );
@@ -278,5 +300,39 @@ describe('AttachmentPreviewList', () => {
       componentCtx: { BaseImage },
     });
     expect(container).toMatchSnapshot();
+  });
+
+  describe('shared location', () => {
+    it('should be rendered with location preview', async () => {
+      await renderComponent({
+        attachments: [],
+        coords: { latitude: 2, longitude: 2 },
+      });
+      expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
+    });
+    it('should be rendered with custom location preview', async () => {
+      const GeolocationPreview = () => <div data-testid='geolocation-preview-custom' />;
+      await renderComponent({
+        attachments: [],
+        coords: { latitude: 2, longitude: 2 },
+        props: { GeolocationPreview },
+      });
+      expect(screen.queryByTestId('location-preview')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('geolocation-preview-custom')).toBeInTheDocument();
+    });
+
+    it('should render location preview without possibility to remove it when editing a message', async () => {
+      await renderComponent({
+        attachments: [],
+        coords: { latitude: 2, longitude: 2 },
+        editedMessage: generateMessage({
+          shared_location: generateStaticLocationResponse(),
+        }),
+      });
+      expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('location-preview-item-delete-button'),
+      ).not.toBeInTheDocument();
+    });
   });
 });

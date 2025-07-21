@@ -91,6 +91,15 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
+  const finalAttachments = useMemo(
+    () =>
+      !message.shared_location && !message.attachments
+        ? []
+        : !message.shared_location
+          ? message.attachments
+          : [message.shared_location, ...(message.attachments ?? [])],
+    [message],
+  );
 
   if (isDateSeparatorMessage(message)) {
     return null;
@@ -185,11 +194,8 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
             </div>
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
-              {message.attachments?.length && !message.quoted_message ? (
-                <Attachment
-                  actionHandler={handleAction}
-                  attachments={message.attachments}
-                />
+              {finalAttachments?.length && !message.quoted_message ? (
+                <Attachment actionHandler={handleAction} attachments={finalAttachments} />
               ) : null}
               {isAIGenerated ? (
                 <StreamedMessageText message={message} renderText={renderText} />

@@ -1,54 +1,113 @@
+import type { ComponentType } from 'react';
+import { useEffect } from 'react';
+import { useRef, useState } from 'react';
 import React from 'react';
-import type { Attachment, DefaultGenerics, ExtendableGenerics } from 'stream-chat';
-import { useChatContext, useMessageContext } from '../../context';
+import type { Coords, SharedLocationResponse } from 'stream-chat';
+import { useChatContext, useTranslationContext } from '../../context';
+import { ExternalLinkIcon, GeolocationIcon } from './icons';
 
-export const Geolocation = <SCG extends ExtendableGenerics = DefaultGenerics>({
-  attachment,
-}: {
-  attachment: Attachment<SCG>;
-}) => {
-  const { channel } = useChatContext();
-  const { isMyMessage, message } = useMessageContext();
+export type GeolocationMapProps = Coords;
 
-  const stoppedSharing = !!attachment.stopped_sharing;
-  const expired: boolean =
-    typeof attachment.end_time === 'string' &&
-    Date.now() > new Date(attachment.end_time).getTime();
+export type GeolocationProps = {
+  location: SharedLocationResponse;
+  GeolocationAttachmentMapPlaceholder?: ComponentType<GeolocationAttachmentMapPlaceholderProps>;
+  GeolocationMap?: ComponentType<GeolocationMapProps>;
+};
+
+export const Geolocation = ({
+  GeolocationAttachmentMapPlaceholder = DefaultGeolocationAttachmentMapPlaceholder,
+  GeolocationMap,
+  location,
+}: GeolocationProps) => {
+  const { channel, client } = useChatContext();
+  const { t } = useTranslationContext();
+
+  const [stoppedSharing, setStoppedSharing] = useState(
+    !!location.end_at && new Date(location.end_at).getTime() < new Date().getTime(),
+  );
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const isMyLocation = location.user_id === client.userID;
+  const isLiveLocation = !!location.end_at;
+
+  useEffect(() => {
+    if (!location.end_at) return;
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(
+      () => setStoppedSharing(true),
+      new Date(location.end_at).getTime() - Date.now(),
+    );
+  }, [location.end_at]);
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        paddingBlock: 15,
-        paddingInline: 10,
-        width: 'auto',
-      }}
+      className='str-chat__message-attachment-geolocation'
+      data-testid='attachment-geolocation'
     >
-      {attachment.type === 'live_location' &&
-        !stoppedSharing &&
-        !expired &&
-        isMyMessage() && (
-          <button
-            onClick={() =>
-              channel?.stopLiveLocationSharing({
-                attachments: message.attachments,
-                id: message.id,
-                type: message.type,
-              })
-            }
-          >
-            Stop sharing
-          </button>
+      <div className='str-chat__message-attachment-geolocation__location-preview'>
+        {GeolocationMap ? (
+          <GeolocationMap latitude={location.latitude} longitude={location.longitude} />
+        ) : (
+          <GeolocationAttachmentMapPlaceholder location={location} />
         )}
-      {/* TODO: {MAP} */}
-      <span>
-        lat: {attachment.latitude}, lng: {attachment.longitude}
-      </span>
-      {(stoppedSharing || expired) && (
-        <span style={{ fontSize: 12 }}>Location sharing ended</span>
-      )}
+      </div>
+      <div className='str-chat__message-attachment-geolocation__status'>
+        {isLiveLocation ? (
+          stoppedSharing ? (
+            t('Location sharing ended')
+          ) : isMyLocation ? (
+            <div className='str-chat__message-attachment-geolocation__status--active'>
+              <button
+                className='str-chat__message-attachment-geolocation__stop-sharing-button'
+                onClick={() => channel?.stopLiveLocationSharing(location)}
+              >
+                {t('Stop sharing')}
+              </button>
+              <div className='str-chat__message-attachment-geolocation__status--active-until'>
+                {t('Live until {{ timestamp }}', {
+                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className='str-chat__message-attachment-geolocation__status--active'>
+              <div className='str-chat__message-attachment-geolocation__status--active-status'>
+                {t('Live location')}
+              </div>
+              <div className='str-chat__message-attachment-geolocation__status--active-until'>
+                {t('Live until {{ timestamp }}', {
+                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
+                })}
+              </div>
+            </div>
+          )
+        ) : (
+          t('Current location')
+        )}
+      </div>
     </div>
   );
 };
+
+export type GeolocationAttachmentMapPlaceholderProps = {
+  location: SharedLocationResponse;
+};
+
+const DefaultGeolocationAttachmentMapPlaceholder = ({
+  location,
+}: GeolocationAttachmentMapPlaceholderProps) => (
+  <div
+    className='str-chat__message-attachment-geolocation__placeholder'
+    data-testid='geolocation-attachment-map-placeholder'
+  >
+    <GeolocationIcon />
+    <a
+      className='str-chat__message-attachment-geolocation__placeholder-link'
+      href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}
+      rel='noreferrer'
+      target='_blank'
+    >
+      <ExternalLinkIcon />
+    </a>
+  </div>
+);

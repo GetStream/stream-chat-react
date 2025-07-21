@@ -60,7 +60,9 @@ export type MessageInputProps = {
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps>;
-  /** Signals that the MessageInput is rendered in a message thread (Thread component) */
+  /** @deprecated use messageComposer.threadId to indicate, whether the message is composed within a thread context
+   * Signals that the MessageInput is rendered in a message thread (Thread component)
+   */
   isThreadInput?: boolean;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
   maxRows?: number;
@@ -114,11 +116,14 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
       return;
     // get draft data for legacy thead composer
-    messageComposer.channel.getDraft({ parent_id: threadId }).then(({ draft }) => {
-      if (draft) {
-        messageComposer.initState({ composition: draft });
-      }
-    });
+    messageComposer.channel
+      .getDraft({ parent_id: threadId })
+      .then(({ draft }) => {
+        if (draft) {
+          messageComposer.initState({ composition: draft });
+        }
+      })
+      .catch(console.error);
   }, [messageComposer]);
 
   useRegisterDropHandlers();
@@ -134,11 +139,11 @@ const UnMemoizedMessageInput = (props: MessageInputProps) => {
   const { Input: PropInput } = props;
 
   const { Input: ContextInput } = useComponentContext('MessageInput');
-
+  const messageComposer = useMessageComposer();
   const id = useStableId();
 
   const Input = PropInput || ContextInput || MessageInputFlat;
-  const dialogManagerId = props.isThreadInput
+  const dialogManagerId = messageComposer.threadId
     ? `message-input-dialog-manager-thread-${id}`
     : `message-input-dialog-manager-${id}`;
 

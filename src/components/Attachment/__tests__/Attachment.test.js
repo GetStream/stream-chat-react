@@ -9,9 +9,11 @@ import {
   generateFileAttachment,
   generateGiphyAttachment,
   generateImageAttachment,
+  generateLiveLocationResponse,
   generateScrapedAudioAttachment,
   generateScrapedDataAttachment,
   generateScrapedImageAttachment,
+  generateStaticLocationResponse,
   generateVideoAttachment,
 } from 'mock-builders';
 
@@ -30,6 +32,9 @@ const Image = (props) => <div data-testid='image-attachment'>{props.customTestId
 const File = (props) => <div data-testid='file-attachment'>{props.customTestId}</div>;
 const Gallery = (props) => (
   <div data-testid='gallery-attachment'>{props.customTestId}</div>
+);
+const Geolocation = (props) => (
+  <div data-testid={'geolocation-attachment'}>{props.customTestId}</div>
 );
 
 const ATTACHMENTS = {
@@ -58,6 +63,7 @@ const renderComponent = (props) =>
         Card={Card}
         File={File}
         Gallery={Gallery}
+        Geolocation={Geolocation}
         Image={Image}
         Media={Media}
         {...props}
@@ -245,6 +251,17 @@ describe('attachment', () => {
       await waitFor(() => {
         expect(container).toMatchSnapshot();
       });
+    });
+  });
+
+  it('renders shared location with Geolocation attachment', () => {
+    renderComponent({ attachments: [generateLiveLocationResponse()] });
+    waitFor(() => {
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
+    });
+    renderComponent({ attachments: [generateStaticLocationResponse()] });
+    waitFor(() => {
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     });
   });
 

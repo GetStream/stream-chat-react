@@ -113,6 +113,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'Input'
   | 'LinkPreviewList'
   | 'LoadingIndicator'
+  | 'ShareLocationDialog'
   | 'Message'
   | 'MessageActions'
   | 'MessageBouncePrompt'
@@ -1235,6 +1236,7 @@ const ChannelInner = (
       ReminderNotification: props.ReminderNotification,
       SendButton: props.SendButton,
       SendToChannelCheckbox: props.SendToChannelCheckbox,
+      ShareLocationDialog: props.ShareLocationDialog,
       StartRecordingAudioButton: props.StartRecordingAudioButton,
       StopAIGenerationButton: props.StopAIGenerationButton,
       StreamedMessageText: props.StreamedMessageText,
@@ -1301,6 +1303,7 @@ const ChannelInner = (
       props.ReminderNotification,
       props.SendButton,
       props.SendToChannelCheckbox,
+      props.ShareLocationDialog,
       props.StartRecordingAudioButton,
       props.StopAIGenerationButton,
       props.StreamedMessageText,

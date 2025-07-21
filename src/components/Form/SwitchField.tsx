@@ -18,7 +18,11 @@ export const SwitchField = ({ children, ...props }: SwitchFieldProps) => {
   };
 
   return (
-    <div className='str-chat__form__field str-chat__form__switch-field'>
+    <div
+      className={clsx('str-chat__form__field str-chat__form__switch-field', {
+        'str-chat__form__field str-chat__form__switch-field--disabled': props.disabled,
+      })}
+    >
       <label>
         <div className='str-chat__form__field str-chat__form__switch-field-content'>
           {children}

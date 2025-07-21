@@ -11,17 +11,22 @@ import {
 } from 'stream-chat';
 import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
 import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
-import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
-import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
-import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
-import { useAttachmentManagerState, useMessageComposer } from '../hooks';
 import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
 import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
+import { FileAttachmentPreview as DefaultFilePreview } from './FileAttachmentPreview';
 import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
+import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
+import { useAttachmentsForPreview, useMessageComposer } from '../hooks';
+import {
+  GeolocationPreview as DefaultGeolocationPreview,
+  type GeolocationPreviewProps,
+} from './GeolocationPreview';
 
 export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
+  GeolocationPreview?: ComponentType<GeolocationPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
   UnsupportedAttachmentPreview?: ComponentType<UnsupportedAttachmentPreviewProps>;
   VideoAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
@@ -31,6 +36,7 @@ export type AttachmentPreviewListProps = {
 export const AttachmentPreviewList = ({
   AudioAttachmentPreview = DefaultFilePreview,
   FileAttachmentPreview = DefaultFilePreview,
+  GeolocationPreview = DefaultGeolocationPreview,
   ImageAttachmentPreview = DefaultImagePreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = DefaultFilePreview,
@@ -38,9 +44,10 @@ export const AttachmentPreviewList = ({
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
-  const { attachments } = useAttachmentManagerState();
+  // todo: we could also allow to attach poll to a message composition
+  const { attachments, location } = useAttachmentsForPreview();
 
-  if (!attachments.length) return null;
+  if (!attachments.length && !location) return null;
 
   return (
     <div className='str-chat__attachment-preview-list'>
@@ -48,6 +55,18 @@ export const AttachmentPreviewList = ({
         className='str-chat__attachment-list-scroll-container'
         data-testid='attachment-list-scroll-container'
       >
+        {location && (
+          <GeolocationPreview
+            location={location}
+            // It is not possible to nullify shared_location field so we do not show a preview when editing
+            // to prevent a user from wanting to remove the location
+            remove={
+              messageComposer.editedMessage
+                ? undefined
+                : messageComposer.locationComposer.initState
+            }
+          />
+        )}
         {attachments.map((attachment) => {
           if (isScrapedContent(attachment)) return null;
           if (isLocalVoiceRecordingAttachment(attachment)) {

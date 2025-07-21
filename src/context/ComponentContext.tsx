@@ -64,6 +64,7 @@ import type {
 
 import type { PropsWithChildrenOnly, UnknownType } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
+import type { ShareLocationDialogProps } from '../components/Location';
 
 export type ComponentContextValue = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
@@ -203,6 +204,8 @@ export type ComponentContextValue = {
   SendButton?: React.ComponentType<SendButtonProps>;
   /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/SendToChannelCheckbox.tsx) */
   SendToChannelCheckbox?: React.ComponentType;
+  /** Custom UI component to render the location sharing dialog, defaults to and accepts same props as: [ShareLocationDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Location/ShareLocationDialog.tsx) */
+  ShareLocationDialog?: React.ComponentType<ShareLocationDialogProps>;
   /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
