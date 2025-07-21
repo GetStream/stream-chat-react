@@ -1,6 +1,12 @@
 import { nanoid } from 'nanoid';
+import type { ChannelConfigWithInfo, ChannelResponse } from 'stream-chat';
 
-export const generateChannel = (options = { channel: {} }) => {
+export const generateChannel = (
+  options: {
+    channel?: Partial<ChannelResponse>;
+    config?: Partial<ChannelConfigWithInfo>;
+  } = { channel: {}, config: {} },
+) => {
   const { channel: optionsChannel, ...optionsBesidesChannel } = options;
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
@@ -43,7 +49,7 @@ export const generateChannel = (options = { channel: {} }) => {
         uploads: true,
         url_enrichment: true,
         ...config,
-      },
+      } as ChannelConfigWithInfo,
 
       created_at: '2020-04-28T11:20:48.578147Z',
 
@@ -56,11 +62,12 @@ export const generateChannel = (options = { channel: {} }) => {
         role: 'user',
         updated_at: '2020-04-28T11:21:08.357468Z',
       },
+      disabled: false,
       frozen: false,
       id,
       type,
       updated_at: '2020-04-28T11:20:48.578147Z',
       ...restOptionsChannel,
-    },
+    } as ChannelResponse,
   };
 };

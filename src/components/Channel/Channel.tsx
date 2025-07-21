@@ -383,7 +383,9 @@ const ChannelInner = (
               );
             } else {
               const markReadResponse = await channel.markRead();
-              if (updateChannelUiUnreadState && markReadResponse) {
+              //  markReadResponse.event can be null in case of a user that is not a member of a channel being marked read
+              // in that case event is null and we should not set unread UI
+              if (updateChannelUiUnreadState && markReadResponse?.event) {
                 _setChannelUnreadUiState({
                   last_read: lastRead.current,
                   last_read_message_id: markReadResponse.event.last_read_message_id,

@@ -113,7 +113,12 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
 
   useEffect(() => {
     const threadId = messageComposer.threadId;
-    if (!threadId || !messageComposer.channel || !messageComposer.compositionIsEmpty)
+    if (
+      !threadId ||
+      !messageComposer.channel ||
+      !messageComposer.compositionIsEmpty ||
+      !messageComposer.config.drafts.enabled
+    )
       return;
     // get draft data for legacy thead composer
     messageComposer.channel

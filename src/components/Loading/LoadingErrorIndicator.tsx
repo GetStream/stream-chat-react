@@ -4,7 +4,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 export type LoadingErrorIndicatorProps = {
   /** Error object */
-  error?: Error;
+  error?: Error | null;
 };
 
 /**

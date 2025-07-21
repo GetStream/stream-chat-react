@@ -8,6 +8,12 @@ import { defaultAllowedTagNames, renderText } from '../renderText';
 const strikeThroughText = '~~xxx~~';
 
 describe(`renderText`, () => {
+  it('wraps every link entirely even though the link roots are the same', () => {
+    const Markdown = renderText('copilot.com\ncopilot.com/guide\ncopilot.com/about?');
+    const { container } = render(Markdown);
+    expect(container).toMatchSnapshot();
+  });
+
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
     const Markdown = renderText(
       'Hello @username@email.com, is username@email.com your @primary e-mail?',

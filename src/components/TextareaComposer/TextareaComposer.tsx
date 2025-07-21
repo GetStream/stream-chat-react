@@ -9,7 +9,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
 import type {
+  AttachmentManagerState,
   MessageComposerConfig,
+  MessageComposerState,
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
@@ -34,6 +36,14 @@ const searchSourceStateSelector = (state: SearchSourceState) => ({
 
 const configStateSelector = (state: MessageComposerConfig) => ({
   enabled: state.text.enabled,
+});
+
+const messageComposerStateSelector = (state: MessageComposerState) => ({
+  quotedMessage: state.quotedMessage,
+});
+
+const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
+  attachments: state.attachments,
 });
 
 /**
@@ -78,6 +88,7 @@ export const TextareaComposer = ({
   const {
     additionalTextareaProps,
     cooldownRemaining,
+    focus,
     handleSubmit,
     maxRows: maxRowsContext,
     minRows: minRowsContext,
@@ -85,7 +96,6 @@ export const TextareaComposer = ({
     shouldSubmit: shouldSubmitContext,
     textareaRef,
   } = useMessageInputContext();
-
   const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
   const minRows = minRowsProp ?? minRowsContext;
   const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
@@ -99,6 +109,14 @@ export const TextareaComposer = ({
   );
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
+  const { quotedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateSelector,
+  );
+  const { attachments } = useStateStore(
+    messageComposer.attachmentManager.state,
+    attachmentManagerStateSelector,
+  );
 
   const { isLoadingItems } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
@@ -235,6 +253,25 @@ export const TextareaComposer = ({
     }
   }, [textComposer.suggestions]);
 
+  useEffect(() => {
+    const textareaIsFocused = textareaRef.current?.matches(':focus');
+    if (!textareaRef.current || textareaIsFocused || !focus) return;
+    textareaRef.current.focus();
+  }, [attachments, focus, quotedMessage, textareaRef]);
+
+  useEffect(() => {
+    /**
+     * The textarea value has to be overridden outside the render cycle so that the events like compositionend can be triggered.
+     * If we have overridden the value during the component rendering, the compositionend event would not be triggered, and
+     * it would not be possible to type composed characters (ô).
+     * On the other hand, just removing the value override via prop (value={text}) would not allow us to change the text based on
+     * middleware results (e.g. replace characters with emojis)
+     */
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.value = text;
+  }, [textareaRef, text]);
+
   return (
     <div
       className={clsx(
@@ -271,7 +308,6 @@ export const TextareaComposer = ({
         ref={(ref) => {
           textareaRef.current = ref;
         }}
-        value={text}
       />
       {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
       {!isComposing && (
