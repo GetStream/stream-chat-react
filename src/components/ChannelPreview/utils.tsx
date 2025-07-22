@@ -88,6 +88,10 @@ export const getLatestMessagePreview = (
     return t('🏙 Attachment...');
   }
 
+  if (latestMessage.shared_location) {
+    return t('🧭 Live location');
+  }
+
   return t('Empty message...');
 };
 
