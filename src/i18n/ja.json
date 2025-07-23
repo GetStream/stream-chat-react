@@ -125,6 +125,7 @@
   "Submit": "送信",
   "Suggest an option": "オプションを提案",
   "Thinking...": "考え中...",
+  "This field cannot be empty or contain only spaces": "このフィールドは空にすることはできません。また、空白文字のみを含むこともできません",
   "This message did not meet our content guidelines": "このメッセージはコンテンツガイドラインに適合していません",
   "This message was deleted...": "このメッセージは削除されました...",
   "Thread": "スレッド",
