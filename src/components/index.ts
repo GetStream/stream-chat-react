@@ -17,7 +17,7 @@ export * from './LoadMore';
 export * from './MediaRecorder';
 export * from './Message';
 export * from './MessageActions';
-export type { MessageBouncePromptProps } from './MessageBounce';
+export * from './MessageBounce';
 export * from './MessageInput';
 export * from './MessageList';
 export * from './Modal';
