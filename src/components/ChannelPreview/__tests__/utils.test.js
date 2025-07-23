@@ -60,7 +60,7 @@ describe('ChannelPreview utils', () => {
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
       ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
       ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
-      ['📍Live location', 'channelWithLocationMessage', channelWithLocationMessage],
+      ['📍Shared location', 'channelWithLocationMessage', channelWithLocationMessage],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
       const t = (text) => text;
       const channel = await getQueriedChannelInstance(c);

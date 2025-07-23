@@ -89,7 +89,7 @@ export const getLatestMessagePreview = (
   }
 
   if (latestMessage.shared_location) {
-    return t('📍Live location');
+    return t('📍Shared location');
   }
 
   return t('Empty message...');

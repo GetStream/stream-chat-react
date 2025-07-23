@@ -249,5 +249,6 @@
   "{{count}} votes_other": "{{count}} वोट",
   "🏙 Attachment...": "🏙 अटैचमेंट",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} ने बनाया: {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} ने वोट दिया: {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} ने वोट दिया: {{pollOptionText}}",
+  "📍Shared location": "📍साझा किया गया स्थान"
 }

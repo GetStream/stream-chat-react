@@ -264,5 +264,6 @@
   "{{count}} votes_other": "{{count}} голосов",
   "🏙 Attachment...": "🏙 Вложение...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} создал(а): {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} проголосовал(а): {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} проголосовал(а): {{pollOptionText}}",
+  "📍Shared location": "📍Общее местоположение"
 }

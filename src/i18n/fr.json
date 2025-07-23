@@ -256,5 +256,6 @@
   "{{count}} votes_other": "{{count}} votes",
   "🏙 Attachment...": "🏙 Pièce jointe...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} a créé : {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} a voté : {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} a voté : {{pollOptionText}}",
+  "📍Shared location": "📍Emplacement partagé"
 }

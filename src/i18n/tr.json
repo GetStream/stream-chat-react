@@ -248,5 +248,6 @@
   "{{count}} votes_other": "{{count}} oy",
   "🏙 Attachment...": "🏙 Ek...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} oluşturdu: {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} oy verdi: {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} oy verdi: {{pollOptionText}}",
+  "📍Shared location": "📍Paylaşılan konum"
 }

@@ -256,5 +256,6 @@
   "{{count}} votes_other": "{{count}} voti",
   "🏙 Attachment...": "🏙 Allegato...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} ha creato: {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} ha votato: {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} ha votato: {{pollOptionText}}",
+  "📍Shared location": "📍Posizione condivisa"
 }

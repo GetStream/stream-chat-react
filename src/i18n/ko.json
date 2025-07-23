@@ -242,5 +242,6 @@
   "{{count}} votes_other": "{{count}} 투표",
   "🏙 Attachment...": "🏙 부착...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}}이(가) 생성함: {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}}이(가) 투표함: {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}}이(가) 투표함: {{pollOptionText}}",
+  "📍Shared location": "📍공유된 위치"
 }

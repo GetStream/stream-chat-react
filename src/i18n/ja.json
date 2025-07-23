@@ -242,5 +242,6 @@
   "{{count}} votes_other": "{{count}} 票",
   "🏙 Attachment...": "🏙 アタッチメント...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} が作成: {{ pollName}}",
-  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} が投票: {{pollOptionText}}"
+  "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} が投票: {{pollOptionText}}",
+  "📍Shared location": "📍共有された位置情報"
 }
