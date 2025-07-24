@@ -7,11 +7,11 @@ export const generateChannel = (
     config?: Partial<ChannelConfigWithInfo>;
   } = { channel: {}, config: {} },
 ) => {
-  const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
+  const { channel: optionsChannel, ...optionsBesidesChannel } = options;
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
+  const { config, id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
 
   return {
     members: [],

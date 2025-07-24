@@ -3,7 +3,8 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 import * as linkify from 'linkifyjs';
-import type { Attachment, LocalAttachment } from 'stream-chat';
+import type { Attachment, LocalAttachment, SharedLocationResponse } from 'stream-chat';
+import { isSharedLocationResponse } from 'stream-chat';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -11,10 +12,12 @@ import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
+import { Geolocation as DefaultGeolocation } from './Geolocation';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import type {
   AttachmentComponentType,
   GalleryAttachment,
+  GeolocationContainerProps,
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
@@ -26,7 +29,7 @@ import type {
 } from '../../types/types';
 
 export type AttachmentContainerProps = {
-  attachment: Attachment | GalleryAttachment;
+  attachment: Attachment | GalleryAttachment | SharedLocationResponse;
   componentType: AttachmentComponentType;
 };
 export const AttachmentWithinContainer = ({
@@ -37,7 +40,7 @@ export const AttachmentWithinContainer = ({
   const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
 
-  if (!isGAT) {
+  if (!isGAT && !isSharedLocationResponse(attachment)) {
     extra =
       componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
         ? 'no-image'
@@ -50,7 +53,9 @@ export const AttachmentWithinContainer = ({
     'str-chat__message-attachment str-chat__message-attachment-dynamic-size',
     {
       [`str-chat__message-attachment--${componentType}`]: componentType,
-      [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+      [`str-chat__message-attachment--${(attachment as Attachment)?.type}`]: (
+        attachment as Attachment
+      )?.type,
       [`str-chat__message-attachment--${componentType}--${extra}`]:
         componentType && extra,
       'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
@@ -287,6 +292,15 @@ export const MediaContainer = (props: RenderAttachmentProps) => {
     </AttachmentWithinContainer>
   );
 };
+
+export const GeolocationContainer = ({
+  Geolocation = DefaultGeolocation,
+  location,
+}: GeolocationContainerProps) => (
+  <AttachmentWithinContainer attachment={location} componentType='geolocation'>
+    <Geolocation location={location} />
+  </AttachmentWithinContainer>
+);
 
 export const UnsupportedAttachmentContainer = ({
   attachment,

@@ -11,9 +11,11 @@ export interface DialogAnchorOptions {
   open: boolean;
   placement: Placement;
   referenceElement: HTMLElement | null;
+  allowFlip?: boolean;
 }
 
 export function useDialogAnchor<T extends HTMLElement>({
+  allowFlip,
   open,
   placement,
   referenceElement,
@@ -21,6 +23,10 @@ export function useDialogAnchor<T extends HTMLElement>({
   const [popperElement, setPopperElement] = useState<T | null>(null);
   const { attributes, styles, update } = usePopper(referenceElement, popperElement, {
     modifiers: [
+      {
+        enabled: !!allowFlip, // Prevent flipping
+        name: 'flip',
+      },
       {
         name: 'eventListeners',
         options: {
@@ -61,6 +67,7 @@ export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> 
 } & ComponentProps<'div'>;
 
 export const DialogAnchor = ({
+  allowFlip = true,
   children,
   className,
   focus = true,
@@ -74,6 +81,7 @@ export const DialogAnchor = ({
   const dialog = useDialog({ id });
   const open = useDialogIsOpen(id);
   const { attributes, setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
+    allowFlip,
     open,
     placement,
     referenceElement,

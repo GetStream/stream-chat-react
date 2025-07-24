@@ -8,10 +8,12 @@ import {
   ChannelStateProvider,
   ComponentProvider,
   TranslationProvider,
+  TypingProvider,
 } from '../../../context';
-import { initClientWithChannels } from '../../../mock-builders';
+import { generateMessage, initClientWithChannels } from '../../../mock-builders';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { AttachmentSelector } from '../AttachmentSelector';
+import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
@@ -21,18 +23,25 @@ const UPLOAD_FILE_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__upload-file-button';
 const CREATE_POLL_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__create-poll-button';
+const SHARE_LOCATION_BUTTON_CLASS =
+  'str-chat__attachment-selector-actions-menu__add-location-button';
 
 const translationContext = {
   t: (v) => v,
+  tDateTimeParser: (v) => v.toString(),
+};
+
+const defaultChannelData = {
+  own_capabilities: ['upload-file'],
+};
+
+const defaultConfig = {
+  config: { shared_locations: true },
 };
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'send-poll': true, 'upload-file': true },
-  channelConfig: { polls: true },
-};
-
-const defaultMessageInputProps = {
-  isThreadInput: false,
+  notifications: [],
 };
 
 const invokeMenu = async () => {
@@ -42,33 +51,58 @@ const invokeMenu = async () => {
 };
 
 const renderComponent = async ({
+  channelData = {},
   channelStateContext,
   componentContext,
+  customChannel,
+  customClient,
   messageInputProps,
 } = {}) => {
-  const {
-    channels: [channel],
-    client,
-  } = await initClientWithChannels({
-    channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
-  });
+  let channel, client;
+  if (customChannel && customClient) {
+    channel = customChannel;
+    client = customClient;
+  } else {
+    const res = await initClientWithChannels({
+      channelsData: [
+        { channel: { ...defaultChannelData, config: defaultConfig, ...channelData } },
+      ],
+    });
+    channel = res.channels[0];
+    client = res.client;
+  }
+  jest.spyOn(channel, 'getDraft').mockImplementation();
   let result;
   await act(() => {
     result = render(
       <Chat client={client}>
         <ComponentProvider value={{ ...componentContext }}>
           <TranslationProvider value={translationContext}>
-            <ChannelActionProvider value={{ addNotification: jest.fn() }}>
-              <ChannelStateProvider
-                value={{ ...defaultChannelStateContext, channel, ...channelStateContext }}
-              >
-                <div id={CHANNEL_CONTAINER_ID}>
-                  <MessageInput
-                    {...{ ...defaultMessageInputProps, ...messageInputProps }}
-                  />
-                </div>
-              </ChannelStateProvider>
-            </ChannelActionProvider>
+            <TypingProvider value={{}}>
+              <ChannelActionProvider value={{ addNotification: jest.fn() }}>
+                <ChannelStateProvider
+                  value={{
+                    ...defaultChannelStateContext,
+                    channel,
+                    ...channelStateContext,
+                  }}
+                >
+                  <div id={CHANNEL_CONTAINER_ID}>
+                    {channelStateContext?.thread ? (
+                      <LegacyThreadContext.Provider
+                        value={{
+                          legacyThread: channelStateContext.thread ?? undefined,
+                        }}
+                      >
+                        <MessageInput {...messageInputProps} />
+                      </LegacyThreadContext.Provider>
+                    ) : (
+                      <MessageInput {...messageInputProps} />
+                    )}
+                  </div>
+                </ChannelStateProvider>
+              </ChannelActionProvider>
+            </TypingProvider>
           </TranslationProvider>
         </ComponentProvider>
       </Chat>,
@@ -78,28 +112,26 @@ const renderComponent = async ({
 };
 
 describe('AttachmentSelector', () => {
-  it('renders with upload file button and poll button if send-poll and upload-file permissions are granted', async () => {
+  it('renders with all the buttons if all the permissions are granted', async () => {
     await renderComponent();
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     expect(menu).toBeInTheDocument();
     expect(menu).toHaveTextContent('File');
     expect(menu).toHaveTextContent('Poll');
+    expect(menu).toHaveTextContent('Location');
   });
 
-  it('falls back to SimpleAttachmentSelector if channel.config.polls is false', async () => {
-    const { container } = await renderComponent({
-      channelStateContext: { channelConfig: { polls: false } },
-    });
-    expect(
-      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
-    ).not.toBeInTheDocument();
-    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
-  });
-
-  it('renders SimpleAttachmentSelector if send-poll permission is not granted', async () => {
+  it('falls back to SimpleAttachmentSelector if only file uploads are enabled', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels();
+    customChannel.messageComposer.updateConfig({ location: { enabled: false } });
     const { container } = await renderComponent({
       channelStateContext: { channelCapabilities: { 'upload-file': true } },
+      customChannel,
+      customClient,
     });
     expect(
       container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
@@ -108,8 +140,26 @@ describe('AttachmentSelector', () => {
   });
 
   it('renders SimpleAttachmentSelector if rendered in a thread', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: defaultConfig,
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
     const { container } = await renderComponent({
-      messageInputProps: { isThreadInput: true },
+      channel,
+      channelStateContext: { thread: generateMessage({ cid: channel.cid }) },
+      client,
     });
     expect(
       container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
@@ -117,7 +167,7 @@ describe('AttachmentSelector', () => {
     expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
-  it('renders SimpleAttachmentSelector if upload-file permission is not granted', async () => {
+  it('renders AttachmentSelector if upload-file permission is not granted', async () => {
     await renderComponent({
       channelStateContext: { channelCapabilities: { 'send-poll': true } },
     });
@@ -126,9 +176,25 @@ describe('AttachmentSelector', () => {
     expect(menu).toBeInTheDocument();
     expect(menu).not.toHaveTextContent('File');
     expect(menu).toHaveTextContent('Poll');
+    expect(menu).toHaveTextContent('Location');
   });
 
-  it('does not render the invoke button if send-poll and upload-file permission is not granted', async () => {
+  it('renders AttachmentSelector if only location sharing is enabled', async () => {
+    await renderComponent({
+      channelData: {
+        config: { shared_locations: true },
+      },
+      channelStateContext: { channelCapabilities: {} },
+    });
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    expect(menu).toBeInTheDocument();
+    expect(menu).not.toHaveTextContent('File');
+    expect(menu).not.toHaveTextContent('Poll');
+    expect(menu).toHaveTextContent('Location');
+  });
+
+  it('does not render the invoke button if no permissions are not granted', async () => {
     await renderComponent({
       channelStateContext: { channelCapabilities: {} },
     });
@@ -182,6 +248,7 @@ describe('AttachmentSelector', () => {
     expect(menu).toHaveTextContent(customText);
     expect(menu).not.toHaveTextContent('File');
     expect(menu).not.toHaveTextContent('Poll');
+    expect(menu).not.toHaveTextContent('Location');
   });
 
   it('renders custom modal content if provided', async () => {
@@ -258,6 +325,27 @@ describe('AttachmentSelector', () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId(testId)).toBeInTheDocument();
+    });
+  });
+
+  it('allows to override ShareLocationDialog', async () => {
+    const SHARE_LOCATION_DIALOG_TEST_ID = 'custom-share-location-dialog';
+    const CustomShareLocationDialog = () => (
+      <div data-testid={SHARE_LOCATION_DIALOG_TEST_ID} />
+    );
+    await renderComponent({
+      componentContext: {
+        ShareLocationDialog: CustomShareLocationDialog,
+      },
+    });
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const locationButton = menu.querySelector(`.${SHARE_LOCATION_BUTTON_CLASS}`);
+    act(() => {
+      fireEvent.click(locationButton);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId(SHARE_LOCATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
   });
 });

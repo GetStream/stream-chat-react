@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, SharedLocationResponse } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 
 export const SUPPORTED_VIDEO_FORMATS = [
@@ -24,6 +24,10 @@ export type RenderAttachmentProps = Omit<AttachmentProps, 'attachments'> & {
 
 export type RenderGalleryProps = Omit<AttachmentProps, 'attachments'> & {
   attachment: GalleryAttachment;
+};
+
+export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
+  location: SharedLocationResponse;
 };
 
 // This identity function determines attachment type specific to React.

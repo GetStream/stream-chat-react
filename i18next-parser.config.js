@@ -9,8 +9,7 @@ module.exports = {
   namespaceSeparator: false,
   output: 'src/i18n/$LOCALE.json',
   sort(a, b) {
-    return a < b ? -1 : 1; // alfabetical order
+    return a < b ? -1 : 1; // alphabetical order
   },
-  useKeysAsDefaultValue: true,
   verbose: true,
 };

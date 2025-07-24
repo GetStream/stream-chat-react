@@ -26,8 +26,10 @@ import {
   countReactions,
   generateChannel,
   generateFileAttachment,
+  generateImageAttachment,
   generateMessage,
   generateReaction,
+  generateStaticLocationResponse,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
@@ -612,6 +614,21 @@ describe('<MessageSimple />', () => {
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('adds shared location at the beginning of the attachment list', async () => {
+    const message = generateAliceMessage({
+      attachments: [
+        generateFileAttachment(),
+        generateImageAttachment(),
+        generateImageAttachment(),
+      ],
+      shared_location: generateStaticLocationResponse(),
+    });
+    await renderMessageSimple({ message });
+    expect(screen.getAllByTestId('gallery-image')).toHaveLength(2);
+    expect(screen.getAllByTestId('attachment-file')).toHaveLength(1);
+    expect(screen.getAllByTestId('attachment-geolocation')).toHaveLength(1);
   });
 
   it('should display reply count and handle replies count button click when not in thread list and reply count is not 0', async () => {

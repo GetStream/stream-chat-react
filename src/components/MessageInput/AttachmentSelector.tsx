@@ -5,13 +5,13 @@ import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
 import { Modal } from '../Modal';
+import { ShareLocationDialog as DefaultLocationDialog } from '../Location';
 import { PollCreationDialog as DefaultPollCreationDialog } from '../Poll';
 import { Portal } from '../Portal/Portal';
 import { UploadFileInput } from '../ReactFileUtilities';
 import {
   useChannelStateContext,
   useComponentContext,
-  useMessageInputContext,
   useTranslationContext,
 } from '../../context';
 import {
@@ -19,6 +19,8 @@ import {
   useAttachmentSelectorContext,
 } from '../../context/AttachmentSelectorContext';
 import { useStableId } from '../UtilityComponents/useStableId';
+import clsx from 'clsx';
+import { useMessageComposer } from './hooks';
 
 export const SimpleAttachmentSelector = () => {
   const {
@@ -84,7 +86,7 @@ export type AttachmentSelectorActionProps = {
 
 export type AttachmentSelectorAction = {
   ActionButton: React.ComponentType<AttachmentSelectorActionProps>;
-  type: 'uploadFile' | 'createPoll' | (string & {});
+  type: 'uploadFile' | 'createPoll' | 'addLocation' | (string & {});
   ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
 };
 
@@ -104,6 +106,20 @@ export const DefaultAttachmentSelectorComponents = {
         }}
       >
         {t('File')}
+      </DialogMenuButton>
+    );
+  },
+  Location({ closeMenu, openModalForAction }: AttachmentSelectorActionProps) {
+    const { t } = useTranslationContext();
+    return (
+      <DialogMenuButton
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__add-location-button'
+        onClick={() => {
+          openModalForAction('addLocation');
+          closeMenu();
+        }}
+      >
+        {t('Location')}
       </DialogMenuButton>
     );
   },
@@ -129,6 +145,10 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
     ActionButton: DefaultAttachmentSelectorComponents.Poll,
     type: 'createPoll',
   },
+  {
+    ActionButton: DefaultAttachmentSelectorComponents.Location,
+    type: 'addLocation',
+  },
 ];
 
 export type AttachmentSelectorProps = {
@@ -137,24 +157,31 @@ export type AttachmentSelectorProps = {
 };
 
 const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction[]) => {
-  const { PollCreationDialog = DefaultPollCreationDialog } = useComponentContext();
-  const { channelCapabilities, channelConfig } = useChannelStateContext();
-  const { isThreadInput } = useMessageInputContext();
+  const {
+    PollCreationDialog = DefaultPollCreationDialog,
+    ShareLocationDialog = DefaultLocationDialog,
+  } = useComponentContext();
+  const { channelCapabilities } = useChannelStateContext();
+  const messageComposer = useMessageComposer();
 
   return original
     .filter((action) => {
-      if (action.type === 'uploadFile' && !channelCapabilities['upload-file'])
-        return false;
-      if (
-        action.type === 'createPoll' &&
-        (!channelConfig?.polls || isThreadInput || !channelCapabilities['send-poll'])
-      )
-        return false;
+      if (action.type === 'uploadFile') return channelCapabilities['upload-file'];
+
+      if (action.type === 'createPoll')
+        return channelCapabilities['send-poll'] && !messageComposer.threadId;
+
+      if (action.type === 'addLocation') {
+        return messageComposer.config.location.enabled && !messageComposer.threadId;
+      }
       return true;
     })
     .map((action) => {
       if (action.type === 'createPoll' && !action.ModalContent) {
         return { ...action, ModalContent: PollCreationDialog };
+      }
+      if (action.type === 'addLocation' && !action.ModalContent) {
+        return { ...action, ModalContent: ShareLocationDialog };
       }
       return action;
     });
@@ -166,11 +193,11 @@ export const AttachmentSelector = ({
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
   const { channelCapabilities } = useChannelStateContext();
-  const { isThreadInput } = useMessageInputContext();
+  const messageComposer = useMessageComposer();
 
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
-  const menuDialogId = `attachment-actions-menu${isThreadInput ? '-thread' : ''}`;
+  const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
   const menuDialog = useDialog({ id: menuDialogId });
   const menuDialogIsOpen = useDialogIsOpen(menuDialogId);
 
@@ -242,7 +269,11 @@ export const AttachmentSelector = ({
           isOpen={modalIsOpen}
         >
           <Modal
-            className='str-chat__create-poll-modal'
+            className={clsx({
+              'str-chat__create-poll-modal': modalContentAction?.type === 'createPoll',
+              'str-chat__share-location-modal':
+                modalContentAction?.type === 'addLocation',
+            })}
             onClose={closeModal}
             open={modalIsOpen}
           >

@@ -13,6 +13,7 @@ import {
 } from 'mock-builders';
 
 import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from '../utils';
+import { generateStaticLocationResponse } from '../../../mock-builders';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -37,6 +38,15 @@ describe('ChannelPreview utils', () => {
     const channelWithDeletedMessage = generateChannel({
       messages: [generateMessage({ deleted_at: new Date() })],
     });
+    const channelWithLocationMessage = generateChannel({
+      messages: [
+        generateMessage({
+          attachments: [],
+          shared_location: generateStaticLocationResponse(),
+          text: '',
+        }),
+      ],
+    });
     const channelWithAttachmentMessage = generateChannel({
       messages: [
         generateMessage({
@@ -50,6 +60,7 @@ describe('ChannelPreview utils', () => {
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
       ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
       ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
+      ['📍Shared location', 'channelWithLocationMessage', channelWithLocationMessage],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
       const t = (text) => text;
       const channel = await getQueriedChannelInstance(c);
