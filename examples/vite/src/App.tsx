@@ -5,7 +5,6 @@ import {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
-  LiveLocationManagerConstructorParameters,
 } from 'stream-chat';
 import {
   AIStateIndicator,
@@ -21,8 +20,6 @@ import {
   useCreateChatClient,
   VirtualizedMessageList as MessageList,
   Window,
-  useChatContext,
-  useLiveLocationSharingManager,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -57,71 +54,11 @@ const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
-const ShareLiveLocation = () => {
-  const { channel } = useChatContext();
-
-  return (
-    <button
-      onClick={() => {
-        console.log('trying to fetch location');
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            console.log('got location ', position);
-            channel?.startLiveLocationSharing({
-              latitude,
-              longitude,
-              end_time: new Date(Date.now() + 1 * 1000 * 3600 * 24).toISOString(),
-            });
-          },
-          console.warn,
-          { timeout: 2000 },
-        );
-      }}
-    >
-      location
-    </button>
-  );
-};
-
-const watchLocationNormal: LiveLocationManagerConstructorParameters['watchLocation'] = (
-  watcher,
-) => {
-  const watch = navigator.geolocation.watchPosition((position) => {
-    watcher({ latitude: position.coords.latitude, longitude: position.coords.longitude });
-  });
-
-  return () => navigator.geolocation.clearWatch(watch);
-};
-
-const watchLocationTimed: LiveLocationManagerConstructorParameters['watchLocation'] = (
-  watcher,
-) => {
-  const timer = setInterval(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      watcher({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      });
-    });
-  }, 5000);
-
-  return () => {
-    clearInterval(timer);
-    console.log('cleanup');
-  };
-};
-
 const App = () => {
   const chatClient = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
-  });
-
-  useLiveLocationSharingManager({
-    client: chatClient,
-    watchLocation: watchLocationNormal,
   });
 
   useEffect(() => {
@@ -159,7 +96,6 @@ const App = () => {
               <MessageList returnAllReadData />
               <AIStateIndicator />
               <MessageInput focus audioRecordingEnabled />
-              <ShareLiveLocation />
             </Window>
             <Thread virtualized />
           </Channel>
