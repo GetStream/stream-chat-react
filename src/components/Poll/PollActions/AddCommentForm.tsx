@@ -34,6 +34,14 @@ export const AddCommentForm = ({ close, messageId }: AddCommentFormProps) => {
             type: 'text',
             value: ownAnswer?.answer_text ?? '',
           },
+          validator: (value) => {
+            const valueString = typeof value !== 'undefined' ? value.toString() : value;
+            const trimmedValue = valueString?.trim();
+            if (!trimmedValue) {
+              return new Error(t('This field cannot be empty or contain only spaces'));
+            }
+            return;
+          },
         },
       }}
       onSubmit={async (value) => {

@@ -139,6 +139,7 @@
   "Submit": "제출",
   "Suggest an option": "옵션 제안",
   "Thinking...": "생각 중...",
+  "This field cannot be empty or contain only spaces": "이 필드는 비워둘 수 없으며 공백만 포함할 수도 없습니다",
   "This message did not meet our content guidelines": "이 메시지는 콘텐츠 가이드라인을 충족하지 않습니다.",
   "This message was deleted...": "이 메시지는 삭제되었습니다...",
   "Thread": "스레드",

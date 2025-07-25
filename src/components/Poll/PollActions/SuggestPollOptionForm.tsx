@@ -38,10 +38,12 @@ export const SuggestPollOptionForm = ({
             value: '',
           },
           validator: (value) => {
-            if (!value) return;
-            const existingOption = options.find(
-              (option) => option.text === (value as string).trim(),
-            );
+            const valueString = typeof value !== 'undefined' ? value.toString() : value;
+            const trimmedValue = valueString?.trim();
+            if (!trimmedValue) {
+              return new Error(t('This field cannot be empty or contain only spaces'));
+            }
+            const existingOption = options.find((option) => option.text === trimmedValue);
             if (existingOption) {
               return new Error(t('Option already exists'));
             }
