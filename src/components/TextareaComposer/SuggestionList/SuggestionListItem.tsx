@@ -6,6 +6,7 @@ import type { TextComposerSuggestion } from 'stream-chat';
 import type { UserItemProps } from './UserItem';
 import type { CommandItemProps } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
+import { useMessageInputContext } from '../../../context';
 
 export type DefaultSuggestionListItemEntity =
   | UserItemProps['entity']
@@ -33,11 +34,13 @@ export const SuggestionListItem = React.forwardRef<
   innerRef: Ref<HTMLButtonElement>,
 ) {
   const { textComposer } = useMessageComposer();
+  const { textareaRef } = useMessageInputContext();
   const containerRef = useRef<HTMLLIElement>(null);
 
   const handleSelect = useCallback(() => {
     textComposer.handleSelect(item);
-  }, [item, textComposer]);
+    textareaRef.current?.focus();
+  }, [item, textareaRef, textComposer]);
 
   useLayoutEffect(() => {
     if (!focused) return;
