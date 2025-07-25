@@ -1,3 +1,19 @@
+## [13.3.0](https://github.com/GetStream/stream-chat-react/compare/v13.2.3...v13.3.0) (2025-07-25)
+
+### Bug Fixes
+
+* focus message composer textarea on suggestion item selection ([#2782](https://github.com/GetStream/stream-chat-react/issues/2782)) ([c7c1825](https://github.com/GetStream/stream-chat-react/commit/c7c18251bd3377c57944e64a3fbe817debd93333))
+* prevent validating empty inputs in poll forms ([#2780](https://github.com/GetStream/stream-chat-react/issues/2780)) ([3eaa469](https://github.com/GetStream/stream-chat-react/commit/3eaa469f2352d2cfe46e2fc81d2a9587f8268846))
+
+### Features
+
+* add static location and live location support ([#2587](https://github.com/GetStream/stream-chat-react/issues/2587)) ([298a371](https://github.com/GetStream/stream-chat-react/commit/298a371dc6b80d579254687b41736b18ed2799ba))
+* export all message components ([#2779](https://github.com/GetStream/stream-chat-react/issues/2779)) ([1d1d8ae](https://github.com/GetStream/stream-chat-react/commit/1d1d8ae50ec68fd4312b4b457a28cac6be56783a))
+
+### Refactors
+
+* remove outdated/invalid code from vite example App.tsx ([a2805b0](https://github.com/GetStream/stream-chat-react/commit/a2805b01cf89ed5e4991bb2281effc16b0a3fe7c))
+
 ## [13.2.3](https://github.com/GetStream/stream-chat-react/compare/v13.2.2...v13.2.3) (2025-07-15)
 
 ### Bug Fixes
