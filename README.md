@@ -23,7 +23,7 @@
 - [Chat UI Kit](https://getstream.io/chat/ui-kit/)
 - [Internationalization](#internationalization)
 
-With our component library, you can build a variety of chat use cases, including:
+With our component library, you can build a variety of chat use cases including:
 
 - Livestream like Twitch or YouTube
 - In-game chat like Overwatch or Fortnite
