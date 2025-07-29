@@ -127,7 +127,7 @@ export const renderText = (
         return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
       });
 
-    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
+    if (noParsingNeeded.length > 0 || linkIsInBlock) continue;
 
     try {
       // special case for mentions:

@@ -868,6 +868,22 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </div>
 `;
 
+exports[`renderText parses correctly text with markdown links 1`] = `
+<div>
+  <p>
+    a 
+    <a
+      class="str-chat__message-url-link"
+      href="https://www.youtube.com/"
+      rel="nofollow noreferrer noopener"
+      target="_blank"
+    >
+      link
+    </a>
+  </p>
+</div>
+`;
+
 exports[`renderText renders custom mention 1`] = `
 <div>
   <p>
