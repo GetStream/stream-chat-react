@@ -31,8 +31,8 @@ export const DialogPortalEntry = ({
   children,
   dialogId,
 }: PropsWithChildren<DialogPortalEntryProps>) => {
-  const { dialogManager } = useDialogManager();
-  const dialogIsOpen = useDialogIsOpen(dialogId);
+  const { dialogManager } = useDialogManager({ dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager.id);
 
   const getPortalDestination = useCallback(
     () => document.querySelector(`div[data-str-chat__portal-id="${dialogManager.id}"]`),

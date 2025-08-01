@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { MessageInput } from './MessageInput';
 import { MessageInputFlat } from './MessageInputFlat';
-import { Modal } from '../Modal';
+import { Modal as DefaultModal } from '../Modal';
 import {
   useComponentContext,
   useMessageContext,
@@ -71,7 +71,8 @@ export const EditMessageForm = () => {
 export const EditMessageModal = ({
   additionalMessageInputProps,
 }: Pick<MessageUIComponentProps, 'additionalMessageInputProps'>) => {
-  const { EditMessageInput = EditMessageForm } = useComponentContext();
+  const { EditMessageInput = EditMessageForm, Modal = DefaultModal } =
+    useComponentContext();
   const { clearEditingState } = useMessageContext();
   const messageComposer = useMessageComposer();
   const onEditModalClose = useCallback(() => {
