@@ -4,25 +4,22 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { DialogManager } from '../components/Dialog/DialogManager';
 import { DialogPortalDestination } from '../components/Dialog/DialogPortal';
 import type { PropsWithChildrenOnly } from '../types/types';
-import { StateStore } from 'stream-chat';
 
 type DialogManagerId = string;
 
-const dialogManagersStore = new StateStore<Record<DialogManagerId, DialogManager>>({});
+const dialogManagersStore: Record<DialogManagerId, DialogManager> = {};
 
 const getDialogManager = (id: string): DialogManager | undefined =>
-  dialogManagersStore.getLatestValue()[id];
+  dialogManagersStore[id];
 
 const addDialogManager = (dialogManager: DialogManager) => {
   if (getDialogManager(dialogManager.id)) return;
-  dialogManagersStore.partialNext({ [dialogManager.id]: dialogManager });
+  dialogManagersStore[dialogManager.id] = dialogManager;
 };
 
 const removeDialogManager = (id: string) => {
-  const { ...dialogManagers } = dialogManagersStore.getLatestValue();
-  if (!dialogManagers[id]) return;
-  delete dialogManagers[id];
-  dialogManagersStore.next(dialogManagers);
+  if (!dialogManagersStore[id]) return;
+  delete dialogManagersStore[id];
 };
 
 type DialogManagerProviderContextValue = {
@@ -83,16 +80,14 @@ export const useDialogManager = ({
 
     if (!dialogId && !dialogManagerId) return context;
 
-    const dialogManagers = dialogManagersStore.getLatestValue();
-
     if (
       (dialogManagerId && !dialogId) ||
-      (dialogManagerId && dialogId && dialogManagers[dialogManagerId].get(dialogId))
+      (dialogManagerId && dialogId && dialogManagersStore[dialogManagerId].get(dialogId))
     ) {
-      context.dialogManager = dialogManagers[dialogManagerId];
+      context.dialogManager = dialogManagersStore[dialogManagerId];
     }
     if (dialogId) {
-      context.dialogManager = Object.values(dialogManagers).find(
+      context.dialogManager = Object.values(dialogManagersStore).find(
         (dialogMng) => dialogId && dialogMng.get(dialogId),
       );
     }
