@@ -8,6 +8,8 @@ export const DialogPortalDestination = () => {
   const { dialogManager } = useDialogManager();
   const openedDialogCount = useOpenedDialogCount();
 
+  if (!openedDialogCount) return null;
+
   return (
     <div
       className='str-chat__dialog-overlay'
