@@ -4,6 +4,7 @@ import { u } from 'unist-builder';
 import { render } from '@testing-library/react';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
+import '@testing-library/jest-dom';
 
 const strikeThroughText = '~~xxx~~';
 
@@ -11,6 +12,13 @@ describe(`renderText`, () => {
   it('wraps every link entirely even though the link roots are the same', () => {
     const Markdown = renderText('copilot.com\ncopilot.com/guide\ncopilot.com/about?');
     const { container } = render(Markdown);
+    expect(container).toMatchSnapshot();
+  });
+
+  it('parses correctly text with markdown links', () => {
+    const Markdown = renderText('a [link](https://www.youtube.com/)');
+    const { container } = render(Markdown);
+    expect(container).toHaveTextContent('a link');
     expect(container).toMatchSnapshot();
   });
 
