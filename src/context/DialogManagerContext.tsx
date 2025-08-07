@@ -1,5 +1,11 @@
-import type { PropsWithChildren } from 'react';
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, {
+  type PropsWithChildren,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { StateStore } from 'stream-chat';
 
 import { DialogManager } from '../components/Dialog/DialogManager';
 import { DialogPortalDestination } from '../components/Dialog/DialogPortal';
@@ -7,19 +13,20 @@ import type { PropsWithChildrenOnly } from '../types/types';
 
 type DialogManagerId = string;
 
-const dialogManagersStore: Record<DialogManagerId, DialogManager> = {};
+type DialogManagersState = Record<DialogManagerId, DialogManager | undefined>;
+const dialogManagersStore: StateStore<DialogManagersState> = new StateStore({});
 
 const getDialogManager = (id: string): DialogManager | undefined =>
-  dialogManagersStore[id];
+  dialogManagersStore.getLatestValue()[id];
 
 const addDialogManager = (dialogManager: DialogManager) => {
   if (getDialogManager(dialogManager.id)) return;
-  dialogManagersStore[dialogManager.id] = dialogManager;
+  dialogManagersStore.partialNext({ [dialogManager.id]: dialogManager });
 };
 
 const removeDialogManager = (id: string) => {
-  if (!dialogManagersStore[id]) return;
-  delete dialogManagersStore[id];
+  if (!getDialogManager(id)) return;
+  dialogManagersStore.partialNext({ [id]: undefined });
 };
 
 type DialogManagerProviderContextValue = {
@@ -45,12 +52,13 @@ export const DialogManagerProvider = ({
     [id],
   );
 
-  useEffect(() => {
-    addDialogManager(dialogManager);
-    return () => {
+  addDialogManager(dialogManager);
+  useEffect(
+    () => () => {
       removeDialogManager(dialogManager.id);
-    };
-  }, [dialogManager]);
+    },
+    [dialogManager],
+  );
 
   return (
     <DialogManagerProviderContext.Provider value={{ dialogManager }}>
@@ -65,6 +73,43 @@ export type UseDialogManagerParams = {
   dialogManagerId?: string;
 };
 
+const getManagerFromStore = ({
+  dialogId,
+  dialogManagerId,
+  newState,
+  previousState,
+}: UseDialogManagerParams & {
+  newState: DialogManagersState;
+  previousState: DialogManagersState | undefined;
+}) => {
+  let managerInNewState: DialogManager | undefined;
+  let managerInPrevState: DialogManager | undefined;
+  if (dialogManagerId) {
+    if (!dialogId) {
+      managerInNewState = newState[dialogManagerId];
+      managerInPrevState = previousState?.[dialogManagerId];
+    } else {
+      if (newState[dialogManagerId]?.get(dialogId)) {
+        managerInNewState = newState[dialogManagerId];
+      }
+      if (previousState?.[dialogManagerId]?.get(dialogId)) {
+        managerInPrevState = previousState[dialogManagerId];
+      }
+    }
+  } else if (dialogId) {
+    managerInNewState = Object.values(newState).find(
+      (dialogMng) => dialogId && dialogMng?.get(dialogId),
+    );
+    managerInPrevState =
+      previousState &&
+      Object.values(previousState).find(
+        (dialogMng) => dialogId && dialogMng?.get(dialogId),
+      );
+  }
+
+  return { managerInNewState, managerInPrevState };
+};
+
 /**
  * Retrieves the nearest dialog manager or searches for the dialog manager by dialog manager id or dialog id.
  * Dialog id will take precedence over dialog manager id if both are provided and dialog manager is found by dialog id.
@@ -75,30 +120,56 @@ export const useDialogManager = ({
 }: UseDialogManagerParams = {}) => {
   const nearestDialogManagerContext = useContext(DialogManagerProviderContext);
 
-  const foundDialogManagerContext = useMemo(() => {
-    const context: { dialogManager?: DialogManager } = { dialogManager: undefined };
+  const [dialogManagerContext, setDialogManagerContext] = useState<
+    DialogManagerProviderContextValue | undefined
+  >(() => {
+    const { managerInNewState } = getManagerFromStore({
+      dialogId,
+      dialogManagerId,
+      newState: dialogManagersStore.getLatestValue(),
+      previousState: undefined,
+    });
+    return managerInNewState
+      ? { dialogManager: managerInNewState }
+      : nearestDialogManagerContext;
+  });
 
-    if (!dialogId && !dialogManagerId) return context;
+  useEffect(() => {
+    if (!dialogId && !dialogManagerId) return;
+    const unsubscribe = dialogManagersStore.subscribeWithSelector(
+      (state) => state,
+      (newState, previousState) => {
+        const { managerInNewState, managerInPrevState } = getManagerFromStore({
+          dialogId,
+          dialogManagerId,
+          newState,
+          previousState,
+        });
 
-    if (
-      (dialogManagerId && !dialogId) ||
-      (dialogManagerId && dialogId && dialogManagersStore[dialogManagerId].get(dialogId))
-    ) {
-      context.dialogManager = dialogManagersStore[dialogManagerId];
-    }
-    if (dialogId) {
-      context.dialogManager = Object.values(dialogManagersStore).find(
-        (dialogMng) => dialogId && dialogMng.get(dialogId),
-      );
-    }
-    return context;
-  }, [dialogId, dialogManagerId]);
+        if (!managerInPrevState || managerInNewState?.id !== managerInPrevState.id) {
+          setDialogManagerContext((prevState) => {
+            if (prevState?.dialogManager.id === managerInNewState?.id) return prevState;
+            // fixme: need to handle the possibility that the dialogManager is undefined
+            return {
+              dialogManager:
+                managerInNewState || nearestDialogManagerContext?.dialogManager,
+            } as DialogManagerProviderContextValue;
+          });
+        }
+      },
+    );
+    return () => {
+      unsubscribe();
+    };
+  }, [dialogId, dialogManagerId, nearestDialogManagerContext?.dialogManager]);
 
-  return (
-    foundDialogManagerContext.dialogManager
-      ? foundDialogManagerContext
-      : nearestDialogManagerContext
-  ) as DialogManagerProviderContextValue;
+  if (!dialogManagerContext?.dialogManager) {
+    console.warn(
+      `Dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}) is not available`,
+    );
+  }
+
+  return dialogManagerContext as DialogManagerProviderContextValue;
 };
 
 export const modalDialogManagerId = 'modal-dialog-manager' as const;

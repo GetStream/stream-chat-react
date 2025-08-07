@@ -49,7 +49,9 @@ const openedDialogCountSelector = (nextValue: DialogManagerState) => ({
   }, 0),
 });
 
-export const useOpenedDialogCount = () => {
-  const { dialogManager } = useDialogManager();
+export const useOpenedDialogCount = ({
+  dialogManagerId,
+}: { dialogManagerId?: string } = {}) => {
+  const { dialogManager } = useDialogManager({ dialogManagerId });
   return useStateStore(dialogManager.state, openedDialogCountSelector).openedDialogCount;
 };
