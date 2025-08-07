@@ -363,6 +363,9 @@ describe('PollCreationDialog', () => {
     const createPollSpy = jest
       .spyOn(client, 'createPoll')
       .mockImplementationOnce(() => Promise.resolve({ poll }));
+    const initPollStateSpy = jest
+      .spyOn(channel.messageComposer.pollComposer, 'initState')
+      .mockImplementation();
 
     await act(async () => {
       await fireEvent.change(getNameInput(), { target: { value: formState.name } });
@@ -407,14 +410,25 @@ describe('PollCreationDialog', () => {
         expect.objectContaining(expectedPollPayload),
       );
       expect(close).toHaveBeenCalledTimes(1);
+      expect(initPollStateSpy).toHaveBeenCalledTimes(1);
     });
   });
 
   it('closes the form on cancel', async () => {
-    await renderComponent();
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    const initPollStateSpy = jest
+      .spyOn(channel.messageComposer.pollComposer, 'initState')
+      .mockImplementation();
+
+    await renderComponent({ channel, client });
+
     act(() => {
       fireEvent.click(screen.getByText(CANCEL_BUTTON_TEXT));
     });
     expect(close).toHaveBeenCalledTimes(1);
+    expect(initPollStateSpy).toHaveBeenCalledTimes(1);
   });
 });
