@@ -3,6 +3,7 @@ export { AttachmentPreviewList } from './AttachmentPreviewList';
 export type {
   AttachmentPreviewListProps,
   FileAttachmentPreviewProps,
+  GeolocationPreviewProps,
   ImageAttachmentPreviewProps,
   AttachmentPreviewProps,
   UnsupportedAttachmentPreviewProps,
