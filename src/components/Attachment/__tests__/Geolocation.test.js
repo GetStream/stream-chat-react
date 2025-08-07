@@ -106,7 +106,10 @@ describe.each([
     });
 
     it('renders own live location', async () => {
-      const location = generateLiveLocationResponse({ user_id: ownUser.id });
+      const location = generateLiveLocationResponse({
+        end_at: new Date(Date.now() + 10000).toISOString(),
+        user_id: ownUser.id,
+      });
       await renderComponent({
         props: { GeolocationAttachmentMapPlaceholder, GeolocationMap, location },
       });
@@ -129,7 +132,10 @@ describe.each([
       }
     });
     it("other user's live location", async () => {
-      const location = generateLiveLocationResponse({ user_id: otherUser.id });
+      const location = generateLiveLocationResponse({
+        end_at: new Date(Date.now() + 10000).toISOString(),
+        user_id: otherUser.id,
+      });
       await renderComponent({
         props: { GeolocationAttachmentMapPlaceholder, GeolocationMap, location },
       });
