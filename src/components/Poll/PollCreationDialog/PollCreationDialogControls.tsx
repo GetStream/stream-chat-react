@@ -33,7 +33,10 @@ export const PollCreationDialogControls = ({
           messageComposer
             .createPoll()
             .then(() => handleSubmitMessage())
-            .then(close)
+            .then(() => {
+              messageComposer.pollComposer.initState();
+              close();
+            })
             .catch(console.error);
         }}
         type='submit'
