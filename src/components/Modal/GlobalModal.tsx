@@ -70,6 +70,7 @@ export const GlobalModal = ({
             className='str-chat__modal__close-button'
             ref={closeRef}
             title={t('Close')}
+            type='button'
           >
             <CloseIconRound />
           </button>
