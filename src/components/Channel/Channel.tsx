@@ -128,6 +128,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'MessageStatus'
   | 'MessageSystem'
   | 'MessageTimestamp'
+  | 'Modal'
   | 'ModalGallery'
   | 'PinIndicator'
   | 'PollActions'
@@ -1221,6 +1222,7 @@ const ChannelInner = (
       MessageStatus: props.MessageStatus,
       MessageSystem: props.MessageSystem,
       MessageTimestamp: props.MessageTimestamp,
+      Modal: props.Modal,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
       PollActions: props.PollActions,
@@ -1288,6 +1290,7 @@ const ChannelInner = (
       props.MessageStatus,
       props.MessageSystem,
       props.MessageTimestamp,
+      props.Modal,
       props.ModalGallery,
       props.PinIndicator,
       props.PollActions,

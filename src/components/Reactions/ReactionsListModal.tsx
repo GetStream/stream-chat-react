@@ -3,14 +3,14 @@ import clsx from 'clsx';
 
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
-import type { ModalProps } from '../Modal';
-import { Modal } from '../Modal';
+import { Modal as DefaultModal } from '../Modal';
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { LoadingIndicator } from '../Loading';
 import { Avatar } from '../Avatar';
-import type { MessageContextValue } from '../../context';
-import { useMessageContext } from '../../context';
+import { useComponentContext, useMessageContext } from '../../context';
 import type { ReactionSort } from 'stream-chat';
+import type { ModalProps } from '../Modal';
+import type { MessageContextValue } from '../../context';
 
 export type ReactionsListModalProps = ModalProps &
   Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>> & {
@@ -33,6 +33,7 @@ export function ReactionsListModal({
   sortReactionDetails: propSortReactionDetails,
   ...modalProps
 }: ReactionsListModalProps) {
+  const { Modal = DefaultModal } = useComponentContext();
   const selectedReaction = reactions.find(
     ({ reactionType }) => reactionType === selectedReactionType,
   );

@@ -7,12 +7,6 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render custom Empt
   >
     Custom EmptyStateIndicator
   </div>
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -23,12 +17,6 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render custom Empt
   >
     Custom EmptyStateIndicator
   </div>
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -57,12 +45,6 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render for main me
       No chats here yet…
     </p>
   </div>
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -115,12 +97,6 @@ exports[`VirtualizedMessageComponents Header should not render custom head in He
       </svg>
     </div>
   </div>
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -170,12 +146,6 @@ exports[`VirtualizedMessageComponents Header should render LoadingIndicator in H
       </svg>
     </div>
   </div>
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -184,12 +154,6 @@ exports[`VirtualizedMessageComponents Item should render wrapper with custom cla
   <div
     class="XXX"
     data-item-index="10000000"
-  />
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
   />
 </div>
 `;
@@ -200,12 +164,6 @@ exports[`VirtualizedMessageComponents Item should render wrapper with custom cla
     class="XXX"
     data-item-index="10000000"
   />
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -215,12 +173,6 @@ exports[`VirtualizedMessageComponents Item should render wrapper without custom 
     class="str-chat__virtual-list-message-wrapper str-chat__li str-chat__li--single"
     data-item-index="10000000"
   />
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
-  />
 </div>
 `;
 
@@ -229,12 +181,6 @@ exports[`VirtualizedMessageComponents Item should render wrapper without custom 
   <div
     class="str-chat__virtual-list-message-wrapper str-chat__li"
     data-item-index="10000000"
-  />
-  <div
-    class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialog-manager"
-    data-testid="str-chat__dialog-overlay"
-    style="--str-chat__dialog-overlay-height: 0;"
   />
 </div>
 `;

@@ -1,11 +1,15 @@
 import { useCallback, useEffect } from 'react';
-import { useDialogManager } from '../../../context';
+import { modalDialogManagerId, useDialogManager } from '../../../context';
 import { useStateStore } from '../../../store';
 
 import type { DialogManagerState, GetOrCreateDialogParams } from '../DialogManager';
 
-export const useDialog = ({ id }: GetOrCreateDialogParams) => {
-  const { dialogManager } = useDialogManager();
+export type UseDialogParams = GetOrCreateDialogParams & {
+  dialogManagerId?: string;
+};
+
+export const useDialog = ({ dialogManagerId, id }: UseDialogParams) => {
+  const { dialogManager } = useDialogManager({ dialogManagerId });
 
   useEffect(
     () => () => {
@@ -21,14 +25,22 @@ export const useDialog = ({ id }: GetOrCreateDialogParams) => {
   return dialogManager.getOrCreate({ id });
 };
 
-export const useDialogIsOpen = (id: string) => {
-  const { dialogManager } = useDialogManager();
+export const modalDialogId = 'modal-dialog' as const;
+
+export const useModalDialog = () =>
+  useDialog({ dialogManagerId: modalDialogManagerId, id: modalDialogId });
+
+export const useDialogIsOpen = (id: string, dialogManagerId?: string) => {
+  const { dialogManager } = useDialogManager({ dialogManagerId });
   const dialogIsOpenSelector = useCallback(
     ({ dialogsById }: DialogManagerState) => ({ isOpen: !!dialogsById[id]?.isOpen }),
     [id],
   );
   return useStateStore(dialogManager.state, dialogIsOpenSelector).isOpen;
 };
+
+export const useModalDialogIsOpen = () =>
+  useDialogIsOpen(modalDialogId, modalDialogManagerId);
 
 const openedDialogCountSelector = (nextValue: DialogManagerState) => ({
   openedDialogCount: Object.values(nextValue.dialogsById).reduce((count, dialog) => {
@@ -37,7 +49,9 @@ const openedDialogCountSelector = (nextValue: DialogManagerState) => ({
   }, 0),
 });
 
-export const useOpenedDialogCount = () => {
-  const { dialogManager } = useDialogManager();
+export const useOpenedDialogCount = ({
+  dialogManagerId,
+}: { dialogManagerId?: string } = {}) => {
+  const { dialogManager } = useDialogManager({ dialogManagerId });
   return useStateStore(dialogManager.state, openedDialogCountSelector).openedDialogCount;
 };

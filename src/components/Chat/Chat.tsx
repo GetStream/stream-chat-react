@@ -14,7 +14,7 @@ import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 import type { CustomClasses } from '../../context/ChatContext';
-import type { MessageContextValue } from '../../context';
+import { type MessageContextValue, ModalDialogManagerProvider } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 
@@ -110,7 +110,9 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
 
   return (
     <ChatProvider value={chatContextValue}>
-      <TranslationProvider value={translators}>{children}</TranslationProvider>
+      <TranslationProvider value={translators}>
+        <ModalDialogManagerProvider>{children}</ModalDialogManagerProvider>
+      </TranslationProvider>
     </ChatProvider>
   );
 };

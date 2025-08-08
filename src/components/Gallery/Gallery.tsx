@@ -4,7 +4,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
 import { BaseImage as DefaultBaseImage } from './BaseImage';
-import { Modal } from '../Modal';
+import { Modal as DefaultModal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 
 import { useComponentContext } from '../../context/ComponentContext';
@@ -29,8 +29,11 @@ const UnMemoizedGallery = (props: GalleryProps) => {
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } =
-    useComponentContext('Gallery');
+  const {
+    BaseImage = DefaultBaseImage,
+    Modal = DefaultModal,
+    ModalGallery = DefaultModalGallery,
+  } = useComponentContext('Gallery');
   const { t } = useTranslationContext('Gallery');
 
   const imageFallbackTitle = t('User uploaded content');
