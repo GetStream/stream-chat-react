@@ -52,7 +52,7 @@ export const GlobalModal = ({
     if (open && !dialog.isOpen) {
       dialog.open();
     }
-  }, [dialog, open, children]);
+  }, [dialog, open]);
 
   if (!open || !isOpen) return null;
 
