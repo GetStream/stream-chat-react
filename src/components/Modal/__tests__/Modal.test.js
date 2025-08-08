@@ -5,6 +5,8 @@ import '@testing-library/jest-dom';
 
 import { Modal } from '../Modal';
 
+const CLOSE_BUTTON_SELECTOR = '.str-chat__modal__close-button';
+
 describe('Modal', () => {
   afterEach(cleanup);
 
@@ -94,5 +96,55 @@ describe('Modal', () => {
   it('should render the expected html', () => {
     const { container } = render(<Modal onClose={() => {}} open={false} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should call onClose if onCloseAttempt returns true', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => true;
+    const { container } = render(
+      <Modal onClose={onClose} onCloseAttempt={onCloseAttempt} open />,
+    );
+
+    fireEvent(
+      document,
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+      }),
+    );
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(container.firstChild);
+
+    expect(onClose).toHaveBeenCalledTimes(2);
+
+    fireEvent.click(container.querySelector(CLOSE_BUTTON_SELECTOR));
+
+    expect(onClose).toHaveBeenCalledTimes(3);
+  });
+
+  it('should not call onClose if onCloseAttempt returns false', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => false;
+    const { container } = render(
+      <Modal onClose={onClose} onCloseAttempt={onCloseAttempt} open />,
+    );
+
+    fireEvent(
+      document,
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+      }),
+    );
+
+    expect(onClose).toHaveBeenCalledTimes(0);
+
+    fireEvent.click(container.firstChild);
+
+    expect(onClose).toHaveBeenCalledTimes(0);
+
+    fireEvent.click(container.querySelector(CLOSE_BUTTON_SELECTOR));
+
+    expect(onClose).toHaveBeenCalledTimes(0);
   });
 });
