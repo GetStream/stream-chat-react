@@ -7,6 +7,7 @@ import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import type { TranslationTopicOptions, Translator } from '../../index';
 import { pollCreationFailedNotificationTranslator } from './pollComposition';
+import { pollVoteCountTrespass } from './pollVoteCountTrespass';
 
 export const defaultNotificationTranslators: Record<
   string,
@@ -15,6 +16,7 @@ export const defaultNotificationTranslators: Record<
   'api:attachment:upload:failed': attachmentUploadFailedNotificationTranslator,
   'api:poll:create:failed': pollCreationFailedNotificationTranslator,
   'validation:attachment:upload:blocked': attachmentUploadBlockedNotificationTranslator,
+  'validation:poll:castVote:limit': pollVoteCountTrespass,
 };
 
 export class NotificationTranslationTopic extends TranslationTopic<NotificationTranslatorOptions> {
