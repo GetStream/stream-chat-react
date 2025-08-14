@@ -15,4 +15,5 @@ export { default as dispatchNotificationMarkUnread } from './notificationMarkUnr
 export { default as dispatchNotificationMessageNewEvent } from './notificationMessageNew';
 export { default as dispatchNotificationMutesUpdated } from './notificationMutesUpdated';
 export { default as dispatchNotificationRemovedFromChannel } from './notificationRemovedFromChannel';
+export { default as dispatchUserMessagesDeletedEvent } from './userMessagesDeleted';
 export { default as dispatchUserUpdatedEvent } from './userUpdated';
