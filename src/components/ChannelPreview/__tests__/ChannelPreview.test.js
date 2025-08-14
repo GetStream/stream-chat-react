@@ -15,6 +15,7 @@ import {
   dispatchMessageUpdatedEvent,
   dispatchNotificationMarkRead,
   dispatchNotificationMarkUnread,
+  dispatchUserMessagesDeletedEvent,
   dispatchUserUpdatedEvent,
   generateChannel,
   generateMember,
@@ -362,6 +363,131 @@ describe('ChannelPreview', () => {
       await expectLastEventMessageToBe(getByTestId, lastMessage.text);
     },
   );
+
+  describe('user.messages.deleted', () => {
+    const deletedMessageText = 'Message deleted';
+    const user = { id: 'banned-user' };
+
+    it('should update latest message preview for all ChannelPreviews if global ban', async () => {
+      const {
+        channels: [c0, c1],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          generateChannel({
+            messages: [
+              generateMessage({
+                created_at: '1970-01-01T00:00:00.000Z',
+                user: { id: 'other-user' },
+              }),
+              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+            ],
+          }),
+          generateChannel({
+            messages: [
+              generateMessage({
+                created_at: '1971-01-01T00:00:00.000Z',
+                user: { id: 'other-user' },
+              }),
+              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+            ],
+          }),
+        ],
+        customUser: user,
+      });
+
+      const { container } = render(
+        <ChatContext.Provider
+          value={{
+            channel: c0,
+            client,
+            setActiveChannel: () => jest.fn(),
+          }}
+        >
+          <ChannelPreview channel={c0} />
+          <ChannelPreview channel={c1} />
+        </ChatContext.Provider>,
+      );
+
+      await act(() => {
+        dispatchUserMessagesDeletedEvent({
+          client,
+          user,
+        });
+      });
+
+      await waitFor(() => {
+        const lastMessagePreviews = container.querySelectorAll(
+          '.str-chat__channel-preview-messenger--last-message',
+        );
+        expect(lastMessagePreviews.length).toBe(2);
+        lastMessagePreviews.forEach((preview) => {
+          expect(preview).toHaveTextContent(deletedMessageText);
+        });
+      });
+    });
+
+    it('should update latest message preview if the channel is the target', async () => {
+      const {
+        channels: [c0, c1],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          generateChannel({
+            messages: [
+              generateMessage({
+                created_at: '1970-01-01T00:00:00.000Z',
+                user: { id: 'other-user' },
+              }),
+              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+            ],
+          }),
+          generateChannel({
+            messages: [
+              generateMessage({
+                created_at: '1971-01-01T00:00:00.000Z',
+                user: { id: 'other-user' },
+              }),
+              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+            ],
+          }),
+        ],
+        customUser: user,
+      });
+
+      const { container } = render(
+        <ChatContext.Provider
+          value={{
+            channel: c0,
+            client,
+            setActiveChannel: () => jest.fn(),
+          }}
+        >
+          <ChannelPreview channel={c0} />
+          <ChannelPreview channel={c1} />
+        </ChatContext.Provider>,
+      );
+
+      await act(() => {
+        dispatchUserMessagesDeletedEvent({
+          channel: c0, // target
+          client,
+          user,
+        });
+      });
+
+      await waitFor(() => {
+        const lastMessagePreviews = container.querySelectorAll(
+          '.str-chat__channel-preview-messenger--last-message',
+        );
+        expect(lastMessagePreviews.length).toBe(2);
+        expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
+        expect(lastMessagePreviews[1]).toHaveTextContent(
+          c1.state.messages.slice(-1)[0].text,
+        );
+      });
+    });
+  });
 
   describe('notification.mark_read', () => {
     it('should set unread count to 0 for event missing CID', async () => {

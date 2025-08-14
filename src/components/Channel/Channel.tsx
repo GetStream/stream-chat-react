@@ -425,6 +425,11 @@ const ChannelInner = (
       });
     }
 
+    // ignore the event if it is not targeted at the current channel.
+    // Event targeted at this channel or globally targeted event should lead to state refresh
+    if (event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid)
+      return;
+
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
 
@@ -568,6 +573,7 @@ const ChannelInner = (
         client.on('connection.recovered', handleEvent);
         client.on('user.updated', handleEvent);
         client.on('user.deleted', handleEvent);
+        client.on('user.messages.deleted', handleEvent);
         channel.on(handleEvent);
       }
     })();

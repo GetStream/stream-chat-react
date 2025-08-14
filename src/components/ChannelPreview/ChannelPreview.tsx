@@ -135,7 +135,12 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
   useEffect(() => {
     refreshUnreadCount();
 
-    const handleEvent = () => {
+    const handleEvent = (event: Event) => {
+      const deletedMessagesInAnotherChannel =
+        event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid;
+
+      if (deletedMessagesInAnotherChannel) return;
+
       setLastMessage(
         channel.state.latestMessages[channel.state.latestMessages.length - 1],
       );
@@ -145,6 +150,7 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
     channel.on('message.new', handleEvent);
     channel.on('message.updated', handleEvent);
     channel.on('message.deleted', handleEvent);
+    client.on('user.messages.deleted', handleEvent);
     channel.on('message.undeleted', handleEvent);
     channel.on('channel.truncated', handleEvent);
 
@@ -152,10 +158,11 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
       channel.off('message.new', handleEvent);
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
+      client.off('user.messages.deleted', handleEvent);
       channel.off('message.undeleted', handleEvent);
       channel.off('channel.truncated', handleEvent);
     };
-  }, [channel, refreshUnreadCount, channelUpdateCount]);
+  }, [channel, client, refreshUnreadCount, channelUpdateCount]);
 
   if (!Preview) return null;
 
