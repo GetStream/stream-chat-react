@@ -1,13 +1,10 @@
 import { nanoid } from 'nanoid';
-import type { ChannelConfigWithInfo, ChannelResponse } from 'stream-chat';
+import type { ChannelAPIResponse, ChannelConfigWithInfo } from 'stream-chat';
+import type { DeepPartial } from '../../types/types';
 
-export const generateChannel = (
-  options: {
-    channel?: Partial<ChannelResponse>;
-    config?: Partial<ChannelConfigWithInfo>;
-  } = { channel: {}, config: {} },
-) => {
-  const { channel: optionsChannel, ...optionsBesidesChannel } = options;
+export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
+  const { channel: optionsChannel, ...optionsBesidesChannel } =
+    options ?? ({} as ChannelAPIResponse);
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -68,6 +65,6 @@ export const generateChannel = (
       type,
       updated_at: '2020-04-28T11:20:48.578147Z',
       ...restOptionsChannel,
-    } as ChannelResponse,
+    },
   };
 };
