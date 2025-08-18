@@ -314,11 +314,6 @@ export const useChannelListShapeDefaults = () => {
         const newTargetChannelIndex =
           typeof lastPinnedChannelIndex === 'number' ? lastPinnedChannelIndex + 1 : 0;
 
-        // skip re-render if the position of the channel does not change
-        if (currentChannels[newTargetChannelIndex] === targetChannel) {
-          return currentChannels;
-        }
-
         newChannels.splice(newTargetChannelIndex, 0, targetChannel);
 
         return newChannels;
