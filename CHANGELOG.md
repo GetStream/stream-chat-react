@@ -1,3 +1,9 @@
+## [13.5.1](https://github.com/GetStream/stream-chat-react/compare/v13.5.0...v13.5.1) (2025-08-18)
+
+### Bug Fixes
+
+* remove optimization preventing ChannelList re-render on member.updated event ([#2801](https://github.com/GetStream/stream-chat-react/issues/2801)) ([70d39f9](https://github.com/GetStream/stream-chat-react/commit/70d39f9b7ee2d0d1173829c1aad59bae0cbc2778))
+
 ## [13.5.0](https://github.com/GetStream/stream-chat-react/compare/v13.4.0...v13.5.0) (2025-08-18)
 
 ### Features
