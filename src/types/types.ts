@@ -78,3 +78,7 @@ export type PartialSelected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T,
 export type DeepRequired<T> = {
   [K in keyof T]-?: T[K] extends object ? DeepRequired<T[K]> : T[K];
 };
+
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};

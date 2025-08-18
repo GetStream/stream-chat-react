@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import type { ChannelAPIResponse, ChannelConfigWithInfo } from 'stream-chat';
-import type { DeepPartial } from '../../../../stream-chat-js/src/types.utility';
+import type { DeepPartial } from '../../types/types';
 
 export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
   const { channel: optionsChannel, ...optionsBesidesChannel } =
