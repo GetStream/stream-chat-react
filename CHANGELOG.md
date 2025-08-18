@@ -1,3 +1,20 @@
+## [13.4.0](https://github.com/GetStream/stream-chat-react/compare/v13.3.0...v13.4.0) (2025-08-18)
+
+### Bug Fixes
+
+* export type GeolocationPreviewProps ([e518a82](https://github.com/GetStream/stream-chat-react/commit/e518a828543931ad9ab618695897a15943ba8453))
+* publish notification on poll vote casting limit trespass ([#2796](https://github.com/GetStream/stream-chat-react/issues/2796)) ([f5319f6](https://github.com/GetStream/stream-chat-react/commit/f5319f656904da54137346dbd9059cb4391fee0f))
+* render markdown link correctly (regression in 13.2.2) ([#2790](https://github.com/GetStream/stream-chat-react/issues/2790)) ([bd1df4a](https://github.com/GetStream/stream-chat-react/commit/bd1df4a292f4521384b9a2d13e1824a7f5e3fe16))
+* reset PollComposer state on poll creation form submission ([#2795](https://github.com/GetStream/stream-chat-react/issues/2795)) ([85868a3](https://github.com/GetStream/stream-chat-react/commit/85868a35f592e8a9526fa4ad7ea4c5d49eb4d219))
+
+### Features
+
+* allow restrictions on modal close behavior ([#2797](https://github.com/GetStream/stream-chat-react/issues/2797)) ([157615b](https://github.com/GetStream/stream-chat-react/commit/157615b10ceda4d360fda09760a4a05ea7db5448))
+
+### Chores
+
+* **deps:** upgrade linkifyjs to v4.3.2 ([a8e0694](https://github.com/GetStream/stream-chat-react/commit/a8e0694a575b8aaee31e559ba1854c6b3ad07659))
+
 ## [13.3.0](https://github.com/GetStream/stream-chat-react/compare/v13.2.3...v13.3.0) (2025-07-25)
 
 ### Bug Fixes
