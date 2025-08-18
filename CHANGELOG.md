@@ -1,3 +1,9 @@
+## [13.5.0](https://github.com/GetStream/stream-chat-react/compare/v13.4.0...v13.5.0) (2025-08-18)
+
+### Features
+
+* reflect user.messages.deleted WS event ([#2799](https://github.com/GetStream/stream-chat-react/issues/2799)) ([74263c5](https://github.com/GetStream/stream-chat-react/commit/74263c590264ed25b25130f1b7fd5bb7d8131292))
+
 ## [13.4.0](https://github.com/GetStream/stream-chat-react/compare/v13.3.0...v13.4.0) (2025-08-18)
 
 ### Bug Fixes
