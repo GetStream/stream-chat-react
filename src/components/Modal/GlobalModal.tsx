@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import type { PropsWithChildren } from 'react';
+import { useCallback } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
@@ -12,12 +13,13 @@ import {
   useModalDialog,
   useModalDialogIsOpen,
 } from '../Dialog';
-import type { ModalProps } from './Modal';
+import type { ModalCloseEvent, ModalCloseSource, ModalProps } from './Modal';
 
 export const GlobalModal = ({
   children,
   className,
   onClose,
+  onCloseAttempt,
   open,
 }: PropsWithChildren<ModalProps>) => {
   const { t } = useTranslationContext('Modal');
@@ -25,28 +27,41 @@ export const GlobalModal = ({
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
   const innerRef = useRef<HTMLDivElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const maybeClose = useCallback(
+    (source: ModalCloseSource, event: ModalCloseEvent) => {
+      const allow = onCloseAttempt?.(source, event);
+      if (allow !== false) {
+        onClose?.(event);
+        dialog.close();
+      }
+    },
+    [dialog, onClose, onCloseAttempt],
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
-    if (innerRef.current?.contains(event.target as HTMLButtonElement | HTMLDivElement))
-      return;
-    onClose?.(event);
-    dialog.close();
+    const target = event.target as HTMLButtonElement | HTMLDivElement;
+    if (!innerRef.current || !closeButtonRef.current) return;
+    if (innerRef.current?.contains(target)) return;
+
+    if (closeButtonRef.current.contains(target)) {
+      maybeClose('button', event);
+    } else if (!innerRef.current.contains(target)) {
+      maybeClose('overlay', event);
+    }
   };
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose?.(event as unknown as React.KeyboardEvent);
-        dialog.close();
-      }
+      if (event.key === 'Escape') maybeClose('escape', event);
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dialog, onClose, isOpen]);
+  }, [isOpen, maybeClose]);
 
   useEffect(() => {
     if (open && !dialog.isOpen) {
@@ -68,7 +83,7 @@ export const GlobalModal = ({
         <FocusScope autoFocus contain>
           <button
             className='str-chat__modal__close-button'
-            ref={closeRef}
+            ref={closeButtonRef}
             title={t('Close')}
             type='button'
           >

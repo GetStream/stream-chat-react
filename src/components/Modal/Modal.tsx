@@ -7,10 +7,11 @@ import { CloseIconRound } from './icons';
 
 import { useTranslationContext } from '../../context';
 
-type CloseEvent =
+export type ModalCloseEvent =
   | KeyboardEvent
   | React.KeyboardEvent
   | React.MouseEvent<HTMLButtonElement | HTMLDivElement>;
+
 export type ModalCloseSource = 'overlay' | 'button' | 'escape';
 
 export type ModalProps = {
@@ -19,9 +20,9 @@ export type ModalProps = {
   /** Custom class to be applied to the modal root div */
   className?: string;
   /** Callback handler for closing of modal. */
-  onClose?: (event: CloseEvent) => void;
+  onClose?: (event: ModalCloseEvent) => void;
   /** Optional handler to intercept closing logic. Return false to prevent onClose. */
-  onCloseAttempt?: (source: ModalCloseSource, event: CloseEvent) => boolean;
+  onCloseAttempt?: (source: ModalCloseSource, event: ModalCloseEvent) => boolean;
 };
 
 export const Modal = ({
@@ -37,7 +38,7 @@ export const Modal = ({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const maybeClose = useCallback(
-    (source: ModalCloseSource, event: CloseEvent) => {
+    (source: ModalCloseSource, event: ModalCloseEvent) => {
       const allow = onCloseAttempt?.(source, event);
       if (allow !== false) {
         onClose?.(event);
