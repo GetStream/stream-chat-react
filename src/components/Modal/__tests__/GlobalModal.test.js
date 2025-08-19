@@ -6,6 +6,9 @@ import '@testing-library/jest-dom';
 import { GlobalModal } from '../GlobalModal';
 import { ModalDialogManagerProvider } from '../../../context';
 
+const CLOSE_BUTTON_SELECTOR = '.str-chat__modal__close-button';
+const OVERLAY_SELECTOR = '.str-chat__modal';
+
 const renderComponent = ({ props } = {}) =>
   render(
     <ModalDialogManagerProvider>
@@ -95,14 +98,96 @@ describe('GlobalModal', () => {
 
   it('should call onClose if the modal overlay is clicked', () => {
     const onClose = jest.fn();
-    const { container, debug } = renderComponent({
+    const { container } = renderComponent({
       props: { children: textContent, onClose, open: true },
     });
-    console.log(debug(container));
+
     const dialogOverlay = container.querySelector('.str-chat__modal');
 
     fireEvent.click(dialogOverlay);
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onClose if onCloseAttempt returns true and Escape pressed', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => true;
+    renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent(
+      document,
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+      }),
+    );
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onClose if onCloseAttempt returns true and overlay clicked', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => true;
+    const { container } = renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent.click(container.querySelector(OVERLAY_SELECTOR));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onClose if onCloseAttempt returns true and close button clicked', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => true;
+    const { container } = renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent.click(container.querySelector(CLOSE_BUTTON_SELECTOR));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onClose if onCloseAttempt returns false and Escape pressed', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => false;
+    renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent(
+      document,
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+      }),
+    );
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should call onClose if onCloseAttempt returns false and overlay clicked', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => false;
+    const { container } = renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent.click(container.querySelector(OVERLAY_SELECTOR));
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should call onClose if onCloseAttempt returns false and close button clicked', () => {
+    const onClose = jest.fn();
+    const onCloseAttempt = () => false;
+    const { container } = renderComponent({
+      props: { children: textContent, onClose, onCloseAttempt, open: true },
+    });
+
+    fireEvent.click(container.querySelector(CLOSE_BUTTON_SELECTOR));
+
+    expect(onClose).not.toHaveBeenCalled();
   });
 });
