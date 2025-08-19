@@ -14,19 +14,23 @@ import type { PropsWithChildrenOnly } from '../types/types';
 type DialogManagerId = string;
 
 type DialogManagersState = Record<DialogManagerId, DialogManager | undefined>;
-const dialogManagersStore: StateStore<DialogManagersState> = new StateStore({});
+const dialogManagersRegistry: StateStore<DialogManagersState> = new StateStore({});
 
 const getDialogManager = (id: string): DialogManager | undefined =>
-  dialogManagersStore.getLatestValue()[id];
+  dialogManagersRegistry.getLatestValue()[id];
 
-const addDialogManager = (dialogManager: DialogManager) => {
-  if (getDialogManager(dialogManager.id)) return;
-  dialogManagersStore.partialNext({ [dialogManager.id]: dialogManager });
+const getOrCreateDialogManager = (id: string) => {
+  let manager = getDialogManager(id);
+  if (!manager) {
+    manager = new DialogManager({ id });
+    dialogManagersRegistry.partialNext({ [id]: manager });
+  }
+  return manager;
 };
 
 const removeDialogManager = (id: string) => {
   if (!getDialogManager(id)) return;
-  dialogManagersStore.partialNext({ [id]: undefined });
+  dialogManagersRegistry.partialNext({ [id]: undefined });
 };
 
 type DialogManagerProviderContextValue = {
@@ -47,18 +51,22 @@ export const DialogManagerProvider = ({
   children,
   id,
 }: PropsWithChildren<{ id?: string }>) => {
-  const dialogManager = useMemo<DialogManager>(
-    () => (id && getDialogManager(id)) || new DialogManager({ id }),
-    [id],
-  );
+  const [dialogManager, setDialogManager] = useState<DialogManager | null>(() => {
+    if (id) return getDialogManager(id) ?? null;
+    return new DialogManager(); // will not be included in the registry
+  });
 
-  addDialogManager(dialogManager);
-  useEffect(
-    () => () => {
-      removeDialogManager(dialogManager.id);
-    },
-    [dialogManager],
-  );
+  useEffect(() => {
+    if (!id) return;
+    setDialogManager(getOrCreateDialogManager(id));
+    return () => {
+      removeDialogManager(id);
+      setDialogManager(null);
+    };
+  }, [id]);
+
+  // temporarily do not render until a new dialog manager is created
+  if (!dialogManager) return null;
 
   return (
     <DialogManagerProviderContext.Provider value={{ dialogManager }}>
@@ -126,7 +134,7 @@ export const useDialogManager = ({
     const { managerInNewState } = getManagerFromStore({
       dialogId,
       dialogManagerId,
-      newState: dialogManagersStore.getLatestValue(),
+      newState: dialogManagersRegistry.getLatestValue(),
       previousState: undefined,
     });
     return managerInNewState
@@ -136,7 +144,7 @@ export const useDialogManager = ({
 
   useEffect(() => {
     if (!dialogId && !dialogManagerId) return;
-    const unsubscribe = dialogManagersStore.subscribeWithSelector(
+    const unsubscribe = dialogManagersRegistry.subscribeWithSelector(
       (state) => state,
       (newState, previousState) => {
         const { managerInNewState, managerInPrevState } = getManagerFromStore({

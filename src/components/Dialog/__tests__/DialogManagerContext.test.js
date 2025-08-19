@@ -64,7 +64,7 @@ const DialogTestComponent = ({ dialogId, managerId }) => {
 
 describe('DialogManagerContext', () => {
   describe('DialogManagerProvider', () => {
-    it('does not create a new dialog manager when no id is provided', () => {
+    it('creates a new dialog manager when no id is provided with randomly generated id', () => {
       render(
         <DialogManagerProvider>
           <TestComponent />
@@ -72,6 +72,9 @@ describe('DialogManagerContext', () => {
       );
 
       expect(screen.getByTestId(TEST_IDS.DIALOG_COUNT).textContent).toBe('0');
+      expect(screen.getByTestId(TEST_IDS.MANAGER_ID_DISPLAY).textContent).toEqual(
+        expect.any(String),
+      );
     });
 
     it('creates a new dialog manager and adds it to the manager pool when id is provided', () => {
@@ -81,8 +84,9 @@ describe('DialogManagerContext', () => {
         </DialogManagerProvider>,
       );
 
-      const managerId = screen.getByTestId(TEST_IDS.MANAGER_ID_DISPLAY).textContent;
-      expect(managerId).toBe(TEST_MANAGER_ID);
+      expect(screen.getByTestId(TEST_IDS.MANAGER_ID_DISPLAY).textContent).toBe(
+        TEST_MANAGER_ID,
+      );
       expect(screen.getByTestId(TEST_IDS.DIALOG_COUNT).textContent).toBe('0');
     });
 
@@ -93,8 +97,9 @@ describe('DialogManagerContext', () => {
           <TestComponent dialogManagerId={MANAGER_2_ID} />
         </DialogManagerProvider>,
       );
-      const managerId = screen.getByTestId(TEST_IDS.MANAGER_ID_DISPLAY).textContent;
-      expect(managerId).toBe(MANAGER_2_ID);
+      expect(screen.getByTestId(TEST_IDS.MANAGER_ID_DISPLAY).textContent).toBe(
+        MANAGER_2_ID,
+      );
       expect(screen.getByTestId(TEST_IDS.DIALOG_COUNT).textContent).toBe('0');
     });
 
@@ -120,7 +125,7 @@ describe('DialogManagerContext', () => {
       expect(screen.getByTestId(TEST_IDS.DIALOG_COUNT)).toHaveTextContent('0');
     });
 
-    it('retrieves existing dialog manager and does not create a new dialog manager', () => {
+    it('retrieves the existing dialog manager and does not create a new dialog manager', () => {
       const dialogId = 'shared-dialog';
       render(
         <DialogManagerProvider id={SHARED_MANAGER_ID}>
