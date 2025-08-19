@@ -1,9 +1,10 @@
 import type { CSSProperties, MutableRefObject } from 'react';
+import { useCallback } from 'react';
 import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { BaseImage as DefaultBaseImage } from './BaseImage';
-import { Modal } from '../Modal';
+import { Modal as DefaultModal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { useComponentContext } from '../../context';
 
@@ -42,12 +43,20 @@ export const ImageComponent = (props: ImageProps) => {
   } = props;
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } =
-    useComponentContext('ImageComponent');
+  const {
+    BaseImage = DefaultBaseImage,
+    Modal = DefaultModal,
+    ModalGallery = DefaultModalGallery,
+  } = useComponentContext('ImageComponent');
 
   const imageSrc = sanitizeUrl(previewUrl || image_url || thumb_url);
+  const closeModal = useCallback(() => {
+    setModalIsOpen(false);
+  }, []);
 
-  const toggleModal = () => setModalIsOpen((modalIsOpen) => !modalIsOpen);
+  const openModal = useCallback(() => {
+    setModalIsOpen(true);
+  }, []);
 
   return (
     <>
@@ -55,7 +64,7 @@ export const ImageComponent = (props: ImageProps) => {
         alt={fallback}
         className='str-chat__message-attachment--img'
         data-testid='image-test'
-        onClick={toggleModal}
+        onClick={openModal}
         src={imageSrc}
         style={style}
         tabIndex={0}
@@ -63,7 +72,7 @@ export const ImageComponent = (props: ImageProps) => {
         {...dimensions}
         {...(innerRef && { ref: innerRef })}
       />
-      <Modal className='str-chat__image-modal' onClose={toggleModal} open={modalIsOpen}>
+      <Modal className='str-chat__image-modal' onClose={closeModal} open={modalIsOpen}>
         <ModalGallery images={[props]} index={0} />
       </Modal>
     </>

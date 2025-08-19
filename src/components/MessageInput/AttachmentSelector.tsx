@@ -4,7 +4,7 @@ import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
-import { Modal } from '../Modal';
+import { Modal as DefaultModal } from '../Modal';
 import { ShareLocationDialog as DefaultLocationDialog } from '../Location';
 import { PollCreationDialog as DefaultPollCreationDialog } from '../Poll';
 import { Portal } from '../Portal/Portal';
@@ -192,6 +192,7 @@ export const AttachmentSelector = ({
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
+  const { Modal = DefaultModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposer();
 

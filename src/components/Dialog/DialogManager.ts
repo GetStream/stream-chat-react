@@ -1,9 +1,10 @@
 import { nanoid } from 'nanoid';
 import { StateStore } from 'stream-chat';
 
-export type GetOrCreateDialogParams = {
+export type GetDialogParams = {
   id: DialogId;
 };
+export type GetOrCreateDialogParams = GetDialogParams;
 
 type DialogId = string;
 
@@ -55,6 +56,10 @@ export class DialogManager {
       },
       0,
     );
+  }
+
+  get(id: DialogId) {
+    return this.state.getLatestValue().dialogsById[id];
   }
 
   getOrCreate({ id }: GetOrCreateDialogParams) {

@@ -108,12 +108,6 @@ describe('<MessageActions /> component', () => {
             </svg>
           </button>
         </div>
-        <div
-          class="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialog-manager-provider-id"
-          data-testid="str-chat__dialog-overlay"
-          style="--str-chat__dialog-overlay-height: 0;"
-        />
       </div>
     `);
   });
@@ -129,8 +123,6 @@ describe('<MessageActions /> component', () => {
   it('should open message actions box on click', async () => {
     renderMessageActions();
     expect(MessageActionsBoxMock).not.toHaveBeenCalled();
-    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
-    expect(dialogOverlay.children).toHaveLength(0);
     await act(async () => {
       await toggleOpenMessageActions();
     });
@@ -138,12 +130,12 @@ describe('<MessageActions /> component', () => {
       expect.objectContaining({ open: true }),
       undefined,
     );
+    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     expect(dialogOverlay.children.length).toBeGreaterThan(0);
   });
 
   it('should close message actions box on icon click if already opened', async () => {
     renderMessageActions();
-    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     expect(MessageActionsBoxMock).not.toHaveBeenCalled();
     await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
@@ -151,7 +143,8 @@ describe('<MessageActions /> component', () => {
       undefined,
     );
     await toggleOpenMessageActions();
-    expect(dialogOverlay.children).toHaveLength(0);
+    const dialogOverlay = screen.queryByTestId(dialogOverlayTestId);
+    expect(dialogOverlay).not.toBeInTheDocument();
   });
 
   it('should close message actions box when user clicks overlay if it is already opened', async () => {
@@ -161,23 +154,23 @@ describe('<MessageActions /> component', () => {
       expect.objectContaining({ open: true }),
       undefined,
     );
-    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
+    const dialogOverlay = screen.queryByTestId(dialogOverlayTestId);
     await act(async () => {
       await fireEvent.click(dialogOverlay);
     });
     expect(MessageActionsBoxMock).toHaveBeenCalledTimes(1);
-    expect(dialogOverlay.children).toHaveLength(0);
+    expect(dialogOverlay).not.toBeInTheDocument();
   });
 
   it('should close message actions box when user presses Escape key', async () => {
     renderMessageActions();
-    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
     await toggleOpenMessageActions();
     await act(async () => {
       await fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
     });
     expect(MessageActionsBoxMock).toHaveBeenCalledTimes(1);
-    expect(dialogOverlay.children).toHaveLength(0);
+    const dialogOverlay = screen.queryByTestId(dialogOverlayTestId);
+    expect(dialogOverlay).not.toBeInTheDocument();
   });
 
   it('should render the message actions box correctly', async () => {
@@ -252,12 +245,6 @@ describe('<MessageActions /> component', () => {
             </svg>
           </button>
         </div>
-        <div
-          class="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialog-manager-provider-id"
-          data-testid="str-chat__dialog-overlay"
-          style="--str-chat__dialog-overlay-height: 0;"
-        />
       </div>
     `);
   });
@@ -293,12 +280,6 @@ describe('<MessageActions /> component', () => {
             </svg>
           </button>
         </span>
-        <div
-          class="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialog-manager-provider-id"
-          data-testid="str-chat__dialog-overlay"
-          style="--str-chat__dialog-overlay-height: 0;"
-        />
       </div>
     `);
   });
