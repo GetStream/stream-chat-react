@@ -120,7 +120,7 @@
     "nanoid": "^3.3.4",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
-    "react-image-gallery": "1.2.12",
+    "react-image-gallery": "^1.4.0",
     "react-markdown": "^9.0.3",
     "react-player": "2.10.1",
     "react-popper": "^2.3.0",
