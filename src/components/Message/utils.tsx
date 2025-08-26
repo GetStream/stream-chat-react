@@ -202,7 +202,7 @@ export const getMessageActions = (
 
   if (
     channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.remindMe)
+    messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
   }
@@ -213,7 +213,7 @@ export const getMessageActions = (
 
   if (
     channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater)
+    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
   }
