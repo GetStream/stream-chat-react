@@ -1,3 +1,10 @@
+## [13.6.0](https://github.com/GetStream/stream-chat-react/compare/v13.5.1...v13.6.0) (2025-08-27)
+
+### Features
+
+* add support for global modal rendering at the top of the chat component tree ([#2792](https://github.com/GetStream/stream-chat-react/issues/2792)) ([0268652](https://github.com/GetStream/stream-chat-react/commit/0268652b82a5fd0b674a4fb8e4992241d2297b87))
+* respect onCloseAttempt prop in GlobalModal ([#2802](https://github.com/GetStream/stream-chat-react/issues/2802)) ([d630ef1](https://github.com/GetStream/stream-chat-react/commit/d630ef1a5b016e4c195989fee41b9031df599b9c))
+
 ## [13.5.1](https://github.com/GetStream/stream-chat-react/compare/v13.5.0...v13.5.1) (2025-08-18)
 
 ### Bug Fixes
