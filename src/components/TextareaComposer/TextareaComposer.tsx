@@ -5,7 +5,7 @@ import type {
   TextareaHTMLAttributes,
   UIEventHandler,
 } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useMessageComposer } from '../MessageInput';
 import type {
@@ -200,7 +200,6 @@ export const TextareaComposer = ({
           event.preventDefault();
         }
         handleSubmit();
-        textareaRef.current.selectionEnd = 0;
       }
     },
     [
@@ -225,7 +224,7 @@ export const TextareaComposer = ({
     [onScroll, textComposer],
   );
 
-  const setSelectionDebounced = useCallback(
+  const setSelection = useCallback(
     (e: SyntheticEvent<HTMLTextAreaElement>) => {
       onSelect?.(e);
       textComposer.setSelection({
@@ -235,17 +234,6 @@ export const TextareaComposer = ({
     },
     [onSelect, textComposer],
   );
-
-  useEffect(() => {
-    // FIXME: find the real reason for cursor being set to the end on each change
-    // This is a workaround to prevent the cursor from jumping
-    // to the end of the textarea when the user is typing
-    // at the position that is not at the end of the textarea value.
-    if (textareaRef.current && !isComposing) {
-      textareaRef.current.selectionStart = selection.start;
-      textareaRef.current.selectionEnd = selection.end;
-    }
-  }, [text, textareaRef, selection.start, selection.end, isComposing]);
 
   useEffect(() => {
     if (textComposer.suggestions) {
@@ -259,18 +247,22 @@ export const TextareaComposer = ({
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     /**
-     * The textarea value has to be overridden outside the render cycle so that the events like compositionend can be triggered.
-     * If we have overridden the value during the component rendering, the compositionend event would not be triggered, and
-     * it would not be possible to type composed characters (ô).
-     * On the other hand, just removing the value override via prop (value={text}) would not allow us to change the text based on
-     * middleware results (e.g. replace characters with emojis)
+     * It is important to perform set text and after that the range
+     * to prevent cursor reset to the end of the textarea if doing it in separate effects.
      */
     const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.value = text;
-  }, [textareaRef, text]);
+    if (!textarea || isComposing) return;
+
+    const length = textarea.value.length;
+    const start = Math.max(0, Math.min(selection.start, length));
+    const end = Math.max(start, Math.min(selection.end, length));
+
+    if (textarea.selectionStart === start && textarea.selectionEnd === end) return;
+
+    textarea.setSelectionRange(start, end, 'forward');
+  }, [text, selection.start, selection.end, isComposing, textareaRef]);
 
   return (
     <div
@@ -303,11 +295,12 @@ export const TextareaComposer = ({
         onKeyDown={keyDownHandler}
         onPaste={onPaste}
         onScroll={scrollHandler}
-        onSelect={setSelectionDebounced}
+        onSelect={setSelection}
         placeholder={placeholder || t('Type your message')}
         ref={(ref) => {
           textareaRef.current = ref;
         }}
+        value={text}
       />
       {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
       {!isComposing && (
