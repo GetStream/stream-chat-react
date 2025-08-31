@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@stream-io/stream-chat-css": "link:../../node_modules/@stream-io/stream-chat-css",
-    "next": "^12.0.9",
+    "next": "^14.2.32",
     "react": "link:../../node_modules/react",
     "react-app-polyfill": "^1.0.2",
     "react-dom": "link:../../node_modules/react-dom",
