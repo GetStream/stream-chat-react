@@ -1,3 +1,10 @@
+## [13.6.1](https://github.com/GetStream/stream-chat-react/compare/v13.6.0...v13.6.1) (2025-09-03)
+
+### Bug Fixes
+
+* check the presence of remindMe and saveForLater message actions correctly ([#2808](https://github.com/GetStream/stream-chat-react/issues/2808)) ([4c1d1c3](https://github.com/GetStream/stream-chat-react/commit/4c1d1c3b2de2ae43f0f538dbd30b2ff1551c87c8))
+* prevent textarea selection reset upon text insertion ([#2814](https://github.com/GetStream/stream-chat-react/issues/2814)) ([fc04d13](https://github.com/GetStream/stream-chat-react/commit/fc04d13a0103b1a2c85e0c1e0a4f9c817d45702a))
+
 ## [13.6.0](https://github.com/GetStream/stream-chat-react/compare/v13.5.1...v13.6.0) (2025-08-27)
 
 ### Features
