@@ -1,3 +1,9 @@
+## [13.6.2](https://github.com/GetStream/stream-chat-react/compare/v13.6.1...v13.6.2) (2025-09-06)
+
+### Bug Fixes
+
+* return possibility to compose characters ([8a932f0](https://github.com/GetStream/stream-chat-react/commit/8a932f0aa874de7084606c84833816668337177f))
+
 ## [13.6.1](https://github.com/GetStream/stream-chat-react/compare/v13.6.0...v13.6.1) (2025-09-03)
 
 ### Bug Fixes
