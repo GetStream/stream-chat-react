@@ -35,6 +35,7 @@ import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
 jest.mock('../../Loading', () => ({
+  LoadingChannel: jest.fn(() => <div>Loading channel</div>),
   LoadingErrorIndicator: jest.fn(() => <div />),
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
