@@ -41,8 +41,10 @@ import type { OnMentionAction } from './hooks/useMentionsHandlers';
 import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
 import type { LoadingErrorIndicatorProps } from '../Loading';
-import { LoadingErrorIndicator as DefaultLoadingErrorIndicator } from '../Loading';
-import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
+import {
+  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
+  LoadingChannel as DefaultLoadingIndicator,
+} from '../Loading';
 
 import type {
   ChannelActionContextValue,
