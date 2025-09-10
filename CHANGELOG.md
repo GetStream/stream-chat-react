@@ -1,3 +1,10 @@
+## [13.6.3](https://github.com/GetStream/stream-chat-react/compare/v13.6.2...v13.6.3) (2025-09-10)
+
+### Bug Fixes
+
+* add missing translations for poll composer error messages ([#2820](https://github.com/GetStream/stream-chat-react/issues/2820)) ([5f814d9](https://github.com/GetStream/stream-chat-react/commit/5f814d98c93529d4a4ae5bef4524b2abae49d924))
+* export LoadingChannel component ([#2818](https://github.com/GetStream/stream-chat-react/issues/2818)) ([8a01942](https://github.com/GetStream/stream-chat-react/commit/8a019429d8c78555c731a19a502452f6fbf7f8be))
+
 ## [13.6.2](https://github.com/GetStream/stream-chat-react/compare/v13.6.1...v13.6.2) (2025-09-06)
 
 ### Bug Fixes
