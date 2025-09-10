@@ -50,9 +50,18 @@ const UnMemoizedMessageOptions = (props: MessageOptionsProps) => {
   } = useMessageContext('MessageOptions');
 
   const { t } = useTranslationContext('MessageOptions');
-  const messageActionsDialogIsOpen = useDialogIsOpen(`message-actions--${message.id}`);
+
+  // It is necessary to namespace the dialog IDs because a message with the same ID
+  // can appear in the main message list as well as in the thread message list.
+  // Without the namespace, the search for dialog would be performed by the message ID only
+  // which could return the dialog for a message in another message list (which would not be rendered).
+  const dialogIdNamespace = threadList ? '-thread-' : '';
+
+  const messageActionsDialogIsOpen = useDialogIsOpen(
+    `message-actions${dialogIdNamespace}--${message.id}`,
+  );
   const reactionSelectorDialogIsOpen = useDialogIsOpen(
-    `reaction-selector--${message.id}`,
+    `reaction-selector${dialogIdNamespace}--${message.id}`,
   );
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
