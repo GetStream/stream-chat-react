@@ -23,11 +23,12 @@ export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message } = useMessageContext('MessageOptions');
+  const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
-  const dialogId = `reaction-selector--${message.id}`;
+  const dialogIdNamespace = threadList ? '-thread-' : '';
+  const dialogId = `reaction-selector${dialogIdNamespace}--${message.id}`;
   const dialog = useDialog({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId);
   return (

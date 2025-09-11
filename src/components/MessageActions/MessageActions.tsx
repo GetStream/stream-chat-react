@@ -83,7 +83,8 @@ export const MessageActions = (props: MessageActionsProps) => {
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const dialogId = `message-actions--${message.id}`;
+  const dialogIdNamespace = threadList ? '-thread-' : '';
+  const dialogId = `message-actions${dialogIdNamespace}--${message.id}`;
   const dialog = useDialog({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId);
 
