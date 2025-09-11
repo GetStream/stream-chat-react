@@ -1,3 +1,9 @@
+## [13.6.4](https://github.com/GetStream/stream-chat-react/compare/v13.6.3...v13.6.4) (2025-09-11)
+
+### Bug Fixes
+
+* display message actions dialogs for thread replies sent to channel ([#2823](https://github.com/GetStream/stream-chat-react/issues/2823)) ([04149ab](https://github.com/GetStream/stream-chat-react/commit/04149ab73d4a315282780c12ac6364c35755d85c))
+
 ## [13.6.3](https://github.com/GetStream/stream-chat-react/compare/v13.6.2...v13.6.3) (2025-09-10)
 
 ### Bug Fixes
