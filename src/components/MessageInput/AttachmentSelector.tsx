@@ -163,16 +163,22 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
   } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposer();
+  const channelConfig = messageComposer.channel.getConfig();
 
   return original
     .filter((action) => {
-      if (action.type === 'uploadFile') return channelCapabilities['upload-file'];
+      if (action.type === 'uploadFile')
+        return channelCapabilities['upload-file'] && channelConfig?.uploads;
 
       if (action.type === 'createPoll')
-        return channelCapabilities['send-poll'] && !messageComposer.threadId;
+        return (
+          channelCapabilities['send-poll'] &&
+          !messageComposer.threadId &&
+          channelConfig?.polls
+        );
 
       if (action.type === 'addLocation') {
-        return messageComposer.config.location.enabled && !messageComposer.threadId;
+        return channelConfig?.shared_locations && !messageComposer.threadId;
       }
       return true;
     })

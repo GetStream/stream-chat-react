@@ -122,12 +122,129 @@ describe('AttachmentSelector', () => {
     expect(menu).toHaveTextContent('Location');
   });
 
+  it('renders with poll only if only polls are enabled', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              polls: true,
+              shared_locations: false,
+              uploads: false,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
+    await renderComponent({
+      channelStateContext: { channelCapabilities: { 'send-poll': true } },
+      customChannel,
+      customClient,
+    });
+
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    expect(menu).toBeInTheDocument();
+    expect(menu).not.toHaveTextContent('File');
+    expect(menu).toHaveTextContent('Poll');
+    expect(menu).not.toHaveTextContent('Location');
+  });
+
+  it('does not render with poll only if polls are not enabled and send-poll permission is granted', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              polls: false,
+              shared_locations: false,
+              uploads: false,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
+    await renderComponent({
+      channelStateContext: { channelCapabilities: { 'send-poll': true } },
+      customChannel,
+      customClient,
+    });
+
+    expect(
+      screen.queryByTestId('invoke-attachment-selector-button'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders with location only if only shared_locations are enabled', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              polls: false,
+              shared_locations: true,
+              uploads: false,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
+    await renderComponent({
+      channelStateContext: { channelCapabilities: {} },
+      customChannel,
+      customClient,
+    });
+
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    expect(menu).toBeInTheDocument();
+    expect(menu).not.toHaveTextContent('File');
+    expect(menu).not.toHaveTextContent('Poll');
+    expect(menu).toHaveTextContent('Location');
+  });
+
   it('falls back to SimpleAttachmentSelector if only file uploads are enabled', async () => {
     const {
       channels: [customChannel],
       client: customClient,
-    } = await initClientWithChannels();
-    customChannel.messageComposer.updateConfig({ location: { enabled: false } });
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              polls: false,
+              shared_locations: false,
+              uploads: true,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
     const { container } = await renderComponent({
       channelStateContext: { channelCapabilities: { 'upload-file': true } },
       customChannel,
@@ -139,17 +256,54 @@ describe('AttachmentSelector', () => {
     expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
-  it('renders SimpleAttachmentSelector if rendered in a thread', async () => {
+  it('does not render SimpleAttachmentSelector neither AttachmentSelector menu if upload permission is granted but file upload disabled', async () => {
     const {
-      channels: [channel],
-      client,
+      channels: [customChannel],
+      client: customClient,
     } = await initClientWithChannels({
       channelsData: [
         {
           channel: {
             ...defaultChannelData,
             cid: 'type:id',
-            config: defaultConfig,
+            config: {
+              polls: false,
+              shared_locations: false,
+              uploads: false,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
+    await renderComponent({
+      channelStateContext: { channelCapabilities: { 'upload-file': true } },
+      customChannel,
+      customClient,
+    });
+
+    expect(
+      screen.queryByTestId('invoke-attachment-selector-button'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('file-upload-button')).not.toBeInTheDocument();
+  });
+
+  it('renders SimpleAttachmentSelector if rendered in a thread', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              polls: false,
+              shared_locations: false,
+              uploads: true,
+            },
             id: 'id',
             type: 'type',
           },
@@ -157,9 +311,12 @@ describe('AttachmentSelector', () => {
       ],
     });
     const { container } = await renderComponent({
-      channel,
-      channelStateContext: { thread: generateMessage({ cid: channel.cid }) },
-      client,
+      channelStateContext: {
+        channelCapabilities: { 'upload-file': true },
+        thread: generateMessage({ cid: customChannel.cid }),
+      },
+      customChannel,
+      customClient,
     });
     expect(
       container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
