@@ -41,6 +41,7 @@ export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
         read_events: true,
         replies: true,
         search: true,
+        shared_locations: true,
         typing_events: true,
         updated_at: '2020-04-24T11:36:43.859022903Z',
         uploads: true,
