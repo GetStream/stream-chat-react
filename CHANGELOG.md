@@ -1,3 +1,9 @@
+## [13.6.5](https://github.com/GetStream/stream-chat-react/compare/v13.6.4...v13.6.5) (2025-09-15)
+
+### Bug Fixes
+
+* reflect channel config besides user permissions in AttachmentSelector ([#2824](https://github.com/GetStream/stream-chat-react/issues/2824)) ([6e0a6e6](https://github.com/GetStream/stream-chat-react/commit/6e0a6e6621abef800fd8ab522eb4a4fe7e7bbda7))
+
 ## [13.6.4](https://github.com/GetStream/stream-chat-react/compare/v13.6.3...v13.6.4) (2025-09-11)
 
 ### Bug Fixes
