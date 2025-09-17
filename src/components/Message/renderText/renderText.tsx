@@ -45,6 +45,12 @@ export const defaultAllowedTagNames: Array<
   // custom types (tagNames)
   'emoji',
   'mention',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
 ];
 
 function formatUrlForDisplay(url: string) {
