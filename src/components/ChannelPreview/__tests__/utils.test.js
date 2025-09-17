@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import '@testing-library/jest-dom';
 import { nanoid } from 'nanoid';
 
@@ -14,6 +16,7 @@ import {
 
 import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from '../utils';
 import { generateStaticLocationResponse } from '../../../mock-builders';
+import { render } from '@testing-library/react';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -55,16 +58,45 @@ describe('ChannelPreview utils', () => {
         }),
       ],
     });
+    const channelWithHTMLInMessage = generateChannel({
+      messages: [
+        generateMessage({
+          attachments: [generateImageAttachment()],
+          text:
+            '<h1>Hello, world!</h1> \n' +
+            '<p>This is my first web page.</p> \n' +
+            '<p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>',
+        }),
+      ],
+    });
+
+    const expectedTextWithHTMLRendering =
+      '<h1>Hello, world!</h1> <p>This is my first web page.</p> <p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>';
+
+    function isReactMarkdownElement(x) {
+      return React.isValidElement(x) && x.type === ReactMarkdown;
+    }
 
     it.each([
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
       ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
       ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
       ['📍Shared location', 'channelWithLocationMessage', channelWithLocationMessage],
+      [
+        expectedTextWithHTMLRendering,
+        'channelWithHTMLInMessage',
+        channelWithHTMLInMessage,
+      ],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
       const t = (text) => text;
       const channel = await getQueriedChannelInstance(c);
-      expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
+      const preview = getLatestMessagePreview(channel, t);
+      if (isReactMarkdownElement(preview)) {
+        const { container } = render(preview);
+        expect(container).toHaveTextContent(expectedValue);
+      } else {
+        expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
+      }
     });
   });
 
