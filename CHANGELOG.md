@@ -1,3 +1,10 @@
+## [13.6.6](https://github.com/GetStream/stream-chat-react/compare/v13.6.5...v13.6.6) (2025-09-17)
+
+### Bug Fixes
+
+* enabled headings in message markdown ([#2829](https://github.com/GetStream/stream-chat-react/issues/2829)) ([1bdcb8d](https://github.com/GetStream/stream-chat-react/commit/1bdcb8d3cf44e334c999c333d419c0f51d6cf1bc))
+* render html as text in ChannelPreview ([#2830](https://github.com/GetStream/stream-chat-react/issues/2830)) ([509e45f](https://github.com/GetStream/stream-chat-react/commit/509e45f34d0dde8af0a7302225306e7fbbcedf27))
+
 ## [13.6.5](https://github.com/GetStream/stream-chat-react/compare/v13.6.4...v13.6.5) (2025-09-15)
 
 ### Bug Fixes
