@@ -209,9 +209,11 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks between the items
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks under a heading 1`] = `
+exports[`keepLineBreaksPlugin absent keeps line breaks natively under a heading 1`] = `
 <div>
-  Heading
+  <h2>
+    Heading
+  </h2>
   
 
   <p>
@@ -669,7 +671,9 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
 
 exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
 <div>
-  Heading
+  <h2>
+    Heading
+  </h2>
   
 
   <br />

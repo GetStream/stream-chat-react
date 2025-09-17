@@ -337,7 +337,7 @@ describe('keepLineBreaksPlugin', () => {
       const container = doRenderText(orderedListText, present);
       expect(container).toMatchSnapshot();
     });
-    it(`does not keep line breaks under a heading`, () => {
+    it(`keeps line breaks natively under a heading`, () => {
       const container = doRenderText(headingText, present);
       expect(container).toMatchSnapshot();
     });
