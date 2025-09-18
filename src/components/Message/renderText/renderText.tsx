@@ -10,7 +10,11 @@ import type { PluggableList } from 'unified'; // A sub-dependency of react-markd
 import { Anchor, Emoji, Mention } from './componentRenderers';
 import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
-import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
+import {
+  htmlToTextPlugin,
+  keepLineBreaksPlugin,
+  plusPlusToEmphasis,
+} from './remarkPlugins';
 import { ErrorBoundary } from '../../UtilityComponents';
 import type { MentionProps } from './componentRenderers';
 
@@ -51,6 +55,7 @@ export const defaultAllowedTagNames: Array<
   'h4',
   'h5',
   'h6',
+  'ins',
 ];
 
 function formatUrlForDisplay(url: string) {
@@ -169,6 +174,7 @@ export const renderText = (
     htmlToTextPlugin,
     keepLineBreaksPlugin,
     [remarkGfm, { singleTilde: false }],
+    plusPlusToEmphasis,
   ];
   const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
