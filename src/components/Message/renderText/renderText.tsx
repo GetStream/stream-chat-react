@@ -12,6 +12,7 @@ import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import {
   htmlToTextPlugin,
+  imageToLink,
   keepLineBreaksPlugin,
   plusPlusToEmphasis,
 } from './remarkPlugins';
@@ -175,6 +176,7 @@ export const renderText = (
     keepLineBreaksPlugin,
     [remarkGfm, { singleTilde: false }],
     plusPlusToEmphasis,
+    imageToLink,
   ];
   const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
