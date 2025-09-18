@@ -1,3 +1,10 @@
+## [13.7.0](https://github.com/GetStream/stream-chat-react/compare/v13.6.6...v13.7.0) (2025-09-18)
+
+### Features
+
+* add imageToLink Remark plugin for converting image MD links to anchor tags ([#2832](https://github.com/GetStream/stream-chat-react/issues/2832)) ([32fce17](https://github.com/GetStream/stream-chat-react/commit/32fce1760b167f94a1c2e55f8816a998a79ee8cd))
+* support inserted text element in message markdown rendering ([#2831](https://github.com/GetStream/stream-chat-react/issues/2831)) ([9135112](https://github.com/GetStream/stream-chat-react/commit/9135112a73bde470988f5cbb038209f84e1f3966))
+
 ## [13.6.6](https://github.com/GetStream/stream-chat-react/compare/v13.6.5...v13.6.6) (2025-09-17)
 
 ### Bug Fixes
