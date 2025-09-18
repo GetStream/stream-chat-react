@@ -4,6 +4,7 @@ import { u } from 'unist-builder';
 import { render, screen } from '@testing-library/react';
 import {
   htmlToTextPlugin,
+  imageToLink,
   keepLineBreaksPlugin,
   plusPlusToEmphasis,
 } from '../remarkPlugins';
@@ -449,18 +450,53 @@ describe('plusPlusToEmphasis', () => {
   };
 
   it('++…++ renders as <ins> and ignores code/links', () => {
-    renderTextPlusPlus('This is ++inserted++ and `++not++` and [x](y) ++also++');
+    renderTextPlusPlus(
+      'This is ++inserted++ and `++not++` and [x](https://octodex.github.com/images/minion.png) ++also++',
+    );
     expect(screen.getByText('inserted', { selector: 'ins' })).toBeInTheDocument();
     expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
     // link text exists; its inner text shouldn't be transformed
-    // expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
   });
 
   it('does not render ++…++  as <ins> if not present', () => {
-    renderTextPlusPlus('This is ++inserted++ and `++not++` and [x](y) ++also++', false);
+    renderTextPlusPlus(
+      'This is ++inserted++ and `++not++` and [x](https://octodex.github.com/images/minion.png) ++also++',
+      false,
+    );
     expect(screen.queryByText('inserted', { selector: 'ins' })).not.toBeInTheDocument();
     expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
     // link text exists; its inner text shouldn't be transformed
-    // expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+  });
+});
+
+describe('imageToLink', () => {
+  const renderImageToLink = (text, withPlugin = true) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => (withPlugin ? [imageToLink] : []) },
+    );
+    return render(Markdown).container;
+  };
+
+  it('converts image link to anchor link', () => {
+    renderImageToLink('Before ![x](https://octodex.github.com/images/minion.png) After');
+    expect(
+      screen.getByRole('link', { name: 'https://octodex.github.com/images/minion.png' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not convert image link to anchor link if plugin is missing', () => {
+    renderImageToLink(
+      'Before ![x](https://octodex.github.com/images/minion.png) After',
+      false,
+    );
+    expect(
+      screen.queryByRole('link', {
+        name: 'https://octodex.github.com/images/minion.png',
+      }),
+    ).not.toBeInTheDocument();
   });
 });
