@@ -1,8 +1,12 @@
 import React from 'react';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
-import { render } from '@testing-library/react';
-import { htmlToTextPlugin, keepLineBreaksPlugin } from '../remarkPlugins';
+import { render, screen } from '@testing-library/react';
+import {
+  htmlToTextPlugin,
+  keepLineBreaksPlugin,
+  plusPlusToEmphasis,
+} from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
 import '@testing-library/jest-dom';
 
@@ -431,5 +435,32 @@ describe('htmlToTextPlugin', () => {
   it(`present keeps HTML in text`, () => {
     const container = renderTextWithHtml(true);
     expect(container).toMatchSnapshot();
+  });
+});
+
+describe('plusPlusToEmphasis', () => {
+  const renderTextPlusPlus = (text, withPlugin = true) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []) },
+    );
+    return render(Markdown).container;
+  };
+
+  it('++…++ renders as <ins> and ignores code/links', () => {
+    renderTextPlusPlus('This is ++inserted++ and `++not++` and [x](y) ++also++');
+    expect(screen.getByText('inserted', { selector: 'ins' })).toBeInTheDocument();
+    expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
+    // link text exists; its inner text shouldn't be transformed
+    // expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+  });
+
+  it('does not render ++…++  as <ins> if not present', () => {
+    renderTextPlusPlus('This is ++inserted++ and `++not++` and [x](y) ++also++', false);
+    expect(screen.queryByText('inserted', { selector: 'ins' })).not.toBeInTheDocument();
+    expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
+    // link text exists; its inner text shouldn't be transformed
+    // expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
   });
 });

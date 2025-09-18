@@ -6,12 +6,13 @@ import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stre
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { ChatContextValue } from '../../context';
 import type { PluggableList } from 'unified';
-import { htmlToTextPlugin } from '../Message';
+import { htmlToTextPlugin, plusPlusToEmphasis } from '../Message';
 import remarkGfm from 'remark-gfm';
 
 const remarkPlugins: PluggableList = [
   htmlToTextPlugin,
   [remarkGfm, { singleTilde: false }],
+  plusPlusToEmphasis,
 ];
 
 export const renderPreviewText = (text: string) => (
