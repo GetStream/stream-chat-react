@@ -87,6 +87,7 @@ export const PollActions = ({
   } = useStateStore(poll.state, pollStateSelector);
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
+  const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const closeModal = useCallback(() => setModalOpen(undefined), []);
   const onUpdateAnswerClick = useCallback(() => setModalOpen('add-comment'), []);
 
@@ -106,7 +107,7 @@ export const PollActions = ({
         </PollAction>
       )}
 
-      {!is_closed &&
+      {canCastVote &&
         allow_user_suggested_options &&
         options.length < MAX_POLL_OPTIONS && (
           <PollAction

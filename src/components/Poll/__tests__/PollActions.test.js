@@ -28,7 +28,7 @@ const END_VOTE_ACTION_TEXT = 'End vote';
 const t = (v) => v;
 
 const defaultChannelStateContext = {
-  channelCapabilities: { 'query-poll-votes': true },
+  channelCapabilities: { 'cast-poll-vote': true, 'query-poll-votes': true },
 };
 
 const defaultMessageContext = {
@@ -87,7 +87,20 @@ describe('PollActions', () => {
     expect(screen.queryByText(SEE_ALL_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
-  it('shows "Suggest an option" action if poll is not closed and suggestions are allowed', async () => {
+  it('does not show "Suggest an option" action if poll is not closed and suggestions are allowed but user does not have permission to cast vote', async () => {
+    const pollData = generatePoll({
+      allow_user_suggested_options: true,
+      is_closed: false,
+    });
+    const poll = new Poll({ client: {}, poll: pollData });
+    await renderComponent({
+      channelStateContext: { channelCapabilities: { 'cast-poll-vote': false } },
+      poll,
+    });
+    expect(screen.queryByText(SUGGEST_OPTION_ACTION_TEXT)).not.toBeInTheDocument();
+  });
+
+  it('shows "Suggest an option" action if poll is not closed and suggestions are allowed and user has permission to cast votes', async () => {
     const pollData = generatePoll({
       allow_user_suggested_options: true,
       is_closed: false,
