@@ -24,3 +24,5 @@ export interface DefaultReactionData {}
 export interface DefaultUserData {}
 
 export interface DefaultThreadData {}
+
+export interface DefaultMessageComposerData {}
