@@ -63,6 +63,7 @@ export type MessageProps = {
   highlighted?: boolean;
   /** Whether the threaded message is the first in the thread list */
   initialMessage?: boolean;
+  // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message) */
