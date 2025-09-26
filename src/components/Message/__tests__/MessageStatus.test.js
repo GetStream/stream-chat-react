@@ -16,12 +16,11 @@ import {
 } from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
-const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-received';
+const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-delivered';
 const MESSAGE_STATUS_READ_TEST_ID = 'message-status-read-by';
 const MESSAGE_STATUS_READ_COUNT_TEST_ID = 'message-status-read-by-many';
 
-const rootClassName = `str-chat__message-simple-status str-chat__message-status`;
-
+const otherUser = { id: 'other-user' };
 const user = { id: 'me' };
 const foreignMsg = {
   __html: '<p>regular</p>',
@@ -35,14 +34,15 @@ const foreignMsg = {
   text: 'udSNfyk7Z-0MRn17WUQwY',
   type: 'regular',
   updated_at: '2024-05-28T15:13:20.900Z',
-  user: null,
+  user: otherUser,
 };
 
 const ownMessage = generateMessage({ user });
 const errorMsg = { ...foreignMsg, type: 'error', user };
 const sendingMsg = { ...foreignMsg, status: 'sending', user };
-const deliveredMsg = { ...foreignMsg, user };
-const readByOthers = [{ id: 'other-user' }];
+const sentMsg = { ...foreignMsg, user };
+const deliveredTo = [otherUser, user];
+const readByOthers = [otherUser, user];
 const t = jest.fn((s) => s);
 
 const defaultMsgCtx = {
@@ -67,7 +67,12 @@ describe('MessageStatus', () => {
     const client = await getTestClientWithUser(user);
     const { container } = renderComponent({
       chatCtx: { client },
-      messageCtx: { isMyMessage: () => false, message: foreignMsg },
+      messageCtx: {
+        deliveredTo,
+        isMyMessage: () => false,
+        message: foreignMsg,
+        readBy: readByOthers,
+      },
     });
     expect(container).toBeEmptyDOMElement();
   });
@@ -75,39 +80,25 @@ describe('MessageStatus', () => {
     const client = await getTestClientWithUser(user);
     const { container } = renderComponent({
       chatCtx: { client },
-      messageCtx: { message: errorMsg },
+      messageCtx: {
+        deliveredTo,
+        message: errorMsg,
+        readBy: readByOthers,
+      },
     });
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders default sending UI for the last message', async () => {
+  it('renders default sending UI', async () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { lastReceivedId: sendingMsg.id, message: sendingMsg },
+      messageCtx: { message: sendingMsg },
     });
     expect(screen.getByTestId(MESSAGE_STATUS_SENDING_TEST_ID)).toMatchSnapshot();
   });
 
-  it('renders custom sending UI for the last message', async () => {
-    const text = 'CustomMessageSendingStatus';
-    const MessageSendingStatus = () => <div>{text}</div>;
-    const client = await getTestClientWithUser(user);
-    renderComponent({
-      chatCtx: { client },
-      messageCtx: { lastReceivedId: sendingMsg.id, message: sendingMsg },
-      props: { MessageSendingStatus },
-    });
-    expect(screen.getByText(text)).toBeInTheDocument();
-  });
-
-  it('renders default sending UI for not the last message', async () => {
-    const client = await getTestClientWithUser(user);
-    renderComponent({ chatCtx: { client }, messageCtx: { message: sendingMsg } });
-    expect(screen.getByTestId(MESSAGE_STATUS_SENDING_TEST_ID)).toMatchSnapshot();
-  });
-
-  it('renders custom sending UI for not the last message', async () => {
+  it('renders custom sending UI', async () => {
     const text = 'CustomMessageSendingStatus';
     const MessageSendingStatus = () => <div>{text}</div>;
     const client = await getTestClientWithUser(user);
@@ -119,14 +110,35 @@ describe('MessageStatus', () => {
     expect(screen.getByText(text)).toBeInTheDocument();
   });
 
-  // here
+  it('renders default sent message UI', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: { deliveredTo: [user], message: sentMsg, readBy: [user] },
+    });
+    expect(screen.getByTestId('message-sent-icon')).toBeInTheDocument();
+  });
+
+  it('renders custom sent message UI', async () => {
+    const text = 'CustomMessageSentStatus';
+    const MessageSentStatus = () => <div>{text}</div>;
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: { deliveredTo: [user], message: sentMsg, readBy: [user] },
+      props: { MessageSentStatus },
+    });
+    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+  });
+
   it('renders default delivered UI for the last message', async () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { lastReceivedId: deliveredMsg.id, message: deliveredMsg },
+      messageCtx: { deliveredTo, message: sentMsg, readBy: [user] },
     });
-    expect(screen.getByTestId(MESSAGE_STATUS_DELIVERED_TEST_ID)).toMatchSnapshot();
+    expect(screen.getByTestId(MESSAGE_STATUS_DELIVERED_TEST_ID)).toBeInTheDocument();
   });
 
   it('renders custom delivered UI for the last message', async () => {
@@ -135,33 +147,10 @@ describe('MessageStatus', () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { lastReceivedId: deliveredMsg.id, message: deliveredMsg },
+      messageCtx: { deliveredTo, message: sentMsg, readBy: [user] },
       props: { MessageDeliveredStatus },
     });
     expect(screen.getByText(text)).toBeInTheDocument();
-  });
-
-  it('renders empty container without default delivered UI for not the last message', async () => {
-    const client = await getTestClientWithUser(user);
-    const { container } = renderComponent({
-      chatCtx: { client },
-      messageCtx: { message: deliveredMsg },
-    });
-    expect(container.children[0]).toHaveClass(rootClassName);
-    expect(container.children[0]).toBeEmptyDOMElement();
-  });
-
-  it('renders empty container without custom delivered UI for not the last message', async () => {
-    const text = 'CustomMessageDeliveredStatus';
-    const MessageDeliveredStatus = () => <div>{text}</div>;
-    const client = await getTestClientWithUser(user);
-    const { container } = renderComponent({
-      chatCtx: { client },
-      messageCtx: { message: deliveredMsg },
-      props: { MessageDeliveredStatus },
-    });
-    expect(container.children[0]).toHaveClass(rootClassName);
-    expect(container.children[0]).toBeEmptyDOMElement();
   });
 
   it('renders default read UI for the last message', async () => {
@@ -169,12 +158,12 @@ describe('MessageStatus', () => {
     renderComponent({
       chatCtx: { client },
       messageCtx: {
-        lastReceivedId: deliveredMsg.id,
-        message: deliveredMsg,
+        deliveredTo,
+        message: sentMsg,
         readBy: readByOthers,
       },
     });
-    expect(screen.getByTestId(MESSAGE_STATUS_READ_TEST_ID)).toMatchSnapshot();
+    expect(screen.getByTestId(MESSAGE_STATUS_READ_TEST_ID)).toBeInTheDocument();
   });
   it('renders custom read UI for the last message', async () => {
     const text = 'CustomMessageReadStatus';
@@ -183,35 +172,13 @@ describe('MessageStatus', () => {
     renderComponent({
       chatCtx: { client },
       messageCtx: {
-        lastReceivedId: deliveredMsg.id,
-        message: deliveredMsg,
+        deliveredTo,
+        message: sentMsg,
         readBy: readByOthers,
       },
       props: { MessageReadStatus },
     });
     expect(screen.getByText(text)).toBeInTheDocument();
-  });
-  it('renders empty container without default read UI for not the last message', async () => {
-    const client = await getTestClientWithUser(user);
-    const { container } = renderComponent({
-      chatCtx: { client },
-      messageCtx: { message: deliveredMsg },
-    });
-    expect(container.children[0]).toHaveClass(rootClassName);
-    expect(container.children[0]).toBeEmptyDOMElement();
-  });
-
-  it('renders empty container without custom read UI for not the last message', async () => {
-    const text = 'CustomMessageReadStatus';
-    const MessageReadStatus = () => <div>{text}</div>;
-    const client = await getTestClientWithUser(user);
-    const { container } = renderComponent({
-      chatCtx: { client },
-      messageCtx: { message: deliveredMsg },
-      props: { MessageReadStatus },
-    });
-    expect(container.children[0]).toHaveClass(rootClassName);
-    expect(container.children[0]).toBeEmptyDOMElement();
   });
 
   it('renders custom Avatar in default read status', async () => {
@@ -221,8 +188,8 @@ describe('MessageStatus', () => {
     renderComponent({
       chatCtx: { client },
       messageCtx: {
-        lastReceivedId: deliveredMsg.id,
-        message: deliveredMsg,
+        deliveredTo,
+        message: sentMsg,
         readBy: readByOthers,
       },
       props: { Avatar },
@@ -235,7 +202,7 @@ describe('MessageStatus', () => {
     const client = await getTestClientWithUser(user);
     const { container } = renderComponent({
       chatCtx: { client },
-      messageCtx: { message: deliveredMsg },
+      messageCtx: { message: sentMsg },
       props: { messageType: 'XXX' },
     });
     expect(container.children[0]).not.toHaveClass('str-chat__message-simple-status');
@@ -257,7 +224,7 @@ describe('MessageStatus', () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { message: ownMessage, readBy: [generateUser()] },
+      messageCtx: { message: ownMessage, readBy: [otherUser] },
     });
     expect(
       screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID),

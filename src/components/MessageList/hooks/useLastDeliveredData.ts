@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import type { Channel, LocalMessage, UserResponse } from 'stream-chat';
 
-type UseLastReadDataParams = {
+type UseLastDeliveredDataParams = {
   channel: Channel;
   messages: LocalMessage[];
   returnAllReadData: boolean;
 };
 
-export const useLastReadData = (props: UseLastReadDataParams) => {
+export const useLastDeliveredData = (props: UseLastDeliveredDataParams) => {
   const { channel, messages, returnAllReadData } = props;
 
   return useMemo(
@@ -15,7 +15,7 @@ export const useLastReadData = (props: UseLastReadDataParams) => {
       returnAllReadData
         ? messages.reduce(
             (acc, msg) => {
-              acc[msg.id] = channel.ownMessageReceiptsTracker.readersForMessage({
+              acc[msg.id] = channel.ownMessageReceiptsTracker.deliveredForMessage({
                 msgId: msg.id,
                 timestampMs: msg.created_at.getTime(),
               });
@@ -23,7 +23,7 @@ export const useLastReadData = (props: UseLastReadDataParams) => {
             },
             {} as Record<string, UserResponse[]>,
           )
-        : channel.ownMessageReceiptsTracker.groupUsersByLastReadMessage(),
+        : channel.ownMessageReceiptsTracker.groupUsersByLastDeliveredMessage(),
     [channel, messages, returnAllReadData],
   );
 };

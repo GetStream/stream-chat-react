@@ -27,6 +27,8 @@ export type MessageProps = {
   closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue['customMessageActions'];
+  /** An array of user IDs that have confirmed the message delivery to their device */
+  deliveredTo?: UserResponse[];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
   /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
@@ -61,6 +63,7 @@ export type MessageProps = {
   highlighted?: boolean;
   /** Whether the threaded message is the first in the thread list */
   initialMessage?: boolean;
+  // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message) */

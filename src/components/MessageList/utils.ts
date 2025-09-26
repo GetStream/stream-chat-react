@@ -4,7 +4,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type { LocalMessage, MessageLabel, UserResponse } from 'stream-chat';
+import type { LocalMessage, MessageLabel } from 'stream-chat';
 
 type IntroMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.intro;
@@ -200,48 +200,6 @@ export const getLastReceived = (messages: RenderedMessage[]) => {
   }
 
   return null;
-};
-
-export const getReadStates = (
-  messages: LocalMessage[],
-  read: Record<string, { last_read: Date; user: UserResponse }> = {},
-  returnAllReadData: boolean,
-) => {
-  // create object with empty array for each message id
-  const readData: Record<string, Array<UserResponse>> = {};
-
-  Object.values(read).forEach((readState) => {
-    if (!readState.last_read) return;
-
-    let userLastReadMsgId: string | undefined;
-
-    // loop messages sent by current user and add read data for other users in channel
-    messages.forEach((msg) => {
-      if (msg.created_at && msg.created_at < readState.last_read) {
-        userLastReadMsgId = msg.id;
-
-        // if true, save other user's read data for all messages they've read
-        if (returnAllReadData) {
-          if (!readData[userLastReadMsgId]) {
-            readData[userLastReadMsgId] = [];
-          }
-
-          readData[userLastReadMsgId].push(readState.user);
-        }
-      }
-    });
-
-    // if true, only save read data for other user's last read message
-    if (userLastReadMsgId && !returnAllReadData) {
-      if (!readData[userLastReadMsgId]) {
-        readData[userLastReadMsgId] = [];
-      }
-
-      readData[userLastReadMsgId].push(readState.user);
-    }
-  });
-
-  return readData;
 };
 
 export const insertIntro = (messages: RenderedMessage[], headerPosition?: number) => {
