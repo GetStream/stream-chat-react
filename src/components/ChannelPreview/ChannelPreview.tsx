@@ -88,6 +88,10 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
   const [lastMessage, setLastMessage] = useState<LocalMessage>(
     channel.state.messages[channel.state.messages.length - 1],
   );
+  const [latestMessagePreview, setLatestMessagePreview] = useState<ReactNode>(() =>
+    getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
+  );
+
   const [unread, setUnread] = useState(0);
   const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,
@@ -134,6 +138,9 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
 
   useEffect(() => {
     refreshUnreadCount();
+    setLatestMessagePreview(
+      getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
+    );
 
     const handleEvent = (event: Event) => {
       const deletedMessagesInAnotherChannel =
@@ -143,6 +150,9 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
 
       setLastMessage(
         channel.state.latestMessages[channel.state.latestMessages.length - 1],
+      );
+      setLatestMessagePreview(
+        getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
       );
       refreshUnreadCount();
     };
@@ -162,16 +172,18 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
       channel.off('message.undeleted', handleEvent);
       channel.off('channel.truncated', handleEvent);
     };
-  }, [channel, client, refreshUnreadCount, channelUpdateCount]);
-
-  if (!Preview) return null;
-
-  const latestMessagePreview = getLatestMessagePreview(
+  }, [
     channel,
+    client,
+    refreshUnreadCount,
+    channelUpdateCount,
+    getLatestMessagePreview,
     t,
     userLanguage,
     isMessageAIGenerated,
-  );
+  ]);
+
+  if (!Preview) return null;
 
   return (
     <Preview
