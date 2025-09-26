@@ -4,6 +4,7 @@ import type { Channel, Event, LocalMessage, UserResponse } from 'stream-chat';
 import { useChatContext } from '../../../context';
 
 export enum MessageDeliveryStatus {
+  SENT = 'sent',
   DELIVERED = 'delivered',
   READ = 'read',
 }
@@ -25,32 +26,31 @@ export const useMessageDeliveryStatus = ({
 
   const isOwnMessage = useCallback(
     (message?: { user?: UserResponse | null }) =>
-      client.user && message?.user?.id === client.user.id,
+      client.user && message && message.user?.id === client.user.id,
     [client],
   );
 
   useEffect(() => {
+    // empty channel
+    if (!lastMessage) {
+      setMessageDeliveryStatus(undefined);
+    }
+
     const lastMessageIsOwn = isOwnMessage(lastMessage);
     if (!lastMessage?.created_at || !lastMessageIsOwn) return;
 
-    const lastMessageCreatedAtDate =
-      typeof lastMessage.created_at === 'string'
-        ? new Date(lastMessage.created_at)
-        : lastMessage.created_at;
-
-    const channelReadByOthersAfterLastMessageUpdate = Object.values(
-      channel.state.read,
-    ).some(({ last_read: channelLastMarkedReadDate, user }) => {
-      const ignoreOwnReadStatus = client.user && user.id !== client.user.id;
-      return ignoreOwnReadStatus && lastMessageCreatedAtDate < channelLastMarkedReadDate;
-    });
-
+    const msgRef = {
+      msgId: lastMessage.id,
+      timestampMs: lastMessage.created_at.getTime(),
+    };
     setMessageDeliveryStatus(
-      channelReadByOthersAfterLastMessageUpdate
+      channel.ownMessageReceiptsTracker.readersForMessage(msgRef).length > 0
         ? MessageDeliveryStatus.READ
-        : MessageDeliveryStatus.DELIVERED,
+        : channel.ownMessageReceiptsTracker.deliveredForMessage(msgRef).length > 0
+          ? MessageDeliveryStatus.DELIVERED
+          : MessageDeliveryStatus.SENT,
     );
-  }, [channel.state.read, client, isOwnMessage, lastMessage]);
+  }, [channel, isOwnMessage, lastMessage]);
 
   useEffect(() => {
     const handleMessageNew = (event: Event) => {
@@ -58,8 +58,7 @@ export const useMessageDeliveryStatus = ({
       if (!isOwnMessage(event.message)) {
         return setMessageDeliveryStatus(undefined);
       }
-
-      return setMessageDeliveryStatus(MessageDeliveryStatus.DELIVERED);
+      return setMessageDeliveryStatus(MessageDeliveryStatus.SENT);
     };
 
     channel.on('message.new', handleMessageNew);
@@ -67,20 +66,32 @@ export const useMessageDeliveryStatus = ({
     return () => {
       channel.off('message.new', handleMessageNew);
     };
-  }, [channel, client, isOwnMessage]);
+  }, [channel, isOwnMessage]);
 
   useEffect(() => {
     if (!isOwnMessage(lastMessage)) return;
+    const handleMessageDelivered = (event: Event) => {
+      if (
+        event.user?.id !== client.user?.id &&
+        lastMessage &&
+        lastMessage.id === event.last_delivered_message_id
+      )
+        setMessageDeliveryStatus(MessageDeliveryStatus.DELIVERED);
+    };
+
     const handleMarkRead = (event: Event) => {
       if (event.user?.id !== client.user?.id)
         setMessageDeliveryStatus(MessageDeliveryStatus.READ);
     };
+
+    channel.on('message.delivered', handleMessageDelivered);
     channel.on('message.read', handleMarkRead);
 
     return () => {
+      channel.off('message.delivered', handleMessageDelivered);
       channel.off('message.read', handleMarkRead);
     };
-  }, [channel, client, lastMessage, isOwnMessage]);
+  }, [channel, client, isOwnMessage, lastMessage]);
 
   return {
     messageDeliveryStatus,

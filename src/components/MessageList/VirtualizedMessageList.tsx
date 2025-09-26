@@ -67,6 +67,7 @@ import type {
 import type { UnknownType } from '../../types/types';
 import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
@@ -105,6 +106,8 @@ export type VirtuosoContext = Required<
     messageGroupStyles: Record<string, GroupStyle>;
     /** Number of messages prepended before the first page of messages. This is needed to calculate the virtual position in the virtual list. */
     numItemsPrepended: number;
+    /** Mapping of message ID of own messages to the array of users, who were delivered the given message */
+    ownMessagesDeliveredToOthers: Record<string, UserResponse[]>;
     /** Mapping of message ID of own messages to the array of users, who read the given message */
     ownMessagesReadByOthers: Record<string, UserResponse[]>;
     /** The original message list enriched with date separators, omitted deleted messages or giphy previews. */
@@ -207,7 +210,6 @@ const VirtualizedMessageListWithContext = (
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
     reactionDetailsSort,
-    read,
     returnAllReadData = false,
     reviewProcessedMessage,
     scrollSeekPlaceHolder,
@@ -296,10 +298,15 @@ const VirtualizedMessageListWithContext = (
 
   // get the mapping of own messages to array of users who read them
   const ownMessagesReadByOthers = useLastReadData({
-    messages: processedMessages,
-    read,
+    channel,
+    messages: messages || [],
     returnAllReadData,
-    userID: client.userID,
+  });
+
+  const ownMessagesDeliveredToOthers = useLastDeliveredData({
+    channel,
+    messages: messages || [],
+    returnAllReadData,
   });
 
   const lastReceivedMessageId = useMemo(
@@ -491,6 +498,7 @@ const VirtualizedMessageListWithContext = (
                 MessageSystem,
                 numItemsPrepended,
                 openThread,
+                ownMessagesDeliveredToOthers,
                 ownMessagesReadByOthers,
                 processedMessages,
                 reactionDetailsSort,

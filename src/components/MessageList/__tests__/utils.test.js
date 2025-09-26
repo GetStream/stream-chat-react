@@ -4,12 +4,7 @@ import {
   generateUser,
 } from '../../../mock-builders';
 
-import {
-  getGroupStyles,
-  getReadStates,
-  makeDateMessageId,
-  processMessages,
-} from '../utils';
+import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
@@ -684,75 +679,5 @@ describe('getGroupStyles', () => {
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'single',
     );
-  });
-});
-
-describe('getReadStates', () => {
-  const messages = [
-    generateMessage({
-      created_at: new Date('2024-05-21T17:57:31.9876Z'),
-      id: 'u49866124-uJx-xdCYq0zQ9r5VTuJFH',
-    }),
-    generateMessage({
-      created_at: new Date('2024-05-21T17:57:32.9876Z'),
-      id: 'u49866124-uJx-xdCYq0zQ9r5VTuJFV',
-    }),
-    generateMessage({
-      created_at: new Date('2024-07-24T22:49:35.527Z'),
-      id: 'u49866124-uJx-xdCYq0zQ9r5VTuJFY',
-    }),
-  ];
-  const read = {
-    user1: {
-      last_read: new Date('2024-05-21T17:20:29.402Z'),
-      last_read_message_id: undefined,
-      user: { id: 'user1' },
-    },
-    user2: {
-      last_read: new Date('2024-07-24T22:49:36.527Z'),
-      last_read_message_id: 'u96661092-14eb8ca1-a04c-4098-1d96-b1313d0b794b',
-      user: { id: 'user2' },
-    },
-    user3: {
-      last_read: '2024-05-21T17:40:57.794Z',
-      last_read_message_id: 'user7-dcad8dbd-f234-469e-2a46-bd8405beabb7',
-      user: { id: 'user3' },
-    },
-    user5: {
-      last_read: undefined,
-      last_read_message_id: undefined,
-      user: { id: 'user5' },
-    },
-    user6: {
-      last_read: undefined,
-      last_read_message_id: 'u49866124-uJx-xdCYq0zQ9r5VTuJFH',
-      user: { id: 'user6' },
-    },
-    user7: {
-      last_read: new Date('2024-05-21T17:59:04.911Z'),
-      last_read_message_id: 'u49866124-uJx-xdCYq0zQ9r5VTuJFH',
-      user: { id: 'user7' },
-    },
-    user8: {
-      last_read: new Date('2024-06-24T23:00:12.391Z'),
-      last_read_message_id: 'u49866124-73190b61-adf7-4e99-0779-565f22239e36',
-      user: undefined,
-    },
-  };
-
-  it('returns the list of message readers based on last_read timestamp only for the last read message by user', () => {
-    expect(getReadStates(messages, read)).toStrictEqual({
-      'u49866124-uJx-xdCYq0zQ9r5VTuJFV': [{ id: 'user7' }, undefined],
-      'u49866124-uJx-xdCYq0zQ9r5VTuJFY': [{ id: 'user2' }],
-    });
-  });
-
-  it("lists the user for each message that was created before the user's last_read timestamp", () => {
-    const returnAllReadData = true;
-    expect(getReadStates(messages, read, returnAllReadData)).toStrictEqual({
-      'u49866124-uJx-xdCYq0zQ9r5VTuJFH': [{ id: 'user2' }, { id: 'user7' }, undefined],
-      'u49866124-uJx-xdCYq0zQ9r5VTuJFV': [{ id: 'user2' }, { id: 'user7' }, undefined],
-      'u49866124-uJx-xdCYq0zQ9r5VTuJFY': [{ id: 'user2' }],
-    });
   });
 });

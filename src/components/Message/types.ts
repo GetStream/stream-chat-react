@@ -27,6 +27,8 @@ export type MessageProps = {
   closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue['customMessageActions'];
+  /** An array of user IDs that have confirmed the message delivery to their device */
+  deliveredTo?: UserResponse[];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
   /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */

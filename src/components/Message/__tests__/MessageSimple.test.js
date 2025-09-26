@@ -14,7 +14,6 @@ import { MESSAGE_ACTIONS } from '../utils';
 import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
-import { getReadStates } from '../../MessageList';
 import { defaultReactionOptions } from '../../Reactions';
 
 import {
@@ -356,7 +355,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should render no status when message not from the current user', async () => {
-    const message = generateAliceMessage();
+    const message = generateBobMessage();
     const { container, queryByTestId } = await renderMessageSimple({ message });
     expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
     const results = await axe(container);
@@ -392,85 +391,6 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should keep rendering the "received" status for already read message that was updated', async () => {
-    const message = generateAliceMessage({
-      created_at: new Date('1970-1-2'),
-      status: 'received',
-    });
-    const returnAllReadData = false;
-    const read = {
-      [bob.id]: {
-        last_read: new Date('1970-1-1'),
-        last_read_message_id: message.id,
-        unread_messages: 1,
-        user: bob,
-      },
-    };
-    let ownMessagesReadByOthers = getReadStates([message], read, returnAllReadData);
-    const { container, getByTestId, rerender } = await renderMessageSimple({
-      message,
-      props: {
-        lastReceivedId: message.id,
-        readBy: ownMessagesReadByOthers[message.id],
-      },
-    });
-    expect(getByTestId('message-status-received')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-
-    const updatedMessage = { ...message, updated_at: new Date() };
-    ownMessagesReadByOthers = getReadStates([updatedMessage], read, returnAllReadData);
-    await renderMessageSimple({
-      message: updatedMessage,
-      props: {
-        lastReceivedId: message.id,
-        readBy: ownMessagesReadByOthers[message.id],
-      },
-      renderer: rerender,
-    });
-
-    expect(getByTestId('message-status-received')).toBeInTheDocument();
-  });
-
-  it('should keep rendering the "read by" status for already read message that was updated', async () => {
-    const message = generateAliceMessage({
-      created_at: new Date('1970-2-1'),
-      status: 'received',
-    });
-    const returnAllReadData = false;
-    const read = {
-      [bob.id]: {
-        last_read: new Date('1970-2-2'),
-        last_read_message_id: message.id,
-        unread_messages: 1,
-        user: bob,
-      },
-    };
-    let ownMessagesReadByOthers = getReadStates([message], read, returnAllReadData);
-    const { container, getByTestId, rerender } = await renderMessageSimple({
-      message,
-      props: {
-        lastReceivedId: message.id,
-        readBy: ownMessagesReadByOthers[message.id],
-      },
-    });
-    expect(getByTestId('message-status-read-by')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-
-    const updatedMessage = { ...message, updated_at: new Date() };
-    ownMessagesReadByOthers = getReadStates([updatedMessage], read, returnAllReadData);
-    await renderMessageSimple({
-      message: updatedMessage,
-      props: {
-        lastReceivedId: message.id,
-        readBy: ownMessagesReadByOthers[message.id],
-      },
-      renderer: rerender,
-    });
-    expect(getByTestId('message-status-read-by')).toBeInTheDocument();
-  });
-
   it('should render the "read by many" status when the message is not part of a thread and was read by more than one other chat members', async () => {
     const message = generateAliceMessage();
     const { container, getByTestId } = await renderMessageSimple({
@@ -484,15 +404,43 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render a received status when the message has a received status and it is the same message as the last received one', async () => {
+  it('should render a sent status when the message has status "received" and was not delivered to others', async () => {
     const message = generateAliceMessage({ status: 'received' });
     const { container, getByTestId } = await renderMessageSimple({
       message,
       props: {
-        lastReceivedId: message.id,
+        deliveredTo: [alice],
       },
     });
-    expect(getByTestId('message-status-received')).toBeInTheDocument();
+    expect(getByTestId('message-status-sent')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render a delivered status when the message was delivered to others but not read', async () => {
+    const message = generateAliceMessage({ status: 'received' });
+    const { container, getByTestId } = await renderMessageSimple({
+      message,
+      props: {
+        deliveredTo: [alice, bob],
+      },
+    });
+    expect(getByTestId('message-status-delivered')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should not render status when rendered in a thread list and was delivered to other members', async () => {
+    const message = generateAliceMessage();
+    const { container, queryByTestId } = await renderMessageSimple({
+      message,
+      props: {
+        deliveredTo: [alice, bob],
+        readBy: [alice],
+        threadList: true,
+      },
+    });
+    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
-import { MessageDeliveredIcon } from './icons';
+import { MessageDeliveredIcon, MessageSentIcon } from './icons';
 import type { TooltipUsernameMapper } from './utils';
 import { getReadByTooltipText, mapToUserNameOrId } from './utils';
 
@@ -25,6 +25,8 @@ export type MessageStatusProps = {
   MessageReadStatus?: React.ComponentType;
   /* Custom component to render when message is considered as being the in the process of delivery. The default UI renders LoadingIndicator and a tooltip with string 'Sending'. */
   MessageSendingStatus?: React.ComponentType;
+  /* Custom component to render when message is considered created on the server, but not delivered. The default UI renders MessageSentIcon and a tooltip with string 'Sent'. */
+  MessageSentStatus?: React.ComponentType;
   /* Message type string to be added to CSS class names. */
   messageType?: string;
   /* Allows to customize the username(s) that appear on the message status tooltip */
@@ -37,6 +39,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
     MessageDeliveredStatus,
     MessageReadStatus,
     MessageSendingStatus,
+    MessageSentStatus,
     messageType = 'simple',
     tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
@@ -46,7 +49,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
 
   const { client } = useChatContext('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
-  const { isMyMessage, lastReceivedId, message, readBy, threadList } =
+  const { deliveredTo, isMyMessage, message, readBy, threadList } =
     useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
@@ -56,25 +59,34 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   if (!isMyMessage() || message.type === 'error') return null;
 
   const justReadByMe = readBy?.length === 1 && readBy[0].id === client.user?.id;
-  const rootClassName = `str-chat__message-${messageType}-status str-chat__message-status`;
-
+  const deliveredOnlyToMe =
+    deliveredTo?.length === 1 && deliveredTo[0].id === client.user?.id;
   const sending = message.status === 'sending';
-  const delivered =
-    message.status === 'received' && message.id === lastReceivedId && !threadList;
-  const deliveredAndRead = !!(readBy?.length && !threadList && !justReadByMe);
+  const read = !!(readBy?.length && !justReadByMe && !threadList);
+  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
+  const sent = message.status === 'received' && !delivered && !read && !threadList;
 
-  const readersWithoutOwnUser = deliveredAndRead
+  const readersWithoutOwnUser = read
     ? readBy.filter((item) => item.id !== client.user?.id)
     : [];
   const [lastReadUser] = readersWithoutOwnUser;
 
   return (
     <span
-      className={rootClassName}
+      className={clsx(
+        `str-chat__message-${messageType}-status str-chat__message-status`,
+        {
+          'str-chat__message-status-delivered': delivered,
+          'str-chat__message-status-read-by': read,
+          'str-chat__message-status-sending': sending,
+          'str-chat__message-status-sent': sent,
+        },
+      )}
       data-testid={clsx({
-        'message-status-read-by': deliveredAndRead,
-        'message-status-received': delivered && !deliveredAndRead,
+        'message-status-delivered': delivered,
+        'message-status-read-by': read,
         'message-status-sending': sending,
+        'message-status-sent': sent,
       })}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
@@ -96,8 +108,9 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
           </>
         ))}
 
+      {sent && (MessageSentStatus ? <MessageSentStatus /> : <MessageSentIcon />)}
+
       {delivered &&
-        !deliveredAndRead &&
         (MessageDeliveredStatus ? (
           <MessageDeliveredStatus />
         ) : (
@@ -113,7 +126,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
           </>
         ))}
 
-      {deliveredAndRead &&
+      {read &&
         (MessageReadStatus ? (
           <MessageReadStatus />
         ) : (

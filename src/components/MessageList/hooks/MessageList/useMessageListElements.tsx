@@ -2,18 +2,20 @@ import type React from 'react';
 import { useMemo } from 'react';
 
 import { useLastReadData } from '../useLastReadData';
+import type { GroupStyle, RenderedMessage } from '../../utils';
 import { getLastReceived } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
-import type { ChannelState as StreamChannelState } from 'stream-chat';
-
-import type { GroupStyle, RenderedMessage } from '../../utils';
+import type { LocalMessage } from 'stream-chat';
 import type { ChannelUnreadUiState } from '../../../../types/types';
 import type { MessageRenderer, SharedMessageProps } from '../../renderMessages';
+import { useChannelStateContext } from '../../../../context';
+import { useLastDeliveredData } from '../useLastDeliveredData';
 
 type UseMessageListElementsProps = {
+  messages: LocalMessage[];
   enrichedMessages: RenderedMessage[];
   internalMessageProps: SharedMessageProps;
   messageGroupStyles: Record<string, GroupStyle>;
@@ -21,7 +23,6 @@ type UseMessageListElementsProps = {
   returnAllReadData: boolean;
   threadList: boolean;
   channelUnreadUiState?: ChannelUnreadUiState;
-  read?: StreamChannelState['read'];
 };
 
 export const useMessageListElements = (props: UseMessageListElementsProps) => {
@@ -30,21 +31,27 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
-    read,
+    messages,
     renderMessages,
     returnAllReadData,
     threadList,
   } = props;
 
-  const { client, customClasses } = useChatContext('useMessageListElements');
+  const { customClasses } = useChatContext('useMessageListElements');
+  const { channel } = useChannelStateContext();
   const components = useComponentContext('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData({
-    messages: enrichedMessages,
-    read,
+    channel,
+    messages,
     returnAllReadData,
-    userID: client.userID,
+  });
+
+  const ownMessagesDeliveredToOthers = useLastDeliveredData({
+    channel,
+    messages,
+    returnAllReadData,
   });
 
   const lastReceivedMessageId = useMemo(
@@ -61,6 +68,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
         lastReceivedMessageId,
         messageGroupStyles,
         messages: enrichedMessages,
+        ownMessagesDeliveredToOthers,
         readData,
         sharedMessageProps: { ...internalMessageProps, threadList },
       }),
