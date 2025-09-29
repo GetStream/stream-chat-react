@@ -100,6 +100,10 @@ export const ChannelPreview = <
   const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
   );
+  const [latestMessagePreview, setLatestMessagePreview] = useState<ReactNode>(() =>
+    getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
+  );
+
   const [unread, setUnread] = useState(0);
   const { messageDeliveryStatus } = useMessageDeliveryStatus<StreamChatGenerics>({
     channel,
@@ -146,10 +150,16 @@ export const ChannelPreview = <
 
   useEffect(() => {
     refreshUnreadCount();
+    setLatestMessagePreview(
+      getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
+    );
 
     const handleEvent = () => {
       setLastMessage(
         channel.state.latestMessages[channel.state.latestMessages.length - 1],
+      );
+      setLatestMessagePreview(
+        getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
       );
       refreshUnreadCount();
     };
@@ -167,16 +177,18 @@ export const ChannelPreview = <
       channel.off('message.undeleted', handleEvent);
       channel.off('channel.truncated', handleEvent);
     };
-  }, [channel, refreshUnreadCount, channelUpdateCount]);
-
-  if (!Preview) return null;
-
-  const latestMessagePreview = getLatestMessagePreview(
+  }, [
     channel,
+    client,
+    refreshUnreadCount,
+    channelUpdateCount,
+    getLatestMessagePreview,
     t,
     userLanguage,
     isMessageAIGenerated,
-  );
+  ]);
+
+  if (!Preview) return null;
 
   return (
     <Preview
