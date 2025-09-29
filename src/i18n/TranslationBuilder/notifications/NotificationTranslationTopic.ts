@@ -1,6 +1,7 @@
 import {
   attachmentUploadBlockedNotificationTranslator,
   attachmentUploadFailedNotificationTranslator,
+  attachmentUploadNotTerminatedTranslator,
 } from './attachmentUpload';
 import { TranslationTopic } from '../../TranslationBuilder';
 import type { Notification } from 'stream-chat';
@@ -16,6 +17,7 @@ export const defaultNotificationTranslators: Record<
   'api:attachment:upload:failed': attachmentUploadFailedNotificationTranslator,
   'api:poll:create:failed': pollCreationFailedNotificationTranslator,
   'validation:attachment:upload:blocked': attachmentUploadBlockedNotificationTranslator,
+  'validation:attachment:upload:in-progress': attachmentUploadNotTerminatedTranslator,
   'validation:poll:castVote:limit': pollVoteCountTrespass,
 };
 
