@@ -36,3 +36,10 @@ export const attachmentUploadFailedNotificationTranslator: Translator<
   // custom reason string
   return t('Attachment upload failed due to {{reason}}', { reason });
 };
+
+export const attachmentUploadNotTerminatedTranslator: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  if (!notification?.message) return null;
+  return t('Wait until all attachments have uploaded');
+};
