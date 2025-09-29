@@ -2571,9 +2571,9 @@
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
 "@stream-io/stream-chat-css@^5.12.0":
-  version "5.12.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.12.0.tgz#4b503c50b9361feee792ca633ee2e691d68c647c"
-  integrity sha512-amXWOOhecgqLhAr3l0lCAP29FGZuFhRIADtOPvzIpXwxjVhs4WQjd5uZHhONr+yeLZfkO3ujBXW6nP8SQTr7Nw==
+  version "5.13.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.13.0.tgz#8b4de2cf54bc9dcf507f2218981be2b987224fe1"
+  integrity sha512-rEiH1oPLxM6WNmz7Uu36/tBUH6U4dTa4h2yl6kpZcY8G5Io6sPbSzlMZZgt0jTCie9OLNS9ziZ8aSOnCzKcy0w==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
