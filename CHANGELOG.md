@@ -1,3 +1,9 @@
+## [12.15.8](https://github.com/GetStream/stream-chat-react/compare/v12.15.7...v12.15.8) (2025-09-29)
+
+### Bug Fixes
+
+* **ChannelPreview:** call getLatestMessagePreview on every relevant WS event ([#2838](https://github.com/GetStream/stream-chat-react/issues/2838)) ([c8e9542](https://github.com/GetStream/stream-chat-react/commit/c8e9542ea46bde36745743bfd7e376c52d0c900a))
+
 ## [12.15.7](https://github.com/GetStream/stream-chat-react/compare/v12.15.6...v12.15.7) (2025-06-12)
 
 ### Bug Fixes
