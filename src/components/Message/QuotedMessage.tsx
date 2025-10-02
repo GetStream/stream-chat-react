@@ -12,6 +12,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { renderText as defaultRenderText } from './renderText';
 import type { MessageContextValue } from '../../context/MessageContext';
+import { useActionHandler } from './';
 
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 
@@ -26,6 +27,7 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
   } = useMessageContext('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
+  const actionHandler = useActionHandler(message);
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
@@ -96,7 +98,7 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
         </div>
       </div>
       {message.attachments?.length ? (
-        <Attachment attachments={message.attachments} />
+        <Attachment actionHandler={actionHandler} attachments={message.attachments} />
       ) : null}
     </>
   );

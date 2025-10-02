@@ -3,6 +3,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type React from 'react';
 import type { LocalMessage } from 'stream-chat';
+import { useStableCallback } from '../../../utils/useStableCallback';
 
 export type FormData = Record<string, string>;
 
@@ -19,7 +20,7 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
   const { removeMessage, updateMessage } = useChannelActionContext('useActionHandler');
   const { channel } = useChannelStateContext('useActionHandler');
 
-  return async (dataOrName, value, event) => {
+  return useStableCallback(async (dataOrName, value, event) => {
     if (event) event.preventDefault();
 
     if (!message || !updateMessage || !removeMessage || !channel) {
@@ -27,7 +28,7 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
       return;
     }
 
-    const messageID = message.id;
+    const messageId = message.id;
     let formData: FormData = {};
 
     // deprecated: value&name should be removed in favor of data obj
@@ -37,8 +38,8 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
       formData = { ...dataOrName };
     }
 
-    if (messageID) {
-      const data = await channel.sendAction(messageID, formData);
+    if (messageId) {
+      const data = await channel.sendAction(messageId, formData);
 
       if (data?.message) {
         updateMessage(data.message);
@@ -46,5 +47,5 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
         removeMessage(message);
       }
     }
-  };
+  });
 }
