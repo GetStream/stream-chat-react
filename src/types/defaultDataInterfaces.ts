@@ -3,6 +3,7 @@ export interface DefaultChannelData {
   image?: string;
   name?: string;
   subtitle?: string;
+  team?: string;
 }
 
 export interface DefaultAttachmentData {}
