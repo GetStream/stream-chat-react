@@ -108,7 +108,21 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
           </>
         ))}
 
-      {sent && (MessageSentStatus ? <MessageSentStatus /> : <MessageSentIcon />)}
+      {sent &&
+        (MessageSentStatus ? (
+          <MessageSentStatus />
+        ) : (
+          <>
+            <PopperTooltip
+              offset={[0, 5]}
+              referenceElement={referenceElement}
+              visible={tooltipVisible}
+            >
+              {t('Sent')}
+            </PopperTooltip>
+            <MessageSentIcon />
+          </>
+        ))}
 
       {delivered &&
         (MessageDeliveredStatus ? (
