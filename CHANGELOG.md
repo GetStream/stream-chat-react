@@ -1,3 +1,17 @@
+## [13.7.0](https://github.com/GetStream/stream-chat-react/compare/v13.6.6...v13.7.0) (2025-09-18)
+
+### Features
+
+* add imageToLink Remark plugin for converting image MD links to anchor tags ([#2832](https://github.com/GetStream/stream-chat-react/issues/2832)) ([32fce17](https://github.com/GetStream/stream-chat-react/commit/32fce1760b167f94a1c2e55f8816a998a79ee8cd))
+* support inserted text element in message markdown rendering ([#2831](https://github.com/GetStream/stream-chat-react/issues/2831)) ([9135112](https://github.com/GetStream/stream-chat-react/commit/9135112a73bde470988f5cbb038209f84e1f3966))
+
+## [13.6.6](https://github.com/GetStream/stream-chat-react/compare/v13.6.5...v13.6.6) (2025-09-17)
+
+### Bug Fixes
+
+* enabled headings in message markdown ([#2829](https://github.com/GetStream/stream-chat-react/issues/2829)) ([1bdcb8d](https://github.com/GetStream/stream-chat-react/commit/1bdcb8d3cf44e334c999c333d419c0f51d6cf1bc))
+* render html as text in ChannelPreview ([#2830](https://github.com/GetStream/stream-chat-react/issues/2830)) ([509e45f](https://github.com/GetStream/stream-chat-react/commit/509e45f34d0dde8af0a7302225306e7fbbcedf27))
+
 ## [13.6.5](https://github.com/GetStream/stream-chat-react/compare/v13.6.4...v13.6.5) (2025-09-15)
 
 ### Bug Fixes

@@ -1,8 +1,13 @@
 import React from 'react';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
-import { render } from '@testing-library/react';
-import { htmlToTextPlugin, keepLineBreaksPlugin } from '../remarkPlugins';
+import { render, screen } from '@testing-library/react';
+import {
+  htmlToTextPlugin,
+  imageToLink,
+  keepLineBreaksPlugin,
+  plusPlusToEmphasis,
+} from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
 import '@testing-library/jest-dom';
 
@@ -337,7 +342,7 @@ describe('keepLineBreaksPlugin', () => {
       const container = doRenderText(orderedListText, present);
       expect(container).toMatchSnapshot();
     });
-    it(`does not keep line breaks under a heading`, () => {
+    it(`keeps line breaks natively under a heading`, () => {
       const container = doRenderText(headingText, present);
       expect(container).toMatchSnapshot();
     });
@@ -431,5 +436,67 @@ describe('htmlToTextPlugin', () => {
   it(`present keeps HTML in text`, () => {
     const container = renderTextWithHtml(true);
     expect(container).toMatchSnapshot();
+  });
+});
+
+describe('plusPlusToEmphasis', () => {
+  const renderTextPlusPlus = (text, withPlugin = true) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []) },
+    );
+    return render(Markdown).container;
+  };
+
+  it('++…++ renders as <ins> and ignores code/links', () => {
+    renderTextPlusPlus(
+      'This is ++inserted++ and `++not++` and [x](https://octodex.github.com/images/minion.png) ++also++',
+    );
+    expect(screen.getByText('inserted', { selector: 'ins' })).toBeInTheDocument();
+    expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
+    // link text exists; its inner text shouldn't be transformed
+    expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+  });
+
+  it('does not render ++…++  as <ins> if not present', () => {
+    renderTextPlusPlus(
+      'This is ++inserted++ and `++not++` and [x](https://octodex.github.com/images/minion.png) ++also++',
+      false,
+    );
+    expect(screen.queryByText('inserted', { selector: 'ins' })).not.toBeInTheDocument();
+    expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
+    // link text exists; its inner text shouldn't be transformed
+    expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
+  });
+});
+
+describe('imageToLink', () => {
+  const renderImageToLink = (text, withPlugin = true) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => (withPlugin ? [imageToLink] : []) },
+    );
+    return render(Markdown).container;
+  };
+
+  it('converts image link to anchor link', () => {
+    renderImageToLink('Before ![x](https://octodex.github.com/images/minion.png) After');
+    expect(
+      screen.getByRole('link', { name: 'https://octodex.github.com/images/minion.png' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not convert image link to anchor link if plugin is missing', () => {
+    renderImageToLink(
+      'Before ![x](https://octodex.github.com/images/minion.png) After',
+      false,
+    );
+    expect(
+      screen.queryByRole('link', {
+        name: 'https://octodex.github.com/images/minion.png',
+      }),
+    ).not.toBeInTheDocument();
   });
 });

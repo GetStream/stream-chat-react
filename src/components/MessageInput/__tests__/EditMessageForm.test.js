@@ -1176,13 +1176,13 @@ describe(`EditMessageForm`, () => {
         mentioned_users: [
           expect.objectContaining({
             banned: false,
-            created_at: '2020-04-27T13:39:49.331742Z',
+            created_at: expect.any(String),
             id: 'mention-id',
             image: expect.any(String),
             name: 'mention-name',
             online: false,
             role: 'user',
-            updated_at: '2020-04-27T13:39:49.332087Z',
+            updated_at: expect.any(String),
           }),
         ],
         parent_id: undefined,

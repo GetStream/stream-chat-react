@@ -6,6 +6,7 @@ import {
   DefaultCommandData,
   DefaultEventData,
   DefaultMemberData,
+  DefaultMessageComposerData,
   DefaultMessageData,
   DefaultPollData,
   DefaultPollOptionData,
@@ -36,4 +37,6 @@ declare module 'stream-chat' {
   interface CustomUserData extends DefaultUserData {}
 
   interface CustomThreadData extends DefaultThreadData {}
+
+  interface CustomMessageComposerData extends DefaultMessageComposerData {}
 }

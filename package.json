@@ -12,7 +12,6 @@
   "types": "dist/index.d.ts",
   "main": "dist/index.node.cjs",
   "module": "dist/index.js",
-  "jsdelivr": "./dist/browser.full-bundle.min.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

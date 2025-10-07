@@ -5,9 +5,21 @@ import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stre
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { ChatContextValue } from '../../context';
+import type { PluggableList } from 'unified';
+import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
+import remarkGfm from 'remark-gfm';
+
+const remarkPlugins: PluggableList = [
+  htmlToTextPlugin,
+  [remarkGfm, { singleTilde: false }],
+  plusPlusToEmphasis,
+  imageToLink,
+];
 
 export const renderPreviewText = (text: string) => (
-  <ReactMarkdown skipHtml>{text}</ReactMarkdown>
+  <ReactMarkdown remarkPlugins={remarkPlugins} skipHtml>
+    {text}
+  </ReactMarkdown>
 );
 
 const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
