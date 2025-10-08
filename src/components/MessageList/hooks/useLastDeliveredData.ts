@@ -15,7 +15,7 @@ export const useLastDeliveredData = (props: UseLastDeliveredDataParams) => {
       returnAllReadData
         ? messages.reduce(
             (acc, msg) => {
-              acc[msg.id] = channel.ownMessageReceiptsTracker.deliveredForMessage({
+              acc[msg.id] = channel.messageReceiptsTracker.deliveredForMessage({
                 msgId: msg.id,
                 timestampMs: msg.created_at.getTime(),
               });
@@ -23,7 +23,7 @@ export const useLastDeliveredData = (props: UseLastDeliveredDataParams) => {
             },
             {} as Record<string, UserResponse[]>,
           )
-        : channel.ownMessageReceiptsTracker.groupUsersByLastDeliveredMessage(),
+        : channel.messageReceiptsTracker.groupUsersByLastDeliveredMessage(),
     [channel, messages, returnAllReadData],
   );
 };

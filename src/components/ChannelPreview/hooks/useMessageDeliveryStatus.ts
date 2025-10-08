@@ -44,9 +44,9 @@ export const useMessageDeliveryStatus = ({
       timestampMs: lastMessage.created_at.getTime(),
     };
     setMessageDeliveryStatus(
-      channel.ownMessageReceiptsTracker.readersForMessage(msgRef).length > 0
+      channel.messageReceiptsTracker.readersForMessage(msgRef).length > 0
         ? MessageDeliveryStatus.READ
-        : channel.ownMessageReceiptsTracker.deliveredForMessage(msgRef).length > 0
+        : channel.messageReceiptsTracker.deliveredForMessage(msgRef).length > 0
           ? MessageDeliveryStatus.DELIVERED
           : MessageDeliveryStatus.SENT,
     );
