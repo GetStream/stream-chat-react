@@ -18,6 +18,7 @@ import type {
   ChannelMemberResponse,
   ChannelQueryOptions,
   ChannelState,
+  DeleteMessageOptions,
   ErrorFromResponse,
   Event,
   EventAPIResponse,
@@ -176,7 +177,10 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
    */
   channelQueryOptions?: ChannelQueryOptions;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-  doDeleteMessageRequest?: (message: LocalMessage) => Promise<MessageResponse>;
+  doDeleteMessageRequest?: (
+    message: LocalMessage,
+    options?: DeleteMessageOptions,
+  ) => Promise<MessageResponse>;
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel,
@@ -910,15 +914,18 @@ const ChannelInner = (
     );
 
   const deleteMessage = useCallback(
-    async (message: LocalMessage): Promise<MessageResponse> => {
+    async (
+      message: LocalMessage,
+      options?: DeleteMessageOptions,
+    ): Promise<MessageResponse> => {
       if (!message?.id) {
         throw new Error('Cannot delete a message - missing message ID.');
       }
       let deletedMessage;
       if (doDeleteMessageRequest) {
-        deletedMessage = await doDeleteMessageRequest(message);
+        deletedMessage = await doDeleteMessageRequest(message, options);
       } else {
-        const result = await client.deleteMessage(message.id);
+        const result = await client.deleteMessage(message.id, options);
         deletedMessage = result.message;
       }
 

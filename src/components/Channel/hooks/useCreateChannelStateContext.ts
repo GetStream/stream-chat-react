@@ -59,6 +59,8 @@ export const useCreateChannelStateContext = (
     channelCapabilities[capability] = true;
   });
 
+  // FIXME: this is crazy - I could not find out why the messages were not getting updated when only message properties that are not part
+  // of this serialization has been changed. A great example of memoization gone wrong.
   const memoizedMessageData = skipMessageDataMemoization
     ? messages
     : messages
@@ -69,10 +71,11 @@ export const useCreateChannelStateContext = (
             pinned,
             reply_count,
             status,
+            type,
             updated_at,
             user,
           }) =>
-            `${deleted_at}${
+            `${type}${deleted_at}${
               latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
             }${pinned}${reply_count}${status}${
               updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))

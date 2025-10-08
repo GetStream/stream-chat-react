@@ -17,6 +17,7 @@ import {
   MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
+  OPTIONAL_MESSAGE_ACTIONS,
   validateAndGetMessage,
 } from '../utils';
 
@@ -90,6 +91,7 @@ describe('Message utils', () => {
       canReply: true,
     };
     const actions = Object.values(MESSAGE_ACTIONS);
+    const optionalActions = Object.values(OPTIONAL_MESSAGE_ACTIONS);
 
     it.each([
       ['empty', []],
@@ -131,31 +133,36 @@ describe('Message utils', () => {
     });
 
     it.each([
-      ['allow', 'edit', 'canEdit', true],
-      ['not allow', 'edit', 'canEdit', false],
-      ['allow', 'delete', 'canDelete', true],
-      ['not allow', 'delete', 'canDelete', false],
-      ['allow', 'flag', 'canFlag', true],
-      ['not allow', 'flag', 'canFlag', false],
-      ['allow', 'markUnread', 'canMarkUnread', true],
-      ['not allow', 'markUnread', 'canMarkUnread', false],
-      ['allow', 'mute', 'canMute', true],
-      ['not allow', 'mute', 'canMute', false],
-      ['allow', 'pin', 'canPin', true],
-      ['not allow', 'pin', 'canPin', false],
-      ['allow', 'quote', 'canQuote', true],
-      ['not allow', 'quote', 'canQuote', false],
-    ])('it should %s %s when %s is %s', (_, action, capabilityKey, capabilityValue) => {
-      const capabilities = {
-        [capabilityKey]: capabilityValue,
-      };
-      const result = getMessageActions(actions, capabilities);
-      if (capabilityValue) {
-        expect(result).toStrictEqual([action]);
-      } else {
-        expect(result).not.toStrictEqual([action]);
-      }
-    });
+      ['allow', 'edit', 'canEdit', true, actions],
+      ['not allow', 'edit', 'canEdit', false, actions],
+      ['allow', 'delete', 'canDelete', true, actions],
+      ['not allow', 'delete', 'canDelete', false, actions],
+      ['allow', 'deleteForMe', 'canDelete', true, optionalActions],
+      ['not allow', 'deleteForMe', 'canDelete', false, optionalActions],
+      ['allow', 'flag', 'canFlag', true, actions],
+      ['not allow', 'flag', 'canFlag', false, actions],
+      ['allow', 'markUnread', 'canMarkUnread', true, actions],
+      ['not allow', 'markUnread', 'canMarkUnread', false, actions],
+      ['allow', 'mute', 'canMute', true, actions],
+      ['not allow', 'mute', 'canMute', false, actions],
+      ['allow', 'pin', 'canPin', true, actions],
+      ['not allow', 'pin', 'canPin', false, actions],
+      ['allow', 'quote', 'canQuote', true, actions],
+      ['not allow', 'quote', 'canQuote', false, actions],
+    ])(
+      'it should %s %s when %s is %s',
+      (_, action, capabilityKey, capabilityValue, actionsToUse) => {
+        const capabilities = {
+          [capabilityKey]: capabilityValue,
+        };
+        const result = getMessageActions(actionsToUse, capabilities);
+        if (capabilityValue) {
+          expect(result).toStrictEqual([action]);
+        } else {
+          expect(result).not.toStrictEqual([action]);
+        }
+      },
+    );
   });
 
   describe('shouldMessageComponentUpdate', () => {

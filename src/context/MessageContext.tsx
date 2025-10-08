@@ -1,7 +1,8 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import type { BaseSyntheticEvent, PropsWithChildren, ReactNode } from 'react';
 import React, { useContext } from 'react';
 
 import type {
+  DeleteMessageOptions,
   LocalMessage,
   Mute,
   ReactionResponse,
@@ -48,7 +49,10 @@ export type MessageContextValue = {
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
-  handleDelete: ReactEventHandler;
+  handleDelete: (
+    event: BaseSyntheticEvent,
+    options?: DeleteMessageOptions,
+  ) => Promise<void> | void;
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
   /** Function to fetch the message reactions */

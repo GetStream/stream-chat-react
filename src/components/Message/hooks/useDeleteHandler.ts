@@ -4,7 +4,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { LocalMessage } from 'stream-chat';
+import type { DeleteMessageOptions, LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
 export type DeleteMessageNotifications = {
@@ -22,14 +22,20 @@ export const useDeleteHandler = (
   const { client } = useChatContext('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
-  return async (event) => {
+  return async (event, options?: DeleteMessageOptions) => {
     event.preventDefault();
     if (!message?.id || !client || !updateMessage) {
       return;
     }
 
     try {
-      const deletedMessage = await deleteMessage(message);
+      const deletedMessage = await deleteMessage(message, options);
+      // necessary to populate the below values as the server does not return the message in the response as deleted
+      if (options?.deleteForMe) {
+        // deleted_at is not available for messages that are deleted_for_me
+        deletedMessage.deleted_for_me = true;
+        deletedMessage.type = 'deleted';
+      }
       updateMessage(deletedMessage);
     } catch (e) {
       const errorMessage =
