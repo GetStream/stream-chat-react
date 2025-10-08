@@ -1,3 +1,13 @@
+## [13.8.1](https://github.com/GetStream/stream-chat-react/compare/v13.8.0...v13.8.1) (2025-10-08)
+
+### Bug Fixes
+
+* add "team" property to the `DefaultChannelData` interface ([#2850](https://github.com/GetStream/stream-chat-react/issues/2850)) ([edac5f6](https://github.com/GetStream/stream-chat-react/commit/edac5f6681bfe7e54dc055ab48e2e96074525504))
+
+### Chores
+
+* **deps:** upgrade steam-chat to v9.21.0 ([fad4407](https://github.com/GetStream/stream-chat-react/commit/fad4407d0103aeb173e9c72ca9a7c120e5c35826))
+
 ## [13.8.0](https://github.com/GetStream/stream-chat-react/compare/v13.7.0...v13.8.0) (2025-10-08)
 
 ### Bug Fixes
