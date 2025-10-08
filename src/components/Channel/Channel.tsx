@@ -106,6 +106,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'CustomMessageActionsList'
   | 'DateSeparator'
   | 'EditMessageInput'
+  | 'EditMessageModal'
   | 'EmojiPicker'
   | 'emojiSearchIndex'
   | 'EmptyStateIndicator'
@@ -1207,6 +1208,7 @@ const ChannelInner = (
       CustomMessageActionsList: props.CustomMessageActionsList,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
+      EditMessageModal: props.EditMessageModal,
       EmojiPicker: props.EmojiPicker,
       emojiSearchIndex: props.emojiSearchIndex,
       EmptyStateIndicator: props.EmptyStateIndicator,
@@ -1276,6 +1278,7 @@ const ChannelInner = (
       props.CustomMessageActionsList,
       props.DateSeparator,
       props.EditMessageInput,
+      props.EditMessageModal,
       props.EmojiPicker,
       props.emojiSearchIndex,
       props.EmptyStateIndicator,

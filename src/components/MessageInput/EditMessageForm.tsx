@@ -68,9 +68,14 @@ export const EditMessageForm = () => {
   );
 };
 
+export type EditMessageModalProps = Pick<
+  MessageUIComponentProps,
+  'additionalMessageInputProps'
+>;
+
 export const EditMessageModal = ({
   additionalMessageInputProps,
-}: Pick<MessageUIComponentProps, 'additionalMessageInputProps'>) => {
+}: EditMessageModalProps) => {
   const { EditMessageInput = EditMessageForm, Modal = DefaultModal } =
     useComponentContext();
   const { clearEditingState } = useMessageContext();

@@ -10,6 +10,7 @@ import type {
   CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
+  EditMessageModalProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
   EventComponentProps,
@@ -96,6 +97,8 @@ export type ComponentContextValue = {
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: React.ComponentType<MessageInputProps>;
+  /** Custom UI component to override default EditMessageModal, defaults to and accepts same props as: [EditMessageModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
+  EditMessageModal?: React.ComponentType<EditMessageModalProps>;
   /** Custom UI component for rendering button with emoji picker in MessageInput */
   EmojiPicker?: React.ComponentType;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */

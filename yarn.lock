@@ -3557,13 +3557,13 @@ axe-core@4.7.2, axe-core@^4.3.3, axe-core@^4.4.1:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.7.2.tgz#040a7342b20765cb18bb50b628394c21bccc17a0"
   integrity sha512-zIURGIS1E1Q4pcrMjp+nnEh+16G56eG/MUllJH8yEvw7asDo7Ac9uhC9KIH5jzpITueEZolfYglnCGIuSBz39g==
 
-axios@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.0.tgz#f1e5292f26b2fd5c2e66876adc5b06cdbd7d2102"
-  integrity sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==
+axios@^1.12.2:
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.12.2.tgz#6c307390136cf7a2278d09cec63b136dfc6e6da7"
+  integrity sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==
   dependencies:
-    follow-redirects "^1.15.0"
-    form-data "^4.0.0"
+    follow-redirects "^1.15.6"
+    form-data "^4.0.4"
     proxy-from-env "^1.1.0"
 
 b4a@^1.6.4:
@@ -6187,10 +6187,10 @@ flow-remove-types@^2.176.3:
     pirates "^3.0.2"
     vlq "^0.2.1"
 
-follow-redirects@^1.15.0:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.3.tgz#fe2f3ef2690afce7e82ed0b44db08165b207123a"
-  integrity sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==
+follow-redirects@^1.15.6:
+  version "1.15.11"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.11.tgz#777d73d72a92f8ec4d2e410eb47352a56b8e8340"
+  integrity sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -12042,14 +12042,14 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@^9.19.0:
-  version "9.19.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.19.0.tgz#8a2055be0f7c073ee8ca10cbc40af7d36648c476"
-  integrity sha512-ooRLubHPWxVr8Ws3fZvR30BFhVNM1xcrEgRnGGBxNINYYH/Wq+uc6AWONYIeu+n8crwRp3NSrtNfGWpWhLSy7Q==
+stream-chat@^9.21.0:
+  version "9.21.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.21.0.tgz#cff516630e5234161a2bdc84510ff79723fc5850"
+  integrity sha512-0k/lEsVG1LqZxPHK7C69FLm54EgxshXpNuE6MXHnyV/ke07gbhM5/RdOacXMPfJ8TbWkZg7NyijdEF7Cbct+2A==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
-    axios "^1.6.0"
+    axios "^1.12.2"
     base64-js "^1.5.1"
     form-data "^4.0.4"
     isomorphic-ws "^5.0.0"
