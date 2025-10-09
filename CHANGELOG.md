@@ -1,3 +1,10 @@
+## [13.9.0](https://github.com/GetStream/stream-chat-react/compare/v13.8.1...v13.9.0) (2025-10-09)
+
+### Features
+
+* add optional Delete for me message action ([#2855](https://github.com/GetStream/stream-chat-react/issues/2855)) ([ade1a9c](https://github.com/GetStream/stream-chat-react/commit/ade1a9c1c409593e9d9de943c387f8a528d85033))
+* support message delivered and message sent statuses separately ([#2837](https://github.com/GetStream/stream-chat-react/issues/2837)) ([008d0b0](https://github.com/GetStream/stream-chat-react/commit/008d0b0455c009855aeb62db39b48944e7873c4c))
+
 ## [13.8.1](https://github.com/GetStream/stream-chat-react/compare/v13.8.0...v13.8.1) (2025-10-08)
 
 ### Bug Fixes
