@@ -269,6 +269,7 @@ export const Message = (props: MessageProps) => {
       canPin={canPin}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       customMessageActions={props.customMessageActions}
+      deliveredTo={props.deliveredTo}
       disableQuotedMessages={props.disableQuotedMessages}
       endOfGroup={props.endOfGroup}
       firstOfGroup={props.firstOfGroup}

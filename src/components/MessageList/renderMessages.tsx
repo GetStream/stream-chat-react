@@ -1,13 +1,13 @@
+import type { ReactNode } from 'react';
 import React, { Fragment } from 'react';
+import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
+import type { MessageProps } from '../Message';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { ReactNode } from 'react';
 import type { UserResponse } from 'stream-chat';
-import type { GroupStyle, RenderedMessage } from './utils';
-import type { MessageProps } from '../Message';
 import type { ComponentContextValue, CustomClasses } from '../../context';
 import type { ChannelUnreadUiState } from '../../types';
 
@@ -16,6 +16,7 @@ export interface RenderMessagesOptions {
   lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<RenderedMessage>;
+  ownMessagesDeliveredToOthers: Record<string, UserResponse[]>;
   /**
    * Object mapping message IDs of own messages to the users who read those messages.
    */
@@ -39,6 +40,7 @@ export type MessageRenderer = (options: RenderMessagesOptions) => Array<ReactNod
 
 type MessagePropsToOmit =
   | 'channel'
+  | 'deliveredTo'
   | 'groupStyles'
   | 'initialMessage'
   | 'lastReceivedId'
@@ -52,6 +54,7 @@ export function defaultRenderMessages({
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
   messages,
+  ownMessagesDeliveredToOthers,
   readData,
   sharedMessageProps: messageProps,
 }: RenderMessagesOptions) {
@@ -127,6 +130,7 @@ export function defaultRenderMessages({
             data-testid={messageClass}
           >
             <Message
+              deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
               lastReceivedId={lastReceivedId}
               message={message}
