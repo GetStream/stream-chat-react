@@ -30,12 +30,6 @@ export const useDeleteHandler = (
 
     try {
       const deletedMessage = await deleteMessage(message, options);
-      // necessary to populate the below values as the server does not return the message in the response as deleted
-      if (options?.deleteForMe) {
-        // deleted_at is not available for messages that are deleted_for_me
-        deletedMessage.deleted_for_me = true;
-        deletedMessage.type = 'deleted';
-      }
       updateMessage(deletedMessage);
     } catch (e) {
       const errorMessage =

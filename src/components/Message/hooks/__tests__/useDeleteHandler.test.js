@@ -81,18 +81,6 @@ describe('useDeleteHandler custom hook', () => {
     expect(deleteMessage).toHaveBeenCalledWith(message, deleteMessageOptions);
   });
 
-  it('should enrich the message in the delete response with deleted_for_me and type="deleted"', async () => {
-    jest.spyOn(client, 'deleteMessage').mockResolvedValueOnce({ message: testMessage });
-    const deleteMessageOptions = { deleteForMe: true, hard: false };
-    const handleDelete = await renderUseDeleteHandler(testMessage);
-    await handleDelete(mouseEventMock, deleteMessageOptions);
-    expect(updateMessage).toHaveBeenCalledWith({
-      ...testMessage,
-      deleted_for_me: true,
-      type: 'deleted',
-    });
-  });
-
   it('should update the message with the result of deletion', async () => {
     const deleteMessageResponse = generateMessage();
     deleteMessage.mockImplementationOnce(() => Promise.resolve(deleteMessageResponse));
