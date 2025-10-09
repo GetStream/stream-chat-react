@@ -1,3 +1,33 @@
+## [13.8.1](https://github.com/GetStream/stream-chat-react/compare/v13.8.0...v13.8.1) (2025-10-08)
+
+### Bug Fixes
+
+* add "team" property to the `DefaultChannelData` interface ([#2850](https://github.com/GetStream/stream-chat-react/issues/2850)) ([edac5f6](https://github.com/GetStream/stream-chat-react/commit/edac5f6681bfe7e54dc055ab48e2e96074525504))
+
+### Chores
+
+* **deps:** upgrade steam-chat to v9.21.0 ([fad4407](https://github.com/GetStream/stream-chat-react/commit/fad4407d0103aeb173e9c72ca9a7c120e5c35826))
+
+## [13.8.0](https://github.com/GetStream/stream-chat-react/compare/v13.7.0...v13.8.0) (2025-10-08)
+
+### Bug Fixes
+
+* add CustomMessageComposerData redeclaration ([#2833](https://github.com/GetStream/stream-chat-react/issues/2833)) ([641cdd3](https://github.com/GetStream/stream-chat-react/commit/641cdd346e5e4ed1ff8410f65a28c25f39aa5b58))
+* add notification translator for notification validation:attachment:upload:in-progress ([#2842](https://github.com/GetStream/stream-chat-react/issues/2842)) ([7c2a965](https://github.com/GetStream/stream-chat-react/commit/7c2a965ce6664bb8f17682b277c704bcdee24ff4))
+* **ChannelPreview:** call getLatestMessagePreview on every relevant WS event ([#2838](https://github.com/GetStream/stream-chat-react/issues/2838)) ([386ef55](https://github.com/GetStream/stream-chat-react/commit/386ef55b291520b6fcc9a6063d93d1a119941627))
+* check cast-poll-vote permission to show "Suggest an option" poll action ([#2835](https://github.com/GetStream/stream-chat-react/issues/2835)) ([a14367e](https://github.com/GetStream/stream-chat-react/commit/a14367e0134a92326aaaa188484a09ff4e6852d0))
+* **giphy:** allow using actions in quoted messages ([#2849](https://github.com/GetStream/stream-chat-react/issues/2849)) ([8052bd7](https://github.com/GetStream/stream-chat-react/commit/8052bd7fc639158eea5a2b7f9f2c4f479f5db238))
+* **TextareaComposer:** check sendable data before allowing message submission ([#2852](https://github.com/GetStream/stream-chat-react/issues/2852)) ([4300ed6](https://github.com/GetStream/stream-chat-react/commit/4300ed686482ea73c532da6b0e50931c7aa76a6d))
+* **useMessageComposer:** keep editing message composer with up-to-date edited message reference ([#2851](https://github.com/GetStream/stream-chat-react/issues/2851)) ([d4eb2d7](https://github.com/GetStream/stream-chat-react/commit/d4eb2d712e19e42e0828b2bad9ab15f756309580))
+
+### Features
+
+* allow to override EditMessageModal and thus its additionalMessageInputProps ([#2853](https://github.com/GetStream/stream-chat-react/issues/2853)) ([50e3c62](https://github.com/GetStream/stream-chat-react/commit/50e3c6253653079c393a4282c5ff20108e7eca79))
+
+### Chores
+
+* **deps:** upgrade stream-chat to v9.20.3 ([51ea875](https://github.com/GetStream/stream-chat-react/commit/51ea8758941208ccd6263b582e523bb97d697ec7))
+
 ## [13.7.0](https://github.com/GetStream/stream-chat-react/compare/v13.6.6...v13.7.0) (2025-09-18)
 
 ### Features

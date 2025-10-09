@@ -194,7 +194,11 @@ export const TextareaComposer = ({
             return nextIndex;
           });
         }
-      } else if (shouldSubmit(event) && textareaRef.current) {
+      } else if (
+        shouldSubmit(event) &&
+        textareaRef.current &&
+        messageComposer.hasSendableData
+      ) {
         if (event.key === 'Enter') {
           // prevent adding newline when submitting a message with
           event.preventDefault();
@@ -205,6 +209,7 @@ export const TextareaComposer = ({
     [
       focusedItemIndex,
       handleSubmit,
+      messageComposer,
       onKeyDown,
       shouldSubmit,
       suggestions,
