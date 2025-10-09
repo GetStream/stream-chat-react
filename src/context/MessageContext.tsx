@@ -101,6 +101,8 @@ export type MessageContextValue = {
   closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions;
+  /** An array of user IDs that have confirmed the message delivery to their device */
+  deliveredTo?: UserResponse[];
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
   endOfGroup?: boolean;
   /** If true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */

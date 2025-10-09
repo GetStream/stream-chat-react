@@ -19,6 +19,7 @@ import {
   useMockedApis,
 } from '../../../../mock-builders';
 import { act } from '@testing-library/react';
+import { dispatchMessageDeliveredEvent } from '../../../../mock-builders/event/messageDelivered';
 
 const userA = generateUser();
 const userB = generateUser();
@@ -41,6 +42,78 @@ const getClientAndChannel = async (channelData = {}, user = userA) => {
     client,
   };
 };
+
+const ownLastMessage = () => {
+  const messages = [
+    generateMessage({ created_at: new Date(1000), user: userB }),
+    generateMessage({ created_at: new Date(2000), user: userA }),
+  ];
+  const lastMessage = messages.slice(-1)[0];
+  return { lastMessage, messages };
+};
+
+const othersLastMessage = () => {
+  const messages = [
+    generateMessage({ created_at: new Date(1000), user: userA }),
+    generateMessage({ created_at: new Date(2000), user: userB }),
+  ];
+  const lastMessage = messages.slice(-1)[0];
+  return { lastMessage, messages };
+};
+
+const lastMessageCreated = (messages) => [
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    last_read_message_id: messages[0],
+    unread_messages: 0,
+    user: userA,
+  },
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    unread_messages: 1,
+    user: userB,
+  },
+];
+
+const lastMessageDelivered = (messages) => [
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    last_read_message_id: messages[0],
+    unread_messages: 0,
+    user: userA,
+  },
+  {
+    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_message_id: messages[1].id,
+    last_read: messages[0].created_at.toISOString(),
+    unread_messages: 1,
+    user: userB,
+  },
+];
+
+const lastMessageRead = (messages) => [
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    last_read_message_id: messages[0],
+    unread_messages: 0,
+    user: userA,
+  },
+  {
+    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_message_id: messages[1].id,
+    last_read: messages[1].created_at.toISOString(),
+    unread_messages: 0,
+    user: userB,
+  },
+];
 
 const renderComponent = ({ channel, client, lastMessage }) => {
   const wrapper = ({ children }) => (
@@ -82,87 +155,42 @@ describe('Message delivery status', () => {
     });
 
     it('is undefined if the last message was created by another user', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userB }),
-      ];
-      const lastMessage = messages[1];
-      const read = [
-        {
-          last_read: messages[1].created_at.toISOString(),
-          last_read_message_id: messages[1].id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0].id,
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
+      const { lastMessage, messages } = othersLastMessage();
+      const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { result } = renderComponent({ channel, client, lastMessage });
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
 
-    it('is "delivered" if the last message in channel was not read by any member other than me', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[1];
-      const read = [
-        {
-          last_read: messages[1].created_at.toISOString(),
-          last_read_message_id: messages[1].id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0].id,
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
+    it('is "created" if the last message was not delivered neither read by any other member', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { result } = renderComponent({ channel, client, lastMessage });
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+    });
+
+    it('is "delivered" if the last message in channel was delivered but not read by any member other than me', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageDelivered(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { result } = renderComponent({ channel, client, lastMessage });
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
     });
 
     it('is "read" if the last message in channel was read by at least 1 other member', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[1];
-      const last_read = '1970-01-01T00:00:03.00Z';
-      const read = [
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userB,
-        },
-      ];
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { result } = renderComponent({ channel, client, lastMessage });
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
     });
   });
 
-  describe('on message.new event when other user is muted', () => {
-    // message.read is not delivered over the WS, when the other is muted
-    it('is undefined if receives new message to empty channel', async () => {
+  describe('on message.new event', () => {
+    it('is undefined if receives new message from another user', async () => {
       const { channel, client } = await getClientAndChannel({ messages: [] });
-      client.mutedUsers = [{ target: userB }];
+
       const { result } = renderComponent({ channel, client });
       const newMessage = generateMessage({
         created_at: new Date('1970-01-01T00:00:02.00Z'),
@@ -174,148 +202,111 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
 
-    it('is "delivered" if received new message to a channel with last message from own user', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0],
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: '1970-01-01T00:00:01.00Z',
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
+    it('is "created" if received new message to a channel with last message from own user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
-      client.mutedUsers = [{ target: userB }];
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
 
       const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
+        created_at: new Date(2000),
         user: userA,
       });
       await act(() => {
         dispatchMessageNewEvent(client, newMessage, channel);
       });
       rerender();
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
-    });
-
-    it('is "delivered" if received new message to channel with last message from another user', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userB }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0],
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0],
-          unread_messages: 0,
-          user: userB,
-        },
-      ];
-      const { channel, client } = await getClientAndChannel({ messages, read });
-      client.mutedUsers = [{ target: userB }];
-      const { rerender, result } = renderComponent({ channel, client, lastMessage });
-      expect(result.current.messageDeliveryStatus).toBeUndefined();
-
-      const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
-        user: userA,
-      });
-      await act(() => {
-        dispatchMessageNewEvent(client, newMessage, channel);
-      });
-      rerender();
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
     });
   });
 
-  describe('on event', () => {
-    it('is undefined if the new message was created by another user', async () => {
-      const last_read = '1970-01-01T00:00:02.00Z';
-      const read = [
-        {
-          last_read,
-          user: userA,
-        },
-        {
-          last_read,
-          user: userB,
-        },
-      ];
-      const { channel, client } = await getClientAndChannel({ messages: [], read });
-      const { rerender, result } = renderComponent({ channel, client });
+  describe('on message.delivered event', () => {
+    it('is "delivered" if the last message is own and delivery receipt from another user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
-      const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
-        user: userB,
-      });
       await act(() => {
-        dispatchMessageNewEvent(client, newMessage, channel);
-      });
-      rerender();
-      expect(result.current.messageDeliveryStatus).toBeUndefined();
-    });
-
-    it('is "delivered" if the channel was not marked read by another user', async () => {
-      const last_read = '1970-01-01T00:00:02.00Z';
-      const read = [
-        {
-          last_read,
-          user: userA,
-        },
-        {
-          last_read,
+        dispatchMessageDeliveredEvent({
+          channel,
+          client,
+          deliveredAt: new Date(
+            new Date(lastMessage.created_at).getTime() + 1000,
+          ).toISOString(),
+          lastDeliveredMessageId: lastMessage.id,
           user: userB,
-        },
-      ];
-      const { channel, client } = await getClientAndChannel({ messages: [], read });
-      const { rerender, result } = renderComponent({ channel, client });
-
-      const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
-        user: userA,
-      });
-      await act(() => {
-        dispatchMessageNewEvent(client, newMessage, channel);
+        });
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
     });
+    it('is ignored if the last message is own and delivery receipt from own user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
-    it('is "read" if the channel was read by another user', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0].id,
-          unread_messages: 0,
+      await act(() => {
+        dispatchMessageDeliveredEvent({
+          channel,
+          client,
+          deliveredAt: new Date(
+            new Date(lastMessage.created_at).getTime() + 1000,
+          ).toISOString(),
+          lastDeliveredMessageId: lastMessage.id,
           user: userA,
-        },
-        {
-          last_read: '1970-01-01T00:00:01.00Z',
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
+        });
+      });
+      rerender();
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+    });
+    it('is ignored if the last message is not own and delivery receipt from another user', async () => {
+      const { lastMessage, messages } = othersLastMessage();
+      const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
+      await act(() => {
+        dispatchMessageDeliveredEvent({
+          channel,
+          client,
+          deliveredAt: new Date(
+            new Date(lastMessage.created_at).getTime() + 1000,
+          ).toISOString(),
+          lastDeliveredMessageId: lastMessage.id,
+          user: userB,
+        });
+      });
+      rerender();
+      expect(result.current.messageDeliveryStatus).toBeUndefined();
+    });
+    it('is ignored if the last delivered message id does not match the last message in channel', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
+
+      await act(() => {
+        dispatchMessageDeliveredEvent({
+          channel,
+          client,
+          deliveredAt: new Date(
+            new Date(lastMessage.created_at).getTime() + 1000,
+          ).toISOString(),
+          lastDeliveredMessageId: 'another-message-id',
+          user: userB,
+        });
+      });
+      rerender();
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+    });
+  });
+
+  describe('on message.read event', () => {
+    it('is "read" if the channel was read by another user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageDelivered(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
@@ -326,25 +317,9 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
     });
 
-    it('should ignore mark.read if the last message is not own', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userB }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: messages[0].created_at.toISOString(),
-          last_read_message_id: messages[0].id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: messages[0].created_at.toISOString(),
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
-
+    it('should be status "undefined" if the last message is not own', async () => {
+      const { lastMessage, messages } = othersLastMessage();
+      const read = lastMessageDelivered(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
@@ -355,24 +330,24 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
 
+    it('should ignore mark.read if the event is own', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageDelivered(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
+
+      await act(() => {
+        dispatchMessageReadEvent(client, userA, channel);
+      });
+      rerender();
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
+    });
+  });
+
+  describe('on other events', () => {
     it('is kept "delivered" when the last unread message is updated', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: lastMessage.created_at.toISOString(),
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: '1970-01-01T00:00:02.00Z',
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageDelivered(messages);
 
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
@@ -391,33 +366,14 @@ describe('Message delivery status', () => {
     });
 
     it('does not regress to "delivered" when the last read message is updated', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const last_read = '1970-01-01T00:00:03.00Z';
-      const read = [
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userB,
-        },
-      ];
-
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
 
       const updatedMessage = {
         ...lastMessage,
-        updated_at: new Date('1970-01-01T00:00:02.00Z'),
+        updated_at: new Date(4000),
       };
 
       await act(() => {
@@ -427,67 +383,32 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
     });
 
-    it('is kept "delivered" when the last unread message is deleted', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const read = [
-        {
-          last_read: lastMessage.created_at.toISOString(),
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read: '1970-01-01T00:00:02.00Z',
-          unread_messages: 1,
-          user: userB,
-        },
-      ];
-
+    it('does not regress to "delivered" when the last message is deleted', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
 
       await act(() => {
         dispatchMessageDeletedEvent(client, lastMessage, channel);
       });
+
       rerender();
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
     });
 
-    it('does not regress to "delivered" when the last message is deleted', async () => {
-      const messages = [
-        generateMessage({ created_at: new Date('1970-01-01T00:00:01.00Z'), user: userA }),
-      ];
-      const lastMessage = messages[0];
-      const last_read = '1970-01-01T00:00:03.00Z';
-      const read = [
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userA,
-        },
-        {
-          last_read,
-          last_read_message_id: lastMessage.id,
-          unread_messages: 0,
-          user: userB,
-        },
-      ];
-
+    it('is kept "delivered" when the last unread message is deleted', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastMessageDelivered(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
 
       await act(() => {
         dispatchMessageDeletedEvent(client, lastMessage, channel);
       });
-
       rerender();
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
     });
   });
 });

@@ -125,6 +125,7 @@ export const messageRenderer = (
     MessageSystem,
     numItemsPrepended,
     openThread,
+    ownMessagesDeliveredToOthers,
     ownMessagesReadByOthers,
     processedMessages: messageList,
     reactionDetailsSort,
@@ -200,6 +201,7 @@ export const messageRenderer = (
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
         customMessageActions={customMessageActions}
+        deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
         endOfGroup={endOfGroup}
         firstOfGroup={firstOfGroup}
         formatDate={formatDate}
