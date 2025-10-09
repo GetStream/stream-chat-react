@@ -75,9 +75,10 @@ describe('useDeleteHandler custom hook', () => {
 
   it('should delete a message by its id', async () => {
     const message = generateMessage();
+    const deleteMessageOptions = { deleteForMe: true, hard: false };
     const handleDelete = await renderUseDeleteHandler(message);
-    await handleDelete(mouseEventMock);
-    expect(deleteMessage).toHaveBeenCalledWith(message);
+    await handleDelete(mouseEventMock, deleteMessageOptions);
+    expect(deleteMessage).toHaveBeenCalledWith(message, deleteMessageOptions);
   });
 
   it('should update the message with the result of deletion', async () => {

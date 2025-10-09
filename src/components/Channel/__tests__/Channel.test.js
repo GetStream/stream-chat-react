@@ -1607,15 +1607,18 @@ describe('Channel', () => {
 
         it('should call the default client.deleteMessage() function', async () => {
           const message = generateMessage();
-
+          const deleteMessageOptions = { deleteForMe: true, hard: false };
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
           await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
-            deleteMessage(message);
+            deleteMessage(message, deleteMessageOptions);
           });
           await waitFor(() =>
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(message.id),
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
+              message.id,
+              deleteMessageOptions,
+            ),
           );
         });
 
@@ -1644,7 +1647,7 @@ describe('Channel', () => {
 
         it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
           const message = generateMessage();
-
+          const deleteMessageOptions = { deleteForMe: true, hard: false };
           const doDeleteMessageRequest = jest.fn();
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
@@ -1653,13 +1656,16 @@ describe('Channel', () => {
           await renderComponent(
             { channel, chatClient, doDeleteMessageRequest },
             ({ deleteMessage }) => {
-              deleteMessage(message);
+              deleteMessage(message, deleteMessageOptions);
             },
           );
 
           await waitFor(() => {
             expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
-            expect(doDeleteMessageRequest).toHaveBeenCalledWith(message);
+            expect(doDeleteMessageRequest).toHaveBeenCalledWith(
+              message,
+              deleteMessageOptions,
+            );
           });
         });
       });

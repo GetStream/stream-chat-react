@@ -52,6 +52,10 @@ export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
   return !!userMuted.length;
 };
 
+export const OPTIONAL_MESSAGE_ACTIONS = {
+  deleteForMe: 'deleteForMe',
+};
+
 export const MESSAGE_ACTIONS = {
   delete: 'delete',
   edit: 'edit',
@@ -67,7 +71,7 @@ export const MESSAGE_ACTIONS = {
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
-  keyof typeof MESSAGE_ACTIONS | T
+  keyof typeof MESSAGE_ACTIONS | keyof typeof OPTIONAL_MESSAGE_ACTIONS | T
 >;
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
@@ -170,6 +174,10 @@ export const getMessageActions = (
 
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+  }
+
+  if (canDelete && messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1) {
+    messageActionsAfterPermission.push(OPTIONAL_MESSAGE_ACTIONS.deleteForMe);
   }
 
   if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {

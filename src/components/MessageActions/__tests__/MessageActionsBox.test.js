@@ -179,6 +179,20 @@ describe('MessageActionsBox', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should call the handleDelete prop if the deleteForMe button is clicked', async () => {
+    getMessageActionsMock.mockImplementationOnce(() => ['deleteForMe']);
+    const handleDelete = jest.fn();
+    const {
+      result: { container, getByText },
+    } = await renderComponent({ handleDelete, message: generateMessage() });
+    await act(async () => {
+      await fireEvent.click(getByText('Delete for me'));
+    });
+    expect(handleDelete).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should call the handlePin prop if the pin button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['pin']);
     const handlePin = jest.fn();

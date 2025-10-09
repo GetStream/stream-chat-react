@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 import React from 'react';
 import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
 import { RemindMeActionButton } from './RemindMeSubmenu';
-import { useMessageReminder } from '../Message';
+import { OPTIONAL_MESSAGE_ACTIONS, useMessageReminder } from '../Message';
 import { useMessageComposer } from '../MessageInput';
 import {
   useChatContext,
@@ -162,6 +162,17 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
             {t('Delete')}
           </button>
         )}
+        {messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1 &&
+          !message.deleted_for_me && (
+            <button
+              aria-selected='false'
+              className={buttonClassName}
+              onClick={(e) => handleDelete(e, { deleteForMe: true })}
+              role='option'
+            >
+              {t('Delete for me')}
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1 && (
           <RemindMeActionButton className={buttonClassName} isMine={mine} />
         )}

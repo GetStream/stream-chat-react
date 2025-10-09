@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
 import type {
+  DeleteMessageOptions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -29,7 +30,10 @@ export type RetrySendMessage = (message: LocalMessage) => Promise<void>;
 export type ChannelActionContextValue = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
-  deleteMessage: (message: LocalMessage) => Promise<MessageResponse>;
+  deleteMessage: (
+    message: LocalMessage,
+    options?: DeleteMessageOptions,
+  ) => Promise<MessageResponse>;
   dispatch: React.Dispatch<ChannelStateReducerAction>;
   editMessage: (
     message: LocalMessage | MessageResponse,
