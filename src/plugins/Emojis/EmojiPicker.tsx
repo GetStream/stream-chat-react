@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { usePopper } from 'react-popper';
 import Picker from '@emoji-mart/react';
-
-import type { Options } from '@popperjs/core';
 
 import { EmojiPickerIcon } from './icons';
 import { useMessageInputContext, useTranslationContext } from '../../context';
 import { useMessageComposer } from '../../components';
+import type { PopperLikePlacement } from '../../components';
+import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -22,10 +21,13 @@ export type EmojiPickerProps = {
    */
   pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
   /**
-   * [React Popper options](https://popper.js.org/docs/v2/constructors/#options) to be
-   * passed down to the [react-popper `usePopper`](https://popper.js.org/react-popper/v2/hook/) hook
+   * Floating UI placement (default: 'top-end') for the picker popover
    */
-  popperOptions?: Partial<Options>;
+  placement?: PopperLikePlacement;
+  /**
+   * Deprecated: Popper options, use `placement` instead.
+   */
+  popperOptions?: Partial<{ placement: PopperLikePlacement }>;
 };
 
 const classNames: EmojiPickerProps = {
@@ -43,10 +45,16 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     null,
   );
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { attributes, styles } = usePopper(referenceElement, popperElement, {
-    placement: 'top-end',
-    ...props.popperOptions,
+  const { refs, strategy, x, y } = usePopoverPosition({
+    placement: props.placement ?? 'top-end',
   });
+
+  useEffect(() => {
+    refs.setReference(referenceElement);
+  }, [referenceElement, refs]);
+  useEffect(() => {
+    refs.setFloating(popperElement);
+  }, [popperElement, refs]);
 
   const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
 
@@ -79,9 +87,8 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
       {displayPicker && (
         <div
           className={props.pickerContainerClassName ?? pickerContainerClassName}
-          style={styles.popper}
-          {...attributes.popper}
           ref={setPopperElement}
+          style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
           <Picker
             data={async () => (await import('@emoji-mart/data')).default}

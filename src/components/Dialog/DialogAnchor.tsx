@@ -1,15 +1,15 @@
 import clsx from 'clsx';
-import type { Placement } from '@popperjs/core';
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useEffect, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
-import { usePopper } from 'react-popper';
 import { DialogPortalEntry } from './DialogPortal';
 import { useDialog, useDialogIsOpen } from './hooks';
+import { usePopoverPosition } from './hooks/usePopoverPosition';
+import type { PopperLikePlacement } from './hooks';
 
 export interface DialogAnchorOptions {
   open: boolean;
-  placement: Placement;
+  placement: PopperLikePlacement;
   referenceElement: HTMLElement | null;
   allowFlip?: boolean;
 }
@@ -21,24 +21,19 @@ export function useDialogAnchor<T extends HTMLElement>({
   referenceElement,
 }: DialogAnchorOptions) {
   const [popperElement, setPopperElement] = useState<T | null>(null);
-  const { attributes, styles, update } = usePopper(referenceElement, popperElement, {
-    modifiers: [
-      {
-        enabled: !!allowFlip, // Prevent flipping
-        name: 'flip',
-      },
-      {
-        name: 'eventListeners',
-        options: {
-          // It's not safe to update popper position on resize and scroll, since popper's
-          // reference element might not be visible at the time.
-          resize: false,
-          scroll: false,
-        },
-      },
-    ],
+  const { refs, strategy, update, x, y } = usePopoverPosition({
+    allowFlip,
+    freeze: true,
     placement,
   });
+
+  useEffect(() => {
+    refs.setReference(referenceElement);
+  }, [referenceElement, refs]);
+
+  useEffect(() => {
+    refs.setFloating(popperElement);
+  }, [popperElement, refs]);
 
   useEffect(() => {
     if (open && popperElement) {
@@ -54,9 +49,12 @@ export function useDialogAnchor<T extends HTMLElement>({
   }
 
   return {
-    attributes,
     setPopperElement,
-    styles,
+    styles: {
+      left: x ?? 0,
+      position: strategy,
+      top: y ?? 0,
+    } as React.CSSProperties,
   };
 }
 
@@ -80,7 +78,7 @@ export const DialogAnchor = ({
 }: DialogAnchorProps) => {
   const dialog = useDialog({ id });
   const open = useDialogIsOpen(id);
-  const { attributes, setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
+  const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
     open,
     placement,
@@ -111,11 +109,10 @@ export const DialogAnchor = ({
       <FocusScope autoFocus={focus} contain={trapFocus} restoreFocus>
         <div
           {...restDivProps}
-          {...attributes.popper}
           className={clsx('str-chat__dialog-contents', className)}
           data-testid='str-chat__dialog-contents'
           ref={setPopperElement}
-          style={styles.popper}
+          style={styles}
           tabIndex={typeof tabIndex !== 'undefined' ? tabIndex : 0}
         >
           {children}

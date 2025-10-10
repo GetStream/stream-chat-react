@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import React, { useState } from 'react';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogManagerProvider, useTranslationContext } from '../../context';
-import type { Placement } from '@popperjs/core';
+import type { PopperLikePlacement } from '../Dialog';
 
 type DropdownContextValue = {
   close(): void;
@@ -28,7 +28,7 @@ export const useDropdownContext = () => React.useContext(DropdownContext);
 export type DropdownProps = PropsWithChildren<{
   className?: string;
   openButtonProps?: React.HTMLAttributes<HTMLButtonElement>;
-  placement?: Placement;
+  placement?: PopperLikePlacement;
 }>;
 
 export const Dropdown = (props: DropdownProps) => {
