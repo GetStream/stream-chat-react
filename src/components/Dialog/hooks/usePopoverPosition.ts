@@ -10,6 +10,8 @@ import {
 } from '@floating-ui/react';
 import type { AutoPlacementOptions } from '@floating-ui/core';
 
+const hasResizeObserver = typeof window !== 'undefined' && 'ResizeObserver' in window;
+
 export type PopperLikePlacement = Placement | 'auto' | 'auto-start' | 'auto-end';
 
 function autoMiddlewareFor(p: PopperLikePlacement) {
@@ -98,7 +100,7 @@ export function usePopoverPosition({
             ancestorResize: true,
             ancestorScroll: true,
             animationFrame: false,
-            elementResize: true,
+            elementResize: hasResizeObserver,
             ...autoUpdateOptions,
           }),
   });
