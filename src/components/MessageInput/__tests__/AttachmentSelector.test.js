@@ -7,6 +7,7 @@ import {
   ChannelActionProvider,
   ChannelStateProvider,
   ComponentProvider,
+  MessageProvider,
   TranslationProvider,
   TypingProvider,
 } from '../../../context';
@@ -25,6 +26,8 @@ const CREATE_POLL_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__create-poll-button';
 const SHARE_LOCATION_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__add-location-button';
+const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'file-upload-button';
+const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = {
   t: (v) => v,
@@ -56,6 +59,7 @@ const renderComponent = async ({
   componentContext,
   customChannel,
   customClient,
+  message,
   messageInputProps,
 } = {}) => {
   let channel, client;
@@ -72,6 +76,20 @@ const renderComponent = async ({
     client = res.client;
   }
   jest.spyOn(channel, 'getDraft').mockImplementation();
+
+  const ThreadOrChannel = () =>
+    channelStateContext?.thread ? (
+      <LegacyThreadContext.Provider
+        value={{
+          legacyThread: channelStateContext.thread ?? undefined,
+        }}
+      >
+        <MessageInput {...messageInputProps} />
+      </LegacyThreadContext.Provider>
+    ) : (
+      <MessageInput {...messageInputProps} />
+    );
+
   let result;
   await act(() => {
     result = render(
@@ -88,16 +106,12 @@ const renderComponent = async ({
                   }}
                 >
                   <div id={CHANNEL_CONTAINER_ID}>
-                    {channelStateContext?.thread ? (
-                      <LegacyThreadContext.Provider
-                        value={{
-                          legacyThread: channelStateContext.thread ?? undefined,
-                        }}
-                      >
-                        <MessageInput {...messageInputProps} />
-                      </LegacyThreadContext.Provider>
+                    {message ? (
+                      <MessageProvider value={{ message }}>
+                        <ThreadOrChannel />
+                      </MessageProvider>
                     ) : (
-                      <MessageInput {...messageInputProps} />
+                      <ThreadOrChannel />
                     )}
                   </div>
                 </ChannelStateProvider>
@@ -253,7 +267,7 @@ describe('AttachmentSelector', () => {
     expect(
       container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
 
   it('does not render SimpleAttachmentSelector neither AttachmentSelector menu if upload permission is granted but file upload disabled', async () => {
@@ -286,7 +300,9 @@ describe('AttachmentSelector', () => {
     expect(
       screen.queryByTestId('invoke-attachment-selector-button'),
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId('file-upload-button')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+    ).not.toBeInTheDocument();
   });
 
   it('renders SimpleAttachmentSelector if rendered in a thread', async () => {
@@ -321,7 +337,7 @@ describe('AttachmentSelector', () => {
     expect(
       container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
 
   it('renders AttachmentSelector if upload-file permission is not granted', async () => {
@@ -504,5 +520,104 @@ describe('AttachmentSelector', () => {
     await waitFor(() => {
       expect(screen.getByTestId(SHARE_LOCATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
+  });
+});
+
+const AttachmentSelectorInitiationButtonContents = () => (
+  <div data-testid={'customAttachmentSelectorInitiationButtonContents'} />
+);
+const FileUploadIcon = () => <div data-testid={'customFileUploadIcon'} />;
+
+const getSimpleAttachmentSelectorInvokeElement = (container) =>
+  container.querySelector('.str-chat__file-input-label');
+
+describe('SimpleAttachmentSelector', () => {
+  const message = generateMessage();
+  it('renders the button', async () => {
+    await renderComponent({ message });
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+  });
+
+  it('does not render if missing "upload-file" capability', async () => {
+    await renderComponent({
+      channelStateContext: { channelCapabilities: { 'send-poll': true } },
+      message,
+    });
+    expect(
+      screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('invoke-attachment-selector-button'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('opens on Space key up', async () => {
+    const { container } = await renderComponent({ message });
+    const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
+    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const label = getSimpleAttachmentSelectorInvokeElement(container);
+
+    fireEvent.keyUp(label, {
+      code: 'Enter',
+      key: 'Enter',
+    });
+
+    expect(inputClickSpy).toHaveBeenCalled();
+  });
+
+  it('opens on Space key up', async () => {
+    const { container } = await renderComponent({ message });
+    const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
+    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const label = getSimpleAttachmentSelectorInvokeElement(container);
+
+    fireEvent.keyUp(label, {
+      code: 'Space',
+      key: ' ',
+    });
+
+    expect(inputClickSpy).toHaveBeenCalled();
+  });
+
+  it('does not open on other key up', async () => {
+    const { container } = await renderComponent({ message });
+    const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
+    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const label = getSimpleAttachmentSelectorInvokeElement(container);
+
+    fireEvent.keyUp(label, {
+      key: 'A',
+    });
+
+    expect(inputClickSpy).not.toHaveBeenCalled();
+  });
+
+  it('render custom AttachmentSelectorInitiationButtonContents', async () => {
+    await renderComponent({
+      componentContext: { AttachmentSelectorInitiationButtonContents },
+      message,
+    });
+    expect(
+      screen.getByTestId('customAttachmentSelectorInitiationButtonContents'),
+    ).toBeInTheDocument();
+  });
+
+  it('render custom FileUploadIcon', async () => {
+    await renderComponent({
+      componentContext: { FileUploadIcon },
+      message,
+    });
+    expect(screen.getByTestId('customFileUploadIcon')).toBeInTheDocument();
+  });
+
+  it('renders AttachmentSelectorInitiationButtonContents but not FileUploadIcon', async () => {
+    await renderComponent({
+      componentContext: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      message,
+    });
+    expect(
+      screen.getByTestId('customAttachmentSelectorInitiationButtonContents'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
 });
