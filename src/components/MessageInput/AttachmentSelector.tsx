@@ -27,6 +27,7 @@ export const SimpleAttachmentSelector = () => {
     AttachmentSelectorInitiationButtonContents,
     FileUploadIcon = DefaultUploadIcon,
   } = useComponentContext();
+  const { channelCapabilities } = useChannelStateContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
   const id = useStableId();
@@ -43,6 +44,8 @@ export const SimpleAttachmentSelector = () => {
       labelElement.removeEventListener('keyup', handleKeyUp);
     };
   }, [labelElement]);
+
+  if (!channelCapabilities['upload-file']) return null;
 
   return (
     <div className='str-chat__file-input-container' data-testid='file-upload-button'>
