@@ -749,7 +749,7 @@ describe(`EditMessageForm`, () => {
   describe('Uploads disabled', () => {
     const channelData = { channel: { own_capabilities: [] } };
 
-    it('should render file upload button disabled', async () => {
+    it('should not render file upload button if uploads are disabled', async () => {
       const { customChannel, customClient } = await setup({
         channelData,
       });
@@ -757,7 +757,9 @@ describe(`EditMessageForm`, () => {
         customChannel,
         customClient,
       });
-      await waitFor(() => expect(screen.getByTestId(FILE_INPUT_TEST_ID)).toBeDisabled());
+      await waitFor(() =>
+        expect(screen.queryByTestId(FILE_INPUT_TEST_ID)).not.toBeInTheDocument(),
+      );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
