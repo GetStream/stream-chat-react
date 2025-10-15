@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDialog, useDialogIsOpen } from './hooks';
+import { useDialogIsOpen, useDialogOnNearestManager } from './hooks';
 import { useDialogAnchor } from './DialogAnchor';
 import type { ComponentProps, ComponentType } from 'react';
 import type { PopperLikePlacement } from './hooks';
@@ -24,8 +24,8 @@ export const ButtonWithSubmenu = ({
   const keepSubmenuOpen = useRef(false);
   const dialogCloseTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogId = useMemo(() => `submenu-${Math.random().toString(36).slice(2)}`, []);
-  const dialog = useDialog({ id: dialogId });
-  const dialogIsOpen = useDialogIsOpen(dialogId);
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
   const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     open: dialogIsOpen,
     placement,

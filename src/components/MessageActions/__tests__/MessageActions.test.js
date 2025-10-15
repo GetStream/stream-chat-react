@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { MessageActions } from '../MessageActions';
 import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
@@ -137,14 +137,17 @@ describe('<MessageActions /> component', () => {
   it('should close message actions box on icon click if already opened', async () => {
     renderMessageActions();
     expect(MessageActionsBoxMock).not.toHaveBeenCalled();
+    const dialogOverlay = screen.queryByTestId(dialogOverlayTestId);
+    expect(dialogOverlay).not.toBeInTheDocument();
     await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       undefined,
     );
     await toggleOpenMessageActions();
-    const dialogOverlay = screen.queryByTestId(dialogOverlayTestId);
-    expect(dialogOverlay).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(dialogOverlay).not.toBeInTheDocument();
+    });
   });
 
   it('should close message actions box when user clicks overlay if it is already opened', async () => {

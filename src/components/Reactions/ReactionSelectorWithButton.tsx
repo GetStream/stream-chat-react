@@ -1,7 +1,7 @@
 import type { ElementRef } from 'react';
 import React, { useRef } from 'react';
 import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector';
-import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
+import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import {
   useComponentContext,
   useMessageContext,
@@ -29,11 +29,13 @@ export const ReactionSelectorWithButton = ({
   const buttonRef = useRef<ElementRef<'button'>>(null);
   const dialogIdNamespace = threadList ? '-thread-' : '';
   const dialogId = `reaction-selector${dialogIdNamespace}--${message.id}`;
-  const dialog = useDialog({ id: dialogId });
-  const dialogIsOpen = useDialogIsOpen(dialogId);
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
   return (
     <>
       <DialogAnchor
+        dialogManagerId={dialogManager?.id}
         id={dialogId}
         placement={isMyMessage() ? 'top-end' : 'top-start'}
         referenceElement={buttonRef.current}

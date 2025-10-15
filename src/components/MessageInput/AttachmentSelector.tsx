@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
 import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
-import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
+import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
 import { Modal as DefaultModal } from '../Modal';
 import { ShareLocationDialog as DefaultLocationDialog } from '../Location';
@@ -208,8 +208,10 @@ export const AttachmentSelector = ({
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
-  const menuDialog = useDialog({ id: menuDialogId });
-  const menuDialogIsOpen = useDialogIsOpen(menuDialogId);
+  const { dialog: menuDialog, dialogManager } = useDialogOnNearestManager({
+    id: menuDialogId,
+  });
+  const menuDialogIsOpen = useDialogIsOpen(menuDialogId, dialogManager?.id);
 
   const [modalContentAction, setModalContentActionAction] =
     useState<AttachmentSelectorAction>();
@@ -255,6 +257,7 @@ export const AttachmentSelector = ({
           <AttachmentSelectorMenuInitButtonIcon />
         </button>
         <DialogAnchor
+          dialogManagerId={dialogManager?.id}
           id={menuDialogId}
           placement='top-start'
           referenceElement={menuButtonRef.current}

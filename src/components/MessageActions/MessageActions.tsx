@@ -4,7 +4,7 @@ import React, { useCallback, useRef } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
-import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
+import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
 
@@ -85,8 +85,8 @@ export const MessageActions = (props: MessageActionsProps) => {
 
   const dialogIdNamespace = threadList ? '-thread-' : '';
   const dialogId = `message-actions${dialogIdNamespace}--${message.id}`;
-  const dialog = useDialog({ id: dialogId });
-  const dialogIsOpen = useDialogIsOpen(dialogId);
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
   const messageActions = getMessageActions();
 
@@ -108,6 +108,7 @@ export const MessageActions = (props: MessageActionsProps) => {
       toggleOpen={dialog?.toggle}
     >
       <DialogAnchor
+        dialogManagerId={dialogManager?.id}
         id={dialogId}
         placement={isMine ? 'top-end' : 'top-start'}
         referenceElement={actionsBoxButtonRef.current}
