@@ -42,7 +42,7 @@ export function useDialogAnchor<T extends HTMLElement>({
       // update is non-null only if popperElement is non-null
       update?.();
     }
-  }, [open, popperElement, update]);
+  }, [open, placement, popperElement, update]);
 
   if (popperElement && !open) {
     setPopperElement(null);

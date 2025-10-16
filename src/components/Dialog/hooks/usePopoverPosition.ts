@@ -69,13 +69,15 @@ export function usePopoverPosition({
 }: UsePopoverParams) {
   const autoMw = autoMiddlewareFor(placement);
   const offsetMiddleware = toOffsetMw(offset);
+  const isSidePlacement = placement.startsWith('left') || placement.startsWith('right');
 
   const middleware = [
     // offset first (mirrors common Popper setups)
     ...(offsetMiddleware ? [offsetMiddleware] : []),
 
     // choose between autoPlacement (Popper's "auto*") OR flip()
-    ...(autoMw ? [autoMw] : allowFlip ? [flipMw()] : []),
+    // only allow flip when not explicitly 'left*' or 'right*'
+    ...(autoMw ? [autoMw] : allowFlip && !isSidePlacement ? [flipMw()] : []),
 
     // viewport collision adjustments
     ...(allowShift ? [shiftMw({ padding: 8 })] : []),
@@ -93,6 +95,7 @@ export function usePopoverPosition({
   return useFloating({
     middleware,
     placement: seedPlacement,
+    strategy: 'fixed',
     whileElementsMounted: freeze
       ? undefined
       : (reference, floating, update) =>
