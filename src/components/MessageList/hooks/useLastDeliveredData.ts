@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Channel, LocalMessage, UserResponse } from 'stream-chat';
 
 type UseLastDeliveredDataParams = {
@@ -7,10 +7,11 @@ type UseLastDeliveredDataParams = {
   returnAllReadData: boolean;
 };
 
-export const useLastDeliveredData = (props: UseLastDeliveredDataParams) => {
+export const useLastDeliveredData = (
+  props: UseLastDeliveredDataParams,
+): Record<string, UserResponse[]> => {
   const { channel, messages, returnAllReadData } = props;
-
-  return useMemo(
+  const calculate = useCallback(
     () =>
       returnAllReadData
         ? messages.reduce(
@@ -26,4 +27,14 @@ export const useLastDeliveredData = (props: UseLastDeliveredDataParams) => {
         : channel.messageReceiptsTracker.groupUsersByLastDeliveredMessage(),
     [channel, messages, returnAllReadData],
   );
+
+  const [deliveredTo, setDeliveredTo] =
+    useState<Record<string, UserResponse[]>>(calculate);
+
+  useEffect(
+    () => channel.on('message.delivered', () => setDeliveredTo(calculate)).unsubscribe,
+    [channel, calculate],
+  );
+
+  return deliveredTo;
 };
