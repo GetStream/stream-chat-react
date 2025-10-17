@@ -236,10 +236,6 @@ exports[`keepLineBreaksPlugin present keeps line between lines with strong text 
   <br />
   
 
-  
-
-  
-
   <p>
     This is the second line
   </p>
@@ -256,15 +252,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] 
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <blockquote>
@@ -281,15 +269,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] 
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -308,15 +288,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] 
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -329,15 +301,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] 
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -356,6 +320,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule
   <br />
   
 
+  <br />
   
 
   
@@ -363,24 +328,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule
   <br />
   
 
-  
-
-  
-
-  
-
   <br />
-  
-
-  
-
-  
-
-  <br />
-  
-
-  
-
   
 
   <p>
@@ -399,15 +347,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -418,15 +358,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -445,15 +377,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -466,15 +390,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -493,15 +409,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] =
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -512,15 +420,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] =
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
@@ -548,15 +448,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
     <br />
     
 
-    
-
-    
-
     <br />
-    
-
-    
-
     
 
     <li>
@@ -573,15 +465,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
     <br />
     
 
-    
-
-    
-
     <br />
-    
-
-    
-
     
 
     <li>
@@ -618,15 +502,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
     <br />
     
 
-    
-
-    
-
     <br />
-    
-
-    
-
     
 
     <li>
@@ -643,15 +519,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
     <br />
     
 
-    
-
-    
-
     <br />
-    
-
-    
-
     
 
     <li>
@@ -679,15 +547,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
   <br />
   
 
-  
-
-  
-
   <br />
-  
-
-  
-
   
 
   <p>
