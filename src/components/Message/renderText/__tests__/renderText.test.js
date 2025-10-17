@@ -7,6 +7,7 @@ import {
   imageToLink,
   keepLineBreaksPlugin,
   plusPlusToEmphasis,
+  remarkIgnoreMarkdown,
 } from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
 import '@testing-library/jest-dom';
@@ -306,19 +307,19 @@ describe(`renderText`, () => {
   });
 });
 
-describe('keepLineBreaksPlugin', () => {
-  const lineBreaks = '\n\n\n';
-  const paragraphText = `a${lineBreaks}b${lineBreaks}c`;
-  const unorderedListText = `* item 1${lineBreaks}* item 2${lineBreaks}* item 3`;
-  const orderedListText = `1. item 1${lineBreaks}2. item 2${lineBreaks}3. item 3`;
-  const headingText = `## Heading${lineBreaks}a`;
-  const codeBlockText = 'a\n\n\n```b```\n\n\nc';
-  const horizontalRuleText = `a${lineBreaks}---${lineBreaks}b`;
-  const blockquoteText = `a${lineBreaks}>b${lineBreaks}c`;
-  const withStrikeThroughText = `a${lineBreaks}${strikeThroughText}${lineBreaks}b`;
-  const tableText = `a${lineBreaks}| a | b  |  c |  d  |\n| - | :- | -: | :-: |\n| a | b  |  c |  d  |${lineBreaks}c`;
-  const multilineWithStrongText = 'This is **the first** line\n\nThis is the second line';
+const lineBreaks = '\n\n\n';
+const paragraphText = `a${lineBreaks}b${lineBreaks}c`;
+const unorderedListText = `* item 1${lineBreaks}* item 2${lineBreaks}* item 3`;
+const orderedListText = `1. item 1${lineBreaks}2. item 2${lineBreaks}3. item 3`;
+const headingText = `## Heading${lineBreaks}a`;
+const codeBlockText = 'a\n\n\n```b```\n\n\nc';
+const horizontalRuleText = `a${lineBreaks}---${lineBreaks}b`;
+const blockquoteText = `a${lineBreaks}>b${lineBreaks}c`;
+const withStrikeThroughText = `a${lineBreaks}${strikeThroughText}${lineBreaks}b`;
+const tableText = `a${lineBreaks}| a | b  |  c |  d  |\n| - | :- | -: | :-: |\n| a | b  |  c |  d  |${lineBreaks}c`;
+const multilineWithStrongText = 'This is **the first** line\n\nThis is the second line';
 
+describe('keepLineBreaksPlugin', () => {
   const doRenderText = (text, present) => {
     const Markdown = renderText(
       text,
@@ -498,5 +499,39 @@ describe('imageToLink', () => {
         name: 'https://octodex.github.com/images/minion.png',
       }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('remarkIgnoreMarkdown', () => {
+  const text = [
+    headingText,
+    paragraphText,
+    unorderedListText,
+    orderedListText,
+    codeBlockText,
+    horizontalRuleText,
+    blockquoteText,
+    withStrikeThroughText,
+    tableText,
+    multilineWithStrongText,
+  ].join('\n');
+
+  const renderWithPlugin = (plugins = []) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => [...plugins, remarkIgnoreMarkdown] },
+    );
+    return render(Markdown).container;
+  };
+
+  it('skips the markdown transformation and keeps the original escaped text and lines', () => {
+    expect(renderWithPlugin().innerHTML).toBe(`<p>${text.replace(/>/g, '&gt;')}</p>`);
+  });
+
+  it('keeps line without keepLineBreaksPlugin', () => {
+    expect(renderWithPlugin([keepLineBreaksPlugin]).innerHTML).toBe(
+      renderWithPlugin().innerHTML,
+    );
   });
 });
