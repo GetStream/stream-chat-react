@@ -1,6 +1,7 @@
 import type { MouseEventHandler } from 'react';
 import React from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannelStateContext } from '../../context';
 
 export type MessageRepliesCountButtonProps = {
   /* If supplied, adds custom text to the end of a multiple replies message */
@@ -15,6 +16,7 @@ export type MessageRepliesCountButtonProps = {
 
 const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonProps) => {
   const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
+  const { channelCapabilities } = useChannelStateContext();
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
@@ -33,6 +35,7 @@ const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonPro
       <button
         className='str-chat__message-replies-count-button'
         data-testid='replies-count-button'
+        disabled={!channelCapabilities['send-reply']}
         onClick={onClick}
       >
         {replyCountText}

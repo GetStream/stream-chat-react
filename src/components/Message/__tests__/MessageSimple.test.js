@@ -81,7 +81,7 @@ describe('<MessageSimple />', () => {
   let client;
 
   async function renderMessageSimple({
-    channelCapabilities = { 'send-reaction': true },
+    channelCapabilities = { 'send-reaction': true, 'send-reply': true },
     channelConfigOverrides = { replies: true },
     components = {},
     message,
