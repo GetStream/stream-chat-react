@@ -21,7 +21,7 @@ import {
 import { act } from '@testing-library/react';
 import { dispatchMessageDeliveredEvent } from '../../../../mock-builders/event/messageDelivered';
 
-const userA = generateUser();
+const userA = generateUser({ id: 'own-user' });
 const userB = generateUser();
 const getClientAndChannel = async (channelData = {}, user = userA) => {
   const members = [generateMember({ user: userA }), generateMember({ user: userB })];
@@ -67,6 +67,42 @@ const lastMessageCreated = (messages) => [
     last_delivered_message_id: messages[0].id,
     last_read: messages[0].created_at.toISOString(),
     last_read_message_id: messages[0],
+    unread_messages: 0,
+    user: userA,
+  },
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    unread_messages: 1,
+    user: userB,
+  },
+];
+
+const lastDeliveredOnlyToMe = (messages) => [
+  {
+    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_message_id: messages[1].id,
+    last_read: messages[0].created_at.toISOString(),
+    last_read_message_id: messages[0],
+    unread_messages: 0,
+    user: userA,
+  },
+  {
+    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_message_id: messages[0].id,
+    last_read: messages[0].created_at.toISOString(),
+    unread_messages: 1,
+    user: userB,
+  },
+];
+
+const lastReadOnlyByMe = (messages) => [
+  {
+    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_message_id: messages[1].id,
+    last_read: messages[1].created_at.toISOString(),
+    last_read_message_id: messages[1],
     unread_messages: 0,
     user: userA,
   },
@@ -162,9 +198,25 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
 
-    it('is "created" if the last message was not delivered neither read by any other member', async () => {
+    it('is "sent" if the last message was not delivered neither read by any other member', async () => {
       const { lastMessage, messages } = ownLastMessage();
       const read = lastMessageCreated(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { result } = renderComponent({ channel, client, lastMessage });
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+    });
+
+    it('is "sent" if the last message was delivered only to own user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastDeliveredOnlyToMe(messages);
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { result } = renderComponent({ channel, client, lastMessage });
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+    });
+
+    it('is "sent" if the last message was read only by own user', async () => {
+      const { lastMessage, messages } = ownLastMessage();
+      const read = lastReadOnlyByMe(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
       const { result } = renderComponent({ channel, client, lastMessage });
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);

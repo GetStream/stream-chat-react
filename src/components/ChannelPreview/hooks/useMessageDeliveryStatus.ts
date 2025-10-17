@@ -43,14 +43,20 @@ export const useMessageDeliveryStatus = ({
       msgId: lastMessage.id,
       timestampMs: lastMessage.created_at.getTime(),
     };
+    const readersForMessage = channel.messageReceiptsTracker.readersForMessage(msgRef);
+    const deliveredForMessage =
+      channel.messageReceiptsTracker.deliveredForMessage(msgRef);
     setMessageDeliveryStatus(
-      channel.messageReceiptsTracker.readersForMessage(msgRef).length > 0
+      readersForMessage.length > 1 ||
+        (readersForMessage.length === 1 && readersForMessage[0].id !== client.user?.id)
         ? MessageDeliveryStatus.READ
-        : channel.messageReceiptsTracker.deliveredForMessage(msgRef).length > 0
+        : deliveredForMessage.length > 1 ||
+            (deliveredForMessage.length === 1 &&
+              deliveredForMessage[0].id !== client.user?.id)
           ? MessageDeliveryStatus.DELIVERED
           : MessageDeliveryStatus.SENT,
     );
-  }, [channel, isOwnMessage, lastMessage]);
+  }, [channel, client, isOwnMessage, lastMessage]);
 
   useEffect(() => {
     const handleMessageNew = (event: Event) => {
