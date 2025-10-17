@@ -1,5 +1,9 @@
 import { useCallback, useEffect } from 'react';
-import { modalDialogManagerId, useDialogManager } from '../../../context';
+import {
+  modalDialogManagerId,
+  useDialogManager,
+  useNearestDialogManagerContext,
+} from '../../../context';
 import { useStateStore } from '../../../store';
 
 import type { DialogManagerState, GetOrCreateDialogParams } from '../DialogManager';
@@ -23,6 +27,16 @@ export const useDialog = ({ dialogManagerId, id }: UseDialogParams) => {
   );
 
   return dialogManager.getOrCreate({ id });
+};
+
+export const useDialogOnNearestManager = ({ id }: Pick<UseDialogParams, 'id'>) => {
+  const { dialogManager } = useNearestDialogManagerContext() ?? {};
+  const dialog = useDialog({ dialogManagerId: dialogManager?.id, id });
+
+  return {
+    dialog,
+    dialogManager,
+  };
 };
 
 export const modalDialogId = 'modal-dialog' as const;

@@ -188,3 +188,6 @@ export const ModalDialogManagerProvider = ({ children }: PropsWithChildrenOnly) 
 
 export const useModalDialogManager = () =>
   useMemo(() => getDialogManager(modalDialogManagerId), []);
+
+export const useNearestDialogManagerContext = () =>
+  useContext(DialogManagerProviderContext);

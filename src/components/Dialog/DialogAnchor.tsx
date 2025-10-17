@@ -60,6 +60,7 @@ export function useDialogAnchor<T extends HTMLElement>({
 
 export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
   id: string;
+  dialogManagerId?: string;
   focus?: boolean;
   trapFocus?: boolean;
 } & ComponentProps<'div'>;
@@ -68,6 +69,7 @@ export const DialogAnchor = ({
   allowFlip = true,
   children,
   className,
+  dialogManagerId,
   focus = true,
   id,
   placement = 'auto',
@@ -76,8 +78,8 @@ export const DialogAnchor = ({
   trapFocus,
   ...restDivProps
 }: DialogAnchorProps) => {
-  const dialog = useDialog({ id });
-  const open = useDialogIsOpen(id);
+  const dialog = useDialog({ dialogManagerId, id });
+  const open = useDialogIsOpen(id, dialogManagerId);
   const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
     open,
@@ -105,7 +107,7 @@ export const DialogAnchor = ({
   }
 
   return (
-    <DialogPortalEntry dialogId={id}>
+    <DialogPortalEntry dialogId={id} dialogManagerId={dialogManagerId}>
       <FocusScope autoFocus={focus} contain={trapFocus} restoreFocus>
         <div
           {...restDivProps}

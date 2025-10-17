@@ -6,7 +6,7 @@ import { FocusScope } from '@react-aria/focus';
 
 import { CloseIconRound } from './icons';
 
-import { useTranslationContext } from '../../context';
+import { modalDialogManagerId, useTranslationContext } from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
@@ -72,7 +72,7 @@ export const GlobalModal = ({
   if (!open || !isOpen) return null;
 
   return (
-    <DialogPortalEntry dialogId={modalDialogId}>
+    <DialogPortalEntry dialogId={modalDialogId} dialogManagerId={modalDialogManagerId}>
       <div
         className={clsx(
           'str-chat str-chat__modal str-chat-react__modal str-chat__modal--open',

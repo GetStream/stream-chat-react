@@ -4,7 +4,11 @@ import type { PropsWithChildren } from 'react';
 
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 import { ActionsIcon } from '../../components/Message/icons';
-import { DialogAnchor, useDialog, useDialogIsOpen } from '../../components/Dialog';
+import {
+  DialogAnchor,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../../components/Dialog';
 import { MessageActionsWrapper } from '../../components/MessageActions/MessageActions';
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
@@ -48,9 +52,12 @@ export const MessageActions = ({
 
   const dropdownDialogId = `message-actions--${message.id}`;
   const reactionSelectorDialogId = `reaction-selector--${message.id}`;
-  const dialog = useDialog({ id: dropdownDialogId });
-  const dropdownDialogIsOpen = useDialogIsOpen(dropdownDialogId);
-  const reactionSelectorDialogIsOpen = useDialogIsOpen(reactionSelectorDialogId);
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dropdownDialogId });
+  const dropdownDialogIsOpen = useDialogIsOpen(dropdownDialogId, dialogManager?.id);
+  const reactionSelectorDialogIsOpen = useDialogIsOpen(
+    reactionSelectorDialogId,
+    dialogManager?.id,
+  );
 
   // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
@@ -78,6 +85,7 @@ export const MessageActions = ({
           </button>
 
           <DialogAnchor
+            dialogManagerId={dialogManager?.id}
             id={dropdownDialogId}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
