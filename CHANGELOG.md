@@ -1,3 +1,24 @@
+## [13.10.0](https://github.com/GetStream/stream-chat-react/compare/v13.9.0...v13.10.0) (2025-10-23)
+
+### Bug Fixes
+
+* control SimpleAttachmentSelector display according to channel capabilities ([#2860](https://github.com/GetStream/stream-chat-react/issues/2860)) ([da9f02e](https://github.com/GetStream/stream-chat-react/commit/da9f02eaaad6e095f1258f33171f41b568356a35))
+* disable reply count button when missing send-reply permission ([#2871](https://github.com/GetStream/stream-chat-react/issues/2871)) ([9e70560](https://github.com/GetStream/stream-chat-react/commit/9e70560adbd371b225cabf6646535b0b38ecb35f))
+* ensure message delivery data are recalculated for the latest message delivery confirmation ([#2869](https://github.com/GetStream/stream-chat-react/issues/2869)) ([26cb181](https://github.com/GetStream/stream-chat-react/commit/26cb1815c5eac5ddff6cdd8fcdb00b40f6742686))
+* ensure submenu is aligned correctly in reference to the parent menu with floating-ui/react ([#2868](https://github.com/GetStream/stream-chat-react/issues/2868)) ([fe84cf9](https://github.com/GetStream/stream-chat-react/commit/fe84cf92e668835fb26554d23cd98899a92b295e))
+* exclude own read state from delivery status inference in ChannelPreview ([#2870](https://github.com/GetStream/stream-chat-react/issues/2870)) ([2e9bc6e](https://github.com/GetStream/stream-chat-react/commit/2e9bc6e0727af1faf66abe9e217c3080d79be13d))
+* use the nearest dialog manager to display dialogs ([#2865](https://github.com/GetStream/stream-chat-react/issues/2865)) ([e4081c8](https://github.com/GetStream/stream-chat-react/commit/e4081c832649f77f1286f1d41854fb7645a923c1))
+
+### Features
+
+* add optional remarkIgnoreMarkdown plugin to avoid markdown transform to HTML ([#2872](https://github.com/GetStream/stream-chat-react/issues/2872)) ([33c6678](https://github.com/GetStream/stream-chat-react/commit/33c667870f9bc306a1eb6e242e0eff8725e394e3))
+
+### Chores
+
+* **deps:** bump axios from 1.9.0 to 1.12.2 in /examples/tutorial ([#2846](https://github.com/GetStream/stream-chat-react/issues/2846)) ([3377c24](https://github.com/GetStream/stream-chat-react/commit/3377c2458f6a3d7c7b45a9ad8c2363931ec5db1c))
+* **deps:** upgrade @stream-io/stream-chat-css to v5.15.0 ([cf3ad0f](https://github.com/GetStream/stream-chat-react/commit/cf3ad0f0121916f8373f349a3bcf94b0d04731cd))
+* **deps:** upgrade stream-chat to v9.25.0 ([419140c](https://github.com/GetStream/stream-chat-react/commit/419140c9fd7974333b6d430079fe472dbabffb47))
+
 ## [13.9.0](https://github.com/GetStream/stream-chat-react/compare/v13.8.1...v13.9.0) (2025-10-09)
 
 ### Features
