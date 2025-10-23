@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { TranslationProvider } from '../../../context';
+import { ChannelStateProvider, TranslationProvider } from '../../../context';
 
 const onClickMock = jest.fn();
 const defaultSingularText = '1 reply';
@@ -11,10 +11,14 @@ const defaultPluralText = '2 replies';
 const i18nMock = (key, { count }) =>
   count > 1 ? defaultPluralText : defaultSingularText;
 
-const renderComponent = (props) =>
+const renderComponent = (props, channelStateCtx) =>
   render(
     <TranslationProvider value={{ t: i18nMock }}>
-      <MessageRepliesCountButton {...props} onClick={onClickMock} />
+      <ChannelStateProvider
+        value={{ channelCapabilities: { 'send-reply': true }, ...channelStateCtx }}
+      >
+        <MessageRepliesCountButton {...props} onClick={onClickMock} />
+      </ChannelStateProvider>
     </TranslationProvider>,
   );
 
@@ -26,8 +30,8 @@ describe('MessageRepliesCountButton', () => {
 
   it('should render the right text when there is one reply, and labelSingle is not defined', () => {
     const { getByText } = renderComponent({ reply_count: 1 });
-
-    expect(getByText(defaultSingularText)).toBeInTheDocument();
+    const button = getByText(defaultSingularText);
+    expect(button).not.toBeDisabled();
   });
 
   it('should render the right text when there is one reply, and labelSingle is defined', () => {
@@ -78,5 +82,14 @@ describe('MessageRepliesCountButton', () => {
       reply_count: 1,
     });
     expect(queryByTestId('reply-icon')).not.toBeInTheDocument();
+  });
+
+  it('should be disabled on missing "send-reply" permission', () => {
+    const { getByText } = renderComponent(
+      { reply_count: 1 },
+      { channelCapabilities: { 'send-reply': false } },
+    );
+
+    expect(getByText(defaultSingularText)).toBeDisabled();
   });
 });
