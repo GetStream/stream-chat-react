@@ -49,8 +49,15 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
 
   const { client } = useChatContext('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
-  const { deliveredTo, isMyMessage, message, readBy, threadList } =
-    useMessageContext('MessageStatus');
+  const {
+    deliveredTo,
+    isMyMessage,
+    lastOwnMessage,
+    message,
+    readBy,
+    returnAllReadData,
+    threadList,
+  } = useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
@@ -64,7 +71,12 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const sending = message.status === 'sending';
   const read = !!(readBy?.length && !justReadByMe && !threadList);
   const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
-  const sent = message.status === 'received' && !delivered && !read && !threadList;
+  const sent =
+    (returnAllReadData || lastOwnMessage?.id === message.id) &&
+    message.status === 'received' &&
+    !delivered &&
+    !read &&
+    !threadList;
 
   const readersWithoutOwnUser = read
     ? readBy.filter((item) => item.id !== client.user?.id)

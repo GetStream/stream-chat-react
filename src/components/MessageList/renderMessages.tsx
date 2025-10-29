@@ -7,7 +7,7 @@ import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
 import type { ChannelUnreadUiState } from '../../types';
 
@@ -25,6 +25,8 @@ export interface RenderMessagesOptions {
    * Props forwarded to the Message component.
    */
   sharedMessageProps: SharedMessageProps;
+  /** Latest own message in currently displayed message set. */
+  lastOwnMessage?: LocalMessage;
   /**
    * Current user's channel read state used to render components reflecting unread state.
    * It does not reflect the back-end state if a channel is marked read on mount.
@@ -51,6 +53,7 @@ export function defaultRenderMessages({
   channelUnreadUiState,
   components,
   customClasses,
+  lastOwnMessage,
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
   messages,
@@ -132,6 +135,7 @@ export function defaultRenderMessages({
             <Message
               deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              lastOwnMessage={lastOwnMessage}
               lastReceivedId={lastReceivedId}
               message={message}
               readBy={readData[message.id] || []}

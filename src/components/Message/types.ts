@@ -63,6 +63,9 @@ export type MessageProps = {
   highlighted?: boolean;
   /** Whether the threaded message is the first in the thread list */
   initialMessage?: boolean;
+  // todo: move to LLC Channel state
+  /** Latest own message in currently displayed message set. */
+  lastOwnMessage?: LocalMessage;
   // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
@@ -98,6 +101,8 @@ export type MessageProps = {
   ) => ReactNode;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue['retrySendMessage'];
+  /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
+  returnAllReadData?: boolean;
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */

@@ -121,6 +121,8 @@ export type MessageContextValue = {
    * A factory function that determines whether a message is AI generated or not.
    */
   isMessageAIGenerated?: (message: LocalMessage) => boolean;
+  /** Latest own message in currently displayed message set. */
+  lastOwnMessage?: LocalMessage;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
@@ -139,6 +141,8 @@ export type MessageContextValue = {
     mentioned_users?: UserResponse[],
     options?: RenderTextOptions,
   ) => ReactNode;
+  /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
+  returnAllReadData?: boolean;
   /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */

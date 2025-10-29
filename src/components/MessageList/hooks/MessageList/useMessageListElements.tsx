@@ -23,6 +23,7 @@ type UseMessageListElementsProps = {
   returnAllReadData: boolean;
   threadList: boolean;
   channelUnreadUiState?: ChannelUnreadUiState;
+  lastOwnMessage?: LocalMessage;
 };
 
 export const useMessageListElements = (props: UseMessageListElementsProps) => {
@@ -30,6 +31,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
     channelUnreadUiState,
     enrichedMessages,
     internalMessageProps,
+    lastOwnMessage,
     messageGroupStyles,
     messages,
     renderMessages,
@@ -44,12 +46,14 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData({
     channel,
+    lastOwnMessage,
     messages,
     returnAllReadData,
   });
 
   const ownMessagesDeliveredToOthers = useLastDeliveredData({
     channel,
+    lastOwnMessage,
     messages,
     returnAllReadData,
   });
@@ -65,22 +69,25 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
         channelUnreadUiState,
         components,
         customClasses,
+        lastOwnMessage,
         lastReceivedMessageId,
         messageGroupStyles,
         messages: enrichedMessages,
         ownMessagesDeliveredToOthers,
         readData,
-        sharedMessageProps: { ...internalMessageProps, threadList },
+        sharedMessageProps: { ...internalMessageProps, returnAllReadData, threadList },
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       enrichedMessages,
       internalMessageProps,
+      lastOwnMessage,
       lastReceivedMessageId,
       messageGroupStyles,
       channelUnreadUiState,
       readData,
       renderMessages,
+      returnAllReadData,
       threadList,
     ],
   );

@@ -288,6 +288,7 @@ export const Message = (props: MessageProps) => {
       handleRetry={handleRetry}
       highlighted={highlighted}
       initialMessage={props.initialMessage}
+      lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}
       message={message}
       Message={props.Message}
@@ -302,6 +303,7 @@ export const Message = (props: MessageProps) => {
       reactionDetailsSort={reactionDetailsSort}
       readBy={props.readBy}
       renderText={props.renderText}
+      returnAllReadData={props.returnAllReadData}
       sortReactionDetails={sortReactionDetails}
       sortReactions={sortReactions}
       threadList={props.threadList}

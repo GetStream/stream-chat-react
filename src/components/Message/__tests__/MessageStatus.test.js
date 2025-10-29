@@ -110,25 +110,99 @@ describe('MessageStatus', () => {
     expect(screen.getByText(text)).toBeInTheDocument();
   });
 
-  it('renders default sent message UI', async () => {
+  it('renders default sent message UI (returnAllReadData=true)', async () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { deliveredTo: [user], message: sentMsg, readBy: [user] },
+      messageCtx: {
+        deliveredTo: [user],
+        message: sentMsg,
+        readBy: [user],
+        returnAllReadData: true,
+      },
     });
     expect(screen.getByTestId('message-sent-icon')).toBeInTheDocument();
   });
 
-  it('renders custom sent message UI', async () => {
+  it('renders custom sent message UI (returnAllReadData=true)', async () => {
     const text = 'CustomMessageSentStatus';
     const MessageSentStatus = () => <div>{text}</div>;
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
-      messageCtx: { deliveredTo: [user], message: sentMsg, readBy: [user] },
+      messageCtx: {
+        deliveredTo: [user],
+        message: sentMsg,
+        readBy: [user],
+        returnAllReadData: true,
+      },
       props: { MessageSentStatus },
     });
     expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+  });
+
+  it('renders default sent message UI (returnAllReadData=false)', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: {
+        deliveredTo: [user],
+        lastOwnMessage: ownMessage,
+        message: ownMessage,
+        readBy: [user],
+      },
+    });
+    expect(screen.getByTestId('message-sent-icon')).toBeInTheDocument();
+  });
+
+  it('renders custom sent message UI (returnAllReadData=false)', async () => {
+    const text = 'CustomMessageSentStatus';
+    const MessageSentStatus = () => <div>{text}</div>;
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: {
+        deliveredTo: [user],
+        lastOwnMessage: ownMessage,
+        message: ownMessage,
+        readBy: [user],
+      },
+      props: { MessageSentStatus },
+    });
+    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+  });
+
+  it('does not render default sent message UI (returnAllReadData=false) if the message is not the last own', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: {
+        deliveredTo: [user],
+        lastOwnMessage: sentMsg,
+        message: ownMessage,
+        readBy: [user],
+      },
+    });
+    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+  });
+
+  it('does not render custom sent message UI (returnAllReadData=false) if the message is not the last own', async () => {
+    const text = 'CustomMessageSentStatus';
+    const MessageSentStatus = () => <div>{text}</div>;
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: {
+        deliveredTo: [user],
+        lastOwnMessage: sentMsg,
+        message: ownMessage,
+        readBy: [user],
+      },
+      props: { MessageSentStatus },
+    });
+    expect(screen.queryByText(text)).not.toBeInTheDocument();
     expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
   });
 
