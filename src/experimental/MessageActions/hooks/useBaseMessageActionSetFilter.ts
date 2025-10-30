@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { ACTIONS_NOT_WORKING_IN_THREAD, useUserRole } from '../../../components';
-import { useMessageContext } from '../../../context';
+import { useChannelStateContext, useMessageContext } from '../../../context';
 
 import type { MessageActionSetItem } from '../MessageActions';
 
@@ -16,6 +16,7 @@ export const useBaseMessageActionSetFilter = (
   disable = false,
 ) => {
   const { initialMessage: isInitialMessage, message } = useMessageContext();
+  const { channelConfig } = useChannelStateContext();
   const {
     canDelete,
     canEdit,
@@ -56,7 +57,9 @@ export const useBaseMessageActionSetFilter = (
         (type === 'mute' && !canMute) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
-        (type === 'reply' && !canReply)
+        (type === 'reply' && !canReply) ||
+        (type === 'remindMe' && !channelConfig?.['user_message_reminders']) ||
+        (type === 'saveForLater' && !channelConfig?.['user_message_reminders'])
       )
         return false;
 
@@ -71,6 +74,7 @@ export const useBaseMessageActionSetFilter = (
     canQuote,
     canReact,
     canReply,
+    channelConfig,
     isInitialMessage,
     isMessageThreadReply,
     message.status,
