@@ -354,111 +354,146 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render no status when message not from the current user', async () => {
-    const message = generateBobMessage();
-    const { container, queryByTestId } = await renderMessageSimple({ message });
-    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should not render status when message is an error message', async () => {
-    const message = generateAliceMessage({ type: 'error' });
-    const { container, queryByTestId } = await renderMessageSimple({ message });
-    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render sending status when sending message', async () => {
-    const message = generateAliceMessage({ status: 'sending' });
-    const { container, getByTestId } = await renderMessageSimple({ message });
-    expect(getByTestId('message-status-sending')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render the "read by" status when the message is not part of a thread and was read by another chat members', async () => {
-    const message = generateAliceMessage();
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        readBy: [alice, bob],
-      },
+  describe('delivery status', () => {
+    it('should render no status when message not from the current user', async () => {
+      const message = generateBobMessage();
+      const { container, queryByTestId } = await renderMessageSimple({ message });
+      expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(getByTestId('message-status-read-by')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
-  it('should render the "read by many" status when the message is not part of a thread and was read by more than one other chat members', async () => {
-    const message = generateAliceMessage();
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        readBy: [alice, bob, carol],
-      },
+    it('should not render status when message is an error message', async () => {
+      const message = generateAliceMessage({ type: 'error' });
+      const { container, queryByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          readBy: [alice, bob],
+        },
+      });
+      expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(getByTestId('message-status-read-by-many')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
-  it('should render a sent status when the message has status "received" and was not delivered to others', async () => {
-    const message = generateAliceMessage({ status: 'received' });
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        deliveredTo: [alice],
-      },
+    it('should render sending status when sending message', async () => {
+      const message = generateAliceMessage({ status: 'sending' });
+      const { container, getByTestId } = await renderMessageSimple({ message });
+      expect(getByTestId('message-status-sending')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(getByTestId('message-status-sent')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
-  it('should render a delivered status when the message was delivered to others but not read', async () => {
-    const message = generateAliceMessage({ status: 'received' });
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        deliveredTo: [alice, bob],
-      },
+    it('should render the "read by" status when the message is not part of a thread and was read by another chat members', async () => {
+      const message = generateAliceMessage();
+      const { container, getByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          readBy: [alice, bob],
+        },
+      });
+      expect(getByTestId('message-status-read-by')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(getByTestId('message-status-delivered')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
-  it('should not render status when rendered in a thread list and was delivered to other members', async () => {
-    const message = generateAliceMessage();
-    const { container, queryByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        deliveredTo: [alice, bob],
-        readBy: [alice],
-        threadList: true,
-      },
+    it('should render the "read by many" status when the message is not part of a thread and was read by more than one other chat members', async () => {
+      const message = generateAliceMessage();
+      const { container, getByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          readBy: [alice, bob, carol],
+        },
+      });
+      expect(getByTestId('message-status-read-by-many')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
-  it('should not render status when rendered in a thread list and was read by other members', async () => {
-    const message = generateAliceMessage();
-    const { container, queryByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        readBy: [alice, bob, carol],
-        threadList: true,
-      },
+    it('should render a sent status when the message has status "received" and was not delivered to others and returnAllReadData=true', async () => {
+      const message = generateAliceMessage({ status: 'received' });
+      const { container, getByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          deliveredTo: [alice],
+          returnAllReadData: true,
+        },
+      });
+      expect(getByTestId('message-status-sent')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 
+    it('should not render sent status when the message is not lastOwnMessage and returnAllReadData=false', async () => {
+      const message = generateAliceMessage({ status: 'received' });
+      const { container } = await renderMessageSimple({
+        message,
+        props: {
+          deliveredTo: [alice],
+          lastOwnMessage: generateAliceMessage({ status: 'received' }),
+        },
+      });
+      expect(screen.queryByTestId('message-status-sent')).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should render sent status when the message is not lastOwnMessage and returnAllReadData=false', async () => {
+      const message = generateAliceMessage({ status: 'received' });
+      const { container } = await renderMessageSimple({
+        message,
+        props: {
+          deliveredTo: [alice],
+          lastOwnMessage: message,
+        },
+      });
+      expect(screen.queryByTestId('message-status-sent')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should render a delivered status when the message was delivered to others but not read', async () => {
+      const message = generateAliceMessage({ status: 'received' });
+      const { container, getByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          deliveredTo: [alice, bob],
+        },
+      });
+      expect(getByTestId('message-status-delivered')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should not render status when rendered in a thread list and was delivered to other members', async () => {
+      const message = generateAliceMessage();
+      const { container, queryByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          deliveredTo: [alice, bob],
+          readBy: [alice],
+          threadList: true,
+        },
+      });
+      expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should not render status when rendered in a thread list and was read by other members', async () => {
+      const message = generateAliceMessage();
+      const { container, queryByTestId } = await renderMessageSimple({
+        message,
+        props: {
+          readBy: [alice, bob, carol],
+          threadList: true,
+        },
+      });
+      expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
   it("should render the message user's avatar", async () => {
     const message = generateBobMessage();
     const { container } = await renderMessageSimple({

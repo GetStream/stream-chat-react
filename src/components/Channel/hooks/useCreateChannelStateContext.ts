@@ -48,9 +48,12 @@ export const useCreateChannelStateContext = (
   const notificationsLength = notifications.length;
   const readUsers = Object.values(read);
   const readUsersLength = readUsers.length;
-  const readUsersLastReads = readUsers
-    .map(({ last_read }) => last_read.toISOString())
-    .join();
+  const readUsersLastReadDateStrings: string[] = [];
+  for (const { last_read } of readUsers) {
+    if (!lastRead) continue;
+    readUsersLastReadDateStrings.push(last_read?.toISOString());
+  }
+  const readUsersLastReads = readUsersLastReadDateStrings.join();
   const threadMessagesLength = threadMessages?.length;
 
   const channelCapabilities: Record<string, boolean> = {};

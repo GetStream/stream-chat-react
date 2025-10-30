@@ -68,6 +68,7 @@ import type { UnknownType } from '../../types/types';
 import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
+import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
@@ -86,6 +87,7 @@ type VirtualizedMessageListPropsForContext =
   | 'head'
   | 'loadingMore'
   | 'Message'
+  | 'returnAllReadData'
   | 'shouldGroupByUser'
   | 'threadList';
 
@@ -114,6 +116,8 @@ export type VirtuosoContext = Required<
     processedMessages: RenderedMessage[];
     /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
     virtuosoRef: RefObject<VirtuosoHandle | null>;
+    /** Latest own message in currently displayed message set. */
+    lastOwnMessage?: LocalMessage;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId?: string;
     lastReadDate?: Date;
@@ -296,15 +300,19 @@ const VirtualizedMessageListWithContext = (
     client.userID,
   ]);
 
+  const lastOwnMessage = useLastOwnMessage({ messages, ownUserId: client.user?.id });
+
   // get the mapping of own messages to array of users who read them
   const ownMessagesReadByOthers = useLastReadData({
     channel,
+    lastOwnMessage,
     messages: messages || [],
     returnAllReadData,
   });
 
   const ownMessagesDeliveredToOthers = useLastDeliveredData({
     channel,
+    lastOwnMessage,
     messages: messages || [],
     returnAllReadData,
   });
@@ -488,6 +496,7 @@ const VirtualizedMessageListWithContext = (
                 firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
                 formatDate,
                 head,
+                lastOwnMessage,
                 lastReadDate: channelUnreadUiState?.last_read,
                 lastReadMessageId: channelUnreadUiState?.last_read_message_id,
                 lastReceivedMessageId,
@@ -502,6 +511,7 @@ const VirtualizedMessageListWithContext = (
                 ownMessagesReadByOthers,
                 processedMessages,
                 reactionDetailsSort,
+                returnAllReadData,
                 shouldGroupByUser,
                 sortReactionDetails,
                 sortReactions,

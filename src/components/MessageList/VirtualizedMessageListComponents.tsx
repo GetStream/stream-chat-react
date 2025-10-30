@@ -116,6 +116,7 @@ export const messageRenderer = (
     DateSeparator,
     firstUnreadMessageId,
     formatDate,
+    lastOwnMessage,
     lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
@@ -129,6 +130,7 @@ export const messageRenderer = (
     ownMessagesReadByOthers,
     processedMessages: messageList,
     reactionDetailsSort,
+    returnAllReadData,
     shouldGroupByUser,
     sortReactionDetails,
     sortReactions,
@@ -207,6 +209,7 @@ export const messageRenderer = (
         formatDate={formatDate}
         groupedByUser={groupedByUser}
         groupStyles={[messageGroupStyles[message.id] ?? '']}
+        lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
         Message={MessageUIComponent}
@@ -214,6 +217,7 @@ export const messageRenderer = (
         openThread={openThread}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
+        returnAllReadData={returnAllReadData}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
         threadList={threadList}

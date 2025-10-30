@@ -41,6 +41,7 @@ import {
   DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
 } from '../../constants/limits';
+import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -140,6 +141,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     reviewProcessedMessage,
   });
 
+  const lastOwnMessage = useLastOwnMessage({
+    messages,
+    ownUserId: channel.getClient().user?.id,
+  });
+
   const elements = useMessageListElements({
     channelUnreadUiState,
     enrichedMessages,
@@ -175,6 +181,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       sortReactions,
       unsafeHTML,
     },
+    lastOwnMessage,
     messageGroupStyles,
     messages,
     renderMessages,
