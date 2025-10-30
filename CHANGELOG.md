@@ -1,3 +1,9 @@
+## [13.10.2](https://github.com/GetStream/stream-chat-react/compare/v13.10.1...v13.10.2) (2025-10-30)
+
+### Bug Fixes
+
+* **experimental message actions:** reflect user_message_reminders config ([#2878](https://github.com/GetStream/stream-chat-react/issues/2878)) ([4622645](https://github.com/GetStream/stream-chat-react/commit/4622645a75d554786eb2ce11b95fc490636927fb))
+
 ## [13.10.1](https://github.com/GetStream/stream-chat-react/compare/v13.10.0...v13.10.1) (2025-10-30)
 
 ### Bug Fixes
