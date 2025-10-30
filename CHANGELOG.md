@@ -1,3 +1,9 @@
+## [13.10.1](https://github.com/GetStream/stream-chat-react/compare/v13.10.0...v13.10.1) (2025-10-30)
+
+### Bug Fixes
+
+* show the message status only for the last own message when returnAllReadData is false ([#2877](https://github.com/GetStream/stream-chat-react/issues/2877)) ([7e47fda](https://github.com/GetStream/stream-chat-react/commit/7e47fda917304d5b8df339d786a2fd74a4caecf4))
+
 ## [13.10.0](https://github.com/GetStream/stream-chat-react/compare/v13.9.0...v13.10.0) (2025-10-23)
 
 ### Bug Fixes
