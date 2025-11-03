@@ -130,6 +130,7 @@ export const messageRenderer = (
     ownMessagesReadByOthers,
     processedMessages: messageList,
     reactionDetailsSort,
+    renderText,
     returnAllReadData,
     shouldGroupByUser,
     sortReactionDetails,
@@ -217,6 +218,7 @@ export const messageRenderer = (
         openThread={openThread}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
+        renderText={renderText}
         returnAllReadData={returnAllReadData}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}

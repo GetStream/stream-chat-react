@@ -77,6 +77,7 @@ type PropsDrilledToMessage =
   | 'messageActions'
   | 'openThread'
   | 'reactionDetailsSort'
+  | 'renderText'
   | 'sortReactions'
   | 'sortReactionDetails';
 
@@ -214,6 +215,7 @@ const VirtualizedMessageListWithContext = (
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
     reactionDetailsSort,
+    renderText,
     returnAllReadData = false,
     reviewProcessedMessage,
     scrollSeekPlaceHolder,
@@ -511,6 +513,7 @@ const VirtualizedMessageListWithContext = (
                 ownMessagesReadByOthers,
                 processedMessages,
                 reactionDetailsSort,
+                renderText,
                 returnAllReadData,
                 shouldGroupByUser,
                 sortReactionDetails,
