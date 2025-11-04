@@ -10,12 +10,12 @@ const audioPlayers = new AudioPlayerPool();
 export type WithAudioPlaybackProps = { children?: ReactNode };
 
 export const WithAudioPlayback = ({ children }: WithAudioPlaybackProps) => {
-  useEffect(() => {
-    audioPlayers.registerSubscriptions();
-    return () => {
+  useEffect(
+    () => () => {
       audioPlayers.clear();
-    };
-  }, []);
+    },
+    [],
+  );
 
   return children;
 };
