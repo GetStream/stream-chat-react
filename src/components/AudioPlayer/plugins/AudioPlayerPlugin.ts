@@ -7,7 +7,6 @@ export type AudioPlayerPluginContext = {
 export type AudioPlayerPlugin = {
   id: string;
   onInit?(ctx: AudioPlayerPluginContext): void;
-  onSeek?(ctx: AudioPlayerPluginContext & { secondsElapsed: number }): void;
   onError?(ctx: AudioPlayerPluginContext & RegisterAudioPlayerErrorParams): void;
   onRemove?(ctx: AudioPlayerPluginContext): void;
 };

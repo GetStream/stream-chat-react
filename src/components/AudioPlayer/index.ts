@@ -1,3 +1,4 @@
+export * from './plugins';
 export {
   useAudioPlayer,
   type UseAudioPlayerProps,
