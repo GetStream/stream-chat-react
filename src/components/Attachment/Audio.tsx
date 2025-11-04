@@ -31,11 +31,13 @@ const UnMemoizedAudio = (props: AudioProps) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  const { message, threadList } = useMessageContext() ?? {};
 
   const audioPlayer = useAudioPlayer({
     mimeType: mime_type,
-    requester: message?.id && `${message.parent_id}${message.id}`,
+    requester:
+      message?.id &&
+      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
   });
 

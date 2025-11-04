@@ -144,11 +144,13 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  const { message, threadList } = useMessageContext() ?? {};
 
   const audioPlayer = useAudioPlayer({
     mimeType,
-    requester: message?.id && `${message.parent_id}${message.id}`,
+    requester:
+      message?.id &&
+      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src,
   });
 

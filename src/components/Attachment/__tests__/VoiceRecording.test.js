@@ -2,9 +2,12 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { generateVoiceRecordingAttachment } from '../../../mock-builders';
+import {
+  generateMessage,
+  generateVoiceRecordingAttachment,
+} from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
-import { ChannelActionProvider } from '../../../context';
+import { MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayer';
 
@@ -30,14 +33,11 @@ const clickPlay = async () => {
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
-const addNotificationSpy = jest.fn();
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
-    <ChannelActionProvider value={{ addNotification: addNotificationSpy }}>
-      <WithAudioPlayback>
-        <VoiceRecordingComponent {...props} />
-      </WithAudioPlayback>
-    </ChannelActionProvider>,
+    <WithAudioPlayback>
+      <VoiceRecordingComponent {...props} />
+    </WithAudioPlayback>,
   );
 
 describe('VoiceRecording', () => {
@@ -50,6 +50,58 @@ describe('VoiceRecording', () => {
     const { queryByTestId } = renderComponent({ attachment, isQuoted: true });
     expect(queryByTestId(QUOTED_AUDIO_RECORDING_TEST_ID)).toBeInTheDocument();
     expect(queryByTestId(AUDIO_RECORDING_PLAYER_TEST_ID)).not.toBeInTheDocument();
+  });
+  it('differentiates between in thread and in channel audio player', () => {
+    const createdAudios = []; //HTMLAudioElement[]
+    const RealAudio = window.Audio;
+    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
+      ...args
+    ) {
+      const el = new RealAudio(...args);
+      createdAudios.push(el);
+      return el;
+    });
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message, threadList: true }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(2);
+    spy.mockRestore();
+  });
+
+  it('keeps a single copy of audio player for the same requester', () => {
+    const createdAudios = []; //HTMLAudioElement[]
+    const RealAudio = window.Audio;
+    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
+      ...args
+    ) {
+      const el = new RealAudio(...args);
+      createdAudios.push(el);
+      return el;
+    });
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} isQuoted={true} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(1);
+    spy.mockRestore();
   });
 });
 

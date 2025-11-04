@@ -3,9 +3,10 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
-import { generateAudioAttachment } from '../../../mock-builders';
+import { generateAudioAttachment, generateMessage } from '../../../mock-builders';
 import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayer/WithAudioPlayback';
+import { MessageProvider } from '../../../context';
 
 jest.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({ client: mockClient }),
@@ -242,5 +243,35 @@ describe('Audio', () => {
     await waitFor(() => {
       expect(screen.getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
     });
+  });
+
+  it('differentiates between in thread and in channel audio player', () => {
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <Audio og={audioAttachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message, threadList: true }}>
+          <Audio og={audioAttachment} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(2);
+  });
+
+  it('keeps a single copy of audio player for the same requester', () => {
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <Audio og={audioAttachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message }}>
+          <Audio og={audioAttachment} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(1);
   });
 });
