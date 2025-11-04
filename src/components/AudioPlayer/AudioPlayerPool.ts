@@ -3,6 +3,10 @@ import { AudioPlayer, type AudioPlayerOptions } from './AudioPlayer';
 export class AudioPlayerPool {
   pool = new Map<string, AudioPlayer>();
 
+  get players() {
+    return Array.from(this.pool.values());
+  }
+
   getOrAdd = (params: AudioPlayerOptions) => {
     let player = this.pool.get(params.id);
     if (player) return player;
@@ -23,13 +27,13 @@ export class AudioPlayerPool {
   };
 
   clear = () => {
-    Array.from(this.pool.values()).forEach((player) => {
+    this.players.forEach((player) => {
       this.remove(player.id);
     });
   };
 
   registerSubscriptions = () => {
-    Array.from(this.pool.values()).forEach((p) => {
+    this.players.forEach((p) => {
       p.registerSubscriptions();
     });
   };
