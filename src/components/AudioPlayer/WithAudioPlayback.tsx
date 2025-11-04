@@ -69,7 +69,7 @@ export const useAudioPlayer = ({
     if (!audioPlayer) return;
     /**
      * Avoid having to pass client and translation function to AudioPlayer instances
-     * and instead provide registerError function that overrides the default.
+     * and instead provide plugin that takes care of translated notifications.
      */
     const notificationsPlugin = audioPlayerNotificationsPluginFactory({ client, t });
     audioPlayer.setPlugins((currentPlugins) => [
