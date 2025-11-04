@@ -70,6 +70,7 @@ export class AudioPlayer {
   private _durationSeconds?: number;
   private _plugins = new Map<string, AudioPlayerPlugin>();
   private playTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+  private unsubscribeEventListeners: (() => void) | null = null;
 
   constructor({
     durationSeconds,
@@ -153,6 +154,25 @@ export class AudioPlayer {
     return this._mimeType;
   }
 
+  private setPlaybackStartSafetyTimeout = () => {
+    clearTimeout(this.playTimeout);
+    this.playTimeout = setTimeout(() => {
+      if (!this.elementRef) return;
+      try {
+        this.elementRef.pause();
+        this.state.partialNext({ isPlaying: false });
+      } catch (e) {
+        this.registerError({ errCode: 'failed-to-start' });
+      }
+    }, 2000);
+  };
+
+  private clearPlaybackStartSafetyTimeout = () => {
+    if (!this.elementRef) return;
+    clearTimeout(this.playTimeout);
+    this.playTimeout = undefined;
+  };
+
   private setDescriptor({ durationSeconds, mimeType, src }: AudioDescriptor) {
     if (mimeType !== this._mimeType) {
       this._mimeType = mimeType;
@@ -193,25 +213,6 @@ export class AudioPlayer {
     }, new Map<string, AudioPlayerPlugin>());
   }
 
-  private setupSafetyTimeout = () => {
-    clearTimeout(this.playTimeout);
-    this.playTimeout = setTimeout(() => {
-      if (!this.elementRef) return;
-      try {
-        this.elementRef.pause();
-        this.state.partialNext({ isPlaying: false });
-      } catch (e) {
-        this.registerError({ errCode: 'failed-to-start' });
-      }
-    }, 2000);
-  };
-
-  private clearSafetyTimeout = () => {
-    if (!this.elementRef) return;
-    clearTimeout(this.playTimeout);
-    this.playTimeout = undefined;
-  };
-
   canPlayMimeType = (mimeType: string) =>
     !!(mimeType && this.elementRef?.canPlayType(mimeType));
 
@@ -235,7 +236,7 @@ export class AudioPlayer {
 
     this.elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
 
-    this.setupSafetyTimeout();
+    this.setPlaybackStartSafetyTimeout();
 
     try {
       await this.elementRef.play();
@@ -248,13 +249,13 @@ export class AudioPlayer {
       this.registerError({ error: e as Error });
       this.state.partialNext({ isPlaying: false });
     } finally {
-      this.clearSafetyTimeout();
+      this.clearPlaybackStartSafetyTimeout();
     }
   };
 
   pause = () => {
     if (!elementIsPlaying(this.elementRef)) return;
-    this.clearSafetyTimeout();
+    this.clearPlaybackStartSafetyTimeout();
 
     // existence of the element already checked by elementIsPlaying
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -309,6 +310,68 @@ export class AudioPlayer {
   };
 
   onRemove = () => {
+    this.unsubscribeEventListeners?.();
+    this.unsubscribeEventListeners = null;
     this.plugins.forEach(({ onRemove }) => onRemove?.({ player: this }));
+  };
+
+  registerSubscriptions = () => {
+    this.unsubscribeEventListeners?.();
+
+    const audioElement = this.elementRef;
+
+    const handleEnded = () => {
+      this.state.partialNext({
+        isPlaying: false,
+        secondsElapsed: audioElement?.duration ?? this.durationSeconds ?? 0,
+      });
+    };
+
+    const handleError = (e: HTMLMediaElementEventMap['error']) => {
+      // if fired probably is one of these (e.srcElement.error.code)
+      // 1 = MEDIA_ERR_ABORTED         (fetch aborted by user/JS)
+      // 2 = MEDIA_ERR_NETWORK         (network failed while fetching)
+      // 3 = MEDIA_ERR_DECODE          (data fetched but couldn’t decode)
+      // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED (no resource supported / bad type)
+      // reported during the mount so only logging to the console
+      const audio = e.currentTarget as HTMLAudioElement | null;
+      const state: Partial<AudioPlayerState> = { isPlaying: false };
+
+      if (!audio?.error?.code) {
+        this.state.partialNext(state);
+        return;
+      }
+
+      if (audio.error.code === 4) {
+        state.canPlayRecord = false;
+        this.state.partialNext(state);
+      }
+
+      const errorMsg = [
+        undefined,
+        'MEDIA_ERR_ABORTED: fetch aborted by user',
+        'MEDIA_ERR_NETWORK: network failed while fetching',
+        'MEDIA_ERR_DECODE: audio fetched but couldn’t decode',
+        'MEDIA_ERR_SRC_NOT_SUPPORTED: source not supported',
+      ][audio?.error?.code];
+      if (!errorMsg) return;
+
+      defaultRegisterAudioPlayerError({ error: new Error(errorMsg + ` (${audio.src})`) });
+    };
+
+    const handleTimeupdate = () => {
+      this.setSecondsElapsed(audioElement?.currentTime);
+    };
+
+    audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('error', handleError);
+    audioElement.addEventListener('timeupdate', handleTimeupdate);
+
+    this.unsubscribeEventListeners = () => {
+      audioElement.pause();
+      audioElement.removeEventListener('ended', handleEnded);
+      audioElement.removeEventListener('error', handleError);
+      audioElement.removeEventListener('timeupdate', handleTimeupdate);
+    };
   };
 }
