@@ -23,6 +23,7 @@ type AudioControllerParams = {
   playbackRates?: number[];
 };
 
+/** @deprecated use useAudioPlayer instead */
 export const useAudioController = ({
   durationSeconds,
   mimeType,

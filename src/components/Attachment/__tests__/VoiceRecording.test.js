@@ -6,6 +6,7 @@ import { generateVoiceRecordingAttachment } from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChannelActionProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
+import { WithAudioPlayback } from '../../AudioPlayer';
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
@@ -33,7 +34,9 @@ const addNotificationSpy = jest.fn();
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
     <ChannelActionProvider value={{ addNotification: addNotificationSpy }}>
-      <VoiceRecordingComponent {...props} />
+      <WithAudioPlayback>
+        <VoiceRecordingComponent {...props} />
+      </WithAudioPlayback>
     </ChannelActionProvider>,
   );
 
@@ -56,7 +59,7 @@ describe('VoiceRecordingPlayer', () => {
     jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
     jest.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });
-  afterAll(jest.restoreAllMocks);
+  afterAll(jest.clearAllMocks);
 
   it('should not render the component if asset_url is missing', () => {
     const { container } = renderComponent({
@@ -133,7 +136,18 @@ describe('VoiceRecordingPlayer', () => {
   });
 
   it('should show the correct progress', async () => {
-    const { container } = renderComponent({ attachment });
+    const createdAudios = []; // HTMLAudioElement[]
+
+    const RealAudio = window.Audio;
+    const constructorSpy = jest
+      .spyOn(window, 'Audio')
+      .mockImplementation(function AudioMock(...args) {
+        const el = new RealAudio(...args);
+        createdAudios.push(el);
+        return el;
+      });
+
+    renderComponent({ attachment });
 
     jest
       .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
@@ -141,14 +155,16 @@ describe('VoiceRecordingPlayer', () => {
     jest
       .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
       .mockImplementationOnce(() => 50);
-    const audioElement = container.querySelector('audio');
-    fireEvent.timeUpdate(audioElement);
+    expect(createdAudios.length).toBe(1);
+    fireEvent.timeUpdate(createdAudios[0]);
 
     await waitFor(() => {
       expect(screen.getByTestId('wave-progress-bar-progress-indicator')).toHaveStyle({
         left: '50%',
       });
     });
+
+    constructorSpy.mockRestore();
   });
 });
 

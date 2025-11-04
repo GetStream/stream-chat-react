@@ -7,12 +7,22 @@ import {
   PlayButton,
   WaveProgressBar,
 } from './components';
-import { useAudioController } from './hooks/useAudioController';
 import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
-import { useTranslationContext } from '../../context';
+import { useMessageContext, useTranslationContext } from '../../context';
+import { useAudioPlayer } from '../AudioPlayer/WithAudioPlayback';
+import { useStateStore } from '../../store';
+import type { AudioPlayerState } from '../AudioPlayer/AudioPlayer';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
+
+const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  canPlayRecord: state.canPlayRecord,
+  isPlaying: state.isPlaying,
+  playbackRate: state.currentPlaybackRate,
+  progress: state.progressPercent,
+  secondsElapsed: state.secondsElapsed,
+});
 
 export type VoiceRecordingPlayerProps = Pick<VoiceRecordingProps, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
@@ -32,31 +42,35 @@ export const VoiceRecordingPlayer = ({
     waveform_data,
   } = attachment;
 
-  const {
-    audioRef,
-    increasePlaybackRate,
-    isPlaying,
-    playbackRate,
-    progress,
-    secondsElapsed,
-    seek,
-    togglePlay,
-  } = useAudioController({
+  /**
+   * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
+   * If this component is used outside the message context, then there will be no audio player namespacing
+   * => scrolling away from the message in virtualized ML would create a new AudioPlayer instance.
+   *
+   * Edge case: the requester (message) has multiple attachments with the same assetURL - does not happen
+   * with the default SDK components, but can be done with custom API calls.In this case all the Audio
+   * widgets will share the state.
+   */
+  const { message } = useMessageContext() ?? {};
+
+  const audioPlayer = useAudioPlayer({
     durationSeconds: duration ?? 0,
     mimeType: mime_type,
     playbackRates,
+    requester: message?.id && `${message.parent_id}${message.id}`,
+    src: asset_url,
   });
 
-  if (!asset_url) return null;
+  const { canPlayRecord, isPlaying, playbackRate, progress, secondsElapsed } =
+    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  if (!audioPlayer) return null;
 
   const displayedDuration = secondsElapsed || duration;
 
   return (
     <div className={rootClassName} data-testid='voice-recording-widget'>
-      <audio ref={audioRef}>
-        <source data-testid='audio-source' src={asset_url} type={mime_type} />
-      </audio>
-      <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+      <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div
           className='str-chat__message-attachment__voice-recording-widget__title'
@@ -78,15 +92,18 @@ export const VoiceRecordingPlayer = ({
           </div>
           <WaveProgressBar
             progress={progress}
-            seek={seek}
+            seek={audioPlayer.seek}
             waveformData={waveform_data || []}
           />
         </div>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         {isPlaying ? (
-          <PlaybackRateButton disabled={!audioRef.current} onClick={increasePlaybackRate}>
-            {playbackRate.toFixed(1)}x
+          <PlaybackRateButton
+            disabled={!canPlayRecord}
+            onClick={audioPlayer.increasePlaybackRate}
+          >
+            {playbackRate?.toFixed(1)}x
           </PlaybackRateButton>
         ) : (
           <FileIcon big={true} mimeType={mime_type} size={40} />

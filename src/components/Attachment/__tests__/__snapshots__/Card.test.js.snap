@@ -25,13 +25,6 @@ exports[`Card (1) should render card without caption if attachment type is audio
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >
@@ -242,13 +235,6 @@ exports[`Card (7) should render audio with caption using og_scrape_url and with 
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >
@@ -454,13 +440,6 @@ exports[`Card (10) should render audio without title if attachment type is audio
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >
@@ -651,13 +630,6 @@ exports[`Card (13) should render audio without title and with caption using og_s
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >
@@ -835,13 +807,6 @@ exports[`Card (16) should render audio widget with title & text in Card content 
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >
@@ -1368,13 +1333,6 @@ exports[`Card (25) should render audio widget with image loaded from thumb_url a
         class="str-chat__message-attachment-card-audio-widget"
         data-testid="card-audio-widget"
       >
-        <audio>
-          <source
-            data-testid="audio-source"
-            src="dummyAttachment_asset_url"
-            type="audio/mp3"
-          />
-        </audio>
         <div
           class="str-chat__message-attachment-card-audio-widget--first-row"
         >

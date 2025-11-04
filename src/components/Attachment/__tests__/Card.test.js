@@ -19,6 +19,7 @@ import {
   mockTranslationContext,
   useMockedApis,
 } from '../../../mock-builders';
+import { WithAudioPlayback } from '../../AudioPlayer';
 
 let chatClient;
 let channel;
@@ -41,7 +42,9 @@ const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
         <ChannelActionProvider value={channelActionContext}>
           <ChannelStateProvider value={{}}>
             <ComponentProvider value={{}}>
-              <Card {...cardProps} />
+              <WithAudioPlayback>
+                <Card {...cardProps} />
+              </WithAudioPlayback>
             </ComponentProvider>
           </ChannelStateProvider>
         </ChannelActionProvider>

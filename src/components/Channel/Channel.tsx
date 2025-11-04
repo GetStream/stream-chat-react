@@ -91,6 +91,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
+import { WithAudioPlayback } from '../AudioPlayer/WithAudioPlayback';
 
 type ChannelPropsForwardedToComponentContext = Pick<
   ComponentContextValue,
@@ -1376,7 +1377,9 @@ const ChannelInner = (
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
-              <div className={clsx(chatContainerClass)}>{children}</div>
+              <WithAudioPlayback>
+                <div className={clsx(chatContainerClass)}>{children}</div>
+              </WithAudioPlayback>
             </TypingProvider>
           </WithComponents>
         </ChannelActionProvider>

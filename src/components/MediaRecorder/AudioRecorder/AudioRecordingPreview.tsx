@@ -1,38 +1,49 @@
 import React from 'react';
 import { PauseIcon, PlayIcon } from '../../MessageInput/icons';
 import { RecordingTimer } from './RecordingTimer';
-import { useAudioController } from '../../Attachment/hooks/useAudioController';
 import { WaveProgressBar } from '../../Attachment';
+import type { AudioPlayerState } from '../../AudioPlayer/AudioPlayer';
+import { useAudioPlayer } from '../../AudioPlayer/WithAudioPlayback';
+import { useStateStore } from '../../../store';
 
-export type AudioRecordingPlayerProps = React.ComponentProps<'audio'> & {
+const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  isPlaying: state.isPlaying,
+  progress: state.progressPercent,
+  secondsElapsed: state.secondsElapsed,
+});
+
+export type AudioRecordingPlayerProps = {
   durationSeconds: number;
   mimeType?: string;
+  src?: string;
   waveformData?: number[];
 };
 
 export const AudioRecordingPreview = ({
   durationSeconds,
   mimeType,
+  src,
   waveformData,
-  ...props
 }: AudioRecordingPlayerProps) => {
-  const { audioRef, isPlaying, progress, secondsElapsed, seek, togglePlay } =
-    useAudioController({
-      durationSeconds,
-      mimeType,
-    });
+  const audioPlayer = useAudioPlayer({
+    durationSeconds,
+    mimeType,
+    src,
+  });
+
+  const { isPlaying, progress, secondsElapsed } =
+    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
   const displayedDuration = secondsElapsed || durationSeconds;
 
+  if (!audioPlayer) return;
+
   return (
     <React.Fragment>
-      <audio ref={audioRef}>
-        <source src={props.src} type={mimeType} />
-      </audio>
       <button
         className='str-chat__audio_recorder__toggle-playback-button'
         data-testid='audio-recording-preview-toggle-play-btn'
-        onClick={togglePlay}
+        onClick={audioPlayer.togglePlay}
       >
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </button>
@@ -40,7 +51,7 @@ export const AudioRecordingPreview = ({
       <div className='str-chat__wave-progress-bar__track-container'>
         <WaveProgressBar
           progress={progress}
-          seek={seek}
+          seek={audioPlayer.seek}
           waveformData={waveformData || []}
         />
       </div>

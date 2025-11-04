@@ -9,6 +9,7 @@ import type { NotificationTranslatorOptions } from './types';
 import type { TranslationTopicOptions, Translator } from '../../index';
 import { pollCreationFailedNotificationTranslator } from './pollComposition';
 import { pollVoteCountTrespass } from './pollVoteCountTrespass';
+import { browserAudioPlaybackError } from './browserAudioPlaybackError';
 
 export const defaultNotificationTranslators: Record<
   string,
@@ -16,6 +17,7 @@ export const defaultNotificationTranslators: Record<
 > = {
   'api:attachment:upload:failed': attachmentUploadFailedNotificationTranslator,
   'api:poll:create:failed': pollCreationFailedNotificationTranslator,
+  'browser:audio:playback:error': browserAudioPlaybackError,
   'validation:attachment:upload:blocked': attachmentUploadBlockedNotificationTranslator,
   'validation:attachment:upload:in-progress': attachmentUploadNotTerminatedTranslator,
   'validation:poll:castVote:limit': pollVoteCountTrespass,

@@ -3,10 +3,17 @@ import { PlayButton } from '../../Attachment';
 import { RecordingTimer } from '../../MediaRecorder';
 import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import { FileIcon } from '../../ReactFileUtilities';
-import { useAudioController } from '../../Attachment/hooks/useAudioController';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { useTranslationContext } from '../../../context';
+import type { AudioPlayerState } from '../../AudioPlayer/AudioPlayer';
+import { useAudioPlayer } from '../../AudioPlayer/WithAudioPlayback';
+import { useStateStore } from '../../../store';
+
+const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  isPlaying: state.isPlaying,
+  secondsElapsed: state.secondsElapsed,
+});
 
 export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
@@ -17,23 +24,23 @@ export const VoiceRecordingPreview = ({
   removeAttachments,
 }: VoiceRecordingPreviewProps) => {
   const { t } = useTranslationContext();
-  const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController({
+
+  const audioPlayer = useAudioPlayer({
     mimeType: attachment.mime_type,
+    src: attachment.asset_url,
   });
+
+  const { isPlaying, secondsElapsed } =
+    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  if (!audioPlayer) return null;
 
   return (
     <div
       className='str-chat__attachment-preview-voice-recording'
       data-testid='attachment-preview-voice-recording'
     >
-      <audio ref={audioRef}>
-        <source
-          data-testid='audio-source'
-          src={attachment.asset_url}
-          type={attachment.mime_type}
-        />
-      </audio>
-      <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+      <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
 
       <button
         aria-label={t('aria/Remove attachment')}
