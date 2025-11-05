@@ -1,3 +1,13 @@
+## [13.11.0](https://github.com/GetStream/stream-chat-react/compare/v13.10.2...v13.11.0) (2025-11-05)
+
+### Bug Fixes
+
+* remove stale message status for the last loaded message on returnAllReadData false ([#2881](https://github.com/GetStream/stream-chat-react/issues/2881)) ([155f106](https://github.com/GetStream/stream-chat-react/commit/155f106d3b040694e9373ca89428d9d309ce404e))
+
+### Features
+
+* add prop renderText to VirtualizedMessageList ([#2879](https://github.com/GetStream/stream-chat-react/issues/2879)) ([e8142da](https://github.com/GetStream/stream-chat-react/commit/e8142da04a0ead7128d70852fad26f6430cd4575))
+
 ## [13.10.2](https://github.com/GetStream/stream-chat-react/compare/v13.10.1...v13.10.2) (2025-10-30)
 
 ### Bug Fixes
