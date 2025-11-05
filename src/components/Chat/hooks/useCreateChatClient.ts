@@ -51,7 +51,7 @@ export const useCreateChatClient = ({
           console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-  }, [apiKey, cachedUserData, tokenOrProvider]);
+  }, [apiKey, cachedUserData, tokenOrProvider, cachedOptions]);
 
   return chatClient;
 };
