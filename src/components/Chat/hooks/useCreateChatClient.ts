@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { StreamChat } from 'stream-chat';
 
@@ -30,10 +30,10 @@ export const useCreateChatClient = ({
     setCachedUserData(userData);
   }
 
-  const [cachedOptions] = useState(options);
+  const cachedOptions = useRef(options);
 
   useEffect(() => {
-    const client = new StreamChat(apiKey, undefined, cachedOptions);
+    const client = new StreamChat(apiKey, undefined, cachedOptions.current);
     let didUserConnectInterrupt = false;
 
     const connectionPromise = client
@@ -51,7 +51,7 @@ export const useCreateChatClient = ({
           console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-  }, [apiKey, cachedUserData, cachedOptions, tokenOrProvider]);
+  }, [apiKey, cachedUserData, tokenOrProvider]);
 
   return chatClient;
 };
