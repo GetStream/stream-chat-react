@@ -320,4 +320,38 @@ describe('AudioPlayer', () => {
     endedSpy.mockReturnValue(true);
     expect(elementIsPlaying(el)).toBe(false);
   });
+
+  it('requestRemoval clears element (load called) and nulls elementRef, notifies plugins', () => {
+    const onRemove = jest.fn();
+    const player = makePlayer({ plugins: [{ id: 'TestOnRemove', onRemove }] });
+
+    const el = createdAudios[0];
+    const loadSpy = jest.spyOn(el, 'load');
+
+    expect(player.elementRef).toBe(el);
+
+    player.requestRemoval();
+
+    expect(loadSpy).toHaveBeenCalled();
+    expect(player.elementRef).toBeNull();
+    expect(onRemove).toHaveBeenCalledWith(expect.objectContaining({ player }));
+  });
+
+  it('play() after requestRemoval recreates a fresh HTMLAudioElement via ensureElementRef', async () => {
+    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    const player = makePlayer();
+
+    const firstEl = createdAudios[0];
+    expect(player.elementRef).toBe(firstEl);
+
+    player.requestRemoval();
+    expect(player.elementRef).toBeNull();
+
+    await player.play();
+
+    const secondEl = player.elementRef;
+    expect(secondEl).toBeTruthy();
+    expect(secondEl).not.toBe(firstEl);
+    expect(createdAudios.length).toBe(2);
+  });
 });

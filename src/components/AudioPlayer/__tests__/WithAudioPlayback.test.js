@@ -287,7 +287,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     unmount();
 
     // cannot do "expect(player.elementRef.src).toBe('');" as player.elementRef.src in JSDOM normalizes to "http://localhost/"
-    expect(player.elementRef.getAttribute('src')).toBe('');
+    expect(player.elementRef).toBeNull();
     expect(loadSpy).toHaveBeenCalled();
   });
 
@@ -317,5 +317,36 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     expect(removedEvents).toEqual(
       expect.arrayContaining(['ended', 'error', 'timeupdate']),
     );
+  });
+
+  it('re-mounting provider with same props creates a fresh player and cleans previous element', () => {
+    const params = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
+
+    let firstPlayer;
+    const { unmount } = renderWithProvider(
+      <RegisterPlayer onReady={(p) => (firstPlayer = p)} params={params} />,
+    );
+
+    // first mount created one element
+    expect(createdAudios.length).toBe(1);
+    const firstEl = createdAudios[0];
+    expect(firstPlayer).toBeTruthy();
+    expect(firstPlayer.elementRef).toBe(firstEl);
+
+    unmount();
+
+    // After unmount, player was cleaned
+    expect(firstPlayer.elementRef).toBeNull();
+
+    // New provider -> new pool -> new player + new <audio>
+    let secondPlayer;
+    renderWithProvider(
+      <RegisterPlayer onReady={(p) => (secondPlayer = p)} params={params} />,
+    );
+
+    expect(secondPlayer).toBeTruthy();
+    expect(secondPlayer).not.toBe(firstPlayer);
+    expect(createdAudios.length).toBe(2);
+    expect(secondPlayer.elementRef).not.toBe(firstEl);
   });
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PlayButton } from '../../Attachment';
 import { RecordingTimer } from '../../MediaRecorder';
 import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
@@ -32,6 +32,8 @@ export const VoiceRecordingPreview = ({
 
   const { isPlaying, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  useEffect(() => () => audioPlayer?.requestRemoval(), [audioPlayer]);
 
   if (!audioPlayer) return null;
 

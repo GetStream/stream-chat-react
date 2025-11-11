@@ -33,6 +33,7 @@ import {
 import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
+import { WithAudioPlayback } from '../../../AudioPlayer';
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
@@ -424,13 +425,15 @@ const DEFAULT_RECORDING_CONTROLLER = {
 const renderAudioRecorder = (controller = {}) =>
   render(
     <ChannelActionProvider value={{}}>
-      <MessageInputContextProvider
-        value={{
-          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-        }}
-      >
-        <AudioRecorder />
-      </MessageInputContextProvider>
+      <WithAudioPlayback>
+        <MessageInputContextProvider
+          value={{
+            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+          }}
+        >
+          <AudioRecorder />
+        </MessageInputContextProvider>
+      </WithAudioPlayback>
     </ChannelActionProvider>,
   );
 
@@ -463,7 +466,9 @@ describe('AudioRecorder', () => {
       recording: generateVoiceRecordingAttachment(),
       recordingState: MediaRecordingState.STOPPED,
     });
-    expect(container).toMatchSnapshot();
+    await waitFor(() => {
+      expect(container).toMatchSnapshot();
+    });
   });
 
   it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING])(

@@ -1,4 +1,5 @@
 import { AudioPlayer, type AudioPlayerOptions } from './AudioPlayer';
+import { audioPlayerRequestRemovalFromPoolPluginFactory } from './plugins/AudioPlayerRequestRemovalPlugin';
 
 export class AudioPlayerPool {
   pool = new Map<string, AudioPlayer>();
@@ -10,7 +11,16 @@ export class AudioPlayerPool {
   getOrAdd = (params: AudioPlayerOptions) => {
     let player = this.pool.get(params.id);
     if (player) return player;
-    player = new AudioPlayer(params);
+    const requestRemovalPlugin = audioPlayerRequestRemovalFromPoolPluginFactory({
+      players: this,
+    });
+    player = new AudioPlayer({
+      ...params,
+      plugins: [
+        ...(params.plugins ?? []).filter((p) => p.id !== requestRemovalPlugin.id),
+        requestRemovalPlugin,
+      ],
+    });
     player.registerSubscriptions();
     this.pool.set(params.id, player);
     return player;
@@ -19,11 +29,10 @@ export class AudioPlayerPool {
   remove = (id: string) => {
     const player = this.pool.get(id);
     if (!player) return;
-    player.stop();
-    player.elementRef.src = '';
-    player.elementRef.load();
-    player.onRemove();
-    this.pool.delete(id);
+    player.requestRemoval();
+    if (this.pool.has(id)) {
+      this.pool.delete(id);
+    }
   };
 
   clear = () => {

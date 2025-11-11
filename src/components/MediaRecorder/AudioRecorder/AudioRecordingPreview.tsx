@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PauseIcon, PlayIcon } from '../../MessageInput/icons';
 import { RecordingTimer } from './RecordingTimer';
 import { WaveProgressBar } from '../../Attachment';
@@ -35,6 +35,13 @@ export const AudioRecordingPreview = ({
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
   const displayedDuration = secondsElapsed || durationSeconds;
+
+  useEffect(
+    () => () => {
+      audioPlayer?.requestRemoval();
+    },
+    [audioPlayer],
+  );
 
   if (!audioPlayer) return;
 

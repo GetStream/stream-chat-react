@@ -30,7 +30,7 @@ export type AudioPlayerState = {
   canPlayRecord: boolean;
   /** Current playback speed. Initiated with the first item of the playbackRates array. */
   currentPlaybackRate: number;
-  elementRef: HTMLAudioElement;
+  elementRef: HTMLAudioElement | null;
   isPlaying: boolean;
   playbackError: Error | null;
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
@@ -135,7 +135,7 @@ export class AudioPlayer {
   }
 
   get src() {
-    return this.elementRef.src;
+    return this.elementRef?.src;
   }
 
   get secondsElapsed() {
@@ -154,6 +154,12 @@ export class AudioPlayer {
     return this._mimeType;
   }
 
+  private ensureElementRef(): HTMLAudioElement {
+    if (!this.elementRef) {
+      this.setRef(new Audio(this.src));
+    }
+    return this.elementRef as HTMLAudioElement;
+  }
   private setPlaybackStartSafetyTimeout = () => {
     clearTimeout(this.playTimeout);
     this.playTimeout = setTimeout(() => {
@@ -181,15 +187,25 @@ export class AudioPlayer {
     if (durationSeconds !== this._durationSeconds) {
       this._durationSeconds = durationSeconds;
     }
-    if (this.elementRef.src !== src) {
-      this.elementRef.src = src;
-      this.elementRef.load();
+    const elementRef = this.ensureElementRef();
+    if (elementRef.src !== src) {
+      elementRef.src = src;
+      elementRef.load();
     }
   }
 
-  private setRef = (elementRef: HTMLAudioElement) => {
+  private prepareElementRefForGarbageCollection() {
+    this.stop();
+    if (this.elementRef) {
+      this.elementRef.src = '';
+      this.elementRef.load();
+      this.setRef(null);
+    }
+  }
+
+  private setRef = (elementRef: HTMLAudioElement | null) => {
     if (elementIsPlaying(this.elementRef)) {
-      this.pause();
+      this.prepareElementRefForGarbageCollection();
     }
     this.state.partialNext({ elementRef });
   };
@@ -217,6 +233,7 @@ export class AudioPlayer {
     !!(mimeType && this.elementRef?.canPlayType(mimeType));
 
   play = async (params?: AudioPlayerPlayAudioParams) => {
+    const elementRef = this.ensureElementRef();
     if (elementIsPlaying(this.elementRef)) {
       if (this.isPlaying) return;
       this.state.partialNext({ isPlaying: true });
@@ -234,12 +251,12 @@ export class AudioPlayer {
       return;
     }
 
-    this.elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
+    elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
 
     this.setPlaybackStartSafetyTimeout();
 
     try {
-      await this.elementRef.play();
+      await elementRef.play();
       this.state.partialNext({
         currentPlaybackRate,
         isPlaying: true,
@@ -266,7 +283,7 @@ export class AudioPlayer {
   stop = () => {
     this.pause();
     this.setSecondsElapsed(0);
-    this.elementRef.currentTime = 0;
+    if (this.elementRef) this.elementRef.currentTime = 0;
   };
 
   togglePlay = async () => (this.isPlaying ? this.pause() : await this.play());
@@ -309,7 +326,12 @@ export class AudioPlayer {
     this.plugins.forEach(({ onError }) => onError?.({ player: this, ...params }));
   };
 
-  onRemove = () => {
+  /**
+   * Removes the audio element reference, event listeners and audio player from the player pool.
+   * Helpful when only a single AudioPlayer instance is to be removed from the AudioPlayerPool.
+   */
+  requestRemoval = () => {
+    this.prepareElementRefForGarbageCollection();
     this.unsubscribeEventListeners?.();
     this.unsubscribeEventListeners = null;
     this.plugins.forEach(({ onRemove }) => onRemove?.({ player: this }));
@@ -318,7 +340,7 @@ export class AudioPlayer {
   registerSubscriptions = () => {
     this.unsubscribeEventListeners?.();
 
-    const audioElement = this.elementRef;
+    const audioElement = this.ensureElementRef();
 
     const handleEnded = () => {
       this.state.partialNext({
