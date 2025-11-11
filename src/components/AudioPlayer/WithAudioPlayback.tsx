@@ -1,23 +1,27 @@
-import type { ReactNode } from 'react';
+import React, { useContext, useState } from 'react';
 import { useEffect, useMemo } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
 import { AudioPlayerPool } from './AudioPlayerPool';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
 import { useChatContext, useTranslationContext } from '../../context';
 
-const audioPlayers = new AudioPlayerPool();
+export type WithAudioPlaybackProps = { children?: React.ReactNode };
 
-export type WithAudioPlaybackProps = { children?: ReactNode };
+const AudioPlayerContext = React.createContext<{ audioPlayers: AudioPlayerPool | null }>({
+  audioPlayers: null,
+});
 
 export const WithAudioPlayback = ({ children }: WithAudioPlaybackProps) => {
+  const [audioPlayers] = useState(() => new AudioPlayerPool());
+
   useEffect(
     () => () => {
       audioPlayers.clear();
     },
-    [],
+    [audioPlayers],
   );
 
-  return children;
+  return <AudioPlayerContext value={{ audioPlayers }}>{children}</AudioPlayerContext>;
 };
 
 export type UseAudioPlayerProps = {
@@ -49,10 +53,11 @@ export const useAudioPlayer = ({
 }: UseAudioPlayerProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
+  const { audioPlayers } = useContext(AudioPlayerContext);
 
   const audioPlayer = useMemo(
     () =>
-      src
+      src && audioPlayers
         ? audioPlayers.getOrAdd({
             durationSeconds,
             id: makeAudioPlayerId({ requester, src }),
@@ -62,7 +67,7 @@ export const useAudioPlayer = ({
             src,
           })
         : undefined,
-    [durationSeconds, mimeType, playbackRates, plugins, requester, src],
+    [audioPlayers, durationSeconds, mimeType, playbackRates, plugins, requester, src],
   );
 
   useEffect(() => {
