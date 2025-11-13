@@ -246,7 +246,7 @@ describe('Audio', () => {
   it('differentiates between in thread and in channel audio player', async () => {
     const message = generateMessage();
     render(
-      <WithAudioPlayback>
+      <WithAudioPlayback allowConcurrentPlayback>
         <MessageProvider value={{ message }}>
           <Audio og={audioAttachment} />
         </MessageProvider>

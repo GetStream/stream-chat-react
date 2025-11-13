@@ -8,7 +8,7 @@ export class AudioPlayerPool {
   private allowConcurrentPlayback: boolean;
 
   constructor(config?: { allowConcurrentPlayback?: boolean }) {
-    this.allowConcurrentPlayback = config?.allowConcurrentPlayback ?? true;
+    this.allowConcurrentPlayback = !!config?.allowConcurrentPlayback;
   }
 
   get players() {

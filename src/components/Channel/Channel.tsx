@@ -168,7 +168,7 @@ type ChannelPropsForwardedToComponentContext = Pick<
 export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
-  /** Allows a single audio to be played by any audio player at a time. */
+  /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
   allowConcurrentAudioPlayback?: boolean;
   /** The connected and active channel */
   channel?: StreamChannel;
@@ -291,7 +291,7 @@ const ChannelInner = (
 ) => {
   const {
     activeUnreadHandler,
-    allowConcurrentAudioPlayback = true,
+    allowConcurrentAudioPlayback,
     channel,
     channelQueryOptions: propChannelQueryOptions,
     children,

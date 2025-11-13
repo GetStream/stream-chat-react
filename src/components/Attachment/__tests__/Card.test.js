@@ -325,7 +325,7 @@ describe('Card', () => {
     render(
       <ChatProvider value={{}}>
         <ChannelStateProvider value={{}}>
-          <WithAudioPlayback>
+          <WithAudioPlayback allowConcurrentPlayback>
             <MessageProvider value={{ message }}>
               <Card {...audioAttachment} />
             </MessageProvider>
@@ -372,7 +372,7 @@ describe('Card', () => {
     render(
       <ChatProvider value={{}}>
         <ChannelStateProvider value={{}}>
-          <WithAudioPlayback>
+          <WithAudioPlayback allowConcurrentPlayback>
             <MessageProvider value={{ message }}>
               <Card {...audioAttachment} />
             </MessageProvider>
