@@ -1,4 +1,4 @@
-export { type AudioPlayerState } from './AudioPlayer';
+export * from './AudioPlayer';
 export * from './plugins';
 export {
   useActiveAudioPlayer,
