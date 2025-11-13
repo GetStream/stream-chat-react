@@ -24,7 +24,7 @@ import {
   mockTranslationContext,
   useMockedApis,
 } from '../../../mock-builders';
-import { WithAudioPlayback } from '../../AudioPlayer';
+import { WithAudioPlayback } from '../../AudioPlayback';
 
 let chatClient;
 let channel;

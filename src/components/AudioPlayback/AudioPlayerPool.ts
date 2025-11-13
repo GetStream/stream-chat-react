@@ -1,11 +1,19 @@
 import { AudioPlayer, type AudioPlayerOptions } from './AudioPlayer';
+import { StateStore } from 'stream-chat';
+
+export type AudioPlayerPoolState = {
+  activeAudioPlayer: AudioPlayer | null;
+};
 
 export class AudioPlayerPool {
-  pool = new Map<string, AudioPlayer>();
+  state: StateStore<AudioPlayerPoolState> = new StateStore<AudioPlayerPoolState>({
+    activeAudioPlayer: null,
+  });
+  private pool = new Map<string, AudioPlayer>();
   private audios = new Map<string, HTMLAudioElement>();
   private sharedAudio: HTMLAudioElement | null = null;
   private sharedOwnerId: string | null = null;
-  private allowConcurrentPlayback: boolean;
+  private readonly allowConcurrentPlayback: boolean;
 
   constructor(config?: { allowConcurrentPlayback?: boolean }) {
     this.allowConcurrentPlayback = !!config?.allowConcurrentPlayback;
@@ -13,6 +21,10 @@ export class AudioPlayerPool {
 
   get players() {
     return Array.from(this.pool.values());
+  }
+
+  get activeAudioPlayer() {
+    return this.state.getLatestValue().activeAudioPlayer;
   }
 
   getOrAdd = (params: Omit<AudioPlayerOptions, 'pool'>) => {
@@ -29,6 +41,14 @@ export class AudioPlayerPool {
     return player;
   };
 
+  /**
+   * In case of allowConcurrentPlayback enabled, a new Audio is created and assigned to the given audioPlayer owner.
+   * In case of disabled concurrency, the shared audio ownership is transferred to the new owner loading the owner's
+   * source.
+   *
+   * @param ownerId
+   * @param src
+   */
   acquireElement = ({ ownerId, src }: { ownerId: string; src: string }) => {
     if (!this.allowConcurrentPlayback) {
       // Single shared element mode
@@ -63,6 +83,14 @@ export class AudioPlayerPool {
     return audio;
   };
 
+  /**
+   * Removes the given audio players ownership of the shared audio element (in case of concurrent playback is disabled)
+   * and pauses the reproduction of the audio.
+   * In case of concurrent playback mode (allowConcurrentPlayback enabled), the audio is paused,
+   * its source cleared and removed from the audios pool readied for garbage collection.
+   *
+   * @param ownerId
+   */
   releaseElement = (ownerId: string) => {
     if (!this.allowConcurrentPlayback) {
       if (this.sharedOwnerId !== ownerId) return;
@@ -93,18 +121,30 @@ export class AudioPlayerPool {
     this.audios.delete(ownerId);
   };
 
+  /** Sets active audio player when allowConcurrentPlayback is disabled */
+  setActiveAudioPlayer = (activeAudioPlayer: AudioPlayer | null) => {
+    if (this.allowConcurrentPlayback) return;
+    this.state.partialNext({ activeAudioPlayer });
+  };
+
+  /** Removes the AudioPlayer instance from the pool of players */
   deregister(id: string) {
     if (this.pool.has(id)) {
       this.pool.delete(id);
     }
+    if (this.activeAudioPlayer?.id === id) {
+      this.setActiveAudioPlayer(null);
+    }
   }
 
+  /** Performs all the necessary cleanup actions and removes the player from the pool */
   remove = (id: string) => {
     const player = this.pool.get(id);
     if (!player) return;
     player.requestRemoval();
   };
 
+  /** Removes and cleans up all the players from the pool */
   clear = () => {
     this.players.forEach((player) => {
       this.remove(player.id);

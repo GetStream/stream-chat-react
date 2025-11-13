@@ -9,7 +9,7 @@ import {
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
-import { WithAudioPlayback } from '../../AudioPlayer';
+import { WithAudioPlayback } from '../../AudioPlayback';
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';

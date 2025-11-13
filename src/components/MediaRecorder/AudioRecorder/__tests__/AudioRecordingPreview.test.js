@@ -2,10 +2,7 @@ import React, { useEffect } from 'react';
 import '@testing-library/jest-dom';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AudioRecordingPreview } from '../AudioRecordingPreview';
-import {
-  useAudioPlayer,
-  WithAudioPlayback,
-} from '../../../AudioPlayer/WithAudioPlayback';
+import { useAudioPlayer, WithAudioPlayback } from '../../../AudioPlayback';
 import { generateAudioAttachment } from '../../../../mock-builders';
 
 const TOGGLE_PLAY_BTN_TEST_ID = 'audio-recording-preview-toggle-play-btn';

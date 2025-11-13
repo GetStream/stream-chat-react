@@ -6,8 +6,7 @@ import { FileIcon } from '../../ReactFileUtilities';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { useTranslationContext } from '../../../context';
-import type { AudioPlayerState } from '../../AudioPlayer/AudioPlayer';
-import { useAudioPlayer } from '../../AudioPlayer/WithAudioPlayback';
+import { type AudioPlayerState, useAudioPlayer } from '../../AudioPlayback';
 import { useStateStore } from '../../../store';
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({

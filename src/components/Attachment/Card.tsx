@@ -12,9 +12,8 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from './utils';
 import type { Dimensions } from '../../types/types';
-import { useAudioPlayer } from '../AudioPlayer/WithAudioPlayback';
+import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
 import { useStateStore } from '../../store';
-import type { AudioPlayerState } from '../AudioPlayer/AudioPlayer';
 import { useMessageContext } from '../../context';
 
 const getHostFromURL = (url?: string | null) => {

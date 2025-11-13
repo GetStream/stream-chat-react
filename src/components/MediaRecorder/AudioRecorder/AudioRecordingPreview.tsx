@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { PauseIcon, PlayIcon } from '../../MessageInput/icons';
 import { RecordingTimer } from './RecordingTimer';
 import { WaveProgressBar } from '../../Attachment';
-import type { AudioPlayerState } from '../../AudioPlayer/AudioPlayer';
-import { useAudioPlayer } from '../../AudioPlayer/WithAudioPlayback';
+import { type AudioPlayerState, useAudioPlayer } from '../../AudioPlayback';
 import { useStateStore } from '../../../store';
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
@@ -29,6 +28,7 @@ export const AudioRecordingPreview = ({
     durationSeconds,
     mimeType,
     src,
+    waveformData,
   });
 
   const { isPlaying, progress, secondsElapsed } =

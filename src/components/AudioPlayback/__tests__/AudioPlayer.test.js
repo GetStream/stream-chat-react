@@ -31,6 +31,7 @@ const makePlayer = (overrides = {}) => {
     acquireElement: ({ src }) => new Audio(src),
     deregister: () => {},
     releaseElement: () => {},
+    setActiveAudioPlayer: jest.fn(),
   };
   return new AudioPlayer({
     durationSeconds: 100,
@@ -107,6 +108,8 @@ describe('AudioPlayer', () => {
     expect(player.isPlaying).toBe(true);
     expect(player.currentPlaybackRate).toBe(1.5);
     expect(player.elementRef.playbackRate).toBe(1.5);
+    // eslint-disable-next-line no-underscore-dangle
+    expect(player._pool.setActiveAudioPlayer).toHaveBeenCalledWith(player);
   });
 
   it('play() early-return path when element is already playing', async () => {

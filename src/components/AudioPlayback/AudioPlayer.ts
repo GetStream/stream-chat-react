@@ -1,6 +1,6 @@
 import { StateStore } from 'stream-chat';
 import throttle from 'lodash.throttle';
-import type { AudioPlayerPlugin } from './plugins/AudioPlayerPlugin';
+import type { AudioPlayerPlugin } from './plugins';
 import type { AudioPlayerPool } from './AudioPlayerPool';
 
 export type AudioPlayerErrorCode =
@@ -19,7 +19,10 @@ export type AudioDescriptor = {
   src: string;
   /** Audio duration in seconds. */
   durationSeconds?: number;
+  fileSize?: number | string;
   mimeType?: string;
+  title?: string;
+  waveformData?: number[];
 };
 
 export type AudioPlayerPlayAudioParams = {
@@ -66,11 +69,8 @@ export type SeekFn = (params: { clientX: number; currentTarget: HTMLDivElement }
 
 export class AudioPlayer {
   state: StateStore<AudioPlayerState>;
-  private _id: string;
   /** The audio MIME type that is checked before the audio is played. If the type is not supported the controller registers error in playbackError. */
-  private _mimeType?: string;
-  private _durationSeconds?: number;
-  private _src: string;
+  private _data: AudioDescriptor;
   private _plugins = new Map<string, AudioPlayerPlugin>();
   private playTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
   private unsubscribeEventListeners: (() => void) | null = null;
@@ -83,17 +83,25 @@ export class AudioPlayer {
 
   constructor({
     durationSeconds,
+    fileSize,
     id,
     mimeType,
     playbackRates: customPlaybackRates,
     plugins,
     pool,
     src,
+    title,
+    waveformData,
   }: AudioPlayerOptions) {
-    this._id = id;
-    this._mimeType = mimeType;
-    this._durationSeconds = durationSeconds;
-    this._src = src;
+    this._data = {
+      durationSeconds,
+      fileSize,
+      id,
+      mimeType,
+      src,
+      title,
+      waveformData,
+    };
     this._pool = pool;
     this.setPlugins(() => plugins ?? []);
 
@@ -142,12 +150,32 @@ export class AudioPlayer {
     return this.state.getLatestValue().playbackRates;
   }
 
+  get durationSeconds() {
+    return this._data.durationSeconds;
+  }
+
+  get fileSize() {
+    return this._data.fileSize;
+  }
+
   get id() {
-    return this._id;
+    return this._data.id;
   }
 
   get src() {
-    return this._src;
+    return this._data.src;
+  }
+
+  get mimeType() {
+    return this._data.mimeType;
+  }
+
+  get title() {
+    return this._data.title;
+  }
+
+  get waveformData() {
+    return this._data.waveformData;
   }
 
   get secondsElapsed() {
@@ -156,14 +184,6 @@ export class AudioPlayer {
 
   get progressPercent() {
     return this.state.getLatestValue().progressPercent;
-  }
-
-  get durationSeconds() {
-    return this._durationSeconds;
-  }
-
-  get mimeType() {
-    return this._mimeType;
   }
 
   get disposed() {
@@ -176,8 +196,8 @@ export class AudioPlayer {
     }
     if (!this.elementRef) {
       const el = this._pool.acquireElement({
-        ownerId: this._id,
-        src: this._src,
+        ownerId: this.id,
+        src: this.src,
       });
       this.setRef(el);
     }
@@ -253,15 +273,15 @@ export class AudioPlayer {
   };
 
   private setDescriptor({ durationSeconds, mimeType, src }: AudioDescriptor) {
-    if (mimeType !== this._mimeType) {
-      this._mimeType = mimeType;
+    if (mimeType !== this.mimeType) {
+      this._data.mimeType = mimeType;
     }
 
-    if (durationSeconds !== this._durationSeconds) {
-      this._durationSeconds = durationSeconds;
+    if (durationSeconds !== this.durationSeconds) {
+      this._data.durationSeconds = durationSeconds;
     }
-    if (src !== this._src) {
-      this._src = src;
+    if (src !== this.src) {
+      this._data.src = src;
       if (this.elementRef) {
         this.elementRef.src = src;
       }
@@ -285,7 +305,7 @@ export class AudioPlayer {
       }
     }
     if (this.elementRef) {
-      this._pool.releaseElement(this._id);
+      this._pool.releaseElement(this.id);
       this.setRef(null);
     }
   }
@@ -380,6 +400,7 @@ export class AudioPlayer {
         isPlaying: true,
         playbackRates,
       });
+      this._pool.setActiveAudioPlayer(this);
     } catch (e) {
       this.registerError({ error: e as Error });
       this.state.partialNext({ isPlaying: false });

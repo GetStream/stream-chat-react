@@ -10,9 +10,9 @@ import {
 import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
 import { useMessageContext, useTranslationContext } from '../../context';
-import { useAudioPlayer } from '../AudioPlayer/WithAudioPlayback';
+import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback/';
 import { useStateStore } from '../../store';
-import type { AudioPlayerState } from '../AudioPlayer/AudioPlayer';
+import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -24,6 +24,62 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
   secondsElapsed: state.secondsElapsed,
 });
 
+type VoiceRecordingPlayerUIProps = {
+  audioPlayer: AudioPlayer;
+};
+
+// todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
+const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) => {
+  const { canPlayRecord, isPlaying, playbackRate, progress, secondsElapsed } =
+    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  const displayedDuration = secondsElapsed || audioPlayer.durationSeconds;
+
+  return (
+    <div className={rootClassName} data-testid='voice-recording-widget'>
+      <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
+      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
+        <div
+          className='str-chat__message-attachment__voice-recording-widget__title'
+          data-testid='voice-recording-title'
+          title={audioPlayer.title}
+        >
+          {audioPlayer.title}
+        </div>
+        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
+          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
+            {audioPlayer.durationSeconds ? (
+              displayDuration(displayedDuration)
+            ) : (
+              <FileSizeIndicator
+                fileSize={audioPlayer.fileSize}
+                maximumFractionDigits={0}
+              />
+            )}
+          </div>
+          <WaveProgressBar
+            progress={progress}
+            seek={audioPlayer.seek}
+            waveformData={audioPlayer.waveformData || []}
+          />
+        </div>
+      </div>
+      <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
+        {isPlaying ? (
+          <PlaybackRateButton
+            disabled={!canPlayRecord}
+            onClick={audioPlayer.increasePlaybackRate}
+          >
+            {playbackRate?.toFixed(1)}x
+          </PlaybackRateButton>
+        ) : (
+          <FileIcon big={true} mimeType={audioPlayer.mimeType} size={40} />
+        )}
+      </div>
+    </div>
+  );
+};
+
 export type VoiceRecordingPlayerProps = Pick<VoiceRecordingProps, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
@@ -33,10 +89,11 @@ export const VoiceRecordingPlayer = ({
   attachment,
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
-  const { t } = useTranslationContext('VoiceRecordingPlayer');
+  const { t } = useTranslationContext();
   const {
     asset_url,
     duration = 0,
+    file_size,
     mime_type,
     title = t('Voice message'),
     waveform_data,
@@ -55,64 +112,18 @@ export const VoiceRecordingPlayer = ({
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration ?? 0,
+    fileSize: file_size,
     mimeType: mime_type,
     playbackRates,
     requester:
       message?.id &&
       `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
+    title,
+    waveformData: waveform_data,
   });
 
-  const { canPlayRecord, isPlaying, playbackRate, progress, secondsElapsed } =
-    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
-
-  if (!audioPlayer) return null;
-
-  const displayedDuration = secondsElapsed || duration;
-
-  return (
-    <div className={rootClassName} data-testid='voice-recording-widget'>
-      <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
-      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-        <div
-          className='str-chat__message-attachment__voice-recording-widget__title'
-          data-testid='voice-recording-title'
-          title={title}
-        >
-          {title}
-        </div>
-        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
-          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {attachment.duration ? (
-              displayDuration(displayedDuration)
-            ) : (
-              <FileSizeIndicator
-                fileSize={attachment.file_size}
-                maximumFractionDigits={0}
-              />
-            )}
-          </div>
-          <WaveProgressBar
-            progress={progress}
-            seek={audioPlayer.seek}
-            waveformData={waveform_data || []}
-          />
-        </div>
-      </div>
-      <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
-        {isPlaying ? (
-          <PlaybackRateButton
-            disabled={!canPlayRecord}
-            onClick={audioPlayer.increasePlaybackRate}
-          >
-            {playbackRate?.toFixed(1)}x
-          </PlaybackRateButton>
-        ) : (
-          <FileIcon big={true} mimeType={mime_type} size={40} />
-        )}
-      </div>
-    </div>
-  );
+  return audioPlayer ? <VoiceRecordingPlayerUI audioPlayer={audioPlayer} /> : null;
 };
 
 export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;

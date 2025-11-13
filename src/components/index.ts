@@ -1,6 +1,6 @@
 export * from './AIStateIndicator';
 export * from './Attachment';
-export * from './AudioPlayer';
+export * from './AudioPlayback';
 export * from './Avatar';
 export * from './Channel';
 export * from './ChannelHeader';

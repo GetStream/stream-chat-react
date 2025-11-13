@@ -144,4 +144,44 @@ describe('AudioPlayerPool', () => {
     expect(spy1).not.toHaveBeenCalled();
     expect(spy2).toHaveBeenCalled();
   });
+
+  it('single-playback mode: removes a player', () => {
+    const pool = new AudioPlayerPool({ allowConcurrentPlayback: false });
+    const player = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
+    pool.acquireElement({ ownerId: player.id, src: player.src });
+    expect(pool.players).toHaveLength(1);
+    expect(Object.keys(pool.audios)).toHaveLength(0);
+    pool.remove(player.id);
+    expect(pool.players).toHaveLength(0);
+  });
+
+  it('concurrent-playback mode: removes a player', () => {
+    const pool = new AudioPlayerPool({ allowConcurrentPlayback: true });
+    const player = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
+    const element = pool.acquireElement({ ownerId: player.id, src: player.src });
+    expect(pool.players).toHaveLength(1);
+    expect(pool.audios.get(player.id)).toBe(element);
+    pool.remove(player.id);
+    expect(pool.players).toHaveLength(0);
+    expect(Object.keys(pool.audios)).toHaveLength(0);
+  });
+
+  it('sets active player only in single-playback mode', () => {
+    const poolConcurrent = new AudioPlayerPool({ allowConcurrentPlayback: true });
+    const player1 = makePlayer(poolConcurrent, {
+      id: 'o1',
+      src: 'https://example.com/a.mp3',
+    });
+    const poolSingle = new AudioPlayerPool({ allowConcurrentPlayback: false });
+    const player2 = makePlayer(poolSingle, {
+      id: 'o1',
+      src: 'https://example.com/b.mp3',
+    });
+    poolConcurrent.setActiveAudioPlayer(player1);
+    expect(poolConcurrent.players).toHaveLength(1);
+    expect(poolConcurrent.activeAudioPlayer).toBeNull();
+    poolSingle.setActiveAudioPlayer(player2);
+    expect(poolSingle.players).toHaveLength(1);
+    expect(poolSingle.activeAudioPlayer).toBe(player2);
+  });
 });

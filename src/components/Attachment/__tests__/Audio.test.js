@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { Audio } from '../Audio';
 import { generateAudioAttachment, generateMessage } from '../../../mock-builders';
 import { prettifyFileSize } from '../../MessageInput/hooks/utils';
-import { WithAudioPlayback } from '../../AudioPlayer/WithAudioPlayback';
+import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
 
 jest.mock('../../../context/ChatContext', () => ({

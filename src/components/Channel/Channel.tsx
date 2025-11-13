@@ -91,7 +91,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
-import { WithAudioPlayback } from '../AudioPlayer/WithAudioPlayback';
+import { WithAudioPlayback } from '../AudioPlayback';
 
 type ChannelPropsForwardedToComponentContext = Pick<
   ComponentContextValue,

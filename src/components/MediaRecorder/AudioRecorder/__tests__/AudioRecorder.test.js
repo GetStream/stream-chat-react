@@ -33,7 +33,7 @@ import {
 import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
-import { WithAudioPlayback } from '../../../AudioPlayer';
+import { WithAudioPlayback } from '../../../AudioPlayback';
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';

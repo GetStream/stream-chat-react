@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { useEffect } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
+import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
 import { useChatContext, useTranslationContext } from '../../context';
+import { useStateStore } from '../../store';
 
 export type WithAudioPlaybackProps = {
   children?: React.ReactNode;
@@ -55,11 +57,14 @@ const makeAudioPlayerId = ({ requester, src }: { src: string; requester?: string
 
 export const useAudioPlayer = ({
   durationSeconds,
+  fileSize,
   mimeType,
   playbackRates,
   plugins,
   requester = '',
   src,
+  title,
+  waveformData,
 }: UseAudioPlayerProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
@@ -69,11 +74,14 @@ export const useAudioPlayer = ({
     src && audioPlayers
       ? audioPlayers.getOrAdd({
           durationSeconds,
+          fileSize,
           id: makeAudioPlayerId({ requester, src }),
           mimeType,
           playbackRates,
           plugins,
           src,
+          title,
+          waveformData,
         })
       : undefined;
 
@@ -91,4 +99,15 @@ export const useAudioPlayer = ({
   }, [audioPlayer, client, t]);
 
   return audioPlayer;
+};
+
+const activeAudioPlayerSelector = ({ activeAudioPlayer }: AudioPlayerPoolState) => ({
+  activeAudioPlayer,
+});
+
+export const useActiveAudioPlayer = () => {
+  const { audioPlayers } = useContext(AudioPlayerContext);
+  const { activeAudioPlayer } =
+    useStateStore(audioPlayers?.state, activeAudioPlayerSelector) ?? {};
+  return activeAudioPlayer;
 };
