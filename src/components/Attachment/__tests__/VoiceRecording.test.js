@@ -7,7 +7,7 @@ import {
   generateVoiceRecordingAttachment,
 } from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
-import { MessageProvider } from '../../../context';
+import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayer';
 
@@ -35,9 +35,11 @@ jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => 
 
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
-    <WithAudioPlayback>
-      <VoiceRecordingComponent {...props} />
-    </WithAudioPlayback>,
+    <ChatProvider value={{ client: {} }}>
+      <WithAudioPlayback>
+        <VoiceRecordingComponent {...props} />
+      </WithAudioPlayback>
+    </ChatProvider>,
   );
 
 describe('VoiceRecording', () => {
@@ -200,15 +202,16 @@ describe('VoiceRecordingPlayer', () => {
       });
 
     renderComponent({ attachment });
-
+    await clickPlay();
     jest
       .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
       .mockImplementationOnce(() => 100);
     jest
       .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
       .mockImplementationOnce(() => 50);
-    expect(createdAudios.length).toBe(1);
-    fireEvent.timeUpdate(createdAudios[0]);
+    expect(createdAudios.length).toBe(2);
+    const actualPlayingAudio = createdAudios[1];
+    fireEvent.timeUpdate(actualPlayingAudio);
 
     await waitFor(() => {
       expect(screen.getByTestId('wave-progress-bar-progress-indicator')).toHaveStyle({

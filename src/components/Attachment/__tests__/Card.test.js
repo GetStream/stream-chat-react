@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Card } from '../Card';
@@ -30,7 +30,9 @@ let chatClient;
 let channel;
 const user = generateUser({ id: 'userId', name: 'username' });
 
+jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
 const addNotificationSpy = jest.fn();
 const channelActionContext = { addNotification: addNotificationSpy };
 
@@ -294,10 +296,12 @@ describe('Card', () => {
       },
       chatContext: { chatClient },
     });
-    expect(getByText('theverge.com')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByText('theverge.com')).toBeInTheDocument();
+    });
   });
 
-  it('differentiates between in thread and in channel audio player', () => {
+  it('differentiates between in thread and in channel audio player', async () => {
     const createdAudios = []; //HTMLAudioElement[]
     const RealAudio = window.Audio;
     const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
@@ -319,20 +323,33 @@ describe('Card', () => {
     const message = generateMessage();
 
     render(
-      <WithAudioPlayback>
-        <MessageProvider value={{ message }}>
-          <Card {...audioAttachment} />
-        </MessageProvider>
-        <MessageProvider value={{ message, threadList: true }}>
-          <Card {...audioAttachment} />
-        </MessageProvider>
-      </WithAudioPlayback>,
+      <ChatProvider value={{}}>
+        <ChannelStateProvider value={{}}>
+          <WithAudioPlayback>
+            <MessageProvider value={{ message }}>
+              <Card {...audioAttachment} />
+            </MessageProvider>
+            <MessageProvider value={{ message, threadList: true }}>
+              <Card {...audioAttachment} />
+            </MessageProvider>
+          </WithAudioPlayback>
+        </ChannelStateProvider>
+      </ChatProvider>,
     );
-    expect(createdAudios).toHaveLength(2);
+    const playButtons = screen.queryAllByTestId('play-audio');
+    expect(playButtons.length).toBe(2);
+    await Promise.all(
+      playButtons.map(async (button) => {
+        await fireEvent.click(button);
+      }),
+    );
+    await waitFor(() => {
+      expect(createdAudios).toHaveLength(2);
+    });
     spy.mockRestore();
   });
 
-  it('keeps a single copy of audio player for the same requester', () => {
+  it('keeps a single copy of audio player for the same requester', async () => {
     const createdAudios = []; //HTMLAudioElement[]
     const RealAudio = window.Audio;
     const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
@@ -353,16 +370,29 @@ describe('Card', () => {
 
     const message = generateMessage();
     render(
-      <WithAudioPlayback>
-        <MessageProvider value={{ message }}>
-          <Card {...audioAttachment} />
-        </MessageProvider>
-        <MessageProvider value={{ message }}>
-          <Card {...audioAttachment} />
-        </MessageProvider>
-      </WithAudioPlayback>,
+      <ChatProvider value={{}}>
+        <ChannelStateProvider value={{}}>
+          <WithAudioPlayback>
+            <MessageProvider value={{ message }}>
+              <Card {...audioAttachment} />
+            </MessageProvider>
+            <MessageProvider value={{ message }}>
+              <Card {...audioAttachment} />
+            </MessageProvider>
+          </WithAudioPlayback>
+        </ChannelStateProvider>
+      </ChatProvider>,
     );
-    expect(createdAudios).toHaveLength(1);
+    const playButtons = screen.queryAllByTestId('play-audio');
+    expect(playButtons.length).toBe(2);
+    await Promise.all(
+      playButtons.map(async (button) => {
+        await fireEvent.click(button);
+      }),
+    );
+    await waitFor(() => {
+      expect(createdAudios).toHaveLength(1);
+    });
     spy.mockRestore();
   });
 });

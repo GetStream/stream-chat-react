@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '@testing-library/jest-dom';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AudioRecordingPreview } from '../AudioRecordingPreview';
-import { WithAudioPlayback } from '../../../AudioPlayer/WithAudioPlayback';
+import {
+  useAudioPlayer,
+  WithAudioPlayback,
+} from '../../../AudioPlayer/WithAudioPlayback';
 import { generateAudioAttachment } from '../../../../mock-builders';
 
 const TOGGLE_PLAY_BTN_TEST_ID = 'audio-recording-preview-toggle-play-btn';
@@ -68,12 +71,24 @@ class PointerEventMock extends Event {
 
 window.PointerEvent = PointerEventMock;
 
-const renderComponent = (props) =>
-  render(
+const renderComponent = ({ getPlayer = () => null, ...props } = {}) => {
+  const finalProps = { ...defaultProps, ...props };
+  const PlayerGetter = () => {
+    const player = useAudioPlayer(finalProps);
+
+    useEffect(() => {
+      getPlayer(player);
+    }, [player]);
+    return null;
+  };
+
+  return render(
     <WithAudioPlayback>
-      <AudioRecordingPreview {...{ ...defaultProps, ...props }} />
+      <PlayerGetter />
+      <AudioRecordingPreview {...finalProps} />
     </WithAudioPlayback>,
   );
+};
 
 describe('AudioRecordingPreview', () => {
   afterEach(() => {
@@ -89,7 +104,7 @@ describe('AudioRecordingPreview', () => {
 
   it('toggles the playback', async () => {
     renderComponent();
-    const audioPausedMock = jest.spyOn(createdAudios[0], 'paused', 'get');
+    const audioPausedMock = jest.spyOn(HTMLAudioElement.prototype, 'paused', 'get');
 
     expect(screen.getByTestId(PLAY_ICON_TEST_ID)).toBeInTheDocument();
     await togglePlay();
@@ -105,8 +120,14 @@ describe('AudioRecordingPreview', () => {
     renderComponent({ waveformData: [] });
     expect(screen.queryByTestId(WAVE_PROGRESS_BAR_TEST_ID)).not.toBeInTheDocument();
   });
+
   it('seeks in the playback by dragging the slider', async () => {
-    const { container } = renderComponent();
+    let player;
+    const { container } = renderComponent({
+      getPlayer: (p) => {
+        player = p;
+      },
+    });
     const slider = container.querySelector(WAVE_PROGRESS_BAR_INDICATOR_SELECTOR);
     expect(slider).toHaveStyle({ left: '0%' });
     await act(() => {
@@ -120,6 +141,11 @@ describe('AudioRecordingPreview', () => {
         },
       });
     });
+    // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
+    jest.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
+    await act(() => {
+      player.elementRef.dispatchEvent(new Event('loadedmetadata'));
+    });
     await act(() => {
       fireEvent.pointerUp(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID));
     });
@@ -127,7 +153,13 @@ describe('AudioRecordingPreview', () => {
   });
 
   it('seeks in the playback by clicking on waveform', async () => {
-    const { container } = renderComponent();
+    let player;
+    const { container } = renderComponent({
+      getPlayer: (p) => {
+        player = p;
+      },
+    });
+
     const clientX = 3;
     const slider = container.querySelector(WAVE_PROGRESS_BAR_INDICATOR_SELECTOR);
     expect(slider).toHaveStyle({ left: '0%' });
@@ -135,6 +167,11 @@ describe('AudioRecordingPreview', () => {
       fireEvent.click(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID), {
         clientX,
       });
+    });
+    // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
+    jest.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
+    await act(() => {
+      player.elementRef.dispatchEvent(new Event('loadedmetadata'));
     });
     expect(slider).toHaveStyle({ left: '60%' });
   });

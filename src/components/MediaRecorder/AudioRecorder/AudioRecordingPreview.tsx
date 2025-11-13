@@ -36,12 +36,12 @@ export const AudioRecordingPreview = ({
 
   const displayedDuration = secondsElapsed || durationSeconds;
 
-  useEffect(
-    () => () => {
-      audioPlayer?.requestRemoval();
-    },
-    [audioPlayer],
-  );
+  useEffect(() => {
+    audioPlayer?.cancelScheduledRemoval();
+    return () => {
+      audioPlayer?.scheduleRemoval();
+    };
+  }, [audioPlayer]);
 
   if (!audioPlayer) return;
 

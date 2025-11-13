@@ -1,6 +1,7 @@
 import { StateStore } from 'stream-chat';
 import throttle from 'lodash.throttle';
 import type { AudioPlayerPlugin } from './plugins/AudioPlayerPlugin';
+import type { AudioPlayerPool } from './AudioPlayerPool';
 
 export type AudioPlayerErrorCode =
   | 'failed-to-start'
@@ -43,6 +44,7 @@ export type AudioPlayerOptions = AudioDescriptor & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
   plugins?: AudioPlayerPlugin[];
+  pool: AudioPlayerPool;
 };
 
 const DEFAULT_PLAYBACK_RATES = [1.0, 1.5, 2.0];
@@ -68,9 +70,16 @@ export class AudioPlayer {
   /** The audio MIME type that is checked before the audio is played. If the type is not supported the controller registers error in playbackError. */
   private _mimeType?: string;
   private _durationSeconds?: number;
+  private _src: string;
   private _plugins = new Map<string, AudioPlayerPlugin>();
   private playTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
   private unsubscribeEventListeners: (() => void) | null = null;
+  private _pool: AudioPlayerPool;
+  private _disposed = false;
+  private _pendingLoadedMeta?: { element: HTMLAudioElement; onLoaded: () => void };
+  private _elementIsReadyPromise?: Promise<boolean>;
+  private _restoringPosition = false;
+  private _removalTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
   constructor({
     durationSeconds,
@@ -78,24 +87,27 @@ export class AudioPlayer {
     mimeType,
     playbackRates: customPlaybackRates,
     plugins,
+    pool,
     src,
   }: AudioPlayerOptions) {
     this._id = id;
     this._mimeType = mimeType;
     this._durationSeconds = durationSeconds;
+    this._src = src;
+    this._pool = pool;
     this.setPlugins(() => plugins ?? []);
 
     const playbackRates = customPlaybackRates?.length
       ? customPlaybackRates
       : DEFAULT_PLAYBACK_RATES;
 
-    const elementRef = new Audio(src);
-    const canPlayRecord = mimeType ? !!elementRef.canPlayType(mimeType) : true;
+    // do not create element here; only evaluate canPlayRecord cheaply
+    const canPlayRecord = mimeType ? !!new Audio().canPlayType(mimeType) : true;
 
     this.state = new StateStore<AudioPlayerState>({
       canPlayRecord,
       currentPlaybackRate: playbackRates[0],
-      elementRef,
+      elementRef: null,
       isPlaying: false,
       playbackError: null,
       playbackRates,
@@ -135,7 +147,7 @@ export class AudioPlayer {
   }
 
   get src() {
-    return this.elementRef?.src;
+    return this._src;
   }
 
   get secondsElapsed() {
@@ -154,9 +166,20 @@ export class AudioPlayer {
     return this._mimeType;
   }
 
+  get disposed() {
+    return this._disposed;
+  }
+
   private ensureElementRef(): HTMLAudioElement {
+    if (this._disposed) {
+      throw new Error('AudioPlayer is disposed');
+    }
     if (!this.elementRef) {
-      this.setRef(new Audio(this.src));
+      const el = this._pool.acquireElement({
+        ownerId: this._id,
+        src: this._src,
+      });
+      this.setRef(el);
     }
     return this.elementRef as HTMLAudioElement;
   }
@@ -179,6 +202,56 @@ export class AudioPlayer {
     this.playTimeout = undefined;
   };
 
+  private clearPendingLoadedMeta = () => {
+    const pending = this._pendingLoadedMeta;
+    if (pending?.element && pending.onLoaded) {
+      pending.element.removeEventListener('loadedmetadata', pending.onLoaded);
+    }
+    this._pendingLoadedMeta = undefined;
+  };
+
+  private restoreSavedPosition = (elementRef: HTMLAudioElement) => {
+    const saved = this.secondsElapsed;
+    if (!saved || saved <= 0) return;
+    const apply = () => {
+      const duration = elementRef.duration;
+      const clamped =
+        typeof duration === 'number' && !isNaN(duration) && isFinite(duration)
+          ? Math.min(saved, duration)
+          : saved;
+      try {
+        if (elementRef.currentTime === clamped) return;
+        elementRef.currentTime = clamped;
+        // Preempt UI with restored position to avoid flicker
+        this.setSecondsElapsed(clamped);
+      } catch {
+        // ignore
+      }
+    };
+    // No information is available about the media resource.
+    if (elementRef.readyState < 1) {
+      this.clearPendingLoadedMeta();
+      this._restoringPosition = true;
+      const onLoaded = () => {
+        // Ensure this callback still belongs to the same pending registration and same element
+        if (this._pendingLoadedMeta?.onLoaded !== onLoaded) return;
+        this._pendingLoadedMeta = undefined;
+        if (this.elementRef !== elementRef) {
+          this._restoringPosition = false;
+          return;
+        }
+        apply();
+        this._restoringPosition = false;
+      };
+      elementRef.addEventListener('loadedmetadata', onLoaded, { once: true });
+      this._pendingLoadedMeta = { element: elementRef, onLoaded };
+    } else {
+      this._restoringPosition = true;
+      apply();
+      this._restoringPosition = false;
+    }
+  };
+
   private setDescriptor({ durationSeconds, mimeType, src }: AudioDescriptor) {
     if (mimeType !== this._mimeType) {
       this._mimeType = mimeType;
@@ -187,27 +260,65 @@ export class AudioPlayer {
     if (durationSeconds !== this._durationSeconds) {
       this._durationSeconds = durationSeconds;
     }
-    const elementRef = this.ensureElementRef();
-    if (elementRef.src !== src) {
-      elementRef.src = src;
-      elementRef.load();
+    if (src !== this._src) {
+      this._src = src;
+      if (this.elementRef) {
+        this.elementRef.src = src;
+      }
     }
   }
 
-  private prepareElementRefForGarbageCollection() {
-    this.stop();
+  private releaseElement({ resetState }: { resetState: boolean }) {
+    this.clearPendingLoadedMeta();
+    this._restoringPosition = false;
+    if (resetState) {
+      this.stop();
+    } else {
+      // Ensure isPlaying reflects reality, but keep progress/seconds
+      this.state.partialNext({ isPlaying: false });
+      if (this.elementRef) {
+        try {
+          this.elementRef.pause();
+        } catch {
+          // ignore
+        }
+      }
+    }
     if (this.elementRef) {
-      this.elementRef.src = '';
-      this.elementRef.load();
+      this._pool.releaseElement(this._id);
       this.setRef(null);
     }
   }
 
+  private elementIsReady = (): Promise<boolean> => {
+    if (this._elementIsReadyPromise) return this._elementIsReadyPromise;
+
+    this._elementIsReadyPromise = new Promise((resolve) => {
+      if (!this.elementRef) return resolve(false);
+      const element = this.elementRef;
+      const handleLoaded = () => {
+        element.removeEventListener('loadedmetadata', handleLoaded);
+        resolve(element.readyState > 0);
+      };
+      element.addEventListener('loadedmetadata', handleLoaded);
+    });
+
+    return this._elementIsReadyPromise;
+  };
+
   private setRef = (elementRef: HTMLAudioElement | null) => {
     if (elementIsPlaying(this.elementRef)) {
-      this.prepareElementRefForGarbageCollection();
+      // preserve state during swap
+      this.releaseElement({ resetState: false });
     }
+    this.clearPendingLoadedMeta();
+    this._restoringPosition = false;
+    this._elementIsReadyPromise = undefined;
     this.state.partialNext({ elementRef });
+    // When a new element is attached, make sure listeners are wired to it
+    if (elementRef) {
+      this.registerSubscriptions();
+    }
   };
 
   setSecondsElapsed = (secondsElapsed: number) => {
@@ -229,10 +340,14 @@ export class AudioPlayer {
     }, new Map<string, AudioPlayerPlugin>());
   }
 
-  canPlayMimeType = (mimeType: string) =>
-    !!(mimeType && this.elementRef?.canPlayType(mimeType));
+  canPlayMimeType = (mimeType: string) => {
+    if (!mimeType) return false;
+    if (this.elementRef) return !!this.elementRef.canPlayType(mimeType);
+    return !!new Audio().canPlayType(mimeType);
+  };
 
   play = async (params?: AudioPlayerPlayAudioParams) => {
+    if (this._disposed) return;
     const elementRef = this.ensureElementRef();
     if (elementIsPlaying(this.elementRef)) {
       if (this.isPlaying) return;
@@ -250,6 +365,9 @@ export class AudioPlayer {
       this.registerError({ errCode: 'not-playable' });
       return;
     }
+
+    // Restore last known position for this player before attempting to play
+    this.restoreSavedPosition(elementRef);
 
     elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
 
@@ -305,9 +423,15 @@ export class AudioPlayer {
     this.elementRef.playbackRate = currentPlaybackRate;
   };
 
-  seek = throttle<SeekFn>(({ clientX, currentTarget }) => {
-    if (!(currentTarget && this.elementRef)) return;
-    if (!isSeekable(this.elementRef)) {
+  seek = throttle<SeekFn>(async ({ clientX, currentTarget }) => {
+    let element = this.elementRef;
+    if (!this.elementRef) {
+      element = this.ensureElementRef();
+      const isReady = await this.elementIsReady();
+      if (!isReady) return;
+    }
+    if (!currentTarget || !element) return;
+    if (!isSeekable(element)) {
       this.registerError({ errCode: 'seek-not-supported' });
       return;
     }
@@ -316,9 +440,9 @@ export class AudioPlayer {
 
     const ratio = (clientX - x) / width;
     if (ratio > 1 || ratio < 0) return;
-    const currentTime = ratio * this.elementRef.duration;
+    const currentTime = ratio * element.duration;
     this.setSecondsElapsed(currentTime);
-    this.elementRef.currentTime = currentTime;
+    element.currentTime = currentTime;
   }, 16);
 
   registerError = (params: RegisterAudioPlayerErrorParams) => {
@@ -331,16 +455,46 @@ export class AudioPlayer {
    * Helpful when only a single AudioPlayer instance is to be removed from the AudioPlayerPool.
    */
   requestRemoval = () => {
-    this.prepareElementRefForGarbageCollection();
+    this._disposed = true;
+    this.cancelScheduledRemoval();
+    this.clearPendingLoadedMeta();
+    this._restoringPosition = false;
+    this.releaseElement({ resetState: true });
     this.unsubscribeEventListeners?.();
     this.unsubscribeEventListeners = null;
     this.plugins.forEach(({ onRemove }) => onRemove?.({ player: this }));
+    this._pool.deregister(this.id);
+  };
+
+  cancelScheduledRemoval = () => {
+    clearTimeout(this._removalTimeout);
+    this._removalTimeout = undefined;
+  };
+
+  scheduleRemoval = (ms: number = 0) => {
+    this.cancelScheduledRemoval();
+    this._removalTimeout = setTimeout(() => {
+      if (this.disposed) return;
+      this.requestRemoval();
+    }, ms);
+  };
+
+  /**
+   * Releases only the underlying element back to the pool without disposing the player instance.
+   * Used by the pool to hand off the shared element in single-playback mode.
+   */
+  releaseElementForHandoff = () => {
+    if (!this.elementRef) return;
+    this.releaseElement({ resetState: false });
+    this.unsubscribeEventListeners?.();
+    this.unsubscribeEventListeners = null;
   };
 
   registerSubscriptions = () => {
     this.unsubscribeEventListeners?.();
 
-    const audioElement = this.ensureElementRef();
+    const audioElement = this.elementRef;
+    if (!audioElement) return;
 
     const handleEnded = () => {
       this.state.partialNext({
@@ -382,7 +536,12 @@ export class AudioPlayer {
     };
 
     const handleTimeupdate = () => {
-      this.setSecondsElapsed(audioElement?.currentTime);
+      const t = audioElement?.currentTime ?? 0;
+      // Ignore spurious zero during restore/handoff to avoid UI flicker
+      if (this._restoringPosition && t === 0) return;
+      // Also avoid regressing UI to zero if we already have non-zero progress and we're not playing
+      if (!this.isPlaying && t === 0 && this.secondsElapsed > 0) return;
+      this.setSecondsElapsed(t);
     };
 
     audioElement.addEventListener('ended', handleEnded);

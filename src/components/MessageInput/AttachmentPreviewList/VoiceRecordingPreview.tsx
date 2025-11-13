@@ -33,7 +33,12 @@ export const VoiceRecordingPreview = ({
   const { isPlaying, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
-  useEffect(() => () => audioPlayer?.requestRemoval(), [audioPlayer]);
+  useEffect(() => {
+    audioPlayer?.cancelScheduledRemoval();
+    return () => {
+      audioPlayer?.scheduleRemoval();
+    };
+  }, [audioPlayer]);
 
   if (!audioPlayer) return null;
 

@@ -1,18 +1,24 @@
 import React, { useContext, useState } from 'react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
 import { AudioPlayerPool } from './AudioPlayerPool';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
 import { useChatContext, useTranslationContext } from '../../context';
 
-export type WithAudioPlaybackProps = { children?: React.ReactNode };
+export type WithAudioPlaybackProps = {
+  children?: React.ReactNode;
+  allowConcurrentPlayback?: boolean;
+};
 
 const AudioPlayerContext = React.createContext<{ audioPlayers: AudioPlayerPool | null }>({
   audioPlayers: null,
 });
 
-export const WithAudioPlayback = ({ children }: WithAudioPlaybackProps) => {
-  const [audioPlayers] = useState(() => new AudioPlayerPool());
+export const WithAudioPlayback = ({
+  allowConcurrentPlayback,
+  children,
+}: WithAudioPlaybackProps) => {
+  const [audioPlayers] = useState(() => new AudioPlayerPool({ allowConcurrentPlayback }));
 
   useEffect(
     () => () => {
@@ -21,7 +27,11 @@ export const WithAudioPlayback = ({ children }: WithAudioPlaybackProps) => {
     [audioPlayers],
   );
 
-  return <AudioPlayerContext value={{ audioPlayers }}>{children}</AudioPlayerContext>;
+  return (
+    <AudioPlayerContext.Provider value={{ audioPlayers }}>
+      {children}
+    </AudioPlayerContext.Provider>
+  );
 };
 
 export type UseAudioPlayerProps = {
@@ -38,7 +48,7 @@ export type UseAudioPlayerProps = {
    * could be considered a bad practice or a bug.
    */
   requester?: string;
-} & Partial<Omit<AudioPlayerOptions, 'id'>>;
+} & Partial<Omit<AudioPlayerOptions, 'id' | 'pool'>>;
 
 const makeAudioPlayerId = ({ requester, src }: { src: string; requester?: string }) =>
   `${requester ?? 'requester-unknown'}:${src}`;
@@ -55,20 +65,17 @@ export const useAudioPlayer = ({
   const { t } = useTranslationContext();
   const { audioPlayers } = useContext(AudioPlayerContext);
 
-  const audioPlayer = useMemo(
-    () =>
-      src && audioPlayers
-        ? audioPlayers.getOrAdd({
-            durationSeconds,
-            id: makeAudioPlayerId({ requester, src }),
-            mimeType,
-            playbackRates,
-            plugins,
-            src,
-          })
-        : undefined,
-    [audioPlayers, durationSeconds, mimeType, playbackRates, plugins, requester, src],
-  );
+  const audioPlayer =
+    src && audioPlayers
+      ? audioPlayers.getOrAdd({
+          durationSeconds,
+          id: makeAudioPlayerId({ requester, src }),
+          mimeType,
+          playbackRates,
+          plugins,
+          src,
+        })
+      : undefined;
 
   useEffect(() => {
     if (!audioPlayer) return;
