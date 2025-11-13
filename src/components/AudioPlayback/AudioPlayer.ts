@@ -272,19 +272,10 @@ export class AudioPlayer {
     }
   };
 
-  private setDescriptor({ durationSeconds, mimeType, src }: AudioDescriptor) {
-    if (mimeType !== this.mimeType) {
-      this._data.mimeType = mimeType;
-    }
-
-    if (durationSeconds !== this.durationSeconds) {
-      this._data.durationSeconds = durationSeconds;
-    }
-    if (src !== this.src) {
-      this._data.src = src;
-      if (this.elementRef) {
-        this.elementRef.src = src;
-      }
+  setDescriptor(descriptor: AudioDescriptor) {
+    this._data = { ...this._data, ...descriptor };
+    if (descriptor.src !== this.src && this.elementRef) {
+      this.elementRef.src = descriptor.src;
     }
   }
 

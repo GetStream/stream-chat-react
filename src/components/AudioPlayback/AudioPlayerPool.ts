@@ -28,13 +28,19 @@ export class AudioPlayerPool {
   }
 
   getOrAdd = (params: Omit<AudioPlayerOptions, 'pool'>) => {
+    const { playbackRates, plugins, ...descriptor } = params;
     let player = this.pool.get(params.id);
     if (player) {
-      if (!player.disposed) return player;
+      if (!player.disposed) {
+        player.setDescriptor(descriptor);
+        return player;
+      }
       this.deregister(params.id);
     }
     player = new AudioPlayer({
-      ...params,
+      playbackRates,
+      plugins,
+      ...descriptor,
       pool: this,
     });
     this.pool.set(params.id, player);

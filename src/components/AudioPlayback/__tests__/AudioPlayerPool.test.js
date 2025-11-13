@@ -29,22 +29,44 @@ describe('AudioPlayerPool', () => {
     jest.restoreAllMocks();
     createdAudios.length = 0;
   });
-
-  const makePlayer = (pool, { id, mimeType = 'audio/mpeg', src }) =>
+  const defaultDescriptor = { durationSeconds: 100, mimeType: 'audio/mpeg' };
+  const makePlayer = (pool, descriptor) =>
     pool.getOrAdd({
-      durationSeconds: 100,
-      id,
-      mimeType,
-      src,
+      ...defaultDescriptor,
+      ...descriptor,
     });
 
-  it('getOrAdd returns same instance for same id and does not auto-register listeners', () => {
+  it('getOrAdd returns same instance for same id and does not auto-register listeners, updates descriptor fields', () => {
     const pool = new AudioPlayerPool();
-    const p1 = makePlayer(pool, { id: 'a', src: 'https://example.com/a.mp3' });
+    const p1 = makePlayer(pool, {
+      durationSeconds: 3,
+      fileSize: 35,
+      id: 'a',
+      mimeType: 'audio/abc',
+      src: 'https://example.com/a.mp3',
+      title: 'Title A',
+      waveformData: [1],
+    });
     const regSpy = jest.spyOn(p1, 'registerSubscriptions');
-    const p1Again = makePlayer(pool, { id: 'a', src: 'https://example.com/a.mp3' });
+    const p1Again = makePlayer(pool, {
+      durationSeconds: 10,
+      id: 'a',
+      mimeType: 'audio/mpeg',
+      src: 'https://example.com/b.mp3',
+      waveformData: [2],
+    });
     expect(p1Again).toBe(p1);
     expect(regSpy).not.toHaveBeenCalled();
+    // eslint-disable-next-line no-underscore-dangle
+    expect(p1._data).toStrictEqual({
+      durationSeconds: 10,
+      fileSize: 35,
+      id: 'a',
+      mimeType: 'audio/mpeg',
+      src: 'https://example.com/b.mp3',
+      title: 'Title A',
+      waveformData: [2],
+    });
   });
 
   it('concurrent mode: per-owner elements are created lazily; src set without explicit load()', () => {
