@@ -14,7 +14,7 @@ export type RegisterAudioPlayerErrorParams = {
   errCode?: AudioPlayerErrorCode;
 };
 
-export type AudioDescriptor = {
+export type AudioPlayerDescriptor = {
   id: string;
   src: string;
   /** Audio duration in seconds. */
@@ -31,19 +31,25 @@ export type AudioPlayerPlayAudioParams = {
 };
 
 export type AudioPlayerState = {
+  /** Signals whether the browser can play the record. */
   canPlayRecord: boolean;
   /** Current playback speed. Initiated with the first item of the playbackRates array. */
   currentPlaybackRate: number;
+  /** The audio element ref */
   elementRef: HTMLAudioElement | null;
+  /** Signals whether the playback is in progress. */
   isPlaying: boolean;
+  /** Keeps the latest playback error reference. */
   playbackError: Error | null;
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates: number[];
+  /** Playback progress expressed in percent. */
   progressPercent: number;
+  /** Playback progress expressed in seconds. */
   secondsElapsed: number;
 };
 
-export type AudioPlayerOptions = AudioDescriptor & {
+export type AudioPlayerOptions = AudioPlayerDescriptor & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
   plugins?: AudioPlayerPlugin[];
@@ -65,12 +71,15 @@ export const defaultRegisterAudioPlayerError = ({
 export const elementIsPlaying = (audioElement: HTMLAudioElement | null) =>
   audioElement && !(audioElement.paused || audioElement.ended);
 
-export type SeekFn = (params: { clientX: number; currentTarget: HTMLDivElement }) => void;
+export type SeekFn = (params: {
+  clientX: number;
+  currentTarget: HTMLDivElement;
+}) => Promise<void>;
 
 export class AudioPlayer {
   state: StateStore<AudioPlayerState>;
   /** The audio MIME type that is checked before the audio is played. If the type is not supported the controller registers error in playbackError. */
-  private _data: AudioDescriptor;
+  private _data: AudioPlayerDescriptor;
   private _plugins = new Map<string, AudioPlayerPlugin>();
   private playTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
   private unsubscribeEventListeners: (() => void) | null = null;
@@ -272,7 +281,7 @@ export class AudioPlayer {
     }
   };
 
-  setDescriptor(descriptor: AudioDescriptor) {
+  setDescriptor(descriptor: AudioPlayerDescriptor) {
     this._data = { ...this._data, ...descriptor };
     if (descriptor.src !== this.src && this.elementRef) {
       this.elementRef.src = descriptor.src;
