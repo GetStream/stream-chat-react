@@ -41,6 +41,7 @@ exports[`Card (1) should render card without caption if attachment type is audio
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"
@@ -258,6 +259,7 @@ exports[`Card (7) should render audio with caption using og_scrape_url and with 
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"
@@ -470,6 +472,7 @@ exports[`Card (10) should render audio without title if attachment type is audio
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"
@@ -667,6 +670,7 @@ exports[`Card (13) should render audio without title and with caption using og_s
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"
@@ -851,6 +855,7 @@ exports[`Card (16) should render audio widget with title & text in Card content 
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"
@@ -1384,6 +1389,7 @@ exports[`Card (25) should render audio widget with image loaded from thumb_url a
             <button
               class="str-chat__message-attachment-audio-widget--play-button"
               data-testid="play-audio"
+              type="button"
             >
               <svg
                 fill="none"

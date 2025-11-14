@@ -36,6 +36,7 @@ export const ImageAttachmentPreview = ({
         data-testid='image-preview-item-delete-button'
         disabled={uploadState === 'uploading'}
         onClick={() => id && removeAttachments([id])}
+        type='button'
       >
         <CloseIcon />
       </button>

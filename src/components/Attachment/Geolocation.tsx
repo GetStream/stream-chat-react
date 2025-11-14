@@ -60,6 +60,7 @@ export const Geolocation = ({
               <button
                 className='str-chat__message-attachment-geolocation__stop-sharing-button'
                 onClick={() => channel?.stopLiveLocationSharing(location)}
+                type='button'
               >
                 {t('Stop sharing')}
               </button>

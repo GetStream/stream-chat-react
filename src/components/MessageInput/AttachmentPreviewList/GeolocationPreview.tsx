@@ -36,6 +36,7 @@ export const GeolocationPreview = ({
           className='str-chat__attachment-preview-delete'
           data-testid='location-preview-item-delete-button'
           onClick={remove}
+          type='button'
         >
           <CloseIcon />
         </button>
