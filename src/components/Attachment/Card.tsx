@@ -6,13 +6,15 @@ import type { AudioProps } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
 import { PlayButton, ProgressBar } from './components';
-import { useAudioController } from './hooks/useAudioController';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from './utils';
 import type { Dimensions } from '../../types/types';
+import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
+import { useStateStore } from '../../store';
+import { useMessageContext } from '../../context';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
@@ -126,31 +128,55 @@ const CardContent = (props: CardContentProps) => {
   );
 };
 
+const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  isPlaying: state.isPlaying,
+  progress: state.progressPercent,
+});
+
+const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
+  /**
+   * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
+   * If this component is used outside the message context, then there will be no audio player namespacing
+   * => scrolling away from the message in virtualized ML would create a new AudioPlayer instance.
+   *
+   * Edge case: the requester (message) has multiple attachments with the same assetURL - does not happen
+   * with the default SDK components, but can be done with custom API calls.In this case all the Audio
+   * widgets will share the state.
+   */
+  const { message, threadList } = useMessageContext() ?? {};
+
+  const audioPlayer = useAudioPlayer({
+    mimeType,
+    requester:
+      message?.id &&
+      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+    src,
+  });
+
+  const { isPlaying, progress } =
+    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  if (!audioPlayer) return;
+
+  return (
+    <div className='str-chat__message-attachment-card-audio-widget--first-row'>
+      <div className='str-chat__message-attachment-audio-widget--play-controls'>
+        <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
+      </div>
+      <ProgressBar onClick={audioPlayer.seek} progress={progress ?? 0} />
+    </div>
+  );
+};
+
 export const CardAudio = ({
   og: { asset_url, author_name, mime_type, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
-  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController({
-    mimeType: mime_type,
-  });
-
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';
   return (
     <div className={rootClassName} data-testid={dataTestId}>
-      {asset_url && (
-        <>
-          <audio ref={audioRef}>
-            <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
-          </audio>
-          <div className='str-chat__message-attachment-card-audio-widget--first-row'>
-            <div className='str-chat__message-attachment-audio-widget--play-controls'>
-              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-            </div>
-            <ProgressBar onClick={seek} progress={progress} />
-          </div>
-        </>
-      )}
+      {asset_url && <AudioWidget mimeType={mime_type} src={asset_url} />}
       <div className='str-chat__message-attachment-audio-widget--second-row'>
         {url && <SourceLink author_name={author_name} url={url} />}
         {title && (

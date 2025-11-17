@@ -91,6 +91,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
+import { WithAudioPlayback } from '../AudioPlayback';
 
 type ChannelPropsForwardedToComponentContext = Pick<
   ComponentContextValue,
@@ -167,6 +168,8 @@ type ChannelPropsForwardedToComponentContext = Pick<
 export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
+  /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
+  allowConcurrentAudioPlayback?: boolean;
   /** The connected and active channel */
   channel?: StreamChannel;
   /**
@@ -288,6 +291,7 @@ const ChannelInner = (
 ) => {
   const {
     activeUnreadHandler,
+    allowConcurrentAudioPlayback,
     channel,
     channelQueryOptions: propChannelQueryOptions,
     children,
@@ -1376,7 +1380,9 @@ const ChannelInner = (
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
-              <div className={clsx(chatContainerClass)}>{children}</div>
+              <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+                <div className={clsx(chatContainerClass)}>{children}</div>
+              </WithAudioPlayback>
             </TypingProvider>
           </WithComponents>
         </ChannelActionProvider>

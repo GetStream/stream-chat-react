@@ -1,4 +1,6 @@
+export * from './AIStateIndicator';
 export * from './Attachment';
+export * from './AudioPlayback';
 export * from './Avatar';
 export * from './Channel';
 export * from './ChannelHeader';
@@ -33,7 +35,6 @@ export * from './TypingIndicator';
 export * from './Window';
 export * from './Threads';
 export * from './ChatView';
-export * from './AIStateIndicator';
 
 export { UploadButton } from './ReactFileUtilities';
 export type { UploadButtonProps } from './ReactFileUtilities';

@@ -9,5 +9,6 @@ export * from './FileAttachment';
 export * from './Geolocation';
 export * from './UnsupportedAttachment';
 export * from './utils';
+export * from './VoiceRecording';
 export { useAudioController } from './hooks/useAudioController';
 export * from '../Location/hooks/useLiveLocationSharingManager';

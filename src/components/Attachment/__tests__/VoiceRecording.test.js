@@ -2,10 +2,14 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { generateVoiceRecordingAttachment } from '../../../mock-builders';
+import {
+  generateMessage,
+  generateVoiceRecordingAttachment,
+} from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
-import { ChannelActionProvider } from '../../../context';
+import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
+import { WithAudioPlayback } from '../../AudioPlayback';
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
@@ -29,12 +33,13 @@ const clickPlay = async () => {
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
-const addNotificationSpy = jest.fn();
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
-    <ChannelActionProvider value={{ addNotification: addNotificationSpy }}>
-      <VoiceRecordingComponent {...props} />
-    </ChannelActionProvider>,
+    <ChatProvider value={{ client: {} }}>
+      <WithAudioPlayback>
+        <VoiceRecordingComponent {...props} />
+      </WithAudioPlayback>
+    </ChatProvider>,
   );
 
 describe('VoiceRecording', () => {
@@ -48,6 +53,58 @@ describe('VoiceRecording', () => {
     expect(queryByTestId(QUOTED_AUDIO_RECORDING_TEST_ID)).toBeInTheDocument();
     expect(queryByTestId(AUDIO_RECORDING_PLAYER_TEST_ID)).not.toBeInTheDocument();
   });
+  it('differentiates between in thread and in channel audio player', () => {
+    const createdAudios = []; //HTMLAudioElement[]
+    const RealAudio = window.Audio;
+    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
+      ...args
+    ) {
+      const el = new RealAudio(...args);
+      createdAudios.push(el);
+      return el;
+    });
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message, threadList: true }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(2);
+    spy.mockRestore();
+  });
+
+  it('keeps a single copy of audio player for the same requester', () => {
+    const createdAudios = []; //HTMLAudioElement[]
+    const RealAudio = window.Audio;
+    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
+      ...args
+    ) {
+      const el = new RealAudio(...args);
+      createdAudios.push(el);
+      return el;
+    });
+    const message = generateMessage();
+    render(
+      <WithAudioPlayback>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} />
+        </MessageProvider>
+        <MessageProvider value={{ message }}>
+          <VoiceRecording attachment={attachment} isQuoted={true} />
+        </MessageProvider>
+      </WithAudioPlayback>,
+    );
+    expect(createdAudios).toHaveLength(1);
+    spy.mockRestore();
+  });
 });
 
 describe('VoiceRecordingPlayer', () => {
@@ -56,7 +113,7 @@ describe('VoiceRecordingPlayer', () => {
     jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
     jest.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });
-  afterAll(jest.restoreAllMocks);
+  afterAll(jest.clearAllMocks);
 
   it('should not render the component if asset_url is missing', () => {
     const { container } = renderComponent({
@@ -133,22 +190,36 @@ describe('VoiceRecordingPlayer', () => {
   });
 
   it('should show the correct progress', async () => {
-    const { container } = renderComponent({ attachment });
+    const createdAudios = []; // HTMLAudioElement[]
 
+    const RealAudio = window.Audio;
+    const constructorSpy = jest
+      .spyOn(window, 'Audio')
+      .mockImplementation(function AudioMock(...args) {
+        const el = new RealAudio(...args);
+        createdAudios.push(el);
+        return el;
+      });
+
+    renderComponent({ attachment });
+    await clickPlay();
     jest
       .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
       .mockImplementationOnce(() => 100);
     jest
       .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
       .mockImplementationOnce(() => 50);
-    const audioElement = container.querySelector('audio');
-    fireEvent.timeUpdate(audioElement);
+    expect(createdAudios.length).toBe(2);
+    const actualPlayingAudio = createdAudios[1];
+    fireEvent.timeUpdate(actualPlayingAudio);
 
     await waitFor(() => {
       expect(screen.getByTestId('wave-progress-bar-progress-indicator')).toHaveStyle({
         left: '50%',
       });
     });
+
+    constructorSpy.mockRestore();
   });
 });
 
