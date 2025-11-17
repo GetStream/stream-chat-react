@@ -11,6 +11,7 @@ export const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
     className='str-chat__message-attachment-audio-widget--play-button'
     data-testid={isPlaying ? 'pause-audio' : 'play-audio'}
     onClick={onClick}
+    type='button'
   >
     {isPlaying ? <PauseIcon /> : <PlayTriangleIcon />}
   </button>

@@ -43,6 +43,7 @@ export const VoiceRecordingPreview = ({
         onClick={() =>
           attachment.localMetadata?.id && removeAttachments([attachment.localMetadata.id])
         }
+        type='button'
       >
         <CloseIcon />
       </button>

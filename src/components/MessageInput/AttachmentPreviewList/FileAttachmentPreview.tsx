@@ -43,6 +43,7 @@ export const FileAttachmentPreview = ({
           attachment.localMetadata?.id &&
           removeAttachments([attachment.localMetadata?.id])
         }
+        type='button'
       >
         <CloseIcon />
       </button>

@@ -25,6 +25,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
               class="str-chat__attachment-preview-delete"
               data-testid="image-preview-item-delete-button"
               disabled=""
+              type="button"
             >
               <svg
                 data-testid="close-no-outline"
@@ -98,6 +99,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
               class="str-chat__attachment-preview-delete"
               data-testid="image-preview-item-delete-button"
               disabled=""
+              type="button"
             >
               <svg
                 data-testid="close-no-outline"
