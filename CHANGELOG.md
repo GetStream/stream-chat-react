@@ -1,3 +1,13 @@
+## [13.12.0](https://github.com/GetStream/stream-chat-react/compare/v13.11.0...v13.12.0) (2025-11-17)
+
+### Bug Fixes
+
+* prevent closing EditMessageForm on non-sbumit button click ([#2884](https://github.com/GetStream/stream-chat-react/issues/2884)) ([a4f1fff](https://github.com/GetStream/stream-chat-react/commit/a4f1fffbea1c02abf5964adc635b9732e10faa52))
+
+### Features
+
+* introduce centralized audio playback ([#2880](https://github.com/GetStream/stream-chat-react/issues/2880)) ([6041fa3](https://github.com/GetStream/stream-chat-react/commit/6041fa3134da4c39cd9f75727825d8dde533b4ee))
+
 ## [13.11.0](https://github.com/GetStream/stream-chat-react/compare/v13.10.2...v13.11.0) (2025-11-05)
 
 ### Bug Fixes
