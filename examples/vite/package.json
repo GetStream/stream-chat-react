@@ -18,12 +18,15 @@
     "@types/react-dom": "link:../../node_modules/@types/react-dom",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^5.1.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "sass": "^1.75.0",
     "typescript": "^5.4.5",
-    "vite": "^6.3.5"
+    "vite": "^7.2.2",
+    "vite-plugin-babel": "^1.3.2"
   }
 }

@@ -77,6 +77,26 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
+  chatClient.axiosInstance.interceptors.response.use(
+    (response) => {
+      // Simulate a 500 for specific routes
+      if (response.config.url?.includes('/delivered')) {
+        // throw a fake error like a real server would
+        const error = {
+          response: {
+            status: 500,
+            statusText: 'Internal Server Error',
+            data: { error: 'Simulated server error' },
+            config: response.config,
+          },
+        };
+        return Promise.reject(error);
+      }
+
+      return response;
+    },
+    (error) => Promise.reject(error),
+  );
   return (
     <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
       <ChatView>
