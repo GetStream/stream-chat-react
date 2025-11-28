@@ -1,0 +1,102 @@
+.aicr__file-preview {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  max-width: 100%;
+  padding-block: 0.25rem;
+
+  &::-webkit-scrollbar {
+    height: 0.25rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0.25rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 0.25rem;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+  }
+}
+
+.aicr__file-preview__item {
+  display: flex;
+  height: 4rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  position: relative;
+  padding: 0.25rem;
+
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  &--file {
+    flex-basis: 10rem;
+  }
+
+  &--image {
+    flex-basis: 4rem;
+    background-image: var(--background-image);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .aicr__file-preview__delete-button {
+    all: unset;
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: #e8e8e8;
+
+    transition: background 0.1s ease-in;
+
+    &:hover:not(:disabled) {
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .material-symbols-rounded {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+  }
+
+  .aicr__file-preview__item-content {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+
+    .aicr__file-preview__file-metadata {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      width: 0;
+
+      .aicr__file-preview__file-name {
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .aicr__file-preview__file-size {
+        font-size: 0.5rem;
+      }
+    }
+  }
+}

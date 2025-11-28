@@ -1,0 +1,79 @@
+.aicr__streaming-message {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  > table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    overflow-x: auto;
+    border-radius: 0.5rem;
+
+    thead {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+
+      th {
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        color: #212529;
+        border-bottom: 2px solid #dee2e6;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #e9ecef;
+
+        &:hover {
+          background-color: #f8f9fa;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 0.75rem;
+        color: #495057;
+      }
+    }
+  }
+
+  .aicr__syntax-highlighter {
+    font-size: 0.85rem;
+
+    // hide last line number if it's not followed by any other elements
+    .linenumber:last-child {
+      display: none !important;
+    }
+  }
+
+  .aicr__chart {
+    max-height: 20rem;
+  }
+
+  > pre {
+    background-color: #f5f5f5;
+    padding: 0.5rem !important;
+    margin: 0 !important;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+
+  > p {
+    margin: 0;
+
+    .aicr__code {
+      font-size: 0.85rem;
+      background-color: #f5f5f5;
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+    }
+  }
+}

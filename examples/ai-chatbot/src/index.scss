@@ -1,0 +1,72 @@
+@layer material-rounded, stream, stream-overrides, ai-chat;
+
+@import 'stream-chat-react/dist/css/v2/index.css' layer(stream);
+@import 'material-symbols/rounded.css' layer(material-rounded);
+@import '@stream-io/ai-chat-react/styles/index.css' layer(ai-chat);
+
+@layer stream-overrides {
+  .str-chat__channel {
+    flex-grow: 1;
+  }
+
+  .str-chat__channel-list {
+    flex-shrink: 0;
+    max-width: 300px;
+  }
+
+  .str-chat__message--other {
+    .str-chat__message-inner {
+      margin-inline-end: 0;
+    }
+  }
+  .str-chat__message--other {
+    .str-chat__message-bubble {
+      max-width: unset;
+      background-color: transparent;
+    }
+  }
+
+  .str-chat__message--me {
+    .str-chat__message-inner {
+      margin-inline-start: 0;
+    }
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 40;
+}
+
+:root {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
