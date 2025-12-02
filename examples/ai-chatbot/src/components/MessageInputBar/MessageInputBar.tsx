@@ -1,5 +1,5 @@
 import { type Channel } from 'stream-chat';
-import { AIMessageComposer } from '@stream-io/ai-chat-react';
+import { AIMessageComposer } from '@stream-io/chat-react-ai';
 import {
   useChannelActionContext,
   useChannelStateContext,
@@ -9,7 +9,7 @@ import './MessageInputBar.scss';
 
 const startAiAgent = async (channel: Channel, model: string | File | null) => {
   await fetch(
-    'https://stream-nodejs-ai-e5d85ed5ce6f.herokuapp.com/start-ai-agent',
+    'https://ai-sdk-server-0f347d455e2e.herokuapp.com/start-ai-agent',
     {
       method: 'POST',
       headers: {

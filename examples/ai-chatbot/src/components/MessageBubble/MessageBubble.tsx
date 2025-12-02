@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import clsx from 'clsx';
-import { StreamingMessage } from '@stream-io/ai-chat-react';
+import { StreamingMessage } from '@stream-io/chat-react-ai';
 import {
   Attachment,
   messageHasAttachments,
