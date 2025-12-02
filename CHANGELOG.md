@@ -1,3 +1,13 @@
+## [13.13.0](https://github.com/GetStream/stream-chat-react/compare/v13.12.0...v13.13.0) (2025-12-02)
+
+### Bug Fixes
+
+* use WithComponents instead of ComponentProvider in tests ([#2891](https://github.com/GetStream/stream-chat-react/issues/2891)) ([7908c3c](https://github.com/GetStream/stream-chat-react/commit/7908c3c193650a07d74c1ac502c243882387d827)), closes [#2890](https://github.com/GetStream/stream-chat-react/issues/2890)
+
+### Features
+
+* support overriding components in MessageList ([#2890](https://github.com/GetStream/stream-chat-react/issues/2890)) ([872928c](https://github.com/GetStream/stream-chat-react/commit/872928ca8a733084539849cf3506b47ff392470e))
+
 ## [13.12.0](https://github.com/GetStream/stream-chat-react/compare/v13.11.0...v13.12.0) (2025-11-17)
 
 ### Bug Fixes
