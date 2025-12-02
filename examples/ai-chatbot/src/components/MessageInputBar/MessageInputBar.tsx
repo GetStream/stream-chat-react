@@ -1,0 +1,79 @@
+import { type Channel } from 'stream-chat';
+import { AIMessageComposer } from '@stream-io/ai-chat-react';
+import {
+  useChannelActionContext,
+  useChannelStateContext,
+  useMessageComposer,
+} from 'stream-chat-react';
+import './MessageInputBar.scss';
+
+const startAiAgent = async (channel: Channel, model: string | File | null) => {
+  await fetch(
+    'https://stream-nodejs-ai-e5d85ed5ce6f.herokuapp.com/start-ai-agent',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel_id: channel.id,
+        channel_type: channel.type,
+        platform: 'openai',
+        model,
+      }),
+    },
+  );
+};
+
+export const MessageInputBar = () => {
+  const { updateMessage, sendMessage } = useChannelActionContext();
+  const { channel } = useChannelStateContext();
+  const composer = useMessageComposer();
+
+  return (
+    <div className="ai-demo-message-input-bar">
+      <AIMessageComposer
+        onSubmit={async (e) => {
+          const event = e;
+          const target = (event.currentTarget ??
+            event.target) as HTMLFormElement | null;
+          event.preventDefault();
+
+          const formData = new FormData(event.currentTarget);
+
+          const t = formData.get('message');
+          const model = formData.get('model');
+
+          composer.textComposer.setText(t as string);
+
+          const d = await composer.compose();
+
+          if (!d) return;
+
+          target?.reset();
+          composer.clear();
+
+          if (channel.initialized) {
+            const isAiAgentActive = Object.keys(channel.state.watchers).some(
+              (userId) => userId.startsWith('ai-bot'),
+            );
+            if (!isAiAgentActive) {
+              await startAiAgent(channel, model);
+            }
+
+            await sendMessage(d);
+          } else {
+            updateMessage(d?.localMessage);
+
+            await channel.watch();
+
+            // TODO: wrap in retry (in case channel creation takes longer)
+            await startAiAgent(channel, model);
+
+            await sendMessage(d);
+          }
+        }}
+      />
+    </div>
+  );
+};

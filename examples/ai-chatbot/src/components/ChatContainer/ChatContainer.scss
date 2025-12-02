@@ -1,0 +1,100 @@
+.ai-demo-chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  /* Override Stream Chat Channel styles */
+  .str-chat__channel {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    background-color: var(--ai-demo-bg-primary);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .str-chat__main-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .str-chat__container {
+    background-color: var(--ai-demo-bg-primary);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .str-chat__li {
+    margin: 8px 0;
+  }
+
+  /* Window component that contains MessageList, AIStateIndicator, and MessageInput */
+  .str-chat__thread,
+  .str-chat__main-panel-inner {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overflow-y: scroll;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .str-chat__list {
+    background-color: var(--ai-demo-bg-primary);
+    padding: 1rem 0;
+    flex: 1;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* Override message list styles */
+  .str-chat__message-list {
+    background-color: var(--ai-demo-bg-primary);
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .str-chat__message-list-scroll {
+    background-color: var(--ai-demo-bg-primary);
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Override AI state indicator */
+  .str-chat__ai-state-indicator {
+    padding: 0.75rem 1.5rem;
+    color: var(--ai-demo-text-secondary);
+    font-size: 0.875rem;
+  }
+
+  /* Override message input */
+  .str-chat__input-flat {
+    background-color: transparent;
+    border: none;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .str-chat__message-list-scroll {
+      max-width: 100%;
+      padding: 0 0.5rem;
+    }
+  }
+}

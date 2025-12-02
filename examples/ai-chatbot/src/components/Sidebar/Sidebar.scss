@@ -1,0 +1,61 @@
+.ai-demo-sidebar {
+  width: 260px;
+  height: 100%;
+  background-color: var(--ai-demo-bg-secondary);
+  border-right: 1px solid var(--ai-demo-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+
+  &__list {
+    flex: 1;
+    overflow-y: auto;
+
+    /* Override Stream Chat channel list styles */
+    .str-chat__channel-list {
+      background-color: transparent;
+      border: none;
+      width: 100%;
+      max-width: 100%;
+      padding: 0.5rem 0;
+    }
+
+    .str-chat__channel-list-messenger {
+      background-color: transparent;
+      padding: 0;
+    }
+
+    .str-chat__channel-list-messenger__main {
+      padding: 0;
+    }
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.ai-demo-sidebar-backdrop {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}

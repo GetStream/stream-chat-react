@@ -1,8 +1,9 @@
-@layer material-rounded, stream, stream-overrides, ai-chat;
+@layer material-rounded, stream, stream-overrides, ai-chat, ai-demo;
 
 @import 'stream-chat-react/dist/css/v2/index.css' layer(stream);
 @import 'material-symbols/rounded.css' layer(material-rounded);
 @import '@stream-io/ai-chat-react/styles/index.css' layer(ai-chat);
+@import './ai-demo.scss' layer(ai-demo);
 
 @layer stream-overrides {
   .str-chat__channel {
@@ -44,18 +45,71 @@
 :root {
   margin: 0;
   padding: 0;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Font */
+  --ai-demo-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+
+  font-family: var(--ai-demo-font-family);
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Theme (default) */
+:root,
+:root[data-theme='dark'] {
+  /* ChatGPT 4/Plus Dark Theme Colors */
+  --ai-demo-bg-primary: #212121;
+  --ai-demo-bg-secondary: #171717;
+  --ai-demo-bg-tertiary: #2f2f2f;
+  --ai-demo-border: #4a4a4a;
+
+  /* Text colors */
+  --ai-demo-text-primary: #ececec;
+  --ai-demo-text-secondary: #b4b4b4;
+  --ai-demo-text-tertiary: #8e8e8e;
+
+  /* Message colors */
+  --ai-demo-user-bg: #343541;
+  --ai-demo-ai-bg: transparent;
+
+  /* Accent colors */
+  --ai-demo-accent: #10a37f;
+  --ai-demo-accent-hover: #0d8968;
+
+  color-scheme: dark;
+  color: var(--ai-demo-text-primary);
+  background-color: var(--ai-demo-bg-primary);
+}
+
+/* Light Theme */
+:root[data-theme='light'] {
+  /* ChatGPT Light Theme Colors */
+  --ai-demo-bg-primary: #ffffff;
+  --ai-demo-bg-secondary: #f7f7f8;
+  --ai-demo-bg-tertiary: #ececf1;
+  --ai-demo-border: #d9d9e3;
+
+  /* Text colors */
+  --ai-demo-text-primary: #353740;
+  --ai-demo-text-secondary: #565869;
+  --ai-demo-text-tertiary: #8e8ea0;
+
+  /* Message colors */
+  --ai-demo-user-bg: #f4f4f4;
+  --ai-demo-ai-bg: transparent;
+
+  /* Accent colors */
+  --ai-demo-accent: #10a37f;
+  --ai-demo-accent-hover: #0d8968;
+
+  color-scheme: light;
+  color: var(--ai-demo-text-primary);
+  background-color: var(--ai-demo-bg-primary);
 }
 
 body {
@@ -69,4 +123,30 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
+}
+
+/* Custom ChatGPT-style scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ai-demo-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--ai-demo-border);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ai-demo-bg-tertiary);
 }
