@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@stream-io/ai-chat-react": "workspace:^",
+    "@stream-io/chat-react-ai": "workspace:^",
     "clsx": "^2.1.1",
     "material-symbols": "^0.40.0",
     "nanoid": "^5.1.6",
