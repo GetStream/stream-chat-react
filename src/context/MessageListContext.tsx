@@ -1,7 +1,10 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
+import type { RenderedMessage } from '../components';
 
 export type MessageListContextValue = {
+  /** Enriched message list, including date separators and intro message (if enabled) */
+  processedMessages: RenderedMessage[];
   /** The scroll container within which the messages and typing indicator are rendered */
   listElement: HTMLDivElement | null;
   /** Function that scrolls the `listElement` to the bottom. */

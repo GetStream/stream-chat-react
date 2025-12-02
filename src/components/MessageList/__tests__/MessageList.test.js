@@ -20,7 +20,11 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-import { useChannelActionContext, useMessageContext } from '../../../context';
+import {
+  ComponentProvider,
+  useChannelActionContext,
+  useMessageContext,
+} from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { ScrollToBottomButton } from '../ScrollToBottomButton';
 import { MessageListNotifications } from '../MessageListNotifications';
@@ -47,11 +51,13 @@ const mockedChannelData = generateChannel({
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
 
-const renderComponent = ({ channelProps, chatClient, msgListProps }) =>
+const renderComponent = ({ channelProps, chatClient, components = {}, msgListProps }) =>
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
-        <MessageList {...msgListProps} />
+        <ComponentProvider value={components}>
+          <MessageList {...msgListProps} />
+        </ComponentProvider>
       </Channel>
     </Chat>,
   );
@@ -873,6 +879,50 @@ describe('MessageList', () => {
       });
 
       expect(notificationFunc).toHaveBeenCalledWith(expect.objectContaining(message));
+    });
+  });
+
+  describe('list wrapper and list item overrides', () => {
+    it('uses provided list wrapper', async () => {
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          components: {
+            MessageListWrapper: (props) => (
+              <div data-testid='message-list-wrapper' {...props} />
+            ),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('message-list-wrapper')).toBeInTheDocument();
+      });
+    });
+
+    it('uses provided list item wrapper', async () => {
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          components: {
+            MessageListItem: (props) => (
+              <div data-testid='message-list-item' {...props} />
+            ),
+            MessageListWrapper: (props) => (
+              <div data-testid='message-list-wrapper' {...props} />
+            ),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const item = screen.queryByTestId('message-list-item');
+        expect(item).toBeInTheDocument();
+        expect(item.dataset.index).toBeDefined();
+        expect(screen.queryByText(message1.text)).toBeInTheDocument();
+      });
     });
   });
 });
