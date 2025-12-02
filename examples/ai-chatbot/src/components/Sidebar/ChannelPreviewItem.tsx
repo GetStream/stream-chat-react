@@ -3,8 +3,9 @@ import { useChatContext } from 'stream-chat-react';
 import './ChannelPreviewItem.scss';
 
 export const ChannelPreviewItem = (props: ChannelPreviewProps) => {
+  const { id, data } = props.channel;
   const { setActiveChannel, channel: activeChannel } = useChatContext();
-  const isActive = activeChannel?.id === props.channel.id;
+  const isActive = activeChannel?.id === id;
 
   return (
     <div
@@ -12,7 +13,7 @@ export const ChannelPreviewItem = (props: ChannelPreviewProps) => {
       onClick={() => setActiveChannel(props.channel)}
     >
       <div className="ai-demo-channel-preview__text">
-        {props.channel.data?.summary ?? props.channel.id}
+        {data?.summary ?? 'New Chat'}
       </div>
     </div>
   );

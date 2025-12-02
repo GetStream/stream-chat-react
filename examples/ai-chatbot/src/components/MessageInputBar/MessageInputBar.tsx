@@ -1,29 +1,11 @@
-import { type Channel } from 'stream-chat';
 import { AIMessageComposer } from '@stream-io/chat-react-ai';
 import {
   useChannelActionContext,
   useChannelStateContext,
   useMessageComposer,
 } from 'stream-chat-react';
+import { startAiAgent } from '../../api.ts';
 import './MessageInputBar.scss';
-
-const startAiAgent = async (channel: Channel, model: string | File | null) => {
-  await fetch(
-    'https://ai-sdk-server-0f347d455e2e.herokuapp.com/start-ai-agent',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        channel_id: channel.id,
-        channel_type: channel.type,
-        platform: 'openai',
-        model,
-      }),
-    },
-  );
-};
 
 export const MessageInputBar = () => {
   const { updateMessage, sendMessage } = useChannelActionContext();

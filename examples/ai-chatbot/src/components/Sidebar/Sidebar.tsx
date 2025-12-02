@@ -1,5 +1,5 @@
 import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { ChannelList, ChannelPreview } from 'stream-chat-react';
+import { ChannelList } from 'stream-chat-react';
 import { SidebarHeader } from './SidebarHeader';
 import { SidebarFooter } from './SidebarFooter';
 import { ChannelPreviewItem } from './ChannelPreviewItem';
@@ -23,18 +23,16 @@ export const Sidebar = ({
   return (
     <>
       {/* Backdrop for mobile */}
-      {isOpen && (
-        <div className="ai-demo-sidebar-backdrop" onClick={onClose} />
-      )}
+      {isOpen && <div className="ai-demo-sidebar-backdrop" onClick={onClose} />}
 
-      <div className={`ai-demo-sidebar ${isOpen ? 'ai-demo-sidebar--open' : ''}`}>
+      <div
+        className={`ai-demo-sidebar ${isOpen ? 'ai-demo-sidebar--open' : ''}`}
+      >
         <SidebarHeader />
         <div className="ai-demo-sidebar__list">
           <ChannelList
             setActiveChannelOnMount={false}
-            Preview={(props) => (
-              <ChannelPreview {...props} Preview={ChannelPreviewItem} />
-            )}
+            Preview={ChannelPreviewItem}
             filters={filters}
             options={options}
             sort={sort}

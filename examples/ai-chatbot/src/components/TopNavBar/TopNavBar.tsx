@@ -10,7 +10,7 @@ export const TopNavBar = ({ onToggleSidebar }: TopNavBarProps) => {
   const { channel } = useChannelStateContext();
   const { theme, toggleTheme } = useTheme();
 
-  const conversationTitle = channel?.data?.summary ?? channel?.id ?? 'New Chat';
+  const conversationTitle = channel?.data?.summary ?? 'New Chat';
 
   return (
     <div className="ai-demo-top-nav">

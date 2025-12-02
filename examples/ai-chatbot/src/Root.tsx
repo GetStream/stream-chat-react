@@ -1,8 +1,4 @@
-import type {
-  ChannelFilters,
-  ChannelOptions,
-  ChannelSort,
-} from 'stream-chat';
+import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import { AIChatApp } from './components/AIChatApp';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -28,7 +24,7 @@ const filters: ChannelFilters = {
   type: 'messaging',
   archived: false,
 };
-const options: ChannelOptions = { limit: 5, presence: true, state: true };
+const options: ChannelOptions = { limit: 15, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 const App = () => {
