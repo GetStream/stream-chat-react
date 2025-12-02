@@ -21,9 +21,9 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 import {
-  ComponentProvider,
   useChannelActionContext,
   useMessageContext,
+  WithComponents,
 } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { ScrollToBottomButton } from '../ScrollToBottomButton';
@@ -55,9 +55,9 @@ const renderComponent = ({ channelProps, chatClient, components = {}, msgListPro
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
-        <ComponentProvider value={components}>
+        <WithComponents overrides={components}>
           <MessageList {...msgListProps} />
-        </ComponentProvider>
+        </WithComponents>
       </Channel>
     </Chat>,
   );
