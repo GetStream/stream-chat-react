@@ -1,3 +1,5 @@
+'use client';
+
 import { AIMessageComposer } from '@stream-io/chat-react-ai';
 import { useEffect } from 'react';
 import {
@@ -13,7 +15,7 @@ import {
   useChatContext,
   useMessageComposer,
 } from 'stream-chat-react';
-import { startAiAgent } from '../../api.ts';
+import { startAiAgent } from '@/components/api';
 import './MessageInputBar.scss';
 
 const isWatchedByAI = (channel: Channel) => {

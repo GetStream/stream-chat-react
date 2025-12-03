@@ -1,4 +1,5 @@
-import { useTheme } from '../../contexts/ThemeContext';
+'use client';
+import { useTheme } from '@/components/ThemeContext';
 import './SidebarFooter.scss';
 
 export const SidebarFooter = () => {

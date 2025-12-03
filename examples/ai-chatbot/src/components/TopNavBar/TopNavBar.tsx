@@ -1,5 +1,8 @@
+'use client';
+
 import { useChannelStateContext } from 'stream-chat-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '@/components/ThemeContext';
+
 import './TopNavBar.scss';
 
 interface TopNavBarProps {

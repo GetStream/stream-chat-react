@@ -1,10 +1,11 @@
-# Implementation: ChatGPT 4/Plus UI Redesign
+# Implementation: ChatGPT 4/Plus UI Redesign (Next.js)
 
 ## ✅ Completed Features
 
 ### Design Goals
 
 - ✅ Match ChatGPT 4/Plus UI
+- ✅ Next.js App Router architecture with Server Components
 - ✅ Component-based architecture with isolated SCSS modules
 - ✅ Light/dark theme toggle with localStorage persistence
 - ✅ Mobile-responsive navigation with top bar
@@ -12,16 +13,20 @@
 - ✅ Browser back/forward button support
 - ✅ Override Stream Chat React styles via CSS variables
 - ✅ Automatic conversation summarization (first 5 messages)
+- ✅ Server-side token generation for secure authentication
 
 ---
 
-## Component Structure
+## Project Structure
 
 ```
-src/
+examples/react-chatbot/
+├── app/
+│   ├── layout.tsx                 # ✅ Root layout with metadata
+│   └── page.tsx                   # ✅ Server Component - generates user token, renders AIChatApp
 ├── components/
 │   ├── AIChatApp/
-│   │   ├── AIChatApp.tsx          # ✅ Main app wrapper with URL state management
+│   │   ├── AIChatApp.tsx          # ✅ Client Component - Chat wrapper with URL state management
 │   │   └── AIChatApp.scss         # ✅ App layout styles with responsive grid
 │   ├── Sidebar/
 │   │   ├── Sidebar.tsx            # ✅ Channel list sidebar with collapse
@@ -47,15 +52,16 @@ src/
 │   ├── AIStateIndicator/
 │   │   ├── AIStateIndicator.tsx   # ✅ Custom thinking indicator with random messages
 │   │   └── AIStateIndicator.scss
-│   └── EmptyState/
-│       ├── EmptyState.tsx         # ✅ Empty placeholder
-│       └── EmptyState.scss        # ✅ Theme-aware styling
-├── contexts/
-│   └── ThemeContext.tsx           # ✅ Theme state with localStorage persistence
-├── api.ts                         # ✅ API functions (startAiAgent, summarizeConversation)
-├── Root.tsx                       # ✅ Thin wrapper, imports AIChatApp
-├── index.scss                     # ✅ Global styles + CSS variables for both themes
-└── ai-demo.scss                   # ✅ Stream Chat overrides
+│   ├── EmptyState/
+│   │   ├── EmptyState.tsx         # ✅ Empty placeholder
+│   │   └── EmptyState.scss        # ✅ Theme-aware styling
+│   ├── ThemeContext.tsx           # ✅ Client-side theme state with localStorage
+│   ├── api.ts                     # ✅ API functions (startAiAgent, summarizeConversation)
+│   └── index.scss                 # ✅ Global styles + CSS variables for both themes
+├── public/                        # ✅ Static assets
+├── next.config.ts                 # ✅ Next.js configuration
+├── package.json                   # ✅ Dependencies (Next.js 16, React 19)
+└── tsconfig.json                  # ✅ TypeScript configuration
 ```
 
 ---
@@ -115,24 +121,35 @@ src/
 
 ## Component Details
 
-### 1. **AIChatApp.tsx**
+### 1. **app/page.tsx (Server Component)**
 
 ✅ Implemented features:
 
+- **Server-side token generation**: Generates Stream user token using `STREAM_API_KEY` and `STREAM_API_SECRET` environment variables
+- Defines channel filters, options, and sorting configuration
+- Extracts `conversation_id` from URL params
+- Renders `AIChatApp` wrapped in `ThemeProvider`
+- Passes authentication and configuration props to client component
+
+### 2. **AIChatApp.tsx (Client Component)**
+
+✅ Implemented features:
+
+- Marked as `'use client'` directive for client-side interactivity
 - Sets up `Chat` provider with `isMessageAIGenerated`
-- Manages sidebar collapse state (mobile + desktop)
-- Wraps app in `ThemeProvider` for theme context
+- Split into wrapper component and `ChatContent` (uses `useChatContext`)
 - **URL State Management**: Updates URL with `?conversation_id=` when switching channels
 - **Browser Navigation**: Handles popstate events for back/forward button support
+- **Initial Channel Loading**: Loads channel from URL on mount if provided
 - **Automatic Conversation Summarization**:
   - Listens to `message.new` events
   - When a new message arrives and conversation has ≤5 messages, automatically generates a summary
   - Calls `/summarize` endpoint with combined message text
   - Updates channel with summary via `channel.update({ summary })`
 - Layout: CSS Grid with collapsible sidebar
-- Renders `TopNavBar` (mobile) + `Sidebar` + `ChatContainer`
+- Renders `Sidebar` + `ChatContainer`
 
-### 2. **Sidebar**
+### 3. **Sidebar**
 
 ✅ Implemented features:
 
@@ -143,7 +160,7 @@ src/
 - Width: 260px (desktop), full-width overlay (mobile)
 - Smooth transitions for collapse/expand
 
-### 3. **SidebarHeader**
+### 4. **SidebarHeader**
 
 ✅ Implemented features:
 
@@ -152,7 +169,7 @@ src/
 - Styled as button with hover effect
 - ChatGPT logo/branding area
 
-### 4. **SidebarFooter**
+### 5. **SidebarFooter**
 
 ✅ Implemented features:
 
@@ -160,7 +177,7 @@ src/
 - Material Symbols icons (light_mode/dark_mode)
 - Smooth transitions
 
-### 5. **TopNavBar**
+### 6. **TopNavBar**
 
 ✅ Implemented features:
 
@@ -170,7 +187,7 @@ src/
 - Material Symbols rounded icons
 - Fixed positioning at top
 
-### 6. **ChannelPreviewItem**
+### 7. **ChannelPreviewItem**
 
 ✅ Implemented features:
 
@@ -180,7 +197,7 @@ src/
 - Truncate long text with ellipsis
 - Theme-aware colors
 
-### 7. **ChatContainer**
+### 8. **ChatContainer**
 
 ✅ Implemented features:
 
@@ -190,7 +207,7 @@ src/
 - **Flexbox layout with overflow management** to ensure message list scrolls while keeping indicator and input visible
 - Mobile-responsive with top padding for TopNavBar
 
-### 8. **MessageBubble**
+### 9. **MessageBubble**
 
 ✅ Implemented features:
 
@@ -202,7 +219,7 @@ src/
 - Max-width: 70% (user), 80% (AI)
 - Avatar hidden
 
-### 9. **AIStateIndicator**
+### 10. **AIStateIndicator**
 
 ✅ Implemented features:
 
@@ -211,7 +228,7 @@ src/
 - Messages change every 2 seconds during thinking state
 - Theme-aware styling
 
-### 10. **MessageInputBar**
+### 11. **MessageInputBar**
 
 ✅ Implemented features:
 
@@ -222,7 +239,7 @@ src/
 - Focus states with accent color
 - Responsive padding
 
-### 11. **EmptyState**
+### 12. **EmptyState**
 
 ✅ Implemented features:
 
@@ -231,7 +248,7 @@ src/
 - Theme-aware styling with CSS variables
 - Material Symbols icon
 
-### 12. **ThemeContext**
+### 13. **ThemeContext (Client Component)**
 
 ✅ Implemented features:
 
@@ -241,7 +258,7 @@ src/
 - Sets `data-theme` attribute on document root
 - `useTheme` hook for accessing theme state and toggle function
 
-### 13. **api.ts**
+### 14. **api.ts**
 
 ✅ Implemented features:
 
@@ -255,9 +272,41 @@ src/
 
 ---
 
+## Next.js Architecture
+
+### App Router Structure
+
+The application uses Next.js App Router with a hybrid Server/Client Component architecture:
+
+**Server Components:**
+- `app/layout.tsx` - Root layout with metadata
+- `app/page.tsx` - Main page component that handles server-side token generation
+
+**Client Components:**
+- `components/AIChatApp/AIChatApp.tsx` - Marked with `'use client'` directive
+- `components/ThemeContext.tsx` - Uses React Context and browser APIs
+- All interactive UI components (Sidebar, ChatContainer, etc.)
+
+**Benefits:**
+- **Security**: Stream API credentials never exposed to client
+- **Performance**: Token generation happens on server
+- **SEO**: Better metadata handling with Next.js metadata API
+
+### Environment Variables
+
+Required in `.env.local`:
+```
+STREAM_API_KEY=your_api_key_here
+STREAM_API_SECRET=your_api_secret_here
+```
+
+These are accessed server-side only in `app/page.tsx` using `process.env`.
+
+---
+
 ## Stream Chat React CSS Variable Overrides
 
-Implemented in `ai-demo.scss`:
+Implemented globally in `components/index.scss`:
 
 ```scss
 :root {
@@ -340,15 +389,45 @@ Each component has its own isolated SCSS file:
 import './ComponentName.scss';
 ```
 
-**Global styles** in `index.scss`:
+**Global styles** in `components/index.scss`:
 
 - CSS variables for both themes
 - CSS layers
 - Reset styles
 - Font imports (Material Symbols Rounded)
-
-**Stream Chat overrides** in `ai-demo.scss` (imported in `index.scss`)
+- Stream Chat React CSS variable overrides
+- Imported once in `app/page.tsx`
 
 **Component styles** follow BEM-like naming: `ai-demo-component__element--modifier`
+
+**Next.js Integration:**
+- Global styles imported in server component (`app/page.tsx`)
+- Component-level SCSS imported directly in each component file
+- Next.js automatically handles SCSS compilation via built-in support
+
+---
+
+## Build and Development
+
+### Commands
+
+```bash
+# Development server with hot reload
+pnpm dev
+
+# Production build
+pnpm build
+
+# Start production server
+pnpm start
+```
+
+### Key Differences from Vite
+
+- No `vite.config.ts` - configuration in `next.config.ts`
+- No separate `index.html` entry point - uses App Router
+- Built-in SCSS support without additional plugins
+- Server-side rendering capabilities
+- Automatic code splitting and optimization
 
 ---

@@ -1,3 +1,4 @@
+'use client';
 import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import { ChannelList } from 'stream-chat-react';
 import { SidebarHeader } from './SidebarHeader';

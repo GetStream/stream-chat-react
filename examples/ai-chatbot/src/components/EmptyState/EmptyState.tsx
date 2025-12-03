@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { useChatContext } from 'stream-chat-react';
 import { customAlphabet } from 'nanoid';

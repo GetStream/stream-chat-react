@@ -1,3 +1,5 @@
+'use client';
+
 import { useChatContext } from 'stream-chat-react';
 import { customAlphabet } from 'nanoid';
 import './SidebarHeader.scss';

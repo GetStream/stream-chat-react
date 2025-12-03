@@ -1,3 +1,5 @@
+'use client';
+
 import { Channel, MessageList, Window, MessageInput } from 'stream-chat-react';
 import { EmptyState } from '../EmptyState';
 import { MessageBubble } from '../MessageBubble';
@@ -10,6 +12,8 @@ interface ChatContainerProps {
   onToggleSidebar: () => void;
 }
 
+const NoOp = () => null;
+
 export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
   return (
     <div className="ai-demo-chat-container">
@@ -17,8 +21,8 @@ export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
         initializeOnMount={false}
         EmptyPlaceholder={<EmptyState />}
         Message={MessageBubble}
-        UnreadMessagesNotification={null}
-        UnreadMessagesSeparator={null}
+        UnreadMessagesNotification={NoOp}
+        UnreadMessagesSeparator={NoOp}
       >
         <TopNavBar onToggleSidebar={onToggleSidebar} />
         <Window>

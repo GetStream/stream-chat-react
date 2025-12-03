@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 
@@ -24,6 +26,8 @@ interface ThemeProviderProps {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'light';
+
     // Check localStorage first
     const saved = localStorage.getItem('ai-demo-theme') as Theme;
     if (saved) return saved;

@@ -1,4 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type {
   ChannelFilters,
   ChannelOptions,
@@ -8,7 +11,7 @@ import type {
 import { Chat, useCreateChatClient, useChatContext } from 'stream-chat-react';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
-import { summarizeConversation } from '../../api';
+import { summarizeConversation } from '@/components/api';
 import './AIChatApp.scss';
 
 interface AIChatAppProps {
@@ -36,20 +39,22 @@ const ChatContent = ({
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { client, channel, setActiveChannel } = useChatContext();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Update URL when channel changes
+  // Update URL when channel changes using Next.js router
   useEffect(() => {
     if (channel?.id) {
-      const url = new URL(window.location.href);
-      const currentConversationId = url.searchParams.get('conversation_id');
+      const currentConversationId = searchParams.get('conversation_id');
 
       // Only push if the conversation_id actually changed
       if (currentConversationId !== channel.id) {
-        url.searchParams.set('conversation_id', channel.id);
-        window.history.pushState({}, '', url.toString());
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('conversation_id', channel.id);
+        router.push(`?${params.toString()}`, { scroll: false });
       }
     }
-  }, [channel?.id]);
+  }, [channel?.id, searchParams, router]);
 
   // Load initial channel from URL on mount
   useEffect(() => {
@@ -64,23 +69,6 @@ const ChatContent = ({
       });
     }
   }, [initialChannelId, client, channel, setActiveChannel]);
-
-  // Handle browser back/forward navigation
-  useEffect(() => {
-    const handlePopState = async () => {
-      const url = new URL(window.location.href);
-      const conversationId = url.searchParams.get('conversation_id');
-
-      if (conversationId && client && conversationId !== channel?.id) {
-        const targetChannel = client.channel('messaging', conversationId);
-        await targetChannel.watch();
-        setActiveChannel(targetChannel);
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [client, channel?.id, setActiveChannel]);
 
   // Watch for new messages and trigger summarization
   useEffect(() => {
