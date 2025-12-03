@@ -1,5 +1,4 @@
 import {
-  type ComponentProps,
   type ComponentPropsWithoutRef,
   createContext,
   type ReactNode,
@@ -12,38 +11,44 @@ import { customAlphabet } from 'nanoid';
 import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from '@stream-io/state-store/react-bindings';
 
-import { FilePreview } from './file-preview';
+import { AttachmentPreview } from './attachment-preview';
 import { useSpeechToText } from './use-speech-to-text';
 import { useStableCallback } from '../../hooks/use-stable-callback';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
-const FileInput = () => {
+const FileInput = ({
+  labelProps,
+  ...restProps
+}: ComponentPropsWithoutRef<'input'> & {
+  labelProps?: ComponentPropsWithoutRef<'label'>;
+}) => {
   return (
-    <FileInputBase>
+    <WithStableId>
       {({ id }) => (
         <>
           <input
             style={{ display: 'none' }}
-            name="files"
             multiple
             type="file"
             id={id}
+            {...restProps}
           />
           <label
             className="aicr__ai-message-composer__round-button"
             htmlFor={id}
             tabIndex={0}
+            {...labelProps}
           >
             <span className="material-symbols-rounded">add</span>
           </label>
         </>
       )}
-    </FileInputBase>
+    </WithStableId>
   );
 };
 
-const FileInputBase = ({
+const WithStableId = ({
   children,
 }: {
   children?: ReactNode | (({ id }: { id: string }) => ReactNode);
@@ -53,14 +58,12 @@ const FileInputBase = ({
   return <>{typeof children === 'function' ? children({ id }) : children}</>;
 };
 
-FileInput.Base = FileInputBase;
+FileInput.WithStableId = WithStableId;
 
 export type AIMessageComposerStore = {
   attachments: {
     id: string;
     file: File;
-    source: string | null;
-    state: 'uploading' | 'uploaded' | 'failed' | 'pending';
     meta?: Record<string, any>;
   }[];
   text: string;
@@ -97,6 +100,57 @@ export const useAttachments = () => {
     [store],
   );
 
+  const updateAttachments = useCallback(
+    (
+      idsOrAttachments: (
+        | string
+        | AIMessageComposerStore['attachments'][number]
+      )[],
+      update: (
+        attachment: AIMessageComposerStore['attachments'][number],
+      ) => AIMessageComposerStore['attachments'][number],
+    ) => {
+      store.next((currentState) => {
+        let hasChanges = false;
+        const newAttachments = [...currentState.attachments];
+
+        for (const idOrAttachment of idsOrAttachments) {
+          const attachmentIndex =
+            typeof idOrAttachment === 'string'
+              ? currentState.attachments.findIndex(
+                  (a) => a.id === idOrAttachment,
+                )
+              : currentState.attachments.indexOf(idOrAttachment);
+
+          if (attachmentIndex === -1) {
+            continue;
+          }
+
+          const updatedAttachment = update(
+            currentState.attachments[attachmentIndex]!,
+          );
+
+          if (
+            updatedAttachment !== currentState.attachments[attachmentIndex]!
+          ) {
+            newAttachments[attachmentIndex] = updatedAttachment;
+            hasChanges = true;
+          }
+        }
+
+        if (!hasChanges) {
+          return currentState;
+        }
+
+        return {
+          ...currentState,
+          attachments: newAttachments,
+        };
+      });
+    },
+    [store],
+  );
+
   const selector = useCallback(
     (currentState: AIMessageComposerStore) => ({
       attachments: currentState.attachments,
@@ -106,7 +160,10 @@ export const useAttachments = () => {
 
   const { attachments } = useStateStore(store, selector);
 
-  return { attachments, removeAttachment };
+  return useMemo(
+    () => ({ attachments, removeAttachment, updateAttachments }),
+    [attachments, removeAttachment, updateAttachments],
+  );
 };
 
 export const useText = () => {
@@ -140,12 +197,38 @@ export const useText = () => {
   return { text, setText };
 };
 
-export const AIMessageComposerBase = ({
+type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
+  /**
+   * Resets a value of an input with name `attachments` and of type `file` when user selects files so that
+   * they can select the same file again if needed.
+   *
+   * @default true
+   */
+  resetAttachmentsOnSelect?: boolean;
+  nameMapping?: {
+    message?: string;
+    attachments?: string;
+  };
+};
+
+interface AIMessageComposer {
+  (props: AIMessageComposerProps): JSX.Element;
+  FileInput: typeof FileInput;
+  TextInput: typeof TextInput;
+  SpeechToTextButton: typeof SpeechToTextButton;
+  SubmitButton: typeof SubmitButton;
+  ModelSelect: typeof ModelSelect;
+  AttachmentPreview: typeof AttachmentPreview;
+}
+
+export const AIMessageComposer: AIMessageComposer = ({
   children,
   onChange,
   onReset,
+  resetAttachmentsOnSelect = true,
+  nameMapping,
   ...restProps
-}: ComponentPropsWithoutRef<'form'>) => {
+}) => {
   const [stateStore] = useState(
     () => new StateStore<AIMessageComposerStore>(initialStoreState),
   );
@@ -156,8 +239,13 @@ export const AIMessageComposerBase = ({
 
       const inputElement = e.target as unknown as HTMLInputElement;
 
-      const files = inputElement.name === 'files' ? inputElement.files : null;
-      const text = inputElement.name === 'message' ? inputElement.value : null;
+      const messageName = nameMapping?.message ?? 'message';
+      const attachmentsName = nameMapping?.attachments ?? 'attachments';
+
+      const files =
+        inputElement.name === attachmentsName ? inputElement.files : null;
+      const text =
+        inputElement.name === messageName ? inputElement.value : null;
 
       stateStore.next((currentState) => {
         const newState = { ...currentState };
@@ -168,8 +256,6 @@ export const AIMessageComposerBase = ({
               ({
                 id: nanoId(),
                 file,
-                source: null,
-                state: 'pending' as const,
               }) satisfies AIMessageComposerStore['attachments'][number],
           );
 
@@ -189,6 +275,14 @@ export const AIMessageComposerBase = ({
 
         return currentState;
       });
+
+      if (
+        resetAttachmentsOnSelect &&
+        inputElement.type === 'file' &&
+        inputElement.name === attachmentsName
+      ) {
+        inputElement.value = '';
+      }
     },
   );
 
@@ -211,7 +305,7 @@ export const AIMessageComposerBase = ({
 
 const noop = () => {};
 
-const Input = () => {
+const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   const { text } = useText();
 
   return (
@@ -226,11 +320,12 @@ const Input = () => {
       type="text"
       name="message"
       placeholder="Ask a question..."
+      {...props}
     />
   );
 };
 
-const SpeechToTextButton = () => {
+const SpeechToTextButton = (props: ComponentPropsWithoutRef<'button'>) => {
   const { setText } = useText();
 
   const { startListening, stopListening, isListening } = useSpeechToText({
@@ -251,50 +346,52 @@ const SpeechToTextButton = () => {
       }}
       aria-label="speech-to-text"
       type="button"
+      {...props}
     >
       <span className="material-symbols-rounded">mic</span>
     </button>
   );
 };
 
-export const AIMessageComposer = (
-  props: Omit<ComponentProps<typeof AIMessageComposerBase>, 'children'>,
-) => {
+const SubmitButton = (props: ComponentPropsWithoutRef<'button'>) => {
   return (
-    <AIMessageComposerBase {...props}>
-      <FilePreview />
-      <Input />
-      <div
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
-          <FileInput />
-          <SpeechToTextButton />
-          <select
-            className="aicr__ai-message-composer__select"
-            name="model"
-            defaultValue="gpt-4o"
-          >
-            <option value="gpt-5">GPT-5</option>
-            <option value="gpt-4o">GPT-4o</option>
-          </select>
-          {/* <ToolsSelector /> */}
-        </div>
-
-        <button
-          className="aicr__ai-message-composer__round-button"
-          type="submit"
-        >
-          <span className="material-symbols-rounded">send</span>
-        </button>
-      </div>
-    </AIMessageComposerBase>
+    <button
+      className="aicr__ai-message-composer__round-button"
+      type="submit"
+      {...props}
+    >
+      <span className="material-symbols-rounded">send</span>
+    </button>
   );
 };
 
-AIMessageComposer.Base = AIMessageComposerBase;
+const ModelSelect = (
+  props: ComponentPropsWithoutRef<'select'> & { options?: ReactNode },
+) => {
+  const {
+    options = (
+      <>
+        <option value="gpt-5">GPT-5</option>
+        <option value="gpt-4o">GPT-4o</option>
+      </>
+    ),
+    ...restProps
+  } = props;
+
+  return (
+    <select
+      className="aicr__ai-message-composer__select"
+      defaultValue="gpt-4o"
+      {...restProps}
+    >
+      {options}
+    </select>
+  );
+};
+
+AIMessageComposer.FileInput = FileInput;
+AIMessageComposer.TextInput = TextInput;
+AIMessageComposer.SpeechToTextButton = SpeechToTextButton;
+AIMessageComposer.SubmitButton = SubmitButton;
+AIMessageComposer.ModelSelect = ModelSelect;
+AIMessageComposer.AttachmentPreview = AttachmentPreview;

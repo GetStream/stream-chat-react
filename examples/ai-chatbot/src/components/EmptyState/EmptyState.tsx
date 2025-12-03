@@ -13,6 +13,8 @@ export const EmptyState = () => {
       setActiveChannel(
         client.channel('messaging', `ai-${nanoId()}`, {
           members: [client.userID as string],
+          // @ts-expect-error fix - this is a hack that allows custom upload funtion to run
+          own_capabilities: ['upload-file'],
         }),
       );
     }

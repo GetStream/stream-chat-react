@@ -1,4 +1,9 @@
-.aicr__file-preview {
+.aicr__attachment-preview {
+
+  &:empty {
+    display: none;
+  }
+
   display: flex;
   gap: 0.75rem;
   overflow-x: auto;
@@ -24,30 +29,61 @@
   }
 }
 
-.aicr__file-preview__item {
+.aicr__attachment-preview__item {
   display: flex;
   height: 4rem;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
   position: relative;
   padding: 0.25rem;
+  flex-basis: 10rem;
 
   flex-grow: 0;
   flex-shrink: 0;
 
-  &--file {
-    flex-basis: 10rem;
+  &--uploading {
   }
 
-  &--image {
+  &:has(> .aicr__attachment-preview__image) {
     flex-basis: 4rem;
-    background-image: var(--background-image);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    padding: 0;
+  }
+  .aicr__attachment-preview__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
   }
 
-  .aicr__file-preview__delete-button {
+  .aicr__attachment-preview__failed-state-overlay {
+    position: absolute;
+    display: flex;
+    width: calc(100% - 2rem);
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+    top: 0;
+    left: 0;
+    margin-inline: 1rem;
+
+    .aicr__attachment-preview__retry-button {
+      all: unset;
+      background-color: #e8e8e8;
+      border-radius: 9999px;
+      display: flex;
+      padding: 0.25rem;
+
+      transition: background 0.1s ease-in;
+
+      &:hover:not(:disabled) {
+        background: #ccc;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .aicr__attachment-preview__delete-button {
     all: unset;
     position: absolute;
     top: -0.25rem;
@@ -73,20 +109,20 @@
     }
   }
 
-  .aicr__file-preview__item-content {
+  .aicr__attachment-preview__item-content {
     display: flex;
     gap: 0.25rem;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
 
-    .aicr__file-preview__file-metadata {
+    .aicr__attachment-preview__file-metadata {
       display: flex;
       flex-direction: column;
       flex-grow: 1;
       width: 0;
 
-      .aicr__file-preview__file-name {
+      .aicr__attachment-preview__file-name {
         font-size: 0.75rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -94,7 +130,7 @@
         width: 100%;
       }
 
-      .aicr__file-preview__file-size {
+      .aicr__attachment-preview__file-size {
         font-size: 0.5rem;
       }
     }
