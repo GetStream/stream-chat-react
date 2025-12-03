@@ -16,9 +16,9 @@
     justify-content: flex-start;
 
     .ai-demo-message__bubble {
-      background-color: var(--ai-demo-bg-tertiary);
-      border-radius: 18px;
-      padding: 0.5rem 0.75rem;
+      background-color: transparent;
+      border-radius: 0;
+      padding: 0;
       min-width: 50%;
       width: auto;
     }
@@ -90,7 +90,7 @@
 
     &--ai .ai-demo-message__bubble {
       min-width: 60%;
-      padding: 0.5rem 0.75rem;
+      padding: 0;
     }
   }
 }
