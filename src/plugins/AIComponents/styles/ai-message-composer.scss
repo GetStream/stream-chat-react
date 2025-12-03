@@ -49,13 +49,14 @@
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
-    padding: 0.25rem 1rem 0.25rem 0.25rem;
+    padding: 0.5rem 1.25rem 0.5rem 1rem;
 
     background-color: transparent;
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='black'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: 0.75rem 0.75rem;
-    background-position: right center;
+    background-position-x: calc(100% - 5px);
+    background-position-y: center;
     background-clip: border-box;
   }
 }

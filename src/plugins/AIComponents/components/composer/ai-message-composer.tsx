@@ -381,7 +381,7 @@ const ModelSelect = (
   return (
     <select
       className="aicr__ai-message-composer__select"
-      defaultValue="gpt-4o"
+      defaultValue="gpt-5"
       {...restProps}
     >
       {options}
