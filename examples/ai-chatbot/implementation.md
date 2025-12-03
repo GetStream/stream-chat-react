@@ -11,6 +11,7 @@
 - ✅ Bookmarkable conversations with URL parameters
 - ✅ Browser back/forward button support
 - ✅ Override Stream Chat React styles via CSS variables
+- ✅ Automatic conversation summarization (first 5 messages)
 
 ---
 
@@ -51,6 +52,7 @@ src/
 │       └── EmptyState.scss        # ✅ Theme-aware styling
 ├── contexts/
 │   └── ThemeContext.tsx           # ✅ Theme state with localStorage persistence
+├── api.ts                         # ✅ API functions (startAiAgent, summarizeConversation)
 ├── Root.tsx                       # ✅ Thin wrapper, imports AIChatApp
 ├── index.scss                     # ✅ Global styles + CSS variables for both themes
 └── ai-demo.scss                   # ✅ Stream Chat overrides
@@ -122,6 +124,11 @@ src/
 - Wraps app in `ThemeProvider` for theme context
 - **URL State Management**: Updates URL with `?conversation_id=` when switching channels
 - **Browser Navigation**: Handles popstate events for back/forward button support
+- **Automatic Conversation Summarization**:
+  - Listens to `message.new` events
+  - When a new message arrives and conversation has ≤5 messages, automatically generates a summary
+  - Calls `/summarize` endpoint with combined message text
+  - Updates channel with summary via `channel.update({ summary })`
 - Layout: CSS Grid with collapsible sidebar
 - Renders `TopNavBar` (mobile) + `Sidebar` + `ChatContainer`
 
@@ -234,6 +241,18 @@ src/
 - Sets `data-theme` attribute on document root
 - `useTheme` hook for accessing theme state and toggle function
 
+### 13. **api.ts**
+
+✅ Implemented features:
+
+- **startAiAgent**: Initiates AI agent for a channel
+  - Accepts channel, model, and platform parameters
+  - Posts to `/start-ai-agent` endpoint
+- **summarizeConversation**: Generates conversation summaries
+  - Accepts conversation text
+  - Posts to `/summarize` endpoint with OpenAI platform
+  - Returns summary string from API response
+
 ---
 
 ## Stream Chat React CSS Variable Overrides
@@ -285,6 +304,19 @@ The app uses `window.history.pushState()` to update the URL when switching conve
 ### Theme System
 
 Theme state is managed via React Context and persisted to localStorage. The theme is applied by setting a `data-theme` attribute on the document root, which allows CSS variables to be scoped appropriately.
+
+### Automatic Conversation Summarization
+
+The app automatically generates summaries for the first 5 messages of a conversation:
+
+- **Event-driven**: Uses Stream Chat's `message.new` event listener
+- **Smart triggering**: Only runs when total message count ≤ 5
+- **Message aggregation**: Combines last 5 messages into single text string with newlines
+- **API integration**: Calls `/summarize` endpoint with OpenAI platform
+- **Channel update**: Stores returned summary in `channel.data.summary`
+- **Proper cleanup**: Unsubscribes from event listener on unmount/channel change
+
+This summary is displayed in the sidebar's `ChannelPreviewItem` component, falling back to channel ID if no summary exists.
 
 ### Flexbox Overflow Management
 
