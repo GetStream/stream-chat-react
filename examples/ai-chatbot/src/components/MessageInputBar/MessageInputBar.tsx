@@ -1,7 +1,7 @@
 'use client';
 
 import { AIMessageComposer } from '@stream-io/chat-react-ai';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   isImageFile,
   type Channel,
@@ -14,7 +14,6 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageComposer,
-  useStateStore,
 } from 'stream-chat-react';
 import { startAiAgent } from '@/components/api';
 import './MessageInputBar.scss';
@@ -32,6 +31,7 @@ export const MessageInputBar = () => {
   const composer = useMessageComposer();
 
   const { attachments } = useAttachmentsForPreview();
+  const [selectedModel, setSelectedModel] = useState<string>();
 
   useEffect(() => {
     if (!composer) return;
@@ -73,6 +73,7 @@ export const MessageInputBar = () => {
 
           const message = formData.get('message');
           const model = formData.get('model');
+          setSelectedModel(model as string);
 
           composer.textComposer.setText(message as string);
 
@@ -131,7 +132,7 @@ export const MessageInputBar = () => {
           <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
             <AIMessageComposer.FileInput name="attachments" />
             <AIMessageComposer.SpeechToTextButton />
-            <AIMessageComposer.ModelSelect name="model" />
+            <AIMessageComposer.ModelSelect name="model" value={selectedModel} />
           </div>
 
           <AIMessageComposer.SubmitButton active={attachments.length > 0} />

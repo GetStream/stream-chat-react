@@ -22,8 +22,8 @@
   }
 
   &__dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background-color: var(--ai-demo-text-secondary);
     border-radius: 50%;
     animation: ai-demo-thinking 1.4s ease-in-out infinite;
@@ -50,7 +50,9 @@
 }
 
 @keyframes ai-demo-thinking {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: scale(1);
     opacity: 0.4;
   }
@@ -61,10 +63,12 @@
 }
 
 @keyframes ai-demo-text-fade {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
-  45%, 55% {
+  45%,
+  55% {
     opacity: 0.5;
   }
 }

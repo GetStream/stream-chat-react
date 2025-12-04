@@ -14,6 +14,8 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const NoOp = () => null;
+
 export const Sidebar = ({
   filters,
   options,
@@ -34,6 +36,7 @@ export const Sidebar = ({
           <ChannelList
             setActiveChannelOnMount={false}
             Preview={ChannelPreviewItem}
+            EmptyStateIndicator={NoOp}
             filters={filters}
             options={options}
             sort={sort}
