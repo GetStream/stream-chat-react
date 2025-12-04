@@ -14,6 +14,7 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageComposer,
+  useStateStore,
 } from 'stream-chat-react';
 import { startAiAgent } from '@/components/api';
 import './MessageInputBar.scss';
@@ -133,7 +134,7 @@ export const MessageInputBar = () => {
             <AIMessageComposer.ModelSelect name="model" />
           </div>
 
-          <AIMessageComposer.SubmitButton />
+          <AIMessageComposer.SubmitButton active={attachments.length > 0} />
         </div>
       </AIMessageComposer>
     </div>

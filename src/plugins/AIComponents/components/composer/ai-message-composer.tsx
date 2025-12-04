@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { customAlphabet } from 'nanoid';
+import clsx from 'clsx';
 import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from '@stream-io/state-store/react-bindings';
 
@@ -330,7 +331,7 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
 
 const SpeechToTextButton = (
   props: ComponentPropsWithoutRef<'button'> & {
-    options: UseSpeechToTextOptions;
+    options?: UseSpeechToTextOptions;
   },
 ) => {
   const { setText } = useText();
@@ -360,10 +361,15 @@ const SpeechToTextButton = (
   );
 };
 
-const SubmitButton = (props: ComponentPropsWithoutRef<'button'>) => {
+const SubmitButton = (
+  props: ComponentPropsWithoutRef<'button'> & { active?: boolean },
+) => {
   return (
     <button
-      className="aicr__ai-message-composer__round-button"
+      className={clsx(
+        'aicr__ai-message-composer__round-button',
+        props.active && 'aicr__ai-message-composer__round-button--active',
+      )}
       type="submit"
       {...props}
     >

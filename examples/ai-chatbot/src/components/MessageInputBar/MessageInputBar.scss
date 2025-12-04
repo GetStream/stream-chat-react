@@ -76,28 +76,6 @@
     }
   }
 
-  .aicr__ai-message-composer__form__submit-btn {
-    background-color: var(--ai-demo-accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover:not(:disabled) {
-      background-color: var(--ai-demo-accent-hover);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     padding: 1rem;

@@ -1,27 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useChatContext } from 'stream-chat-react';
-import { customAlphabet } from 'nanoid';
 import './EmptyState.scss';
 
-const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
-
 export const EmptyState = () => {
-  const { channel, setActiveChannel, client } = useChatContext();
-
-  useEffect(() => {
-    if (!channel) {
-      setActiveChannel(
-        client.channel('messaging', `ai-${nanoId()}`, {
-          members: [client.userID as string],
-          // @ts-expect-error fix - this is a hack that allows custom upload funtion to run
-          own_capabilities: ['upload-file'],
-        }),
-      );
-    }
-  }, [channel, client, setActiveChannel]);
-
   return (
     <div className="ai-demo-empty-state">
       <div className="ai-demo-empty-state__content">
