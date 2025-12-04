@@ -12,7 +12,9 @@ export const chartJsSchema = zod.object({
     'scatter',
   ]),
   data: zod.object({
-    labels: zod.array(zod.string()).optional(),
+    labels: zod.array(zod.union([zod.string(), zod.number()])).optional(),
+    xLabels: zod.array(zod.union([zod.string(), zod.number()])).optional(),
+    yLabels: zod.array(zod.union([zod.string(), zod.number()])).optional(),
     datasets: zod.array(
       zod.object({
         label: zod.string().optional(),
@@ -48,77 +50,4 @@ export const chartJsSchema = zod.object({
       }),
     ),
   }),
-  options: zod
-    .object({
-      responsive: zod.boolean().optional(),
-      maintainAspectRatio: zod.boolean().optional(),
-      aspectRatio: zod.number().optional(),
-      plugins: zod
-        .object({
-          title: zod
-            .object({
-              display: zod.boolean().optional(),
-              text: zod.string().optional(),
-              align: zod.enum(['start', 'center', 'end']).optional(),
-              font: zod
-                .object({
-                  size: zod.number().optional(),
-                  weight: zod.union([zod.string(), zod.number()]).optional(),
-                  family: zod.string().optional(),
-                })
-                .optional(),
-            })
-            .optional(),
-          legend: zod
-            .object({
-              display: zod.boolean().optional(),
-              position: zod.enum(['top', 'left', 'bottom', 'right']).optional(),
-            })
-            .optional(),
-          tooltip: zod
-            .object({
-              enabled: zod.boolean().optional(),
-            })
-            .optional(),
-        })
-        .optional(),
-      scales: zod
-        .object({
-          x: zod
-            .object({
-              display: zod.boolean().optional(),
-              title: zod
-                .object({
-                  display: zod.boolean().optional(),
-                  text: zod.string().optional(),
-                })
-                .optional(),
-              grid: zod
-                .object({
-                  display: zod.boolean().optional(),
-                })
-                .optional(),
-            })
-            .optional(),
-          y: zod
-            .object({
-              display: zod.boolean().optional(),
-              title: zod
-                .object({
-                  display: zod.boolean().optional(),
-                  text: zod.string().optional(),
-                })
-                .optional(),
-              grid: zod
-                .object({
-                  display: zod.boolean().optional(),
-                })
-                .optional(),
-              beginAtZero: zod.boolean().optional(),
-            })
-            .optional(),
-        })
-        .optional(),
-    })
-    .optional(),
 });

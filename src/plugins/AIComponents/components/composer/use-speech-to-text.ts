@@ -63,7 +63,7 @@ declare global {
   }
 }
 
-interface UseSpeechToTextOptions {
+export type UseSpeechToTextOptions = {
   /**
    * Language for speech recognition (e.g., 'en-US', 'es-ES')
    * @default 'en-US'
@@ -92,7 +92,7 @@ interface UseSpeechToTextOptions {
    * Callback when an error occurs
    */
   onError?: (error: string) => void;
-}
+};
 
 export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
   const {

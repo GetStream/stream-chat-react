@@ -22,6 +22,7 @@ import {
   Scatter,
 } from 'react-chartjs-2';
 import type { ToolComponentProps } from '../../ai-markdown';
+import { chartJsSchema } from './chartJsSchema';
 
 ChartJS.register(
   ArcElement,
@@ -48,28 +49,29 @@ const components = {
 } as const;
 
 const Chart = ({ data, fallback }: ToolComponentProps) => {
-  const parsedData = useMemo(() => {
+  const parsedDataOrError = useMemo(() => {
     try {
-      return JSON.parse(data);
-    } catch {
-      return new Error('Invalid JSON data for Chart.js');
+      return chartJsSchema.parse(JSON.parse(data));
+    } catch (error) {
+      if (error instanceof Error) {
+        error.message = `Error occured while parsing Chart.js data: ${error.message}`;
+        return error;
+      }
+      return new Error('Unknown error occured while parsing Chart.js data');
     }
   }, [data]);
 
-  if (parsedData instanceof Error) {
+  if (parsedDataOrError instanceof Error) {
     return fallback;
   }
 
   const Component =
-    components[parsedData.type as keyof typeof components] ??
+    components[parsedDataOrError.type as keyof typeof components] ??
     components.unknown;
 
   return (
     <div className="aicr__chart">
-      <Component
-        data={parsedData.data}
-        options={{ ...parsedData.options, responsive: true }}
-      />
+      <Component data={parsedDataOrError.data} options={{ responsive: true }} />
     </div>
   );
 };

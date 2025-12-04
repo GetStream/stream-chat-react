@@ -184,6 +184,7 @@ export const AIMarkdown: AIMarkdown = (props) => {
   const mergedToolComponents: ToolComponents = useMemo(
     () => ({
       chartjs: SuspendedChart,
+      json: SuspendedChart,
       ...props.toolComponents,
     }),
     [props.toolComponents],

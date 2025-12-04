@@ -12,7 +12,10 @@ import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from '@stream-io/state-store/react-bindings';
 
 import { AttachmentPreview } from './attachment-preview';
-import { useSpeechToText } from './use-speech-to-text';
+import {
+  useSpeechToText,
+  type UseSpeechToTextOptions,
+} from './use-speech-to-text';
 import { useStableCallback } from '../../hooks/use-stable-callback';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
@@ -325,7 +328,11 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   );
 };
 
-const SpeechToTextButton = (props: ComponentPropsWithoutRef<'button'>) => {
+const SpeechToTextButton = (
+  props: ComponentPropsWithoutRef<'button'> & {
+    options: UseSpeechToTextOptions;
+  },
+) => {
   const { setText } = useText();
 
   const { startListening, stopListening, isListening } = useSpeechToText({
