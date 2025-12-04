@@ -1,10 +1,42 @@
 .ai-demo-message-input-bar {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   padding: 1.5rem;
   background-color: var(--ai-demo-bg-primary);
   color: var(--ai-demo-text-primary);
   border-top: 1px solid var(--ai-demo-border);
+
+  .ai-demo-rate-limit-message {
+    width: 100%;
+    max-width: 900px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 12px;
+    color: var(--ai-demo-text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+
+    display: flex;
+    gap: 8px;
+  }
+
+  [data-theme='dark'] & .rate-limit-message {
+    background-color: rgba(255, 193, 7, 0.15);
+  }
+
+  /* Disabled state styles */
+  fieldset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    * {
+      pointer-events: none;
+    }
+  }
 
   /* Override AIMessageComposer styles */
   .aicr__ai-message-composer__form {

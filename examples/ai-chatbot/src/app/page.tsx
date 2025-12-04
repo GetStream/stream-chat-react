@@ -2,6 +2,7 @@ import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import { StreamChat } from 'stream-chat';
 import { AIChatApp } from '@/components/AIChatApp';
 import { ThemeProvider } from '@/components/ThemeContext';
+import { UserProvider } from '@/components/UserProvider';
 
 import '../components/index.scss';
 
@@ -14,14 +15,18 @@ const generateUserToken = (userId: string) => {
 
   const client = new StreamChat(apiKey, secret);
   const token = client.createToken(userId);
-  return { apiKey, token, userId };
+  return { apiKey, token };
 };
 
 export default async function Home(props: {
   searchParams: Promise<{ conversation_id?: string; user_id?: string }>;
 }) {
-  const { conversation_id, user_id = 'jane' } = await props.searchParams;
-  const { apiKey, token, userId } = generateUserToken(user_id);
+  const { conversation_id, user_id } = await props.searchParams;
+
+  // If no user_id provided, generate a random UUID
+  // The client will persist this in localStorage
+  const userId = user_id || crypto.randomUUID();
+  const { apiKey, token } = generateUserToken(userId);
 
   const filters: ChannelFilters = {
     members: { $in: [userId] },
@@ -37,15 +42,17 @@ export default async function Home(props: {
 
   return (
     <ThemeProvider>
-      <AIChatApp
-        apiKey={apiKey}
-        userToken={token}
-        userId={userId}
-        filters={filters}
-        options={options}
-        sort={sort}
-        initialChannelId={conversation_id}
-      />
+      <UserProvider>
+        <AIChatApp
+          apiKey={apiKey}
+          userToken={token}
+          userId={userId}
+          filters={filters}
+          options={options}
+          sort={sort}
+          initialChannelId={conversation_id}
+        />
+      </UserProvider>
     </ThemeProvider>
   );
 }

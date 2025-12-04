@@ -16,6 +16,11 @@ import {
   useMessageComposer,
 } from 'stream-chat-react';
 import { startAiAgent } from '@/components/api';
+import {
+  checkRateLimit,
+  recordMessage,
+  formatTimeRemaining,
+} from '@/components/rateLimitUtils';
 import './MessageInputBar.scss';
 
 const isWatchedByAI = (channel: Channel) => {
@@ -32,6 +37,30 @@ export const MessageInputBar = () => {
 
   const { attachments } = useAttachmentsForPreview();
   const [selectedModel, setSelectedModel] = useState<string>();
+  const [rateLimitState, setRateLimitState] = useState<{
+    isLimited: boolean;
+    resetTime: number | null;
+    remainingMessages: number;
+  }>({
+    isLimited: false,
+    resetTime: null,
+    remainingMessages: 10,
+  });
+
+  // Check rate limit when channel changes or on mount
+  useEffect(() => {
+    if (!channel?.id) return;
+
+    const updateRateLimit = () => {
+      const state = checkRateLimit(channel.id!);
+      setRateLimitState(state);
+    };
+
+    updateRateLimit();
+
+    const interval = setInterval(updateRateLimit, 60000);
+    return () => clearInterval(interval);
+  }, [channel?.id]);
 
   useEffect(() => {
     if (!composer) return;
@@ -51,7 +80,17 @@ export const MessageInputBar = () => {
 
   return (
     <div className="ai-demo-message-input-bar">
+      {rateLimitState.isLimited && rateLimitState.resetTime && (
+        <div className="ai-demo-rate-limit-message">
+          <span className="material-symbols-rounded">info</span>
+          <span>
+            Limit reached, 10 messages per conversation. Resets in{' '}
+            <strong>{formatTimeRemaining(rateLimitState.resetTime)}</strong>.
+          </span>
+        </div>
+      )}
       <AIMessageComposer
+        disabled={rateLimitState.isLimited}
         onChange={(e) => {
           const input = e.currentTarget.elements.namedItem(
             'attachments',
@@ -66,6 +105,9 @@ export const MessageInputBar = () => {
         onSubmit={async (e) => {
           const event = e;
           event.preventDefault();
+
+          // Check rate limit before processing
+          if (rateLimitState.isLimited) return;
 
           const target = event.currentTarget;
 
@@ -95,6 +137,13 @@ export const MessageInputBar = () => {
           }
 
           await sendMessage(composedData);
+
+          // Record message after successful send
+          recordMessage(channel.id!);
+
+          // Update rate limit state
+          const newState = checkRateLimit(channel.id!);
+          setRateLimitState(newState);
         }}
       >
         <AIMessageComposer.AttachmentPreview>
