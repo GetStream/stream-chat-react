@@ -76,6 +76,17 @@
     }
   }
 
+  /* Button hover states */
+  .aicr__ai-message-composer__round-button {
+    &:hover:not(:disabled) {
+      background-color: var(--ai-demo-bg-tertiary) !important;
+    }
+
+    &[aria-pressed='true'] {
+      background-color: rgba(0, 95, 255, 0.2) !important;
+    }
+  }
+
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     padding: 1rem;
