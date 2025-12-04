@@ -36,7 +36,7 @@ export const MessageInputBar = () => {
   const composer = useMessageComposer();
 
   const { attachments } = useAttachmentsForPreview();
-  const [selectedModel, setSelectedModel] = useState<string>();
+  const [selectedPlatformModel, setSelectedPlatformModel] = useState<string>();
   const [rateLimitState, setRateLimitState] = useState<{
     isLimited: boolean;
     resetTime: number | null;
@@ -114,8 +114,8 @@ export const MessageInputBar = () => {
           const formData = new FormData(target);
 
           const message = formData.get('message');
-          const model = formData.get('model');
-          setSelectedModel(model as string);
+          const platformModel = formData.get('platform-model');
+          setSelectedPlatformModel(platformModel as string);
 
           composer.textComposer.setText(message as string);
 
@@ -132,8 +132,10 @@ export const MessageInputBar = () => {
             await channel.watch();
           }
 
+          const [platform, model] = (platformModel as string).split('|');
+
           if (!isWatchedByAI(channel)) {
-            await startAiAgent(channel, model);
+            await startAiAgent(channel, model, platform);
           }
 
           await sendMessage(composedData);
@@ -181,7 +183,10 @@ export const MessageInputBar = () => {
           <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
             <AIMessageComposer.FileInput name="attachments" />
             <AIMessageComposer.SpeechToTextButton />
-            <AIMessageComposer.ModelSelect name="model" value={selectedModel} />
+            <AIMessageComposer.ModelSelect
+              name="platform-model"
+              value={selectedPlatformModel}
+            />
           </div>
 
           <AIMessageComposer.SubmitButton active={attachments.length > 0} />

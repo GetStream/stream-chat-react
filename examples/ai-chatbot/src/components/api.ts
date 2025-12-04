@@ -5,7 +5,12 @@ const baseApiUrl = 'https://ai-sdk-server-0f347d455e2e.herokuapp.com';
 export const startAiAgent = async (
   channel: Channel,
   model: string | File | null,
-  platform: 'openai' | 'anthropic' | 'gemini' | 'xai' = 'openai',
+  platform:
+    | 'openai'
+    | 'anthropic'
+    | 'gemini'
+    | 'xai'
+    | (string & {}) = 'openai',
 ) => {
   return await fetch(`${baseApiUrl}/start-ai-agent`, {
     method: 'POST',

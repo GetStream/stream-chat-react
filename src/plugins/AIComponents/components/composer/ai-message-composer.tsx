@@ -417,14 +417,28 @@ const SubmitButton = (
   );
 };
 
+const availableModels = [
+  { platform: 'openai', value: 'gpt-4o', label: 'GPT-4o' },
+  {
+    platform: 'anthropic',
+    value: 'claude-3-5-sonnet-20241022',
+    label: 'Claude 3.5 Sonnet',
+  },
+  { platform: 'gemini', value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+  { platform: 'xai', value: 'grok-beta', label: 'Grok Beta' },
+];
+
 const ModelSelect = (
   props: ComponentPropsWithoutRef<'select'> & { options?: ReactNode },
 ) => {
   const {
     options = (
       <>
-        <option value="gpt-5">GPT-5</option>
-        <option value="gpt-4o">GPT-4o</option>
+        {availableModels.map((model) => (
+          <option key={model.value} value={`${model.platform}|${model.value}`}>
+            {model.label}
+          </option>
+        ))}
       </>
     ),
     ...restProps
