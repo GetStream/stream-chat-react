@@ -11,7 +11,6 @@ import type {
 import { Chat, useCreateChatClient, useChatContext } from 'stream-chat-react';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
-import { summarizeConversation } from '@/components/api';
 import './AIChatApp.scss';
 
 interface AIChatAppProps {
@@ -69,42 +68,6 @@ const ChatContent = ({
       });
     }
   }, [initialChannelId, client, channel, setActiveChannel]);
-
-  // Watch for new messages and trigger summarization
-  useEffect(() => {
-    if (!channel) return;
-
-    const handleNewMessage = async () => {
-      try {
-        // Get channel state to check message count
-        const state = channel.state;
-        const messages = state.messages || [];
-        const messageCount = messages.length;
-
-        // Only run if there are 5 or fewer messages
-        if (messageCount > 5) return;
-
-        // Extract text from the last 5 messages
-        const messageTexts = messages
-          .slice(-5)
-          .map((msg) => msg.text || '')
-          .filter((text) => text.trim() !== '')
-          .join('\n');
-
-        if (messageTexts.length === 0) return;
-
-        const summary = await summarizeConversation(messageTexts);
-        await channel.update({ summary });
-      } catch (error) {
-        console.error('Failed to summarize conversation:', error);
-      }
-    };
-
-    const subscription = channel.on('message.new', handleNewMessage);
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [channel]);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);

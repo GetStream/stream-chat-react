@@ -15,7 +15,7 @@ import {
   useChatContext,
   useMessageComposer,
 } from 'stream-chat-react';
-import { startAiAgent } from '@/components/api';
+import { startAiAgent, summarizeConversation } from '@/components/api';
 import {
   checkRateLimit,
   recordMessage,
@@ -146,6 +146,22 @@ export const MessageInputBar = () => {
           // Update rate limit state
           const newState = checkRateLimit(channel.id!);
           setRateLimitState(newState);
+
+          if (
+            typeof channel.data?.summary !== 'string' ||
+            !channel.data.summary.length
+          ) {
+            const summary = await summarizeConversation(
+              message as string,
+            ).catch(() => {
+              console.warn('Failed to summarize conversation');
+              return null;
+            });
+
+            if (typeof summary === 'string' && summary.length > 0) {
+              await channel.update({ summary });
+            }
+          }
         }}
       >
         <AIMessageComposer.AttachmentPreview>

@@ -418,15 +418,13 @@ const SubmitButton = (
 };
 
 const availableModels = [
+  { platform: 'openai', value: 'gpt-4o-mini', label: 'GPT-4o mini' },
   { platform: 'openai', value: 'gpt-4o', label: 'GPT-4o' },
-  {
-    platform: 'anthropic',
-    value: 'claude-3-5-sonnet-20241022',
-    label: 'Claude 3.5 Sonnet',
-  },
-  { platform: 'gemini', value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-  { platform: 'xai', value: 'grok-beta', label: 'Grok Beta' },
-];
+] as const;
+
+const [defaultModel] = availableModels;
+
+const defaultPlatformModel = `${defaultModel.platform}|${defaultModel.value}`;
 
 const ModelSelect = (
   props: ComponentPropsWithoutRef<'select'> & { options?: ReactNode },
@@ -448,7 +446,7 @@ const ModelSelect = (
   return (
     <select
       className="aicr__ai-message-composer__select"
-      defaultValue="gpt-5"
+      defaultValue={defaultPlatformModel}
       {...restProps}
       disabled={disabled}
     >
