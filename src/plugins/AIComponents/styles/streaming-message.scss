@@ -44,25 +44,280 @@
     }
   }
 
-  .aicr__syntax-highlighter {
-    font-size: 0.85rem;
-
+  .aicr__syntax-highlighter-code {
     // hide last line number if it's not followed by any other elements
     .linenumber:last-child {
       display: none !important;
     }
   }
 
-  .aicr__chart {
-    max-height: 20rem;
+  .aicr__syntax-highlighter-pre {
+    // Syntax highlighting color variables (modern light theme for #ececf1 background)
+    --syntax-text: #2e3440;
+    --syntax-selection-bg: #d8dee9;
+    --syntax-comment: #6b7280;
+    --syntax-punctuation: #4b5563;
+    --syntax-number: #d97706;
+    --syntax-keyword: #8b5cf6;
+    --syntax-tag: #dc2626;
+    --syntax-string: #059669;
+    --syntax-function: #2563eb;
+    --syntax-cyan: #0891b2;
+    --syntax-error: #ef4444;
+    --syntax-whitespace: hsla(220, 14%, 30%, 0.15);
+
+    code[class*='language-'] {
+      // background: #272b33;
+      color: var(--syntax-text);
+      // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+      font-family:
+        'Fira Code', 'Fira Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+      direction: ltr;
+      text-align: left;
+      white-space: pre;
+      word-spacing: normal;
+      word-break: normal;
+      line-height: 1.5;
+      -moz-tab-size: 2;
+      -o-tab-size: 2;
+      tab-size: 2;
+      -webkit-hyphens: none;
+      -moz-hyphens: none;
+      -ms-hyphens: none;
+      hyphens: none;
+    }
+
+    code[class*='language-'] {
+      &::selection,
+      &::-moz-selection {
+        background: var(--syntax-selection-bg);
+        color: inherit;
+        text-shadow: none;
+      }
+    }
+
+    .token {
+      &.cdata,
+      &.comment {
+        color: var(--syntax-comment);
+      }
+
+      &.comment {
+        font-style: italic;
+      }
+
+      &.prolog {
+        color: var(--syntax-comment);
+      }
+
+      &.doctype,
+      &.entity,
+      &.punctuation {
+        color: var(--syntax-punctuation);
+      }
+
+      &.entity {
+        cursor: help;
+      }
+
+      &.atrule,
+      &.attr-name,
+      &.boolean,
+      &.class-name,
+      &.constant,
+      &.number {
+        color: var(--syntax-number);
+      }
+
+      &.keyword {
+        color: var(--syntax-keyword);
+      }
+
+      &.deleted,
+      &.important,
+      &.property,
+      &.symbol,
+      &.tag {
+        color: var(--syntax-tag);
+      }
+
+      &.attr-value,
+      &.builtin,
+      &.char,
+      &.inserted,
+      &.regex,
+      &.selector,
+      &.string {
+        color: var(--syntax-string);
+      }
+
+      &.attr-value > .token.punctuation {
+        color: var(--syntax-string);
+      }
+
+      &.function,
+      &.operator,
+      &.variable {
+        color: var(--syntax-function);
+      }
+
+      &.url {
+        color: var(--syntax-cyan);
+      }
+
+      &.attr-value > .token.punctuation.attr-equals {
+        color: var(--syntax-punctuation);
+      }
+
+      &.special-attr > .token.attr-value > .token.value.css {
+        color: var(--syntax-punctuation);
+      }
+
+      &.bold {
+        font-weight: 700;
+      }
+
+      &.italic {
+        font-style: italic;
+      }
+
+      &.namespace {
+        opacity: 0.8;
+      }
+
+      &.cr:before,
+      &.lf:before,
+      &.space:before,
+      &.tab:not(:empty):before {
+        color: var(--syntax-whitespace);
+        text-shadow: none;
+      }
+    }
+
+    // Language-specific CSS
+    .language-css {
+      .token {
+        &.selector {
+          color: var(--syntax-tag);
+        }
+
+        &.property {
+          color: var(--syntax-punctuation);
+        }
+
+        &.function {
+          color: var(--syntax-cyan);
+        }
+
+        &.url > .token.function {
+          color: var(--syntax-cyan);
+        }
+
+        &.url > .token.string.url {
+          color: var(--syntax-string);
+        }
+
+        &.atrule .token.rule {
+          color: var(--syntax-keyword);
+        }
+
+        &.important {
+          color: var(--syntax-keyword);
+        }
+      }
+    }
+
+    // Language-specific JavaScript
+    .language-javascript {
+      .token {
+        &.operator {
+          color: var(--syntax-keyword);
+        }
+
+        &.template-string
+          > .token.interpolation
+          > .token.interpolation-punctuation.punctuation {
+          color: var(--syntax-error);
+        }
+      }
+    }
+
+    // Language-specific JSON
+    .language-json {
+      .token {
+        &.operator {
+          color: var(--syntax-punctuation);
+        }
+
+        &.null.keyword {
+          color: var(--syntax-number);
+        }
+      }
+    }
+
+    // Language-specific Markdown
+    .language-markdown {
+      .token {
+        &.url {
+          color: var(--syntax-punctuation);
+        }
+
+        &.url-reference.url > .token.string {
+          color: var(--syntax-punctuation);
+        }
+
+        &.url > .token.operator {
+          color: var(--syntax-punctuation);
+        }
+
+        &.url > .token.content {
+          color: var(--syntax-function);
+        }
+
+        &.url-reference.url {
+          color: var(--syntax-cyan);
+        }
+
+        &.url > .token.url {
+          color: var(--syntax-cyan);
+        }
+
+        &.blockquote.punctuation,
+        &.hr.punctuation {
+          color: var(--syntax-comment);
+          font-style: italic;
+        }
+
+        &.code-snippet {
+          color: var(--syntax-string);
+        }
+
+        &.bold .token.content {
+          color: var(--syntax-number);
+        }
+
+        &.italic .token.content {
+          color: var(--syntax-keyword);
+        }
+
+        &.list.punctuation {
+          color: var(--syntax-tag);
+        }
+
+        &.strike .token.content,
+        &.strike .token.punctuation {
+          color: var(--syntax-tag);
+        }
+
+        &.title.important > .token.punctuation {
+          color: var(--syntax-tag);
+        }
+      }
+    }
   }
 
-  > pre {
-    background-color: #f5f5f5;
-    padding: 0.5rem !important;
-    margin: 0 !important;
-    border-radius: 0.5rem;
-    overflow-x: auto;
+  .aicr__chart {
+    max-height: 20rem;
   }
 
   > p {

@@ -96,19 +96,42 @@ const DefaultPre = (props: DefaultPreProps) => {
   );
 };
 
+const Code = ({
+  children,
+  className,
+  style: _style,
+  ...restProps
+}: ComponentProps<'code'>) => {
+  return (
+    <code
+      className={clsx('aicr__syntax-highlighter-code', className)}
+      {...restProps}
+    >
+      {children}
+    </code>
+  );
+};
+
+const Pre = ({ children, className, ...restProps }: ComponentProps<'pre'>) => {
+  return (
+    <pre
+      className={clsx('aicr__syntax-highlighter-pre', className)}
+      {...restProps}
+    >
+      {children}
+    </pre>
+  );
+};
+
 const DefaultSyntaxHighlighter = ({
   children,
   language,
 }: BaseDefaultCodeProps) => {
   return (
     <SyntaxHighlighter
-      codeTagProps={{
-        className: clsx(
-          { [`language-${language}`]: language },
-          'aicr__syntax-highlighter',
-        ),
-      }}
-      // useInlineStyles={false}
+      CodeTag={Code as ComponentType<any>}
+      PreTag={Pre as ComponentType<any>}
+      useInlineStyles={false}
       style={oneLight}
       showLineNumbers
       language={language}
