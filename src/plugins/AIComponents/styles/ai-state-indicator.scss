@@ -3,14 +3,12 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0;
-  background-color: var(--aicr__bg-primary);
 
   &__content {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    background-color: var(--aicr__bg-tertiary);
     border-radius: 18px;
     max-width: 80%;
   }
