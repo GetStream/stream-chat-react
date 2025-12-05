@@ -5,3 +5,7 @@
   --aicr__text-primary: var(--ai-demo-text-primary);
   --aicr__text-secondary: var(--ai-demo-text-secondary);
 }
+
+.aicr__state-indicator__content {
+  background-color: var(--ai-demo-bg-tertiary);
+}
