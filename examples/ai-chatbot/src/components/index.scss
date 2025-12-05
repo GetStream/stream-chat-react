@@ -83,20 +83,18 @@
   --ai-demo-accent: #005fff;
   --ai-demo-accent-hover: #0d8968;
 
-  .aicr__syntax-highlighter-pre {
-    --syntax-text: #e5e7eb;
-    --syntax-selection-bg: #4a4a4a;
-    --syntax-comment: #9ca3af;
-    --syntax-punctuation: #d1d5db;
-    --syntax-number: #fbbf24;
-    --syntax-keyword: #a78bfa;
-    --syntax-tag: #f87171;
-    --syntax-string: #34d399;
-    --syntax-function: #60a5fa;
-    --syntax-cyan: #22d3ee;
-    --syntax-error: #f87171;
-    --syntax-whitespace: hsla(0, 0%, 100%, 0.1);
-  }
+  --aicr__syntax-text: #e5e7eb;
+  --aicr__syntax-selection-bg: #4a4a4a;
+  --aicr__syntax-comment: #9ca3af;
+  --aicr__syntax-punctuation: #d1d5db;
+  --aicr__syntax-number: #fbbf24;
+  --aicr__syntax-keyword: #a78bfa;
+  --aicr__syntax-tag: #f87171;
+  --aicr__syntax-string: #34d399;
+  --aicr__syntax-function: #60a5fa;
+  --aicr__syntax-cyan: #22d3ee;
+  --aicr__syntax-error: #f87171;
+  --aicr__syntax-whitespace: hsla(0, 0%, 100%, 0.1);
 
   color-scheme: dark;
   color: var(--ai-demo-text-primary);
@@ -124,20 +122,18 @@
   --ai-demo-accent: #005fff;
   --ai-demo-accent-hover: #0d8968;
 
-  .aicr__syntax-highlighter-pre {
-    --syntax-text: #2e3440;
-    --syntax-selection-bg: #d8dee9;
-    --syntax-comment: #6b7280;
-    --syntax-punctuation: #4b5563;
-    --syntax-number: #d97706;
-    --syntax-keyword: #8b5cf6;
-    --syntax-tag: #dc2626;
-    --syntax-string: #059669;
-    --syntax-function: #2563eb;
-    --syntax-cyan: #0891b2;
-    --syntax-error: #ef4444;
-    --syntax-whitespace: hsla(220, 14%, 30%, 0.15);
-  }
+  --aicr__syntax-text: #2e3440;
+  --aicr__syntax-selection-bg: #d8dee9;
+  --aicr__syntax-comment: #6b7280;
+  --aicr__syntax-punctuation: #4b5563;
+  --aicr__syntax-number: #d97706;
+  --aicr__syntax-keyword: #8b5cf6;
+  --aicr__syntax-tag: #dc2626;
+  --aicr__syntax-string: #059669;
+  --aicr__syntax-function: #2563eb;
+  --aicr__syntax-cyan: #0891b2;
+  --aicr__syntax-error: #ef4444;
+  --aicr__syntax-whitespace: hsla(220, 14%, 30%, 0.15);
 
   color-scheme: light;
   color: var(--ai-demo-text-primary);
