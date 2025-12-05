@@ -14,6 +14,8 @@
 - ✅ Override Stream Chat React styles via CSS variables
 - ✅ Automatic conversation summarization (first 5 messages)
 - ✅ Server-side token generation for secure authentication
+- ✅ Rate limiting: 10 messages per conversation per 4 hours
+- ✅ UUID-based random user generation with localStorage persistence
 
 ---
 
@@ -56,6 +58,8 @@ examples/react-chatbot/
 │   │   ├── EmptyState.tsx         # ✅ Empty placeholder
 │   │   └── EmptyState.scss        # ✅ Theme-aware styling
 │   ├── ThemeContext.tsx           # ✅ Client-side theme state with localStorage
+│   ├── UserProvider.tsx           # ✅ Client-side user initialization and URL sync
+│   ├── rateLimitUtils.ts          # ✅ Rate limiting utilities for message tracking
 │   ├── api.ts                     # ✅ API functions (startAiAgent, summarizeConversation)
 │   └── index.scss                 # ✅ Global styles + CSS variables for both themes
 ├── public/                        # ✅ Static assets
@@ -126,9 +130,11 @@ examples/react-chatbot/
 ✅ Implemented features:
 
 - **Server-side token generation**: Generates Stream user token using `STREAM_API_KEY` and `STREAM_API_SECRET` environment variables
+- **UUID-based user generation**: Generates random UUID for each user (replaces hardcoded 'jane')
+- **User ID override**: Supports `?user_id=` URL parameter for testing/debugging
 - Defines channel filters, options, and sorting configuration
 - Extracts `conversation_id` from URL params
-- Renders `AIChatApp` wrapped in `ThemeProvider`
+- Renders `AIChatApp` wrapped in `ThemeProvider` and `UserProvider`
 - Passes authentication and configuration props to client component
 
 ### 2. **AIChatApp.tsx (Client Component)**
@@ -238,6 +244,12 @@ examples/react-chatbot/
 - Theme-aware input field and submit button
 - Focus states with accent color
 - Responsive padding
+- **Rate limiting**: 10 messages per conversation in 4-hour window
+  - Tracks message count per conversation in localStorage
+  - Disables all inputs when limit reached
+  - Shows informative banner with reset countdown
+  - Automatically resets after 4 hours
+  - Updates countdown every minute
 
 ### 12. **EmptyState**
 
@@ -258,7 +270,36 @@ examples/react-chatbot/
 - Sets `data-theme` attribute on document root
 - `useTheme` hook for accessing theme state and toggle function
 
-### 14. **api.ts**
+### 14. **UserProvider (Client Component)**
+
+✅ Implemented features:
+
+- Client-side user initialization and URL synchronization
+- Gets or generates UUID for user on first load
+- Syncs user ID with URL parameters (`?user_id=`)
+- Persists user ID to localStorage for session continuity
+- Shows loading state during initialization
+
+### 15. **rateLimitUtils.ts**
+
+✅ Implemented features:
+
+- **getUserId()**: Gets or creates random UUID user ID
+  - Checks URL params first for `?user_id=` override
+  - Falls back to localStorage for persistence
+  - Generates new UUID if neither exists
+- **checkRateLimit()**: Checks if conversation has hit rate limit
+  - Returns `isLimited`, `resetTime`, and `remainingMessages`
+  - Automatically resets after 4-hour window expires
+- **recordMessage()**: Records message sent to conversation
+  - Tracks message count and first message timestamp
+  - Stores data in localStorage per conversation
+  - Resets counter when 4-hour window expires
+- **formatTimeRemaining()**: Formats reset time as human-readable string
+  - Returns format like "3h 45m" or "25m"
+  - Used in rate limit banner message
+
+### 16. **api.ts**
 
 ✅ Implemented features:
 
@@ -301,6 +342,14 @@ STREAM_API_SECRET=your_api_secret_here
 ```
 
 These are accessed server-side only in `app/page.tsx` using `process.env`.
+
+### localStorage Keys
+
+The app uses the following localStorage keys for client-side persistence:
+
+- `ai-demo-theme` - Stores user's theme preference ('light' | 'dark')
+- `user_id` - Stores randomly generated UUID for user identification
+- `rate_limit_{conversationId}` - Stores rate limit data per conversation (message count, first message timestamp)
 
 ---
 
@@ -353,6 +402,27 @@ The app uses `window.history.pushState()` to update the URL when switching conve
 ### Theme System
 
 Theme state is managed via React Context and persisted to localStorage. The theme is applied by setting a `data-theme` attribute on the document root, which allows CSS variables to be scoped appropriately.
+
+### Rate Limiting System
+
+The app implements client-side rate limiting to control message sending:
+
+- **Per-conversation limits**: Each conversation tracks its own message count independently
+- **4-hour rolling window**: Limits reset automatically 4 hours after the first message
+- **localStorage persistence**: Rate limit data persists across page refreshes
+- **Real-time updates**: Countdown updates every minute to show time remaining
+- **Graceful UI**:
+  - Disabled fieldset prevents all input interactions
+  - Amber warning banner shows informative message with countdown
+  - Material Symbols info icon for visual clarity
+- **UUID-based users**: Each user gets a random UUID stored in localStorage
+- **Override support**: `?user_id=` URL parameter allows testing with specific user IDs
+
+**Implementation details:**
+- Rate limit state checked on mount and when channel changes
+- Message recorded after successful send
+- Form submission blocked when limit reached
+- All inputs (text, file, speech-to-text, model selector, submit) disabled via fieldset
 
 ### Automatic Conversation Summarization
 
