@@ -12,7 +12,7 @@ export const AIStateIndicator = () => {
   const { channel } = useChannelStateContext();
   const { aiState } = useAIState(channel);
 
-  // if (![AIStates.Generating, AIStates.Thinking].includes(aiState)) return null;
+  if (![AIStates.Generating, AIStates.Thinking].includes(aiState)) return null;
 
   return <StateIndicator key={channel.state.last_message_at?.toString()} />;
 };
