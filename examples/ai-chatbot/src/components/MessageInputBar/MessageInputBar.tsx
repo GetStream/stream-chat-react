@@ -29,6 +29,12 @@ const isWatchedByAI = (channel: Channel) => {
   );
 };
 
+const availableModels = [
+  { platform: 'openai', value: 'gpt-4o-mini', label: 'GPT-4o mini' },
+  { platform: 'openai', value: 'gpt-4o', label: 'GPT-4o' },
+  { platform: 'gemini', value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+] as const;
+
 export const MessageInputBar = () => {
   const { client } = useChatContext();
   const { updateMessage, sendMessage } = useChannelActionContext();
@@ -202,6 +208,18 @@ export const MessageInputBar = () => {
             <AIMessageComposer.ModelSelect
               name="platform-model"
               value={selectedPlatformModel}
+              options={
+                <>
+                  {availableModels.map((model) => (
+                    <option
+                      key={model.value}
+                      value={`${model.platform}|${model.value}`}
+                    >
+                      {model.label}
+                    </option>
+                  ))}
+                </>
+              }
             />
           </div>
 
