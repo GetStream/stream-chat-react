@@ -398,18 +398,19 @@ const SpeechToTextButton = (
   );
 };
 
-const SubmitButton = (
-  props: ComponentPropsWithoutRef<'button'> & { active?: boolean },
-) => {
+const SubmitButton = ({
+  active,
+  ...restProps
+}: ComponentPropsWithoutRef<'button'> & { active?: boolean }) => {
   const { disabled } = useIsDisabled();
   return (
     <button
       className={clsx(
         'aicr__ai-message-composer__round-button',
-        props.active && 'aicr__ai-message-composer__round-button--active',
+        active && 'aicr__ai-message-composer__round-button--active',
       )}
       type="submit"
-      {...props}
+      {...restProps}
       disabled={disabled}
     >
       <span className="material-symbols-rounded">send</span>
