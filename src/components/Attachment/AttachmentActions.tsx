@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Action, Attachment } from 'stream-chat';
 
 import { useTranslationContext } from '../../context';
@@ -26,6 +26,15 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
     value?: string,
   ) => actionHandler?.(name, value, event);
 
+  const knownActionText = useMemo<Record<string, string>>(
+    () => ({
+      Cancel: t('Cancel'),
+      Send: t('Send'),
+      Shuffle: t('Shuffle'),
+    }),
+    [t],
+  );
+
   return (
     <div className='str-chat__message-attachment-actions'>
       <div className='str-chat__message-attachment-actions-form'>
@@ -38,7 +47,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
             key={`${id}-${action.value}`}
             onClick={(event) => handleActionClick(event, action.name, action.value)}
           >
-            {action.text ? t(action.text) : null}
+            {action.text ? (knownActionText[action.text] ?? t(action.text)) : null}
           </button>
         ))}
       </div>
