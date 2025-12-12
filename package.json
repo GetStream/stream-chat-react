@@ -233,7 +233,7 @@
     "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "semantic-release": "^24.2.3",
+    "semantic-release": "^25.0.2",
     "stream-chat": "^9.25.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
