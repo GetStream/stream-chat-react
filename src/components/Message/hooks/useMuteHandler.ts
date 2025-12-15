@@ -45,7 +45,7 @@ export const useMuteHandler = (
 
         notify(
           successMessage ||
-            t(`{{ user }} has been muted`, {
+            t('{{ user }} has been muted', {
               user: message.user.name || message.user.id,
             }),
           'success',
@@ -61,7 +61,7 @@ export const useMuteHandler = (
       try {
         await client.unmuteUser(message.user.id);
 
-        const fallbackMessage = t(`{{ user }} has been unmuted`, {
+        const fallbackMessage = t('{{ user }} has been unmuted', {
           user: message.user.name || message.user.id,
         });
 

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SimpleSwitchField } from '../../Form/SwitchField';
 import { FieldError } from '../../Form/FieldError';
 import { useTranslationContext } from '../../../context';
@@ -20,6 +20,15 @@ export const MultipleAnswersField = () => {
     pollComposer.state,
     pollComposerStateSelector,
   );
+
+  const knownValidationErrors = useMemo<Record<string, string>>(
+    () => ({
+      'Enforce unique vote is enabled': t('Enforce unique vote is enabled'),
+      'Type a number from 2 to 10': t('Type a number from 2 to 10'),
+    }),
+    [t],
+  );
+
   return (
     <div
       className={clsx('str-chat__form__expandable-field', {
@@ -44,7 +53,7 @@ export const MultipleAnswersField = () => {
             <FieldError
               className='str-chat__form__input-field__error'
               data-testid={'poll-max-votes-allowed-input-field-error'}
-              text={error && t(error)}
+              text={error && (knownValidationErrors[error] ?? t('Error'))}
             />
             <input
               id='max_votes_allowed'

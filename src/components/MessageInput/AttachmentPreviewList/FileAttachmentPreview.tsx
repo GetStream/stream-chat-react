@@ -17,7 +17,7 @@ export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
     | LocalVideoAttachment<CustomLocalMetadata>
   >;
 
-export const FileAttachmentPreview = ({
+const FileAttachmentPreview = ({
   attachment,
   handleRetry,
   removeAttachments,
@@ -50,6 +50,7 @@ export const FileAttachmentPreview = ({
 
       {['blocked', 'failed'].includes(uploadState) && !!handleRetry && (
         <button
+          aria-label={t('aria/Retry upload')}
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
           data-testid='file-preview-item-retry-button'
           onClick={() => {
@@ -84,3 +85,4 @@ export const FileAttachmentPreview = ({
     </div>
   );
 };
+export default FileAttachmentPreview;

@@ -64,6 +64,7 @@ export const VoiceRecordingPreview = ({
       {['blocked', 'failed'].includes(attachment.localMetadata?.uploadState) &&
         !!handleRetry && (
           <button
+            aria-label={t('aria/Retry upload')}
             className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
             data-testid='file-preview-item-retry-button'
             onClick={() => handleRetry(attachment)}
