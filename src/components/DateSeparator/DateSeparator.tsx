@@ -35,7 +35,6 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
     messageCreatedAt,
     t,
     tDateTimeParser,
-    // todo: how to register it
     timestampTranslationKey: 'timestamp/DateSeparator',
   });
 
