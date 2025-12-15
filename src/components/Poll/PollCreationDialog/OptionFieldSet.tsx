@@ -22,6 +22,7 @@ export const OptionFieldSet = () => {
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
+      'Option already exists': t('Option already exists'),
       'Option is empty': t('Option is empty'),
     }),
     [t],
