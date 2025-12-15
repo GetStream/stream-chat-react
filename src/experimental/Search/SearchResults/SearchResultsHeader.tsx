@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
@@ -19,6 +19,22 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
   const { searchController } = useSearchContext();
   const { isActive } = useStateStore(source.state, searchSourceStateSelector);
   const label = `search-results-header-filter-source-button-label--${source.type}`;
+
+  const knownLabels = useMemo<Record<string, string>>(
+    () => ({
+      'search-results-header-filter-source-button-label--channels': t(
+        'search-results-header-filter-source-button-label--channels',
+      ),
+      'search-results-header-filter-source-button-label--messages': t(
+        'search-results-header-filter-source-button-label--messages',
+      ),
+      'search-results-header-filter-source-button-label--users': t(
+        'search-results-header-filter-source-button-label--users',
+      ),
+    }),
+    [t],
+  );
+
   return (
     <button
       aria-label={t('aria/Search results header filter button')}
@@ -36,7 +52,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
         }
       }}
     >
-      {t(label)}
+      {knownLabels[label] ?? t(label)}
     </button>
   );
 };

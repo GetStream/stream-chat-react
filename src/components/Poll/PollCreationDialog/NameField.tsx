@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { FieldError } from '../../Form/FieldError';
 import { useTranslationContext } from '../../../context';
@@ -15,6 +15,13 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposer();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
+  const knownValidationErrors = useMemo<Record<string, string>>(
+    () => ({
+      'Question is required': t('Question is required'),
+    }),
+    [t],
+  );
+
   return (
     <div
       className={clsx(
@@ -31,7 +38,7 @@ export const NameField = () => {
         <FieldError
           className='str-chat__form__input-field__error'
           data-testid={'poll-name-input-field-error'}
-          text={error && t(error)}
+          text={error && (knownValidationErrors[error] ?? t('Error'))}
         />
         <input
           id='name'

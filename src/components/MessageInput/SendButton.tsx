@@ -2,6 +2,7 @@ import React from 'react';
 import { SendIcon } from './icons';
 import { useMessageComposerHasSendableData } from './hooks';
 import type { UpdatedMessage } from 'stream-chat';
+import { useTranslationContext } from '../../context';
 
 export type SendButtonProps = {
   sendMessage: (
@@ -10,10 +11,11 @@ export type SendButtonProps = {
   ) => void;
 } & React.ComponentProps<'button'>;
 export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
+  const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();
   return (
     <button
-      aria-label='Send'
+      aria-label={t('aria/Send')}
       className='str-chat__send-button'
       data-testid='send-button'
       disabled={!hasSendableData}

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { FieldError } from '../../Form/FieldError';
 import { DragAndDropContainer } from '../../DragAndDrop/DragAndDropContainer';
 import { useTranslationContext } from '../../../context';
@@ -19,6 +19,13 @@ export const OptionFieldSet = () => {
     pollComposerStateSelector,
   );
   const { t } = useTranslationContext('OptionFieldSet');
+
+  const knownValidationErrors = useMemo<Record<string, string>>(
+    () => ({
+      'Option is empty': t('Option is empty'),
+    }),
+    [t],
+  );
 
   const onSetNewOrder = useCallback(
     (newOrder: number[]) => {
@@ -52,7 +59,7 @@ export const OptionFieldSet = () => {
                 <FieldError
                   className='str-chat__form__input-field__error'
                   data-testid={'poll-option-input-field-error'}
-                  text={error && t(error)}
+                  text={error && (knownValidationErrors[error] ?? t('Error'))}
                 />
                 <input
                   id={option.id}
