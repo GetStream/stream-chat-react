@@ -1,4 +1,4 @@
-import { defineConfig, I18nextToolkitConfig } from 'i18next-cli';
+import { defineConfig } from 'i18next-cli';
 
 export default defineConfig({
   locales: ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'],
@@ -10,9 +10,17 @@ export default defineConfig({
     keySeparator: false,
     nsSeparator: false,
     output: 'src/i18n/{{language}}.json',
-    // sort(a, b) {
-    //   return a <= b ? -1 : 1; // alphabetical order
-    // },
+    preservePatterns: [
+      // to preserve a whole group
+      'timestamp/*',
+
+      // or  exact key if you want :
+      // 'timestamp/DateSeparator',
+
+      // or if you’re using explicit namespaces:
+      // 'translation:timestamp/DateSeparator',
+    ],
+    removeUnusedKeys: false,
   },
   types: {
     input: ['locales/{{language}}/{{namespace}}.json'],
