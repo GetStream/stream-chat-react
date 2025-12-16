@@ -1,32 +1,8 @@
 {
   "branches": [
     {
-      "name": "rc",
-      "channel": "rc",
-      "prerelease": "rc"
-    },
-    {
-      "name": "master",
+      "name": "release-v13",
       "channel": "latest"
-    },
-    {
-      "name": "release-v12",
-      "channel": "latest"
-    },
-    {
-      "name": "release-v11",
-      "channel": "v11",
-      "range": "11.x"
-    },
-    {
-      "name": "release-v10",
-      "channel": "v10",
-      "range": "10.x"
-    },
-    {
-      "name": "release-v9",
-      "channel": "v9",
-      "range": "9.x"
     }
   ],
   "plugins": [
