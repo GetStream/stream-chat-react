@@ -16,6 +16,7 @@
 - ✅ Server-side token generation for secure authentication
 - ✅ Rate limiting: 10 messages per conversation per 4 hours
 - ✅ UUID-based random user generation with localStorage persistence
+- ✅ Animated loading screen with fade-out transition and minimum display time
 
 ---
 
@@ -30,6 +31,10 @@ examples/react-chatbot/
 │   ├── AIChatApp/
 │   │   ├── AIChatApp.tsx          # ✅ Client Component - Chat wrapper with URL state management
 │   │   └── AIChatApp.scss         # ✅ App layout styles with responsive grid
+│   ├── LoadingScreen/
+│   │   ├── LoadingScreen.tsx      # ✅ Animated loading screen with fade-out
+│   │   ├── LoadingScreen.scss     # ✅ Loading animations and theme-aware styles
+│   │   └── index.ts
 │   ├── Sidebar/
 │   │   ├── Sidebar.tsx            # ✅ Channel list sidebar with collapse
 │   │   ├── Sidebar.scss           # ✅ Dark/light sidebar styles
@@ -137,13 +142,36 @@ examples/react-chatbot/
 - Renders `AIChatApp` wrapped in `ThemeProvider` and `UserProvider`
 - Passes authentication and configuration props to client component
 
-### 2. **AIChatApp.tsx (Client Component)**
+### 2. **LoadingScreen (Client Component)**
+
+✅ Implemented features:
+
+- **Animated AI icon**: Material Symbols "auto_awesome" with floating animation
+- **Pulsing effect**: Circular pulse animation behind the icon
+- **Professional copy**: "Stream AI Chat" title with "Initializing Stream AI assistant..." subtitle
+- **Loading dots**: Three dots with staggered bounce animation
+- **Theme-aware styling**: Uses CSS variables for seamless dark/light mode support
+- **Smooth fade-out**: 400ms opacity transition when unmounting
+- **Minimum display time**: Guaranteed 750ms display time to prevent jarring flashes
+- **Absolute positioning**: Overlays on top of content with z-index: 1000
+- **Controlled unmount**: Three-stage state management (minTime → fadeOut → unmount)
+
+**Animations:**
+- `float`: Icon moves up and down smoothly (3s loop)
+- `pulse`: Background circle expands and fades (2s loop)
+- `bounce`: Three dots bounce with 0.2s stagger delays
+
+### 3. **AIChatApp.tsx (Client Component)**
 
 ✅ Implemented features:
 
 - Marked as `'use client'` directive for client-side interactivity
 - Sets up `Chat` provider with `isMessageAIGenerated`
 - Split into wrapper component and `ChatContent` (uses `useChatContext`)
+- **Loading Screen Management**:
+  - Shows `LoadingScreen` until chat client is ready AND 750ms minimum time has elapsed
+  - Three-stage fade-out: ready state → fade animation (400ms) → unmount
+  - Prevents jarring flashes when client initializes quickly
 - **URL State Management**: Updates URL with `?conversation_id=` when switching channels
 - **Browser Navigation**: Handles popstate events for back/forward button support
 - **Initial Channel Loading**: Loads channel from URL on mount if provided
@@ -155,7 +183,7 @@ examples/react-chatbot/
 - Layout: CSS Grid with collapsible sidebar
 - Renders `Sidebar` + `ChatContainer`
 
-### 3. **Sidebar**
+### 4. **Sidebar**
 
 ✅ Implemented features:
 
@@ -166,7 +194,7 @@ examples/react-chatbot/
 - Width: 260px (desktop), full-width overlay (mobile)
 - Smooth transitions for collapse/expand
 
-### 4. **SidebarHeader**
+### 5. **SidebarHeader**
 
 ✅ Implemented features:
 
@@ -175,7 +203,7 @@ examples/react-chatbot/
 - Styled as button with hover effect
 - ChatGPT logo/branding area
 
-### 5. **SidebarFooter**
+### 6. **SidebarFooter**
 
 ✅ Implemented features:
 
@@ -183,7 +211,7 @@ examples/react-chatbot/
 - Material Symbols icons (light_mode/dark_mode)
 - Smooth transitions
 
-### 6. **TopNavBar**
+### 7. **TopNavBar**
 
 ✅ Implemented features:
 
@@ -193,7 +221,7 @@ examples/react-chatbot/
 - Material Symbols rounded icons
 - Fixed positioning at top
 
-### 7. **ChannelPreviewItem**
+### 8. **ChannelPreviewItem**
 
 ✅ Implemented features:
 
@@ -203,7 +231,7 @@ examples/react-chatbot/
 - Truncate long text with ellipsis
 - Theme-aware colors
 
-### 8. **ChatContainer**
+### 9. **ChatContainer**
 
 ✅ Implemented features:
 
@@ -213,7 +241,7 @@ examples/react-chatbot/
 - **Flexbox layout with overflow management** to ensure message list scrolls while keeping indicator and input visible
 - Mobile-responsive with top padding for TopNavBar
 
-### 9. **MessageBubble**
+### 10. **MessageBubble**
 
 ✅ Implemented features:
 
@@ -225,7 +253,7 @@ examples/react-chatbot/
 - Max-width: 70% (user), 80% (AI)
 - Avatar hidden
 
-### 10. **AIStateIndicator**
+### 11. **AIStateIndicator**
 
 ✅ Implemented features:
 
@@ -234,7 +262,7 @@ examples/react-chatbot/
 - Messages change every 2 seconds during thinking state
 - Theme-aware styling
 
-### 11. **MessageInputBar**
+### 12. **MessageInputBar**
 
 ✅ Implemented features:
 
@@ -251,7 +279,7 @@ examples/react-chatbot/
   - Automatically resets after 4 hours
   - Updates countdown every minute
 
-### 12. **EmptyState**
+### 13. **EmptyState**
 
 ✅ Implemented features:
 
@@ -260,7 +288,7 @@ examples/react-chatbot/
 - Theme-aware styling with CSS variables
 - Material Symbols icon
 
-### 13. **ThemeContext (Client Component)**
+### 14. **ThemeContext (Client Component)**
 
 ✅ Implemented features:
 
@@ -270,7 +298,7 @@ examples/react-chatbot/
 - Sets `data-theme` attribute on document root
 - `useTheme` hook for accessing theme state and toggle function
 
-### 14. **UserProvider (Client Component)**
+### 15. **UserProvider (Client Component)**
 
 ✅ Implemented features:
 
@@ -280,7 +308,7 @@ examples/react-chatbot/
 - Persists user ID to localStorage for session continuity
 - Shows loading state during initialization
 
-### 15. **rateLimitUtils.ts**
+### 16. **rateLimitUtils.ts**
 
 ✅ Implemented features:
 
@@ -299,7 +327,7 @@ examples/react-chatbot/
   - Returns format like "3h 45m" or "25m"
   - Used in rate limit banner message
 
-### 16. **api.ts**
+### 17. **api.ts**
 
 ✅ Implemented features:
 
@@ -402,6 +430,29 @@ The app uses `window.history.pushState()` to update the URL when switching conve
 ### Theme System
 
 Theme state is managed via React Context and persisted to localStorage. The theme is applied by setting a `data-theme` attribute on the document root, which allows CSS variables to be scoped appropriately.
+
+### Loading Screen System
+
+The app implements a sophisticated loading screen with smooth transitions:
+
+- **Minimum display time**: LoadingScreen always shows for at least 750ms to prevent jarring flashes
+- **Three-stage state management**:
+  1. `minTimeElapsed` - Tracks whether minimum 750ms has passed
+  2. `isFadingOut` - Triggers fade animation when client ready AND time elapsed
+  3. `showLoadingScreen` - Controls unmount after 400ms fade completes
+- **Smooth fade-out**: CSS transition on opacity (400ms ease-out)
+- **Absolute positioning**: z-index: 1000 ensures overlay on top of content
+- **Animation polish**:
+  - Floating AI icon (3s loop)
+  - Pulsing glow effect (2s loop)
+  - Staggered bouncing dots (0.2s delays)
+- **Theme-aware**: Inherits all color variables for seamless light/dark mode
+
+**Implementation details:**
+- Timer cleanup on unmount prevents memory leaks
+- Fade-out only triggers once via `isFadingOut` guard
+- Chat content loads in parallel, hidden behind loading screen until ready
+- Prevents "already loaded" flicker on fast connections
 
 ### Rate Limiting System
 

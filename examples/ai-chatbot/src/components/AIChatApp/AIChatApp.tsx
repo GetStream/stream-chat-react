@@ -11,6 +11,7 @@ import type {
 import { Chat, useCreateChatClient, useChatContext } from 'stream-chat-react';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
+import { LoadingScreen } from '../LoadingScreen';
 import './AIChatApp.scss';
 
 interface AIChatAppProps {
@@ -95,24 +96,53 @@ export const AIChatApp = ({
   sort,
   initialChannelId,
 }: AIChatAppProps) => {
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+
   const chatClient = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
   });
 
-  if (!chatClient) return <>Loading...</>;
+  // Ensure loading screen shows for at least 750ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 750);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle fade-out when both conditions are met
+  useEffect(() => {
+    if (chatClient && minTimeElapsed && !isFadingOut) {
+      // Start fade-out animation
+      setIsFadingOut(true);
+
+      // Remove loading screen after animation completes (400ms)
+      const fadeOutTimer = setTimeout(() => {
+        setShowLoadingScreen(false);
+      }, 400);
+
+      return () => clearTimeout(fadeOutTimer);
+    }
+  }, [chatClient, minTimeElapsed, isFadingOut]);
 
   return (
     <div className="ai-demo-app">
-      <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
-        <ChatContent
-          filters={filters}
-          options={options}
-          sort={sort}
-          initialChannelId={initialChannelId}
-        />
-      </Chat>
+      {chatClient && (
+        <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+          <ChatContent
+            filters={filters}
+            options={options}
+            sort={sort}
+            initialChannelId={initialChannelId}
+          />
+        </Chat>
+      )}
+      {showLoadingScreen && <LoadingScreen isFadingOut={isFadingOut} />}
     </div>
   );
 };
