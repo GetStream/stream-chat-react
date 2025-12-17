@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
@@ -39,27 +39,57 @@ const parseUserIdFromToken = (token: string) => {
   return JSON.parse(atob(payload))?.user_id;
 };
 
-const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
-const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
-const userId = parseUserIdFromToken(userToken);
+const apiKey = params.key ?? (import.meta.env.VITE_STREAM_API_KEY as string);
 
-const filters: ChannelFilters = {
-  members: { $in: [userId] },
-  type: 'messaging',
-  archived: false,
-};
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
+const useUser = () => {
+  const userId = useMemo(() => {
+    return (
+      new URLSearchParams(window.location.search).get('userId') ||
+      localStorage.getItem('userId') ||
+      `user-${crypto.randomUUID().slice(0, 8)}`
+    );
+  }, []);
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+
+    if (userId && storedUserId === userId) return;
+
+    localStorage.setItem('userId', userId);
+  }, [userId]);
+
+  const tokenProvider = useCallback(() => {
+    return fetch(`https://pronto.getstream.io/api/auth/create-token?user_id=${userId}`)
+      .then((response) => response.json())
+      .then((data) => data.token as string);
+  }, [userId]);
+
+  return { userId: userId, tokenProvider };
+};
+
 const App = () => {
+  const { userId, tokenProvider } = useUser();
+
   const chatClient = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: { id: userId },
   });
+
+  const filters: ChannelFilters = useMemo(
+    () => ({
+      members: { $in: [userId] },
+      type: 'messaging',
+      archived: false,
+    }),
+    [userId],
+  );
 
   useEffect(() => {
     if (!chatClient) return;
@@ -77,26 +107,6 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
-  chatClient.axiosInstance.interceptors.response.use(
-    (response) => {
-      // Simulate a 500 for specific routes
-      if (response.config.url?.includes('/delivered')) {
-        // throw a fake error like a real server would
-        const error = {
-          response: {
-            status: 500,
-            statusText: 'Internal Server Error',
-            data: { error: 'Simulated server error' },
-            config: response.config,
-          },
-        };
-        return Promise.reject(error);
-      }
-
-      return response;
-    },
-    (error) => Promise.reject(error),
-  );
   return (
     <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
       <ChatView>

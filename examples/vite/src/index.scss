@@ -1,130 +1,42 @@
-body {
-  margin: 0;
+@layer stream, stream-overrides;
+
+@import url('stream-chat-react/dist/css/v2/index.css') layer(stream);
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-html,
-body,
-#root {
-  margin: unset;
-  padding: unset;
-  height: 100%;
+body {
+  margin: 0;
 }
-
-@layer stream, emoji-replacement;
-
-@import url('stream-chat-react/css/v2/index.css') layer(stream);
-// use in combination with useImageFlagEmojisOnWindows prop on Chat component
-// @import url('stream-chat-react/css/v2/emoji-replacement.css') layer(emoji-replacement);
 
 #root {
   display: flex;
-  height: 100%;
+  height: 100vh;
+}
 
-  & > div.str-chat {
-    height: 100%;
-    width: 100%;
-    display: flex;
-  }
-
+@layer stream-overrides {
   .str-chat__channel-list {
-    position: fixed;
-    z-index: 1;
-    height: 100%;
-    width: 0;
-    flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
-    max-width: 1000px;
-
-    &--open {
-      width: 30%;
-      position: fixed;
-    }
-    transition: width 0.3s ease-out;
+    flex-basis: 350px;
+    flex-shrink: 1;
   }
 
   .str-chat__channel {
-    flex: 1;
-    min-width: 0;
+    flex-grow: 1;
   }
 
-  .str-chat__main-panel {
-    min-width: 0;
-    flex: 1;
-
-    &--thread-open {
-      display: none;
-    }
+  .str-chat__message-list-scroll {
+    max-width: 800px;
+    width: 100%;
   }
 
-  .str-chat__thread {
-    flex: 1;
-    height: 100%;
-    position: absolute;
-    z-index: 1;
-  }
-
-  .str-chat__channel-header .str-chat__header-hamburger {
-    width: 30px;
-    height: 38px;
-    padding: var(--xxs-p);
-    margin-right: var(--xs-m);
+  .str-chat__list {
     display: flex;
-    align-items: center;
     justify-content: center;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-
-    &:hover {
-      svg path {
-        fill: var(--primary-color);
-      }
-    }
-  }
-
-  @media screen and (min-width: 768px) {
-    .str-chat__channel-list {
-      width: 30%;
-      position: initial;
-      z-index: 0;
-    }
-
-    .str-chat__chat-view__channels {
-      .str-chat__thread {
-        position: initial;
-        z-index: 0;
-      }
-    }
-
-    .str-chat__channel-header .str-chat__header-hamburger {
-      display: none;
-    }
-  }
-
-  @media screen and (min-width: 1024px) {
-    .str-chat__main-panel {
-      min-width: 0;
-
-      &--thread-open {
-        max-width: 55%;
-        display: flex;
-      }
-    }
-
-    .str-chat__chat-view__channels {
-      .str-chat__thread {
-        max-width: 45%;
-      }
-    }
-
-    .str-chat__channel-header .str-chat__header-hamburger {
-      display: none;
-    }
-  }
-
-  .str-chat__thread-list-container {
-    max-width: 350px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
   }
 }
