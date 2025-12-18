@@ -24,22 +24,15 @@ import {
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
+import { humanId } from 'human-id';
 
 init({ data });
 
-const params = new Proxy(new URLSearchParams(window.location.search), {
-  get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown as Record<string, string | null>;
+const apiKey = import.meta.env.VITE_STREAM_API_KEY;
 
-const parseUserIdFromToken = (token: string) => {
-  const [, payload] = token.split('.');
-
-  if (!payload) throw new Error('Token is missing');
-
-  return JSON.parse(atob(payload))?.user_id;
-};
-
-const apiKey = params.key ?? (import.meta.env.VITE_STREAM_API_KEY as string);
+if (!apiKey) {
+  throw new Error('VITE_STREAM_API_KEY is not defined');
+}
 
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
@@ -50,22 +43,24 @@ const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 const useUser = () => {
   const userId = useMemo(() => {
     return (
-      new URLSearchParams(window.location.search).get('userId') ||
-      localStorage.getItem('userId') ||
-      `user-${crypto.randomUUID().slice(0, 8)}`
+      new URLSearchParams(window.location.search).get('user_id') ||
+      localStorage.getItem('user_id') ||
+      humanId({ separator: '_', capitalize: false })
     );
   }, []);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = localStorage.getItem('user_id');
 
     if (userId && storedUserId === userId) return;
 
-    localStorage.setItem('userId', userId);
+    localStorage.setItem('user_id', userId);
   }, [userId]);
 
   const tokenProvider = useCallback(() => {
-    return fetch(`https://pronto.getstream.io/api/auth/create-token?user_id=${userId}`)
+    return fetch(
+      `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
+    )
       .then((response) => response.json())
       .then((data) => data.token as string);
   }, [userId]);
