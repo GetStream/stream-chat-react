@@ -1,35 +1,32 @@
 {
   "compilerOptions": {
-    "lib": ["ES2020", "DOM"],
-    "target": "ES2020",
-    "jsx": "react",
-    "module": "ES2020",
-    "esModuleInterop": true,
-    "moduleResolution": "Node",
-    "moduleDetection": "force",
+    "lib": ["es2022", "dom"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "module": "es2020",
+    "target": "es2020",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "allowJs": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
 
     "strict": true,
     "allowUnreachableCode": false,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
     "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
     "noStrictGenericChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "strictNullChecks": true,
 
-    "importHelpers": true,
     "skipLibCheck": true,
     "noEmitOnError": true,
     "declaration": true,
-    "outDir": "./dist"
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "outDir": "./dist/types",
+    "rootDir": "./src"
   },
-  "include": ["./src/**/*"],
+  "include": ["./src"],
   "exclude": ["./src/stories", "./src/mock-builders", "./src/**/__tests__/*"]
 }
