@@ -45,7 +45,7 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: prj_2Rq8kuNd0BmqKd2NwvkDjX9Htnx5
-      VITE_STREAM_API_KEY: ${{ vars.VITE_EXAMPLE_STREAM_API_KEY }}
+      VITE_STREAM_API_KEY: ${{ vars.VITE_STREAM_API_KEY }}
       NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
