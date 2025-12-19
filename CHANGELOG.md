@@ -1,3 +1,10 @@
+## [13.13.1](https://github.com/GetStream/stream-chat-react/compare/v13.13.0...v13.13.1) (2025-12-19)
+
+### Chores
+
+* **deps:** upgrade @stream-io/stream-chat-css to v5.16.1 ([2a48356](https://github.com/GetStream/stream-chat-react/commit/2a48356291dc3f6d07392dc1cc630b75d909e479))
+* **deps:** upgrade stream-chat to v9.27.2 ([d7c0d7e](https://github.com/GetStream/stream-chat-react/commit/d7c0d7e5dc1b0df09f9882c085e9acf1fa747e29))
+
 ## [13.13.0](https://github.com/GetStream/stream-chat-react/compare/v13.12.0...v13.13.0) (2025-12-02)
 
 ### Bug Fixes
