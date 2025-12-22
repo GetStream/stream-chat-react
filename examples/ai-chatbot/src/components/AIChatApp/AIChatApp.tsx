@@ -117,18 +117,15 @@ export const AIChatApp = ({
 
   // Handle fade-out when both conditions are met
   useEffect(() => {
-    if (chatClient && minTimeElapsed && !isFadingOut) {
-      // Start fade-out animation
-      setIsFadingOut(true);
+    if (!minTimeElapsed) return;
+    setIsFadingOut(true);
+    // Remove loading screen after animation completes (400ms)
+    const fadeOutTimer = setTimeout(() => {
+      setShowLoadingScreen(false);
+    }, 400);
 
-      // Remove loading screen after animation completes (400ms)
-      const fadeOutTimer = setTimeout(() => {
-        setShowLoadingScreen(false);
-      }, 400);
-
-      return () => clearTimeout(fadeOutTimer);
-    }
-  }, [chatClient, minTimeElapsed, isFadingOut]);
+    return () => clearTimeout(fadeOutTimer);
+  }, [minTimeElapsed]);
 
   return (
     <div className="ai-demo-app">
