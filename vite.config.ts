@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import { name, dependencies, peerDependencies } from './package.json';
-import { compilerOptions } from './tsconfig.json';
+import { compilerOptions } from './tsconfig.lib.json';
 import getPackageVersion from './scripts/get-package-version.mjs';
 
 const external = [
