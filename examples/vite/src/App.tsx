@@ -21,6 +21,7 @@ import {
   VirtualizedMessageList as MessageList,
   // MessageList,
   Window,
+  WithComponents,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -113,41 +114,43 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
-      <ChatView>
-        <ChatView.Selector />
-        <ChatView.Channels>
-          <ChannelList
-            Avatar={ChannelAvatar}
-            filters={filters}
-            options={options}
-            sort={sort}
-            showChannelSearch
-            additionalChannelSearchProps={{ searchForChannels: true }}
-          />
-          <Channel emojiSearchIndex={SearchIndex} EmojiPicker={EmojiPicker}>
-            <Window>
-              <ChannelHeader Avatar={ChannelAvatar} />
-              <MessageList returnAllReadData />
-              <AIStateIndicator />
-              <MessageInput
-                focus
-                audioRecordingEnabled
-                maxRows={10}
-                asyncMessagesMultiSendEnabled
-              />
-            </Window>
-            <Thread virtualized />
-          </Channel>
-        </ChatView.Channels>
-        <ChatView.Threads>
-          <ThreadList />
-          <ChatView.ThreadAdapter>
-            <Thread virtualized />
-          </ChatView.ThreadAdapter>
-        </ChatView.Threads>
-      </ChatView>
-    </Chat>
+    <WithComponents overrides={{ emojiSearchIndex: SearchIndex, EmojiPicker }}>
+      <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+        <ChatView>
+          <ChatView.Selector />
+          <ChatView.Channels>
+            <ChannelList
+              Avatar={ChannelAvatar}
+              filters={filters}
+              options={options}
+              sort={sort}
+              showChannelSearch
+              additionalChannelSearchProps={{ searchForChannels: true }}
+            />
+            <Channel>
+              <Window>
+                <ChannelHeader Avatar={ChannelAvatar} />
+                <MessageList returnAllReadData />
+                <AIStateIndicator />
+                <MessageInput
+                  focus
+                  audioRecordingEnabled
+                  maxRows={10}
+                  asyncMessagesMultiSendEnabled
+                />
+              </Window>
+              <Thread virtualized />
+            </Channel>
+          </ChatView.Channels>
+          <ChatView.Threads>
+            <ThreadList />
+            <ChatView.ThreadAdapter>
+              <Thread virtualized />
+            </ChatView.ThreadAdapter>
+          </ChatView.Threads>
+        </ChatView>
+      </Chat>
+    </WithComponents>
   );
 };
 
