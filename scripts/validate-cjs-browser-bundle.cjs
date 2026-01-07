@@ -14,4 +14,4 @@ for (const key of Object.keys(window)) {
   }
 }
 
-require('../dist/index.browser.cjs');
+require('../dist/cjs/index.js');
