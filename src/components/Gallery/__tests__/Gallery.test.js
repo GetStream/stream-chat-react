@@ -11,7 +11,7 @@ import { Chat } from '../../Chat';
 import { Gallery } from '../Gallery';
 
 import { ComponentProvider } from '../../../context/ComponentContext';
-import { useChatContext } from '../../../context';
+import { useChatContext, WithComponents } from '../../../context';
 
 let chatClient;
 
@@ -172,13 +172,14 @@ describe('Gallery', () => {
     let result;
     await act(() => {
       result = render(
-        <Chat client={client}>
-          <ActiveChannelSetter activeChannel={channel} />
-          <Channel BaseImage={CustomBaseImage}>
-            <Gallery images={images} />
-          </Channel>
-          ,
-        </Chat>,
+        <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
+          <Chat client={client}>
+            <ActiveChannelSetter activeChannel={channel} />
+            <Channel>
+              <Gallery images={images} />
+            </Channel>
+          </Chat>
+        </WithComponents>,
       );
     });
     expect(result.container).toMatchSnapshot();
