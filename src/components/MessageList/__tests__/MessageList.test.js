@@ -171,10 +171,12 @@ describe('MessageList', () => {
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
     const renderResult = renderComponent({
       channelProps: {
-        Avatar,
         channel,
       },
       chatClient,
+      components: {
+        Avatar,
+      },
     });
 
     await waitFor(() => {
@@ -253,8 +255,9 @@ describe('MessageList', () => {
     const Header = () => <div>{headerText}</div>;
 
     renderComponent({
-      channelProps: { channel, HeaderComponent: Header },
+      channelProps: { channel },
       chatClient,
+      components: { HeaderComponent: Header },
       msgListProps: {
         messages: [intro],
       },
@@ -580,8 +583,9 @@ describe('MessageList', () => {
 
       await act(() => {
         renderComponent({
-          channelProps: { channel, UnreadMessagesSeparator },
+          channelProps: { channel },
           chatClient: client,
+          components: { UnreadMessagesSeparator },
           msgListProps: { messages },
         });
       });
@@ -608,8 +612,9 @@ describe('MessageList', () => {
 
       await act(() => {
         renderComponent({
-          channelProps: { channel, UnreadMessagesSeparator },
+          channelProps: { channel },
           chatClient: client,
+          components: { UnreadMessagesSeparator },
           msgListProps: { messages },
         });
       });
@@ -643,6 +648,7 @@ describe('MessageList', () => {
 
       const setupTest = async ({
         channelProps = {},
+        components = {},
         dispatchMarkUnreadPayload = {},
         entries,
         msgListProps = {},
@@ -656,6 +662,7 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: { channel, ...channelProps },
             chatClient: client,
+            components,
             msgListProps: { messages, ...msgListProps },
           });
         });
@@ -746,7 +753,9 @@ describe('MessageList', () => {
           <div data-testid={customUnreadMessagesNotificationText}>aaa</div>
         );
         await setupTest({
-          channelProps: { UnreadMessagesNotification },
+          components: {
+            UnreadMessagesNotification,
+          },
           entries: observerEntriesScrolledBelowSeparator,
         });
 
@@ -803,10 +812,12 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: {
               channel,
+            },
+            chatClient: client,
+            components: {
               MessageListNotifications: MockMessageListNotifications,
               MessageNotification: ScrollToBottomButton,
             },
-            chatClient: client,
             msgListProps: { messages },
           });
         });
@@ -831,10 +842,12 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: {
               channel,
+            },
+            chatClient: client,
+            components: {
               MessageListNotifications: MockMessageListNotifications,
               MessageNotification: ScrollToBottomButton,
             },
-            chatClient: client,
             msgListProps: { messages, threadList: true },
           });
         });

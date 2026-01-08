@@ -16,7 +16,7 @@ import {
   generateVoiceRecordingAttachment,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { MessageProvider } from '../../../context';
+import { MessageProvider, WithComponents } from '../../../context';
 
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 
@@ -30,7 +30,7 @@ const renderComponent = async ({
   attachments,
   channel: customChannel,
   client: customClient,
-  componentCtx,
+  components,
   coords,
   editedMessage,
   props,
@@ -47,26 +47,28 @@ const renderComponent = async ({
   let result;
   await act(() => {
     result = render(
-      <Chat client={client}>
-        <Channel {...componentCtx} channel={channel}>
-          {editedMessage ? (
-            <MessageProvider
-              value={{
-                message: {
-                  ...editedMessage,
-                  cid: channel.cid,
-                  id: channel.id,
-                  type: channel.type,
-                },
-              }}
-            >
+      <WithComponents overrides={components}>
+        <Chat client={client}>
+          <Channel channel={channel}>
+            {editedMessage ? (
+              <MessageProvider
+                value={{
+                  message: {
+                    ...editedMessage,
+                    cid: channel.cid,
+                    id: channel.id,
+                    type: channel.type,
+                  },
+                }}
+              >
+                <AttachmentPreviewList {...props} />
+              </MessageProvider>
+            ) : (
               <AttachmentPreviewList {...props} />
-            </MessageProvider>
-          ) : (
-            <AttachmentPreviewList {...props} />
-          )}
-        </Channel>
-      </Chat>,
+            )}
+          </Channel>
+        </Chat>
+      </WithComponents>,
     );
   });
   return { channel, ...result };
@@ -296,7 +298,7 @@ describe('AttachmentPreviewList', () => {
           { fallback: id },
         ),
       ),
-      componentCtx: { BaseImage },
+      components: { BaseImage },
     });
     expect(container).toMatchSnapshot();
   });

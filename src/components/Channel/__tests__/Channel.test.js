@@ -29,7 +29,7 @@ import {
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
-import { MessageProvider } from '../../../context';
+import { MessageProvider, WithComponents } from '../../../context';
 import { MessageActionsBox } from '../../MessageActions';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
@@ -94,18 +94,22 @@ const renderComponent = async (props = {}, callback = () => {}) => {
   const {
     channel: channelFromProps,
     chatClient: chatClientFromProps,
+    children,
+    components,
     ...channelProps
   } = props;
   let result;
   await act(() => {
     result = render(
-      <Chat client={chatClientFromProps}>
-        <ActiveChannelSetter activeChannel={channelFromProps} />
-        <Channel {...channelProps}>
-          {channelProps.children}
-          <CallbackEffectWithChannelContexts callback={callback} />
-        </Channel>
-      </Chat>,
+      <WithComponents overrides={components}>
+        <Chat client={chatClientFromProps}>
+          <ActiveChannelSetter activeChannel={channelFromProps} />
+          <Channel {...channelProps}>
+            {children}
+            <CallbackEffectWithChannelContexts callback={callback} />
+          </Channel>
+        </Chat>
+      </WithComponents>,
     );
   });
   return result;
@@ -301,9 +305,13 @@ describe('Channel', () => {
           },
         }}
       >
-        <Channel LoadingIndicator={() => <div>{loadingText}</div>}>
-          {childrenContent}
-        </Channel>
+        <WithComponents
+          overrides={{
+            LoadingIndicator: () => <div>{loadingText}</div>,
+          }}
+        >
+          <Channel>{childrenContent}</Channel>
+        </WithComponents>
       </ChatProvider>,
     );
     await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
@@ -323,9 +331,13 @@ describe('Channel', () => {
           },
         }}
       >
-        <Channel LoadingErrorIndicator={({ error }) => <div>{error.message}</div>}>
-          {childrenContent}
-        </Channel>
+        <WithComponents
+          overrides={{
+            LoadingErrorIndicator: ({ error }) => <div>{error.message}</div>,
+          }}
+        >
+          <Channel>{childrenContent}</Channel>
+        </WithComponents>
       </ChatProvider>,
     );
     await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
@@ -2141,10 +2153,12 @@ describe('Channel', () => {
           );
           await renderComponent(
             {
-              Avatar: MockAvatar,
               channel,
               chatClient,
               children: <Component />,
+              components: {
+                Avatar: MockAvatar,
+              },
             },
             callback?.(threadMessage),
           );
@@ -2176,10 +2190,12 @@ describe('Channel', () => {
           );
           await renderComponent(
             {
-              Avatar: MockAvatar,
               channel,
               chatClient,
               children: <Component />,
+              components: {
+                Avatar: MockAvatar,
+              },
             },
             callback?.(threadMessage),
           );
@@ -2293,7 +2309,9 @@ describe('Channel', () => {
             <MessageActionsBox getMessageActions={jest.fn(() => [])} />
           </MessageProvider>
         ),
-        CustomMessageActionsList,
+        components: {
+          CustomMessageActionsList,
+        },
       });
 
       await waitFor(() => {
