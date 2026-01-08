@@ -57,6 +57,11 @@ jobs:
       - name: Build SDK
         run: yarn build
 
+      - name: Install example dependencies
+        working-directory: examples/vite
+        run: yarn install --frozen-lockfile
+        shell: bash
+
       - name: Vercel Pull/Build/Deploy (Preview)
         working-directory: examples/vite
         if: ${{ github.ref_name != 'master' }}
