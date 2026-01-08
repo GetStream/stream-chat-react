@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
@@ -24,42 +24,67 @@ import {
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
+import { humanId } from 'human-id';
 
 init({ data });
 
-const params = new Proxy(new URLSearchParams(window.location.search), {
-  get: (searchParams, property) => searchParams.get(property as string),
-}) as unknown as Record<string, string | null>;
+const apiKey = import.meta.env.VITE_STREAM_API_KEY;
 
-const parseUserIdFromToken = (token: string) => {
-  const [, payload] = token.split('.');
+if (!apiKey) {
+  throw new Error('VITE_STREAM_API_KEY is not defined');
+}
 
-  if (!payload) throw new Error('Token is missing');
-
-  return JSON.parse(atob(payload))?.user_id;
-};
-
-const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
-const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
-const userId = parseUserIdFromToken(userToken);
-
-const filters: ChannelFilters = {
-  members: { $in: [userId] },
-  type: 'messaging',
-  archived: false,
-};
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
+const useUser = () => {
+  const userId = useMemo(() => {
+    return (
+      new URLSearchParams(window.location.search).get('user_id') ||
+      localStorage.getItem('user_id') ||
+      humanId({ separator: '_', capitalize: false })
+    );
+  }, []);
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('user_id');
+
+    if (userId && storedUserId === userId) return;
+
+    localStorage.setItem('user_id', userId);
+  }, [userId]);
+
+  const tokenProvider = useCallback(() => {
+    return fetch(
+      `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
+    )
+      .then((response) => response.json())
+      .then((data) => data.token as string);
+  }, [userId]);
+
+  return { userId: userId, tokenProvider };
+};
+
 const App = () => {
+  const { userId, tokenProvider } = useUser();
+
   const chatClient = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: { id: userId },
   });
+
+  const filters: ChannelFilters = useMemo(
+    () => ({
+      members: { $in: [userId] },
+      type: 'messaging',
+      archived: false,
+    }),
+    [userId],
+  );
 
   useEffect(() => {
     if (!chatClient) return;
@@ -77,26 +102,6 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
-  chatClient.axiosInstance.interceptors.response.use(
-    (response) => {
-      // Simulate a 500 for specific routes
-      if (response.config.url?.includes('/delivered')) {
-        // throw a fake error like a real server would
-        const error = {
-          response: {
-            status: 500,
-            statusText: 'Internal Server Error',
-            data: { error: 'Simulated server error' },
-            config: response.config,
-          },
-        };
-        return Promise.reject(error);
-      }
-
-      return response;
-    },
-    (error) => Promise.reject(error),
-  );
   return (
     <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
       <ChatView>
