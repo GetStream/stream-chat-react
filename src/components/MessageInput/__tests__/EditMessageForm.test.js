@@ -27,6 +27,7 @@ import {
 import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 import { useMessageComposer as useMessageComposerMock } from '../hooks';
+import { WithComponents } from '../../../context';
 
 jest.mock('../../Channel/utils', () => ({
   ...jest.requireActual('../../Channel/utils'),
@@ -119,6 +120,7 @@ const renderComponent = async ({
   channelData = [],
   channelProps = {},
   chatContextOverrides = {},
+  components = {},
   customChannel,
   customClient,
   CustomStateSetter = null,
@@ -140,26 +142,28 @@ const renderComponent = async ({
 
   await act(() => {
     renderResult = render(
-      <ChatProvider
-        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
-      >
-        <Channel
-          doSendMessageRequest={sendMessageMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
+      <WithComponents overrides={components}>
+        <ChatProvider
+          value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
         >
-          <MessageProvider
-            value={{
-              ...defaultMessageContextValue,
-              editing: true,
-              ...messageContextOverrides,
-            }}
+          <Channel
+            doSendMessageRequest={sendMessageMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
           >
-            {CustomStateSetter && <CustomStateSetter />}
-            <MessageInput Input={EditMessageForm} {...messageInputProps} />
-          </MessageProvider>
-        </Channel>
-      </ChatProvider>,
+            <MessageProvider
+              value={{
+                ...defaultMessageContextValue,
+                editing: true,
+                ...messageContextOverrides,
+              }}
+            >
+              {CustomStateSetter && <CustomStateSetter />}
+              <MessageInput Input={EditMessageForm} {...messageInputProps} />
+            </MessageProvider>
+          </Channel>
+        </ChatProvider>
+      </WithComponents>,
     );
   });
 
@@ -249,7 +253,7 @@ describe(`EditMessageForm`, () => {
     const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
     const { customChannel, customClient } = await setup();
     await renderComponent({
-      channelProps: { EmojiPicker: CustomEmojiPicker },
+      components: { EmojiPicker: CustomEmojiPicker },
       customChannel,
       customClient,
     });
@@ -366,7 +370,7 @@ describe(`EditMessageForm`, () => {
     );
     const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
-      channelProps: { FileUploadIcon },
+      components: { FileUploadIcon },
       customChannel,
       customClient,
     });
@@ -394,7 +398,7 @@ describe(`EditMessageForm`, () => {
     );
     const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
-      channelProps: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      components: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
       customChannel,
       customClient,
     });
@@ -1208,7 +1212,7 @@ describe(`EditMessageForm`, () => {
     );
     const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
-      channelProps: { AutocompleteSuggestionList },
+      components: { AutocompleteSuggestionList },
       customChannel,
       customClient,
     });
@@ -1324,7 +1328,7 @@ describe(`EditMessageForm`, () => {
         composition: messageWithQuotedMessage,
       });
       await renderComponent({
-        channelProps: {
+        components: {
           QuotedMessagePreview: (props) => (
             <QuotedMessagePreview {...props} renderText={fn} />
           ),
@@ -1417,7 +1421,9 @@ describe(`EditMessageForm`, () => {
       const QuotedPoll = () => <div>{pollText}</div>;
 
       await renderComponent({
-        channelProps: { QuotedPoll },
+        components: {
+          QuotedPoll,
+        },
         customChannel,
         customClient,
       });
