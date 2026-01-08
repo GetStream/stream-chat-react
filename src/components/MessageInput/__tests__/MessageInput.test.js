@@ -25,6 +25,7 @@ import {
 } from '../../../mock-builders';
 import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import { WithComponents } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -134,6 +135,7 @@ const renderComponent = async ({
   channelData = [],
   channelProps = {},
   chatContextOverrides = {},
+  components = {},
   customChannel,
   customClient,
   customUser,
@@ -155,21 +157,23 @@ const renderComponent = async ({
 
   await act(() => {
     renderResult = render(
-      <ChatProvider
-        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
-      >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-          <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
-          >
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
-            />
-          </MessageProvider>
-          <MessageInput {...messageInputProps} />
-        </Channel>
-      </ChatProvider>,
+      <WithComponents overrides={components}>
+        <ChatProvider
+          value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
+        >
+          <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+            <MessageProvider
+              value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+            >
+              <MessageActionsBox
+                {...messageActionsBoxProps}
+                getMessageActions={defaultMessageContextValue.getMessageActions}
+              />
+            </MessageProvider>
+            <MessageInput {...messageInputProps} />
+          </Channel>
+        </ChatProvider>
+      </WithComponents>,
     );
   });
 
@@ -257,7 +261,7 @@ describe(`MessageInputFlat`, () => {
   it('should render custom EmojiPicker', async () => {
     const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
 
-    await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+    await renderComponent({ components: { EmojiPicker: CustomEmojiPicker } });
 
     await waitFor(() => {
       const c = screen.getByTestId('custom-emoji-picker');
@@ -319,7 +323,7 @@ describe(`MessageInputFlat`, () => {
       </svg>
     );
 
-    const { container } = await renderComponent({ channelProps: { FileUploadIcon } });
+    const { container } = await renderComponent({ components: { FileUploadIcon } });
 
     const fileUploadIcon = await screen.findByTitle('NotFileUploadIcon');
 
@@ -344,7 +348,7 @@ describe(`MessageInputFlat`, () => {
     );
 
     const { container } = await renderComponent({
-      channelProps: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      components: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
     });
 
     const fileUploadIcon = await screen.queryByTitle('NotFileUploadIcon');
@@ -368,7 +372,7 @@ describe(`MessageInputFlat`, () => {
     const customTestId = 'custom-link-preview';
     const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
     await renderComponent({
-      channelProps: { LinkPreviewList: CustomLinkPreviewList },
+      components: { LinkPreviewList: CustomLinkPreviewList },
     });
     await act(async () => {
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
@@ -1114,7 +1118,9 @@ describe(`MessageInputFlat`, () => {
     );
     const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
-      channelProps: { AutocompleteSuggestionList },
+      components: {
+        AutocompleteSuggestionList,
+      },
       customChannel,
       customClient,
     });
@@ -1163,7 +1169,7 @@ describe(`MessageInputFlat`, () => {
       });
       const fn = jest.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
       await renderComponent({
-        channelProps: {
+        components: {
           QuotedMessagePreview: (props) => (
             <QuotedMessagePreview {...props} renderText={fn} />
           ),
@@ -1232,7 +1238,7 @@ describe(`MessageInputFlat`, () => {
       const QuotedPoll = () => <div>{pollText}</div>;
 
       await renderComponent({
-        channelProps: { QuotedPoll },
+        components: { QuotedPoll },
         customChannel: channel,
         customClient: client,
         messageContextOverrides: {
