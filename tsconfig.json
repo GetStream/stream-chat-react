@@ -1,35 +1,4 @@
 {
-  "compilerOptions": {
-    "lib": ["ES2020", "DOM"],
-    "target": "ES2020",
-    "jsx": "react",
-    "module": "ES2020",
-    "esModuleInterop": true,
-    "moduleResolution": "Node",
-    "moduleDetection": "force",
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-
-    "strict": true,
-    "allowUnreachableCode": false,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "strictNullChecks": true,
-
-    "importHelpers": true,
-    "skipLibCheck": true,
-    "noEmitOnError": true,
-    "declaration": true,
-    "outDir": "./dist"
-  },
-  "include": ["./src/**/*"],
-  "exclude": ["./src/stories", "./src/mock-builders", "./src/**/__tests__/*"]
+  "files": [],
+  "references": [{ "path": "./tsconfig.lib.json" }, { "path": "./tsconfig.test.json" }]
 }
