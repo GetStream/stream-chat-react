@@ -220,7 +220,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc'",
+    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json'",
     "build-translations": "i18next-cli extract",
     "coverage": "jest --collectCoverage && codecov",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",
