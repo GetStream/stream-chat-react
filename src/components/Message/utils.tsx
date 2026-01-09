@@ -13,11 +13,7 @@ import type {
 } from 'stream-chat';
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
-import type {
-  ComponentContextValue,
-  CustomMessageActions,
-  MessageContextValue,
-} from '../../context';
+import type { MessageContextValue } from '../../context';
 
 /**
  * Following function validates a function which returns notification message.
@@ -234,60 +230,6 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.reply,
   MESSAGE_ACTIONS.markUnread,
 ];
-
-/**
- * @deprecated use `shouldRenderMessageActions` instead
- */
-export const showMessageActionsBox = (
-  actions: MessageActionsArray,
-  inThread?: boolean | undefined,
-) => shouldRenderMessageActions({ inThread, messageActions: actions });
-
-export const shouldRenderMessageActions = ({
-  customMessageActions,
-  CustomMessageActionsList,
-  inThread,
-  messageActions,
-}: {
-  messageActions: MessageActionsArray;
-  customMessageActions?: CustomMessageActions;
-  CustomMessageActionsList?: ComponentContextValue['CustomMessageActionsList'];
-  inThread?: boolean;
-}) => {
-  if (
-    typeof CustomMessageActionsList !== 'undefined' ||
-    typeof customMessageActions !== 'undefined'
-  )
-    return true;
-
-  if (!messageActions.length) return false;
-
-  if (
-    inThread &&
-    messageActions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action))
-      .length === 0
-  ) {
-    return false;
-  }
-
-  if (
-    messageActions.length === 1 &&
-    (messageActions.includes(MESSAGE_ACTIONS.react) ||
-      messageActions.includes(MESSAGE_ACTIONS.reply))
-  ) {
-    return false;
-  }
-
-  if (
-    messageActions.length === 2 &&
-    messageActions.includes(MESSAGE_ACTIONS.react) &&
-    messageActions.includes(MESSAGE_ACTIONS.reply)
-  ) {
-    return false;
-  }
-
-  return true;
-};
 
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
   const areBaseMessagesEqual = (

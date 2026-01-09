@@ -6,7 +6,6 @@ export * from './MessageBlocked';
 export * from './MessageDeleted';
 export * from './MessageEditedTimestamp';
 export * from './MessageIsThreadReplyInChannelButtonIndicator';
-export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export * from './MessageSimple';
 export * from './MessageStatus';

@@ -5,7 +5,7 @@ import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
-import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
+import { MessageActions as DefaultMessageActions } from '../MessageActions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
@@ -70,10 +70,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     EditMessageModal = DefaultEditMessageModal,
-    MessageOptions = DefaultMessageOptions,
-    // TODO: remove this "passthrough" in the next
-    // major release and use the new default instead
-    MessageActions = MessageOptions,
+    MessageActions = DefaultMessageActions,
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted = DefaultMessageDeleted,
@@ -81,10 +78,10 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
+    PinIndicator,
     ReactionsList = DefaultReactionList,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
-    PinIndicator,
   } = useComponentContext('MessageSimple');
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
