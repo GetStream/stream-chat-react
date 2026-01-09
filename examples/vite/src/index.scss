@@ -1,6 +1,8 @@
 @layer stream, stream-overrides;
 
 @import url('stream-chat-react/dist/css/v2/index.css') layer(stream);
+// v3 CSS import
+@import url('stream-chat-react/dist/css/index.css');
 
 :root {
   font-synthesis: none;

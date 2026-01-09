@@ -95,6 +95,7 @@
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
+    "modern-normalize": "^3.0.1",
     "nanoid": "^3.3.4",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
@@ -141,7 +142,6 @@
     "README.md"
   ],
   "devDependencies": {
-    "vite": "^7.3.0",
     "@axe-core/react": "^4.3.2",
     "@babel/cli": "^7.12.8",
     "@babel/core": "^7.12.9",
@@ -212,15 +212,18 @@
     "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "sass": "^1.97.2",
     "semantic-release": "^25.0.2",
     "stream-chat": "^9.27.2",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^8.17.0"
+    "typescript-eslint": "^8.17.0",
+    "vite": "^7.3.0"
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json'",
+    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
+    "build-styling": "sass src/styling/index.scss dist/css/index.css",
     "build-translations": "i18next-cli extract",
     "coverage": "jest --collectCoverage && codecov",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",
