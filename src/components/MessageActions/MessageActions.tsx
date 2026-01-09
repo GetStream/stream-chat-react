@@ -1,169 +1,127 @@
 import clsx from 'clsx';
+import React, { useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import React, { useCallback, useRef } from 'react';
 
-import { MessageActionsBox } from './MessageActionsBox';
+import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import { ActionsIcon } from '../../components/Message/icons';
+import {
+  DialogAnchor,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../../components/Dialog';
+import { MessageActionsWrapper } from './MessageActionsWrapper';
+import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
+import { defaultMessageActionSet } from './defaults';
+import type { MESSAGE_ACTIONS } from '../Message/utils';
 
-import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
-import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
-
-import { useChatContext } from '../../context/ChatContext';
-import type { MessageContextValue } from '../../context/MessageContext';
-import { useMessageContext } from '../../context/MessageContext';
-import { useComponentContext, useTranslationContext } from '../../context';
-
-import type { IconProps } from '../../types/types';
-
-type MessageContextPropsToPick =
-  | 'getMessageActions'
-  | 'handleDelete'
-  | 'handleFlag'
-  | 'handleMarkUnread'
-  | 'handleMute'
-  | 'handlePin'
-  | 'message';
-
-export type MessageActionsProps = Partial<
-  Pick<MessageContextValue, MessageContextPropsToPick>
-> & {
-  /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
-  ActionsIcon?: React.ComponentType<IconProps>;
-  /* Custom CSS class to be added to the `div` wrapping the component */
-  customWrapperClass?: string;
-  /* If true, renders the wrapper component as a `span`, not a `div` */
-  inline?: boolean;
-  /* Function that returns whether the message was sent by the connected user */
-  mine?: () => boolean;
+export type MessageActionSetItem = {
+  Component: React.ComponentType;
+  placement: 'quick' | 'dropdown';
+  type: keyof typeof MESSAGE_ACTIONS | (string & {});
 };
 
-export const MessageActions = (props: MessageActionsProps) => {
-  const {
-    ActionsIcon = DefaultActionsIcon,
-    customWrapperClass = '',
-    getMessageActions: propGetMessageActions,
-    handleDelete: propHandleDelete,
-    handleFlag: propHandleFlag,
-    handleMarkUnread: propHandleMarkUnread,
-    handleMute: propHandleMute,
-    handlePin: propHandlePin,
-    inline,
-    message: propMessage,
-    mine,
-  } = props;
+export type MessageActionsProps = {
+  disableBaseMessageActionSetFilter?: boolean;
+  messageActionSet?: MessageActionSetItem[];
+};
 
-  const { mutes } = useChatContext('MessageActions');
+// TODO: allow passing down customWrapperClass
+/**
+ * A new actions component to replace current `MessageOptions` component.
+ * Exports from `stream-chat-react/experimental` __MIGHT__ change - use with caution
+ * and follow release notes in case you notice unexpected behavior.
+ */
+export const MessageActions = ({
+  disableBaseMessageActionSetFilter = false,
+  messageActionSet = defaultMessageActionSet,
+}: MessageActionsProps) => {
+  const { theme } = useChatContext();
+  const { isMyMessage, message } = useMessageContext();
+  const { t } = useTranslationContext();
+  const [actionsBoxButtonElement, setActionsBoxButtonElement] =
+    useState<HTMLButtonElement | null>(null);
 
-  const {
-    customMessageActions,
-    getMessageActions: contextGetMessageActions,
-    handleDelete: contextHandleDelete,
-    handleFlag: contextHandleFlag,
-    handleMarkUnread: contextHandleMarkUnread,
-    handleMute: contextHandleMute,
-    handlePin: contextHandlePin,
-    isMyMessage,
-    message: contextMessage,
-    threadList,
-  } = useMessageContext('MessageActions');
+  const filteredMessageActionSet = useBaseMessageActionSetFilter(
+    messageActionSet,
+    disableBaseMessageActionSetFilter,
+  );
 
-  const { CustomMessageActionsList } = useComponentContext('MessageActions');
+  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet(
+    filteredMessageActionSet,
+  );
 
-  const { t } = useTranslationContext('MessageActions');
+  const dropdownDialogId = `message-actions--${message.id}`;
+  const reactionSelectorDialogId = `reaction-selector--${message.id}`;
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dropdownDialogId });
+  const dropdownDialogIsOpen = useDialogIsOpen(dropdownDialogId, dialogManager?.id);
+  const reactionSelectorDialogIsOpen = useDialogIsOpen(
+    reactionSelectorDialogId,
+    dialogManager?.id,
+  );
 
-  const getMessageActions = propGetMessageActions || contextGetMessageActions;
-  const handleDelete = propHandleDelete || contextHandleDelete;
-  const handleFlag = propHandleFlag || contextHandleFlag;
-  const handleMarkUnread = propHandleMarkUnread || contextHandleMarkUnread;
-  const handleMute = propHandleMute || contextHandleMute;
-  const handlePin = propHandlePin || contextHandlePin;
-  const message = propMessage || contextMessage;
-  const isMine = mine ? mine() : isMyMessage();
-
-  const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
-
-  const dialogIdNamespace = threadList ? '-thread-' : '';
-  const dialogId = `message-actions${dialogIdNamespace}--${message.id}`;
-  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
-  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
-
-  const messageActions = getMessageActions();
-
-  const renderMessageActions = shouldRenderMessageActions({
-    customMessageActions,
-    CustomMessageActionsList,
-    inThread: threadList,
-    messageActions,
-  });
-
-  const actionsBoxButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  if (!renderMessageActions) return null;
+  // do not render anything if total action count is zero
+  if (dropdownActionSet.length + quickActionSet.length === 0) {
+    return null;
+  }
 
   return (
-    <MessageActionsWrapper
-      customWrapperClass={customWrapperClass}
-      inline={inline}
-      toggleOpen={dialog?.toggle}
+    <div
+      className={clsx(`str-chat__message-${theme}__actions str-chat__message-options`, {
+        'str-chat__message-options--active':
+          dropdownDialogIsOpen || reactionSelectorDialogIsOpen,
+      })}
     >
-      <DialogAnchor
-        dialogManagerId={dialogManager?.id}
-        id={dialogId}
-        placement={isMine ? 'top-end' : 'top-start'}
-        referenceElement={actionsBoxButtonRef.current}
-        tabIndex={-1}
-        trapFocus
-      >
-        <MessageActionsBox
-          getMessageActions={getMessageActions}
-          handleDelete={handleDelete}
-          handleFlag={handleFlag}
-          handleMarkUnread={handleMarkUnread}
-          handleMute={handleMute}
-          handlePin={handlePin}
-          isUserMuted={isMuted}
-          mine={isMine}
-          open={dialogIsOpen}
-        />
-      </DialogAnchor>
-      <button
-        aria-expanded={dialogIsOpen}
-        aria-haspopup='true'
-        aria-label={t('aria/Open Message Actions Menu')}
-        className='str-chat__message-actions-box-button'
-        data-testid='message-actions-toggle-button'
-        ref={actionsBoxButtonRef}
-      >
-        <ActionsIcon className='str-chat__message-action-icon' />
-      </button>
-    </MessageActionsWrapper>
+      {dropdownActionSet.length > 0 && (
+        <MessageActionsWrapper inline={false} toggleOpen={dialog?.toggle}>
+          <button
+            aria-expanded={dropdownDialogIsOpen}
+            aria-haspopup='true'
+            aria-label={t('aria/Open Message Actions Menu')}
+            className='str-chat__message-actions-box-button'
+            data-testid='message-actions-toggle-button'
+            ref={setActionsBoxButtonElement}
+          >
+            <ActionsIcon className='str-chat__message-action-icon' />
+          </button>
+
+          <DialogAnchor
+            dialogManagerId={dialogManager?.id}
+            id={dropdownDialogId}
+            placement={isMyMessage() ? 'top-end' : 'top-start'}
+            referenceElement={actionsBoxButtonElement}
+            tabIndex={-1}
+            trapFocus
+          >
+            <DropdownBox open={dropdownDialogIsOpen}>
+              {dropdownActionSet.map(({ Component: DropdownActionComponent, type }) => (
+                <DropdownActionComponent key={type} />
+              ))}
+            </DropdownBox>
+          </DialogAnchor>
+        </MessageActionsWrapper>
+      )}
+      {quickActionSet.map(({ Component: QuickActionComponent, type }) => (
+        <QuickActionComponent key={type} />
+      ))}
+    </div>
   );
 };
 
-export type MessageActionsWrapperProps = {
-  customWrapperClass?: string;
-  inline?: boolean;
-  toggleOpen?: () => void;
-};
-
-export const MessageActionsWrapper = (
-  props: PropsWithChildren<MessageActionsWrapperProps>,
-) => {
-  const { children, customWrapperClass, inline, toggleOpen } = props;
-
-  const defaultWrapperClass = clsx(
-    'str-chat__message-simple__actions__action',
-    'str-chat__message-simple__actions__action--options',
-    'str-chat__message-actions-container',
+const DropdownBox = ({ children, open }: PropsWithChildren<{ open: boolean }>) => {
+  const { t } = useTranslationContext();
+  return (
+    <div
+      className={clsx('str-chat__message-actions-box', {
+        'str-chat__message-actions-box--open': open,
+      })}
+    >
+      <div
+        aria-label={t('aria/Message Options')}
+        className='str-chat__message-actions-list'
+        role='listbox'
+      >
+        {children}
+      </div>
+    </div>
   );
-
-  const wrapperProps = {
-    className: customWrapperClass || defaultWrapperClass,
-    'data-testid': 'message-actions',
-    onClick: toggleOpen,
-  };
-
-  if (inline) return <span {...wrapperProps}>{children}</span>;
-
-  return <div {...wrapperProps}>{children}</div>;
 };
