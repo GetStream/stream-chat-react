@@ -111,7 +111,6 @@ export const messageRenderer = (
   const {
     additionalMessageInputProps,
     closeReactionSelectorOnClick,
-    customMessageActions,
     customMessageRenderer,
     DateSeparator,
     firstUnreadMessageId,
@@ -203,7 +202,6 @@ export const messageRenderer = (
         additionalMessageInputProps={additionalMessageInputProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
-        customMessageActions={customMessageActions}
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
         endOfGroup={endOfGroup}
         firstOfGroup={firstOfGroup}
