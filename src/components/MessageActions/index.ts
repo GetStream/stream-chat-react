@@ -1,3 +1,3 @@
 export * from './MessageActions';
-export * from './MessageActionsBox';
-export * from './CustomMessageActionsList';
+export * from './defaults';
+export * from './hooks';
