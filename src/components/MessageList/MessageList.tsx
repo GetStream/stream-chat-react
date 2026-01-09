@@ -152,7 +152,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
-      customMessageActions: props.customMessageActions,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
       getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
@@ -298,7 +297,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'closeReactionSelectorOnClick'
-  | 'customMessageActions'
   | 'disableQuotedMessages'
   | 'formatDate'
   | 'getDeleteMessageErrorNotification'

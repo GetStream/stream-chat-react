@@ -72,7 +72,6 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
-  | 'customMessageActions'
   | 'formatDate'
   | 'messageActions'
   | 'openThread'
@@ -190,7 +189,6 @@ const VirtualizedMessageListWithContext = (
     channel,
     channelUnreadUiState,
     closeReactionSelectorOnClick,
-    customMessageActions,
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
@@ -492,7 +490,6 @@ const VirtualizedMessageListWithContext = (
                 additionalMessageInputProps,
                 closeReactionSelectorOnClick,
                 customClasses,
-                customMessageActions,
                 customMessageRenderer,
                 DateSeparator,
                 firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
