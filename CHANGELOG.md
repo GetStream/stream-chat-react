@@ -1,3 +1,9 @@
+## [13.13.2](https://github.com/GetStream/stream-chat-react/compare/v13.13.1...v13.13.2) (2026-01-12)
+
+### Bug Fixes
+
+* add integration guide md file to help AI assistant's work ([068eee2](https://github.com/GetStream/stream-chat-react/commit/068eee2523a36a558eb895d9d86a01854f270250))
+
 ## [13.13.1](https://github.com/GetStream/stream-chat-react/compare/v13.13.0...v13.13.1) (2025-12-19)
 
 ### Chores
