@@ -3,10 +3,12 @@ import clsx from 'clsx';
 
 import { ArrowDown } from './icons';
 
-import { useChannelStateContext, useChatContext } from '../../context';
+import { useChatContext } from '../../context';
 
 import type { Event } from 'stream-chat';
 import type { MessageNotificationProps } from './MessageNotification';
+
+const thread = { id: 'x' };
 
 const UnMemoizedScrollToBottomButton = (
   props: Pick<
@@ -17,17 +19,20 @@ const UnMemoizedScrollToBottomButton = (
   const { isMessageListScrolledToBottom, onClick, threadList } = props;
 
   const { channel: activeChannel, client } = useChatContext();
-  const { thread } = useChannelStateContext();
-  const [countUnread, setCountUnread] = useState(activeChannel?.countUnread() || 0);
-  const [replyCount, setReplyCount] = useState(thread?.reply_count || 0);
+  // const { thread } = useChannelStateContext();
+  const [countUnread, setCountUnread] = useState<number>(
+    activeChannel?.countUnread() || 0,
+  );
+  const [replyCount, setReplyCount] = useState(0); //useState(thread?.reply_count || 0);
   const observedEvent = threadList ? 'message.updated' : 'message.new';
+  const isThreadOpen = false;
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
       const newMessageInAnotherChannel = event.cid !== activeChannel?.cid;
       const newMessageIsMine = event.user?.id === client.user?.id;
 
-      const isThreadOpen = !!thread;
+      // const isThreadOpen = !!thread;
       const newMessageIsReply = !!event.message?.parent_id;
       const dontIncreaseMainListCounterOnNewReply =
         isThreadOpen && !threadList && newMessageIsReply;
@@ -60,9 +65,9 @@ const UnMemoizedScrollToBottomButton = (
   useEffect(() => {
     if (isMessageListScrolledToBottom) {
       setCountUnread(0);
-      setReplyCount(thread?.reply_count || 0);
+      // setReplyCount(thread?.reply_count || 0);
     }
-  }, [isMessageListScrolledToBottom, thread]);
+  }, [isMessageListScrolledToBottom]);
 
   if (isMessageListScrolledToBottom) return null;
 

@@ -2,7 +2,7 @@ import type { ReactEventHandler } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
 import { useChannelActionContext } from './ChannelActionContext';
-import { isMessageBounced } from '../components';
+import { isMessageBounced, useRetryHandler } from '../components';
 import type { LocalMessage } from 'stream-chat';
 import type { PropsWithChildrenOnly } from '../types/types';
 
@@ -32,11 +32,8 @@ export function useMessageBounceContext(componentName?: string) {
 }
 
 export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
-  const {
-    handleRetry: doHandleRetry,
-    message,
-    setEditingState,
-  } = useMessageContext('MessageBounceProvider');
+  const { message, setEditingState } = useMessageContext('MessageBounceProvider');
+  const doHandleRetry = useRetryHandler();
 
   if (!isMessageBounced(message)) {
     console.warn(
@@ -58,7 +55,7 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   );
 
   const handleRetry = useCallback(() => {
-    doHandleRetry(message);
+    doHandleRetry({ localMessage: message });
   }, [doHandleRetry, message]);
 
   const value = useMemo(

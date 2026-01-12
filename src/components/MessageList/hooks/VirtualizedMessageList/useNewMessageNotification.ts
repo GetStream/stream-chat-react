@@ -1,15 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import type { LocalMessage } from 'stream-chat';
+import type { LocalMessage, MessagePaginatorState } from 'stream-chat';
 import type { RenderedMessage } from '../../utils';
+import { useChannelStateContext } from '../../../../context';
+import { useThreadContext } from '../../../Threads';
+import { useStateStore } from '../../../../store';
+
+const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
+  hasMoreNewer: state.hasMoreHead ?? [],
+});
 
 export function useNewMessageNotification(
   messages: RenderedMessage[],
   currentUserId: string | undefined,
-  hasMoreNewer?: boolean,
+  // hasMoreNewer?: boolean,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
   const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
     useState(true);
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messagePaginator } = thread ?? channel;
+  const { hasMoreNewer } = useStateStore(
+    messagePaginator.state,
+    messagePaginatorStateSelector,
+  );
   /**
    * use the flag to avoid the initial "new messages" quick blink
    */

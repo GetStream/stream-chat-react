@@ -4,7 +4,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type { LocalMessage, MessageLabel } from 'stream-chat';
+import type { LocalMessage, MessageLabel, UnreadSnapshotState } from 'stream-chat';
 
 type IntroMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.intro;
@@ -346,25 +346,21 @@ export function isLocalMessage(message: unknown): message is LocalMessage {
 export const getIsFirstUnreadMessage = ({
   firstUnreadMessageId,
   isFirstMessage,
-  lastReadDate,
+  lastReadAt,
   lastReadMessageId,
   message,
   previousMessage,
-  unreadMessageCount = 0,
-}: {
+  unreadCount,
+}: UnreadSnapshotState & {
   isFirstMessage: boolean;
   message: LocalMessage;
-  firstUnreadMessageId?: string;
-  lastReadDate?: Date;
-  lastReadMessageId?: string;
   previousMessage?: RenderedMessage;
-  unreadMessageCount?: number;
 }) => {
   // prevent showing unread indicator in threads
   if (message.parent_id) return false;
 
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
-  const lastReadTimestamp = lastReadDate?.getTime();
+  const lastReadTimestamp = lastReadAt?.getTime();
 
   const messageIsUnread =
     !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
@@ -374,8 +370,6 @@ export const getIsFirstUnreadMessage = ({
 
   return (
     firstUnreadMessageId === message.id ||
-    (!!unreadMessageCount &&
-      messageIsUnread &&
-      (isFirstMessage || previousMessageIsLastRead))
+    (!!unreadCount && messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
   );
 };

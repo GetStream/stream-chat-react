@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
-import type { Attachment, ChannelState as StreamChannelState } from 'stream-chat';
+import type { Attachment } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
@@ -65,7 +65,7 @@ export type VideoAttachmentSizeHandler = (
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
 
-export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
+// export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 export type Readable<T> = {
   [key in keyof T]: T[key];

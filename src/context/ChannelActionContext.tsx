@@ -1,20 +1,10 @@
 import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
-import type {
-  DeleteMessageOptions,
-  LocalMessage,
-  Message,
-  MessageResponse,
-  SendMessageOptions,
-  UpdateMessageAPIResponse,
-  UpdateMessageOptions,
-} from 'stream-chat';
-
-import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+import type { DeleteMessageOptions, LocalMessage, MessageResponse } from 'stream-chat';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type { ChannelUnreadUiState, UnknownType } from '../types/types';
+import type { UnknownType } from '../types/types';
 
 export type MarkReadWrapperOptions = {
   /**
@@ -25,7 +15,10 @@ export type MarkReadWrapperOptions = {
   updateChannelUiUnreadState?: boolean;
 };
 
-export type RetrySendMessage = (message: LocalMessage) => Promise<void>;
+// export type RetrySendMessage = (
+//   message: LocalMessage,
+//   options?: SendMessageOptions,
+// ) => Promise<void>;
 
 export type ChannelActionContextValue = {
   addNotification: (text: string, type: 'success' | 'error') => void;
@@ -34,38 +27,38 @@ export type ChannelActionContextValue = {
     message: LocalMessage,
     options?: DeleteMessageOptions,
   ) => Promise<MessageResponse>;
-  dispatch: React.Dispatch<ChannelStateReducerAction>;
-  editMessage: (
-    message: LocalMessage | MessageResponse,
-    options?: UpdateMessageOptions,
-  ) => Promise<UpdateMessageAPIResponse | void>;
-  jumpToFirstUnreadMessage: (
-    queryMessageLimit?: number,
-    highlightDuration?: number,
-  ) => Promise<void>;
-  jumpToLatestMessage: () => Promise<void>;
-  jumpToMessage: (
-    messageId: string,
-    limit?: number,
-    highlightDuration?: number,
-  ) => Promise<void>;
-  loadMore: (limit?: number) => Promise<number>;
-  loadMoreNewer: (limit?: number) => Promise<number>;
-  loadMoreThread: () => Promise<void>;
+  // dispatch: React.Dispatch<ChannelStateReducerAction>;
+  // editMessage: (
+  //   message: LocalMessage | MessageResponse,
+  //   options?: UpdateMessageOptions,
+  // ) => Promise<UpdateMessageAPIResponse | void>;
+  // jumpToFirstUnreadMessage: (
+  //   queryMessageLimit?: number,
+  //   highlightDuration?: number,
+  // ) => Promise<void>;
+  // jumpToLatestMessage: () => Promise<void>;
+  // jumpToMessage: (
+  //   messageId: string,
+  //   limit?: number,
+  //   highlightDuration?: number,
+  // ) => Promise<void>;
+  // loadMore: (limit?: number) => Promise<number>;
+  // loadMoreNewer: (limit?: number) => Promise<number>;
+  // loadMoreThread: () => Promise<void>;
   markRead: (options?: MarkReadWrapperOptions) => void;
   onMentionsClick: CustomMentionHandler;
   onMentionsHover: CustomMentionHandler;
   openThread: (message: LocalMessage, event?: React.BaseSyntheticEvent) => void;
   removeMessage: (message: LocalMessage) => void;
-  retrySendMessage: RetrySendMessage;
-  sendMessage: (params: {
-    localMessage: LocalMessage;
-    message: Message;
-    options?: SendMessageOptions;
-  }) => Promise<void>;
-  setChannelUnreadUiState: React.Dispatch<
-    React.SetStateAction<ChannelUnreadUiState | undefined>
-  >;
+  // retrySendMessage: RetrySendMessage;
+  // sendMessage: (params: {
+  //   localMessage: LocalMessage;
+  //   message: Message;
+  //   options?: SendMessageOptions;
+  // }) => Promise<void>;
+  // setChannelUnreadUiState: React.Dispatch<
+  //   React.SetStateAction<ChannelUnreadUiState | undefined>
+  // >;
   updateMessage: (message: MessageResponse | LocalMessage) => void;
 };
 

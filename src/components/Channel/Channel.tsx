@@ -81,7 +81,7 @@ import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './ut
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import type {
-  ChannelUnreadUiState,
+  // ChannelUnreadUiState,
   GiphyVersions,
   ImageAttachmentSizeHandler,
   VideoAttachmentSizeHandler,
@@ -187,7 +187,7 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel,
-    setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
+    // setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
   ) => Promise<EventAPIResponse> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
@@ -329,22 +329,22 @@ const ChannelInner = (
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
-  const [channelUnreadUiState, _setChannelUnreadUiState] =
-    useState<ChannelUnreadUiState>();
+  // const [channelUnreadUiState, _setChannelUnreadUiState] =
+  //   useState<ChannelUnreadUiState>();
 
-  const channelReducer = useMemo(() => makeChannelReducer(), []);
+  // const channelReducer = useMemo(() => makeChannelReducer(), []);
 
-  const [state, dispatch] = useReducer(
-    channelReducer,
-    // channel.initialized === false if client.channel().query() was not called, e.g. ChannelList is not used
-    // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
-    {
-      ...initialState,
-      hasMore: channel.state.messagePagination.hasPrev,
-      loading: !channel.initialized,
-      messages: channel.state.messages,
-    },
-  );
+  // const [state, dispatch] = useReducer(
+  //   channelReducer,
+  //   // channel.initialized === false if client.channel().query() was not called, e.g. ChannelList is not used
+  //   // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
+  //   {
+  //     ...initialState,
+  //     hasMore: channel.state.messagePagination.hasPrev,
+  //     loading: !channel.initialized,
+  //     messages: channel.state.messages,
+  //   },
+  // );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
   const isMounted = useIsMounted();
 
@@ -358,23 +358,23 @@ const ChannelInner = (
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
 
-  const throttledCopyStateFromChannel = throttle(
-    () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
-    500,
-    {
-      leading: true,
-      trailing: true,
-    },
-  );
+  // const throttledCopyStateFromChannel = throttle(
+  //   () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
+  //   500,
+  //   {
+  //     leading: true,
+  //     trailing: true,
+  //   },
+  // );
 
-  const setChannelUnreadUiState = useMemo(
-    () =>
-      throttle(_setChannelUnreadUiState, 200, {
-        leading: true,
-        trailing: false,
-      }),
-    [],
-  );
+  // const setChannelUnreadUiState = useMemo(
+  //   () =>
+  //     throttle(_setChannelUnreadUiState, 200, {
+  //       leading: true,
+  //       trailing: false,
+  //     }),
+  //   [],
+  // );
 
   const markRead = useMemo(
     () =>
@@ -391,17 +391,18 @@ const ChannelInner = (
             if (doMarkReadRequest) {
               doMarkReadRequest(
                 channel,
-                updateChannelUiUnreadState ? setChannelUnreadUiState : undefined,
+                // updateChannelUiUnreadState ? setChannelUnreadUiState : undefined,
               );
             } else {
               const markReadResponse = await channel.markRead();
               //  markReadResponse.event can be null in case of a user that is not a member of a channel being marked read
               // in that case event is null and we should not set unread UI
               if (updateChannelUiUnreadState && markReadResponse?.event) {
-                _setChannelUnreadUiState({
-                  last_read: lastRead.current,
-                  last_read_message_id: markReadResponse.event.last_read_message_id,
-                  unread_messages: 0,
+                channel.messagePaginator.unreadStateSnapshot.next({
+                  firstUnreadMessageId: null,
+                  lastReadAt: lastRead.current,
+                  lastReadMessageId: markReadResponse.event.last_read_message_id ?? null,
+                  unreadCount: 0,
                 });
               }
             }
@@ -423,18 +424,18 @@ const ChannelInner = (
       channel,
       channelConfig,
       doMarkReadRequest,
-      setChannelUnreadUiState,
+      // setChannelUnreadUiState,
       t,
     ],
   );
 
   const handleEvent = async (event: Event) => {
     if (event.message) {
-      dispatch({
-        channel,
-        message: event.message,
-        type: 'updateThreadOnEvent',
-      });
+      // dispatch({
+      //   channel,
+      //   message: event.message,
+      //   type: 'updateThreadOnEvent',
+      // });
     }
 
     // ignore the event if it is not targeted at the current channel.
@@ -445,9 +446,9 @@ const ChannelInner = (
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
 
-    if (event.type === 'typing.start' || event.type === 'typing.stop') {
-      return dispatch({ channel, type: 'setTyping' });
-    }
+    // if (event.type === 'typing.start' || event.type === 'typing.stop') {
+    //   return dispatch({ channel, type: 'setTyping' });
+    // }
 
     if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
       online.current = event.online;
@@ -503,22 +504,22 @@ const ChannelInner = (
       });
     }
 
-    if (event.type === 'notification.mark_unread')
-      _setChannelUnreadUiState((prev) => {
-        if (!(event.last_read_at && event.user)) return prev;
-        return {
-          first_unread_message_id: event.first_unread_message_id,
-          last_read: new Date(event.last_read_at),
-          last_read_message_id: event.last_read_message_id,
-          unread_messages: event.unread_messages ?? 0,
-        };
-      });
+    // if (event.type === 'notification.mark_unread')
+    //   _setChannelUnreadUiState((prev) => {
+    //     if (!(event.last_read_at && event.user)) return prev;
+    //     return {
+    //       first_unread_message_id: event.first_unread_message_id,
+    //       last_read: new Date(event.last_read_at),
+    //       last_read_message_id: event.last_read_message_id,
+    //       unread_messages: event.unread_messages ?? 0,
+    //     };
+    //   });
 
-    if (event.type === 'channel.truncated' && event.cid === channel.cid) {
-      _setChannelUnreadUiState(undefined);
-    }
+    // if (event.type === 'channel.truncated' && event.cid === channel.cid) {
+    //   _setChannelUnreadUiState(undefined);
+    // }
 
-    throttledCopyStateFromChannel();
+    // throttledCopyStateFromChannel();
   };
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
@@ -551,7 +552,7 @@ const ChannelInner = (
           const config = channel.getConfig();
           setChannelConfig(config);
         } catch (e) {
-          dispatch({ error: e as Error, type: 'setError' });
+          // dispatch({ error: e as Error, type: 'setError' });
           errored = true;
         }
       }
@@ -560,17 +561,17 @@ const ChannelInner = (
       originalTitle.current = document.title;
 
       if (!errored) {
-        dispatch({
-          channel,
-          hasMore: channel.state.messagePagination.hasPrev,
-          type: 'initStateFromChannel',
-        });
+        // dispatch({
+        //   channel,
+        //   hasMore: channel.state.messagePagination.hasPrev,
+        //   type: 'initStateFromChannel',
+        // });
 
-        if (client.user?.id && channel.state.read[client.user.id]) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { user, ...ownReadState } = channel.state.read[client.user.id];
-          _setChannelUnreadUiState(ownReadState);
-        }
+        // if (client.user?.id && channel.state.read[client.user.id]) {
+        //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //   const { user, ...ownReadState } = channel.state.read[client.user.id];
+        //   _setChannelUnreadUiState(ownReadState);
+        // }
         /**
          * TODO: maybe pass last_read to the countUnread method to get proper value
          * combined with channel.countUnread adjustment (_countMessageAsUnread)
@@ -608,13 +609,13 @@ const ChannelInner = (
     initializeOnMount,
   ]);
 
-  useEffect(() => {
-    if (!state.thread) return;
-
-    const message = state.messages?.find((m) => m.id === state.thread?.id);
-
-    if (message) dispatch({ message, type: 'setThread' });
-  }, [state.messages, state.thread]);
+  // useEffect(() => {
+  // if (!state.thread) return;
+  //
+  // const message = state.messages?.find((m) => m.id === state.thread?.id);
+  //
+  // if (message) dispatch({ message, type: 'setThread' });
+  // }, [state.messages, state.thread]);
 
   const handleHighlightedMessageChange = useCallback(
     ({
@@ -624,11 +625,11 @@ const ChannelInner = (
       highlightedMessageId: string;
       highlightDuration?: number;
     }) => {
-      dispatch({
-        channel,
-        highlightedMessageId,
-        type: 'jumpToMessageFinished',
-      });
+      // dispatch({
+      //   channel,
+      //   highlightedMessageId,
+      //   type: 'jumpToMessageFinished',
+      // });
       if (clearHighlightedMessageTimeoutId.current) {
         clearTimeout(clearHighlightedMessageTimeoutId.current);
       }
@@ -637,10 +638,10 @@ const ChannelInner = (
           searchController._internalState.partialNext({ focusedMessage: undefined });
         }
         clearHighlightedMessageTimeoutId.current = null;
-        dispatch({ type: 'clearHighlightedMessage' });
+        // dispatch({ type: 'clearHighlightedMessage' });
       }, highlightDuration ?? DEFAULT_HIGHLIGHT_DURATION);
     },
-    [channel, searchController],
+    [searchController._internalState],
   );
 
   useEffect(() => {
@@ -656,266 +657,265 @@ const ChannelInner = (
     [],
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const loadMoreFinished = useCallback(
-    debounce(
-      (hasMore: boolean, messages: ChannelState['messages']) => {
-        if (!isMounted.current) return;
-        dispatch({ hasMore, messages, type: 'loadMoreFinished' });
-      },
-      2000,
-      { leading: true, trailing: true },
-    ),
-    [],
-  );
+  // const loadMoreFinished = useCallback(
+  //   debounce(
+  //     (hasMore: boolean, messages: ChannelState['messages']) => {
+  //       if (!isMounted.current) return;
+  //       dispatch({ hasMore, messages, type: 'loadMoreFinished' });
+  //     },
+  //     2000,
+  //     { leading: true, trailing: true },
+  //   ),
+  //   [],
+  // );
 
-  const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (
-      !online.current ||
-      !window.navigator.onLine ||
-      !channel.state.messagePagination.hasPrev
-    )
-      return 0;
+  // const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
+  //   if (
+  //     !online.current ||
+  //     !window.navigator.onLine ||
+  //     !channel.state.messagePagination.hasPrev
+  //   )
+  //     return 0;
+  //
+  //   // prevent duplicate loading events...
+  //   const oldestMessage = state?.messages?.[0];
+  //
+  //   if (
+  //     state.loadingMore ||
+  //     state.loadingMoreNewer ||
+  //     oldestMessage?.status !== 'received'
+  //   ) {
+  //     return 0;
+  //   }
+  //
+  //   dispatch({ loadingMore: true, type: 'setLoadingMore' });
+  //
+  //   const oldestID = oldestMessage?.id;
+  //   const perPage = limit;
+  //   let queryResponse: ChannelAPIResponse;
+  //
+  //   try {
+  //     queryResponse = await channel.query({
+  //       messages: { id_lt: oldestID, limit: perPage },
+  //       watchers: { limit: perPage },
+  //     });
+  //   } catch (e) {
+  //     console.warn('message pagination request failed with error', e);
+  //     dispatch({ loadingMore: false, type: 'setLoadingMore' });
+  //     return 0;
+  //   }
+  //
+  //   loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
+  //
+  //   return queryResponse.messages.length;
+  // };
 
-    // prevent duplicate loading events...
-    const oldestMessage = state?.messages?.[0];
+  // const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
+  //   if (
+  //     !online.current ||
+  //     !window.navigator.onLine ||
+  //     !channel.state.messagePagination.hasNext
+  //   )
+  //     return 0;
+  //
+  //   const newestMessage = state?.messages?.[state?.messages?.length - 1];
+  //   if (state.loadingMore || state.loadingMoreNewer) return 0;
+  //
+  //   dispatch({ loadingMoreNewer: true, type: 'setLoadingMoreNewer' });
+  //
+  //   const newestId = newestMessage?.id;
+  //   const perPage = limit;
+  //   let queryResponse: ChannelAPIResponse;
+  //
+  //   try {
+  //     queryResponse = await channel.query({
+  //       messages: { id_gt: newestId, limit: perPage },
+  //       watchers: { limit: perPage },
+  //     });
+  //   } catch (e) {
+  //     console.warn('message pagination request failed with error', e);
+  //     dispatch({ loadingMoreNewer: false, type: 'setLoadingMoreNewer' });
+  //     return 0;
+  //   }
+  //
+  //   dispatch({
+  //     hasMoreNewer: channel.state.messagePagination.hasNext,
+  //     messages: channel.state.messages,
+  //     type: 'loadMoreNewerFinished',
+  //   });
+  //   return queryResponse.messages.length;
+  // };
 
-    if (
-      state.loadingMore ||
-      state.loadingMoreNewer ||
-      oldestMessage?.status !== 'received'
-    ) {
-      return 0;
-    }
+  // const jumpToMessage: ChannelActionContextValue['jumpToMessage'] = useCallback(
+  //   async (
+  //     messageId,
+  //     messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+  //     highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+  //   ) => {
+  //     dispatch({ loadingMore: true, type: 'setLoadingMore' });
+  //     await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
+  //
+  //     loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
+  //     handleHighlightedMessageChange({
+  //       highlightDuration,
+  //       highlightedMessageId: messageId,
+  //     });
+  //   },
+  //   [channel, handleHighlightedMessageChange, loadMoreFinished],
+  // );
 
-    dispatch({ loadingMore: true, type: 'setLoadingMore' });
-
-    const oldestID = oldestMessage?.id;
-    const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
-
-    try {
-      queryResponse = await channel.query({
-        messages: { id_lt: oldestID, limit: perPage },
-        watchers: { limit: perPage },
-      });
-    } catch (e) {
-      console.warn('message pagination request failed with error', e);
-      dispatch({ loadingMore: false, type: 'setLoadingMore' });
-      return 0;
-    }
-
-    loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-
-    return queryResponse.messages.length;
-  };
-
-  const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (
-      !online.current ||
-      !window.navigator.onLine ||
-      !channel.state.messagePagination.hasNext
-    )
-      return 0;
-
-    const newestMessage = state?.messages?.[state?.messages?.length - 1];
-    if (state.loadingMore || state.loadingMoreNewer) return 0;
-
-    dispatch({ loadingMoreNewer: true, type: 'setLoadingMoreNewer' });
-
-    const newestId = newestMessage?.id;
-    const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
-
-    try {
-      queryResponse = await channel.query({
-        messages: { id_gt: newestId, limit: perPage },
-        watchers: { limit: perPage },
-      });
-    } catch (e) {
-      console.warn('message pagination request failed with error', e);
-      dispatch({ loadingMoreNewer: false, type: 'setLoadingMoreNewer' });
-      return 0;
-    }
-
-    dispatch({
-      hasMoreNewer: channel.state.messagePagination.hasNext,
-      messages: channel.state.messages,
-      type: 'loadMoreNewerFinished',
-    });
-    return queryResponse.messages.length;
-  };
-
-  const jumpToMessage: ChannelActionContextValue['jumpToMessage'] = useCallback(
-    async (
-      messageId,
-      messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
-      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
-    ) => {
-      dispatch({ loadingMore: true, type: 'setLoadingMore' });
-      await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
-
-      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-      handleHighlightedMessageChange({
-        highlightDuration,
-        highlightedMessageId: messageId,
-      });
-    },
-    [channel, handleHighlightedMessageChange, loadMoreFinished],
-  );
-
-  const jumpToLatestMessage: ChannelActionContextValue['jumpToLatestMessage'] =
-    useCallback(async () => {
-      await channel.state.loadMessageIntoState('latest');
-      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
-      dispatch({
-        type: 'jumpToLatestMessage',
-      });
-    }, [channel, loadMoreFinished]);
-
-  const jumpToFirstUnreadMessage: ChannelActionContextValue['jumpToFirstUnreadMessage'] =
-    useCallback(
-      async (
-        queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
-        highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
-      ) => {
-        if (!channelUnreadUiState?.unread_messages) return;
-        let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
-        let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
-        let isInCurrentMessageSet = false;
-
-        if (firstUnreadMessageId) {
-          const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
-          isInCurrentMessageSet = result.index !== -1;
-        } else if (lastReadMessageId) {
-          const result = findInMsgSetById(lastReadMessageId, channel.state.messages);
-          isInCurrentMessageSet = !!result.target;
-          firstUnreadMessageId =
-            result.index > -1 ? channel.state.messages[result.index + 1]?.id : undefined;
-        } else {
-          const lastReadTimestamp = channelUnreadUiState.last_read.getTime();
-          const { index: lastReadMessageIndex, target: lastReadMessage } =
-            findInMsgSetByDate(
-              channelUnreadUiState.last_read,
-              channel.state.messages,
-              true,
-            );
-
-          if (lastReadMessage) {
-            firstUnreadMessageId = channel.state.messages[lastReadMessageIndex + 1]?.id;
-            isInCurrentMessageSet = !!firstUnreadMessageId;
-            lastReadMessageId = lastReadMessage.id;
-          } else {
-            dispatch({ loadingMore: true, type: 'setLoadingMore' });
-            let messages;
-            try {
-              messages = (
-                await channel.query(
-                  {
-                    messages: {
-                      created_at_around: channelUnreadUiState.last_read.toISOString(),
-                      limit: queryMessageLimit,
-                    },
-                  },
-                  'new',
-                )
-              ).messages;
-            } catch (e) {
-              addNotification(t('Failed to jump to the first unread message'), 'error');
-              loadMoreFinished(
-                channel.state.messagePagination.hasPrev,
-                channel.state.messages,
-              );
-              return;
-            }
-
-            const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
-            if (!firstMessageWithCreationDate) {
-              addNotification(t('Failed to jump to the first unread message'), 'error');
-              loadMoreFinished(
-                channel.state.messagePagination.hasPrev,
-                channel.state.messages,
-              );
-              return;
-            }
-            const firstMessageTimestamp = new Date(
-              firstMessageWithCreationDate.created_at as string,
-            ).getTime();
-            if (lastReadTimestamp < firstMessageTimestamp) {
-              // whole channel is unread
-              firstUnreadMessageId = firstMessageWithCreationDate.id;
-            } else {
-              const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
-              lastReadMessageId = result.target?.id;
-            }
-            loadMoreFinished(
-              channel.state.messagePagination.hasPrev,
-              channel.state.messages,
-            );
-          }
-        }
-
-        if (!firstUnreadMessageId && !lastReadMessageId) {
-          addNotification(t('Failed to jump to the first unread message'), 'error');
-          return;
-        }
-
-        if (!isInCurrentMessageSet) {
-          dispatch({ loadingMore: true, type: 'setLoadingMore' });
-          try {
-            const targetId = (firstUnreadMessageId ?? lastReadMessageId) as string;
-            await channel.state.loadMessageIntoState(
-              targetId,
-              undefined,
-              queryMessageLimit,
-            );
-            /**
-             * if the index of the last read message on the page is beyond the half of the page,
-             * we have arrived to the oldest page of the channel
-             */
-            const indexOfTarget = channel.state.messages.findIndex(
-              (message) => message.id === targetId,
-            ) as number;
-            loadMoreFinished(
-              channel.state.messagePagination.hasPrev,
-              channel.state.messages,
-            );
-            firstUnreadMessageId =
-              firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
-          } catch (e) {
-            addNotification(t('Failed to jump to the first unread message'), 'error');
-            loadMoreFinished(
-              channel.state.messagePagination.hasPrev,
-              channel.state.messages,
-            );
-            return;
-          }
-        }
-
-        if (!firstUnreadMessageId) {
-          addNotification(t('Failed to jump to the first unread message'), 'error');
-          return;
-        }
-        if (!channelUnreadUiState.first_unread_message_id)
-          _setChannelUnreadUiState({
-            ...channelUnreadUiState,
-            first_unread_message_id: firstUnreadMessageId,
-            last_read_message_id: lastReadMessageId,
-          });
-        handleHighlightedMessageChange({
-          highlightDuration,
-          highlightedMessageId: firstUnreadMessageId,
-        });
-      },
-      [
-        addNotification,
-        channel,
-        handleHighlightedMessageChange,
-        loadMoreFinished,
-        t,
-        channelUnreadUiState,
-      ],
-    );
+  // const jumpToLatestMessage: ChannelActionContextValue['jumpToLatestMessage'] =
+  //   useCallback(async () => {
+  //     await channel.state.loadMessageIntoState('latest');
+  //     loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
+  //     dispatch({
+  //       type: 'jumpToLatestMessage',
+  //     });
+  //   }, [channel, loadMoreFinished]);
+  //
+  // const jumpToFirstUnreadMessage: ChannelActionContextValue['jumpToFirstUnreadMessage'] =
+  //   useCallback(
+  //     async (
+  //       queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+  //       highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+  //     ) => {
+  //       if (!channelUnreadUiState?.unread_messages) return;
+  //       let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
+  //       let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
+  //       let isInCurrentMessageSet = false;
+  //
+  //       if (firstUnreadMessageId) {
+  //         const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
+  //         isInCurrentMessageSet = result.index !== -1;
+  //       } else if (lastReadMessageId) {
+  //         const result = findInMsgSetById(lastReadMessageId, channel.state.messages);
+  //         isInCurrentMessageSet = !!result.target;
+  //         firstUnreadMessageId =
+  //           result.index > -1 ? channel.state.messages[result.index + 1]?.id : undefined;
+  //       } else {
+  //         const lastReadTimestamp = channelUnreadUiState.last_read.getTime();
+  //         const { index: lastReadMessageIndex, target: lastReadMessage } =
+  //           findInMsgSetByDate(
+  //             channelUnreadUiState.last_read,
+  //             channel.state.messages,
+  //             true,
+  //           );
+  //
+  //         if (lastReadMessage) {
+  //           firstUnreadMessageId = channel.state.messages[lastReadMessageIndex + 1]?.id;
+  //           isInCurrentMessageSet = !!firstUnreadMessageId;
+  //           lastReadMessageId = lastReadMessage.id;
+  //         } else {
+  //           dispatch({ loadingMore: true, type: 'setLoadingMore' });
+  //           let messages;
+  //           try {
+  //             messages = (
+  //               await channel.query(
+  //                 {
+  //                   messages: {
+  //                     created_at_around: channelUnreadUiState.last_read.toISOString(),
+  //                     limit: queryMessageLimit,
+  //                   },
+  //                 },
+  //                 'new',
+  //               )
+  //             ).messages;
+  //           } catch (e) {
+  //             addNotification(t('Failed to jump to the first unread message'), 'error');
+  //             loadMoreFinished(
+  //               channel.state.messagePagination.hasPrev,
+  //               channel.state.messages,
+  //             );
+  //             return;
+  //           }
+  //
+  //           const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
+  //           if (!firstMessageWithCreationDate) {
+  //             addNotification(t('Failed to jump to the first unread message'), 'error');
+  //             loadMoreFinished(
+  //               channel.state.messagePagination.hasPrev,
+  //               channel.state.messages,
+  //             );
+  //             return;
+  //           }
+  //           const firstMessageTimestamp = new Date(
+  //             firstMessageWithCreationDate.created_at as string,
+  //           ).getTime();
+  //           if (lastReadTimestamp < firstMessageTimestamp) {
+  //             // whole channel is unread
+  //             firstUnreadMessageId = firstMessageWithCreationDate.id;
+  //           } else {
+  //             const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
+  //             lastReadMessageId = result.target?.id;
+  //           }
+  //           loadMoreFinished(
+  //             channel.state.messagePagination.hasPrev,
+  //             channel.state.messages,
+  //           );
+  //         }
+  //       }
+  //
+  //       if (!firstUnreadMessageId && !lastReadMessageId) {
+  //         addNotification(t('Failed to jump to the first unread message'), 'error');
+  //         return;
+  //       }
+  //
+  //       if (!isInCurrentMessageSet) {
+  //         dispatch({ loadingMore: true, type: 'setLoadingMore' });
+  //         try {
+  //           const targetId = (firstUnreadMessageId ?? lastReadMessageId) as string;
+  //           await channel.state.loadMessageIntoState(
+  //             targetId,
+  //             undefined,
+  //             queryMessageLimit,
+  //           );
+  //           /**
+  //            * if the index of the last read message on the page is beyond the half of the page,
+  //            * we have arrived to the oldest page of the channel
+  //            */
+  //           const indexOfTarget = channel.state.messages.findIndex(
+  //             (message) => message.id === targetId,
+  //           ) as number;
+  //           loadMoreFinished(
+  //             channel.state.messagePagination.hasPrev,
+  //             channel.state.messages,
+  //           );
+  //           firstUnreadMessageId =
+  //             firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
+  //         } catch (e) {
+  //           addNotification(t('Failed to jump to the first unread message'), 'error');
+  //           loadMoreFinished(
+  //             channel.state.messagePagination.hasPrev,
+  //             channel.state.messages,
+  //           );
+  //           return;
+  //         }
+  //       }
+  //
+  //       if (!firstUnreadMessageId) {
+  //         addNotification(t('Failed to jump to the first unread message'), 'error');
+  //         return;
+  //       }
+  //       if (!channelUnreadUiState.first_unread_message_id)
+  //         _setChannelUnreadUiState({
+  //           ...channelUnreadUiState,
+  //           first_unread_message_id: firstUnreadMessageId,
+  //           last_read_message_id: lastReadMessageId,
+  //         });
+  //       handleHighlightedMessageChange({
+  //         highlightDuration,
+  //         highlightedMessageId: firstUnreadMessageId,
+  //       });
+  //     },
+  //     [
+  //       addNotification,
+  //       channel,
+  //       handleHighlightedMessageChange,
+  //       loadMoreFinished,
+  //       t,
+  //       channelUnreadUiState,
+  //     ],
+  //   );
 
   const deleteMessage = useCallback(
     async (
@@ -942,218 +942,217 @@ const ChannelInner = (
     // add the message to the local channel state
     channel.state.addMessageSorted(updatedMessage, true);
 
-    dispatch({
-      channel,
-      parentId: state.thread && updatedMessage.parent_id,
-      type: 'copyMessagesFromChannel',
-    });
+    // dispatch({
+    //   channel,
+    //   parentId: state.thread && updatedMessage.parent_id,
+    //   type: 'copyMessagesFromChannel',
+    // });
   };
 
-  const doSendMessage = async ({
-    localMessage,
-    message,
-    options,
-  }: {
-    localMessage: LocalMessage;
-    message: Message;
-    options?: SendMessageOptions;
-  }) => {
-    try {
-      let messageResponse: void | SendMessageAPIResponse;
+  // const doSendMessage = async ({
+  //   localMessage,
+  //   message,
+  //   options,
+  // }: {
+  //   localMessage: LocalMessage;
+  //   message: Message;
+  //   options?: SendMessageOptions;
+  // }) => {
+  //   try {
+  //     let messageResponse: void | SendMessageAPIResponse;
+  //
+  //     if (doSendMessageRequest) {
+  //       messageResponse = await doSendMessageRequest(channel, message, options);
+  //     } else {
+  //       messageResponse = await channel.sendMessage(message, options);
+  //     }
+  //
+  //     let existingMessage: LocalMessage | undefined = undefined;
+  //     for (let i = channel.state.messages.length - 1; i >= 0; i--) {
+  //       const msg = channel.state.messages[i];
+  //       if (msg.id && msg.id === message.id) {
+  //         existingMessage = msg;
+  //         break;
+  //       }
+  //     }
+  //
+  //     const responseTimestamp = new Date(
+  //       messageResponse?.message?.updated_at || 0,
+  //     ).getTime();
+  //     const existingMessageTimestamp = existingMessage?.updated_at?.getTime() || 0;
+  //     const responseIsTheNewest = responseTimestamp > existingMessageTimestamp;
+  //
+  //     // Replace the message payload after send is completed
+  //     // We need to check for the newest message payload, because on slow network, the response can arrive later than WS events message.new, message.updated.
+  //     // Always override existing message in status "sending"
+  //     if (
+  //       messageResponse?.message &&
+  //       (responseIsTheNewest || existingMessage?.status === 'sending')
+  //     ) {
+  //       updateMessage({
+  //         ...messageResponse.message,
+  //         status: 'received',
+  //       });
+  //     }
+  //   } catch (error) {
+  //     // error response isn't usable so needs to be stringified then parsed
+  //     const stringError = JSON.stringify(error);
+  //     const parsedError = (
+  //       stringError ? JSON.parse(stringError) : {}
+  //     ) as ErrorFromResponse<APIErrorResponse>;
+  //
+  //     // Handle the case where the message already exists
+  //     // (typically, when retrying to send a message).
+  //     // If the message already exists, we can assume it was sent successfully,
+  //     // so we update the message status to "received".
+  //     // Right now, the only way to check this error is by checking
+  //     // the combination of the error code and the error description,
+  //     // since there is no special error code for duplicate messages.
+  //     if (
+  //       parsedError.code === 4 &&
+  //       error instanceof Error &&
+  //       error.message.includes('already exists')
+  //     ) {
+  //       updateMessage({
+  //         ...localMessage,
+  //         status: 'received',
+  //       });
+  //     } else {
+  //       updateMessage({
+  //         ...localMessage,
+  //         error: parsedError,
+  //         status: 'failed',
+  //       });
+  //
+  //       thread?.upsertReplyLocally({
+  //         message: {
+  //           ...localMessage,
+  //           error: parsedError,
+  //           status: 'failed',
+  //         },
+  //       });
+  //     }
+  //   }
+  // };
 
-      if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel, message, options);
-      } else {
-        messageResponse = await channel.sendMessage(message, options);
-      }
+  // const sendMessage = async ({
+  //   localMessage,
+  //   message,
+  //   options,
+  // }: {
+  //   localMessage: LocalMessage;
+  //   message: Message;
+  //   options?: SendMessageOptions;
+  // }) => {
+  //   channel.state.filterErrorMessages();
+  //
+  //   thread?.upsertReplyLocally({
+  //     message: localMessage,
+  //   });
+  //
+  //   updateMessage(localMessage);
+  //
+  //   await doSendMessage({ localMessage, message, options });
+  // };
 
-      let existingMessage: LocalMessage | undefined = undefined;
-      for (let i = channel.state.messages.length - 1; i >= 0; i--) {
-        const msg = channel.state.messages[i];
-        if (msg.id && msg.id === message.id) {
-          existingMessage = msg;
-          break;
-        }
-      }
-
-      const responseTimestamp = new Date(
-        messageResponse?.message?.updated_at || 0,
-      ).getTime();
-      const existingMessageTimestamp = existingMessage?.updated_at?.getTime() || 0;
-      const responseIsTheNewest = responseTimestamp > existingMessageTimestamp;
-
-      // Replace the message payload after send is completed
-      // We need to check for the newest message payload, because on slow network, the response can arrive later than WS events message.new, message.updated.
-      // Always override existing message in status "sending"
-      if (
-        messageResponse?.message &&
-        (responseIsTheNewest || existingMessage?.status === 'sending')
-      ) {
-        updateMessage({
-          ...messageResponse.message,
-          status: 'received',
-        });
-      }
-    } catch (error) {
-      // error response isn't usable so needs to be stringified then parsed
-      const stringError = JSON.stringify(error);
-      const parsedError = (
-        stringError ? JSON.parse(stringError) : {}
-      ) as ErrorFromResponse<APIErrorResponse>;
-
-      // Handle the case where the message already exists
-      // (typically, when retrying to send a message).
-      // If the message already exists, we can assume it was sent successfully,
-      // so we update the message status to "received".
-      // Right now, the only way to check this error is by checking
-      // the combination of the error code and the error description,
-      // since there is no special error code for duplicate messages.
-      if (
-        parsedError.code === 4 &&
-        error instanceof Error &&
-        error.message.includes('already exists')
-      ) {
-        updateMessage({
-          ...localMessage,
-          status: 'received',
-        });
-      } else {
-        updateMessage({
-          ...localMessage,
-          error: parsedError,
-          status: 'failed',
-        });
-
-        thread?.upsertReplyLocally({
-          message: {
-            ...localMessage,
-            error: parsedError,
-            status: 'failed',
-          },
-        });
-      }
-    }
-  };
-
-  const sendMessage = async ({
-    localMessage,
-    message,
-    options,
-  }: {
-    localMessage: LocalMessage;
-    message: Message;
-    options?: SendMessageOptions;
-  }) => {
-    channel.state.filterErrorMessages();
-
-    thread?.upsertReplyLocally({
-      message: localMessage,
-    });
-
-    updateMessage(localMessage);
-
-    await doSendMessage({ localMessage, message, options });
-  };
-
-  const retrySendMessage = async (localMessage: LocalMessage) => {
-    updateMessage({
-      ...localMessage,
-      error: undefined,
-      status: 'sending',
-    });
-
-    await doSendMessage({
-      localMessage,
-      message: localMessageToNewMessagePayload(localMessage),
-    });
-  };
+  // const retrySendMessage = async (localMessage: LocalMessage) => {
+  //   updateMessage({
+  //     ...localMessage,
+  //     error: undefined,
+  //     status: 'sending',
+  //   });
+  //
+  //   await doSendMessage({
+  //     localMessage,
+  //     message: localMessageToNewMessagePayload(localMessage),
+  //   });
+  // };
 
   const removeMessage = (message: LocalMessage) => {
     channel.state.removeMessage(message);
 
-    dispatch({
-      channel,
-      parentId: state.thread && message.parent_id,
-      type: 'copyMessagesFromChannel',
-    });
+    // dispatch({
+    //   channel,
+    //   parentId: state.thread && message.parent_id,
+    //   type: 'copyMessagesFromChannel',
+    // });
   };
 
   /** THREAD */
 
   const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    dispatch({ channel, message, type: 'openThread' });
+    // dispatch({ channel, message, type: 'openThread' });
   };
 
   const closeThread = (event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
-    dispatch({ type: 'closeThread' });
+    // dispatch({ type: 'closeThread' });
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const loadMoreThreadFinished = useCallback(
-    debounce(
-      (
-        threadHasMore: boolean,
-        threadMessages: Array<ReturnType<ChannelState['formatMessage']>>,
-      ) => {
-        dispatch({
-          threadHasMore,
-          threadMessages,
-          type: 'loadMoreThreadFinished',
-        });
-      },
-      2000,
-      { leading: true, trailing: true },
-    ),
-    [],
-  );
+  // const loadMoreThreadFinished = useCallback(
+  //   debounce(
+  //     (
+  //       threadHasMore: boolean,
+  //       threadMessages: Array<ReturnType<ChannelState['formatMessage']>>,
+  //     ) => {
+  //       dispatch({
+  //         threadHasMore,
+  //         threadMessages,
+  //         type: 'loadMoreThreadFinished',
+  //       });
+  //     },
+  //     2000,
+  //     { leading: true, trailing: true },
+  //   ),
+  //   [],
+  // );
 
-  const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
-    // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
-
-    dispatch({ type: 'startLoadingThread' });
-    const parentId = state.thread.id;
-
-    if (!parentId) {
-      return dispatch({ type: 'closeThread' });
-    }
-
-    const oldMessages = channel.state.threads[parentId] || [];
-    const oldestMessageId = oldMessages[0]?.id;
-
-    try {
-      const queryResponse = await channel.getReplies(parentId, {
-        id_lt: oldestMessageId,
-        limit,
-      });
-
-      const threadHasMoreMessages = hasMoreMessagesProbably(
-        queryResponse.messages.length,
-        limit,
-      );
-      const newThreadMessages = channel.state.threads[parentId] || [];
-
-      // next set loadingMore to false so we can start asking for more data
-      loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
-    } catch (e) {
-      loadMoreThreadFinished(false, oldMessages);
-    }
-  };
+  // const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
+  //   // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
+  //   if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
+  //
+  //   dispatch({ type: 'startLoadingThread' });
+  //   const parentId = state.thread.id;
+  //
+  //   if (!parentId) {
+  //     return dispatch({ type: 'closeThread' });
+  //   }
+  //
+  //   const oldMessages = channel.state.threads[parentId] || [];
+  //   const oldestMessageId = oldMessages[0]?.id;
+  //
+  //   try {
+  //     const queryResponse = await channel.getReplies(parentId, {
+  //       id_lt: oldestMessageId,
+  //       limit,
+  //     });
+  //
+  //     const threadHasMoreMessages = hasMoreMessagesProbably(
+  //       queryResponse.messages.length,
+  //       limit,
+  //     );
+  //     const newThreadMessages = channel.state.threads[parentId] || [];
+  //
+  //     // next set loadingMore to false so we can start asking for more data
+  //     loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
+  //   } catch (e) {
+  //     loadMoreThreadFinished(false, oldMessages);
+  //   }
+  // };
 
   const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
 
-  const editMessage = useEditMessageHandler(doUpdateMessageRequest);
+  // const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
-  const { typing, ...restState } = state;
+  // const { typing, ...restState } = state;
 
   const channelStateContextValue = useCreateChannelStateContext({
-    ...restState,
+    // ...restState,
     channel,
     channelCapabilitiesArray,
     channelConfig,
-    channelUnreadUiState,
+    // channelUnreadUiState,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
@@ -1162,7 +1161,7 @@ const ChannelInner = (
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
-    watcher_count: state.watcherCount,
+    // watcher_count: state.watcherCount,
   });
 
   const channelActionContextValue: ChannelActionContextValue = useMemo(
@@ -1170,22 +1169,22 @@ const ChannelInner = (
       addNotification,
       closeThread,
       deleteMessage,
-      dispatch,
-      editMessage,
-      jumpToFirstUnreadMessage,
-      jumpToLatestMessage,
-      jumpToMessage,
-      loadMore,
-      loadMoreNewer,
-      loadMoreThread,
+      // dispatch,
+      // editMessage,
+      // jumpToFirstUnreadMessage,
+      // jumpToLatestMessage,
+      // jumpToMessage,
+      // loadMore,
+      // loadMoreNewer,
+      // loadMoreThread,
       markRead,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
       openThread,
       removeMessage,
-      retrySendMessage,
-      sendMessage,
-      setChannelUnreadUiState,
+      // retrySendMessage,
+      // sendMessage,
+      // setChannelUnreadUiState,
       skipMessageDataMemoization,
       updateMessage,
     }),
@@ -1193,13 +1192,13 @@ const ChannelInner = (
     [
       channel.cid,
       deleteMessage,
-      loadMore,
-      loadMoreNewer,
+      // loadMore,
+      // loadMoreNewer,
       markRead,
-      jumpToFirstUnreadMessage,
-      jumpToMessage,
-      jumpToLatestMessage,
-      setChannelUnreadUiState,
+      // jumpToFirstUnreadMessage,
+      // jumpToMessage,
+      // jumpToLatestMessage,
+      // setChannelUnreadUiState,
     ],
   );
 
@@ -1346,25 +1345,25 @@ const ChannelInner = (
     ],
   );
 
-  const typingContextValue = useCreateTypingContext({
-    typing,
-  });
+  // const typingContextValue = useCreateTypingContext({
+  //   typing,
+  // });
 
-  if (state.error) {
-    return (
-      <ChannelContainer>
-        <LoadingErrorIndicator error={state.error} />
-      </ChannelContainer>
-    );
-  }
+  // if (state.error) {
+  //   return (
+  //     <ChannelContainer>
+  //       <LoadingErrorIndicator error={state.error} />
+  //     </ChannelContainer>
+  //   );
+  // }
 
-  if (state.loading) {
-    return (
-      <ChannelContainer>
-        <LoadingIndicator />
-      </ChannelContainer>
-    );
-  }
+  // if (state.loading) {
+  //   return (
+  //     <ChannelContainer>
+  //       <LoadingIndicator />
+  //     </ChannelContainer>
+  //   );
+  // }
 
   if (!channel.watch) {
     return (
@@ -1379,11 +1378,11 @@ const ChannelInner = (
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
-            <TypingProvider value={typingContextValue}>
-              <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-                <div className={clsx(chatContainerClass)}>{children}</div>
-              </WithAudioPlayback>
-            </TypingProvider>
+            {/*<TypingProvider value={typingContextValue}>*/}
+            <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+              <div className={clsx(chatContainerClass)}>{children}</div>
+            </WithAudioPlayback>
+            {/*</TypingProvider>*/}
           </WithComponents>
         </ChannelActionProvider>
       </ChannelStateProvider>

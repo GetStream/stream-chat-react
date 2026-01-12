@@ -2,6 +2,9 @@ import { useChannelStateContext } from '../../../../context';
 import { useEffect, useRef, useState } from 'react';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageListMainPanel';
 import { UNREAD_MESSAGE_SEPARATOR_CLASS } from '../../UnreadMessagesSeparator';
+import type { MessagePaginatorState, UnreadSnapshotState } from 'stream-chat';
+import { useStateStore } from '../../../../store';
+import { useThreadContext } from '../../../Threads';
 
 const targetScrolledAboveVisibleContainerArea = (element: Element) => {
   const { bottom: targetBottom } = element.getBoundingClientRect();
@@ -23,12 +26,31 @@ export type UseUnreadMessagesNotificationParams = {
   unreadCount?: number;
 };
 
+const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
+  messages: state.items ?? [],
+});
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  unreadCount: state.unreadCount,
+});
+
 export const useUnreadMessagesNotification = ({
   isMessageListScrolledToBottom,
   showAlways,
-  unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
-  const { messages } = useChannelStateContext('UnreadMessagesNotification');
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messagePaginator } = thread ?? channel;
+
+  const { messages } = useStateStore(
+    messagePaginator.state,
+    messagePaginatorStateSelector,
+  );
+
+  const { unreadCount } = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
   const [show, setShow] = useState(false);
   const isScrolledAboveTargetTop = useRef(false);
   const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';

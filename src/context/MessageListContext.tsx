@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 export type MessageListContextValue = {
   /** The scroll container within which the messages and typing indicator are rendered */
-  listElement: HTMLDivElement | null;
+  listElement: HTMLElement | null;
   /** Function that scrolls the `listElement` to the bottom. */
   scrollToBottom: () => void;
 };

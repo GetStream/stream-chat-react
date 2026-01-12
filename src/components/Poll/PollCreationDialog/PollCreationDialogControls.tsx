@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
-import { useMessageInputContext, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
+import { useSendMessageFn } from '../../MessageInput/hooks/useSendMessageFn';
 
 export type PollCreationDialogControlsProps = {
   close: () => void;
@@ -10,8 +11,8 @@ export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
   const { t } = useTranslationContext('PollCreationDialogControls');
-  const { handleSubmit: handleSubmitMessage } = useMessageInputContext();
   const messageComposer = useMessageComposer();
+  const sendMessage = useSendMessageFn();
   const canCreatePoll = useCanCreatePoll();
 
   return (
@@ -32,7 +33,7 @@ export const PollCreationDialogControls = ({
         onClick={() => {
           messageComposer
             .createPoll()
-            .then(() => handleSubmitMessage())
+            .then(sendMessage)
             .then(() => {
               messageComposer.pollComposer.initState();
               close();

@@ -33,7 +33,7 @@ export const usePollOptionVotesPagination = ({
         filter: paginationParams.filter,
         options: !next
           ? paginationParams?.options
-          : { ...paginationParams?.options, next },
+          : { ...paginationParams?.options, limit: 5, next },
         sort: { created_at: -1, ...paginationParams?.sort },
       });
       return { items: votes, next: newNext };

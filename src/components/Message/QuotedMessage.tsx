@@ -7,12 +7,12 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 import { Poll } from '../Poll';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { renderText as defaultRenderText } from './renderText';
-import type { MessageContextValue } from '../../context/MessageContext';
 import { useActionHandler } from './';
+import { useMessagePaginator } from '../../hooks';
 
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 
@@ -26,9 +26,8 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
     renderText: contextRenderText,
   } = useMessageContext('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
-  const { jumpToMessage } = useChannelActionContext('QuotedMessage');
   const actionHandler = useActionHandler(message);
-
+  const messagePaginator = useMessagePaginator();
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
   const Avatar = ContextAvatar || DefaultAvatar;
@@ -65,7 +64,7 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
         onClickCapture={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          jumpToMessage(quoted_message.id);
+          messagePaginator.jumpToMessage(quoted_message.id);
         }}
       >
         {quoted_message.user && (

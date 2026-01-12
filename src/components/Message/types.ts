@@ -1,11 +1,9 @@
 import type { TFunction } from 'i18next';
 import type { ReactNode } from 'react';
-import type { ReactionSort, UserResponse } from 'stream-chat';
+import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
-
-import type { LocalMessage } from 'stream-chat';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
@@ -99,8 +97,9 @@ export type MessageProps = {
     mentioned_users?: UserResponse[],
     options?: RenderTextOptions,
   ) => ReactNode;
-  /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  retrySendMessage?: ChannelActionContextValue['retrySendMessage'];
+  // todo: document how to register custom CustomSendMessageRequestFn with Channel and Thread through StreamChat
+  // /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
+  // retrySendMessage?: CustomSendMessageRequestFn;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
   /** Comparator function to sort the list of reacted users

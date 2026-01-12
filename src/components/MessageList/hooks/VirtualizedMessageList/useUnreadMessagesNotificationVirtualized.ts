@@ -1,12 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RenderedMessage } from '../../utils';
-import type { LocalMessage } from 'stream-chat';
+import type { LocalMessage, UnreadSnapshotState } from 'stream-chat';
+import { useChannelStateContext } from '../../../../context';
+import { useThreadContext } from '../../../Threads';
+import { useStateStore } from '../../../../store';
 
 export type UseUnreadMessagesNotificationParams = {
   showAlways: boolean;
-  unreadCount: number;
-  lastRead?: Date | null;
+  // unreadCount: number;
+  // lastRead?: Date | null;
 };
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  lastReadAt: state.lastReadAt,
+  unreadCount: state.unreadCount,
+});
 
 /**
  * Controls the logic when an `UnreadMessagesNotification` component should be shown.
@@ -16,16 +24,19 @@ export type UseUnreadMessagesNotificationParams = {
  * messages created later than the last read message in the channel, then the
  * `UnreadMessagesNotification` component is rendered. This is an approximate equivalent to being
  * scrolled below the `UnreadMessagesNotification` component.
- * @param lastRead
  * @param showAlways
- * @param unreadCount
  */
 export const useUnreadMessagesNotificationVirtualized = ({
-  lastRead,
   showAlways,
-  unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
   const [show, setShow] = useState(false);
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messagePaginator } = thread ?? channel;
+  const { lastReadAt, unreadCount } = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
 
   const toggleShowUnreadMessagesNotification = useCallback(
     (renderedMessages: RenderedMessage[]) => {
@@ -40,7 +51,7 @@ export const useUnreadMessagesNotificationVirtualized = ({
       const lastRenderedMessageTime = new Date(
         (lastRenderedMessage as LocalMessage).created_at ?? 0,
       ).getTime();
-      const lastReadTime = new Date(lastRead ?? 0).getTime();
+      const lastReadTime = new Date(lastReadAt ?? 0).getTime();
 
       const scrolledBelowSeparator =
         !!lastReadTime && firstRenderedMessageTime > lastReadTime;
@@ -53,7 +64,7 @@ export const useUnreadMessagesNotificationVirtualized = ({
           : scrolledBelowSeparator,
       );
     },
-    [lastRead, showAlways, unreadCount],
+    [lastReadAt, showAlways, unreadCount],
   );
 
   useEffect(() => {

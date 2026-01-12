@@ -10,8 +10,6 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
-import type { ChannelActionContextValue } from './ChannelActionContext';
-
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
 import type { ReactEventHandler } from '../components/Message/types';
@@ -75,8 +73,8 @@ export type MessageContextValue = {
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** Function to retry sending a Message */
-  handleRetry: ChannelActionContextValue['retrySendMessage'];
+  // /** Function to retry sending a Message */
+  // handleRetry: RetrySendMessage;
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */

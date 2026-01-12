@@ -10,7 +10,7 @@ import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
 import clsx from 'clsx';
 
-type ChatView = 'channels' | 'threads';
+type ChatView = 'channels' | 'threads' | (string & {});
 
 type ChatViewContextValue = {
   activeChatView: ChatView;
@@ -37,6 +37,7 @@ export const ChatView = ({ children }: PropsWithChildren) => {
   );
 };
 
+// todo: move channel list orchestrator here
 const ChannelsView = ({ children }: PropsWithChildren) => {
   const { activeChatView } = useContext(ChatViewContext);
 

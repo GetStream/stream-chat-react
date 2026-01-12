@@ -9,7 +9,7 @@ import type {
 } from 'stream-chat';
 
 import type {
-  ChannelUnreadUiState,
+  // ChannelUnreadUiState,
   GiphyVersions,
   ImageAttachmentSizeHandler,
   UnknownType,
@@ -45,7 +45,7 @@ export type ChannelState = {
   watchers?: StreamChannelState['watchers'];
 };
 
-export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
+export type ChannelStateContextValue = {
   channel: Channel;
   channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo | undefined;
@@ -53,10 +53,10 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   notifications: ChannelNotifications;
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
-  channelUnreadUiState?: ChannelUnreadUiState;
+  // channelUnreadUiState?: ChannelUnreadUiState;
   giphyVersion?: GiphyVersions;
   mutes?: Array<Mute>;
-  watcher_count?: number;
+  // watcher_count?: number;
 };
 
 export const ChannelStateContext = React.createContext<

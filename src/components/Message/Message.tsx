@@ -12,7 +12,6 @@ import {
   usePinHandler,
   useReactionHandler,
   useReactionsFetcher,
-  useRetryHandler,
   useUserHandler,
   useUserRole,
 } from './hooks';
@@ -47,7 +46,6 @@ type MessageContextPropsToPick =
   | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
-  | 'handleRetry'
   | 'mutes'
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
@@ -74,7 +72,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   } = props;
 
   const { client, isMessageAIGenerated } = useChatContext('Message');
-  const { channelConfig, read } = useChannelStateContext('Message');
+  const { channel, channelConfig } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
@@ -104,13 +102,13 @@ const MessageWithContext = (props: MessageWithContextProps) => {
       !!(
         !isMyMessage &&
         client.user?.id &&
-        read &&
-        (!read[client.user.id] ||
+        channel.state.read &&
+        (!channel.state.read[client.user.id] ||
           (message?.created_at &&
             new Date(message.created_at).getTime() >
-              read[client.user.id].last_read.getTime()))
+              channel.state.read[client.user.id].last_read.getTime()))
       ),
-    [client, isMyMessage, message.created_at, read],
+    [client, isMyMessage, message.created_at, channel],
   );
 
   const messageActionsHandler = useCallback(
@@ -208,18 +206,16 @@ export const Message = (props: MessageProps) => {
     openThread: propOpenThread,
     pinPermissions,
     reactionDetailsSort,
-    retrySendMessage: propRetrySendMessage,
     sortReactionDetails,
     sortReactions,
   } = props;
 
   const { addNotification } = useChannelActionContext('Message');
-  const { highlightedMessageId, mutes } = useChannelStateContext('Message');
+  const { mutes } = useChannelStateContext('Message');
 
   const handleAction = useActionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
-  const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
 
   const handleFetchReactions = useReactionsFetcher(message, {
@@ -260,7 +256,7 @@ export const Message = (props: MessageProps) => {
     notify: addNotification,
   });
 
-  const highlighted = highlightedMessageId === message.id;
+  // const highlighted = highlightedMessageId === message.id;
 
   return (
     <MemoizedMessage
@@ -285,8 +281,7 @@ export const Message = (props: MessageProps) => {
       handleOpenThread={handleOpenThread}
       handlePin={handlePin}
       handleReaction={handleReaction}
-      handleRetry={handleRetry}
-      highlighted={highlighted}
+      // highlighted={highlighted}
       initialMessage={props.initialMessage}
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}

@@ -5,10 +5,13 @@ import { Modal as DefaultModal } from '../Modal';
 import {
   useComponentContext,
   useMessageContext,
-  useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import { useMessageComposer, useMessageComposerHasSendableData } from './hooks';
+import {
+  useMessageComposer,
+  useMessageComposerHasSendableData,
+  useUpdateMessageFn,
+} from './hooks';
 
 import type { MessageUIComponentProps } from '../Message';
 
@@ -30,34 +33,32 @@ const EditMessageFormSendButton = () => {
 export const EditMessageForm = () => {
   const { t } = useTranslationContext('EditMessageForm');
   const messageComposer = useMessageComposer();
-  const { clearEditingState, handleSubmit } = useMessageInputContext('EditMessageForm');
-
-  const cancel = useCallback(() => {
-    clearEditingState?.();
-    messageComposer.restore();
-  }, [clearEditingState, messageComposer]);
+  const updateMessage = useUpdateMessageFn();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') cancel();
+      if (event.key === 'Escape') messageComposer.restore();
     };
 
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [cancel]);
+  }, [messageComposer]);
 
   return (
     <form
       autoComplete='off'
       className='str-chat__edit-message-form'
-      onSubmit={handleSubmit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        updateMessage();
+      }}
     >
       <MessageInputFlat />
       <div className='str-chat__edit-message-form-options'>
         <button
           className='str-chat__edit-message-cancel'
           data-testid='cancel-button'
-          onClick={cancel}
+          onClick={messageComposer.restore}
           type='button'
         >
           {t('Cancel')}

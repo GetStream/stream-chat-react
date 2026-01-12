@@ -6,7 +6,7 @@ import type { LocalMessage } from 'stream-chat';
 
 export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
-  listElement: HTMLDivElement | null;
+  listElement: HTMLElement | null;
   loadMoreScrollThreshold: number;
   suppressAutoscroll: boolean;
   messages?: LocalMessage[];
@@ -67,8 +67,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   });
 
   const onScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const element = event.target as HTMLDivElement;
+    (event: React.UIEvent<HTMLElement>) => {
+      const element = event.target as HTMLElement;
       const scrollTop = element.scrollTop;
 
       updateScrollTop(scrollTop);

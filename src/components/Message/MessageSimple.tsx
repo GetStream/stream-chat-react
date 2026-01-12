@@ -14,7 +14,7 @@ import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMes
 import { isDateSeparatorMessage } from '../MessageList';
 import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
-import { useMessageReminder } from './hooks';
+import { useMessageReminder, useRetryHandler } from './hooks';
 import {
   areMessageUIPropsEqual,
   isMessageBlocked,
@@ -50,7 +50,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     groupedByUser,
     handleAction,
     handleOpenThread,
-    handleRetry,
     highlighted,
     isMessageAIGenerated,
     isMyMessage,
@@ -65,6 +64,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
+  const handleRetry = useRetryHandler();
 
   const {
     Attachment = DefaultAttachment,
@@ -125,7 +125,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   let handleClick: (() => void) | undefined = undefined;
 
   if (allowRetry) {
-    handleClick = () => handleRetry(message);
+    handleClick = () => handleRetry({ localMessage: message });
   } else if (isBounced) {
     handleClick = () => setIsBounceDialogOpen(true);
   } else if (isEdited) {

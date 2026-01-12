@@ -2,9 +2,8 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useTypingContext } from '../../context/TypingContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import type { Event } from 'stream-chat';
 
 export type TypingIndicatorProps = {
   /** Whether the typing indicator is in a thread */
@@ -42,21 +41,23 @@ const useJoinTypingUsers = (names: string[]) => {
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { threadList } = props;
 
-  const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
-  const { client } = useChatContext('TypingIndicator');
-  const { typing = {} } = useTypingContext('TypingIndicator');
+  const { channelConfig } = useChannelStateContext('TypingIndicator');
+  // const { client } = useChatContext('TypingIndicator');
+  // const { typing = {} } = useTypingContext('TypingIndicator');
 
-  const typingInChannel = !threadList
-    ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
-      )
-    : [];
+  const typingInChannel: Event[] = [];
+  // !threadList
+  //   ? Object.values(typing).filter(
+  //       ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+  //     )
+  //   : [];
 
-  const typingInThread = threadList
-    ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
-      )
-    : [];
+  const typingInThread: Event[] = [];
+  // threadList
+  //   ? Object.values(typing).filter(
+  //       ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+  //     )
+  //   : [];
 
   const typingUserList = (threadList ? typingInThread : typingInChannel)
     .map(({ user }) => user?.name || user?.id)

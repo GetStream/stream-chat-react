@@ -30,17 +30,18 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useAttachmentManagerState } from './hooks/useAttachmentManagerState';
 import { useMessageContext } from '../../context';
 import { WithDragAndDropUpload } from './WithDragAndDropUpload';
+import { useSendMessageFn } from './hooks/useSendMessageFn';
 
 export const MessageInputFlat = () => {
   const { message } = useMessageContext();
   const {
     asyncMessagesMultiSendEnabled,
     cooldownRemaining,
-    handleSubmit,
     hideSendButton,
     recordingController,
     setCooldownRemaining,
   } = useMessageInputContext('MessageInputFlat');
+  const sendMessage = useSendMessageFn();
 
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
@@ -126,7 +127,12 @@ export const MessageInputFlat = () => {
                 />
               ) : (
                 <>
-                  <SendButton sendMessage={handleSubmit} />
+                  <SendButton
+                    sendMessage={(e) => {
+                      e.preventDefault();
+                      sendMessage();
+                    }}
+                  />
                   {recordingEnabled && (
                     <StartRecordingAudioButton
                       disabled={

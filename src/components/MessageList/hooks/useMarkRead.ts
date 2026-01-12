@@ -5,6 +5,7 @@ import {
   useChatContext,
 } from '../../../context';
 import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
+import { useThreadContext } from '../../Threads';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
@@ -14,8 +15,8 @@ const hasReadLastMessage = (channel: Channel, userId: string) => {
 
 type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
+  // todo: remove and infer only from useThreadContext return value - if undefined, not a thread list
   messageListIsThread: boolean;
-  wasMarkedUnread?: boolean;
 };
 
 /**
@@ -30,20 +31,26 @@ type UseMarkReadParams = {
 export const useMarkRead = ({
   isMessageListScrolledToBottom,
   messageListIsThread,
-  wasMarkedUnread,
 }: UseMarkReadParams) => {
-  const { client } = useChatContext('useMarkRead');
-  const { markRead, setChannelUnreadUiState } = useChannelActionContext('useMarkRead');
-  const { channel } = useChannelStateContext('useMarkRead');
+  const { client } = useChatContext();
+  const { markRead } = useChannelActionContext();
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messagePaginator } = thread ?? channel;
 
   useEffect(() => {
-    const shouldMarkRead = () =>
-      !document.hidden &&
-      !wasMarkedUnread &&
-      !messageListIsThread &&
-      isMessageListScrolledToBottom &&
-      client.user?.id &&
-      !hasReadLastMessage(channel, client.user.id);
+    const shouldMarkRead = () => {
+      const wasMarkedUnread =
+        !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;
+      return (
+        !document.hidden &&
+        !wasMarkedUnread &&
+        !messageListIsThread &&
+        isMessageListScrolledToBottom &&
+        client.user?.id &&
+        !hasReadLastMessage(channel, client.user.id)
+      );
+    };
 
     const onVisibilityChange = () => {
       if (shouldMarkRead()) markRead();
@@ -53,22 +60,15 @@ export const useMarkRead = ({
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
 
+      const wasMarkedUnread =
+        !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;
+
+      // increase unread count in this case
       if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
-        setChannelUnreadUiState((prev) => {
-          const previousUnreadCount = prev?.unread_messages ?? 0;
-          const previousLastMessage = getPreviousLastMessage(
-            channel.state.messages,
-            event.message,
-          );
-          return {
-            ...(prev || {}),
-            last_read:
-              prev?.last_read ??
-              (previousUnreadCount === 0 && previousLastMessage?.created_at
-                ? new Date(previousLastMessage.created_at)
-                : new Date(0)), // not having information about the last read message means the whole channel is unread,
-            unread_messages: previousUnreadCount + 1,
-          };
+        const currentUnreadSnapshot =
+          messagePaginator.unreadStateSnapshot.getLatestValue();
+        messagePaginator.unreadStateSnapshot.partialNext({
+          unreadCount: currentUnreadSnapshot.unreadCount + 1,
         });
       } else if (mainChannelUpdated && shouldMarkRead()) {
         markRead();
@@ -92,8 +92,7 @@ export const useMarkRead = ({
     isMessageListScrolledToBottom,
     markRead,
     messageListIsThread,
-    setChannelUnreadUiState,
-    wasMarkedUnread,
+    messagePaginator,
   ]);
 };
 

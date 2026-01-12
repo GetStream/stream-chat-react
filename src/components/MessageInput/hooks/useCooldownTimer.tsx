@@ -1,8 +1,9 @@
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import type { ChannelResponse } from 'stream-chat';
+import type { ChannelResponse, MessagePaginatorState } from 'stream-chat';
 
 import { useChannelStateContext, useChatContext } from '../../../context';
+import { useStateStore } from '../../../store';
 
 export type CooldownTimerState = {
   cooldownInterval: number;
@@ -10,9 +11,17 @@ export type CooldownTimerState = {
   cooldownRemaining?: number;
 };
 
+const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
+  messages: state.items ?? [],
+});
+
 export const useCooldownTimer = (): CooldownTimerState => {
   const { client, latestMessageDatesByChannels } = useChatContext('useCooldownTimer');
-  const { channel, messages = [] } = useChannelStateContext('useCooldownTimer');
+  const { channel } = useChannelStateContext('useCooldownTimer');
+  const { messages } = useStateStore(
+    channel.messagePaginator.state,
+    messagePaginatorStateSelector,
+  );
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
   const { cooldown: cooldownInterval = 0, own_capabilities } = (channel.data ||

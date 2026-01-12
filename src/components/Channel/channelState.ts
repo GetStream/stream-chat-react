@@ -272,17 +272,24 @@ export const initialState = {
   hasMoreNewer: false,
   loading: true,
   loadingMore: false,
+  // todo: add reactive state to Channel class
   members: {},
   messages: [],
+  // todo: add reactive state to Channel class
   pinnedMessages: [],
+  // todo: add reactive state to Channel class
   read: {},
+  // todo: could be moved as a prop to MessageList / VML
   suppressAutoscroll: false,
   thread: null,
   threadHasMore: true,
   threadLoadingMore: false,
   threadMessages: [],
+  // todo: could be moved as a prop to MessageList / VML
   threadSuppressAutoscroll: false,
+  // todo: add reactive state to Channel class
   typing: {},
+  // todo: add reactive state to Channel class
   watcherCount: 0,
   watchers: {},
 };

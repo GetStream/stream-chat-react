@@ -7,6 +7,10 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useNotifications } from '../Notifications/hooks/useNotifications';
 import type { MessageNotificationProps } from './MessageNotification';
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useThreadContext } from '../Threads';
+import { useStateStore } from '../../store';
+import type { UnreadSnapshotState } from 'stream-chat';
 
 const ClientNotifications = () => {
   const clientNotifications = useNotifications();
@@ -35,8 +39,11 @@ export type MessageListNotificationsProps = {
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
   threadList?: boolean;
-  unreadCount?: number;
 };
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  unreadCount: state.unreadCount,
+});
 
 export const MessageListNotifications = (props: MessageListNotificationsProps) => {
   const {
@@ -47,8 +54,15 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
     notifications,
     scrollToBottom,
     threadList,
-    unreadCount,
   } = props;
+
+  const { channel } = useChannelStateContext();
+  const thread = useThreadContext();
+  const { messagePaginator } = thread ?? channel;
+  const { unreadCount } = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
 
   const { t } = useTranslationContext('MessageListNotifications');
 

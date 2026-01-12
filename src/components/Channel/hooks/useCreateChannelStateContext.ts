@@ -14,49 +14,49 @@ export const useCreateChannelStateContext = (
     channel,
     channelCapabilitiesArray = [],
     channelConfig,
-    channelUnreadUiState,
-    error,
+    // channelUnreadUiState,
+    // error,
     giphyVersion,
-    hasMore,
-    hasMoreNewer,
-    highlightedMessageId,
+    // hasMore,
+    // hasMoreNewer,
+    // highlightedMessageId,
     imageAttachmentSizeHandler,
-    loading,
-    loadingMore,
-    members,
-    messages = [],
+    // loading,
+    // loadingMore,
+    // members,
+    // messages = [],
     mutes,
     notifications,
-    pinnedMessages,
-    read = {},
+    // pinnedMessages,
+    // read = {},
     shouldGenerateVideoThumbnail,
-    skipMessageDataMemoization,
-    suppressAutoscroll,
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages = [],
+    // skipMessageDataMemoization,
+    // suppressAutoscroll,
+    // thread,
+    // threadHasMore,
+    // threadLoadingMore,
+    // threadMessages = [],
     videoAttachmentSizeHandler,
-    watcher_count,
-    watcherCount,
-    watchers,
+    // watcher_count,
+    // watcherCount,
+    // watchers,
   } = value;
 
-  const channelId = channel.cid;
-  const lastRead = channel.initialized && channel.lastRead()?.getTime();
-  const membersLength = Object.keys(members || []).length;
-  const notificationsLength = notifications.length;
-  const readUsers = Object.values(read);
-  const readUsersLength = readUsers.length;
-  const readUsersLastReadDateStrings: string[] = [];
-  for (const { last_read } of readUsers) {
-    if (!lastRead) continue;
-    readUsersLastReadDateStrings.push(last_read?.toISOString());
-  }
-  const readUsersLastReads = readUsersLastReadDateStrings.join();
-  const threadMessagesLength = threadMessages?.length;
+  // const channelId = channel.cid;
+  // const lastRead = channel.initialized && channel.lastRead()?.getTime();
+  // const membersLength = Object.keys(members || []).length;
+  // const notificationsLength = notifications.length;
+  // const readUsers = Object.values(read);
+  // const readUsersLength = readUsers.length;
+  // const readUsersLastReadDateStrings: string[] = [];
+  // for (const { last_read } of readUsers) {
+  //   if (!lastRead) continue;
+  //   readUsersLastReadDateStrings.push(last_read?.toISOString());
+  // }
+  // const readUsersLastReads = readUsersLastReadDateStrings.join();
+  // const threadMessagesLength = threadMessages?.length;
 
-  const channelCapabilities: Record<string, boolean> = {};
+  const channelCapabilities: Record<string, boolean> = useMemo(() => ({}), []);
 
   channelCapabilitiesArray.forEach((capability) => {
     channelCapabilities[capability] = true;
@@ -64,100 +64,107 @@ export const useCreateChannelStateContext = (
 
   // FIXME: this is crazy - I could not find out why the messages were not getting updated when only message properties that are not part
   // of this serialization has been changed. A great example of memoization gone wrong.
-  const memoizedMessageData = skipMessageDataMemoization
-    ? messages
-    : messages
-        .map(
-          ({
-            deleted_at,
-            latest_reactions,
-            pinned,
-            reply_count,
-            status,
-            type,
-            updated_at,
-            user,
-          }) =>
-            `${type}${deleted_at}${
-              latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
-            }${pinned}${reply_count}${status}${
-              updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
-                ? updated_at.toISOString()
-                : updated_at || ''
-            }${user?.updated_at}`,
-        )
-        .join();
+  // const memoizedMessageData = skipMessageDataMemoization
+  //   ? messages
+  //   : messages
+  //       .map(
+  //         ({
+  //           deleted_at,
+  //           latest_reactions,
+  //           pinned,
+  //           reply_count,
+  //           status,
+  //           type,
+  //           updated_at,
+  //           user,
+  //         }) =>
+  //           `${type}${deleted_at}${
+  //             latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
+  //           }${pinned}${reply_count}${status}${
+  //             updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
+  //               ? updated_at.toISOString()
+  //               : updated_at || ''
+  //           }${user?.updated_at}`,
+  //       )
+  //       .join();
 
-  const memoizedThreadMessageData = threadMessages
-    .map(
-      ({ deleted_at, latest_reactions, pinned, status, updated_at, user }) =>
-        `${deleted_at}${
-          latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
-        }${pinned}${status}${
-          updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
-            ? updated_at.toISOString()
-            : updated_at || ''
-        }${user?.updated_at}`,
-    )
-    .join();
+  // const memoizedThreadMessageData = threadMessages
+  //   .map(
+  //     ({ deleted_at, latest_reactions, pinned, status, updated_at, user }) =>
+  //       `${deleted_at}${
+  //         latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
+  //       }${pinned}${status}${
+  //         updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
+  //           ? updated_at.toISOString()
+  //           : updated_at || ''
+  //       }${user?.updated_at}`,
+  //   )
+  //   .join();
 
   const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
       channel,
       channelCapabilities,
       channelConfig,
-      channelUnreadUiState,
-      error,
+      // channelUnreadUiState,
+      // error,
       giphyVersion,
-      hasMore,
-      hasMoreNewer,
-      highlightedMessageId,
+      // hasMore,
+      // hasMoreNewer,
+      // highlightedMessageId,
       imageAttachmentSizeHandler,
-      loading,
-      loadingMore,
-      members,
-      messages,
+      // loading,
+      // loadingMore,
+      // members,
+      // messages,
       mutes,
       notifications,
-      pinnedMessages,
-      read,
+      // pinnedMessages,
+      // read,
       shouldGenerateVideoThumbnail,
-      suppressAutoscroll,
-      thread,
-      threadHasMore,
-      threadLoadingMore,
-      threadMessages,
+      // suppressAutoscroll,
+      // thread,
+      // threadHasMore,
+      // threadLoadingMore,
+      // threadMessages,
       videoAttachmentSizeHandler,
-      watcher_count,
-      watcherCount,
-      watchers,
+      // watcher_count,
+      // watcherCount,
+      // watchers,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      channel.data?.name, // otherwise ChannelHeader will not be updated
-      channelId,
-      channelUnreadUiState,
-      error,
-      hasMore,
-      hasMoreNewer,
-      highlightedMessageId,
-      lastRead,
-      loading,
-      loadingMore,
-      membersLength,
-      memoizedMessageData,
-      memoizedThreadMessageData,
-      notificationsLength,
-      readUsersLength,
-      readUsersLastReads,
+      channel,
+      // channel.data?.name, // otherwise ChannelHeader will not be updated
+      channelCapabilities,
+      channelConfig,
+      // channelId,
+      // channelUnreadUiState,
+      giphyVersion,
+      // error,
+      // hasMore,
+      // hasMoreNewer,
+      // highlightedMessageId,
+      imageAttachmentSizeHandler,
+      // lastRead,
+      // loading,
+      // loadingMore,
+      // membersLength,
+      // memoizedMessageData,
+      // memoizedThreadMessageData,
+      mutes,
+      notifications,
+      // notificationsLength,
+      // readUsersLength,
+      // readUsersLastReads,
       shouldGenerateVideoThumbnail,
-      skipMessageDataMemoization,
-      suppressAutoscroll,
-      thread,
-      threadHasMore,
-      threadLoadingMore,
-      threadMessagesLength,
-      watcherCount,
+      // skipMessageDataMemoization,
+      // suppressAutoscroll,
+      // thread,
+      // threadHasMore,
+      // threadLoadingMore,
+      // threadMessagesLength,
+      videoAttachmentSizeHandler,
+      // watcherCount,
     ],
   );
 

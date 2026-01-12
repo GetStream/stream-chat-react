@@ -11,14 +11,15 @@ export type WindowProps = {
 };
 
 const UnMemoizedWindow = (props: PropsWithChildren<WindowProps>) => {
-  const { children, thread: propThread } = props;
+  // const { children, thread: propThread } = props;
+  const { children } = props;
 
-  const { thread: contextThread } = useChannelStateContext('Window');
+  // const { thread: contextThread } = useChannelStateContext('Window');
 
   return (
     <div
       className={clsx('str-chat__main-panel', {
-        'str-chat__main-panel--thread-open': contextThread || propThread,
+        // 'str-chat__main-panel--thread-open': contextThread || propThread,
       })}
     >
       {children}

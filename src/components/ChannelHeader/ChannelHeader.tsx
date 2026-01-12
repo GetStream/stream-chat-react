@@ -33,7 +33,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     title: overrideTitle,
   } = props;
 
-  const { channel, watcher_count } = useChannelStateContext('ChannelHeader');
+  const { channel } = useChannelStateContext('ChannelHeader');
   const { openMobileNav } = useChatContext('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
@@ -76,7 +76,8 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
               ,{' '}
             </>
           )}
-          {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
+          {/*todo: get the watcher count from LLC reactive state */}
+          {/*{t('{{ watcherCount }} online', { watcherCount: watcher_count })}*/}
         </p>
       </div>
     </div>

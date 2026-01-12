@@ -185,11 +185,11 @@ export const messageRenderer = (
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
     firstUnreadMessageId,
     isFirstMessage: streamMessageIndex === 0,
-    lastReadDate,
+    lastReadAt: lastReadDate,
     lastReadMessageId,
     message,
     previousMessage: streamMessageIndex ? messageList[streamMessageIndex - 1] : undefined,
-    unreadMessageCount,
+    unreadCount: unreadMessageCount,
   });
 
   return (
