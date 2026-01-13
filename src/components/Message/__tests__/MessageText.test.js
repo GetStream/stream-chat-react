@@ -9,6 +9,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  DialogManagerProvider,
   TranslationProvider,
 } from '../../../context';
 import {
@@ -24,14 +25,13 @@ import {
 import { Attachment } from '../../Attachment';
 import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageSimple } from '../MessageSimple';
 import { MessageText } from '../MessageText';
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('../MessageOptions', () => ({
-  MessageOptions: jest.fn(() => <div />),
+jest.mock('../../MessageActions', () => ({
+  MessageActions: jest.fn(() => <div data-testid='mocked-message-actions' />),
 }));
 
 const alice = generateUser({ name: 'alice' });
@@ -89,9 +89,11 @@ async function renderMessageText({
                 reactionOptions: defaultReactionOptions,
               }}
             >
-              <Message {...defaultProps} {...customProps}>
-                <MessageText {...defaultProps} {...customProps} />
-              </Message>
+              <DialogManagerProvider id='message-dialog-manager-provider'>
+                <Message {...defaultProps} {...customProps}>
+                  <MessageText {...defaultProps} {...customProps} />
+                </Message>
+              </DialogManagerProvider>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
@@ -281,24 +283,11 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render message options', async () => {
-    const { container } = await renderMessageText();
-    expect(MessageOptionsMock).toHaveBeenCalledTimes(1);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render message options with custom props when those are set', async () => {
-    const displayLeft = false;
-    const { container } = await renderMessageText({
-      customProps: {
-        customOptionProps: {
-          displayLeft,
-        },
-      },
-    });
-
-    expect(MessageOptionsMock).toHaveBeenCalled();
+  it('should render message actions', async () => {
+    const { container, getByTestId } = await renderMessageText();
+    await waitFor(() =>
+      expect(getByTestId('mocked-message-actions')).toBeInTheDocument(),
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

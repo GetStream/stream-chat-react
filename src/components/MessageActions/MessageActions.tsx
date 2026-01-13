@@ -70,6 +70,7 @@ export const MessageActions = ({
         'str-chat__message-options--active':
           dropdownDialogIsOpen || reactionSelectorDialogIsOpen,
       })}
+      data-testid='message-actions-host'
     >
       {dropdownActionSet.length > 0 && (
         <MessageActionsWrapper inline={false} toggleOpen={dialog?.toggle}>
