@@ -140,7 +140,7 @@
     "dist",
     "package.json",
     "README.md",
-    "INTEGRATION_GUIDE.md"
+    "AI.md"
   ],
   "devDependencies": {
     "@axe-core/react": "^4.3.2",

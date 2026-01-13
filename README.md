@@ -117,3 +117,7 @@ The library source code is dynamically imported and used only if audio recording
 
 You can obtain the source code for `lamejs` from the [lamejs repository](https://github.com/gideonstele/lamejs) that is a fork of [the original JS library](https://github.com/zhuker/lamejs).
 You can find the source code for LAME at https://lame.sourceforge.net and its license at: https://lame.sourceforge.net/license.txt
+
+Using AI assistants (Cursor/Codex/Copilot):
+See [AI.md](./AI.md) for integration guide, rules and common pitfalls.
+See [AGENTS.md](./AGENTS.md) about repository and project structure, contribution guides.
