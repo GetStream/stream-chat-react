@@ -1,3 +1,9 @@
+## [13.13.3](https://github.com/GetStream/stream-chat-react/compare/v13.13.2...v13.13.3) (2026-01-13)
+
+### Bug Fixes
+
+* improve md file to guide AI assistants used by our integrators ([b0cb111](https://github.com/GetStream/stream-chat-react/commit/b0cb1113bd1fae95014e8f11ed81e077753819a1))
+
 ## [13.13.2](https://github.com/GetStream/stream-chat-react/compare/v13.13.1...v13.13.2) (2026-01-12)
 
 ### Bug Fixes
