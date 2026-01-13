@@ -1,3 +1,8 @@
+/**
+ Populate with px unit all the variables in @stream-chat-react/src/styling/variables.css
+ where it makes sense according to the variable name. This file has be copied in from another repository.
+ If a value is 0, do not append px. Line height is also unit-less.
+ */
 .str-chat {
     --base-transparent: rgba(255, 255, 255, 0);
     --base-black: #000000;
