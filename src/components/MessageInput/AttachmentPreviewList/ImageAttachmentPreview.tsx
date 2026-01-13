@@ -43,6 +43,7 @@ export const ImageAttachmentPreview = ({
 
       {['blocked', 'failed'].includes(uploadState) && (
         <button
+          aria-label={t('aria/Retry upload')}
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-image'
           data-testid='image-preview-item-retry-button'
           onClick={() => handleRetry(attachment)}

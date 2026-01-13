@@ -88,9 +88,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     unsafeHTML = false,
   } = props;
 
-  const [listElement, setListElement] = React.useState<HTMLElement | null>(null);
-  const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
-  console.log('use ulElement', ulElement);
+  const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
   const { customClasses } = useChatContext('MessageList');
 
@@ -99,6 +97,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListMainPanel = DefaultMessageListMainPanel,
     MessageListNotifications = DefaultMessageListNotifications,
+    MessageListWrapper = 'ul',
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
@@ -221,7 +220,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   // React.useLayoutEffect(() => {
   //   if (highlightedMessageId) {
-  //     const element = ulElement?.querySelector(
+  //     const element = listElement?.querySelector(
   //       `[data-message-id='${highlightedMessageId}']`,
   //     );
   //     element?.scrollIntoView({ block: 'center' });
@@ -237,7 +236,13 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     : `message-list-dialog-manager-${id}`;
 
   return (
-    <MessageListContextProvider value={{ listElement, scrollToBottom }}>
+    <MessageListContextProvider
+      value={{
+        listElement,
+        processedMessages: enrichedMessages,
+        scrollToBottom,
+      }}
+    >
       <MessageListMainPanel>
         <DialogManagerProvider id={dialogManagerId}>
           {!threadList && showUnreadMessagesNotification && (
@@ -273,9 +278,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                     {props.loadingMore && <LoadingIndicator size={20} />}
                   </div>
                 )}
-                <ul className='str-chat__ul' ref={setUlElement}>
+                <MessageListWrapper className='str-chat__ul'>
                   {elements}
-                </ul>
+                </MessageListWrapper>
                 <TypingIndicator threadList={threadList} />
 
                 <div key='bottom' />

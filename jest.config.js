@@ -24,7 +24,7 @@ module.exports = {
      */
   ],
   transform: {
-    '\\.(ts|tsx)?$': ['ts-jest'],
+    '\\.(ts|tsx)?$': ['ts-jest', { diagnostics: false, tsconfig: 'tsconfig.test.json' }],
     '^.+\\.(js|jsx)?$': 'babel-jest',
   },
   transformIgnorePatterns: [],

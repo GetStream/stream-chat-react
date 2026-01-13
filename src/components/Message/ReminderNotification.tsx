@@ -33,11 +33,11 @@ export const ReminderNotification = ({ reminder }: ReminderNotificationProps) =>
           <span>
             {isBehindRefreshBoundary
               ? t('Due since {{ dueSince }}', {
-                  dueSince: t(`timestamp/ReminderNotification`, {
+                  dueSince: t('timestamp/ReminderNotification', {
                     timestamp: reminder.remindAt,
                   }),
                 })
-              : t(`Due {{ timeLeft }}`, {
+              : t('Due {{ timeLeft }}', {
                   timeLeft: t('duration/Message reminder', {
                     milliseconds: timeLeftMs,
                   }),

@@ -7,6 +7,12 @@ on:
         default: false
         type: boolean
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   package_release:
     name: Release from "${{ github.ref_name }}" branch

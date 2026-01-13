@@ -64,6 +64,7 @@ export function defaultRenderMessages({
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
+    MessageListItem = 'li',
     MessageSystem = DefaultMessageSystem,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
   } = components;
@@ -75,30 +76,31 @@ export function defaultRenderMessages({
     const message = messages[index];
     if (isDateSeparatorMessage(message)) {
       renderedMessages.push(
-        <li key={`${message.date.toISOString()}-i`}>
+        <MessageListItem data-index={index} key={`${message.date.toISOString()}-i`}>
           <DateSeparator
             date={message.date}
             formatDate={messageProps.formatDate}
             unread={message.unread}
           />
-        </li>,
+        </MessageListItem>,
       );
     } else if (isIntroMessage(message)) {
       if (HeaderComponent) {
         renderedMessages.push(
-          <li key='intro'>
+          <MessageListItem data-index={index} key='intro'>
             <HeaderComponent />
-          </li>,
+          </MessageListItem>,
         );
       }
     } else if (message.type === 'system') {
       renderedMessages.push(
-        <li
+        <MessageListItem
+          data-index={index}
           data-message-id={message.id}
           key={message.id || message.created_at.toISOString()}
         >
           <MessageSystem message={message} />
-        </li>,
+        </MessageListItem>,
       );
     } else {
       if (!firstMessage) {
@@ -118,12 +120,13 @@ export function defaultRenderMessages({
       renderedMessages.push(
         <Fragment key={message.id || message.created_at.toISOString()}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
-            <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+            <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
               <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unreadCount} />
-            </li>
+            </MessageListItem>
           )}
-          <li
+          <MessageListItem
             className={messageClass}
+            data-index={index}
             data-message-id={message.id}
             data-testid={messageClass}
           >
@@ -136,7 +139,7 @@ export function defaultRenderMessages({
               readBy={readData[message.id] || []}
               {...messageProps}
             />
-          </li>
+          </MessageListItem>
         </Fragment>,
       );
       previousMessage = message;

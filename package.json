@@ -2,64 +2,43 @@
   "name": "stream-chat-react",
   "version": "0.0.0-development",
   "description": "React components to create chat conversations or livestream style chat",
-  "author": "GetStream",
-  "homepage": "https://getstream.io/chat/",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "https://github.com/GetStream/stream-chat-react.git"
   },
-  "types": "dist/index.d.ts",
-  "main": "dist/index.node.cjs",
-  "module": "dist/index.js",
+  "homepage": "https://getstream.io/chat/",
+  "author": {
+    "name": "GetStream.io, Inc.",
+    "url": "https://getstream.io/team/"
+  },
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.mjs",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "node": {
-        "require": "./dist/index.node.cjs",
-        "import": "./dist/index.js"
-      },
-      "browser": {
-        "require": "./dist/index.browser.cjs",
-        "import": "./dist/index.js"
-      },
-      "default": "./dist/index.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/es/index.mjs",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/cjs/index.js"
     },
     "./emojis": {
-      "types": "./dist/plugins/Emojis/index.d.ts",
-      "node": {
-        "require": "./dist/plugins/Emojis/index.node.cjs",
-        "import": "./dist/plugins/Emojis/index.js"
-      },
-      "browser": {
-        "require": "./dist/plugins/Emojis/index.browser.cjs",
-        "import": "./dist/plugins/Emojis/index.js"
-      },
-      "default": "./dist/plugins/Emojis/index.js"
+      "types": "./dist/types/plugins/Emojis/index.d.ts",
+      "import": "./dist/es/emojis.mjs",
+      "require": "./dist/cjs/emojis.js",
+      "default": "./dist/cjs/emojis.js"
     },
     "./mp3-encoder": {
-      "types": "./dist/plugins/encoders/mp3.d.ts",
-      "node": {
-        "require": "./dist/plugins/encoders/mp3.node.cjs",
-        "import": "./dist/plugins/encoders/mp3.js"
-      },
-      "browser": {
-        "require": "./dist/plugins/encoders/mp3.browser.cjs",
-        "import": "./dist/plugins/encoders/mp3.js"
-      },
-      "default": "./dist/plugins/encoders/mp3.js"
+      "types": "./dist/types/plugins/encoders/mp3.d.ts",
+      "import": "./dist/es/mp3-encoder.mjs",
+      "require": "./dist/cjs/mp3-encoder.js",
+      "default": "./dist/cjs/mp3-encoder.js"
     },
     "./experimental": {
-      "types": "./dist/experimental/index.d.ts",
-      "node": {
-        "require": "./dist/experimental/index.node.cjs",
-        "import": "./dist/experimental/index.js"
-      },
-      "browser": {
-        "require": "./dist/experimental/index.browser.cjs",
-        "import": "./dist/experimental/index.js"
-      },
-      "default": "./dist/experimental/index.js"
+      "types": "./dist/types/experimental/index.d.ts",
+      "import": "./dist/es/experimental.mjs",
+      "require": "./dist/cjs/experimental.js",
+      "default": "./dist/cjs/experimental.js"
     },
     "./dist/css/*": {
       "default": "./dist/css/*"
@@ -77,13 +56,13 @@
   "typesVersions": {
     "*": {
       "emojis": [
-        "./dist/plugins/Emojis/index.d.ts"
+        "./dist/types/plugins/Emojis/index.d.ts"
       ],
       "mp3-encoder": [
-        "./dist/plugins/encoders/mp3.d.ts"
+        "./dist/types/plugins/encoders/mp3.d.ts"
       ],
       "experimental": [
-        "./dist/experimental/index.d.ts"
+        "./dist/types/experimental/index.d.ts"
       ]
     }
   },
@@ -116,6 +95,7 @@
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
+    "modern-normalize": "^3.0.1",
     "nanoid": "^3.3.4",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
@@ -140,7 +120,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.25.0"
+    "stream-chat": "^9.27.2"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -159,7 +139,8 @@
   "files": [
     "dist",
     "package.json",
-    "README.md"
+    "README.md",
+    "INTEGRATION_GUIDE.md"
   ],
   "devDependencies": {
     "@axe-core/react": "^4.3.2",
@@ -167,10 +148,10 @@
     "@babel/core": "^7.12.9",
     "@babel/node": "^7.12.6",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.28.5",
     "@babel/preset-env": "^7.12.7",
-    "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.12.7",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
     "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
@@ -181,7 +162,7 @@
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@stream-io/stream-chat-css": "^5.16.0",
+    "@stream-io/stream-chat-css": "^5.16.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -213,7 +194,6 @@
     "core-js": "^3.6.5",
     "dotenv": "^8.6.0",
     "emoji-mart": "^5.5.2",
-    "esbuild": "^0.23.1",
     "eslint": "^9.16.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
@@ -223,7 +203,7 @@
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "globals": "^15.13.0",
     "husky": "^8.0.3",
-    "i18next-parser": "^9.3.0",
+    "i18next-cli": "^1.31.0",
     "jest": "^29.7.0",
     "jest-axe": "^8.0.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -233,16 +213,19 @@
     "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "semantic-release": "^24.2.3",
-    "stream-chat": "^9.25.0",
+    "sass": "^1.97.2",
+    "semantic-release": "^25.0.2",
+    "stream-chat": "^9.27.2",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^8.17.0"
+    "typescript-eslint": "^8.17.0",
+    "vite": "^7.3.0"
   },
   "scripts": {
-    "build": "rm -rf dist && yarn build-translations && yarn bundle",
-    "bundle": "concurrently ./scripts/bundle-esm.mjs ./scripts/copy-css.sh scripts/bundle-cjs.mjs",
-    "build-translations": "i18next",
+    "clean": "rm -rf dist",
+    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
+    "build-styling": "sass src/styling/index.scss dist/css/index.css",
+    "build-translations": "i18next-cli extract",
     "coverage": "jest --collectCoverage && codecov",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
@@ -255,7 +238,7 @@
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",
-    "types": "tsc --noEmit",
+    "types": "tsc --emitDeclarationOnly false --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",

@@ -240,6 +240,10 @@ export type ComponentContextValue = {
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps>;
+  /** Custom UI component to wrap MessageList children. Default is the `ul` tag */
+  MessageListWrapper?: React.ComponentType<PropsWithChildren>;
+  /** Custom UI component to wrap each element of MessageList. Default is the `li` tag */
+  MessageListItem?: React.ComponentType<PropsWithChildren>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>({});

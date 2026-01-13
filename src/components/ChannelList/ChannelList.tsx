@@ -358,13 +358,12 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       // forces the update of preview component on channel update
       channelUpdateCount,
       getLatestMessagePreview,
-      key: item.cid,
       Preview,
       setActiveChannel,
       watchers,
     };
 
-    return <ChannelPreview {...previewProps} />;
+    return <ChannelPreview key={item.cid} {...previewProps} />;
   };
 
   const baseClass = 'str-chat__channel-list';

@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "include": ["src/**/__tests__/**/*.test.js"]
+}

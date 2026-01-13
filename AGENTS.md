@@ -42,7 +42,7 @@ Root configs:
 - codecov.yml
 - commitlint.config.mjs
 - eslint.config.mjs,
-- i18next-parser.config.js
+- i18next.config.ts
 - jest.config.js
 - jest.config.js
 - playwright.config.ts

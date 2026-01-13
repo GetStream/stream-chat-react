@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "human-id": "^4.1.3",
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
     "stream-chat-react": "link:../../"
@@ -26,7 +27,7 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "sass": "^1.75.0",
     "typescript": "^5.4.5",
-    "vite": "^7.2.2",
+    "vite": "^7.3.0",
     "vite-plugin-babel": "^1.3.2"
   }
 }
