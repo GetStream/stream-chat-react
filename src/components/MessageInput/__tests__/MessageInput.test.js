@@ -8,9 +8,9 @@ import { nanoid } from 'nanoid';
 
 import { MessageInput } from '../MessageInput';
 import { Channel } from '../../Channel/Channel';
-import { MessageActionsBox } from '../../MessageActions';
+import { MessageActions } from '../../MessageActions';
 
-import { MessageProvider } from '../../../context/MessageContext';
+import { DialogManagerProvider, MessageProvider } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -92,6 +92,7 @@ const defaultMessageContextValue = {
   handleDelete: () => {},
   handleFlag: () => {},
   handleMute: () => {},
+  handleOpenThread: () => {},
   handlePin: () => {},
   isMyMessage: () => true,
   message: mainListMessage,
@@ -110,7 +111,14 @@ function dropFile(file, formElement) {
 const initQuotedMessagePreview = async (message) => {
   await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
 
-  const quoteButton = await screen.findByText(/^reply$/i);
+  // Open the message actions dropdown
+  const actionsButton = await screen.findByTestId('message-actions-toggle-button');
+  await act(() => {
+    fireEvent.click(actionsButton);
+  });
+
+  // Click the Quote button in the dropdown
+  const quoteButton = await screen.findByText(/^quote$/i);
   await waitFor(() => expect(quoteButton).toBeInTheDocument());
 
   act(() => {
@@ -137,7 +145,7 @@ const renderComponent = async ({
   customChannel,
   customClient,
   customUser,
-  messageActionsBoxProps = {},
+  messageActionsProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
 } = {}) => {
@@ -158,17 +166,19 @@ const renderComponent = async ({
       <ChatProvider
         value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
       >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-          <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
-          >
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
-            />
-          </MessageProvider>
-          <MessageInput {...messageInputProps} />
-        </Channel>
+        <DialogManagerProvider id='message-input-test-dialog-manager'>
+          <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+            <MessageProvider
+              value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+            >
+              <MessageActions
+                disableBaseMessageActionSetFilter
+                {...messageActionsProps}
+              />
+            </MessageProvider>
+            <MessageInput {...messageInputProps} />
+          </Channel>
+        </DialogManagerProvider>
       </ChatProvider>,
     );
   });

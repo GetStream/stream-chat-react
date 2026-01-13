@@ -7,7 +7,6 @@ import { FixedHeightMessage } from '../FixedHeightMessage';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { Gallery as GalleryMock } from '../../Gallery';
 import { Message } from '../Message';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
 
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
@@ -20,17 +19,13 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { ComponentProvider } from '../../../context';
+import { ComponentProvider, DialogManagerProvider } from '../../../context';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../Gallery', () => ({ Gallery: jest.fn(() => <div />) }));
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn((props) => props.getMessageActions()),
-}));
 
 const aliceProfile = { image: 'alice-avatar.jpg', name: 'alice' };
 const alice = generateUser(aliceProfile);
-const bob = generateUser({ name: 'bob' });
 
 async function renderMsg(message) {
   const channel = generateChannel({ state: { membership: {} } });
@@ -57,7 +52,9 @@ async function renderMsg(message) {
             }}
           >
             <ComponentProvider value={{}}>
-              <Message message={message} Message={FixedHeightMessage} />
+              <DialogManagerProvider id='dialog-manager-id'>
+                <Message message={message} Message={FixedHeightMessage} />
+              </DialogManagerProvider>
             </ComponentProvider>
           </ChannelActionProvider>
         </ChannelStateProvider>
@@ -91,22 +88,6 @@ describe('<FixedHeightMessage />', () => {
       expect.objectContaining(aliceProfile),
       undefined,
     );
-  });
-
-  it('should render message action for owner', async () => {
-    const message = generateMessage({ user: alice });
-    await renderMsg(message);
-    expect(MessageActionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({ message }),
-      undefined,
-    );
-    expect(MessageActionsMock).toHaveReturnedWith(['delete']);
-  });
-
-  it('should not render message action for others', async () => {
-    const message = generateMessage({ user: bob });
-    await renderMsg(message);
-    expect(MessageActionsMock).toHaveReturnedWith([]);
   });
 
   it('should display text in users set language', async () => {

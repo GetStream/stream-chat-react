@@ -2273,32 +2273,4 @@ describe('Channel', () => {
       );
     });
   });
-
-  describe('Custom Components', () => {
-    it('should render CustomMessageActionsList if provided', async () => {
-      const CustomMessageActionsList = jest
-        .fn()
-        .mockImplementation(() => 'CustomMessageActionsList');
-
-      const messageContextValue = {
-        message: generateMessage(),
-        messageListRect: {},
-      };
-
-      await renderComponent({
-        channel,
-        chatClient,
-        children: (
-          <MessageProvider value={{ ...messageContextValue }}>
-            <MessageActionsBox getMessageActions={jest.fn(() => [])} />
-          </MessageProvider>
-        ),
-        CustomMessageActionsList,
-      });
-
-      await waitFor(() => {
-        expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
 });

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import type { PropsWithChildren } from 'react';
+import React, { type PropsWithChildren } from 'react';
 
 export type MessageActionsWrapperProps = {
   customWrapperClass?: string;
