@@ -1,0 +1,131 @@
+@use 'utils';
+
+.str-chat {
+  .str-chat__button {
+    @include utils.button-reset;
+    position: relative;     /* creates positioning context for pseudo ::after overlay */
+    overflow: hidden;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding-inline: var(--spacing-sm);
+    padding-block: var(--spacing-sm);
+    /*
+    min-width / min-height on buttons:
+      - enforce a minimum tappable area
+      - follow accessibility & platform guidelines
+      - don’t affect layout unless the button would be too small
+      - are about usability, not design polish
+     */
+    min-height: var(--button-visual-height-lg);
+    max-height: var(--button-visual-height-lg);
+
+    line-height: var(--typography-line-height-normal);
+    border-radius: var(--button-radius-lg);
+
+    font-weight: var(--font-weight-w600);
+
+    &.str-chat__button--solid {
+      &.str-chat__button--primary {
+        background-color: var(--button-type-primary-bg);
+        color: var(--button-type-primary-text);
+        border-color: var(--button-type-primary-border);
+      }
+
+      &.str-chat__button--secondary {
+        background-color: var(--button-type-secondary-bg);
+        color: var(--button-type-secondary-text);
+        border-color: var(--button-type-secondary-border);
+      }
+
+      &.str-chat__button--destructive {
+        background-color: var(--button-type-destructive-bg);
+        color: var(--button-type-destructive-text);
+        border-color: var(--button-type-destructive-border);
+      }
+
+      &:disabled {
+        background-color: var(--state-bg-disabled);
+      }
+    }
+
+    &.str-chat__button--ghost {
+      border-color: var(--button-style-ghost-border);
+      background-color: var(--button-style-ghost-bg);
+
+      &.str-chat__button--primary {
+        color: var(--button-style-ghost-text-primary);
+      }
+
+      &.str-chat__button--secondary {
+        color: var(--button-style-ghost-text-secondary);
+      }
+
+      &.str-chat__button--destructive {
+        color: var(--button-type-destructive-text-inverse);
+      }
+    }
+
+    &.str-chat__button--outline {
+      // todo: designs not available
+      //&.str-chat__button--primary {
+      //  background-color: var(--button-type-primary-bg);
+      //  color: var(--button-type-primary-text);
+      //  border-color: var(--button-type-primary-border);
+      //}
+
+      &.str-chat__button--secondary {
+        background-color: var(--button-style-outline-bg);
+        color: var(--button-style-outline-text);
+        border-color: var(--button-style-outline-border);
+      }
+
+      // todo: designs not available
+      &.str-chat__button--destructive {
+        //background-color: var(--button-type-destructive-bg);
+        color: var(--button-type-destructive-text-inverse);
+        //border-color: var(--button-type-destructive-border);
+      }
+    }
+
+    &.str-chat__button--solid,
+    &.str-chat__button--ghost {
+      &:disabled {
+        border: none;
+      }
+    }
+
+    &.str-chat__button--solid,
+    &.str-chat__button--outline,
+    &.str-chat__button--ghost {
+      border-width: 1px;
+      border-style: solid;
+
+
+      &:not(:disabled):hover {
+        @include utils.overlay-after(0.05);
+      }
+
+      &:not(:disabled):active { // pressed
+        @include utils.overlay-after(0.10);
+      }
+
+      &:not(:disabled):focus-visible { // focused
+        outline: 2px solid  var(--border-utility-focus);
+      }
+
+      &:disabled {
+        color: var(--state-text-disabled);
+        cursor: default;
+      }
+    }
+
+    &.str-chat__button--floating {
+      box-shadow: var(--light-elevation-3);
+    }
+  }
+}
+

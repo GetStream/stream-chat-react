@@ -1,0 +1,14 @@
+@mixin button-reset {
+  background: none;
+  border: none;
+}
+
+@mixin overlay-after($opacity, $color: black) {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba($color, $opacity);
+    pointer-events: none;
+  }
+}
