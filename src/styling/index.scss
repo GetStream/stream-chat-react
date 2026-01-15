@@ -1,4 +1,4 @@
 @use "./base";
 @use "./variables.css";
-@use "./Button";
+@use "../components/Button/styling/Button";
 @import 'modern-normalize' layer(css-reset);
