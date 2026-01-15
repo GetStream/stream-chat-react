@@ -10,9 +10,10 @@
 
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--spacing-xs);
-    padding-inline: var(--spacing-md);
-    padding-block: var(--spacing-sm);
+    //padding-inline: var(--spacing-md);
+    //padding-block: var(--spacing-sm);
     /*
     min-width / min-height on buttons:
       - enforce a minimum tappable area
