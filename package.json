@@ -234,7 +234,7 @@
     "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}'",
     "prettier-fix": "yarn prettier --write",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
-    "start": "tsc --watch --sourceMap --declarationMap",
+    "start": "tsc --watch --sourceMap",
     "start:css": "sass --watch src/styling/index.scss dist/css/index.css",
     "prepare": "husky install",
     "preversion": "yarn install",

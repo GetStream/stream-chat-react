@@ -1,2 +1,10 @@
+// Base styles
+@use "./base";
 @use "./variables.css";
+@use "../components/Icons/styling";
+
+// Base components with base styles
+@use "../components/Button/styling/Button";
+
+// Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

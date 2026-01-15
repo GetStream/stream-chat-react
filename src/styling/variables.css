@@ -115,7 +115,7 @@
     --size-480: 480px;
     --size-560: 560px;
     --size-640: 640px;
-    --radius-0: 0px;
+    --radius-0: 0;
     --radius-2: 2px;
     --radius-4: 4px;
     --radius-6: 6px;
@@ -126,7 +126,7 @@
     --radius-24: 24px;
     --radius-32: 32px;
     --radius-full: 9999px;
-    --space-0: 0px;
+    --space-0: 0;
     --space-2: 2px;
     --space-4: 4px;
     --space-8: 8px;
@@ -139,22 +139,22 @@
     --space-48: 48px;
     --space-64: 64px;
     --space-80: 80px;
-    --w100: 1px;
-    --w150: 1.5px;
-    --w200: 2px;
-    --w300: 3px;
-    --w400: 4px;
-    --w120: 1.2px;
+    --w100: 1;
+    --w150: 1.5;
+    --w200: 2;
+    --w300: 3;
+    --w400: 400;
+    --w120: 1.2;
     --font-family-geist: "Geist"; /** Primary sans-serif font for web typography. Use Geist as the main typeface. Recommended fallbacks: system-ui, -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif. */
     --font-family-geist-mono: "Geist Mono"; /** Primary monospace font for web typography. Use Geist Mono for code, timestamps, and technical text. Recommended fallbacks: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace. */
     --font-family-sf-pro: "SF Pro"; /** Primary sans-serif font for iOS typography. Use SF Pro as the main typeface. Recommended fallbacks: -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif. */
     --font-family-sf-mono: "SF Mono"; /** Primary monospace font for iOS typography. Use SF Mono for code, timestamps, and technical text. Recommended fallbacks: SFMono-Regular, Menlo, Monaco, Consolas, monospace. */
     --font-family-roboto: "Roboto"; /** Primary sans-serif font for Android typography. Use Roboto as the main typeface, aligned with Material and system defaults. Recommended fallbacks: Roboto, “Noto Sans”, system-ui, sans-serif. */
     --font-family-roboto-mono: "Roboto Mono"; /** Primary monospace font for Android typography. Use Roboto Mono for code, timestamps, and technical text. Recommended fallbacks: Roboto Mono, “Noto Sans Mono”, monospace. */
-    --font-weight-400: 400;
-    --font-weight-500: 500;
-    --font-weight-600: 600;
-    --font-weight-700: 700;
+    --font-weight-w400: 400;
+    --font-weight-w500: 500;
+    --font-weight-w600: 600;
+    --font-weight-w700: 700;
     --font-size-size-10: 10px;
     --font-size-size-12: 12px;
     --font-size-size-14: 14px;
@@ -183,81 +183,20 @@
     --line-height-line-height-32: 32;
     --line-height-line-height-40: 40;
     --line-height-line-height-48: 48;
-    --typography-letter-spacing-default: 0; /** Standard tracking for all body text, UI labels, and headings. Used as the baseline spacing for all semantic text styles. */
-    --typography-letter-spacing-wide: 0.5px; /** Slightly increased tracking for uppercase labels, tags, chips, and micro text to improve clarity and visual balance. Used sparingly for emphasis or small typographic elements. */
-    --typography-font-weight-400: 400;
-    --typography-font-weight-500: 500;
-    --typography-font-weight-600: 600;
-    --typography-font-weight-700: 700;
-    /**
-     * - Base elevation level.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation of the system shadow and may not be exact.
-     */
-    --elevation-light-elevation-0: 0px 0px 0px rgba(0,0,0,0);
-    /**
-     * - Low elevation level for subtle separation.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation of the system shadow and may not be exact.
-     */
-    --elevation-light-elevation-1: 0px 1px 2px rgba(0,0,0,0.10), 0px 4px 8px rgba(0,0,0,0.06);
-    /**
-     * - Medium elevation level for raised surfaces.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-light-elevation-2: 0px 2px 4px rgba(0,0,0,0.12), 0px 6px 16px rgba(0,0,0,0.06);
-    /**
-     * - High elevation level for floating surfaces.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-light-elevation-3: 0px 4px 8px rgba(0,0,0,0.14), 0px 12px 24px rgba(0,0,0,0.10);
-    /**
-     * - Maximum elevation level for prominent overlays.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-light-elevation-4: 0px 6px 12px rgba(0,0,0,0.16), 0px 20px 32px rgba(0,0,0,0.12);
-    /**
-     * - Base elevation level.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation of the system shadow and may not be exact.
-     */
-    --elevation-dark-elevation-0: 0px 0px 0px rgba(0,0,0,0);
-    /**
-     * - Low elevation level for subtle separation.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation of the system shadow and may not be exact.
-     */
-    --elevation-dark-elevation-1: 0px 1px 2px rgba(0,0,0,0.20), 0px 4px 8px rgba(0,0,0,0.10);
-    /**
-     * - Medium elevation level for raised surfaces.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-dark-elevation-2: 0px 2px 4px rgba(0,0,0,0.22), 0px 6px 16px rgba(0,0,0,0.12);
-    /**
-     * - High elevation level for floating surfaces.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-dark-elevation-3: 0px 4px 8px rgba(0,0,0,0.24), 0px 12px 24px rgba(0,0,0,0.14);
-    /**
-     * - Maximum elevation level for prominent overlays.
-     * - Android uses system elevation and renders shadows automatically.
-     * - The Figma effect style is a visual approximation and may not be exact.
-     */
-    --elevation-dark-elevation-4: 0px 6px 12px rgba(0,0,0,0.28), 0px 20px 32px rgba(0,0,0,0.16);
-    --opacity-opacity-0: 0; /** Fully transparent. Used for off-screen or hidden elements. */
-    --opacity-opacity-5: 5; /** Extremely subtle overlays, faint borders, or pressed states in dark mode. */
-    --opacity-opacity-10: 10; /** Light overlays, subtle strokes, divider enhancements. */
-    --opacity-opacity-20: 20; /** Hover states, subtle scrims, focus-ring backgrounds. */
-    --opacity-opacity-40: 40; /** Disabled text or icons, low-contrast UI elements. */
-    --opacity-opacity-60: 60; /** Strongers scrims, overlay masks behind modals. */
-    --opacity-opacity-80: 80; /** Dimmed background behind full-screen overlays. */
-    --opacity-opacity-100: 100; /** Fully opaque. */
-    --device-radius: 8px;
+    --light-elevation-0: 0 0 0 0 rgba(0,0,0,0); /** Base elevation level. */
+    --light-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.06); /** Low elevation level for subtle separation. */
+    --light-elevation-2: 0 2px 4px 0 rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.06);
+    --light-elevation-3: 0 4px 8px 0 rgba(0,0,0,0.14), 0 12px 24px 0 rgba(0,0,0,0.1);
+    --light-elevation-4: 0 6px 12px 0 rgba(0,0,0,0.16), 0 20px 32px 0 rgba(0,0,0,0.12);
+    --dark-elevation-0: 0 0 0 0 rgba(0,0,0,0);
+    --dark-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.2), 0 4px 8px 0 rgba(0,0,0,0.1);
+    --dark-elevation-2: 0 2px 4px 0 rgba(0,0,0,0.22), 0 6px 16px 0 rgba(0,0,0,0.12);
+    --dark-elevation-3: 0 4px 8px 0 rgba(0,0,0,0.24), 0 12px 24px 0 rgba(0,0,0,0.14);
+    --dark-elevation-4: 0 6px 12px 0 rgba(0,0,0,0.28), inset 0 20px 32px 0 rgba(0,0,0,0.16);
+    --w500: 500;
+    --w600: 600;
+    --w700: 700;
+    --device-radius: 0.5rem;
     --state-hover: rgba(0, 0, 0, 0.05); /** Hover feedback overlay. */
     --state-pressed: rgba(0, 0, 0, 0.1); /** Pressed feedback overlay. */
     --state-selected: rgba(0, 0, 0, 0.1); /** Selected overlay. */
@@ -309,9 +248,8 @@
     --button-visual-height-sm: var(--size-32);
     --button-visual-height-md: var(--size-40);
     --button-visual-height-lg: var(--size-48);
-    --button-hit-target-min-height: var(--size-32);
-    --button-hit-target-min-width: var(--size-32);
-    --button-type-primary-text: var(--base-white);
+    --button-hit-target-min-height: var(--size-48); /* manually adjusted */
+    --button-hit-target-min-width: var(--size-48); /* manually adjusted */
     --button-type-secondary-bg: var(--base-transparent);
     --button-type-destructive-text: var(--base-white);
     --button-style-ghost-bg: var(--base-transparent);
@@ -417,12 +355,13 @@
     --composer-radius-floating: var(--radius-3xl);
     --composer-bg: var(--background-elevation-elevation-1); /** Composer container background. */
     --button-type-primary-bg: var(--accent-primary);
+    --button-type-primary-text: var(--text-on-accent);
     --button-type-primary-border: var(--border-core-primary);
     --button-type-secondary-text: var(--text-primary);
     --button-type-secondary-border: var(--border-core-surface-subtle);
     --button-type-destructive-bg: var(--accent-error);
-    --button-type-destructive-border: var(--accent-error);
     --button-type-destructive-text-inverse: var(--accent-error);
+    --button-type-destructive-border: var(--accent-error);
     --button-style-ghost-text-primary: var(--accent-primary);
     --button-style-ghost-text-secondary: var(--text-primary);
     --button-style-outline-border: var(--border-core-surface-subtle);
