@@ -248,8 +248,8 @@
     --button-visual-height-sm: var(--size-32);
     --button-visual-height-md: var(--size-40);
     --button-visual-height-lg: var(--size-48);
-    --button-hit-target-min-height: var(--size-32);
-    --button-hit-target-min-width: var(--size-32);
+    --button-hit-target-min-height: var(--size-48); /* manually adjusted */
+    --button-hit-target-min-width: var(--size-48); /* manually adjusted */
     --button-type-secondary-bg: var(--base-transparent);
     --button-type-destructive-text: var(--base-white);
     --button-style-ghost-bg: var(--base-transparent);
