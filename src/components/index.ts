@@ -14,6 +14,7 @@ export * from './Dialog';
 export * from './EmptyStateIndicator';
 export * from './EventComponent';
 export * from './Gallery';
+export * from './Icons';
 export * from './InfiniteScrollPaginator';
 export * from './Loading';
 export * from './LoadMore';
