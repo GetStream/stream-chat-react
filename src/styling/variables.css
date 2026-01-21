@@ -1,12 +1,17 @@
 /**
- Populate with px unit all the variables in @stream-chat-react/src/styling/variables.css
- where it makes sense according to the variable name. This file has be copied in from another repository.
- If a value is 0, do not append px. Line height is also unit-less.
+ * Do not edit directly, this file was auto-generated.
  */
+
 .str-chat {
-    --base-transparent: rgba(255, 255, 255, 0);
     --base-black: #000000;
     --base-white: #ffffff;
+    --base-transparent-0: rgba(255, 255, 255, 0);
+    --base-transparent-black-5: rgba(0, 0, 0, 0.05); /** Used for bg in closeButton */
+    --base-transparent-black-10: rgba(0, 0, 0, 0.1); /** Used for bg in closeButton */
+    --base-transparent-white-70: rgba(255, 255, 255, 0.7);
+    --base-transparent-white-10: rgba(255, 255, 255, 0.1);
+    --base-transparent-white-20: rgba(255, 255, 255, 0.2);
+    --base-transparent-black-70: rgba(0, 0, 0, 0.7); /** Used for bg in closeButton */
     --slate-50: #fafbfc;
     --slate-100: #f2f4f6;
     --slate-200: #e2e6ea;
@@ -143,7 +148,7 @@
     --w150: 1.5;
     --w200: 2;
     --w300: 3;
-    --w400: 400;
+    --w400: 4;
     --w120: 1.2;
     --font-family-geist: "Geist"; /** Primary sans-serif font for web typography. Use Geist as the main typeface. Recommended fallbacks: system-ui, -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif. */
     --font-family-geist-mono: "Geist Mono"; /** Primary monospace font for web typography. Use Geist Mono for code, timestamps, and technical text. Recommended fallbacks: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace. */
@@ -170,33 +175,43 @@
     --font-size-size-48: 48px;
     --font-size-size-13: 13px;
     --font-size-size-8: 8px;
-    --line-height-line-height-10: 10;
-    --line-height-line-height-12: 12;
-    --line-height-line-height-14: 14;
-    --line-height-line-height-15: 15;
-    --line-height-line-height-16: 16;
-    --line-height-line-height-17: 17;
-    --line-height-line-height-18: 18;
-    --line-height-line-height-20: 20;
-    --line-height-line-height-24: 24;
-    --line-height-line-height-28: 28;
-    --line-height-line-height-32: 32;
-    --line-height-line-height-40: 40;
-    --line-height-line-height-48: 48;
+    --line-height-line-height-8: 8px;
+    --line-height-line-height-10: 10px;
+    --line-height-line-height-12: 12px;
+    --line-height-line-height-14: 14px;
+    --line-height-line-height-15: 15px;
+    --line-height-line-height-16: 16px;
+    --line-height-line-height-17: 17px;
+    --line-height-line-height-18: 18px;
+    --line-height-line-height-20: 20px;
+    --line-height-line-height-24: 24px;
+    --line-height-line-height-28: 28px;
+    --line-height-line-height-32: 32px;
+    --line-height-line-height-40: 40px;
+    --line-height-line-height-48: 48px;
+    --typography-font-weight-regular: 400;
+    --typography-font-weight-medium: 500;
+    --typography-font-weight-semi-bold: 600;
+    --typography-font-weight-bold: 700;
     --light-elevation-0: 0 0 0 0 rgba(0,0,0,0); /** Base elevation level. */
-    --light-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.06); /** Low elevation level for subtle separation. */
-    --light-elevation-2: 0 2px 4px 0 rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.06);
-    --light-elevation-3: 0 4px 8px 0 rgba(0,0,0,0.14), 0 12px 24px 0 rgba(0,0,0,0.1);
-    --light-elevation-4: 0 6px 12px 0 rgba(0,0,0,0.16), 0 20px 32px 0 rgba(0,0,0,0.12);
+    --light-elevation-1: 0 0 0 1px rgba(0,0,0,0.05), 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.06); /** Low elevation level for subtle separation. */
+    --light-elevation-2: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px 0 rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.06);
+    --light-elevation-3: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 8px 0 rgba(0,0,0,0.14), 0 12px 24px 0 rgba(0,0,0,0.1);
+    --light-elevation-4: 0 0 0 1px rgba(0,0,0,0.05), 0 6px 12px 0 rgba(0,0,0,0.16), 0 20px 32px 0 rgba(0,0,0,0.12);
     --dark-elevation-0: 0 0 0 0 rgba(0,0,0,0);
-    --dark-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.2), 0 4px 8px 0 rgba(0,0,0,0.1);
-    --dark-elevation-2: 0 2px 4px 0 rgba(0,0,0,0.22), 0 6px 16px 0 rgba(0,0,0,0.12);
-    --dark-elevation-3: 0 4px 8px 0 rgba(0,0,0,0.24), 0 12px 24px 0 rgba(0,0,0,0.14);
-    --dark-elevation-4: 0 6px 12px 0 rgba(0,0,0,0.28), inset 0 20px 32px 0 rgba(0,0,0,0.16);
-    --w500: 500;
-    --w600: 600;
-    --w700: 700;
-    --device-radius: 0.5rem;
+    --dark-elevation-1: 0 0 0 1px rgba(255,255,255,0.15), 0 1px 2px 0 rgba(0,0,0,0.2), 0 4px 8px 0 rgba(0,0,0,0.1);
+    --dark-elevation-2: 0 0 0 1px rgba(255,255,255,0.15), 0 2px 4px 0 rgba(0,0,0,0.22), 0 6px 16px 0 rgba(0,0,0,0.12);
+    --dark-elevation-3: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 8px 0 rgba(0,0,0,0.24), 0 12px 24px 0 rgba(0,0,0,0.14);
+    --dark-elevation-4: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 12px 0 rgba(0,0,0,0.28), 0 20px 32px 0 rgba(0,0,0,0.16);
+    --button-padding-y-lg: 14px;
+    --button-padding-y-md: 10px;
+    --button-padding-y-sm: 6px;
+    --button-padding-x-icon-only-lg: 14px;
+    --button-padding-x-icon-only-md: 10px;
+    --button-padding-x-icon-only-sm: 6px;
+    --button-padding-x-with-label-lg: 16px;
+    --button-padding-x-with-label-md: 16px;
+    --button-padding-x-with-label-sm: 16px;
     --state-hover: rgba(0, 0, 0, 0.05); /** Hover feedback overlay. */
     --state-pressed: rgba(0, 0, 0, 0.1); /** Pressed feedback overlay. */
     --state-selected: rgba(0, 0, 0, 0.1); /** Selected overlay. */
@@ -206,6 +221,10 @@
     --system-bg-blur: rgba(255, 255, 255, 0.01);
     --system-scrollbar: rgba(0, 0, 0, 0.5);
     --background-core-overlay: rgba(0, 0, 0, 0.1); /** Dimmed overlay for modals. */
+    --color-state-hover: rgba(30, 37, 43, 0.05); /** Hover feedback overlay. */
+    --color-state-pressed: rgba(30, 37, 43, 0.1); /** Pressed feedback overlay. */
+    --color-state-selected: rgba(30, 37, 43, 0.1); /** Selected overlay. */
+    --color-state-bg-overlay: rgba(30, 37, 43, 0.5);
     --typography-font-family-sans: var(--font-family-geist);
     --typography-font-family-mono: var(--font-family-geist-mono);
     --typography-font-size-xxs: var(--font-size-size-10); /** Micro text such as timestamps or subtle metadata. */
@@ -239,6 +258,7 @@
     --spacing-2xl: var(--space-32); /** Larger spacing for panels, modals, and gutters. */
     --spacing-3xl: var(--space-40); /** Used for wide layout spacing and breathing room. */
     --spacing-lg: var(--space-20); /** Medium spacing for grouping elements and section breaks. */
+    --spacing-xxxs: var(--space-2);
     --device-safe-area-bottom: var(--space-0);
     --device-safe-area-top: var(--space-0);
     --button-radius-lg: var(--radius-full);
@@ -248,19 +268,37 @@
     --button-visual-height-sm: var(--size-32);
     --button-visual-height-md: var(--size-40);
     --button-visual-height-lg: var(--size-48);
-    --button-hit-target-min-height: var(--size-48); /* manually adjusted */
-    --button-hit-target-min-width: var(--size-48); /* manually adjusted */
-    --button-type-secondary-bg: var(--base-transparent);
+    /**
+     * Minimum interactive hit target size.
+     *
+     * iOS / Android: enforce minimum touch target.
+     * Web: do not apply a min-width or min-height; size to content.
+     *
+     * Note: Web uses a placeholder value in Figma due to variable mode constraints.
+     */
+    --button-hit-target-min-height: var(--size-48);
+    /**
+     * Minimum interactive hit target size.
+     *
+     * iOS / Android: enforce minimum touch target.
+     * Web: do not apply a min-width or min-height; size to content.
+     *
+     * Note: Web uses a placeholder value in Figma due to variable mode constraints.
+     */
+    --button-hit-target-min-width: var(--size-48);
+    --button-type-secondary-bg: var(--base-transparent-0);
     --button-type-destructive-text: var(--base-white);
-    --button-style-ghost-bg: var(--base-transparent);
-    --button-style-ghost-border: var(--base-transparent);
-    --button-style-outline-bg: var(--base-transparent);
+    --button-style-ghost-bg: var(--base-transparent-0);
+    --button-style-ghost-border: var(--base-transparent-0);
+    --button-style-outline-bg: var(--base-transparent-0);
     --button-style-outline-border-on-chat-outgoing: var(--blue-300);
     --button-style-liquid-glass-text-primary: var(--base-white);
     --button-style-liquid-glass-text-destructive: var(--base-white);
     --button-style-liquid-glass-bg-secondary: var(--base-white);
-    --button-style-liquid-glass-bg-primary: var(--base-transparent);
-    --button-style-liquid-glass-bg-destructive: var(--base-transparent);
+    --button-style-liquid-glass-bg-primary: var(--base-transparent-0);
+    --button-style-liquid-glass-bg-destructive: var(--base-transparent-0);
+    --button-secondary-bg: var(--base-transparent-0);
+    --button-destructive-text: var(--base-white);
     --icon-size-xs: var(--size-12);
     --icon-size-sm: var(--size-16);
     --icon-size-md: var(--size-20);
@@ -275,7 +313,6 @@
     --accent-neutral: var(--slate-500); /** Neutral accent for low-priority badges. */
     --state-text-disabled: var(--slate-400); /** Disabled text and icon color. Matches foundation disabled colors. */
     --state-bg-disabled: var(--slate-200); /** Optional disabled background for inputs, buttons, or chips. */
-    --border-utility-focus: var(--blue-300); /** Focus ring or focus border. */
     --border-utility-border: var(--slate-100); /** Disabled state border. */
     --border-utility-error: var(--red-500); /** Error state. */
     --border-utility-warning: var(--yellow-500); /** Warning borders. */
@@ -288,21 +325,18 @@
     --border-core-primary: var(--blue-600); /** Selected or active state border. */
     --border-core-subtle: var(--slate-100); /** Light outlines. */
     --chat-bg-incoming: var(--slate-100); /** Incoming bubble background. */
-    --chat-bg-outgoing: var(--blue-100); /** Outgoing bubble background. */
     --chat-bg-attachment-incoming: var(--slate-200); /** Attachment card in incoming bubble. */
-    --chat-bg-attachment-outgoing: var(--blue-200); /** Attachment card in outgoing bubble. */
     --chat-bg-typing-indicator: var(--base-black); /** Typing indicator chip. */
-    --chat-border-outgoing: var(--base-transparent);
-    --chat-border-incoming: var(--base-transparent);
+    --chat-border-outgoing: var(--base-transparent-0);
+    --chat-border-incoming: var(--base-transparent-0);
+    --chat-border-on-chat-incoming: var(--slate-400);
     --chat-reply-indicator-incoming: var(--slate-400); /** Reply indicator shading for incoming. */
-    --chat-reply-indicator-outgoing: var(--blue-400); /** Reply indicator shading for outgoing. */
     --chat-waveform-bar: var(--border-core-opacity-25);
     --chat-poll-progress-track-incoming: var(--slate-600);
     --chat-poll-progress-fill-incoming: var(--slate-300);
-    --chat-poll-progress-fill-outgoing: var(--blue-200);
     --chat-thread-connector-incoming: var(--slate-200);
-    --input-bg-default: var(--base-transparent); /** Background of the chat input field. Slightly elevated over the app background in light and dark, solid white in high-contrast. */
-    --input-bg-hover: var(--state-hover); /** Hover state for the input surface. Implemented as a hover overlay on top of chat-input-bg, not as a separate base color. No overlay in high-contrast. */
+    --input-bg-default: var(--base-transparent-0); /** Background of the chat input field. Slightly elevated over the app background in light and dark, solid white in high-contrast. */
+    --input-bg-hover: var(--color-state-hover); /** Hover state for the input surface. Implemented as a hover overlay on top of chat-input-bg, not as a separate base color. No overlay in high-contrast. */
     --input-text-default: var(--slate-900); /** Main text inside the chat input. */
     --input-text-placeholder: var(--slate-600); /** Placeholder text for the input. Lower emphasis than main text. */
     --input-text-icon: var(--slate-700); /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
@@ -313,12 +347,14 @@
     --badge-text: var(--base-white);
     --badge-text-inverse: var(--slate-900);
     --badge-bg-inverse: var(--base-white);
-    --control-radiocheck-bg: var(--base-transparent);
-    --control-radiocheck-bg-disabled: var(--base-transparent);
+    --control-radiocheck-bg: var(--base-transparent-0);
+    --control-radiocheck-bg-disabled: var(--base-transparent-0);
     --control-remove-bg: var(--slate-900);
     --control-remove-icon: var(--base-white);
     --control-progress-bar-track: var(--slate-500);
     --control-progress-bar-fill: var(--slate-100);
+    --control-remove-control-bg: var(--slate-900);
+    --control-remove-control-icon: var(--base-white);
     --background-core-app: var(--base-white); /** Global application background. */
     --background-core-surface: var(--slate-50); /** Surface background for cards, panels. */
     --background-core-surface-subtle: var(--slate-100); /** Subtle section background. */
@@ -333,7 +369,6 @@
     --text-tertiary: var(--slate-600); /** Lowest priority text. */
     --text-inverse: var(--base-white); /** Text on dark or accent backgrounds. */
     --text-disabled: var(--slate-400); /** Disabled text. */
-    --text-link: var(--blue-500); /** Hyperlinks and inline actions. */
     --text-on-accent: var(--base-white); /** Text on dark or accent backgrounds. */
     --avatar-palette-bg-1: var(--blue-100);
     --avatar-palette-bg-2: var(--cyan-100);
@@ -345,6 +380,24 @@
     --avatar-palette-text-3: var(--green-800);
     --avatar-palette-text-4: var(--purple-800);
     --avatar-palette-text-5: var(--yellow-800);
+    --color-accent-success: var(--green-500); /** For success states and positive actions. */
+    --color-accent-warning: var(--yellow-500); /** Warning or caution messages. */
+    --color-accent-error: var(--red-500); /** Destructive actions and error states. */
+    --color-accent-neutral: var(--slate-500); /** Neutral accent for low-priority badges. */
+    --color-state-text-disabled: var(--slate-400); /** Disabled text and icon color. Matches foundation disabled colors. */
+    --color-state-bg-disabled: var(--slate-200); /** Optional disabled background for inputs, buttons, or chips. */
+    --color-brand-50: var(--blue-50);
+    --color-brand-100: var(--blue-100);
+    --color-brand-200: var(--blue-200);
+    --color-brand-300: var(--blue-300);
+    --color-brand-400: var(--blue-400);
+    --color-brand-500: var(--blue-500);
+    --color-brand-600: var(--blue-600);
+    --color-brand-700: var(--blue-700);
+    --color-brand-800: var(--blue-800);
+    --color-brand-900: var(--blue-900);
+    --color-brand-950: var(--blue-950);
+    --device-radius: var(--radius-md);
     --message-bubble-radius-group-top: var(--radius-2xl);
     --message-bubble-radius-group-middle: var(--radius-2xl);
     --message-bubble-radius-group-bottom: var(--radius-2xl);
@@ -362,47 +415,67 @@
     --button-type-destructive-bg: var(--accent-error);
     --button-type-destructive-text-inverse: var(--accent-error);
     --button-type-destructive-border: var(--accent-error);
-    --button-style-ghost-text-primary: var(--accent-primary);
     --button-style-ghost-text-secondary: var(--text-primary);
     --button-style-outline-border: var(--border-core-surface-subtle);
     --button-style-outline-text: var(--text-primary);
     --button-style-outline-border-on-chat-incoming: var(--border-core-surface);
     --button-style-liquid-glass-text-secondary: var(--text-primary);
-    --border-utility-selected: var(--accent-primary); /** Focus ring or focus border. */
+    --button-primary-text: var(--text-on-accent);
+    --button-primary-border: var(--color-brand-600);
+    --button-secondary-text: var(--text-primary);
+    --button-secondary-border: var(--border-core-surface-subtle);
+    --button-destructive-bg: var(--color-accent-error);
+    --button-destructive-border: var(--color-accent-error);
+    --button-destructive-text-inverse: var(--color-accent-error);
+    --border-utility-focus: var(--color-brand-300); /** Focus ring or focus border. */
+    --border-utility-selected: var(--color-brand-500); /** Focus ring or focus border. */
+    --chat-bg-outgoing: var(--color-brand-100); /** Outgoing bubble background. */
+    --chat-bg-attachment-outgoing: var(--color-brand-200); /** Attachment card in outgoing bubble. */
     --chat-text-message: var(--text-primary); /** Message body text. */
     --chat-text-timestamp: var(--text-tertiary); /** Time labels. */
     --chat-text-username: var(--text-secondary); /** Username label. */
-    --chat-text-mention: var(--text-link); /** Mention styling. */
-    --chat-text-link: var(--text-link); /** Links inside message bubbles. */
     --chat-text-reaction: var(--text-secondary); /** Reaction count text. */
     --chat-text-system: var(--text-secondary); /** System messages like date separators. */
-    --chat-waveform-bar-playing: var(--accent-primary);
-    --chat-poll-progress-track-outgoing: var(--accent-primary);
-    --chat-thread-connector-outgoing: var(--chat-bg-outgoing);
-    --input-bg-bg-disabled: var(--state-bg-disabled); /** Disabled input background using your shared disabled surface. White in high-contrast, with the disabled border and text carrying most of the signal. */
+    --chat-border-on-chat-outgoing: var(--color-brand-300);
+    --chat-reply-indicator-outgoing: var(--color-brand-400); /** Reply indicator shading for outgoing. */
+    --chat-poll-progress-fill-outgoing: var(--color-brand-200);
+    --input-bg-bg-disabled: var(--color-state-bg-disabled); /** Disabled input background using your shared disabled surface. White in high-contrast, with the disabled border and text carrying most of the signal. */
     --input-border-default: var(--border-core-surface-subtle); /** Default border of the chat input. Uses the standard border role from foundations. In high-contrast always black. */
     --input-border-hover: var(--border-core-surface); /** Optional hover border when the input is hovered or highlighted. Slightly stronger than default. */
-    --input-border-focus: var(--border-utility-focus); /** Focus border when the input is focused. Uses the shared focus state token (brand in normal modes, black in high-contrast). */
     --input-border-border-disabled: var(--border-core-subtle); /** Disabled input border. Low contrast in normal modes, black outline in high-contrast. */
-    --input-send-icon: var(--accent-primary); /** Default send icon color in the input. Uses the brand accent. */
-    --input-send-icon-disabled: var(--state-text-disabled); /** Send icon when disabled (e.g. empty input). */
+    --input-send-icon-disabled: var(--color-state-text-disabled); /** Send icon when disabled (e.g. empty input). */
     --reaction-bg: var(--background-elevation-elevation-1); /** Reaction bar background. */
     --reaction-border: var(--border-core-surface-subtle); /** Border around unselected reaction chips. Subtle in normal modes, strong in high-contrast for visibility. */
     --reaction-text: var(--text-primary); /** Count label next to the emoji inside the reaction chip. Uses secondary text so it does not compete with message text. */
     --reaction-emoji: var(--text-primary); /** Emoji color inside reaction chips. Uses primary text color so the emoji stays clearly legible. */
-    --presence-bg-online: var(--accent-success); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
-    --presence-bg-offline: var(--accent-neutral); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
-    --badge-bg-primary: var(--accent-primary);
-    --badge-bg-error: var(--accent-error);
-    --badge-bg-neutral: var(--accent-neutral);
+    --presence-bg-online: var(--color-accent-success); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+    --presence-bg-offline: var(--color-accent-neutral); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+    --badge-bg-error: var(--color-accent-error);
+    --badge-bg-neutral: var(--color-accent-neutral);
     --control-radiocheck-border: var(--border-core-surface-subtle);
-    --control-radiocheck-bg-selected: var(--accent-primary);
-    --control-radiocheck-border-selected: var(--border-core-primary);
     --control-radiocheck-icon-selected: var(--text-inverse);
     --control-radiocheck-border-disabled: var(--border-utility-border);
-    --control-radiocheck-bg-selected-disabled: var(--state-bg-disabled);
-    --control-radiocheck-icon-selected-disabled: var(--state-text-disabled);
+    --control-radiocheck-bg-selected-disabled: var(--color-state-bg-disabled);
+    --control-radiocheck-icon-selected-disabled: var(--color-state-text-disabled);
     --control-remove-border: var(--border-core-on-dark);
+    --control-remove-control-border: var(--border-core-on-dark);
+    --control-play-control-bg: var(--background-elevation-elevation-1);
+    --control-play-control-icon: var(--text-primary);
+    --control-play-control-border: var(--border-core-surface-subtle);
     --avatar-bg-default: var(--avatar-palette-bg-1);
     --avatar-text-default: var(--avatar-palette-text-1);
+    --color-accent-primary: var(--color-brand-500); /** Main brand accent for interactive elements. */
+    --button-style-ghost-text-primary: var(--color-accent-primary);
+    --button-primary-bg: var(--color-accent-primary);
+    --chat-waveform-bar-playing: var(--color-accent-primary);
+    --chat-poll-progress-track-outgoing: var(--color-accent-primary);
+    --chat-thread-connector-outgoing: var(--chat-bg-outgoing);
+    --input-border-focus: var(--border-utility-focus); /** Focus border when the input is focused. Uses the shared focus state token (brand in normal modes, black in high-contrast). */
+    --input-send-icon: var(--color-accent-primary); /** Default send icon color in the input. Uses the brand accent. */
+    --badge-bg-primary: var(--color-accent-primary);
+    --control-radiocheck-bg-selected: var(--color-accent-primary);
+    --control-radiocheck-border-selected: var(--border-utility-selected);
+    --text-link: var(--color-accent-primary); /** Hyperlinks and inline actions. */
+    --chat-text-mention: var(--text-link); /** Mention styling. */
+    --chat-text-link: var(--text-link); /** Links inside message bubbles. */
 }
