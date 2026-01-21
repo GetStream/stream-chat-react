@@ -1,3 +1,9 @@
+## [13.13.4](https://github.com/GetStream/stream-chat-react/compare/v13.13.3...v13.13.4) (2026-01-21)
+
+### Bug Fixes
+
+* **ai:** stop typewriter animation on `ai_indicator.stop` ([#2918](https://github.com/GetStream/stream-chat-react/issues/2918)) ([9e25b3a](https://github.com/GetStream/stream-chat-react/commit/9e25b3a6a55782e57aade711f387d98fc4cda025))
+
 ## [13.13.3](https://github.com/GetStream/stream-chat-react/compare/v13.13.2...v13.13.3) (2026-01-13)
 
 ### Bug Fixes
