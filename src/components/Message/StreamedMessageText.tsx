@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import type { MessageTextProps } from './MessageText';
 import { MessageText } from './MessageText';
 
-import { useMessageContext } from '../../context';
+import { useChannelStateContext, useMessageContext } from '../../context';
+import { AIStates, useAIState } from '../AIStateIndicator';
 import { useMessageTextStreaming } from './hooks';
 
 export type StreamedMessageTextProps = Pick<
@@ -22,13 +23,21 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
     streamingLetterIntervalMs,
   } = props;
   const { message: messageFromContext } = useMessageContext('StreamedMessageText');
+  const { channel } = useChannelStateContext();
+  const { aiState } = useAIState(channel);
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
-  const { streamedMessageText } = useMessageTextStreaming({
+  const { stopGenerating, streamedMessageText } = useMessageTextStreaming({
     renderingLetterCount,
     streamingLetterIntervalMs,
     text,
   });
+
+  useEffect(() => {
+    if (aiState === AIStates.Stop) {
+      stopGenerating();
+    }
+  }, [aiState, stopGenerating]);
 
   return (
     <MessageText

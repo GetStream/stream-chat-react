@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useStableCallback } from '../../../utils/useStableCallback';
 import type { StreamedMessageTextProps } from '../StreamedMessageText';
 
 export type UseMessageTextStreamingProps = Pick<
@@ -22,15 +23,17 @@ export const useMessageTextStreaming = ({
   renderingLetterCount = DEFAULT_RENDERING_LETTER_COUNT,
   streamingLetterIntervalMs = DEFAULT_LETTER_INTERVAL,
   text,
-}: UseMessageTextStreamingProps): { streamedMessageText: string } => {
+}: UseMessageTextStreamingProps) => {
   const [streamedMessageText, setStreamedMessageText] = useState<string>(text);
   const textCursor = useRef<number>(text.length);
 
   useEffect(() => {
     const textLength = text.length;
+
     const interval = setInterval(() => {
       if (!text || textCursor.current >= textLength) {
         clearInterval(interval);
+        return;
       }
       const newCursorValue = textCursor.current + renderingLetterCount;
       const newText = text.substring(0, newCursorValue);
@@ -43,5 +46,10 @@ export const useMessageTextStreaming = ({
     };
   }, [streamingLetterIntervalMs, renderingLetterCount, text]);
 
-  return { streamedMessageText };
+  const stopGenerating = useStableCallback(() => {
+    textCursor.current = text.length;
+    setStreamedMessageText(text);
+  });
+
+  return { stopGenerating, streamedMessageText } as const;
 };
