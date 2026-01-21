@@ -46,10 +46,10 @@ export const useMessageTextStreaming = ({
     };
   }, [streamingLetterIntervalMs, renderingLetterCount, text]);
 
-  const stopGenerating = useStableCallback(() => {
+  const skipAnimation = useStableCallback(() => {
     textCursor.current = text.length;
     setStreamedMessageText(text);
   });
 
-  return { stopGenerating, streamedMessageText } as const;
+  return { skipAnimation, streamedMessageText } as const;
 };

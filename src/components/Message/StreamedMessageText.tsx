@@ -4,7 +4,6 @@ import type { MessageTextProps } from './MessageText';
 import { MessageText } from './MessageText';
 
 import { useChannelStateContext, useMessageContext } from '../../context';
-import { AIStates, useAIState } from '../AIStateIndicator';
 import { useMessageTextStreaming } from './hooks';
 
 export type StreamedMessageTextProps = Pick<
@@ -24,20 +23,19 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
   } = props;
   const { message: messageFromContext } = useMessageContext('StreamedMessageText');
   const { channel } = useChannelStateContext();
-  const { aiState } = useAIState(channel);
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
-  const { stopGenerating, streamedMessageText } = useMessageTextStreaming({
+  const { skipAnimation, streamedMessageText } = useMessageTextStreaming({
     renderingLetterCount,
     streamingLetterIntervalMs,
     text,
   });
 
   useEffect(() => {
-    if (aiState === AIStates.Stop) {
-      stopGenerating();
-    }
-  }, [aiState, stopGenerating]);
+    channel?.on('ai_indicator.stop', () => {
+      skipAnimation();
+    });
+  }, [channel, skipAnimation]);
 
   return (
     <MessageText
