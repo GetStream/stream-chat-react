@@ -3,7 +3,7 @@
 .str-chat {
   .str-chat__button {
     @include utils.button-reset;
-    position: relative;     /* creates positioning context for pseudo ::after overlay */
+    position: relative; /* creates positioning context for pseudo ::after overlay */
     overflow: hidden;
 
     cursor: pointer;
@@ -105,17 +105,23 @@
       border-width: 1px;
       border-style: solid;
 
-
       &:not(:disabled):hover {
         @include utils.overlay-after(0.05);
       }
 
-      &:not(:disabled):active { // pressed
-        @include utils.overlay-after(0.10);
+      &:not(:disabled):active {
+        // pressed
+        @include utils.overlay-after(0.1);
       }
 
-      &:not(:disabled):focus-visible { // focused
-        outline: 2px solid  var(--border-utility-focus);
+      &:not(:disabled):focus-visible {
+        // focused
+        outline: 2px solid var(--border-utility-focus);
+      }
+
+      &:not(:disabled)[aria-pressed='true'] {
+        // toggled
+        @include utils.overlay-after(0.1);
       }
 
       &:disabled {
@@ -129,4 +135,3 @@
     }
   }
 }
-
