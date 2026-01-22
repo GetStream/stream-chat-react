@@ -3,7 +3,7 @@
 .str-chat {
   .str-chat__button {
     @include utils.button-reset;
-    position: relative;     /* creates positioning context for pseudo ::after overlay */
+    position: relative; /* creates positioning context for pseudo ::after overlay */
     overflow: hidden;
 
     cursor: pointer;
@@ -90,6 +90,11 @@
         @include utils.focusable;
       }
 
+      &:not(:disabled)[aria-pressed="true"] {
+        // toggled
+        @include utils.overlay-after(0.1);
+      }
+
       &:disabled {
         color: var(--text-disabled);
         cursor: default;
@@ -140,4 +145,3 @@
     }
   }
 }
-
