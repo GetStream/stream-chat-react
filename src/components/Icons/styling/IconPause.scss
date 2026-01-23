@@ -1,0 +1,11 @@
+.str-chat {
+  .str-chat__icon--pause {
+    fill: none;
+    height: 20px;
+    width: 20px;
+
+    path {
+      fill: var(--text-primary);
+    }
+  }
+}

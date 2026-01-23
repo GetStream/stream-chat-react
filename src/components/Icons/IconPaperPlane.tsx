@@ -4,9 +4,9 @@ import clsx from 'clsx';
 export const IconPaperPlane = ({ className, ...props }: ComponentProps<'svg'>) => (
   <svg
     stroke='currentColor'
-    viewBox='0 0 20 20'
     {...props}
     className={clsx('str-chat__icon--paper-plane', className)}
+    viewBox='0 0 20 20'
     xmlns='http://www.w3.org/2000/svg'
   >
     <path
