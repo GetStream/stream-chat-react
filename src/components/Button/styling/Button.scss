@@ -12,100 +12,71 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
-    //padding-inline: var(--spacing-md);
-    //padding-block: var(--spacing-sm);
-    /*
-    min-width / min-height on buttons:
-      - enforce a minimum tappable area
-      - follow accessibility & platform guidelines
-      - don’t affect layout unless the button would be too small
-      - are about usability, not design polish
-     */
-    min-height: var(--button-visual-height-lg);
-    max-height: var(--button-visual-height-lg);
 
     line-height: var(--typography-line-height-normal);
-    border-radius: var(--button-radius-lg);
-
-    font-weight: var(--font-weight-w600);
+    font-weight: var(--typography-font-weight-semibold);
 
     &.str-chat__button--solid {
       &.str-chat__button--primary {
-        background-color: var(--button-type-primary-bg);
-        color: var(--button-type-primary-text);
-        border-color: var(--button-type-primary-border);
+        background-color: var(--button-primary-bg);
+        color: var(--button-primary-text-on-accent);
       }
 
       &.str-chat__button--secondary {
-        background-color: var(--button-type-secondary-bg);
-        color: var(--button-type-secondary-text);
-        border-color: var(--button-type-secondary-border);
+        background-color: var(--button-secondary-bg);
+        color: var(--button-secondary-text-on-accent);
       }
 
       &.str-chat__button--destructive {
-        background-color: var(--button-type-destructive-bg);
-        color: var(--button-type-destructive-text);
-        border-color: var(--button-type-destructive-border);
+        background-color: var(--button-destructive-bg);
+        color: var(--button-destructive-text-on-accent);
       }
 
       &:disabled {
-        background-color: var(--state-bg-disabled);
+        background-color: var(--background-core-disabled);
       }
     }
 
     &.str-chat__button--ghost {
-      border-color: var(--button-style-ghost-border);
-      background-color: var(--button-style-ghost-bg);
-
       &.str-chat__button--primary {
-        color: var(--button-style-ghost-text-primary);
+        color: var(--button-primary-text);
       }
 
       &.str-chat__button--secondary {
-        color: var(--button-style-ghost-text-secondary);
+        color: var(--button-secondary-text);
       }
 
       &.str-chat__button--destructive {
-        color: var(--button-type-destructive-text-inverse);
+        color: var(--button-destructive-text);
+      }
+    }
+
+    // todo: shouldn't we specify also background color?
+    &.str-chat__button--outline {
+      &.str-chat__button--primary {
+        color: var(--button-primary-text);
+        border-color: var(--button-primary-border);
+      }
+
+      &.str-chat__button--secondary {
+        color: var(--button-secondary-text);
+        border-color: var(--button-secondary-border);
+      }
+
+      &.str-chat__button--destructive {
+        color: var(--button-destructive-text);
+        border-color: var(--button-destructive-border);
       }
     }
 
     &.str-chat__button--outline {
-      // todo: designs not available
-      //&.str-chat__button--primary {
-      //  background-color: var(--button-type-primary-bg);
-      //  color: var(--button-type-primary-text);
-      //  border-color: var(--button-type-primary-border);
-      //}
-
-      &.str-chat__button--secondary {
-        background-color: var(--button-style-outline-bg);
-        color: var(--button-style-outline-text);
-        border-color: var(--button-style-outline-border);
-      }
-
-      // todo: designs not available
-      &.str-chat__button--destructive {
-        //background-color: var(--button-type-destructive-bg);
-        color: var(--button-type-destructive-text-inverse);
-        //border-color: var(--button-type-destructive-border);
-      }
-    }
-
-    &.str-chat__button--solid,
-    &.str-chat__button--ghost {
-      &:disabled {
-        border: none;
-      }
+      border-width: 1px;
+      border-style: solid;
     }
 
     &.str-chat__button--solid,
     &.str-chat__button--outline,
     &.str-chat__button--ghost {
-      border-width: 1px;
-      border-style: solid;
-
-
       &:not(:disabled):hover {
         @include utils.overlay-after(0.05);
       }
@@ -115,17 +86,56 @@
       }
 
       &:not(:disabled):focus-visible { // focused
-        outline: 2px solid  var(--border-utility-focus);
+        @include utils.focusable;
       }
 
       &:disabled {
-        color: var(--state-text-disabled);
+        color: var(--text-disabled);
         cursor: default;
       }
     }
 
+    &.str-chat__button--outline:disabled {
+      border-color: var(--border-utility-disabled);
+    }
+
     &.str-chat__button--floating {
-      box-shadow: var(--light-elevation-3);
+      box-shadow: var(--light-elevation-2);
+
+    }
+
+    &.str-chat__button--size-lg {
+      padding-block: var(--button-padding-y-lg);
+      padding-inline: var(--button-padding-x-with-label-lg);
+      border-radius: var(--button-radius-lg);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-lg);
+      }
+    }
+
+    &.str-chat__button--size-md {
+      padding-block: var(--button-padding-y-md);
+      padding-inline: var(--button-padding-x-with-label-md);
+      border-radius: var(--button-radius-md);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-md);
+      }
+    }
+
+    &.str-chat__button--size-sm {
+      padding-block: var(--button-padding-y-sm);
+      padding-inline: var(--button-padding-x-with-label-sm);
+      border-radius: var(--button-radius-md);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-sm);
+      }
+    }
+
+    &.str-chat__button--circular {
+      border-radius: var(--button-radius-full);
     }
   }
 }
