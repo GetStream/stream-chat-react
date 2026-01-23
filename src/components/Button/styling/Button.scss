@@ -78,11 +78,11 @@
     &.str-chat__button--outline,
     &.str-chat__button--ghost {
       &:not(:disabled):hover {
-        @include utils.overlay-after(0.05);
+        @include utils.overlay-after(var(--background-core-hover));
       }
 
       &:not(:disabled):active { // pressed
-        @include utils.overlay-after(0.10);
+        @include utils.overlay-after(var(--background-core-pressed));
       }
 
       &:not(:disabled):focus-visible { // focused
