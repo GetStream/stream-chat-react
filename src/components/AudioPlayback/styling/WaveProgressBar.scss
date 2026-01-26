@@ -1,0 +1,37 @@
+.str-chat {
+  .str-chat__wave-progress-bar__track {
+    $min_amplitude_height: 2px;
+    position: relative;
+    flex: 1;
+    width: 160px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__voice-recording-amplitude-bar-gap-width);
+
+    .str-chat__wave-progress-bar__amplitude-bar {
+      width: 2px;
+      min-width: 2px;
+      height: calc(
+              var(--str-chat__wave-progress-bar__amplitude-bar-height) + $min_amplitude_height
+      ); // variable set dynamically on element
+      background: var(--chat-waveform-bar);
+      border-radius: var(--radius-max);
+    }
+
+    .str-chat__wave-progress-bar__amplitude-bar--active {
+      background: var(--chat-waveform-bar-playing);
+    }
+
+    .str-chat__wave-progress-bar__progress-indicator {
+      position: absolute;
+      left: 0;
+      // todo: CSS use semantic variable instead of --base-white
+      border: 2px solid var(--base-white);
+      box-shadow: var(--light-elevation-3);
+      background: var(--color-accent-primary);
+      height: 14px;
+      width: 14px;
+    }
+  }
+}

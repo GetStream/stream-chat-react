@@ -263,7 +263,7 @@ describe('AttachmentPreviewList', () => {
           file: 'FileAttachmentPreview',
           image: 'ImageAttachmentPreview',
           unsupported: 'UnsupportedAttachmentPreview',
-          video: 'VideoAttachmentPreview',
+          video: 'MediaAttachmentPreview',
           voiceRecording: 'VoiceRecordingPreview',
         };
         const title = `${type}-attachment`;

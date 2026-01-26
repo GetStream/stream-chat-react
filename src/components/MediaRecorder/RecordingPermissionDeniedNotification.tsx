@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslationContext } from '../../context';
-
 import type { RecordingPermission } from './classes/BrowserPermission';
+import { Button } from '../Button';
+import clsx from 'clsx';
 
 export type RecordingPermissionDeniedNotificationProps = {
   onClose: () => void;
@@ -33,12 +34,17 @@ export const RecordingPermissionDeniedNotification = ({
         {permissionTranslations.body[permissionName]}
       </p>
       <div className='str-chat__recording-permission-denied-notification__dismiss-button-container'>
-        <button
-          className='str-chat__recording-permission-denied-notification__dismiss-button'
+        <Button
+          className={clsx(
+            'str-chat__recording-permission-denied-notification__dismiss-button',
+            'str-chat__button--ghost',
+            'str-chat__button--secondary',
+            'str-chat__button--size-md',
+          )}
           onClick={onClose}
         >
           {t('Ok')}
-        </button>
+        </Button>
       </div>
     </div>
   );

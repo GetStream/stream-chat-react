@@ -1,0 +1,12 @@
+.str-chat__icon--camera {
+  fill: none;
+  height: 12px;
+  width: 12px;
+  
+  path {
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: round;
+    stroke-width: 1.2;
+  }
+}

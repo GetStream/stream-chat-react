@@ -10,8 +10,10 @@ import { useComponentContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
 import type { Dimensions } from '../../types/types';
+import clsx from 'clsx';
 
 export type ImageProps = {
+  className?: string;
   dimensions?: Dimensions;
   innerRef?: MutableRefObject<HTMLImageElement | null>;
   previewUrl?: string;
@@ -33,6 +35,7 @@ export type ImageProps = {
  */
 export const ImageComponent = (props: ImageProps) => {
   const {
+    className,
     dimensions = {},
     fallback,
     image_url,
@@ -62,7 +65,7 @@ export const ImageComponent = (props: ImageProps) => {
     <>
       <BaseImage
         alt={fallback}
-        className='str-chat__message-attachment--img'
+        className={clsx('str-chat__message-attachment--img', className)}
         data-testid='image-test'
         onClick={openModal}
         src={imageSrc}

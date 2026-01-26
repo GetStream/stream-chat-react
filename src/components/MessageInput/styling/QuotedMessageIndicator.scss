@@ -1,0 +1,10 @@
+.str-chat__quoted-message-indicator {
+  background-color: var(--chat-reply-indicator-incoming);
+  border-radius: var(--radius-max);
+  height: 100%;
+  width: 2px;
+}
+
+.str-chat__quoted-message-indicator--own-message {
+  background-color: var(--chat-reply-indicator-outgoing);
+}

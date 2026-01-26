@@ -5,7 +5,7 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useMessageComposer } from '../MessageInput';
+import { useCooldownRemaining, useMessageComposer } from '../MessageInput';
 import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';
@@ -50,7 +50,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { cooldownRemaining, textareaRef } = useMessageInputContext();
+  const { textareaRef } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -58,6 +58,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
     messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
+  const cooldownRemaining = useCooldownRemaining();
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(

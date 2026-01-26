@@ -1,0 +1,21 @@
+@use 'variables';
+
+@font-face {
+  font-family: 'stream-chat-icons';
+  src: url('#{variables.$assetsPath}/icons/stream-chat-icons.eot');
+  src: url('#{variables.$assetsPath}/icons/stream-chat-icons.eot#iefix') format('embedded-opentype'),
+  url('#{variables.$assetsPath}/icons/stream-chat-icons.woff') format('woff2'),
+  url('#{variables.$assetsPath}/icons/stream-chat-icons.woff') format('woff'),
+  url('#{variables.$assetsPath}/icons/stream-chat-icons.ttf') format('truetype'),
+  url('#{variables.$assetsPath}/icons/stream-chat-icons.svg#stream-chat-icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  @font-face {
+    font-family: 'stream-chat-icons';
+    src: url('#{variables.$assetsPath}/icons/stream-chat-icons.svg#stream-chat-icons') format('svg');
+  }
+}

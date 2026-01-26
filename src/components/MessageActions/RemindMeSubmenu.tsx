@@ -1,6 +1,6 @@
 import React from 'react';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
-import { ButtonWithSubmenu } from '../Dialog';
+import { ContextMenuButton } from '../Dialog';
 import type { ComponentProps } from 'react';
 
 export const RemindMeActionButton = ({
@@ -10,14 +10,14 @@ export const RemindMeActionButton = ({
   const { t } = useTranslationContext();
 
   return (
-    <ButtonWithSubmenu
+    <ContextMenuButton
       aria-selected='false'
       className={className}
-      placement={isMine ? 'left-start' : 'right-start'}
       Submenu={RemindMeSubmenu}
+      submenuPlacement={isMine ? 'left-start' : 'right-start'}
     >
       {t('Remind Me')}
-    </ButtonWithSubmenu>
+    </ContextMenuButton>
   );
 };
 

@@ -81,6 +81,7 @@
         @include utils.overlay-after(var(--background-core-hover));
       }
 
+      &[aria-expanded="true"],
       &:not(:disabled):active { // pressed
         @include utils.overlay-after(var(--background-core-pressed));
       }

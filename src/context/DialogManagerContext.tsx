@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import { StateStore } from 'stream-chat';
 
-import { DialogManager } from '../components/Dialog/DialogManager';
-import { DialogPortalDestination } from '../components/Dialog/DialogPortal';
+import { DialogManager } from '../components/Dialog/service/DialogManager';
+import { DialogPortalDestination } from '../components/Dialog/service/DialogPortal';
 import type { PropsWithChildrenOnly } from '../types/types';
 
 type DialogManagerId = string;

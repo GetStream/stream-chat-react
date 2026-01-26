@@ -5,7 +5,11 @@ import clsx from 'clsx';
 import type { MessageComposerConfig } from 'stream-chat';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useAttachmentManagerState, useMessageComposer } from './hooks';
+import {
+  useAttachmentManagerState,
+  useCooldownRemaining,
+  useMessageComposer,
+} from './hooks';
 import { useStateStore } from '../../store';
 
 const DragAndDropUploadContext = React.createContext<{
@@ -81,6 +85,7 @@ export const WithDragAndDropUpload = ({
     messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
+  const cooldownRemaining = useCooldownRemaining();
   // if message input context is available, there's no need to use the queue
   const isWithinMessageInputContext = Object.keys(messageInputContext).length > 0;
 
@@ -110,7 +115,7 @@ export const WithDragAndDropUpload = ({
     // apply `disabled` rules if available, otherwise allow anything and
     // let the `uploadNewFiles` handle the limitations internally
     disabled: isWithinMessageInputContext
-      ? !isUploadEnabled || (messageInputContext.cooldownRemaining ?? 0) > 0
+      ? !isUploadEnabled || (cooldownRemaining ?? 0) > 0
       : false,
     multiple: multipleUploads,
     noClick: true,

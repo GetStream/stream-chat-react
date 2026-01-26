@@ -3,7 +3,6 @@ import { useTimer } from './hooks/useTimer';
 
 export type CooldownTimerProps = {
   cooldownInterval: number;
-  setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 export const CooldownTimer = ({ cooldownInterval }: CooldownTimerProps) => {
   const secondsLeft = useTimer({ startFrom: cooldownInterval });

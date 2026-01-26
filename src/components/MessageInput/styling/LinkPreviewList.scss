@@ -1,0 +1,82 @@
+@use '../../../styling/utils';
+
+.str-chat__link-preview-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: var(--spacing-xxs);
+}
+
+.str-chat__link-preview-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--spacing-xs);
+  padding-inline: var(--spacing-xs) var(--spacing-sm);
+  padding-block: var(--spacing-xs);
+  background-color: var(--chat-bg-outgoing);
+  border-radius: var(--message-bubble-radius-attachment);
+
+  .str-chat__tooltip {
+    @include utils.ellipsis-text();
+    display: block;
+    max-width: calc(var(--str-chat__spacing-px) * 250);
+    padding-inline: 0.5rem;
+  }
+
+  .str-chat__link-preview-card__icon-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .str-chat__link-preview-card__content {
+    min-width: 0;
+    flex: 1;
+    font-size: var(--typography-font-size-xs);
+    line-height: var(--typography-line-height-tight);
+
+    .str-chat__link-preview-card__content-title,
+    .str-chat__link-preview-card__content-description,
+    .str-chat__link-preview-card__content__url {
+      @include utils.ellipsis-text();
+    }
+
+    .str-chat__link-preview-card__content-title {
+      font-weight: var(--typography-font-weight-semi-bold);
+    }
+
+    .str-chat__link-preview-card__content__url {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xxs);
+    }
+  }
+
+  .str-chat__link-preview-card__dismiss-button {
+    @include utils.button-reset;
+    cursor: pointer;
+  }
+}
+
+//.str-chat__link-preview-card--loading {
+//  .str-chat__link-preview-card__content {
+//    display: flex;
+//    flex-direction: column;
+//    gap: 0.25rem;
+//
+//    .str-chat__link-preview-card__content-title {
+//      height: calc(var(--str-chat__spacing-px) * 16);
+//      width: 100%
+//    }
+//
+//    .str-chat__link-preview-card__content-description {
+//      height: calc(var(--str-chat__spacing-px) * 12);
+//      width: 100%;
+//    }
+//  }
+//}

@@ -1,0 +1,404 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /*
+  Styles for floating like composer
+   */
+  .str-chat__message-composer--floating {
+    position: fixed;
+    bottom: 0;
+    background-color: var(--base-transparent-0);
+    // todo: variable exists only in Figma, not added to tokens repo
+    box-shadow: var(--shadow-web-light-elevation-2);
+  }
+
+  .str-chat__message-composer {
+    display: flex;
+    align-items: end;
+    width: 100%;
+    max-width: 768px;
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+    min-width: 0;
+  }
+
+  .str-chat__message-composer-compose-area {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-inline: var(--spacing-xs);
+    padding-block: var(--spacing-sm);
+    border: 1px solid var(--border-core-default);
+    border-radius: var(--radius-3xl);
+    color: var(--input-text-default);
+    background-color: var(--composer-bg);
+    min-width: 0;
+  }
+
+  .str-chat__message-composer-previews {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-bottom: var(--spacing-xs);
+    gap: var(--spacing-xxs);
+
+    min-width: 0;
+  }
+
+  .str-chat__message-composer-controls {
+    display: flex;
+    align-items: end;
+    width: 100%;
+    gap: var(--spacing-xs);
+
+    $controls-containers-min-height: 26px;
+
+    .str-chat__message-composer__actions,
+    .str-chat__message-composer__additional-actions {
+      height: $controls-containers-min-height;
+      display: flex;
+      align-items: center;
+    }
+
+    .str-chat__textarea {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-inline: var(--spacing-xxs) var(--spacing-xs);
+      min-height: $controls-containers-min-height; // align with the attachment button
+
+      textarea {
+        resize: none;
+        border: none;
+        box-shadow: none;
+        outline: none;
+        background-color: transparent;
+        width: 100%;
+        color: var(--input-text-default);
+        font-size: var(--typography-font-size-md);
+      }
+    }
+
+    .str-chat__emoji-picker-button {
+      display: flex;
+      cursor: pointer;
+
+      .str-chat__icon--emoji {
+        width: var(--icon-size-md);
+      }
+    }
+
+    .str-chat__start-recording-audio-button {
+      .str-chat__icon--microphone {
+        width: var(--icon-size-md);
+      }
+    }
+
+    .str-chat__send-button {
+      .str-chat__icon--paper-plane {
+        width: var(--icon-size-md);
+        fill: none;
+      }
+    }
+
+    // todo: we need designs for this - I am hard-coding the dimensions
+    .str-chat__stop-ai-generation-button {
+      width: 30px;
+      height: 28px;
+      cursor: pointer;
+      background-image: var(--str-chat__circle-stop-icon);
+      background-color: transparent;
+      border-width: 0;
+    }
+
+    .str-chat__message-input-cooldown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--button-visual-height-md);
+      width: var(--button-visual-height-md);
+      border-radius: var(--button-radius-full);
+      background-color: var(--background-core-disabled);
+      color: var(--text-disabled);
+    }
+
+    [dir='rtl'] .str-chat__send-button,
+    [dir='rtl'] .str-chat__start-recording-audio-button {
+      svg {
+        transform: scale(-1, 1);
+      }
+    }
+
+
+  }
+
+  // todo: need designs? what kind of action buttons to use on modals?
+  .str-chat__recording-permission-denied-notification {
+    max-width: 100%;
+    padding: 1rem;
+    margin-inline: 0.5rem;
+    border-radius: var(--radius-2xl);
+
+    .str-chat__recording-permission-denied-notification__dismiss-button-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .str-chat__recording-permission-denied-notification__heading,
+    .str-chat__recording-permission-denied-notification__dismiss-button {
+      font: var(--str-chat__subtitle2-medium-text);
+    }
+
+    .str-chat__recording-permission-denied-notification__message {
+      font: var(--str-chat__subtitle-text);
+    }
+
+    //.str-chat__recording-permission-denied-notification__dismiss-button {
+    //  text-transform: uppercase;
+    //}
+  }
+
+  // todo: need designs?
+  .str-chat__send-to-channel-checkbox__container {
+    width: 100%;
+    display: flex;
+    padding: 0.5rem 0.75rem;
+
+    .str-chat__send-to-channel-checkbox__field {
+      display: flex;
+      align-items: center;
+
+      * {
+        cursor: pointer;
+      }
+
+      label {
+        padding-inline: 0.5rem;
+        color: var(--str-chat__text-low-emphasis-color);
+        font: var(--str-chat__body-text);
+      }
+
+      input {
+        margin: 0;
+      }
+    }
+  }
+}
+
+//
+//
+//// theme
+//
+//.str-chat {
+//  /* The border radius of the component */
+//  --str-chat__message-input-border-radius: 0;
+//
+//  /* The text/icon color of the component */
+//  --str-chat__message-input-color: var(--str-chat__text-color);
+//
+//  /* The background color of the component */
+//  --str-chat__message-input-background-color: var(--str-chat__secondary-background-color);
+//
+//  /* Top border of the component */
+//  --str-chat__message-input-border-block-start: none;
+//
+//  /* Bottom border of the component */
+//  --str-chat__message-input-border-block-end: none;
+//
+//  /* Left (right in RTL layout) border of the component */
+//  --str-chat__message-input-border-inline-start: none;
+//
+//  /* Right (left in RTL layout) border of the component */
+//  --str-chat__message-input-border-inline-end: none;
+//
+//  /* Box shadow applied to the component */
+//  --str-chat__message-input-box-shadow: none;
+//
+//  /* The border radius used for the borders of the textarea */
+//  --str-chat__message-textarea-border-radius: var(--str-chat__border-radius-md);
+//
+//  /* The text/icon color of the textarea */
+//  --str-chat__message-textarea-color: var(--str-chat__text-color);
+//
+//  /* The background color of the textarea */
+//  --str-chat__message-textarea-background-color: transparent;
+//
+//  /* Top border of the textarea */
+//  --str-chat__message-textarea-border-block-start: 1px solid var(--str-chat__surface-color);
+//
+//  /* Bottom border of the textarea */
+//  --str-chat__message-textarea-border-block-end: 1px solid var(--str-chat__surface-color);
+//
+//  /* Left (right in RTL layout) border of the textarea */
+//  --str-chat__message-textarea-border-inline-start: 1px solid var(--str-chat__surface-color);
+//
+//  /* Right (left in RTL layout) border of the textarea */
+//  --str-chat__message-textarea-border-inline-end: 1px solid var(--str-chat__surface-color);
+//
+//  /* Box shadow applied to the textarea */
+//  --str-chat__message-textarea-box-shadow: none;
+//
+//  /* The border radius used for the borders of the send button */
+//  --str-chat__message-send-border-radius: var(--str-chat__border-radius-circle);
+//
+//  /* The text/icon color of the send button */
+//  --str-chat__message-send-color: var(--str-chat__primary-color);
+//
+//  /* The background color of the send button */
+//  --str-chat__message-send-background-color: transparent;
+//
+//  /* Top border of the send button */
+//  --str-chat__message-send-border-block-start: 0;
+//
+//  /* Bottom border of the send button */
+//  --str-chat__message-send-border-block-end: 0;
+//
+//  /* Left (right in RTL layout) border of the send button */
+//  --str-chat__message-send-border-inline-start: 0;
+//
+//  /* Right (left in RTL layout) border of the send button */
+//  --str-chat__message-send-border-inline-end: 0;
+//
+//  /* Box shadow applied to the send button */
+//  --str-chat__message-send-box-shadow: none;
+//
+//  /* The color of the send button in disabled state */
+//  --str-chat__message-send-disabled-color: var(--str-chat__disabled-color);
+//
+//  /* The background color of the send button in disabled state */
+//  --str-chat__message-send-disabled-background-color: var(--str-chat__disabled-color);
+//
+//  /* The border radius used for the borders of the audio recording button */
+//  --str-chat__start-recording-audio-button-border-radius: var(--str-chat__border-radius-circle);
+//
+//  /* The text/icon color of the audio recording button */
+//  --str-chat__start-recording-audio-button-color: var(--str-chat__text-low-emphasis-color);
+//
+//  /* The background color of the audio recording button */
+//  --str-chat__start-recording-audio-button-background-color: transparent;
+//
+//  /* Top border of the audio recording button */
+//  --str-chat__start-recording-audio-button-border-block-start: 0;
+//
+//  /* Bottom border of the audio recording button */
+//  --str-chat__start-recording-audio-button-border-block-end: 0;
+//
+//  /* Left (right in RTL layout) border of the audio recording button */
+//  --str-chat__start-recording-audio-button-border-inline-start: 0;
+//
+//  /* Right (left in RTL layout) border of the audio recording button */
+//  --str-chat__start-recording-audio-button-border-inline-end: 0;
+//
+//  /* Box shadow applied to the audio recording button */
+//  --str-chat__start-recording-audio-button-box-shadow: none;
+//
+//  /* The color of the audio recording button in disabled state */
+//  --str-chat__start-recording-audio-button-disabled-color: var(--str-chat__disabled-color);
+//
+//  /* The background color of the audio recording button in disabled state */
+//  --str-chat__start-recording-audio-button-disabled-background-color: transparent;
+//
+//  /* The border radius used for the borders of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-border-radius: var(--str-chat__border-radius-circle);
+//
+//  /* The text/icon color of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-color: var(--str-chat__text-low-emphasis-color);
+//
+//  /* The background color of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-background-color: transparent;
+//
+//  /* Top border of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-border-block-start: 0;
+//
+//  /* Bottom border of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-border-block-end: 0;
+//
+//  /* Left (right in RTL layout) border of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-border-inline-start: 0;
+//
+//  /* Right (left in RTL layout) border of the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-border-inline-end: 0;
+//
+//  /* Box shadow applied to the tool buttons of the message input (such as attachment upload button) */
+//  --str-chat__message-input-tools-box-shadow: none;
+//
+
+//
+//  /* Color applied to an icon in a button that opens attachment selector */
+//  --str-chat__attachment-selector-button-icon-color: var(--str-chat__text-low-emphasis-color);
+//
+//  /* Color applied to an icon in a button that opens attachment selector when hovered over */
+//  --str-chat__attachment-selector-button-icon-color-hover: var(--str-chat__primary-color);
+//
+//  /* Color applied to an attachment selector menu item icon when hovered over */
+//  --str-chat__attachment-selector-actions-menu-button-icon-color: var(--str-chat__primary-color);
+//
+//  /* Color applied to an attachment selector menu item icon when hovered over or focused */
+//  --str-chat__attachment-selector-actions-menu-button-icon-color-active: var(
+//                  --str-chat__primary-color
+//  );
+//}
+//
+//.str-chat__message-input {
+//  @include utils.component-layer-overrides('message-input');
+//
+//  .str-chat__file-input-container {
+//    --str-chat-icon-color: var(--str-chat__message-input-tools-color);
+//    @include utils.component-layer-overrides('message-input-tools');
+//
+//    svg path {
+//      fill: var(--str-chat__message-input-tools-color);
+//    }
+//  }
+//
+//  .str-chat__attachment-preview-image-error {
+//    svg path {
+//      fill: var(--str-chat__primary-color);
+//    }
+//  }
+//
+//
+//
+//.str-chat__attachment-selector-actions-menu {
+//  .str-chat__attachment-selector-actions-menu__button {
+//    color: var(--str-chat__text-low-emphasis-color);
+//
+//    .str-chat__context-menu__button-icon {
+//      background-color: var(--str-chat__attachment-selector-actions-menu-button-icon-color);
+//    }
+//
+//    &:hover,
+//    &:focus {
+//      color: var(--str-chat__text-color);
+//
+//      .str-chat__context-menu__button-icon {
+//        background-color: var(
+//                        --str-chat__attachment-selector-actions-menu-button-icon-color-active
+//        );
+//      }
+//    }
+//  }
+//
+//  .str-chat__attachment-selector-actions-menu__upload-file-button {
+//    .str-chat__context-menu__button-icon {
+//      -webkit-mask: var(--str-chat__folder-icon) no-repeat center / contain;
+//      mask: var(--str-chat__folder-icon) no-repeat center / contain;
+//    }
+//  }
+//
+//  .str-chat__attachment-selector-actions-menu__create-poll-button {
+//    .str-chat__context-menu__button-icon {
+//      -webkit-mask: var(--str-chat__poll-icon) no-repeat center / contain;
+//      mask: var(--str-chat__poll-icon) no-repeat center / contain;
+//    }
+//  }
+//
+//  .str-chat__attachment-selector-actions-menu__add-location-button {
+//    .str-chat__context-menu__button-icon {
+//      -webkit-mask: var(--str-chat__location-icon) no-repeat center / contain;
+//      mask: var(--str-chat__location-icon) no-repeat center / contain;
+//    }
+//  }
+//}
+//

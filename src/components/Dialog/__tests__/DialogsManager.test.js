@@ -1,4 +1,4 @@
-import { DialogManager } from '../DialogManager';
+import { DialogManager } from '../service/DialogManager';
 import * as nanoid from 'nanoid';
 
 const dialogId = 'dialogId';

@@ -3,9 +3,10 @@ import Picker from '@emoji-mart/react';
 
 import { EmojiPickerIcon } from './icons';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useMessageComposer } from '../../components';
+import { Button, useCooldownRemaining, useMessageComposer } from '../../components';
 import type { PopperLikePlacement } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
+import clsx from 'clsx';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -31,7 +32,13 @@ export type EmojiPickerProps = {
 };
 
 const classNames: EmojiPickerProps = {
-  buttonClassName: 'str-chat__emoji-picker-button',
+  buttonClassName: clsx(
+    'str-chat__emoji-picker-button',
+    'str-chat__button--ghost',
+    'str-chat__button--secondary',
+    'str-chat__button--size-sm',
+    'str-chat__button--circular',
+  ),
   pickerContainerClassName: 'str-chat__message-textarea-emoji-picker-container',
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
@@ -40,6 +47,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { textareaRef } = useMessageInputContext('EmojiPicker');
   const { textComposer } = useMessageComposer();
+  const cooldownRemaining = useCooldownRemaining();
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -105,16 +113,17 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           />
         </div>
       )}
-      <button
+      <Button
         aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
         className={props.buttonClassName ?? buttonClassName}
+        disabled={!!cooldownRemaining}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
         type='button'
       >
         {ButtonIconComponent && <ButtonIconComponent />}
-      </button>
+      </Button>
     </div>
   );
 };

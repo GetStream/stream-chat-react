@@ -6,11 +6,10 @@ import {
   BinIcon,
   CheckSignIcon,
   LoadingIndicatorIcon,
-  MicIcon,
   PauseIcon,
-  SendIcon,
 } from '../../MessageInput';
 import { useMessageInputContext } from '../../../context/MessageInputContext';
+import { IconMicrophone, IconPaperPlane } from '../../Icons';
 
 export const AudioRecorder = () => {
   const messageInputContext = useMessageInputContext();
@@ -59,7 +58,7 @@ export const AudioRecorder = () => {
             className='str-chat__audio_recorder__resume-recording-button'
             onClick={recorder.resume}
           >
-            <MicIcon />
+            <IconMicrophone />
           </button>
         )}
         {state.recording && (
@@ -78,7 +77,7 @@ export const AudioRecorder = () => {
             disabled={isUploadingFile}
             onClick={completeRecording}
           >
-            {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIcon />}
+            {isUploadingFile ? <LoadingIndicatorIcon /> : <IconPaperPlane />}
           </button>
         ) : (
           <button
