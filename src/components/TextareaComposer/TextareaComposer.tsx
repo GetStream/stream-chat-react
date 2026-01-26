@@ -22,7 +22,6 @@ import {
 } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
-import { useTimer } from '../MessageInput/hooks/useTimer';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -97,9 +96,9 @@ export const TextareaComposer = ({
     textareaRef,
   } = useMessageInputContext();
   const cooldownRemaining = useCooldownRemaining();
-  const cooldownRemainingLeft = useTimer({ startFrom: cooldownRemaining });
-  const placeholder = cooldownRemainingLeft
-    ? t('Slow mode, wait {{ seconds }}s...', { seconds: cooldownRemainingLeft })
+
+  const placeholder = cooldownRemaining
+    ? t('Slow mode, wait {{ seconds }}s...', { seconds: cooldownRemaining })
     : (placeholderProp ?? additionalTextareaProps?.placeholder ?? t('Type your message'));
 
   const maxRows = maxRowsProp ?? maxRowsContext ?? 1;

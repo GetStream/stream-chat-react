@@ -5,8 +5,9 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useCooldownRemaining, useMessageComposer } from '../MessageInput';
+import { useMessageComposer } from '../MessageInput';
 import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
+import { useIsCooldownActive } from '../MessageInput/hooks/useIsCooldownActive';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';
@@ -58,7 +59,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
     messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
-  const cooldownRemaining = useCooldownRemaining();
+  const isCooldownActive = useIsCooldownActive();
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(
@@ -75,7 +76,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
       accept={acceptedFiles?.join(',')}
       aria-label={t('aria/File upload')}
       data-testid='file-input'
-      disabled={!isUploadEnabled || !!cooldownRemaining}
+      disabled={!isUploadEnabled || isCooldownActive}
       id={id}
       multiple={maxNumberOfFilesPerMessage > 1}
       {...props}

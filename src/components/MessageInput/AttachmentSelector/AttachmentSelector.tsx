@@ -1,5 +1,5 @@
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
-import { useAttachmentManagerState } from '../hooks';
+import { useAttachmentManagerState, useMessageComposer } from '../hooks';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import {
   ContextMenu,
@@ -24,9 +24,9 @@ import {
 } from '../../../context/AttachmentSelectorContext';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import clsx from 'clsx';
-import { useCooldownRemaining, useMessageComposer } from '../hooks';
 import { Button, type ButtonProps } from '../../Button';
 import { IconCommand, IconFile, IconLocationPin, IconPlus, IconPoll } from '../../Icons';
+import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
 
 const AttachmentSelectorMenuInitButtonIcon = () => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -65,7 +65,7 @@ export const SimpleAttachmentSelector = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
-  const cooldownRemaining = useCooldownRemaining();
+  const isCooldownActive = useIsCooldownActive();
 
   useEffect(() => {
     if (!buttonElement) return;
@@ -85,7 +85,7 @@ export const SimpleAttachmentSelector = () => {
   return (
     <div className='str-chat__attachment-selector'>
       <AttachmentSelectorButton
-        disabled={!!cooldownRemaining}
+        disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
         ref={setButtonElement}
       />
@@ -240,8 +240,7 @@ export const AttachmentSelector = ({
   const { Modal = DefaultModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposer();
-  const cooldownRemaining = useCooldownRemaining();
-
+  const isCooldownActive = useIsCooldownActive();
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
@@ -289,7 +288,7 @@ export const AttachmentSelector = ({
           className={clsx('str-chat__prepare-rotate45', {
             'str-chat__rotate45': menuDialogIsOpen,
           })}
-          disabled={!!cooldownRemaining}
+          disabled={isCooldownActive}
           onClick={() => menuDialog?.toggle()}
           ref={menuButtonRef}
         />

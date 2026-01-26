@@ -3,10 +3,11 @@ import Picker from '@emoji-mart/react';
 
 import { EmojiPickerIcon } from './icons';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { Button, useCooldownRemaining, useMessageComposer } from '../../components';
 import type { PopperLikePlacement } from '../../components';
+import { Button, useMessageComposer } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import clsx from 'clsx';
+import { useIsCooldownActive } from '../../components/MessageInput/hooks/useIsCooldownActive';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -47,7 +48,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { textareaRef } = useMessageInputContext('EmojiPicker');
   const { textComposer } = useMessageComposer();
-  const cooldownRemaining = useCooldownRemaining();
+  const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -117,7 +118,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
         className={props.buttonClassName ?? buttonClassName}
-        disabled={!!cooldownRemaining}
+        disabled={!!isCooldownActive}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
         type='button'

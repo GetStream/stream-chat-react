@@ -7,7 +7,6 @@ import type {
   AvatarProps,
   BaseImageProps,
   ChannelPreviewActionButtonsProps,
-  CooldownTimerProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
   EditMessageModalProps,
@@ -93,7 +92,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
   ChannelPreviewActionButtons?: React.ComponentType<ChannelPreviewActionButtonsProps>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
-  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
+  CooldownTimer?: React.ComponentType;
   /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
   CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps>;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */

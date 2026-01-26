@@ -8,8 +8,9 @@ import {
   useMessageInputContext,
 } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import { useCooldownRemaining, useMessageCompositionIsEmpty } from './hooks';
+import { useMessageCompositionIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
+import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 
 export const MessageComposerActions = () => {
   const { channel } = useChannelStateContext();
@@ -34,7 +35,7 @@ export const MessageComposerActions = () => {
       : StopAIGenerationButtonOverride;
 
   const { handleSubmit, recordingController } = useMessageInputContext();
-  const cooldownRemaining = useCooldownRemaining();
+  const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
@@ -50,8 +51,8 @@ export const MessageComposerActions = () => {
     content = <StopAIGenerationButton onClick={stopGenerating} />;
   } else if (hideSendButton) return null;
 
-  if (cooldownRemaining) {
-    content = <CooldownTimer cooldownInterval={cooldownRemaining} />;
+  if (isCooldownActive) {
+    content = <CooldownTimer />;
   } else if (compositionIsEmpty && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
@@ -61,11 +62,11 @@ export const MessageComposerActions = () => {
 
 export const AdditionalMessageComposerActions = () => {
   const { EmojiPicker } = useComponentContext();
-  const cooldownRemaining = useCooldownRemaining();
+  const isCooldownActive = useIsCooldownActive();
 
   return (
     <div className='str-chat__message-composer__additional-actions'>
-      {!cooldownRemaining && EmojiPicker ? <EmojiPicker /> : null}
+      {!isCooldownActive && EmojiPicker ? <EmojiPicker /> : null}
     </div>
   );
 };

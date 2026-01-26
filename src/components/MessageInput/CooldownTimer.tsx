@@ -1,11 +1,8 @@
 import React from 'react';
-import { useTimer } from './hooks/useTimer';
+import { useCooldownRemaining } from './hooks';
 
-export type CooldownTimerProps = {
-  cooldownInterval: number;
-};
-export const CooldownTimer = ({ cooldownInterval }: CooldownTimerProps) => {
-  const secondsLeft = useTimer({ startFrom: cooldownInterval });
+export const CooldownTimer = () => {
+  const secondsLeft = useCooldownRemaining();
 
   return (
     <div className='str-chat__message-input-cooldown' data-testid='cooldown-timer'>
