@@ -8,7 +8,7 @@ import { ImageComponent } from '../Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import { useChatContext } from '../../../context';
+import { useChatContext, WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
 import { initClientWithChannels } from '../../../mock-builders';
@@ -101,17 +101,18 @@ describe('Image', () => {
     let result;
     await act(() => {
       result = render(
-        <Chat client={client}>
-          <ActiveChannelSetter activeChannel={channel} />
-          <Channel BaseImage={CustomBaseImage}>
-            <ImageComponent
-              fallback='fallback'
-              image_url='image_url'
-              thumb_url='thumb_url'
-            />
-          </Channel>
-          ,
-        </Chat>,
+        <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
+          <Chat client={client}>
+            <ActiveChannelSetter activeChannel={channel} />
+            <Channel>
+              <ImageComponent
+                fallback='fallback'
+                image_url='image_url'
+                thumb_url='thumb_url'
+              />
+            </Channel>
+          </Chat>
+        </WithComponents>,
       );
     });
     expect(result.container).toMatchInlineSnapshot(`
@@ -133,7 +134,6 @@ describe('Image', () => {
             />
           </div>
         </div>
-        ,
       </div>
     `);
   });
