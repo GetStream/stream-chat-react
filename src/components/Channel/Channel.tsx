@@ -105,7 +105,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'Avatar'
   | 'BaseImage'
   | 'CooldownTimer'
-  | 'CustomMessageActionsList'
   | 'DateSeparator'
   | 'EditMessageInput'
   | 'EditMessageModal'
@@ -128,7 +127,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'MessageListNotifications'
   | 'MessageListMainPanel'
   | 'MessageNotification'
-  | 'MessageOptions'
   | 'MessageRepliesCountButton'
   | 'MessageStatus'
   | 'MessageSystem'
@@ -1216,7 +1214,6 @@ const ChannelInner = (
       Avatar: props.Avatar,
       BaseImage: props.BaseImage,
       CooldownTimer: props.CooldownTimer,
-      CustomMessageActionsList: props.CustomMessageActionsList,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EditMessageModal: props.EditMessageModal,
@@ -1238,7 +1235,6 @@ const ChannelInner = (
         props.MessageIsThreadReplyInChannelButtonIndicator,
       MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,
-      MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageStatus: props.MessageStatus,
       MessageSystem: props.MessageSystem,
@@ -1286,7 +1282,6 @@ const ChannelInner = (
       props.Avatar,
       props.BaseImage,
       props.CooldownTimer,
-      props.CustomMessageActionsList,
       props.DateSeparator,
       props.EditMessageInput,
       props.EditMessageModal,
@@ -1307,7 +1302,6 @@ const ChannelInner = (
       props.MessageIsThreadReplyInChannelButtonIndicator,
       props.MessageListNotifications,
       props.MessageNotification,
-      props.MessageOptions,
       props.MessageRepliesCountButton,
       props.MessageStatus,
       props.MessageSystem,

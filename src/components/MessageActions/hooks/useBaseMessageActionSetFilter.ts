@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 
-import { ACTIONS_NOT_WORKING_IN_THREAD, useUserRole } from '../../../components';
 import { useChannelStateContext, useMessageContext } from '../../../context';
+import { useUserRole } from '../../Message/hooks';
+import { ACTIONS_NOT_WORKING_IN_THREAD } from '../../Message/utils';
 
 import type { MessageActionSetItem } from '../MessageActions';
 
