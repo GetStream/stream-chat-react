@@ -387,6 +387,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
    * is shown only when viewing unread messages.
    */
   showUnreadNotificationAlways?: boolean;
+  /** If true, prevents the message list from auto-scrolling when new messages arrive */
+  suppressAutoscroll?: boolean;
   /** If true, indicates the message list is a thread  */
   threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
 };
