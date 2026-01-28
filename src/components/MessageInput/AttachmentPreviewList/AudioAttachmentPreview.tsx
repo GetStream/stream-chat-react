@@ -105,7 +105,6 @@ export const AudioAttachmentPreview = ({
                     }
                   />
                   <WaveProgressBar
-                    // amplitudesCount={50}
                     progress={progressPercent}
                     relativeAmplitudeBarWidth={1}
                     relativeAmplitudeGap={1}

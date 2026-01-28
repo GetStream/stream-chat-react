@@ -148,7 +148,7 @@
   }
 
   .str-chat__attachment-preview-file__info {
-    @include utils.ellipsis-text-parent;
+    min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;

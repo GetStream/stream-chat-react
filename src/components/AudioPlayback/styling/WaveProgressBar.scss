@@ -3,11 +3,12 @@
     $min_amplitude_height: 2px;
     position: relative;
     flex: 1;
-    width: 160px;
+    width: 140px;
     height: 20px;
     display: flex;
     align-items: center;
     gap: var(--str-chat__voice-recording-amplitude-bar-gap-width);
+    overflow: visible;
 
     .str-chat__wave-progress-bar__amplitude-bar {
       width: 2px;
@@ -32,6 +33,11 @@
       background: var(--color-accent-primary);
       height: 14px;
       width: 14px;
+      border-radius: var(--radius-max);
+      cursor: grab;
+      transform: translateX(var(--str-chat__wave-progress-bar__progress-indicator-x, 0px));
+      transition: transform 120ms linear;
+      will-change: transform;
     }
   }
 }
