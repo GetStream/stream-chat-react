@@ -1,9 +1,9 @@
 import type { LiveLocationPreview, StaticLocationPreview } from 'stream-chat';
-import { CloseIcon } from '../icons';
 import type { ComponentType } from 'react';
 import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { GeolocationIcon } from '../../Attachment/icons';
+import { IconClose } from '../../Icons';
 
 type GeolocationPreviewImageProps = {
   location: StaticLocationPreview | LiveLocationPreview;
@@ -33,12 +33,12 @@ export const GeolocationPreview = ({
       {remove && (
         <button
           aria-label={t('aria/Remove location attachment')}
-          className='str-chat__attachment-preview-delete'
+          className='str-chat__attachment-preview__remove-button'
           data-testid='location-preview-item-delete-button'
           onClick={remove}
           type='button'
         >
-          <CloseIcon />
+          <IconClose />
         </button>
       )}
 

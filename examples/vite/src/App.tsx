@@ -19,6 +19,7 @@ import {
   ThreadList,
   useCreateChatClient,
   VirtualizedMessageList as MessageList,
+  // MessageList,
   Window,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
@@ -29,6 +30,7 @@ import { humanId } from 'human-id';
 init({ data });
 
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
+const token = import.meta.env.VITE_USER_TOKEN;
 
 if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
@@ -43,6 +45,7 @@ const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 const useUser = () => {
   const userId = useMemo(() => {
     return (
+      import.meta.env.VITE_USER_ID ||
       new URLSearchParams(window.location.search).get('user_id') ||
       localStorage.getItem('user_id') ||
       humanId({ separator: '_', capitalize: false })
@@ -58,11 +61,13 @@ const useUser = () => {
   }, [userId]);
 
   const tokenProvider = useCallback(() => {
-    return fetch(
-      `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
-    )
-      .then((response) => response.json())
-      .then((data) => data.token as string);
+    return token
+      ? Promise.resolve(token)
+      : fetch(
+          `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
+        )
+          .then((response) => response.json())
+          .then((data) => data.token as string);
   }, [userId]);
 
   return { userId: userId, tokenProvider };
@@ -97,6 +102,11 @@ const App = () => {
         position: { before: 'stream-io/text-composer/mentions-middleware' },
         unique: true,
       });
+
+      composer.updateConfig({
+        linkPreviews: { enabled: true },
+        location: { enabled: true },
+      });
     });
   }, [chatClient]);
 
@@ -120,7 +130,12 @@ const App = () => {
               <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <AIStateIndicator />
-              <MessageInput focus audioRecordingEnabled />
+              <MessageInput
+                focus
+                audioRecordingEnabled
+                maxRows={10}
+                asyncMessagesMultiSendEnabled
+              />
             </Window>
             <Thread virtualized />
           </Channel>

@@ -1,0 +1,15 @@
+.str-chat {
+  .str-chat__duration-display {
+    font-size: var(--typography-font-size-xs);
+    line-height: var(typography-line-height-tight);
+    letter-spacing: 0;
+    min-width: 35px;
+    width: 35px;
+  }
+
+  &.str-chat__duration-display--hasProgress {
+    .str-chat__duration-display__time-elapsed {
+      color: var(--color-accent-primary);
+    }
+  }
+}

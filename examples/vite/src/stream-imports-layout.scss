@@ -4,7 +4,7 @@
 
 @use 'stream-chat-react/dist/scss/v2/Avatar/Avatar-layout';
 @use 'stream-chat-react/dist/scss/v2/AttachmentList/AttachmentList-layout';
-@use 'stream-chat-react/dist/scss/v2/AttachmentPreviewList/AttachmentPreviewList-layout';
+//@use 'stream-chat-react/dist/scss/v2/AttachmentPreviewList/AttachmentPreviewList-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/Autocomplete/Autocomplete-layout';
 @use 'stream-chat-react/dist/scss/v2/AudioRecorder/AudioRecorder-layout';
 @use 'stream-chat-react/dist/scss/v2/BaseImage/BaseImage-layout';
@@ -15,21 +15,21 @@
 @use 'stream-chat-react/dist/scss/v2/ChannelSearch/ChannelSearch-layout';
 @use 'stream-chat-react/dist/scss/v2/common/CTAButton/CTAButton-layout';
 @use 'stream-chat-react/dist/scss/v2/common/CircleFAButton/CircleFAButton-layout';
-@use 'stream-chat-react/dist/scss/v2/Dialog/Dialog-layout';
+//@use 'stream-chat-react/dist/scss/v2/Dialog/Dialog-layout';
 @use 'stream-chat-react/dist/scss/v2/DragAndDropContainer/DragAndDropContainer-layout';
-@use 'stream-chat-react/dist/scss/v2/DropzoneContainer/DropzoneContainer-layout';
+@use 'stream-chat-react/dist/scss/v2/DropzoneContainer/DropzoneContainer-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/EditMessageForm/EditMessageForm-layout';
 @use 'stream-chat-react/dist/scss/v2/Form/Form-layout';
 @use 'stream-chat-react/dist/scss/v2/ImageCarousel/ImageCarousel-layout';
-@use 'stream-chat-react/dist/scss/v2/Icon/Icon-layout';
+//@use 'stream-chat-react/dist/scss/v2/Icon/Icon-layout';
 @use 'stream-chat-react/dist/scss/v2/InfiniteScrollPaginator/InfiniteScrollPaginator-layout';
-@use 'stream-chat-react/dist/scss/v2/LinkPreview/LinkPreview-layout';
+//@use 'stream-chat-react/dist/scss/v2/LinkPreview/LinkPreview-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/LoadingIndicator/LoadingIndicator-layout';
 @use 'stream-chat-react/dist/scss/v2/Location/Location-layout';
 @use 'stream-chat-react/dist/scss/v2/Message/Message-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageActionsBox/MessageActionsBox-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageBouncePrompt/MessageBouncePrompt-layout';
-@use 'stream-chat-react/dist/scss/v2/MessageInput/MessageInput-layout';
+//@use 'stream-chat-react/dist/scss/v2/MessageInput/MessageInput-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/MessageList/MessageList-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageList/VirtualizedMessageList-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageReactions/MessageReactions-layout';

@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 
 import { MessageInputFlat } from './MessageInputFlat';
 import { useMessageComposer } from './hooks';
-import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputControls } from './hooks/useMessageInputControls';
 import type { ComponentContextValue } from '../../context/ComponentContext';
@@ -56,7 +55,8 @@ export type MessageInputProps = {
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
   focus?: boolean;
-  /** Allows to hide MessageInput's send button. */
+  // todo: what sense does hideSendButton prop make, when we have message composer actions (recording, send msg). Can we remove it?
+  // /** Allows to hide MessageInput's send button. */
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps>;
@@ -77,7 +77,6 @@ export type MessageInputProps = {
   }) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: LocalMessage;
-  /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
    * If specified, this function overrides the default behavior specified previously.
@@ -91,12 +90,10 @@ export type MessageInputProps = {
 };
 
 const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
-  const cooldownTimerState = useCooldownTimer();
   const messageInputUiApi = useMessageInputControls(props);
   const { emojiSearchIndex } = useComponentContext('MessageInput');
 
   const messageInputContextValue = useCreateMessageInputContext({
-    ...cooldownTimerState,
     ...messageInputUiApi,
     ...props,
     emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,

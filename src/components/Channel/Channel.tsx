@@ -112,7 +112,6 @@ type ChannelPropsForwardedToComponentContext = Pick<
   | 'EmojiPicker'
   | 'emojiSearchIndex'
   | 'EmptyStateIndicator'
-  | 'FileUploadIcon'
   | 'GiphyPreviewMessage'
   | 'HeaderComponent'
   | 'Input'
@@ -1223,7 +1222,6 @@ const ChannelInner = (
       EmojiPicker: props.EmojiPicker,
       emojiSearchIndex: props.emojiSearchIndex,
       EmptyStateIndicator: props.EmptyStateIndicator,
-      FileUploadIcon: props.FileUploadIcon,
       GiphyPreviewMessage: props.GiphyPreviewMessage,
       HeaderComponent: props.HeaderComponent,
       Input: props.Input,
@@ -1293,7 +1291,6 @@ const ChannelInner = (
       props.EmojiPicker,
       props.emojiSearchIndex,
       props.EmptyStateIndicator,
-      props.FileUploadIcon,
       props.GiphyPreviewMessage,
       props.HeaderComponent,
       props.Input,

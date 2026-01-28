@@ -1,5 +1,3 @@
-export * from './ButtonWithSubmenu';
-export * from './DialogAnchor';
-export * from './DialogManager';
-export * from './DialogPortal';
+export * from './base';
 export * from './hooks';
+export * from './service';

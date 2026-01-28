@@ -5,7 +5,7 @@ import ReactPlayer from 'react-player';
 import type { AudioProps } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
-import { PlayButton, ProgressBar } from './components';
+import { ProgressBar } from './components';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -15,6 +15,7 @@ import type { Dimensions } from '../../types/types';
 import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
 import { useStateStore } from '../../store';
 import { useMessageContext } from '../../context';
+import { PlayButton } from '../Button';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {

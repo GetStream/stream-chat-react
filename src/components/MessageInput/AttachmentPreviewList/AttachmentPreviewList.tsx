@@ -9,38 +9,48 @@ import {
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
 } from 'stream-chat';
-import type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
-import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
-import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
-import { VoiceRecordingPreview as DefaultVoiceRecordingPreview } from './VoiceRecordingPreview';
-import type { FileAttachmentPreviewProps } from './FileAttachmentPreview';
-import DefaultFilePreview from './FileAttachmentPreview';
-import type { ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
-import { ImageAttachmentPreview as DefaultImagePreview } from './ImageAttachmentPreview';
+import {
+  UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview,
+  type UnsupportedAttachmentPreviewProps,
+} from './UnsupportedAttachmentPreview';
+import { type VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+import {
+  FileAttachmentPreview as DefaultFileAttachmentPreview,
+  type FileAttachmentPreviewProps,
+} from './FileAttachmentPreview';
+import {
+  type AudioAttachmentPreviewProps,
+  AudioAttachmentPreview as DefaultAudioAttachmentPreview,
+} from './AudioAttachmentPreview';
+import { type ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
 import { useAttachmentsForPreview, useMessageComposer } from '../hooks';
 import {
   GeolocationPreview as DefaultGeolocationPreview,
   type GeolocationPreviewProps,
 } from './GeolocationPreview';
+import {
+  MediaAttachmentPreview,
+  type MediaAttachmentPreviewProps,
+} from './MediaAttachmentPreview';
 
 export type AttachmentPreviewListProps = {
-  AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
+  AudioAttachmentPreview?: ComponentType<AudioAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   GeolocationPreview?: ComponentType<GeolocationPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
   UnsupportedAttachmentPreview?: ComponentType<UnsupportedAttachmentPreviewProps>;
-  VideoAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
+  VideoAttachmentPreview?: ComponentType<MediaAttachmentPreviewProps>;
   VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
 };
 
 export const AttachmentPreviewList = ({
-  AudioAttachmentPreview = DefaultFilePreview,
-  FileAttachmentPreview = DefaultFilePreview,
+  AudioAttachmentPreview = DefaultAudioAttachmentPreview,
+  FileAttachmentPreview = DefaultFileAttachmentPreview,
   GeolocationPreview = DefaultGeolocationPreview,
-  ImageAttachmentPreview = DefaultImagePreview,
+  ImageAttachmentPreview = MediaAttachmentPreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
-  VideoAttachmentPreview = DefaultFilePreview,
-  VoiceRecordingPreview = DefaultVoiceRecordingPreview,
+  VideoAttachmentPreview = MediaAttachmentPreview,
+  VoiceRecordingPreview = DefaultAudioAttachmentPreview,
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
@@ -51,82 +61,82 @@ export const AttachmentPreviewList = ({
 
   return (
     <div className='str-chat__attachment-preview-list'>
-      <div
-        className='str-chat__attachment-list-scroll-container'
-        data-testid='attachment-list-scroll-container'
-      >
-        {location && (
-          <GeolocationPreview
-            location={location}
-            // It is not possible to nullify shared_location field so we do not show a preview when editing
-            // to prevent a user from wanting to remove the location
-            remove={
-              messageComposer.editedMessage
-                ? undefined
-                : messageComposer.locationComposer.initState
-            }
-          />
-        )}
-        {attachments.map((attachment) => {
-          if (isScrapedContent(attachment)) return null;
-          if (isLocalVoiceRecordingAttachment(attachment)) {
-            return (
-              <VoiceRecordingPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
-          } else if (isLocalAudioAttachment(attachment)) {
-            return (
-              <AudioAttachmentPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
-          } else if (isLocalVideoAttachment(attachment)) {
-            return (
-              <VideoAttachmentPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
-          } else if (isLocalImageAttachment(attachment)) {
-            return (
-              <ImageAttachmentPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id || attachment.image_url}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
-          } else if (isLocalFileAttachment(attachment)) {
-            return (
-              <FileAttachmentPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id || attachment.asset_url}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
-          } else if (isLocalAttachment(attachment)) {
-            return (
-              <UnsupportedAttachmentPreview
-                attachment={attachment}
-                handleRetry={messageComposer.attachmentManager.uploadAttachment}
-                key={attachment.localMetadata.id}
-                removeAttachments={messageComposer.attachmentManager.removeAttachments}
-              />
-            );
+      {/*<div*/}
+      {/*  className='str-chat__attachment-list-scroll-container'*/}
+      {/*  data-testid='attachment-list-scroll-container'*/}
+      {/*>*/}
+      {location && (
+        <GeolocationPreview
+          location={location}
+          // It is not possible to nullify shared_location field so we do not show a preview when editing
+          // to prevent a user from wanting to remove the location
+          remove={
+            messageComposer.editedMessage
+              ? undefined
+              : messageComposer.locationComposer.initState
           }
-          return null;
-        })}
-      </div>
+        />
+      )}
+      {attachments.map((attachment) => {
+        if (isScrapedContent(attachment)) return null;
+        if (isLocalVoiceRecordingAttachment(attachment)) {
+          return (
+            <VoiceRecordingPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id || attachment.asset_url}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        } else if (isLocalAudioAttachment(attachment)) {
+          return (
+            <AudioAttachmentPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id || attachment.asset_url}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        } else if (isLocalVideoAttachment(attachment)) {
+          return (
+            <VideoAttachmentPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id || attachment.asset_url}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        } else if (isLocalImageAttachment(attachment)) {
+          return (
+            <ImageAttachmentPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id || attachment.image_url}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        } else if (isLocalFileAttachment(attachment)) {
+          return (
+            <FileAttachmentPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id || attachment.asset_url}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        } else if (isLocalAttachment(attachment)) {
+          return (
+            <UnsupportedAttachmentPreview
+              attachment={attachment}
+              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              key={attachment.localMetadata.id}
+              removeAttachments={messageComposer.attachmentManager.removeAttachments}
+            />
+          );
+        }
+        return null;
+      })}
+      {/*</div>*/}
     </div>
   );
 };

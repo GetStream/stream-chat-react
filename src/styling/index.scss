@@ -1,10 +1,21 @@
 // Base styles
+@use "./accessibility";
+@use "./animations";
 @use "./base";
+@use "./icons";
 @use "./variables.css";
-@use "../components/Icons/styling";
 
-// Base components with base styles
+// alias is necessary to allow sass create namespaces with different names (and not same name styling)
+@use "../components/Icons/styling" as Icons;
+
+// Base components
 @use "../components/Button/styling/Button";
+@use "../components/Dialog/styling" as Dialog;
+
+// Specific components
+@use "../components/AudioPlayback/styling" as AudioPlayback;
+@use "../components/FileIcon/styling/FileIcon";
+@use "../components/MessageInput/styling" as MessageComposer;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

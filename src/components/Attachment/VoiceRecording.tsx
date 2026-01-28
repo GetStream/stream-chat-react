@@ -1,18 +1,14 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import {
-  FileSizeIndicator,
-  PlaybackRateButton,
-  PlayButton,
-  WaveProgressBar,
-} from './components';
+import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from './components';
 import { displayDuration } from './utils';
-import { FileIcon } from '../ReactFileUtilities';
+import { FileIcon } from '../FileIcon';
 import { useMessageContext, useTranslationContext } from '../../context';
 import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback/';
 import { useStateStore } from '../../store';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
+import { PlayButton } from '../Button';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -73,7 +69,7 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
             {playbackRate?.toFixed(1)}x
           </PlaybackRateButton>
         ) : (
-          <FileIcon big={true} mimeType={audioPlayer.mimeType} size={40} />
+          <FileIcon mimeType={audioPlayer.mimeType} />
         )}
       </div>
     </div>
@@ -156,7 +152,7 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
           </div>
         </div>
       </div>
-      <FileIcon big={true} mimeType={attachment.mime_type} size={34} />
+      <FileIcon mimeType={attachment.mime_type} />
     </div>
   );
 };

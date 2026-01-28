@@ -1,4 +1,10 @@
 .str-chat {
   font-family: var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif;
   font-size: var(--typography-font-size-md);
+  font-weight: var(--typography-font-weight-regular);
+
+  *:not(:disabled):focus-visible {
+    outline: 2px solid  var(--border-utility-focus);
+    outline-offset: 2px;
+  }
 }

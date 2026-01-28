@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileIcon } from '../ReactFileUtilities';
+import { FileIcon } from '../FileIcon';
 import type { Attachment } from 'stream-chat';
 
 import { DownloadButton, FileSizeIndicator } from './components';

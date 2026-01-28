@@ -1,4 +1,5 @@
 export * from './AudioPlayer';
+export * from './components';
 export * from './plugins';
 export {
   useActiveAudioPlayer,

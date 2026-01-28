@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
-import { useCooldownTimer } from '../useCooldownTimer';
+import { useCooldownRemaining } from '../useCooldownRemaining';
 
 import { ChannelStateProvider, ChatProvider } from '../../../../context';
 import { getTestClient } from '../../../../mock-builders';
@@ -17,12 +17,12 @@ async function renderUseCooldownTimerHook({ channel, chatContext }) {
       <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
     </ChatProvider>
   );
-  return renderHook(useCooldownTimer, { wrapper });
+  return renderHook(useCooldownRemaining, { wrapper });
 }
 
 const cid = 'cid';
 const cooldown = 30;
-describe('useCooldownTimer', () => {
+describe('useCooldownRemaining', () => {
   it('should set remaining cooldown time to 0 if no channel.cooldown', async () => {
     const channel = { cid };
     const chatContext = { latestMessageDatesByChannels: {} };

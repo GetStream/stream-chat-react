@@ -1,0 +1,13 @@
+.str-chat__icon--command {
+  fill: none;
+  height: 16px;
+  width: 16px;
+
+  path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+}

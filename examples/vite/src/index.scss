@@ -1,10 +1,11 @@
-@layer stream, stream-overrides;
+@layer stream, stream-new, stream-overrides;
 
 @import url('./stream-imports-theme.scss') layer(stream);
 @import url('./stream-imports-layout.scss') layer(stream);
 
 // v3 CSS import
-@import url('stream-chat-react/dist/css/index.css');
+@import url('stream-chat-react/dist/css/index.css') layer(stream-new);
+@import url('stream-chat-react/dist/css/emojis.css') layer(stream-new);
 
 :root {
   font-synthesis: none;

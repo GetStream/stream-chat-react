@@ -53,11 +53,10 @@ export const displayDuration = (totalSeconds?: number) => {
   const [hours, hoursLeftover] = divMod(totalSeconds, 3600);
   const [minutes, seconds] = divMod(hoursLeftover, 60);
   const roundedSeconds = Math.ceil(seconds);
+  const prependHrsZero = String(hours).padStart(2, '0');
+  const prependMinZero = String(minutes).padStart(2, '0');
+  const prependSecZero = String(roundedSeconds).padStart(2, '0');
+  const minSec = `${prependMinZero}:${prependSecZero}`;
 
-  const prependHrsZero = hours.toString().length === 1 ? '0' : '';
-  const prependMinZero = minutes.toString().length === 1 ? '0' : '';
-  const prependSecZero = roundedSeconds.toString().length === 1 ? '0' : '';
-  const minSec = `${prependMinZero}${minutes}:${prependSecZero}${roundedSeconds}`;
-
-  return hours ? `${prependHrsZero}${hours}:` + minSec : minSec;
+  return hours ? `${prependHrsZero}:` + minSec : minSec;
 };

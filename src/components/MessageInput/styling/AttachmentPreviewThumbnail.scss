@@ -1,0 +1,8 @@
+// todo: should we have img dimensions determined by semantic variables?
+.str-chat__attachment-preview__thumbnail {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}

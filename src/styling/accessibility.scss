@@ -1,0 +1,6 @@
+@media (prefers-reduced-motion: reduce) {
+  // todo: come up with a general class that will apply the transform
+  .str-chat__attachment-selector__menu-button__icon {
+    transform: none;
+  }
+}

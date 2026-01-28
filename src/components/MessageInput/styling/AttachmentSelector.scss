@@ -1,0 +1,26 @@
+.str-chat {
+  .str-chat__attachment-selector {
+    .str-chat__attachment-selector__menu-button {
+      .str-chat__attachment-selector__menu-button__icon {
+        width: var(--icon-size-md);
+        color: var(--button-style-outline-text);
+      }
+    }
+  }
+
+  .str-chat__file-input {
+    display: none;
+  }
+
+  .str-chat__attachment-selector-actions-menu {
+    min-width: 200px;
+  }
+
+  .str-chat__message-composer--floating {
+    .str-chat__attachment-selector__menu-button {
+      background-color: var(--background-elevation-elevation-1);
+      // todo: variable exists only in Figma, not added to tokens repo
+      box-shadow: var(--shadow-web-light-elevation-2);
+    }
+  }
+}
