@@ -1,3 +1,9 @@
+## [13.13.5](https://github.com/GetStream/stream-chat-react/compare/v13.13.4...v13.13.5) (2026-01-29)
+
+### Bug Fixes
+
+* prevent increasing unread count by useMarkRead hook if read-events are disabled ([#2925](https://github.com/GetStream/stream-chat-react/issues/2925)) ([3f4b876](https://github.com/GetStream/stream-chat-react/commit/3f4b87630d7f8ca347ff0f1c9c183bbe2a4a2f92))
+
 ## [13.13.4](https://github.com/GetStream/stream-chat-react/compare/v13.13.3...v13.13.4) (2026-01-21)
 
 ### Bug Fixes
