@@ -1,4 +1,4 @@
-import Dayjs, { isDayjs } from 'dayjs';
+import Dayjs from 'dayjs';
 import type { Duration as DayjsDuration } from 'dayjs/plugin/duration';
 
 import type { TFunction } from 'i18next';
@@ -100,7 +100,9 @@ export const predefinedFormatters: PredefinedFormatters = {
   durationFormatter:
     (streamI18n) =>
     (value, _, { format, withSuffix }: DurationFormatterOptions) => {
-      if (format && isDayjs(streamI18n.DateTimeParser)) {
+      // NOTE: isDayjs is not exported in "dayjs" package for ESM, hence we access
+      // `isDayjs` from Dayjs instance
+      if (format && Dayjs.isDayjs(streamI18n.DateTimeParser)) {
         return (streamI18n.DateTimeParser.duration(value) as DayjsDuration).format(
           format,
         );
