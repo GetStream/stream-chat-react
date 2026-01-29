@@ -37,6 +37,7 @@ export const useMarkRead = ({
   const { channel } = useChannelStateContext('useMarkRead');
 
   useEffect(() => {
+    if (!channel.getConfig()?.read_events) return;
     const shouldMarkRead = () =>
       !document.hidden &&
       !wasMarkedUnread &&
