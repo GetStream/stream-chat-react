@@ -25,5 +25,8 @@
 @use '../components/Reactions/ReactionSelector' as ReactionSelector;
 @use "../components/Avatar/Avatar" as Avatar;
 
+// Fonts
+@use "./fonts";
+
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);
