@@ -1,3 +1,9 @@
+## [13.13.6](https://github.com/GetStream/stream-chat-react/compare/v13.13.5...v13.13.6) (2026-01-30)
+
+### Bug Fixes
+
+* isDayjs import usage for ESM ([#2924](https://github.com/GetStream/stream-chat-react/issues/2924)) ([009a732](https://github.com/GetStream/stream-chat-react/commit/009a732eba23acc876461e57aabdf526675cec44))
+
 ## [13.13.5](https://github.com/GetStream/stream-chat-react/compare/v13.13.4...v13.13.5) (2026-01-29)
 
 ### Bug Fixes
