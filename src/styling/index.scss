@@ -9,12 +9,14 @@
 @use "../components/Icons/styling" as Icons;
 
 // Base components
+@use "../components/Attachment/styling" as Attachment;
 @use "../components/Button/styling/Button";
 @use "../components/Dialog/styling" as Dialog;
 
 // Specific components
 @use "../components/AudioPlayback/styling" as AudioPlayback;
 @use "../components/FileIcon/styling/FileIcon";
+@use "../components/Message/styling" as Message;
 @use "../components/MessageInput/styling" as MessageComposer;
 
 // Layers have to be kept the last

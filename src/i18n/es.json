@@ -25,6 +25,7 @@
   "{{count}} votes_one": "1 voto",
   "{{count}} votes_many": "{{count}} votos",
   "{{count}} votes_other": "{{count}} votos",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 Adjunto...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} creó: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} votó: {{pollOptionText}}",

@@ -33,15 +33,16 @@ export const WaveProgressBar = ({
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
-  const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
   const isDragging = useRef(false);
-  const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const [trackAxisX, setTrackAxisX] = useState<{
     barCount: number;
     barWidth: number;
     gap: number;
   }>();
-  const lastRootWidth = useRef<number>(undefined);
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
+  const lastRootWidth = useRef<number>(0);
+  const lastIndicatorWidth = useRef<number>(0);
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -62,6 +63,12 @@ export const WaveProgressBar = ({
     isDragging.current = false;
     progressIndicator.style.removeProperty('cursor');
   }, [progressIndicator]);
+
+  const calculateIndicatorPosition = () => {
+    if (progress === 0 || !lastRootWidth || !progressIndicator) return 0;
+    const availableWidth = lastRootWidth.current - lastIndicatorWidth.current;
+    return availableWidth * (progress / 100) + 1;
+  };
 
   const getTrackAxisX = useMemo(
     () =>
@@ -111,10 +118,15 @@ export const WaveProgressBar = ({
   }, [getTrackAxisX, root]);
 
   useLayoutEffect(() => {
-    if (!root) return;
-    const { width: rootWidth } = root.getBoundingClientRect();
-    getTrackAxisX(rootWidth);
-  }, [getTrackAxisX, root]);
+    if (root) {
+      const { width: rootWidth } = root.getBoundingClientRect();
+      getTrackAxisX(rootWidth);
+    }
+
+    if (progressIndicator) {
+      lastIndicatorWidth.current = progressIndicator.getBoundingClientRect().width;
+    }
+  }, [getTrackAxisX, root, progressIndicator]);
 
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
 
@@ -157,7 +169,9 @@ export const WaveProgressBar = ({
         className='str-chat__wave-progress-bar__progress-indicator'
         data-testid='wave-progress-bar-progress-indicator'
         ref={setProgressIndicator}
-        style={{ left: `${progress < 0 ? 0 : progress > 100 ? 100 : progress}%` }}
+        style={{
+          left: `${calculateIndicatorPosition()}px`,
+        }}
       />
     </div>
   );

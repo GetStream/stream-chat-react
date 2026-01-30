@@ -5,6 +5,7 @@
     .str-chat__quoted-message-preview {
       display: flex;
       align-items: center;
+      gap: var(--spacing-xs);
       position: relative;
       background-color: var(--chat-bg-incoming);
       padding: var(--spacing-xs);
@@ -45,10 +46,16 @@
             stroke-width: 2;
           }
 
-          span {
+          .str-chat__quoted-message-preview__message-text {
             @include utils.ellipsis-text();
             min-width: 0;
             flex: 1 1;
+
+            // we do not want links to be blue etc.
+            * {
+              white-space: nowrap;
+              color: var(--chat-text-incoming);
+            }
           }
         }
       }

@@ -20,8 +20,10 @@ import {
   isMessageBlocked,
   isMessageBounced,
   isMessageEdited,
+  isOnlyEmojis,
   messageHasAttachments,
   messageHasReactions,
+  messageHasSingleAttachment,
 } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -87,6 +89,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     PinIndicator,
   } = useComponentContext('MessageSimple');
   const hasAttachment = messageHasAttachments(message);
+  const hasSingleAttachment = messageHasSingleAttachment(message);
   const hasReactions = messageHasReactions(message);
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
@@ -139,10 +142,12 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     isMyMessage()
       ? 'str-chat__message--me str-chat__message-simple--me'
       : 'str-chat__message--other',
-    message.text ? 'str-chat__message--has-text' : 'has-no-text',
+    message.text ? 'str-chat__message--has-text' : 'str-chat__message--has-no-text',
     {
       'str-chat__message--has-attachment': hasAttachment,
+      'str-chat__message--has-single-attachment': hasSingleAttachment,
       'str-chat__message--highlighted': highlighted,
+      'str-chat__message--is-emoji-only': isOnlyEmojis(message.text),
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':

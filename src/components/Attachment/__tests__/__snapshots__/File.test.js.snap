@@ -38,13 +38,13 @@ exports[`File should render File component 1`] = `
       />
     </svg>
     <div
-      class="str-chat__message-attachment-file--item-text"
+      class="str-chat__message-attachment-file--item__info"
     >
       <div
-        class="str-chat__message-attachment-file--item-first-row"
+        class="str-chat__message-attachment-file--item__first-row"
       >
         <div
-          class="str-chat__message-attachment-file--item-name"
+          class="str-chat__message-attachment-file--item__name"
           data-testid="file-title"
         >
           Nice file

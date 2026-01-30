@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use '../../Dialog/styling/Dialog';
 
 .str-chat {
   /*
@@ -135,6 +136,7 @@
 
   // todo: need designs? what kind of action buttons to use on modals?
   .str-chat__recording-permission-denied-notification {
+    @include Dialog.dialog-base;
     max-width: 100%;
     padding: 1rem;
     margin-inline: 0.5rem;

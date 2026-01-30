@@ -1,5 +1,6 @@
 import React, {
   type ComponentType,
+  type MouseEventHandler,
   type ReactElement,
   type ReactNode,
   useMemo,
@@ -13,18 +14,17 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useMessageComposer } from './hooks';
 import {
+  type Attachment,
   isAudioAttachment,
   isFileAttachment,
+  isImageAttachment,
   isScrapedContent,
   isVideoAttachment,
   isVoiceRecordingAttachment,
-  type PollResponse,
-} from 'stream-chat';
-import {
-  type Attachment,
-  isImageAttachment,
   type LocalMessage,
+  type LocalMessageBase,
   type MessageComposerState,
+  type PollResponse,
   type SharedLocationResponse,
   type TranslationLanguages,
 } from 'stream-chat';
@@ -243,13 +243,37 @@ export const QuotedMessagePreview = ({
   getQuotedMessageAuthor,
   renderText,
 }: QuotedMessagePreviewProps) => {
-  const { client } = useChatContext();
-  const { t, userLanguage } = useTranslationContext();
   const messageComposer = useMessageComposer();
   const { quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateStoreSelector,
   );
+
+  return quotedMessage ? (
+    <QuotedMessagePreviewUI
+      getQuotedMessageAuthor={getQuotedMessageAuthor}
+      onRemove={() => messageComposer.setQuotedMessage(null)}
+      quotedMessage={quotedMessage}
+      renderText={renderText}
+    />
+  ) : null;
+};
+
+type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
+  quotedMessage: LocalMessageBase;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  onRemove?: () => void;
+};
+
+export const QuotedMessagePreviewUI = ({
+  getQuotedMessageAuthor,
+  onClick,
+  onRemove,
+  quotedMessage,
+  renderText,
+}: QuotedMessagePreviewUIProps) => {
+  const { client } = useChatContext();
+  const { t, userLanguage } = useTranslationContext();
 
   const quotedMessageText = useMemo(
     () =>
@@ -320,7 +344,7 @@ export const QuotedMessagePreview = ({
 
   const isOwnMessage = client.user?.id === quotedMessage?.user?.id;
 
-  if (!quotedMessage || (!renderedText && !AttachmentIcon && !PreviewImage)) return null;
+  if (!renderedText && !AttachmentIcon && !PreviewImage) return null;
 
   const authorName = getQuotedMessageAuthor?.(quotedMessage) ?? quotedMessage.user?.name;
   return (
@@ -329,6 +353,8 @@ export const QuotedMessagePreview = ({
         'str-chat__quoted-message-preview--own': isOwnMessage,
       })}
       data-testid='quoted-message-preview'
+      onClick={onClick}
+      tabIndex={onClick && 0}
     >
       <QuotedMessageIndicator isOwnMessage={isOwnMessage} />
       <div className='str-chat__quoted-message-preview__content'>
@@ -345,18 +371,22 @@ export const QuotedMessagePreview = ({
           data-testid='quoted-message-text'
         >
           <AttachmentIcon />
-          <span>{renderedText}</span>
+          <div className='str-chat__quoted-message-preview__message-text'>
+            {renderedText}
+          </div>
         </div>
       </div>
       {PreviewImage && (
         <div className='str-chat__quoted-message-preview__image'>{PreviewImage}</div>
       )}
 
-      <RemoveAttachmentPreviewButton
-        aria-label={t('aria/Cancel Reply')}
-        data-testid='quoted-message-preview-dismiss-btn'
-        onClick={() => messageComposer.setQuotedMessage(null)}
-      />
+      {onRemove && (
+        <RemoveAttachmentPreviewButton
+          aria-label={t('aria/Cancel Reply')}
+          data-testid='quoted-message-preview-dismiss-btn'
+          onClick={onRemove}
+        />
+      )}
     </div>
   );
 };

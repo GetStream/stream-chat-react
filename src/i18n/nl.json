@@ -20,6 +20,7 @@
   "{{count}} unread_other": "{{count}} ongelezen",
   "{{count}} votes_one": "{{count}} stem",
   "{{count}} votes_other": "{{count}} stemmen",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 Bijlage...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} heeft gemaakt: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} heeft gestemd: {{pollOptionText}}",

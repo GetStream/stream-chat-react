@@ -15,6 +15,7 @@
   "{{ watcherCount }} online": "{{ watcherCount }} オンライン",
   "{{count}} unread_other": "{{count}} 未読",
   "{{count}} votes_other": "{{count}} 票",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 アタッチメント...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} が作成: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} が投票: {{pollOptionText}}",

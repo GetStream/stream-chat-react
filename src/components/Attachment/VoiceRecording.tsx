@@ -7,7 +7,7 @@ import { FileIcon } from '../FileIcon';
 import { useMessageContext, useTranslationContext } from '../../context';
 import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback/';
 import { useStateStore } from '../../store';
-import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
+import type { AudioPlayer } from '../AudioPlayback';
 import { PlayButton } from '../Button';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
@@ -35,13 +35,14 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
     <div className={rootClassName} data-testid='voice-recording-widget'>
       <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-        <div
-          className='str-chat__message-attachment__voice-recording-widget__title'
-          data-testid='voice-recording-title'
-          title={audioPlayer.title}
-        >
-          {audioPlayer.title}
-        </div>
+        {/*todo: should we be really removing the title?*/}
+        {/*<div*/}
+        {/*  className='str-chat__message-attachment__voice-recording-widget__title'*/}
+        {/*  data-testid='voice-recording-title'*/}
+        {/*  title={audioPlayer.title}*/}
+        {/*>*/}
+        {/*  {audioPlayer.title}*/}
+        {/*</div>*/}
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {audioPlayer.durationSeconds ? (
@@ -54,6 +55,7 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
             )}
           </div>
           <WaveProgressBar
+            // amplitudesCount={50}
             progress={progress}
             seek={audioPlayer.seek}
             waveformData={audioPlayer.waveformData || []}
@@ -61,16 +63,12 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
         </div>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
-        {isPlaying ? (
-          <PlaybackRateButton
-            disabled={!canPlayRecord}
-            onClick={audioPlayer.increasePlaybackRate}
-          >
-            {playbackRate?.toFixed(1)}x
-          </PlaybackRateButton>
-        ) : (
-          <FileIcon mimeType={audioPlayer.mimeType} />
-        )}
+        <PlaybackRateButton
+          disabled={!canPlayRecord}
+          onClick={audioPlayer.increasePlaybackRate}
+        >
+          {playbackRate?.toFixed(1)}x
+        </PlaybackRateButton>
       </div>
     </div>
   );
@@ -124,38 +122,36 @@ export const VoiceRecordingPlayer = ({
 
 export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
-export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
-  const { t } = useTranslationContext();
-  const title = attachment.title || t('Voice message');
-  return (
-    <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
-      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-        {title && (
-          <div
-            className='str-chat__message-attachment__voice-recording-widget__title'
-            data-testid='voice-recording-title'
-            title={title}
-          >
-            {title}
-          </div>
-        )}
-        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
-          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {attachment.duration ? (
-              displayDuration(attachment.duration)
-            ) : (
-              <FileSizeIndicator
-                fileSize={attachment.file_size}
-                maximumFractionDigits={0}
-              />
-            )}
-          </div>
+export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => (
+  // const { t } = useTranslationContext();
+  // const title = attachment.title || t('Voice message');
+  <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
+    <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
+      {/*{title && (*/}
+      {/*  <div*/}
+      {/*    className='str-chat__message-attachment__voice-recording-widget__title'*/}
+      {/*    data-testid='voice-recording-title'*/}
+      {/*    title={title}*/}
+      {/*  >*/}
+      {/*    {title}*/}
+      {/*  </div>*/}
+      {/*)}*/}
+      <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
+        <div className='str-chat__message-attachment__voice-recording-widget__timer'>
+          {attachment.duration ? (
+            displayDuration(attachment.duration)
+          ) : (
+            <FileSizeIndicator
+              fileSize={attachment.file_size}
+              maximumFractionDigits={0}
+            />
+          )}
         </div>
       </div>
-      <FileIcon mimeType={attachment.mime_type} />
     </div>
-  );
-};
+    <FileIcon mimeType={attachment.mime_type} />
+  </div>
+);
 
 export type VoiceRecordingProps = {
   /** The attachment object from the message's attachment list. */

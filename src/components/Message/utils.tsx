@@ -398,6 +398,9 @@ export const messageHasReactions = (message?: LocalMessage) =>
 export const messageHasAttachments = (message?: LocalMessage) =>
   !!message?.attachments && !!message.attachments.length;
 
+export const messageHasSingleAttachment = (message?: LocalMessage) =>
+  message?.attachments?.length === 1;
+
 export const getImages = (message?: MessageResponse) => {
   if (!message?.attachments) {
     return [];

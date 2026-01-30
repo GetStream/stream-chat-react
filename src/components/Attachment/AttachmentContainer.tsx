@@ -9,7 +9,11 @@ import { isSharedLocationResponse } from 'stream-chat';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
-import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
+import {
+  BaseImage,
+  Gallery as DefaultGallery,
+  ImageComponent as DefaultImage,
+} from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { Geolocation as DefaultGeolocation } from './Geolocation';
@@ -27,6 +31,8 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
+import { IconPlaySolid } from '../Icons';
+import { Button } from '../Button';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponse;
@@ -248,6 +254,7 @@ export const MediaContainer = (props: RenderAttachmentProps) => {
   const videoElement = useRef<HTMLDivElement>(null);
   const [attachmentConfiguration, setAttachmentConfiguration] =
     useState<VideoAttachmentConfiguration>();
+  const [showVideo, setShowVideo] = React.useState(!shouldGenerateVideoThumbnail);
 
   useLayoutEffect(() => {
     if (videoElement.current && videoAttachmentSizeHandler) {
@@ -258,9 +265,18 @@ export const MediaContainer = (props: RenderAttachmentProps) => {
       );
       setAttachmentConfiguration(config);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoElement, videoAttachmentSizeHandler, attachment]);
+  }, [
+    videoElement,
+    videoAttachmentSizeHandler,
+    attachment,
+    shouldGenerateVideoThumbnail,
+  ]);
 
+  const renderThumbnailFirst = Boolean(
+    attachment.thumb_url && shouldGenerateVideoThumbnail,
+  );
+
+  // todo: handle failed thumbnail loading
   const content = (
     <div
       className='str-chat__player-wrapper'
@@ -268,14 +284,42 @@ export const MediaContainer = (props: RenderAttachmentProps) => {
       ref={videoElement}
       style={getCssDimensionsVariables(attachment.thumb_url || '')}
     >
-      <Media
-        className='react-player'
-        config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
-        controls
-        height='100%'
-        url={attachmentConfiguration?.url}
-        width='100%'
-      />
+      {renderThumbnailFirst && !showVideo ? (
+        <div className='str-chat__message-attachment__video-thumbnail'>
+          <BaseImage
+            alt={attachment.title}
+            className={'str-chat__message-attachment__video-thumbnail-image'}
+            data-testid='image-test'
+            src={attachment.thumb_url}
+            title={attachment.title}
+          />
+          <Button
+            className={clsx(
+              'str-chat__message-attachment__video-thumbnail__play-indicator',
+              'str-chat__button--secondary',
+              'str-chat__button--solid',
+              'str-chat__button--size-lg',
+              'str-chat__button--circular',
+            )}
+            onClick={() => {
+              setShowVideo(true);
+            }}
+            type='button'
+          >
+            <IconPlaySolid />
+          </Button>
+        </div>
+      ) : (
+        <Media
+          className='react-player'
+          config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
+          controls
+          height='100%'
+          playing={renderThumbnailFirst}
+          url={attachmentConfiguration?.url}
+          width='100%'
+        />
+      )}
     </div>
   );
 

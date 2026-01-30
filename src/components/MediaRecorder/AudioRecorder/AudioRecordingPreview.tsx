@@ -57,6 +57,7 @@ export const AudioRecordingPreview = ({
       <RecordingTimer durationSeconds={displayedDuration} />
       <div className='str-chat__wave-progress-bar__track-container'>
         <WaveProgressBar
+          amplitudesCount={35}
           progress={progress}
           seek={audioPlayer.seek}
           waveformData={waveformData || []}
