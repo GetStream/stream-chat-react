@@ -116,8 +116,9 @@ export function ReactionsListModal({
                 <Avatar
                   className='stream-chat__avatar--reaction'
                   data-testid='avatar'
-                  image={user?.image as string | undefined}
-                  name={user?.name || user?.id}
+                  imageUrl={user?.image as string | undefined}
+                  size='md'
+                  userName={user?.name || user?.id}
                 />
                 <span
                   className='str-chat__user-item--name'

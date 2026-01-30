@@ -86,9 +86,9 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
     >
       {message.user && (
         <Avatar
-          image={message.user.image}
-          name={message.user.name || message.user.id}
-          user={message.user}
+          imageUrl={message.user.image}
+          size='md'
+          userName={message.user.name || message.user.id}
         />
       )}
       <div className='str-chat__virtual-message__content'>

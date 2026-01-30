@@ -97,9 +97,9 @@ const DefaultSearchResultItem = (props: SearchResultItemProps) => {
       >
         <Avatar
           className='str-chat__avatar--channel-preview'
-          image={result.image}
-          name={result.name || result.id}
-          user={result}
+          imageUrl={result.image}
+          size='md'
+          userName={result.name || result.id}
         />
         <div className='str-chat__channel-search-result--display-name'>
           {result.name || result.id}

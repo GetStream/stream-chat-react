@@ -47,8 +47,6 @@ const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
     return map;
   }, [ownReactions]);
 
-  console.log({ ownReactionByType });
-
   return (
     <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
       <ul className='str-chat__reaction-selector-list'>

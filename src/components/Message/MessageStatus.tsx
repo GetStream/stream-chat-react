@@ -167,9 +167,9 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
 
             <Avatar
               className='str-chat__avatar--message-status'
-              image={lastReadUser.image}
-              name={lastReadUser.name || lastReadUser.id}
-              user={lastReadUser}
+              imageUrl={lastReadUser.image}
+              size='xs'
+              userName={lastReadUser.name || lastReadUser.id}
             />
 
             {readersWithoutOwnUser.length > 1 && (

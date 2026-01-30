@@ -115,9 +115,10 @@ export const PollOptionSelector = ({
                 .slice(0, displayAvatarCount)
                 .map(({ user }) => (
                   <Avatar
-                    image={user?.image}
+                    imageUrl={user?.image}
                     key={`poll-option-${option.id}-avatar-${user?.id}`}
-                    name={user?.name}
+                    size='md'
+                    userName={user?.name}
                   />
                 ))}
           </div>
