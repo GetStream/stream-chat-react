@@ -46,7 +46,7 @@
   --str-chat__image-attachment-color: var(--str-chat__text-color);
 
   /* The background color of image/video attachments (images/videos uploaded from files, scraped media, GIFs) */
-  //--str-chat__image-attachment-background-color: var(--str-chat__secondary-surface-color);
+  --str-chat__image-attachment-background-color: transparent;
 
   /* Top border of image/video attachments (images/videos uploaded from files, scraped media, GIFs) */
   --str-chat__image-attachment-border-block-start: none;
@@ -134,7 +134,7 @@
   --str-chat__file-attachment-secondary-color: var(--str-chat__text-low-emphasis-color);
 
   /* The background color of file attachments */
-  //--str-chat__file-attachment-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__file-attachment-background-color: transparent;
 
   /* Top border of file attachments */
   --str-chat__file-attachment-border-block-start: none;
@@ -192,7 +192,7 @@
   --str-chat__audio-attachment-widget-secondary-color: var(--str-chat__text-low-emphasis-color);
 
   /* The text/icon color for low emphasis texts (for example file size) in audio widget */
-  //--str-chat__audio-attachment-widget-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__audio-attachment-widget-background-color: transparent;
 
   /* Top border of audio widget */
   --str-chat__audio-attachment-widget-border-block-start: none;
@@ -223,9 +223,7 @@
   );
 
   /* The text/icon color for low emphasis texts (for example file size) in audio recording widget */
-  //--str-chat__voice-recording-attachment-widget-background-color: var(
-  //  --str-chat__secondary-background-color
-  //);
+  --str-chat__voice-recording-attachment-widget-background-color: transparent;
 
   /* Top border of audio recording widget */
   --str-chat__voice-recording-attachment-widget-border-block-start: none;
@@ -344,9 +342,13 @@
   gap: var(--spacing-xs);
   min-width: 0;
   padding: var(--spacing-xs);
-  padding-bottom: 0;
 
   @include utils.component-layer-overrides('attachment-list');
+
+  .str-chat__message-attachment--image,
+  .str-chat__message-attachment--video {
+    @include utils.component-layer-overrides('image-attachment');
+  }
 
   .str-chat__message-attachment {
     background-color: var(--chat-bg-attachment-incoming);
@@ -553,7 +555,7 @@
     $max-width: var(--str-chat__attachment-max-width);
 
     .str-chat__gallery {
-      //@include utils.component-layer-overrides('image-gallery-attachment');
+      @include utils.component-layer-overrides('image-gallery-attachment');
       display: grid;
       grid-template-columns: 50% 50%;
       grid-template-rows: 50% 50%;
@@ -661,7 +663,7 @@
   }
 
   .str-chat__message-attachment-unsupported {
-    //@include utils.component-layer-overrides('file-attachment');
+    @include utils.component-layer-overrides('file-attachment');
     display: flex;
     align-items: center;
     justify-content: center;
@@ -728,6 +730,10 @@
         font-size: var(--typography-font-size-xs);
       }
     }
+  }
+
+  .str-chat__message-attachment-file--item {
+    @include utils.component-layer-overrides('file-attachment');
   }
 
   .str-chat__message-attachment-geolocation {
@@ -831,7 +837,7 @@
   }
 
   .str-chat__message-attachment__voice-recording-widget {
-    //@include utils.component-layer-overrides('voice-recording-attachment-widget');
+    @include utils.component-layer-overrides('voice-recording-attachment-widget');
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1141,8 +1147,8 @@
       border-radius: var(--message-bubble-radius-group-middle);
     }
   }
+}
 
-  .str-chat__message--has-text .str-chat__attachment-list {
-    padding-bottom: 0;
-  }
+.str-chat__message--has-text .str-chat__attachment-list {
+  padding-bottom: 0;
 }

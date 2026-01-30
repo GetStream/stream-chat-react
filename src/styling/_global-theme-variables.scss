@@ -1,0 +1,192 @@
+.str-chat {
+  /* Border radius used for squared elements */
+  --str-chat__border-radius-none: var(--radius-none);
+
+  /* Border radius used for subtle rounding */
+  --str-chat__border-radius-xxs: var(--radius-xxs);
+
+  /* Border radius used for subtle rounding */
+  --str-chat__border-radius-xs: var(--radius-xs);
+
+  /* Border radius used for slightly rounded elements */
+  --str-chat__border-radius-sm: var(--radius-sm);
+
+  /* Border radius used for slightly rounded elements */
+  --str-chat__border-radius-md: var(--radius-md);
+
+  /* Border radius used for rounded elements */
+  --str-chat__border-radius-lg: var(--radius-lg);
+
+  /* Border radius used for rounded elements */
+  --str-chat__border-radius-xl: var(--radius-xl);
+
+  /* Border radius used for rounded elements */
+  --str-chat__border-radius-2xl: var(--radius-2xl);
+
+  /* Border radius used for rounded elements */
+  --str-chat__border-radius-3xl: var(--radius-3xl);
+
+  /* Border radius used for rounded elements */
+  --str-chat__border-radius-4xl: var(--radius-4xl);
+
+  /* Border radius used for circular elements */
+  --str-chat__border-radius-circle: var(--radius-max);
+
+  /* The font used in the chat, by default, we use [preinstalled OS fonts](https://systemfontstack.com/) */
+  --str-chat__font-family: var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu,
+  Cantarell, Helvetica Neue, sans-serif;
+
+  // todo: adapt the old text variables to so that they use the new semantic text variables
+  /* The font used for caption texts */
+  --str-chat__caption-text: 0.75rem/1.3 var(--str-chat__font-family);
+
+  /* The font used for caption texts with emphasize */
+  --str-chat__caption-medium-text: 500 0.75rem/1.3 var(--str-chat__font-family);
+
+  /* The font used for caption texts with emphasize */
+  --str-chat__caption-strong-text: 700 0.75rem/1.3 var(--str-chat__font-family);
+
+  /* The font used for body texts */
+  --str-chat__body-text: 0.875rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for body texts with emphasize */
+  --str-chat__body-medium-text: 500 0.875rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for body texts */
+  --str-chat__body2-text: 0.9375rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for body texts with emphasize */
+  --str-chat__body2-medium-text: 500 0.9375rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for subtitle texts */
+  --str-chat__subtitle-text: 1rem/1.25 var(--str-chat__font-family);
+
+  /* The font used for subtitle texts with emphasize */
+  --str-chat__subtitle-medium-text: 500 1rem/1.25 var(--str-chat__font-family);
+
+  /* The font used for subtitle texts */
+  --str-chat__subtitle2-text: 1.25rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for subtitle texts with emphasize */
+  --str-chat__subtitle2-medium-text: 500 1.25rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for headline texts */
+  --str-chat__headline-text: 1.5rem/1.2 var(--str-chat__font-family);
+
+  /* The font used for headline texts */
+  --str-chat__headline2-text: 1.8rem/1.2 var(--str-chat__font-family);
+}
+
+.str-chat,
+.str-chat__theme-light {
+  /* Used for emphasis, brands can inject their main color using this variable */
+  --str-chat__primary-color: var(--color-accent-primary);
+
+  /* Used for emphasised overlays - color of --str-chat__primary-color with alpha channel */
+  --str-chat__primary-overlay-color: rgba(0, 95, 255, 0.6);
+
+  /* Used for emphasis, brands can inject their main color using this variable, it has less emphasis than primary color */
+  --str-chat__primary-color-low-emphasis: var(--str-chat__blue300);
+
+  /* Used to indicate that a UI element with primary color is in an active state */
+  --str-chat__active-primary-color: var(--str-chat__blue600);
+
+  /* If the primary color is used as a background, text/icons are displayed in this color */
+  --str-chat__on-primary-color: var(--str-chat__grey50);
+
+  /* Used as a background color for the main chat UI components */
+  --str-chat__background-color: var(--str-chat__grey50);
+
+  /* Used as a background color for the main chat UI components */
+  --str-chat__secondary-background-color: var(--str-chat__grey50);
+
+  /* Used as a background color to give emphasis, but less vibrant than the primary color */
+  --str-chat__primary-surface-color: var(--str-chat__blue100);
+
+  /* Used as a background color to give emphasis, but less vibrant than the primary surface color */
+  --str-chat__primary-surface-color-low-emphasis: var(--str-chat__blue50);
+
+  /* A neutral color used to give emphasis to different surfaces */
+  --str-chat__surface-color: var(--str-chat__grey300);
+
+  /* A neutral color used to give emphasis to different surfaces */
+  --str-chat__secondary-surface-color: var(--str-chat__grey200);
+
+  /* A neutral color used to give emphasis to different surfaces */
+  --str-chat__tertiary-surface-color: var(--str-chat__grey100);
+
+  /* The main color used for texts/icons */
+  --str-chat__text-color: var(--str-chat__grey950);
+
+  /* Used for texts/icons that need less emphasis */
+  --str-chat__text-low-emphasis-color: var(--str-chat__grey500);
+
+  /* Used for displaying disabled UI elements (typically buttons) */
+  --str-chat__disabled-color: var(--str-chat__grey400);
+
+  /* Used for text/icon colors if disabled color is used as a background color */
+  --str-chat__on-disabled-color: var(--str-chat__grey50);
+
+  /* Used for error messages, and destructive actions */
+  --str-chat__danger-color: var(--str-chat__red400);
+
+  /* The background color used to highlight a message when jumping to a message. Only available in React SDK. */
+  --str-chat__message-highlight-color: var(--str-chat__yellow50);
+
+  /* Used for displaying the unread badge */
+  --str-chat__unread-badge-color: var(--str-chat__red400);
+
+  /* Used for text/icon colors if unread badge color is used as a background color */
+  --str-chat__on-unread-badge-color: var(--str-chat__grey50);
+
+  /* The background color used for overlays */
+  --str-chat__overlay-color: rgba(252, 252, 252, 0.9);
+
+  /* The background color used for subtle overlays */
+  --str-chat__secondary-overlay-color: rgba(0, 0, 0, 0.2);
+
+  /* The text/icon color used on subtle overlays */
+  --str-chat__secondary-overlay-text-color: var(--str-chat__grey50);
+
+  /* The background color used for opaque surfaces */
+  --str-chat__opaque-surface-background-color: rgba(0, 0, 0, 0.8);
+
+  /* The text color used on opaque surfaces */
+  --str-chat__opaque-surface-text-color: var(--str-chat__grey50);
+
+  /* If a component has a box shadow applied to it, this will be the color used for the shadow */
+  --str-chat__box-shadow-color: rgba(0, 0, 0, 0.18);
+
+  /* Used for online indicator and success messages */
+  --str-chat__info-color: var(--str-chat__green500);
+}
+
+.str-chat__theme-dark {
+  --str-chat__primary-color: var(--color-accent-primary);
+  --str-chat__primary-overlay-color: rgba(51, 126, 255, 0.6);
+  --str-chat__primary-color-low-emphasis: var(--str-chat__blue700);
+  --str-chat__active-primary-color: var(--str-chat__blue600);
+  --str-chat__on-primary-color: var(--str-chat__grey50);
+  --str-chat__background-color: var(--str-chat__grey950);
+  --str-chat__secondary-background-color: var(--str-chat__grey900);
+  --str-chat__primary-surface-color: var(--str-chat__blue900);
+  --str-chat__primary-surface-color-low-emphasis: var(--str-chat__blue950);
+  --str-chat__surface-color: var(--str-chat__grey700);
+  --str-chat__secondary-surface-color: var(--str-chat__grey800);
+  --str-chat__tertiary-surface-color: var(--str-chat__grey900);
+  --str-chat__text-color: var(--str-chat__grey50);
+  --str-chat__text-low-emphasis-color: var(--str-chat__grey500);
+  --str-chat__disabled-color: var(--str-chat__grey600);
+  --str-chat__on-disabled-color: var(--str-chat__grey50);
+  --str-chat__danger-color: var(--str-chat__red600);
+  --str-chat__message-highlight-color: var(--str-chat__yellow900);
+  --str-chat__unread-badge-color: var(--str-chat__red400);
+  --str-chat__on-unread-badge-color: var(--str-chat__grey50);
+  --str-chat__overlay-color: rgba(0, 0, 0, 0.7);
+  --str-chat__secondary-overlay-color: rgba(0, 0, 0, 0.4);
+  --str-chat__secondary-overlay-text-color: var(--str-chat__grey50);
+  --str-chat__opaque-surface-background-color: rgba(250, 250, 250, 0.85);
+  --str-chat__opaque-surface-text-color: var(--str-chat__grey900);
+  --str-chat__box-shadow-color: rgba(0, 0, 0, 0.8);
+  --str-chat__info-color: var(--str-chat__green500);
+}

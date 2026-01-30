@@ -1,29 +1,52 @@
 @use '../../../styling/utils';
 
 .str-chat {
+  /*
+   * Dialog theme variables (ported from @stream-chat-css v2 Dialog theme),
+   * set to match the current React SDK styling values in this file.
+   *
+   * Note: React uses `str-chat__context-menu` naming; v2 theme calls this "dialog-menu".
+   */
+  --str-chat__dialog-menu-border-radius: var(--radius-lg);
+  --str-chat__dialog-menu-color: var(--text-primary);
+  --str-chat__dialog-menu-background-color: var(--background-elevation-elevation-2);
+  --str-chat__dialog-menu-border-block-start: none;
+  --str-chat__dialog-menu-border-block-end: none;
+  --str-chat__dialog-menu-border-inline-start: none;
+  --str-chat__dialog-menu-border-inline-end: none;
+  --str-chat__dialog-menu-box-shadow: var(--light-elevation-3);
+
+  --str-chat__dialog-menu-button-border-radius: var(--radius-md);
+  --str-chat__dialog-menu-button-color: var(--text-primary);
+  --str-chat__dialog-menu-button-background-color: transparent;
+  --str-chat__dialog-menu-button-hover-background-color: var(--background-core-hover);
+  --str-chat__dialog-menu-button-border-block-start: none;
+  --str-chat__dialog-menu-button-border-block-end: none;
+  --str-chat__dialog-menu-button-border-inline-start: none;
+  --str-chat__dialog-menu-button-border-inline-end: none;
+  --str-chat__dialog-menu-button-box-shadow: none;
+
   .str-chat__context-menu {
+    @include utils.component-layer-overrides('dialog-menu');
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xxxs);
     padding: var(--spacing-xxs);
-    background-color: var(--background-elevation-elevation-2);
-    box-shadow: var(--light-elevation-3);
-    border-radius: var(--radius-lg);
 
     .str-chat__context-menu__button {
+      @include utils.component-layer-overrides('dialog-menu-button');
       @include utils.button-reset;
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
       padding: var(--spacing-xs);
       cursor: pointer;
-      border-radius: var(--radius-md);
       font-size: var(--typography-font-size-xs);
       font-weight: var(--typography-font-weight-semi-bold);
       line-height: var(--typography-line-height-tight);
 
       &:hover {
-        background-color: var(--background-core-hover);
+        background-color: var(--str-chat__dialog-menu-button-hover-background-color);
       }
 
       svg {

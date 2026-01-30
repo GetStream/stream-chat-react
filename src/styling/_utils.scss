@@ -111,7 +111,6 @@
   }
 }
 
-// todo: remove?
 @mixin component-layer-overrides($component-name, $important: '') {
   background: var(--str-chat__#{$component-name}-background-color) #{$important};
   color: var(--str-chat__#{$component-name}-color) #{$important};
