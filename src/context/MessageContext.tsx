@@ -16,7 +16,6 @@ import type { ActionHandlerReturnType } from '../components/Message/hooks/useAct
 import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
 import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
-import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
 import type {
   ReactionDetailsComparator,
@@ -37,10 +36,6 @@ export type CustomMessageActions = {
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
-  /** Function to exit edit state */
-  clearEditingState: (event?: React.BaseSyntheticEvent) => void;
-  /** If the Message is in edit state */
-  editing: boolean;
   /**
    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'].
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
@@ -53,8 +48,6 @@ export type MessageContextValue = {
     event: BaseSyntheticEvent,
     options?: DeleteMessageOptions,
   ) => Promise<void> | void;
-  /** Function to edit a message in a Channel */
-  handleEdit: ReactEventHandler;
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,
@@ -91,10 +84,6 @@ export type MessageContextValue = {
   onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
   onUserHover: ReactEventHandler;
-  /** Function to toggle the edit state on a Message */
-  setEditingState: ReactEventHandler;
-  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
   /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */

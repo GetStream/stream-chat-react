@@ -13,7 +13,7 @@ export type SendButtonProps = {
   ) => void;
 } & React.ComponentProps<'button'>;
 
-export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
+export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) => {
   const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();
   return (
@@ -32,7 +32,7 @@ export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
       type='button'
       {...rest}
     >
-      <IconPaperPlane />
+      {children ?? <IconPaperPlane />}
     </Button>
   );
 };

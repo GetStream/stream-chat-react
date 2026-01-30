@@ -39,8 +39,8 @@ export const AudioAttachmentPreview = ({
   const url = attachment.asset_url || previewUri;
 
   const audioPlayer = useAudioPlayer({
-    fileSize: attachment.localMetadata.file.size,
-    mimeType: attachment.localMetadata.file.type,
+    fileSize: attachment.localMetadata.file?.size ?? attachment.file_size,
+    mimeType: attachment.localMetadata.file?.type ?? attachment.mime_type,
     requester: attachment.localMetadata.id,
     src: url,
     title: attachment.title,

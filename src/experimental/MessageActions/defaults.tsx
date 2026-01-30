@@ -95,11 +95,14 @@ const DefaultMessageActionComponents = {
       );
     },
     Edit() {
-      const { handleEdit } = useMessageContext();
+      const messageComposer = useMessageComposer();
+      const { message } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handleEdit}>
+        <DefaultDropdownActionButton
+          onClick={() => messageComposer.initState({ composition: message })}
+        >
           {t('Edit Message')}
         </DefaultDropdownActionButton>
       );

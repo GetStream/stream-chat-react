@@ -9,7 +9,6 @@ import type {
   ChannelPreviewActionButtonsProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
-  EditMessageModalProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
   EventComponentProps,
@@ -67,6 +66,7 @@ import type { PropsWithChildrenOnly, UnknownType } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 import type { ShareLocationDialogProps } from '../components/Location';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
+import type { EditedMessagePreviewProps } from '../components/MessageInput/EditedMessagePreview';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
@@ -97,10 +97,8 @@ export type ComponentContextValue = {
   CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps>;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
-  /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
-  EditMessageInput?: React.ComponentType<MessageInputProps>;
-  /** Custom UI component to override default EditMessageModal, defaults to and accepts same props as: [EditMessageModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
-  EditMessageModal?: React.ComponentType<EditMessageModalProps>;
+  /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditedMessagePreview.tsx) */
+  EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageInput */
   EmojiPicker?: React.ComponentType;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */

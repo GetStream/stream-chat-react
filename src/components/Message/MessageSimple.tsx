@@ -28,7 +28,6 @@ import {
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { EditMessageModal as DefaultEditMessageModal } from '../MessageInput';
 import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
@@ -45,8 +44,6 @@ type MessageSimpleWithContextProps = MessageContextValue;
 
 const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
-    additionalMessageInputProps,
-    editing,
     endOfGroup,
     firstOfGroup,
     groupedByUser,
@@ -71,7 +68,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    EditMessageModal = DefaultEditMessageModal,
     MessageOptions = DefaultMessageOptions,
     // TODO: remove this "passthrough" in the next
     // major release and use the new default instead
@@ -163,9 +159,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   return (
     <>
-      {editing && (
-        <EditMessageModal additionalMessageInputProps={additionalMessageInputProps} />
-      )}
       {isBounceDialogOpen && (
         <MessageBounceModal
           MessageBouncePrompt={MessageBouncePrompt}

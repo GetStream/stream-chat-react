@@ -128,8 +128,15 @@
 
     .str-chat__send-button {
       .str-chat__icon--paper-plane {
-        width: var(--icon-size-md);
         fill: none;
+
+        path {
+          color: var(--button-primary-text-on-accent);
+        }
+      }
+
+      .str-chat__icon--paper-plane {
+        width: var(--icon-size-md);
       }
     }
 

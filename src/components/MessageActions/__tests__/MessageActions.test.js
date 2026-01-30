@@ -44,7 +44,6 @@ const messageContextValue = {
   handlePin: () => {},
   isMyMessage: () => false,
   message: generateMessage(),
-  setEditingState: () => {},
 };
 
 const chatClient = getTestClient();

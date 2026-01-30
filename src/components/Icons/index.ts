@@ -1,6 +1,7 @@
 export * from './IconArrowRotateClockwise';
 export * from './IconCamera';
 export * from './IconChainLink';
+export * from './IconCheckmark';
 export * from './IconChevronRight';
 export * from './IconClose';
 export * from './IconCommand';

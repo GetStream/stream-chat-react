@@ -64,7 +64,6 @@ export const MessageActions = (props: MessageActionsProps) => {
     handlePin: contextHandlePin,
     isMyMessage,
     message: contextMessage,
-    setEditingState,
     threadList,
   } = useMessageContext('MessageActions');
 
@@ -118,7 +117,6 @@ export const MessageActions = (props: MessageActionsProps) => {
         <MessageActionsBox
           getMessageActions={getMessageActions}
           handleDelete={handleDelete}
-          handleEdit={setEditingState}
           handleFlag={handleFlag}
           handleMarkUnread={handleMarkUnread}
           handleMute={handleMute}
