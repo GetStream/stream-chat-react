@@ -1,13 +1,9 @@
 import clsx from 'clsx';
-import React from 'react';
-import type { AvatarProps } from './Avatar';
+import React, { type ComponentPropsWithoutRef } from 'react';
 import { Avatar } from './Avatar';
 import type { GroupChannelDisplayInfo } from '../ChannelPreview';
 
-export type GroupAvatarProps = Pick<
-  AvatarProps,
-  'className' | 'onClick' | 'onMouseOver'
-> & {
+export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
   /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
   groupChannelDisplayInfo: GroupChannelDisplayInfo;
 };
@@ -15,8 +11,7 @@ export type GroupAvatarProps = Pick<
 export const GroupAvatar = ({
   className,
   groupChannelDisplayInfo,
-  onClick,
-  onMouseOver,
+  ...rest
 }: GroupAvatarProps) => (
   <div
     className={clsx(
@@ -25,18 +20,18 @@ export const GroupAvatar = ({
       className,
     )}
     data-testid='group-avatar'
-    onClick={onClick}
-    onMouseOver={onMouseOver}
     role='button'
+    {...rest}
   >
     {groupChannelDisplayInfo.slice(0, 4).map(({ image, name }, i) => (
       <Avatar
         className={clsx({
           'str-chat__avatar--single': groupChannelDisplayInfo.length === 3 && i === 0,
         })}
-        image={image}
+        imageUrl={image}
         key={`${name}-${image}-${i}`}
-        name={name}
+        size='md'
+        userName={name}
       />
     ))}
   </div>
