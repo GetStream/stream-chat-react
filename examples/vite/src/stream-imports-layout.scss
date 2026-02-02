@@ -1,12 +1,12 @@
 @use 'stream-chat-react/dist/scss/v2/base';
-@use 'stream-chat-react/dist/scss/v2/global-layout-variables';
+//@use 'stream-chat-react/dist/scss/v2/global-layout-variables';
 @use 'stream-chat-react/dist/scss/v2/icons';
 
 @use 'stream-chat-react/dist/scss/v2/Avatar/Avatar-layout';
-@use 'stream-chat-react/dist/scss/v2/AttachmentList/AttachmentList-layout';
+//@use 'stream-chat-react/dist/scss/v2/AttachmentList/AttachmentList-layout';
 //@use 'stream-chat-react/dist/scss/v2/AttachmentPreviewList/AttachmentPreviewList-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/Autocomplete/Autocomplete-layout';
-@use 'stream-chat-react/dist/scss/v2/AudioRecorder/AudioRecorder-layout';
+//@use 'stream-chat-react/dist/scss/v2/AudioRecorder/AudioRecorder-layout';
 @use 'stream-chat-react/dist/scss/v2/BaseImage/BaseImage-layout';
 @use 'stream-chat-react/dist/scss/v2/Channel/Channel-layout';
 @use 'stream-chat-react/dist/scss/v2/ChannelHeader/ChannelHeader-layout';
@@ -26,7 +26,7 @@
 //@use 'stream-chat-react/dist/scss/v2/LinkPreview/LinkPreview-layout'; // X
 @use 'stream-chat-react/dist/scss/v2/LoadingIndicator/LoadingIndicator-layout';
 @use 'stream-chat-react/dist/scss/v2/Location/Location-layout';
-@use 'stream-chat-react/dist/scss/v2/Message/Message-layout';
+//@use 'stream-chat-react/dist/scss/v2/Message/Message-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageActionsBox/MessageActionsBox-layout';
 @use 'stream-chat-react/dist/scss/v2/MessageBouncePrompt/MessageBouncePrompt-layout';
 //@use 'stream-chat-react/dist/scss/v2/MessageInput/MessageInput-layout'; // X

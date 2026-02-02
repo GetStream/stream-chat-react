@@ -10,15 +10,16 @@
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
 @use "../components/Icons/styling" as Icons;
+@use "../components/FileIcon/styling/FileIcon";
 
 // Base components
-@use "../components/Attachment/styling" as Attachment;
 @use "../components/Button/styling/Button";
 @use "../components/Dialog/styling" as Dialog;
 
 // Specific components
+@use "../components/Attachment/styling" as Attachment;
 @use "../components/AudioPlayback/styling" as AudioPlayback;
-@use "../components/FileIcon/styling/FileIcon";
+@use "../components/MediaRecorder/AudioRecorder/styling" as AudioRecorder;
 @use "../components/Message/styling" as Message;
 @use "../components/MessageInput/styling" as MessageComposer;
 

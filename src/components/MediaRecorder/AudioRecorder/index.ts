@@ -1,3 +1,4 @@
 export * from './AudioRecorder';
-export * from './AudioRecordingButtons';
+export type { StartRecordingAudioButtonProps } from './AudioRecordingButtonWithNotification';
+export { DefaultStartRecordingAudioButton as StartRecordingAudioButton } from './AudioRecordingButtonWithNotification';
 export * from './RecordingTimer';

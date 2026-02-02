@@ -1,0 +1,138 @@
+@use '../../../../styling/utils';
+
+.str-chat__audio_recorder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 768px;
+  width: 100%;
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--border-core-default);
+  background: var(--composer-bg);
+
+  .str-chat__audio-recorder__recording-playback,
+  .str-chat__audio-recorder__recording-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xs);
+    padding-left: var(--spacing-sm);
+
+    .str-chat__recording-timer {
+      display: flex;
+      align-items: center;
+      width: 3rem;
+      font-size: var(--typography-font-size-sm);
+      font-weight: var(--typography-font-weight-semi-bold);
+      line-height: var(--typography-line-height-tight);
+    }
+
+    .str-chat__recording-timer--hours {
+      width: 3.75rem;
+    }
+  }
+
+  .str-chat__audio-recorder__recording-playback--isPlaying {
+    .str-chat__recording-timer {
+      color: var(--chat-waveform-bar-playing);
+    }
+  }
+
+  .str-chat__audio-recorder__recording-preview {
+    .str-chat__icon--microphone {
+      width: var(--icon-size-sm);
+      color: var(--button-destructive-text),
+    }
+  }
+
+  .str-chat__audio_recorder__toggle-playback-button,
+  .str-chat__audio_recorder__cancel-button,
+  .str-chat__audio_recorder__toggle-recording-button {
+    svg {
+      height: var(--icon-size-sm);
+      width: 18px; // var(18px, --icon-size-sm);
+    }
+  }
+
+  .str-chat__audio_recorder__complete-button,
+  .str-chat__audio_recorder__stop-button {
+    @include utils.button-reset;
+    @include utils.flex-row-center;
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    cursor: pointer;
+    --str-chat-icon-color: var(--str-chat__on-primary-color);
+    border-radius: var(--str-chat__border-radius-circle);
+    color: var(--str-chat__on-primary-color);
+    background-color: var(--str-chat__primary-color);
+
+    &:disabled {
+      cursor: default;
+    }
+
+    .str-chat__loading-indicator svg {
+      linearGradient {
+        stop:last-child {
+          stop-color: var(--str-chat__background-color);
+        }
+      }
+    }
+  }
+
+  .str-chat__audio_recorder__stop-button {
+    --str-chat-icon-height: 12px;
+
+    svg {
+      height: 12px;
+    }
+  }
+
+  .str-chat__audio_recorder__complete-button {
+    --str-chat-icon-height: 16px;
+
+    svg {
+      height: 16px;
+    }
+  }
+
+  .str-chat__wave-progress-bar__track-container,
+  .str-chat__waveform-box-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .str-chat__wave-progress-bar__track {
+    display: flex;
+    min-width: 0;
+    width: unset;
+    align-items: center;
+    flex-wrap: nowrap;
+    height: 2rem;
+  }
+
+  .str-chat__waveform-box-container {
+    justify-content: flex-end;
+
+    .str-chat__wave-progress-bar__track {
+      justify-content: flex-end;
+    }
+  }
+
+  .str-chat__wave-progress-bar__track-container {
+    .str-chat__wave-progress-bar__track {
+      flex: unset;
+      width: max-content;
+    }
+  }
+
+  .str-chat__audio_recorder__recording-controls {
+    display: flex;
+    gap: var(--spacing-xs);
+    padding: 0 var(--spacing-xs);
+  }
+}

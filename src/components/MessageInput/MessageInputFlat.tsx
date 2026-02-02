@@ -114,20 +114,24 @@ export const MessageInputFlat = () => {
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
 
-  if (recordingController.recordingState) return <AudioRecorder />;
-
   return (
     <WithDragAndDropUpload className='str-chat__message-composer' component='div'>
-      <AttachmentSelector />
-      <div className='str-chat__message-composer-compose-area'>
-        <MessageComposerPreviews />
-        <div className='str-chat__message-composer-controls'>
-          <TextareaComposer />
-          <AdditionalMessageComposerActions />
-          <MessageComposerActions />
-        </div>
-      </div>
-      <SendToChannelCheckbox />
+      {recordingController.recordingState ? (
+        <AudioRecorder />
+      ) : (
+        <>
+          <AttachmentSelector />
+          <div className='str-chat__message-composer-compose-area'>
+            <MessageComposerPreviews />
+            <div className='str-chat__message-composer-controls'>
+              <TextareaComposer />
+              <AdditionalMessageComposerActions />
+              <MessageComposerActions />
+            </div>
+          </div>
+          <SendToChannelCheckbox />
+        </>
+      )}
     </WithDragAndDropUpload>
   );
 };

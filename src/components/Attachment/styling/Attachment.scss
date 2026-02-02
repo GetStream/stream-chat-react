@@ -7,12 +7,6 @@
   /* The height of GIFs */
   --str-chat__gif-height: calc(var(--str-chat__spacing-px) * 200);
 
-  /* The width of the amplitude bar of the voice recording wave data */
-  --str-chat__voice-recording-amplitude-bar-width: 2px;
-
-  /* The gap between amplitudes of the wave data of a voice recording */
-  --str-chat__voice-recording-amplitude-bar-gap-width: var(--str-chat__spacing-px);
-
   /* The border radius used for the borders of the component */
   --str-chat__attachment-list-border-radius: 0;
 
@@ -846,11 +840,6 @@
     min-height: 60px;
 
     .str-chat__message-attachment__voice-recording-widget__metadata {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      gap: var(--str-chat__spacing-2);
-
       a {
         cursor: pointer;
         text-decoration: none;
@@ -877,9 +866,9 @@
       .str-chat__message-attachment__voice-recording-widget__audio-state {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-xs);
         height: 100%;
+        width: 175px;
       }
 
       .str-chat__message-attachment__voice-recording-widget__error-message {
@@ -905,7 +894,7 @@
 
     .str-chat__wave-progress-bar__track {
       // todo: find out whether the width should be changed if playback rate button is re-introduced
-      width: 100px;
+      //max-width: 80px;
       //$min_amplitude_height: 2px;
       //position: relative;
       //flex: 1;
@@ -959,15 +948,8 @@
       .str-chat__message-attachment-card-audio-widget {
         display: flex;
         flex-direction: column;
-        row-gap: var(--str-chat__spacing-2_5);
         width: 100%;
-        padding: var(--str-chat__spacing-2);
-
-        .str-chat__message-attachment-card-audio-widget--first-row {
-          display: flex;
-          align-items: center;
-          column-gap: var(--str-chat__spacing-3_5);
-        }
+        padding: var(--spacing-md);
       }
     }
   }
@@ -1075,32 +1057,6 @@
     .str-chat__message-attachment-file--item {
       padding: 0;
     }
-  }
-}
-
-.str-chat__audio_recorder__waveform-box{
-  $min_amplitude_height: 2px;
-  position: relative;
-  flex: 1;
-  width: 120px;
-  height: calc(var(--str-chat__spacing-px) * 25);
-  display: flex;
-  align-items: center;
-  gap: var(--str-chat__spacing-px);
-
-  .str-chat__wave-progress-bar__amplitude-bar {
-    width: 2px;
-    min-width: 2px;
-    height: calc(
-            var(--str-chat__wave-progress-bar__amplitude-bar-height) + $min_amplitude_height
-    ); // variable set dynamically on element
-  }
-
-  .str-chat__wave-progress-bar__progress-indicator {
-    position: absolute;
-    left: 0;
-    height: calc(100% + $min_amplitude_height + 2px);
-    width: calc(var(--str-chat__spacing-px) * 6);
   }
 }
 

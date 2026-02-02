@@ -6,6 +6,7 @@ import type {
   AttachmentProps,
   AvatarProps,
   BaseImageProps,
+  CalloutDialogProps,
   ChannelPreviewActionButtonsProps,
   CustomMessageActionsListProps,
   DateSeparatorProps,
@@ -89,6 +90,8 @@ export type ComponentContextValue = {
   Avatar?: React.ComponentType<AvatarProps>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
+  /** Custom UI component to display the contents of callout dialog, accepts same props as: [DefaultCalloutDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/base/Callout.tsx) */
+  CalloutDialog?: React.ComponentType<CalloutDialogProps>;
   /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
   ChannelPreviewActionButtons?: React.ComponentType<ChannelPreviewActionButtonsProps>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */

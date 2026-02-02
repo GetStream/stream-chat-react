@@ -21,11 +21,14 @@ type WaveProgressBarProps = {
   amplitudesCount?: number;
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress?: number;
+  /** Absolute gap width between bars in px (overrides computed gap var). */
+  amplitudeBarGapWidthPx?: number;
   relativeAmplitudeBarWidth?: number;
   relativeAmplitudeGap?: number;
 };
 
 export const WaveProgressBar = ({
+  amplitudeBarGapWidthPx,
   amplitudesCount = 40,
   progress = 0,
   relativeAmplitudeBarWidth = 2,
@@ -70,19 +73,32 @@ export const WaveProgressBar = ({
     return availableWidth * (progress / 100) + 1;
   };
 
+  const getAvailableTrackWidth = useCallback((trackRoot: HTMLDivElement | null) => {
+    if (!trackRoot) return 0;
+    const parent = trackRoot.parentElement;
+    if (!parent) return trackRoot.getBoundingClientRect().width;
+    const parentWidth = parent.getBoundingClientRect().width;
+    const siblingsWidth = Array.from(parent.children).reduce((total, child) => {
+      if (child === trackRoot) return total;
+      return total + child.getBoundingClientRect().width;
+    }, 0);
+    return Math.max(0, parentWidth - siblingsWidth);
+  }, []);
+
   const getTrackAxisX = useMemo(
     () =>
-      throttle((rootWidth: number) => {
-        if (rootWidth === lastRootWidth.current) return;
-        lastRootWidth.current = rootWidth;
+      throttle((availableWidth: number) => {
+        if (availableWidth === lastRootWidth.current) return;
+        lastRootWidth.current = availableWidth;
         const possibleAmpCount = Math.floor(
-          rootWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
+          availableWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
         );
         const tooManyAmplitudesToRender = possibleAmpCount < amplitudesCount;
         const barCount = tooManyAmplitudesToRender ? possibleAmpCount : amplitudesCount;
         const amplitudeBarWidthToGapRatio =
           relativeAmplitudeBarWidth / (relativeAmplitudeBarWidth + relativeAmplitudeGap);
-        const barWidth = barCount && (rootWidth / barCount) * amplitudeBarWidthToGapRatio;
+        const barWidth =
+          barCount && (availableWidth / barCount) * amplitudeBarWidthToGapRatio;
 
         setTrackAxisX({
           barCount,
@@ -108,27 +124,30 @@ export const WaveProgressBar = ({
   useEffect(() => {
     if (!root || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => {
-      getTrackAxisX(entry.contentRect.width);
+      const availableWidth = getAvailableTrackWidth(entry.target as HTMLDivElement);
+      getTrackAxisX(availableWidth || entry.contentRect.width);
     });
     observer.observe(root);
 
     return () => {
       observer.disconnect();
     };
-  }, [getTrackAxisX, root]);
+  }, [getTrackAxisX, root, getAvailableTrackWidth]);
 
   useLayoutEffect(() => {
     if (root) {
-      const { width: rootWidth } = root.getBoundingClientRect();
-      getTrackAxisX(rootWidth);
+      const availableWidth = getAvailableTrackWidth(root);
+      getTrackAxisX(availableWidth);
     }
 
     if (progressIndicator) {
       lastIndicatorWidth.current = progressIndicator.getBoundingClientRect().width;
     }
-  }, [getTrackAxisX, root, progressIndicator]);
+  }, [getAvailableTrackWidth, getTrackAxisX, root, progressIndicator]);
 
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
+
+  const amplitudeGapWidth = amplitudeBarGapWidthPx ?? trackAxisX?.gap;
 
   return (
     <div
@@ -142,7 +161,8 @@ export const WaveProgressBar = ({
       role='progressbar'
       style={
         {
-          '--str-chat__voice-recording-amplitude-bar-gap-width': trackAxisX?.gap + 'px',
+          '--str-chat__voice-recording-amplitude-bar-gap-width':
+            typeof amplitudeGapWidth === 'number' ? `${amplitudeGapWidth}px` : undefined,
         } as React.CSSProperties
       }
     >

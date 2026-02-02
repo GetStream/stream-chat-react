@@ -172,29 +172,19 @@
 
   // todo: need designs? what kind of action buttons to use on modals?
   .str-chat__recording-permission-denied-notification {
-    @include Dialog.dialog-base;
     max-width: 100%;
-    padding: 1rem;
-    margin-inline: 0.5rem;
-    border-radius: var(--radius-2xl);
+    padding: var(--spacing-md);
+    font-size: var(--typography-font-size-sm);
+    line-height: var(--typography-line-height-tight);
 
-    .str-chat__recording-permission-denied-notification__dismiss-button-container {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .str-chat__recording-permission-denied-notification__heading,
-    .str-chat__recording-permission-denied-notification__dismiss-button {
-      font: var(--str-chat__subtitle2-medium-text);
+    .str-chat__recording-permission-denied-notification__heading {
+      font-weight: var(--typography-font-weight-semi-bold);
     }
 
     .str-chat__recording-permission-denied-notification__message {
-      font: var(--str-chat__subtitle-text);
+      margin: var(--spacing-xs) 0 0;
+      font-weight: var(--typography-font-weight-regular, 400);
     }
-
-    //.str-chat__recording-permission-denied-notification__dismiss-button {
-    //  text-transform: uppercase;
-    //}
   }
 
   // todo: need designs?

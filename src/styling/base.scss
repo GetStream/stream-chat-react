@@ -4,6 +4,7 @@
   font-weight: var(--typography-font-weight-regular);
   line-height: var(--typography-line-height-normal);
   letter-spacing: var(--typography-letter-spacing-default);
+  color: var(--text-primary);
 
   *:not(:disabled):focus-visible {
     outline: 2px solid  var(--border-utility-focus);

@@ -72,20 +72,8 @@
     flex: 1 1 auto;
     overflow-y: hidden;
     gap: var(--spacing-md);
-
-    //.str-chat__attachment-list-scroll-container {
-    //  display: flex;
-    //  gap: var(--spacing-md);
-    //  align-items: center;
-    //  justify-content: flex-start;
-    //  width: 100%;
-    //  min-width: 0;
-    //
-    //  overflow-x: auto;
-    //  overflow-y: hidden;
-    //  padding-block: var(--spacing-md);
-    //}
   }
+
   .str-chat__attachment-preview-audio,
   .str-chat__attachment-preview-file,
   .str-chat__attachment-preview-voice-recording,
@@ -221,6 +209,7 @@
     .str-chat__attachment-preview-file__data {
       display: flex;
       align-items: center;
+      width: 190px;
       gap: var(--spacing-xxs);
       color: var(--text-secondary);
       font-weight: var(--typography-font-weight-regular);

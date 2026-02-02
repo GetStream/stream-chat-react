@@ -1,13 +1,13 @@
 @use 'stream-chat-react/dist/scss/v2/palette-variables';
-@use 'stream-chat-react/dist/scss/v2/global-theme-variables';
+//@use 'stream-chat-react/dist/scss/v2/global-theme-variables';
 
 @use 'stream-chat-react/dist/scss/v2/vendor/react-image-gallery';
 
 @use 'stream-chat-react/dist/scss/v2/common/CTAButton/CTAButton-theme';
 @use 'stream-chat-react/dist/scss/v2/common/CircleFAButton/CircleFAButton-theme';
 @use 'stream-chat-react/dist/scss/v2/Avatar/Avatar-theme';
-@use 'stream-chat-react/dist/scss/v2/AttachmentList/AttachmentList-theme';
-@use 'stream-chat-react/dist/scss/v2/AudioRecorder/AudioRecorder-theme';
+//@use 'stream-chat-react/dist/scss/v2/AttachmentList/AttachmentList-theme';
+//@use 'stream-chat-react/dist/scss/v2/AudioRecorder/AudioRecorder-theme';
 @use 'stream-chat-react/dist/scss/v2/Autocomplete/Autocomplete-theme';
 @use 'stream-chat-react/dist/scss/v2/BaseImage/BaseImage-theme';
 @use 'stream-chat-react/dist/scss/v2/Channel/Channel-theme.scss';
@@ -23,7 +23,7 @@
 @use 'stream-chat-react/dist/scss/v2/ImageCarousel/ImageCarousel-theme';
 @use 'stream-chat-react/dist/scss/v2/LoadingIndicator/LoadingIndicator-theme';
 @use 'stream-chat-react/dist/scss/v2/Location/Location-theme';
-@use 'stream-chat-react/dist/scss/v2/Message/Message-theme';
+//@use 'stream-chat-react/dist/scss/v2/Message/Message-theme';
 @use 'stream-chat-react/dist/scss/v2/MessageActionsBox/MessageActionsBox-theme';
 @use 'stream-chat-react/dist/scss/v2/MessageBouncePrompt/MessageBouncePrompt-theme';
 @use 'stream-chat-react/dist/scss/v2/MessageList/MessageList-theme';
