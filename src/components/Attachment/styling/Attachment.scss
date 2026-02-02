@@ -1061,6 +1061,13 @@
 }
 
 .str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
+
+  .str-chat__message-bubble {
+    background-color: transparent;
+    border: 1px solid var(--chat-border-incoming);
+    box-shadow: var(--background-elevation-elevation-0);
+  }
+
   .str-chat__message-attachment {
     background-color: var(--chat-bg-incoming);
   }
@@ -1077,31 +1084,36 @@
   }
 
   &.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
+    .str-chat__message-bubble {
+      border: 1px solid var(--chat-border-outgoing);
+      box-shadow: var(--background-elevation-elevation-0);
+    }
+
     .str-chat__message-attachment {
       background-color: var(--chat-bg-outgoing);
     }
   }
+}
 
-  .str-chat__li--single,
-  .str-chat__li--bottom {
-    .str-chat__message--other {
-      &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
-        border-end-start-radius: var(--message-bubble-radius-tail);
-      }
-    }
-
-    .str-chat__message--me {
-      &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
-        border-end-end-radius: var(--message-bubble-radius-tail);
-      }
+.str-chat__li--single,
+.str-chat__li--bottom {
+  .str-chat__message--other {
+    &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
+      border-end-start-radius: var(--message-bubble-radius-tail);
     }
   }
 
-  .str-chat__li--top,
-  .str-chat__li--middle {
+  .str-chat__message--me {
     &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
-      border-radius: var(--message-bubble-radius-group-middle);
+      border-end-end-radius: var(--message-bubble-radius-tail);
     }
+  }
+}
+
+.str-chat__li--top,
+.str-chat__li--middle {
+  &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
+    border-radius: var(--message-bubble-radius-group-middle);
   }
 }
 
