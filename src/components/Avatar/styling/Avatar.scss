@@ -1,4 +1,5 @@
 .str-chat__avatar {
+  user-select: none;
   position: relative;
   display: flex;
   justify-content: center;
@@ -30,13 +31,10 @@
     height: 100%;
   }
 
-  .str-chat__avatar-icon {
+  .str-chat__icon--people {
     width: var(--avatar-icon-size);
     height: var(--avatar-icon-size);
-    & path {
-      stroke: var(--avatar-text-default, #142f63);
-      stroke-width: var(--avatar-icon-stroke-width, 2px);
-    }
+    stroke-width: var(--avatar-icon-stroke-width);
   }
 
   &.str-chat__avatar--with-border:has(.str-chat__avatar-image)::before {
@@ -83,7 +81,7 @@
     --avatar-size: 64px;
     --avatar-badge-size: 16px;
     --avatar-icon-size: 32px;
-    --avatar-icon-stroke-width: 2px;
+    --avatar-icon-stroke-width: 1.5px;
 
     font-size: var(--typography-font-size-xl, 20px);
   }

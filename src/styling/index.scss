@@ -7,6 +7,8 @@
 @use "./variables.css";
 @use "./base";
 @use "./icons";
+// Fonts
+@use "./fonts";
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
 @use "../components/Icons/styling" as Icons;
@@ -22,11 +24,8 @@
 @use "../components/MediaRecorder/AudioRecorder/styling" as AudioRecorder;
 @use "../components/Message/styling" as Message;
 @use "../components/MessageInput/styling" as MessageComposer;
-@use '../components/Reactions/ReactionSelector' as ReactionSelector;
-@use "../components/Avatar/Avatar" as Avatar;
-
-// Fonts
-@use "./fonts";
+@use "../components/Reactions/styling/ReactionSelector" as ReactionSelector;
+@use "../components/Avatar/styling/Avatar" as Avatar;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

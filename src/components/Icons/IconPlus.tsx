@@ -8,6 +8,6 @@ export const IconPlus = ({ className, ...props }: ComponentProps<'svg'>) => (
     className={clsx('str-chat__icon--plus', className)}
     viewBox='0 0 16 16'
   >
-    <path d='M7.625 0.75V7.625M7.625 7.625V14.5M7.625 7.625H0.75M7.625 7.625H14.5' />
+    <path d='M8 2.5V8M8 8V13.5M8 8H2.5M8 8H13.5' />
   </BaseIcon>
 );
