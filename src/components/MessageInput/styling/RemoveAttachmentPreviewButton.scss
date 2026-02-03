@@ -4,8 +4,8 @@
   // todo: do we need semantic variable here?
   top: -6px;
   right: -6px;
-  // todo: replace --base-black with semantic variable
-  background-color: var(--base-black);
-  border: 3px solid var(--control-remove-control-border);
+  background-color: var(--str-chat__attachment-preview-close-icon-background);
+  border: 3px solid var(--str-chat__attachment-preview-close-icon-color);
+  color: var(--str-chat__attachment-preview-close-icon-color);
   border-radius: var(--radius-max);
 }

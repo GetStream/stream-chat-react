@@ -20,6 +20,7 @@
   "{{count}} unread_other": "{{count}} अपठित",
   "{{count}} votes_one": "{{count}} वोट",
   "{{count}} votes_other": "{{count}} वोट",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 अटैचमेंट",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} ने बनाया: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} ने वोट दिया: {{pollOptionText}}",

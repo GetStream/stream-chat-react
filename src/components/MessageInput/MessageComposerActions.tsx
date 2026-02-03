@@ -8,19 +8,40 @@ import {
   useMessageInputContext,
 } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import { useMessageCompositionIsEmpty } from './hooks';
+import { useMessageComposer, useMessageCompositionIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
+import type { MessageComposerState, TextComposerState } from 'stream-chat';
+import { useStateStore } from '../../store';
+import { IconCheckmark, IconPaperPlane } from '../Icons';
+
+const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
+  editedMessage,
+});
+
+const textComposerStateSelector = ({ text }: TextComposerState) => ({
+  text,
+});
 
 export const MessageComposerActions = () => {
   const { channel } = useChannelStateContext();
   const { hideSendButton } = useMessageInputContext();
-
+  const messageComposer = useMessageComposer();
   const {
     CooldownTimer = DefaultCooldownTimer,
-    SendButton = DefaultSendButton,
+    SendButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext();
+
+  const { editedMessage } = useStateStore(
+    messageComposer.state,
+    messageComposerStateSelector,
+  );
+
+  const { text } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
 
   const compositionIsEmpty = useMessageCompositionIsEmpty();
   /**
@@ -45,7 +66,13 @@ export const MessageComposerActions = () => {
 
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
 
-  let content = <SendButton sendMessage={handleSubmit} />;
+  let content = SendButton ? (
+    <SendButton sendMessage={handleSubmit} />
+  ) : (
+    <DefaultSendButton sendMessage={handleSubmit}>
+      {editedMessage ? <IconCheckmark /> : <IconPaperPlane />}
+    </DefaultSendButton>
+  );
 
   if (shouldDisplayStopAIGeneration) {
     content = <StopAIGenerationButton onClick={stopGenerating} />;
@@ -53,7 +80,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (compositionIsEmpty && recordingEnabled) {
+  } else if ((compositionIsEmpty || (editedMessage && !text)) && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 

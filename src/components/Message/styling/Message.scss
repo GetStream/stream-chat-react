@@ -1,0 +1,804 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* The width/height of the message options button(s), for Angular SDK it's only used on desktop devices starting from version 5 */
+  --str-chat__message-options-button-size: calc(var(--str-chat__spacing-px) * 26);
+
+  /*
+   * Message theme variables (ported from @stream-chat-css v2 Message theme),
+   * set to match the current React SDK styling values in this file.
+   */
+  --str-chat__message-border-radius: 0;
+  --str-chat__message-color: var(--str-chat__text-color);
+  --str-chat__message-error-message-color: var(--str-chat__danger-color);
+  --str-chat__message-secondary-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__message-link-color: var(--chat-text-link);
+  --str-chat__message-mention-color: var(--str-chat__primary-color);
+  --str-chat__message-status-color: var(--str-chat__primary-color);
+  --str-chat__message-replies-count-color: var(--str-chat__primary-color);
+  --str-chat__message-background-color: transparent;
+  --str-chat__message-highlighted-background-color: var(--str-chat__message-highlight-color);
+  --str-chat__message-border-block-start: none;
+  --str-chat__message-border-block-end: none;
+  --str-chat__message-border-inline-start: none;
+  --str-chat__message-border-inline-end: none;
+  --str-chat__message-box-shadow: none;
+  --str-chat__message-active-background-color: transparent;
+
+  --str-chat__message-options-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__message-options-hover-background-color: var(--str-chat__tertiary-surface-color);
+  --str-chat__message-options-border-radius: var(--str-chat__border-radius-circle);
+  --str-chat__message-options-active-color: var(--str-chat__primary-color);
+
+  --str-chat__message-bubble-border-radius: var(--message-bubble-radius-group-bottom);
+  --str-chat__message-bubble-color: var(--chat-text-message);
+  --str-chat__message-bubble-background-color: var(--chat-bg-incoming);
+  --str-chat__own-message-bubble-color: var(--chat-text-message);
+  --str-chat__own-message-bubble-background-color: var(--chat-bg-outgoing);
+  --str-chat__quoted-message-bubble-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__message-bubble-border-block-start: none;
+  --str-chat__message-bubble-border-block-end: none;
+  --str-chat__message-bubble-border-inline-start: none;
+  --str-chat__message-bubble-border-inline-end: none;
+  --str-chat__message-bubble-box-shadow: none;
+
+  --str-chat__deleted-message-border-radius: var(--str-chat__border-radius-md);
+  --str-chat__deleted-message-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__deleted-message-background-color: var(--str-chat__secondary-surface-color);
+  --str-chat__deleted-message-border-block-start: none;
+  --str-chat__deleted-message-border-block-end: none;
+  --str-chat__deleted-message-border-inline-start: none;
+  --str-chat__deleted-message-border-inline-end: none;
+  --str-chat__deleted-message-box-shadow: none;
+
+  --str-chat__blocked-message-border-radius: var(--str-chat__border-radius-md);
+  --str-chat__blocked-message-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__blocked-message-background-color: var(--str-chat__secondary-surface-color);
+  --str-chat__blocked-message-border-block-start: none;
+  --str-chat__blocked-message-border-block-end: none;
+  --str-chat__blocked-message-border-inline-start: none;
+  --str-chat__blocked-message-border-inline-end: none;
+  --str-chat__blocked-message-box-shadow: none;
+
+  --str-chat__system-message-border-radius: 0;
+  --str-chat__system-message-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__system-message-background-color: transparent;
+  --str-chat__system-message-border-block-start: none;
+  --str-chat__system-message-border-block-end: none;
+  --str-chat__system-message-border-inline-start: none;
+  --str-chat__system-message-border-inline-end: none;
+  --str-chat__system-message-box-shadow: none;
+
+  --str-chat__date-separator-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__date-separator-line-color: var(--str-chat__disabled-color);
+  --str-chat__date-separator-border-radius: 0;
+  --str-chat__date-separator-background-color: transparent;
+  --str-chat__date-separator-border-block-start: none;
+  --str-chat__date-separator-border-block-end: none;
+  --str-chat__date-separator-border-inline-start: none;
+  --str-chat__date-separator-border-inline-end: none;
+  --str-chat__date-separator-box-shadow: none;
+
+  --str-chat__translation-notice-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__translation-notice-active-background-color: var(--str-chat__tertiary-surface-color);
+
+  --str-chat__message-reminder-color: var(--str-chat__primary-color);
+  --str-chat__message-reminder-background-color: var(--str-chat__grey50);
+  --str-chat__message-reminder-border-block-start: none;
+  --str-chat__message-reminder-border-block-end: none;
+  --str-chat__message-reminder-border-inline-start: none;
+  --str-chat__message-reminder-border-inline-end: none;
+  --str-chat__message-reminder-box-shadow: none;
+  --str-chat__message-reminder-border-radius: 0;
+
+  /* The maximum allowed width of the message component */
+  --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 480);
+
+  /* The maximum allowed width of the message component, if it has attachments */
+  --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 300);
+}
+
+.str-chat__message.str-chat__message--is-emoji-only {
+  .str-chat__message-inner {
+    .str-chat__message-bubble {
+      background-color: transparent;
+      overflow: visible;
+      font-size: 64px;
+      line-height: 64px;
+    }
+  }
+}
+
+.str-chat__message {
+  --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
+
+  &.str-chat__message-without-touch-support {
+    --str-chat-message-options-size: calc(1 * var(--str-chat__message-options-button-size));
+  }
+
+  .str-chat__message-bubble {
+    max-width: var(--str-chat__message-max-width);
+  }
+
+  .str-chat__message-options {
+    --str-chat-icon-height: calc(var(--str-chat__message-options-button-size) * 0.7);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--str-chat__message-link-color);
+  }
+}
+
+
+.str-chat__message.str-chat__message--has-attachment {
+  --str-chat__message-max-width: var(--str-chat__message-with-attachment-max-width);
+
+  .str-chat__message-bubble {
+    max-width: var(--str-chat__message-max-width);
+  }
+}
+
+.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
+  .str-chat__attachment-list,
+  .str-chat__message-text {
+    padding: 0;
+  }
+}
+
+.str-chat__message-mention {
+  color: var(--str-chat__message-mention-color);
+  font: var(--str-chat__body2-medium-text);
+}
+
+.str-chat__message--error-message {
+  color: var(--str-chat__message-error-message-color);
+  font: var(--str-chat__caption-text);
+}
+
+.str-chat__message {
+  @include utils.component-layer-overrides('message');
+
+  @mixin chat-bubble-spacing {
+    padding: var(--spacing-xs) var(--spacing-sm);
+
+    p {
+      white-space: pre-line;
+      margin: 0;
+    }
+  }
+
+  // Using grid layout so we can use template from theme-v1
+  display: grid;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+
+  .str-chat__message-reminder {
+    grid-area: message-reminder;
+    padding-block: var(--str-chat__spacing-2) var(--str-chat__spacing-0_5);
+    margin: 0;
+    @include utils.component-layer-overrides('message-reminder');
+    font: var(--str-chat__caption-medium-text);
+  }
+
+  &.str-chat__message--other  {
+    grid-template-areas:
+      '. message-reminder'
+      'avatar message'
+      '. replies'
+      '. translation-notice'
+      '. custom-metadata'
+      '. metadata';
+    column-gap: var(--str-chat__spacing-2);
+    grid-template-columns: auto 1fr;
+    justify-items: flex-start;
+  }
+
+  &.str-chat__message--me {
+    grid-template-areas:
+      'message-reminder'
+      'message'
+      'replies'
+      'translation-notice'
+      'custom-metadata'
+      'metadata';
+    justify-items: end;
+
+    // > selector added to not hide sender of inline replies
+    > .str-chat__message-sender-avatar {
+      display: none;
+    }
+  }
+
+  &.str-chat__message--deleted {
+    grid-template-areas: 'message';
+  }
+
+  &.str-chat__message--blocked {
+    grid-template-areas: 'message';
+  }
+
+  &.str-chat__message--system {
+    grid-template-areas: 'message';
+    grid-template-columns: auto;
+  }
+
+  .str-chat__message-sender-avatar {
+    grid-area: avatar;
+    align-self: end;
+  }
+
+  .str-chat__message-inner {
+    grid-area: message;
+    display: grid;
+    grid-template-areas:
+      'reactions reactions'
+      'message-bubble options';
+    grid-template-columns: auto 1fr;
+    column-gap: var(--str-chat__spacing-2);
+    position: relative;
+
+    .str-chat__message-options {
+      grid-area: options;
+      align-items: flex-start;
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+      width: var(--str-chat-message-options-size);
+      --str-chat-icon-color: var(--str-chat__message-options-color);
+
+      .str-chat__message-actions-box-button,
+      .str-chat__message-reply-in-thread-button,
+      .str-chat__message-reactions-button {
+        // remove default button styles (React SDK uses button compared to div in Angular SDK)
+        @include utils.button-reset;
+        @include utils.flex-row-center;
+        cursor: pointer;
+        width: var(--str-chat__message-options-button-size);
+        height: var(--str-chat__message-options-button-size);
+        border-radius: var(--str-chat__message-options-border-radius);
+        color: var(--str-chat__message-options-color);
+
+        .str-chat__message-action-icon path {
+          fill: var(--str-chat__message-options-color);
+        }
+      }
+
+      .str-chat__message-actions-box-button:hover,
+      .str-chat__message-reply-in-thread-button:hover,
+      .str-chat__message-reactions-button:hover {
+        background-color: var(--str-chat__message-options-hover-background-color);
+      }
+
+      .str-chat__message-actions-box-button:active,
+      .str-chat__message-reply-in-thread-button:active,
+      .str-chat__message-reactions-button:active {
+        .str-chat__message-action-icon path {
+          fill: var(--str-chat__message-options-active-color);
+        }
+      }
+
+      .str-chat__message-actions-box-button,
+      .str-chat__message-actions-container {
+        position: relative;
+      }
+    }
+
+    .str-chat__message-reactions-host {
+      grid-area: reactions;
+    }
+
+    .str-chat__message-bubble {
+      grid-area: message-bubble;
+      position: relative;
+      min-width: 0;
+      @include utils.component-layer-overrides('message-bubble');
+      border-radius: var(--message-bubble-radius-group-bottom);
+      overflow: hidden;
+
+      .str-chat__message-text {
+        @include chat-bubble-spacing;
+
+        .str-chat__message-text-inner {
+          @include utils.prevent-glitch-text-overflow;
+        }
+      }
+    }
+  }
+
+  &.str-chat__message--me .str-chat__message-bubble {
+    background-color: var(--str-chat__own-message-bubble-background-color);
+  }
+
+  &.str-chat__message--me .str-chat__message-inner {
+    grid-template-areas:
+      'reminder reminder'
+      'reactions reactions'
+      'options message-bubble';
+    grid-template-columns: 1fr auto;
+
+    .str-chat__message-options {
+      flex-direction: row;
+    }
+  }
+
+  .str-chat__translation-notice {
+    grid-area: translation-notice;
+
+    button {
+      cursor: pointer;
+      padding: 0.25rem 0;
+      margin: 0;
+      font: var(--str-chat__body2-text);
+      color: var(--str-chat__translation-notice-color);
+      border: none;
+      background: none;
+
+      &:active,
+      &:hover {
+        background: var(--str-chat__translation-notice-active-background-color);
+      }
+    }
+  }
+
+  .str-chat__custom-message-metadata {
+    grid-area: custom-metadata;
+    margin-block-start: var(--str-chat__spacing-0_5);
+    color: var(--str-chat__message-secondary-color);
+    font: var(--str-chat__caption-text);
+  }
+
+  .str-chat__message-metadata {
+    grid-area: metadata;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--str-chat__spacing-1);
+    margin-block-start: var(--str-chat__spacing-0_5);
+    color: var(--str-chat__message-secondary-color);
+    font: var(--str-chat__caption-text);
+
+    .str-chat__message-simple-name {
+      @include utils.prevent-glitch-text-overflow;
+    }
+
+    .str-chat__message-sender-name {
+      font: var(--str-chat__caption-medium-text);
+    }
+
+    .str-chat__message-simple-timestamp + .str-chat__mesage-simple-edited::before {
+      content: '•';
+      margin-right: var(--str-chat__spacing-1);
+    }
+
+    .str-chat__message-edited-timestamp {
+      --str-chat__message-edited-timestamp-height: 1rem;
+      flex-basis: 100%;
+    }
+  }
+
+  &.str-chat__message--me .str-chat__message-metadata {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .str-chat__message-status {
+    @include utils.flex-row-center;
+    column-gap: var(--str-chat__spacing-0_5);
+    position: relative;
+    --str-chat-icon-color: var(--str-chat__message-status-color);
+    color: var(--str-chat__message-status-color);
+    font: var(--str-chat__body-text);
+
+    svg {
+      width: 16px;
+      height: 16px;
+
+      path {
+        fill: var(--str-chat__message-status-color);
+      }
+    }
+  }
+
+  .str-chat__message-status.str-chat__message-status-sent {
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .str-chat__message-status-sent {
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .str-chat__message-status-delivered {
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+
+  .str-chat__message-status-sent,
+  .str-chat__message-status-delivered {
+    svg {
+      path {
+        fill: var(--str-chat__text-low-emphasis-color);
+      }
+    }
+  }
+
+  .str-chat__message-replies-count-button-wrapper,
+  .str-chat__message-is-thread-reply-button-wrapper {
+    grid-area: replies;
+
+    button {
+      cursor: pointer;
+      padding: 0;
+      border: none;
+      background-color: transparent;
+      font: var(--str-chat__body-medium-text);
+      color: var(--str-chat__message-replies-count-color);
+    }
+
+    button:disabled {
+      cursor: auto;
+    }
+  }
+
+  .str-chat__message--deleted-inner {
+    @include chat-bubble-spacing;
+    @include utils.component-layer-overrides('deleted-message');
+    font: var(--str-chat__body2-text);
+  }
+
+  .str-chat__message--blocked-inner {
+    @include chat-bubble-spacing;
+    @include utils.component-layer-overrides('blocked-message');
+    font: var(--str-chat__body2-text);
+  }
+
+  // Fixes emoji display in Chrome on non-retina display (only detected in Angular SDK) https://bugs.chromium.org/p/chromium/issues/detail?id=596223
+  .str-chat__emoji-display-fix {
+    display: inline-block;
+    width: 1.25em;
+  }
+
+  .str-chat__message-error-icon {
+    display: none;
+    --str-chat-icon-color: var(--str-chat__message-error-message-color);
+
+    /* stylelint-disable-next-line selector-max-id */
+    svg #background {
+      fill: var(--str-chat__message-error-message-color);
+    }
+  }
+
+  .str-chat__simple-message--error-failed {
+    cursor: pointer;
+  }
+
+  &.str-chat__message--error,
+  &.str-chat__message--failed {
+    $icon-size: calc(var(--str-chat__spacing-px) * 18);
+
+    .str-chat__message-error-icon {
+      display: block;
+      position: absolute;
+      bottom: 0;
+      inset-inline-end: calc(-1 * calc(#{$icon-size} / 2));
+
+      svg {
+        width: $icon-size;
+        height: $icon-size;
+      }
+    }
+  }
+}
+
+.str-chat__message--highlighted {
+  transition: background-color 0.1s ease-out;
+  background-color: var(--str-chat__message-highlighted-background-color);
+}
+
+/* This rule won't be applied in browsers that don't support :has() */
+.str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)) {
+  background-color: var(--str-chat__message-active-background-color);
+}
+
+/* Fallback for when :has() is unsupported */
+@supports not selector(:has(a, b)) {
+  .str-chat__li:hover {
+    background-color: var(--str-chat__message-active-background-color);
+  }
+}
+
+// Message options display - default mode: they appear when .str-chat__li is hovered
+.str-chat__ul:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support),
+.str-chat__virtual-list:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support) {
+  /* This rule won't be applied in browsers that don't support :has() */
+  .str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)),
+  .str-chat__li:focus-within:not(:has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)),
+  .str-chat__li:has(.str-chat__message-options--active) {
+    .str-chat__message-options {
+      display: flex;
+    }
+
+    .str-chat__message--other .str-chat__message-inner {
+      margin-inline-end: 0;
+    }
+
+    .str-chat__message--me .str-chat__message-inner {
+      margin-inline-start: 0;
+    }
+  }
+
+  /* Fallback for when :has() is unsupported */
+  @supports not selector(:has(a, b)) {
+    .str-chat__li:hover,
+    .str-chat__li:focus-within {
+      .str-chat__message-options {
+        display: flex;
+      }
+
+      .str-chat__message--other .str-chat__message-inner {
+        margin-inline-end: 0;
+      }
+
+      .str-chat__message--me .str-chat__message-inner {
+        margin-inline-start: 0;
+      }
+    }
+  }
+}
+
+// Message options display - second mode: they appear when .str-chat__message-inner is hovered
+.str-chat__ul.str-chat__message-options-in-bubble,
+.str-chat__virtual-list.str-chat__message-options-in-bubble {
+  .str-chat__message-inner {
+    &:hover {
+      .str-chat__message-options {
+        display: flex;
+      }
+    }
+  }
+
+  .str-chat__message--other .str-chat__message-inner:hover {
+    margin-inline-end: 0;
+  }
+
+  .str-chat__message--me .str-chat__message-inner:hover {
+    margin-inline-start: 0;
+  }
+}
+
+// Message options display - third mode: they appear, when explicitly marked as active
+.str-chat__message-inner {
+  .str-chat__message-options.str-chat__message-options--active {
+    display: flex;
+  }
+}
+
+.str-chat__message-inner {
+  .str-chat__message-options {
+    display: none;
+  }
+
+  .str-chat__message-actions-open.str-chat__message-options {
+    display: flex;
+  }
+}
+
+.str-chat__message-inner:focus-within {
+  .str-chat__message-options {
+    display: flex;
+  }
+}
+
+.str-chat__message--other .str-chat__message-inner:not(:has(.str-chat__message-options--active)) {
+  margin-inline-end: var(--str-chat-message-options-size);
+}
+
+.str-chat__message--me .str-chat__message-inner {
+  margin-inline-start: var(--str-chat-message-options-size);
+}
+
+.str-chat__li--middle,
+.str-chat__li--top {
+  .str-chat__message {
+    // space below the message
+    margin-block-end: var(--spacing-xxs);
+
+    .str-chat__message-metadata {
+      display: none;
+    }
+
+    // > selector added to not hide sender of inline replies
+    > .str-chat__message-sender-avatar {
+      visibility: hidden;
+    }
+  }
+}
+
+.str-chat__li--bottom,
+.str-chat__li--single {
+  .str-chat__message {
+    // space below the message
+    margin-block-end: var(--spacing-xs);
+  }
+}
+
+.str-chat__li--single,
+.str-chat__li--bottom {
+  .str-chat__message--other {
+    .str-chat__message-bubble {
+      border-end-start-radius: var(--message-bubble-radius-tail);
+    }
+  }
+
+  .str-chat__message--me {
+    .str-chat__message-bubble {
+      border-end-end-radius: var(--message-bubble-radius-tail);
+    }
+  }
+}
+
+.str-chat__li--top,
+.str-chat__li--middle {
+  .str-chat__message-bubble {
+    border-radius: var(--message-bubble-radius-group-middle);
+  }
+}
+
+.str-chat__message-with-thread-link {
+  &.str-chat__message--other {
+    .str-chat__message-bubble {
+      border-end-start-radius: calc(var(--str-chat__border-radius-md) / 6);
+    }
+  }
+
+  &.str-chat__message--me {
+    .str-chat__message-bubble {
+      border-end-end-radius: calc(var(--str-chat__border-radius-md) / 6);
+    }
+  }
+}
+
+.str-chat__date-separator {
+  display: flex;
+  padding: 2rem;
+  align-items: center;
+  @include utils.component-layer-overrides('date-separator');
+  font: var(--str-chat__body-text);
+
+  &-line {
+    flex: 1;
+    height: 1px;
+    background-color: var(--str-chat__date-separator-line-color);
+    border: none;
+  }
+
+  > * {
+    &:not(:last-child) {
+      margin-right: 1rem;
+    }
+  }
+}
+
+.str-chat__message--system {
+  width: 100%;
+  text-align: center;
+  @include utils.component-layer-overrides('system-message');
+  font: var(--str-chat__caption-text);
+
+  p {
+    margin: 0;
+  }
+}
+
+.str-chat__unread-messages-separator-wrapper {
+  padding-block: var(--str-chat__spacing-2);
+
+  .str-chat__unread-messages-separator {
+    @include utils.flex-row-center;
+    width: 100%;
+    padding: var(--str-chat__spacing-2);
+    background-color: var(--str-chat__secondary-surface-color);
+    color: var(--str-chat__text-low-emphasis-color);
+    text-transform: uppercase;
+    font: var(--str-chat__caption-strong-text);
+  }
+}
+
+.str-chat__unread-messages-notification {
+  --str-chat-icon-color: var(--str-chat__grey50);
+  background-color: var(--str-chat__text-low-emphasis-color);
+  border-radius: 1.125rem;
+  position: absolute;
+  top: 0.75rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  overflow: clip;
+
+  button {
+    padding-block: var(--str-chat__spacing-2);
+    height: 100%;
+    width: 100%;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--str-chat__grey50);
+    border: none;
+    background-color: transparent;
+  }
+
+  button:first-of-type {
+    padding-inline: 0.75rem 0.375rem;
+    font: var(--str-chat__caption-text);
+  }
+
+  button:last-of-type {
+    padding-inline: 0.375rem 0.75rem;
+
+    svg {
+      width: 0.875rem;
+    }
+  }
+}
+
+.str-chat-angular__message-bubble {
+  /* transform: translate3d(0, 0, 0) fixes scrolling issues on iOS, see: https://stackoverflow.com/questions/50105780/elements-disappear-when-scrolling-in-safari-webkit-transform-fix-only-works-t/50144295#50144295 */
+  transform: translate3d(0, 0, 0);
+
+  &.str-chat-angular__message-bubble--attachment-modal-open {
+    /* transform: none is required when image carousel is open in order for the modal to be correctly positioned, see how the transform property changes the behavior of fixed positioned elements https://developer.mozilla.org/en-US/docs/Web/CSS/position  */
+    transform: none;
+  }
+}
+
+.str-chat__message-edited-timestamp {
+  overflow: hidden;
+  transition: height 0.1s;
+
+  &--open {
+    height: var(--str-chat__message-edited-timestamp-height, 1rem);
+  }
+
+  &--collapsed {
+    height: 0;
+  }
+}
+
+.str-chat__message-text--pointer-cursor {
+  cursor: pointer;
+}
+
+.str-chat__message-with-touch-support {
+  .str-chat__message-bubble {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  &.str-chat__message-menu-opened {
+    .str-chat__attachments-container,
+    .str-chat__message-text-inner {
+      pointer-events: none;
+    }
+  }
+
+  .str-chat__message-inner {
+    margin-inline: 0;
+  }
+
+  .str-chat__message-options {
+    display: none;
+  }
+
+  .stream-chat-angular__image-modal-host {
+    -webkit-touch-callout: default;
+  }
+}

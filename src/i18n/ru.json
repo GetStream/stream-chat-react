@@ -30,6 +30,7 @@
   "{{count}} votes_few": "{{count}} голоса",
   "{{count}} votes_many": "{{count}} голосов",
   "{{count}} votes_other": "{{count}} голосов",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 Вложение...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} создал(а): {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} проголосовал(а): {{pollOptionText}}",

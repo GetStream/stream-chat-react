@@ -17,7 +17,6 @@ import type { MessageContextValue } from '../../context';
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
   | 'handleDelete'
-  | 'handleEdit'
   | 'handleMarkUnread'
   | 'handleFlag'
   | 'handleMute'
@@ -37,7 +36,6 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
     className,
     getMessageActions,
     handleDelete,
-    handleEdit,
     handleFlag,
     handleMarkUnread,
     handleMute,
@@ -70,6 +68,10 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
     if (textarea instanceof HTMLTextAreaElement) {
       textarea.focus();
     }
+  };
+
+  const handleEdit = () => {
+    messageComposer.initState({ composition: message });
   };
 
   const rootClassName = clsx('str-chat__message-actions-box', className, {

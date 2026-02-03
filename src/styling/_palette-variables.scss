@@ -1,0 +1,135 @@
+.str-chat {
+  --str-chat__slate900: var(--slate-900);
+  --str-chat__slate800: var(--slate-800);
+  --str-chat__slate700: var(--slate-700);
+  --str-chat__slate600: var(--slate-600);
+  --str-chat__slate500: var(--slate-500);
+  --str-chat__slate400: var(--slate-400);
+  --str-chat__slate300: var(--slate-300);
+  --str-chat__slate200: var(--slate-200);
+  --str-chat__slate150: var(--slate-150);
+  --str-chat__slate100: var(--slate-100);
+  --str-chat__slate50: var(--slate-50);
+
+  --str-chat__neutral900: var(--neutral-900);
+  --str-chat__neutral800: var(--neutral-800);
+  --str-chat__neutral700: var(--neutral-700);
+  --str-chat__neutral600: var(--neutral-600);
+  --str-chat__neutral500: var(--neutral-500);
+  --str-chat__neutral400: var(--neutral-400);
+  --str-chat__neutral300: var(--neutral-300);
+  --str-chat__neutral200: var(--neutral-200);
+  --str-chat__neutral150: var(--neutral-150);
+  --str-chat__neutral100: var(--neutral-100);
+  --str-chat__neutral50: var(--neutral-50);
+
+  --str-chat__blue950: var(--blue-900);
+  --str-chat__blue900: var(--blue-900);
+  --str-chat__blue800: var(--blue-800);
+  --str-chat__blue700: var(--blue-700);
+  --str-chat__blue600: var(--blue-600);
+  --str-chat__blue500: var(--blue-500);
+  --str-chat__blue400: var(--blue-400);
+  --str-chat__blue300: var(--blue-300);
+  --str-chat__blue200: var(--blue-200);
+  --str-chat__blue150: var(--blue-150);
+  --str-chat__blue100: var(--blue-100);
+  --str-chat__blue50: var(--blue-50);
+
+  --str-chat__grey950: var(--base-black);
+  --str-chat__grey900: var(--neutral-900);
+  --str-chat__grey800: var(--neutral-800);
+  --str-chat__grey700: var(--neutral-700);
+  --str-chat__grey600: var(--neutral-600);
+  --str-chat__grey500: var(--neutral-500);
+  --str-chat__grey400: var(--neutral-400);
+  --str-chat__grey300: var(--neutral-300);
+  --str-chat__grey200: var(--neutral-200);
+  --str-chat__grey150: var(--neutral-150);
+  --str-chat__grey100: var(--neutral-100);
+  --str-chat__grey50: var(--base-white);
+
+  --str-chat__red900: var(--red-900);
+  --str-chat__red800: var(--red-800);
+  --str-chat__red700: var(--red-700);
+  --str-chat__red600: var(--red-600);
+  --str-chat__red500: var(--red-500);
+  --str-chat__red400: var(--red-400);
+  --str-chat__red300: var(--red-300);
+  --str-chat__red200: var(--red-200);
+  --str-chat__red150: var(--red-150);
+  --str-chat__red100: var(--red-100);
+  --str-chat__red50: var(--red-50);
+
+  --str-chat__green900: var(--green-900);
+  --str-chat__green800: var(--green-800);
+  --str-chat__green700: var(--green-700);
+  --str-chat__green600: var(--green-600);
+  --str-chat__green500: var(--green-500);
+  --str-chat__green400: var(--green-400);
+  --str-chat__green300: var(--green-300);
+  --str-chat__green200: var(--green-200);
+  --str-chat__green150: var(--green-150);
+  --str-chat__green100: var(--green-100);
+  --str-chat__green50: var(--green-50);
+
+  --str-chat__yellow900: var(--yellow-900);
+  --str-chat__yellow800: var(--yellow-800);
+  --str-chat__yellow700: var(--yellow-700);
+  --str-chat__yellow600: var(--yellow-600);
+  --str-chat__yellow500: var(--yellow-500);
+  --str-chat__yellow400: var(--yellow-400);
+  --str-chat__yellow300: var(--yellow-300);
+  --str-chat__yellow200: var(--yellow-200);
+  --str-chat__yellow150: var(--yellow-150);
+  --str-chat__yellow100: var(--yellow-100);
+  --str-chat__yellow50: var(--yellow-50);
+
+  --str-chat__cyan900: var(--cyan-900);
+  --str-chat__cyan800: var(--cyan-800);
+  --str-chat__cyan700: var(--cyan-700);
+  --str-chat__cyan600: var(--cyan-600);
+  --str-chat__cyan500: var(--cyan-500);
+  --str-chat__cyan400: var(--cyan-400);
+  --str-chat__cyan300: var(--cyan-300);
+  --str-chat__cyan200: var(--cyan-200);
+  --str-chat__cyan150: var(--cyan-150);
+  --str-chat__cyan100: var(--cyan-100);
+  --str-chat__cyan50: var(--cyan-50);
+
+  --str-chat__purple900: var(--purple-900);
+  --str-chat__purple800: var(--purple-800);
+  --str-chat__purple700: var(--purple-700);
+  --str-chat__purple600: var(--purple-600);
+  --str-chat__purple500: var(--purple-500);
+  --str-chat__purple400: var(--purple-400);
+  --str-chat__purple300: var(--purple-300);
+  --str-chat__purple200: var(--purple-200);
+  --str-chat__purple150: var(--purple-150);
+  --str-chat__purple100: var(--purple-100);
+  --str-chat__purple50: var(--purple-50);
+
+  --str-chat__violet900: var(--violet-900);
+  --str-chat__violet800: var(--violet-800);
+  --str-chat__violet700: var(--violet-700);
+  --str-chat__violet600: var(--violet-600);
+  --str-chat__violet500: var(--violet-500);
+  --str-chat__violet400: var(--violet-400);
+  --str-chat__violet300: var(--violet-300);
+  --str-chat__violet200: var(--violet-200);
+  --str-chat__violet150: var(--violet-150);
+  --str-chat__violet100: var(--violet-100);
+  --str-chat__violet50: var(--violet-50);
+
+  --str-chat__lime900: var(--lime-900);
+  --str-chat__lime800: var(--lime-800);
+  --str-chat__lime700: var(--lime-700);
+  --str-chat__lime600: var(--lime-600);
+  --str-chat__lime500: var(--lime-500);
+  --str-chat__lime400: var(--lime-400);
+  --str-chat__lime300: var(--lime-300);
+  --str-chat__lime200: var(--lime-200);
+  --str-chat__lime150: var(--lime-150);
+  --str-chat__lime100: var(--lime-100);
+  --str-chat__lime50: var(--lime-50);
+}

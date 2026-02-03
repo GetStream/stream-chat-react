@@ -370,7 +370,6 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: prevLastReceivedId, message: prevMessage } = prevProps;
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
-  if (prevProps.editing !== nextProps.editing) return false;
   if (prevProps.highlighted !== nextProps.highlighted) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
@@ -397,6 +396,9 @@ export const messageHasReactions = (message?: LocalMessage) =>
 
 export const messageHasAttachments = (message?: LocalMessage) =>
   !!message?.attachments && !!message.attachments.length;
+
+export const messageHasSingleAttachment = (message?: LocalMessage) =>
+  message?.attachments?.length === 1;
 
 export const getImages = (message?: MessageResponse) => {
   if (!message?.attachments) {

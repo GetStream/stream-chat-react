@@ -72,7 +72,7 @@ const UnMemoizedGallery = (props: GalleryProps) => {
         })}
       >
         <p>
-          {t('{{ imageCount }} more', {
+          {t('+{{ imageCount }}', {
             imageCount: images.length - countImagesDisplayedInPreview,
           })}
         </p>
@@ -100,8 +100,8 @@ const UnMemoizedGallery = (props: GalleryProps) => {
   );
 
   const className = clsx('str-chat__gallery', {
-    'str-chat__gallery--square': images.length > lastImageIndexInPreview,
-    'str-chat__gallery-two-rows': images.length > 2,
+    'str-chat__gallery--three-images': images.length === 3,
+    'str-chat__gallery--two-images': images.length === 2,
   });
 
   return (

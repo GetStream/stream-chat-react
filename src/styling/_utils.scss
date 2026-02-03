@@ -44,6 +44,14 @@
   text-overflow: ellipsis;
 }
 
+@mixin ellipsis-text-clamp-lines($clampLinesCount: 2) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $clampLinesCount;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @mixin unset-button($outline-radius: var(--radius-max)) {
   padding: unset;
   background: unset;
@@ -58,4 +66,69 @@
 @mixin focusable {
   outline: 2px solid  var(--border-utility-focus);
   outline-offset: 2px;
+}
+
+@mixin prevent-glitch-text-overflow {
+  // Prevent glitch text from overflowing. See the generator: https://lingojam.com/GlitchTextGenerator
+  overflow-y: hidden;
+}
+
+@mixin clamped-height-from-original-image-dimensions($max-height-css-var, $max-width-css-var) {
+  height: min(
+          var(#{$max-height-css-var}),
+          min(var(#{$max-width-css-var}, 1000000) / var(--original-width, 1000000), 1px) *
+          var(--original-height, 1000000)
+  );
+}
+
+@mixin message-list-spacing {
+  $spacing: var(--str-chat__spacing-2);
+  padding: 0 $spacing;
+
+  // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
+  .str-chat__li {
+    margin-inline: calc(-1 * #{$spacing});
+    padding-inline: $spacing;
+  }
+
+  .str-chat__parent-message-li {
+    margin-inline: calc(-1 * #{$spacing});
+  }
+
+  @media only screen and (min-device-width: 768px) {
+    $spacing: min(var(--str-chat__spacing-10), 4%);
+
+    padding: 0 $spacing;
+
+    .str-chat__li {
+      margin-inline: calc(-1 * #{$spacing});
+      padding-inline: $spacing;
+    }
+
+    .str-chat__parent-message-li {
+      margin-inline: calc(-1 * #{$spacing} - 2px);
+    }
+  }
+}
+
+@mixin component-layer-overrides($component-name, $important: '') {
+  background: var(--str-chat__#{$component-name}-background-color) #{$important};
+  color: var(--str-chat__#{$component-name}-color) #{$important};
+  box-shadow: var(--str-chat__#{$component-name}-box-shadow) #{$important};
+  border-radius: var(--str-chat__#{$component-name}-border-radius) #{$important};
+  border-block-start: var(--str-chat__#{$component-name}-border-block-start) #{$important};
+  border-block-end: var(--str-chat__#{$component-name}-border-block-end) #{$important};
+  border-inline-start: var(--str-chat__#{$component-name}-border-inline-start) #{$important};
+  border-inline-end: var(--str-chat__#{$component-name}-border-inline-end) #{$important};
+}
+
+// todo: remove?
+@mixin circle-fab-overrides($component-name) {
+  svg path {
+    fill: var(--str-chat__#{$component-name}-color);
+  }
+
+  &:active {
+    background-color: var(--str-chat__#{$component-name}-pressed-background-color);
+  }
 }

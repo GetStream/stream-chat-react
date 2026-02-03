@@ -20,6 +20,7 @@
   "{{count}} unread_other": "{{count}} ungelesen",
   "{{count}} votes_one": "{{count}} Stimme",
   "{{count}} votes_other": "{{count}} Stimmen",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 Anhang...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} hat erstellt: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} hat abgestimmt: {{pollOptionText}}",

@@ -9,7 +9,7 @@
 
   &.str-chat__duration-display--hasProgress {
     .str-chat__duration-display__time-elapsed {
-      color: var(--color-accent-primary);
+      color: var(--str-chat__primary-color);
     }
   }
 }

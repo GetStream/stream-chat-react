@@ -1,9 +1,20 @@
 .str-chat {
+  --str-chat__attachment-selector-button-icon-color: var(--button-style-outline-text);
+  --str-chat__attachment-selector-button-icon-color-hover: var(--text-secondary);
+  --str-chat__attachment-selector-actions-menu-button-icon-color: var(--text-secondary);
+  --str-chat__attachment-selector-actions-menu-button-icon-color-active: var(--text-secondary);
+
   .str-chat__attachment-selector {
     .str-chat__attachment-selector__menu-button {
       .str-chat__attachment-selector__menu-button__icon {
         width: var(--icon-size-md);
-        color: var(--button-style-outline-text);
+        color: var(--str-chat__attachment-selector-button-icon-color);
+      }
+
+      &:hover {
+        .str-chat__attachment-selector__menu-button__icon {
+          color: var(--str-chat__attachment-selector-button-icon-color-hover);
+        }
       }
     }
   }
@@ -14,6 +25,19 @@
 
   .str-chat__attachment-selector-actions-menu {
     min-width: 200px;
+
+    .str-chat__attachment-selector-actions-menu__button {
+      .str-chat__context-menu__button__icon {
+        color: var(--str-chat__attachment-selector-actions-menu-button-icon-color);
+      }
+
+      &:hover,
+      &:focus {
+        .str-chat__context-menu__button__icon {
+          color: var(--str-chat__attachment-selector-actions-menu-button-icon-color-active);
+        }
+      }
+    }
   }
 
   .str-chat__message-composer--floating {

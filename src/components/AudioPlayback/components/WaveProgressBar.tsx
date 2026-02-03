@@ -21,11 +21,14 @@ type WaveProgressBarProps = {
   amplitudesCount?: number;
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress?: number;
+  /** Absolute gap width between bars in px (overrides computed gap var). */
+  amplitudeBarGapWidthPx?: number;
   relativeAmplitudeBarWidth?: number;
   relativeAmplitudeGap?: number;
 };
 
 export const WaveProgressBar = ({
+  amplitudeBarGapWidthPx,
   amplitudesCount = 40,
   progress = 0,
   relativeAmplitudeBarWidth = 2,
@@ -33,15 +36,16 @@ export const WaveProgressBar = ({
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
-  const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
   const isDragging = useRef(false);
-  const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const [trackAxisX, setTrackAxisX] = useState<{
     barCount: number;
     barWidth: number;
     gap: number;
   }>();
-  const lastRootWidth = useRef<number>(undefined);
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
+  const lastRootWidth = useRef<number>(0);
+  const lastIndicatorWidth = useRef<number>(0);
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -63,19 +67,38 @@ export const WaveProgressBar = ({
     progressIndicator.style.removeProperty('cursor');
   }, [progressIndicator]);
 
+  const calculateIndicatorPosition = () => {
+    if (progress === 0 || !lastRootWidth || !progressIndicator) return 0;
+    const availableWidth = lastRootWidth.current - lastIndicatorWidth.current;
+    return availableWidth * (progress / 100) + 1;
+  };
+
+  const getAvailableTrackWidth = useCallback((trackRoot: HTMLDivElement | null) => {
+    if (!trackRoot) return 0;
+    const parent = trackRoot.parentElement;
+    if (!parent) return trackRoot.getBoundingClientRect().width;
+    const parentWidth = parent.getBoundingClientRect().width;
+    const siblingsWidth = Array.from(parent.children).reduce((total, child) => {
+      if (child === trackRoot) return total;
+      return total + child.getBoundingClientRect().width;
+    }, 0);
+    return Math.max(0, parentWidth - siblingsWidth);
+  }, []);
+
   const getTrackAxisX = useMemo(
     () =>
-      throttle((rootWidth: number) => {
-        if (rootWidth === lastRootWidth.current) return;
-        lastRootWidth.current = rootWidth;
+      throttle((availableWidth: number) => {
+        if (availableWidth === lastRootWidth.current) return;
+        lastRootWidth.current = availableWidth;
         const possibleAmpCount = Math.floor(
-          rootWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
+          availableWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
         );
         const tooManyAmplitudesToRender = possibleAmpCount < amplitudesCount;
         const barCount = tooManyAmplitudesToRender ? possibleAmpCount : amplitudesCount;
         const amplitudeBarWidthToGapRatio =
           relativeAmplitudeBarWidth / (relativeAmplitudeBarWidth + relativeAmplitudeGap);
-        const barWidth = barCount && (rootWidth / barCount) * amplitudeBarWidthToGapRatio;
+        const barWidth =
+          barCount && (availableWidth / barCount) * amplitudeBarWidthToGapRatio;
 
         setTrackAxisX({
           barCount,
@@ -101,22 +124,30 @@ export const WaveProgressBar = ({
   useEffect(() => {
     if (!root || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => {
-      getTrackAxisX(entry.contentRect.width);
+      const availableWidth = getAvailableTrackWidth(entry.target as HTMLDivElement);
+      getTrackAxisX(availableWidth || entry.contentRect.width);
     });
     observer.observe(root);
 
     return () => {
       observer.disconnect();
     };
-  }, [getTrackAxisX, root]);
+  }, [getTrackAxisX, root, getAvailableTrackWidth]);
 
   useLayoutEffect(() => {
-    if (!root) return;
-    const { width: rootWidth } = root.getBoundingClientRect();
-    getTrackAxisX(rootWidth);
-  }, [getTrackAxisX, root]);
+    if (root) {
+      const availableWidth = getAvailableTrackWidth(root);
+      getTrackAxisX(availableWidth);
+    }
+
+    if (progressIndicator) {
+      lastIndicatorWidth.current = progressIndicator.getBoundingClientRect().width;
+    }
+  }, [getAvailableTrackWidth, getTrackAxisX, root, progressIndicator]);
 
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
+
+  const amplitudeGapWidth = amplitudeBarGapWidthPx ?? trackAxisX?.gap;
 
   return (
     <div
@@ -130,7 +161,8 @@ export const WaveProgressBar = ({
       role='progressbar'
       style={
         {
-          '--str-chat__voice-recording-amplitude-bar-gap-width': trackAxisX?.gap + 'px',
+          '--str-chat__voice-recording-amplitude-bar-gap-width':
+            typeof amplitudeGapWidth === 'number' ? `${amplitudeGapWidth}px` : undefined,
         } as React.CSSProperties
       }
     >
@@ -157,7 +189,9 @@ export const WaveProgressBar = ({
         className='str-chat__wave-progress-bar__progress-indicator'
         data-testid='wave-progress-bar-progress-indicator'
         ref={setProgressIndicator}
-        style={{ left: `${progress < 0 ? 0 : progress > 100 ? 100 : progress}%` }}
+        style={{
+          left: `${calculateIndicatorPosition()}px`,
+        }}
       />
     </div>
   );

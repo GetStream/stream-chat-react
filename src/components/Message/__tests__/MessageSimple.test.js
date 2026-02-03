@@ -247,26 +247,6 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render custom edit message input component when one is given', async () => {
-    const message = generateAliceMessage();
-    const clearEditingState = jest.fn();
-
-    const CustomEditMessageInput = () => <div data-testid='custom-edit-message-input' />;
-
-    const { container } = await renderMessageSimple({
-      components: {
-        EditMessageInput: CustomEditMessageInput,
-      },
-      message,
-      props: { clearEditingState, editing: true },
-    });
-
-    expect(await screen.findByTestId('custom-edit-message-input')).toBeInTheDocument();
-
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
   it('should render custom ReminderNotification component when one is given', async () => {
     const message = generateAliceMessage({ reminder: generateReminderResponse() });
     client.reminders.hydrateState([message]);
@@ -333,23 +313,6 @@ describe('<MessageSimple />', () => {
       message,
     });
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render an edit form in a modal when in edit mode', async () => {
-    const message = generateAliceMessage();
-    const clearEditingState = jest.fn();
-    const { container } = await renderMessageSimple({
-      message,
-      props: {
-        clearEditingState,
-        editing: true,
-      },
-    });
-
-    expect(await screen.findByTestId('mocked-modal')).toBeInTheDocument();
-
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

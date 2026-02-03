@@ -20,6 +20,7 @@
   "{{count}} unread_other": "{{count}} okunmamış",
   "{{count}} votes_one": "{{count}} oy",
   "{{count}} votes_other": "{{count}} oy",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 Ek...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}} oluşturdu: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}} oy verdi: {{pollOptionText}}",

@@ -52,7 +52,6 @@ const renderComponent = async ({
           {editedMessage ? (
             <MessageProvider
               value={{
-                editing: true,
                 message: {
                   ...editedMessage,
                   cid: channel.cid,

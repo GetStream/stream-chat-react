@@ -26,7 +26,7 @@ const takeStateSnapshot = (messageComposer: MessageComposer) => {
 };
 
 export const useSubmitHandler = (props: MessageInputProps) => {
-  const { clearEditingState, overrideSubmitHandler } = props;
+  const { overrideSubmitHandler } = props;
 
   const { addNotification, editMessage, sendMessage } =
     useChannelActionContext('useSubmitHandler');
@@ -44,7 +44,7 @@ export const useSubmitHandler = (props: MessageInputProps) => {
       if (messageComposer.editedMessage && localMessage.type !== 'error') {
         try {
           await editMessage(localMessage, sendOptions);
-          clearEditingState?.();
+          messageComposer.clear();
         } catch (err) {
           addNotification(t('Edit message request failed'), 'error');
         }
@@ -83,7 +83,6 @@ export const useSubmitHandler = (props: MessageInputProps) => {
     },
     [
       addNotification,
-      clearEditingState,
       editMessage,
       messageComposer,
       overrideSubmitHandler,

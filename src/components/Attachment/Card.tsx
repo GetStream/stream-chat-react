@@ -16,6 +16,7 @@ import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
 import { useStateStore } from '../../store';
 import { useMessageContext } from '../../context';
 import { PlayButton } from '../Button';
+import { IconChainLink } from '../Icons';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
@@ -46,19 +47,21 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
 
 const SourceLink = ({
   author_name,
+  showUrl,
   url,
-}: Pick<CardProps, 'author_name'> & { url: string }) => (
+}: Pick<CardProps, 'author_name'> & { url: string; showUrl?: boolean }) => (
   <div
     className='str-chat__message-attachment-card--source-link'
     data-testid='card-source-link'
   >
+    <IconChainLink />
     <SafeAnchor
       className='str-chat__message-attachment-card--url'
       href={url}
       rel='noopener noreferrer'
       target='_blank'
     >
-      {author_name || getHostFromURL(url)}
+      {showUrl ? url : author_name || getHostFromURL(url)}
     </SafeAnchor>
   </div>
 );
@@ -117,13 +120,13 @@ const CardContent = (props: CardContentProps) => {
       {type === 'audio' ? (
         <CardAudio og={props} />
       ) : (
-        <div className='str-chat__message-attachment-card--flex'>
-          {url && <SourceLink author_name={author_name} url={url} />}
+        <>
           {title && (
             <div className='str-chat__message-attachment-card--title'>{title}</div>
           )}
           {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
-        </div>
+          {url && <SourceLink author_name={author_name} showUrl url={url} />}
+        </>
       )}
     </div>
   );

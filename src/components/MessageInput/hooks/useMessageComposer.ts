@@ -1,11 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { FixedSizeQueueCache, MessageComposer } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
-import {
-  useChannelStateContext,
-  useChatContext,
-  useMessageContext,
-} from '../../../context';
+import { useChannelStateContext, useChatContext } from '../../../context';
 import { useLegacyThreadContext } from '../../Thread';
 
 const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
@@ -13,17 +9,8 @@ const queueCache = new FixedSizeQueueCache<string, MessageComposer>(64);
 export const useMessageComposer = () => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
-  const { editing, message: editedMessage } = useMessageContext();
-  // legacy thread will receive new composer
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
-
-  const cachedEditedMessage = useMemo(() => {
-    if (!editedMessage) return undefined;
-
-    return editedMessage;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedMessage?.id]);
 
   const cachedParentMessage = useMemo(() => {
     if (!parentMessage) return undefined;
@@ -36,21 +23,7 @@ export const useMessageComposer = () => {
   // edited message (always new) -> thread instance (own) -> thread message (always new) -> channel (own)
   // editedMessage ?? thread ?? parentMessage ?? channel;
   const messageComposer = useMemo(() => {
-    if (editing && cachedEditedMessage) {
-      const tag = MessageComposer.constructTag(cachedEditedMessage);
-
-      const cachedComposer = queueCache.get(tag);
-      if (cachedComposer) {
-        cachedComposer.editedMessage = cachedEditedMessage;
-        return cachedComposer;
-      }
-
-      return new MessageComposer({
-        client,
-        composition: cachedEditedMessage,
-        compositionContext: cachedEditedMessage,
-      });
-    } else if (threadInstance) {
+    if (threadInstance) {
       return threadInstance.messageComposer;
     } else if (cachedParentMessage) {
       const compositionContext = {
@@ -70,14 +43,7 @@ export const useMessageComposer = () => {
     } else {
       return channel.messageComposer;
     }
-  }, [
-    cachedEditedMessage,
-    cachedParentMessage,
-    channel,
-    client,
-    editing,
-    threadInstance,
-  ]);
+  }, [cachedParentMessage, channel, client, threadInstance]);
 
   if (
     (['legacy_thread', 'message'] as MessageComposer['contextType'][]).includes(

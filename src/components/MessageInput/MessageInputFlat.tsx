@@ -6,6 +6,7 @@ import {
 } from './AttachmentSelector/AttachmentSelector';
 import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { AudioRecorder as DefaultAudioRecorder } from '../MediaRecorder';
+import { EditedMessagePreview as DefaultEditedMessagePreview } from './EditedMessagePreview';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import { SendToChannelCheckbox as DefaultSendToChannelCheckbox } from './SendToChannelCheckbox';
@@ -27,7 +28,11 @@ import {
   type MessageComposerState,
 } from 'stream-chat';
 
-const messageComposerStateSelector = ({ quotedMessage }: MessageComposerState) => ({
+const messageComposerStateSelector = ({
+  editedMessage,
+  quotedMessage,
+}: MessageComposerState) => ({
+  editedMessage,
   quotedMessage,
 });
 
@@ -46,12 +51,13 @@ const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
 const MessageComposerPreviews = () => {
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
+    EditedMessagePreview = DefaultEditedMessagePreview,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
   } = useComponentContext();
 
   const messageComposer = useMessageComposer();
-  const { quotedMessage } = useStateStore(
+  const { editedMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -67,13 +73,29 @@ const MessageComposerPreviews = () => {
     linkPreviewsManagerStateSelector,
   );
 
-  if (!quotedMessage && attachments.length === 0 && linkPreviews.length === 0)
+  if (
+    !quotedMessage &&
+    attachments.length === 0 &&
+    linkPreviews.length === 0 &&
+    !editedMessage
+  )
     return null;
 
   // todo: pass the entity arrays from here so that the preview lists do not have to subscribe to the composer state changes too?
   return (
     <div className='str-chat__message-composer-previews'>
-      <QuotedMessagePreview />
+      {editedMessage ? (
+        <div className='str-chat__message-composer-previews'>
+          <EditedMessagePreview
+            message={editedMessage}
+            onCancel={() => {
+              messageComposer.setEditedMessage(null);
+            }}
+          />
+        </div>
+      ) : (
+        <QuotedMessagePreview />
+      )}
       <AttachmentPreviewList />
       <LinkPreviewList />
     </div>
@@ -92,20 +114,24 @@ export const MessageInputFlat = () => {
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
 
-  if (recordingController.recordingState) return <AudioRecorder />;
-
   return (
     <WithDragAndDropUpload className='str-chat__message-composer' component='div'>
-      <AttachmentSelector />
-      <div className='str-chat__message-composer-compose-area'>
-        <MessageComposerPreviews />
-        <div className='str-chat__message-composer-controls'>
-          <TextareaComposer />
-          <AdditionalMessageComposerActions />
-          <MessageComposerActions />
-        </div>
-      </div>
-      <SendToChannelCheckbox />
+      {recordingController.recordingState ? (
+        <AudioRecorder />
+      ) : (
+        <>
+          <AttachmentSelector />
+          <div className='str-chat__message-composer-compose-area'>
+            <MessageComposerPreviews />
+            <div className='str-chat__message-composer-controls'>
+              <TextareaComposer />
+              <AdditionalMessageComposerActions />
+              <MessageComposerActions />
+            </div>
+          </div>
+          <SendToChannelCheckbox />
+        </>
+      )}
     </WithDragAndDropUpload>
   );
 };

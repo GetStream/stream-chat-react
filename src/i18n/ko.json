@@ -15,6 +15,7 @@
   "{{ watcherCount }} online": "{{ watcherCount }} 온라인",
   "{{count}} unread_other": "{{count}} 읽지 않음",
   "{{count}} votes_other": "{{count}} 투표",
+  "+{{ imageCount }}": "+{{ imageCount }}",
   "🏙 Attachment...": "🏙 부착...",
   "📊 {{createdBy}} created: {{ pollName}}": "📊 {{createdBy}}이(가) 생성함: {{ pollName}}",
   "📊 {{votedBy}} voted: {{pollOptionText}}": "📊 {{votedBy}}이(가) 투표함: {{pollOptionText}}",

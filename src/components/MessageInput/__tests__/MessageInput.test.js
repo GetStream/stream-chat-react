@@ -95,7 +95,6 @@ const defaultMessageContextValue = {
   handlePin: () => {},
   isMyMessage: () => true,
   message: mainListMessage,
-  setEditingState: () => {},
 };
 
 function dropFile(file, formElement) {

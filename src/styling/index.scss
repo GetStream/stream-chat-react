@@ -1,20 +1,26 @@
 // Base styles
 @use "./accessibility";
 @use "./animations";
+@use "./global-layout-variables";
+@use "./global-theme-variables";
+@use 'palette-variables';
+@use "./variables.css";
 @use "./base";
 @use "./icons";
-@use "./variables.css";
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
 @use "../components/Icons/styling" as Icons;
+@use "../components/FileIcon/styling/FileIcon";
 
 // Base components
 @use "../components/Button/styling/Button";
 @use "../components/Dialog/styling" as Dialog;
 
 // Specific components
+@use "../components/Attachment/styling" as Attachment;
 @use "../components/AudioPlayback/styling" as AudioPlayback;
-@use "../components/FileIcon/styling/FileIcon";
+@use "../components/MediaRecorder/AudioRecorder/styling" as AudioRecorder;
+@use "../components/Message/styling" as Message;
 @use "../components/MessageInput/styling" as MessageComposer;
 
 // Layers have to be kept the last

@@ -10,7 +10,6 @@ export type {
   VoiceRecordingPreviewProps,
 } from './AttachmentPreviewList';
 export * from './CooldownTimer';
-export * from './EditMessageForm';
 export * from './hooks';
 export * from './icons';
 export * from './LinkPreviewList';

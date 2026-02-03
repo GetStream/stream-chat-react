@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react';
 import {
   useActionHandler,
   useDeleteHandler,
-  useEditHandler,
   useFlagHandler,
   useMarkUnreadHandler,
   useMentionsHandler,
@@ -79,8 +78,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
-
-  const { clearEdit, editing, setEdit } = useEditHandler();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -159,16 +156,12 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const messageContextValue: MessageContextValue = {
     ...rest,
     actionsEnabled,
-    clearEditingState: clearEdit,
-    editing,
     getMessageActions: messageActionsHandler,
-    handleEdit: setEdit,
     isMessageAIGenerated,
     isMyMessage: () => isMyMessage,
     messageIsUnread,
     onUserClick,
     onUserHover,
-    setEditingState: setEdit,
   };
 
   return (

@@ -61,7 +61,6 @@ const defaultMessageContextValue = {
   handlePin: () => {},
   isMyMessage: () => true,
   message: mainListMessage,
-  setEditingState: () => {},
 };
 
 const setup = async ({ channelData } = {}) => {

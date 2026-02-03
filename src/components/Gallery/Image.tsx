@@ -12,6 +12,7 @@ import type { Attachment } from 'stream-chat';
 import type { Dimensions } from '../../types/types';
 import clsx from 'clsx';
 
+// todo: let's remove image_url and thumb_url and replace it just with url prop
 export type ImageProps = {
   className?: string;
   dimensions?: Dimensions;
@@ -50,7 +51,7 @@ export const ImageComponent = (props: ImageProps) => {
     BaseImage = DefaultBaseImage,
     Modal = DefaultModal,
     ModalGallery = DefaultModalGallery,
-  } = useComponentContext('ImageComponent');
+  } = useComponentContext();
 
   const imageSrc = sanitizeUrl(previewUrl || image_url || thumb_url);
   const closeModal = useCallback(() => {
