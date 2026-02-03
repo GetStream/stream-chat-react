@@ -226,6 +226,5 @@ exports[`Gallery should render custom BaseImage component 1`] = `
       </div>
     </div>
   </div>
-  ,
 </div>
 `;
