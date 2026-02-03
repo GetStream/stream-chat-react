@@ -12574,9 +12574,9 @@ stdin-discarder@^0.2.2:
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
 
 stream-chat@^9.30.1:
-  version "9.30.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.30.1.tgz#86d152e4d0894854370512d17530854541f7990b"
-  integrity sha512-8f58tCo3QfgzaNhWHpRQzEfglSPPn4lGRn74FFTr/pn53dMJwtcKDSohV6NTHBrkYWTXYObRnHgh2IhGFUKckw==
+  version "9.31.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.31.0.tgz#4af1eac2f83431a9a394c71fa7833da4a6629f38"
+  integrity sha512-myFkV8ceNETYgYPBtrluVSMHkrS3udsLNexZIPZn85Ifa/JUaIg9qLvvhFEJQ6827LcuX82Ou2oKROIUBhPhHA==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
