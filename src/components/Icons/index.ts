@@ -19,3 +19,4 @@ export * from './IconPlus';
 export * from './IconPoll';
 export * from './IconVideoCamera';
 export * from './IconVideoCameraOutline';
+export * from './IconPeople';

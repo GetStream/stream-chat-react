@@ -14,6 +14,13 @@
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
 
   .str-chat__reaction-selector__add-button {
+    width: 32px;
+    aspect-ratio: 1/1;
+
+    .str-chat__icon--plus {
+      width: var(--icon-size-sm);
+      height: var(--icon-size-sm);
+    }
   }
 
   .str-chat__reaction-selector-list {
@@ -59,11 +66,9 @@
         font-size: var(--typography-font-size-2xl);
         line-height: 1;
         display: flex;
-        padding: var(--spacing-none, 0);
-        flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: var(--spacing-none, 0);
+        font-family: system-ui, sans-serif;
       }
     }
   }
