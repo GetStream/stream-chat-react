@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-import { StreamEmoji } from './StreamEmoji';
-
 export type ReactionOptions = Array<{
   Component: React.ComponentType;
   type: string;
@@ -13,23 +11,28 @@ export type ReactionOptions = Array<{
 export const defaultReactionOptions: ReactionOptions = [
   {
     type: 'haha',
-    Component: () => <StreamEmoji fallback='😂' type='haha' />,
+    Component: () => <>😂</>,
     name: 'Joy',
   },
   {
     type: 'like',
-    Component: () => <StreamEmoji fallback='👍' type='like' />,
+    Component: () => <>👍</>,
     name: 'Thumbs up',
   },
   {
     type: 'love',
-    Component: () => <StreamEmoji fallback='❤️' type='love' />,
+    Component: () => <>❤️</>,
     name: 'Heart',
   },
-  { type: 'sad', Component: () => <StreamEmoji fallback='😔' type='sad' />, name: 'Sad' },
+  { type: 'sad', Component: () => <>😔</>, name: 'Sad' },
   {
     type: 'wow',
-    Component: () => <StreamEmoji fallback='😲' type='wow' />,
+    Component: () => <>😮</>,
     name: 'Astonished',
+  },
+  {
+    type: 'fire',
+    Component: () => <>🔥</>,
+    name: 'Fire',
   },
 ];
