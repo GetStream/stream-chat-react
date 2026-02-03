@@ -7,9 +7,9 @@ export type ChannelAvatarProps = Partial<GroupAvatarProps> & AvatarProps;
 
 export const ChannelAvatar = ({
   groupChannelDisplayInfo,
-  image,
-  name,
-  user,
+  imageUrl,
+  size,
+  userName,
   ...sharedProps
 }: ChannelAvatarProps) => {
   if (groupChannelDisplayInfo) {
@@ -17,5 +17,5 @@ export const ChannelAvatar = ({
       <GroupAvatar groupChannelDisplayInfo={groupChannelDisplayInfo} {...sharedProps} />
     );
   }
-  return <Avatar image={image} name={name} user={user} {...sharedProps} />;
+  return <Avatar imageUrl={imageUrl} size={size} userName={userName} {...sharedProps} />;
 };

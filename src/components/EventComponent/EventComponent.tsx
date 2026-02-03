@@ -58,7 +58,7 @@ const UnMemoizedEventComponent = (props: EventComponentProps) => {
 
     return (
       <div className='str-chat__event-component__channel-event'>
-        <Avatar image={event.user?.image} name={name} user={event.user} />
+        <Avatar imageUrl={event.user?.image} size='md' userName={name} />
         <div className='str-chat__event-component__channel-event__content'>
           <em className='str-chat__event-component__channel-event__sentence'>
             {sentence}

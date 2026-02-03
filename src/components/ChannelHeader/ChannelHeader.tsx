@@ -56,8 +56,9 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       <Avatar
         className='str-chat__avatar--channel-header'
         groupChannelDisplayInfo={groupChannelDisplayInfo}
-        image={displayImage}
-        name={displayTitle}
+        imageUrl={displayImage}
+        size='md'
+        userName={displayTitle}
       />
       <div className='str-chat__channel-header-end'>
         <p className='str-chat__channel-header-title'>

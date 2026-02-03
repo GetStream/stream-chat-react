@@ -1,0 +1,136 @@
+.str-chat__avatar {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-max, 9999px);
+  background: var(--avatar-bg-default, #e3edff);
+  color: var(--avatar-text-default, #142f63);
+  text-align: center;
+  font-feature-settings:
+    'liga' off,
+    'clig' off;
+
+  font-family: var(--typography-font-family-sans, 'SF Pro');
+  font-style: normal;
+  font-weight: var(--typography-font-weight-semi-bold, 600);
+  line-height: 1;
+  text-transform: uppercase;
+  width: var(--avatar-size);
+  aspect-ratio: 1/1;
+  --avatar-badge-angle: -45deg;
+
+  // FIXME: temporary thing, should be removed when we get rid of the old CSS
+  grid-area: avatar;
+
+  .str-chat__avatar-image {
+    object-fit: cover;
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+  }
+
+  .str-chat__avatar-icon {
+    width: var(--avatar-icon-size);
+    height: var(--avatar-icon-size);
+    & path {
+      stroke: var(--avatar-text-default, #142f63);
+      stroke-width: var(--avatar-icon-stroke-width, 2px);
+    }
+  }
+
+  &.str-chat__avatar--with-border:has(.str-chat__avatar-image)::before {
+    border: 1px solid var(--border-core-opacity-10);
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: transparent;
+    border-radius: inherit;
+  }
+
+  &.str-chat__avatar--online::after,
+  &.str-chat__avatar--offline::after {
+    aspect-ratio: 1/1;
+    content: '';
+    position: absolute;
+    width: var(--avatar-badge-size);
+
+    left: calc(
+      var(--avatar-size) / 2 + var(--avatar-size) / 2 *
+        cos(var(--avatar-badge-angle)) - var(--avatar-badge-size) / 2
+    );
+    top: calc(
+      var(--avatar-size) / 2 + var(--avatar-size) / 2 *
+        sin(var(--avatar-badge-angle)) - var(--avatar-badge-size) / 2
+    );
+
+    border-radius: var(--radius-max, 9999px);
+    border-style: solid;
+    border-color: var(--presence-border, #fff);
+    border-width: 2px;
+  }
+
+  &.str-chat__avatar--online::after {
+    background: var(--presence-bg-online, #00c384);
+  }
+
+  &.str-chat__avatar--offline::after {
+    background: var(--presence-bg-offline, #687385);
+  }
+
+  &.str-chat__avatar--size-xl {
+    --avatar-size: 64px;
+    --avatar-badge-size: 16px;
+    --avatar-icon-size: 32px;
+    --avatar-icon-stroke-width: 2px;
+
+    font-size: var(--typography-font-size-xl, 20px);
+  }
+
+  &.str-chat__avatar--size-lg {
+    --avatar-size: 40px;
+    --avatar-badge-size: 14px;
+    --avatar-icon-size: 20px;
+    --avatar-icon-stroke-width: 1.5px;
+
+    font-size: var(--typography-font-size-md, 15px);
+  }
+
+  &.str-chat__avatar--size-md {
+    --avatar-size: 32px;
+    --avatar-badge-size: 12px;
+    --avatar-icon-size: 16px;
+    --avatar-icon-stroke-width: 1.5px;
+
+    font-size: var(--typography-font-size-sm, 13px);
+  }
+
+  &.str-chat__avatar--size-sm {
+    --avatar-size: 24px;
+    --avatar-badge-size: 8px;
+    --avatar-icon-size: 12px;
+    --avatar-icon-stroke-width: 1.2px;
+
+    font-size: var(--typography-font-size-sm, 13px);
+
+    &.str-chat__avatar--offline::after,
+    &.str-chat__avatar--online::after {
+      border-width: 1px;
+    }
+  }
+
+  &.str-chat__avatar--size-xs {
+    --avatar-size: 20px;
+    --avatar-badge-size: 8px;
+    --avatar-icon-size: 10px;
+    --avatar-icon-stroke-width: 1.2px;
+
+    font-size: var(--typography-font-size-xs, 12px);
+
+    &.str-chat__avatar--offline::after,
+    &.str-chat__avatar--online::after {
+      border-width: 1px;
+    }
+  }
+}

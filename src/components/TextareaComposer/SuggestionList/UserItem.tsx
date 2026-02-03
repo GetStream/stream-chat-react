@@ -52,8 +52,9 @@ export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
     <div className='str-chat__user-item'>
       <Avatar
         className='str-chat__avatar--autocomplete-item'
-        image={entity.image}
-        name={entity.name || entity.id}
+        imageUrl={entity.image}
+        size='md'
+        userName={entity.name || entity.id}
       />
       <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
         {renderName()}
