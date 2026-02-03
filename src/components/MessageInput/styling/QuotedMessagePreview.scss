@@ -1,0 +1,87 @@
+@use '../../../styling/utils';
+
+.str-chat {
+
+    .str-chat__quoted-message-preview {
+      display: flex;
+      align-items: center;
+      position: relative;
+      background-color: var(--chat-bg-incoming);
+      padding: var(--spacing-xs);
+      border-radius: var(--message-bubble-radius-attachment);
+
+      .str-chat__quoted-message-indicator {
+        height: 36px;
+      }
+
+      .str-chat__quoted-message-preview__content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+        font-size: var(--typography-font-size-xs);
+        line-height: var(--typography-line-height-tight);
+        height: 40px; // to keep the same height even though the image preview is missing (it has 40px height)
+
+        .str-chat__quoted-message-preview__author {
+          @include utils.ellipsis-text();
+          overflow-x: hidden; // force ellipsis to show
+          font-weight: var(--typography-font-weight-semi-bold);
+        }
+
+        .str-chat__quoted-message-preview__message {
+          //@include utils.ellipsis-text-parent;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xxs);
+
+          svg {
+            height: var(--typography-font-size-xs);
+            width: var(--typography-font-size-xs);
+          }
+
+          .str-chat__icon--microphone path {
+            stroke-width: 2;
+          }
+
+          span {
+            @include utils.ellipsis-text();
+            min-width: 0;
+            flex: 1 1;
+          }
+        }
+      }
+
+      .str-chat__quoted-message-preview__image {
+        display: flex;
+        position: relative;
+
+        .str-chat__attachment-preview__thumbnail__play-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 20px;
+          width: 20px;
+          position: absolute;
+          left: 10px;
+          top: 10px;
+          border-radius: var(--radius-max);
+          background-color: var(--control-play-control-bg-inverse);
+
+          .str-chat__icon--play-solid {
+            height: 12px;
+            width: 12px;
+
+            path {
+              fill: var(--control-play-control-icon-inverse);
+            }
+          }
+        }
+      }
+    }
+
+  .str-chat__quoted-message-preview--own {
+    background-color: var(--chat-bg-outgoing);
+  }
+}

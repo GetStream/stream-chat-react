@@ -1,12 +1,11 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
+import type { MessageInputProps } from '../components/MessageInput';
 import type { MessageInputHookProps } from '../components/MessageInput/hooks/useMessageInputControls';
 
 export type MessageInputContextValue = MessageInputHookProps &
-  Omit<MessageInputProps, 'Input'> &
-  CooldownTimerState;
+  Omit<MessageInputProps, 'Input'>;
 
 export const MessageInputContext = createContext<MessageInputHookProps | undefined>(
   undefined,

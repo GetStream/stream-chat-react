@@ -1,0 +1,41 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  .str-chat__context-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxxs);
+    padding: var(--spacing-xxs);
+    background-color: var(--background-elevation-elevation-2);
+    box-shadow: var(--light-elevation-3);
+    border-radius: var(--radius-lg);
+
+    .str-chat__context-menu__button {
+      @include utils.button-reset;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      font-size: var(--typography-font-size-xs);
+      font-weight: var(--typography-font-weight-semi-bold);
+      line-height: var(--typography-line-height-tight);
+
+      &:hover {
+        background-color: var(--background-core-hover);
+      }
+
+      svg {
+        height: var(--icon-size-sm);
+        width: var(--icon-size-sm);
+        color: var(--text-secondary);
+      }
+
+      .str-chat__context-menu__button__text {
+        flex: 1;
+        text-align: left;
+      }
+    }
+  }
+}

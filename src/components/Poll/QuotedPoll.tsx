@@ -15,6 +15,7 @@ const pollStateSelectorQuotedPoll = (
   name: nextValue.name,
 });
 
+// todo:
 export const QuotedPoll = () => {
   const { poll } = usePollContext();
   const { is_closed, name } = useStateStore(poll.state, pollStateSelectorQuotedPoll);

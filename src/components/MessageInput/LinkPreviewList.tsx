@@ -1,16 +1,18 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import type {
-  LinkPreview,
-  LinkPreviewsManagerState,
-  MessageComposerState,
-} from 'stream-chat';
+import type { LinkPreview, LinkPreviewsManagerState } from 'stream-chat';
 import { LinkPreviewsManager } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks';
-import { CloseIcon, LinkIcon } from './icons';
+import { ImageComponent } from '../Gallery';
+import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
+import { IconChainLink } from '../Icons';
+
+export type LinkPreviewListProps = {
+  displayLinkCount?: number;
+};
 
 const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
   linkPreviews: Array.from(state.previews.values()).filter(
@@ -20,29 +22,19 @@ const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
   ),
 });
 
-const messageComposerStateSelector = (state: MessageComposerState) => ({
-  quotedMessage: state.quotedMessage,
-});
-
-export const LinkPreviewList = () => {
+export const LinkPreviewList = ({ displayLinkCount = 1 }: LinkPreviewListProps) => {
   const messageComposer = useMessageComposer();
   const { linkPreviewsManager } = messageComposer;
-  const { quotedMessage } = useStateStore(
-    messageComposer.state,
-    messageComposerStateSelector,
-  );
   const { linkPreviews } = useStateStore(
     linkPreviewsManager.state,
     linkPreviewsManagerStateSelector,
   );
 
-  const showLinkPreviews = linkPreviews.length > 0 && !quotedMessage;
-
-  if (!showLinkPreviews) return null;
+  if (linkPreviews.length === 0) return null;
 
   return (
     <div className='str-chat__link-preview-list'>
-      {linkPreviews.map((linkPreview) => (
+      {linkPreviews.slice(0, displayLinkCount).map((linkPreview) => (
         <LinkPreviewCard key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
       ))}
     </div>
@@ -58,6 +50,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+  const { image_url, thumb_url, title } = linkPreview;
 
   if (
     !LinkPreviewsManager.previewIsLoaded(linkPreview) &&
@@ -72,6 +65,9 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
           LinkPreviewsManager.previewIsLoading(linkPreview),
       })}
       data-testid='link-preview-card'
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      ref={setReferenceElement}
     >
       <PopperTooltip
         offset={[0, 5]}
@@ -80,14 +76,15 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
       >
         {linkPreview.og_scrape_url}
       </PopperTooltip>
-      <div
-        className='str-chat__link-preview-card__icon-container'
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        ref={setReferenceElement}
-      >
-        <LinkIcon />
-      </div>
+
+      {(image_url || thumb_url) && (
+        <ImageComponent
+          className='str-chat__attachment-preview__thumbnail'
+          fallback={title}
+          image_url={image_url}
+          thumb_url={thumb_url}
+        />
+      )}
       <div className='str-chat__link-preview-card__content'>
         <div className='str-chat__link-preview-card__content-title'>
           {linkPreview.title}
@@ -95,15 +92,17 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
         <div className='str-chat__link-preview-card__content-description'>
           {linkPreview.text}
         </div>
+        <div className='str-chat__link-preview-card__content__url'>
+          <IconChainLink />
+          <span>{linkPreview.og_scrape_url}</span>
+        </div>
       </div>
-      <button
+
+      <RemoveAttachmentPreviewButton
         className='str-chat__link-preview-card__dismiss-button'
         data-testid='link-preview-card-dismiss-btn'
         onClick={() => linkPreviewsManager.dismissPreview(linkPreview.og_scrape_url)}
-        type='button'
-      >
-        <CloseIcon />
-      </button>
+      />
     </div>
   );
 };

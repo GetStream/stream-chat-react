@@ -4,6 +4,7 @@ import { QuotedPoll as DefaultQuotedPoll } from './QuotedPoll';
 import { PollProvider, useComponentContext } from '../../context';
 import type { Poll as PollClass } from 'stream-chat';
 
+// todo: remove QuotedPoll component references
 export const Poll = ({ isQuoted, poll }: { poll: PollClass; isQuoted?: boolean }) => {
   const { PollContent = DefaultPollContent, QuotedPoll = DefaultQuotedPoll } =
     useComponentContext();

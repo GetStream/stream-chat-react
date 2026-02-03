@@ -37,6 +37,7 @@ import type { GeolocationProps } from './Geolocation';
 
 const CONTAINER_MAP = {
   audio: AudioContainer,
+  // todo: rename to linkPreview
   card: CardContainer,
   file: FileContainer,
   media: MediaContainer,
@@ -177,7 +178,7 @@ const renderGroupedAttachments = ({
   return containers;
 };
 
-const getAttachmentType = (
+export const getAttachmentType = (
   attachment: AttachmentProps['attachments'][number],
 ): keyof typeof CONTAINER_MAP => {
   if (isScrapedContent(attachment)) {

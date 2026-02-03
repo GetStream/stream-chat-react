@@ -7,6 +7,7 @@ import { useHandleFileChangeWrapper } from './utils';
 import { useMessageInputContext, useTranslationContext } from '../../context';
 import { useMessageComposer } from '../MessageInput';
 import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
+import { useIsCooldownActive } from '../MessageInput/hooks/useIsCooldownActive';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';
@@ -50,7 +51,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { cooldownRemaining, textareaRef } = useMessageInputContext();
+  const { textareaRef } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -58,6 +59,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
     messageComposer.configState,
     attachmentManagerConfigStateSelector,
   );
+  const isCooldownActive = useIsCooldownActive();
   const id = useMemo(() => nanoid(), []);
 
   const onFileChange = useCallback(
@@ -74,7 +76,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
       accept={acceptedFiles?.join(',')}
       aria-label={t('aria/File upload')}
       data-testid='file-input'
-      disabled={!isUploadEnabled || !!cooldownRemaining}
+      disabled={!isUploadEnabled || isCooldownActive}
       id={id}
       multiple={maxNumberOfFilesPerMessage > 1}
       {...props}

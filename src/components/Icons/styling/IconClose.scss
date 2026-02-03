@@ -1,0 +1,13 @@
+.str-chat {
+  .str-chat__icon--close {
+    fill: none;
+    width: 8px;
+    height: 8px;
+
+    path {
+    stroke: var(--base-white);
+    stroke-linecap: round;
+    stroke-width: 1.5;
+    }
+  }
+}

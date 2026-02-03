@@ -1,0 +1,61 @@
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding-inline: 0;
+}
+
+@mixin overlay-after($color: black) {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: $color;
+    pointer-events: none;
+  }
+}
+
+@mixin flex-row-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin ellipsis-text-parent {
+  overflow-y: visible;
+  // Not every browser supports clip, so hidden is defined as a fallback
+  overflow-x: hidden;
+  overflow-x: clip;
+  min-width: 0;
+}
+
+@mixin ellipsis-text {
+  white-space: nowrap;
+  overflow-y: visible;
+  // Not every browser supports clip, so hidden is defined as a fallback
+  overflow-x: hidden;
+  overflow-x: clip;
+  text-overflow: ellipsis;
+}
+
+@mixin unset-button($outline-radius: var(--radius-max)) {
+  padding: unset;
+  background: unset;
+  border: unset;
+  border-radius: $outline-radius;
+}
+
+@mixin loading-item-background($color) {
+  background-image: linear-gradient(-90deg, #{$color} 0%, #{$color} 100%);
+}
+
+@mixin focusable {
+  outline: 2px solid  var(--border-utility-focus);
+  outline-offset: 2px;
+}
