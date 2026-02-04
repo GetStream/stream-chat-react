@@ -107,7 +107,7 @@ export const getLatestMessagePreview = (
   return t('Empty message...');
 };
 
-export type GroupChannelDisplayInfo = { image?: string; name?: string }[];
+export type GroupChannelDisplayInfo = { imageUrl?: string; userName?: string }[];
 
 export const getGroupChannelDisplayInfo = (
   channel: Channel,
@@ -115,14 +115,14 @@ export const getGroupChannelDisplayInfo = (
   const members = Object.values(channel.state.members);
   if (members.length <= 2) return;
 
-  const info: GroupChannelDisplayInfo = [];
-  for (let i = 0; i < members.length; i++) {
-    const { user } = members[i];
+  const data: GroupChannelDisplayInfo = [];
+  for (const member of members) {
+    const { user } = member;
     if (!user?.name && !user?.image) continue;
-    info.push({ image: user.image, name: user.name });
-    if (info.length === 4) break;
+    data.push({ imageUrl: user.image, userName: user.name });
+    if (data.length === 4) break;
   }
-  return info;
+  return data;
 };
 
 const getChannelDisplayInfo = (

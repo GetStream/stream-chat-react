@@ -63,7 +63,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
             className='str-chat__avatar--channel-preview'
             groupChannelDisplayInfo={groupChannelDisplayInfo}
             imageUrl={displayImage}
-            size='md'
+            size='lg'
             userName={avatarName}
           />
         </div>
