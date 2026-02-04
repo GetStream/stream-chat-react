@@ -26,6 +26,7 @@
 @use "../components/MessageInput/styling" as MessageComposer;
 @use "../components/Reactions/styling/ReactionSelector" as ReactionSelector;
 @use "../components/Avatar/styling/Avatar" as Avatar;
+@use "../components/Avatar/styling/GroupAvatar" as GroupAvatar;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);
