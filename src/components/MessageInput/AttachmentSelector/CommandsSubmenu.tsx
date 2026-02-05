@@ -63,8 +63,9 @@ export const CommandsSubmenu = () => {
           onClick={() => {
             if (!command.name) return;
             messageComposer.textComposer.setCommand(command);
-            textareaRef.current?.focus();
             closeMenu();
+            // Defer the focus to the next frame so it wins over FocusScope's restore-to-attachment-selector-button behavior.
+            requestAnimationFrame(() => textareaRef.current?.focus());
           }}
         />
       ))}

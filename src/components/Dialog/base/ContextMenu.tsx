@@ -54,7 +54,7 @@ export const ContextMenuRoot = React.forwardRef<HTMLDivElement, ComponentProps<'
 );
 
 export type ContextMenuHeaderComponent = ComponentType;
-export type ContextMenuSubmenu = ContextMenuItemComponent[];
+export type ContextMenuSubmenu = ComponentType;
 
 export type ContextMenuOpenSubmenuParams = {
   Submenu: ContextMenuSubmenu;
@@ -89,6 +89,7 @@ export const useContextMenuContext = () => {
 
 type ContextMenuLevel = {
   items?: ContextMenuItemComponent[];
+  Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
   ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
 };
@@ -135,8 +136,8 @@ export const ContextMenu = ({
     }: ContextMenuOpenSubmenuParams) => {
       const nextLevel: ContextMenuLevel = {
         Header,
-        items: Submenu,
         ItemsWrapper: SubmenuItemsWrapper ?? ItemsWrapper,
+        Submenu,
       };
       setMenuStack((current) => [...current, nextLevel]);
     },
@@ -175,7 +176,9 @@ export const ContextMenu = ({
             </ContextMenuHeader>
           ))}
         <ContextMenuBody>
-          {activeMenu.ItemsWrapper ? (
+          {activeMenu.Submenu ? (
+            <activeMenu.Submenu />
+          ) : activeMenu.ItemsWrapper ? (
             <activeMenu.ItemsWrapper>
               {activeMenu.items?.map((Item, index) => (
                 <Item

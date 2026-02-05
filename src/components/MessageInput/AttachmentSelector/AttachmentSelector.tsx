@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { CommandResponse } from 'stream-chat';
 import { useAttachmentManagerState, useMessageComposer } from '../hooks';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import {
@@ -47,7 +46,7 @@ import {
   IconPoll,
 } from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
-import { CommandContextMenuItem, CommandsSubmenuHeader } from './CommandsSubmenu';
+import { CommandsSubmenu, CommandsSubmenuHeader } from './CommandsSubmenu';
 
 const AttachmentSelectorMenuInitButtonIcon = () => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -139,18 +138,13 @@ export type AttachmentSelectorActionProps = {
 export const DefaultAttachmentSelectorComponents = {
   Command({ openSubmenu, submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const hasSubmenu = !!submenuItems;
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
-        hasSubMenu={
-          (Array.isArray(submenuItems) && submenuItems.length > 0) ||
-          (!Array.isArray(submenuItems) && !!submenuItems)
-        }
+        hasSubMenu={hasSubmenu}
         Icon={IconCommand}
         onClick={() => {
-          const hasSubmenu =
-            (Array.isArray(submenuItems) && submenuItems.length > 0) ||
-            (!Array.isArray(submenuItems) && !!submenuItems);
           if (!hasSubmenu) return;
           openSubmenu({ Header: submenuHeader, Submenu: submenuItems });
         }}
@@ -227,6 +221,7 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
   {
     ActionButton: DefaultAttachmentSelectorComponents.Command,
     Header: CommandsSubmenuHeader,
+    Submenu: CommandsSubmenu,
     type: 'selectCommand',
   },
 ];
@@ -329,30 +324,10 @@ export const AttachmentSelector = ({
   const [menuLevel, setMenuLevel] = useState(1);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  const commandSubmenuItems = useMemo<ContextMenuItemComponent[]>(() => {
-    const channelConfig = messageComposer.channel.getConfig();
-    const commands = (channelConfig?.commands ?? []).filter(
-      (command): command is CommandResponse & { name: string } => !!command.name,
-    );
-    return commands.map((command) => {
-      const CommandItem: ContextMenuItemComponent = ({ closeMenu }) => (
-        <CommandContextMenuItem
-          command={command}
-          onClick={() => {
-            messageComposer.textComposer.setCommand(command);
-            closeMenu();
-          }}
-        />
-      );
-      return CommandItem;
-    });
-  }, [messageComposer]);
-
   const contextMenuItems = useMemo(
     () =>
       actions.reduce<ContextMenuItemComponent[]>((acc, action) => {
-        const submenuItems =
-          action.type === 'selectCommand' ? commandSubmenuItems : action.Submenu;
+        const submenuItems = action.Submenu;
         const ActionItem = ({ closeMenu, openSubmenu }: ContextMenuItemProps) => (
           <action.ActionButton
             closeMenu={closeMenu}
@@ -365,7 +340,7 @@ export const AttachmentSelector = ({
         acc.push(ActionItem);
         return acc;
       }, []),
-    [actions, commandSubmenuItems, openModalForAction],
+    [actions, openModalForAction],
   );
 
   const getDefaultPortalDestination = useCallback(
