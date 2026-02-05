@@ -102,9 +102,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && (
-            <IconPeople />
-          )}
+          {!sizeAwareInitials.length && <IconPeople />}
         </>
       )}
     </div>

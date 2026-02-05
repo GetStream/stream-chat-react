@@ -42,6 +42,8 @@ export type UsePopoverParams = {
   allowFlip?: boolean;
   /** Keep in viewport; default true to match common popper setups */
   allowShift?: boolean;
+  /** Extra options for Floating UI shift() middleware (merged with default padding: 8) */
+  shiftOptions?: Parameters<typeof shiftMw>[0];
   /** The floating UI is fitted to the available space (by constraining its max size) instead of letting it overflow; default false */
   fitAvailableSpace?: boolean;
   /** Offset (number, object, or [crossAxis, mainAxis] tuple) */
@@ -66,10 +68,14 @@ export function usePopoverPosition({
   freeze = false,
   offset,
   placement = 'bottom-start',
+  shiftOptions,
 }: UsePopoverParams) {
   const autoMw = autoMiddlewareFor(placement);
   const offsetMiddleware = toOffsetMw(offset);
   const isSidePlacement = placement.startsWith('left') || placement.startsWith('right');
+  const mergedShiftOptions = shiftOptions
+    ? { padding: 8, ...shiftOptions }
+    : { padding: 8 };
 
   const middleware = [
     // offset first (mirrors common Popper setups)
@@ -80,7 +86,7 @@ export function usePopoverPosition({
     ...(autoMw ? [autoMw] : allowFlip && !isSidePlacement ? [flipMw()] : []),
 
     // viewport collision adjustments
-    ...(allowShift ? [shiftMw({ padding: 8 })] : []),
+    ...(allowShift ? [shiftMw(mergedShiftOptions)] : []),
 
     // optional size constraining
     // eslint-disable-next-line @typescript-eslint/no-empty-function

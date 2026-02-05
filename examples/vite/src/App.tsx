@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { type PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
+  Event,
+  createCommandInjectionMiddleware,
+  createDraftCommandInjectionMiddleware,
+  createActiveCommandGuardMiddleware,
+  createCommandStringExtractionMiddleware,
 } from 'stream-chat';
 import {
   AIStateIndicator,
@@ -18,8 +23,8 @@ import {
   Thread,
   ThreadList,
   useCreateChatClient,
-  VirtualizedMessageList as MessageList,
-  // MessageList,
+  // VirtualizedMessageList as MessageList,
+  MessageList,
   Window,
   WithComponents,
 } from 'stream-chat-react';
@@ -46,8 +51,8 @@ const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 const useUser = () => {
   const userId = useMemo(() => {
     return (
-      import.meta.env.VITE_USER_ID ||
       new URLSearchParams(window.location.search).get('user_id') ||
+      import.meta.env.VITE_USER_ID ||
       localStorage.getItem('user_id') ||
       humanId({ separator: '_', capitalize: false })
     );
@@ -96,6 +101,28 @@ const App = () => {
     if (!chatClient) return;
 
     chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
+      composer.compositionMiddlewareExecutor.insert({
+        middleware: [createCommandInjectionMiddleware(composer)],
+        position: { after: 'stream-io/message-composer-middleware/attachments' },
+        unique: true,
+      });
+
+      composer.draftCompositionMiddlewareExecutor.insert({
+        middleware: [createDraftCommandInjectionMiddleware(composer)],
+        position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
+      });
+
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [createActiveCommandGuardMiddleware() as TextComposerMiddleware],
+        position: { before: 'stream-io/text-composer/commands-middleware' },
+      });
+
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [createCommandStringExtractionMiddleware() as TextComposerMiddleware],
+        position: { after: 'stream-io/text-composer/commands-middleware' },
+      });
+
       composer.textComposer.middlewareExecutor.insert({
         middleware: [
           createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,

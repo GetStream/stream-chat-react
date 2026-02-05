@@ -27,6 +27,7 @@ import {
   type LinkPreviewsManagerState,
   type MessageComposerState,
 } from 'stream-chat';
+import { CommandChip as DefaultCommandChip } from './CommandChip';
 
 const messageComposerStateSelector = ({
   editedMessage,
@@ -110,6 +111,7 @@ export const MessageInputFlat = () => {
     AdditionalMessageComposerActions = DefaultAdditionalMessageComposerActions,
     AttachmentSelector = message ? SimpleAttachmentSelector : DefaultAttachmentSelector,
     AudioRecorder = DefaultAudioRecorder,
+    CommandChip = DefaultCommandChip,
     SendToChannelCheckbox = DefaultSendToChannelCheckbox,
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
@@ -124,6 +126,7 @@ export const MessageInputFlat = () => {
           <div className='str-chat__message-composer-compose-area'>
             <MessageComposerPreviews />
             <div className='str-chat__message-composer-controls'>
+              <CommandChip />
               <TextareaComposer />
               <AdditionalMessageComposerActions />
               <MessageComposerActions />

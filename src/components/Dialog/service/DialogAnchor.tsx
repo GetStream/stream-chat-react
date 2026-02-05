@@ -12,6 +12,7 @@ export interface DialogAnchorOptions {
   placement: PopperLikePlacement;
   referenceElement: HTMLElement | null;
   allowFlip?: boolean;
+  updateKey?: unknown;
 }
 
 export function useDialogAnchor<T extends HTMLElement>({
@@ -19,6 +20,7 @@ export function useDialogAnchor<T extends HTMLElement>({
   open,
   placement,
   referenceElement,
+  updateKey,
 }: DialogAnchorOptions) {
   const [popperElement, setPopperElement] = useState<T | null>(null);
   const { refs, strategy, update, x, y } = usePopoverPosition({
@@ -42,7 +44,7 @@ export function useDialogAnchor<T extends HTMLElement>({
       // update is non-null only if popperElement is non-null
       update?.();
     }
-  }, [open, placement, popperElement, update]);
+  }, [open, placement, popperElement, update, updateKey]);
 
   if (popperElement && !open) {
     setPopperElement(null);
@@ -76,6 +78,7 @@ export const DialogAnchor = ({
   referenceElement = null,
   tabIndex,
   trapFocus,
+  updateKey,
   ...restDivProps
 }: DialogAnchorProps) => {
   const dialog = useDialog({ dialogManagerId, id });
@@ -85,6 +88,7 @@ export const DialogAnchor = ({
     open,
     placement,
     referenceElement,
+    updateKey,
   });
 
   useEffect(() => {

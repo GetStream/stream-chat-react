@@ -1,8 +1,7 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import clsx from 'clsx';
-
-import type { AvatarProps } from '../../Avatar';
-import { Avatar as DefaultAvatar } from '../../Avatar';
+import { UserContextMenuButton } from '../../Dialog';
 
 export type UserItemProps = {
   /** The user */
@@ -18,19 +17,18 @@ export type UserItemProps = {
     /** Name of the user */
     name?: string;
   };
-  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
-};
+  focused?: boolean;
+} & ComponentProps<'button'>;
 
 /**
  * UI component for mentions rendered in suggestion list
  */
-export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const UserItem = ({ entity, focused: _, ...buttonProps }: UserItemProps) => {
   const hasEntity = !!Object.keys(entity).length;
   if (!hasEntity) return null;
 
   const { parts, token } = entity.tokenizedDisplayName;
-
   const renderName = () =>
     parts.map((part, i) => {
       const matches = part.toLowerCase() === token;
@@ -38,8 +36,8 @@ export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
       return (
         <span
           className={clsx({
-            'str-chat__emoji-item--highlight': matches,
-            'str-chat__emoji-item--part': !matches,
+            'str-chat__emoji-item-part': !matches,
+            'str-chat__suggestion-item-part--match': matches,
           })}
           key={`part-${i}`}
         >
@@ -49,17 +47,13 @@ export const UserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
     });
 
   return (
-    <div className='str-chat__user-item'>
-      <Avatar
-        className='str-chat__avatar--autocomplete-item'
-        imageUrl={entity.image}
-        size='md'
-        userName={entity.name || entity.id}
-      />
-      <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
-        {renderName()}
-      </span>
-      <div className='str-chat__user-item-at'>@</div>
-    </div>
+    <UserContextMenuButton
+      {...buttonProps}
+      imageUrl={entity.image}
+      title={entity.name || entity.id}
+      userName={entity.name || entity.id}
+    >
+      {renderName()}
+    </UserContextMenuButton>
   );
 };

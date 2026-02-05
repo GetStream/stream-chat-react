@@ -20,6 +20,13 @@
   --str-chat__dialog-menu-button-color: var(--text-primary);
   --str-chat__dialog-menu-button-background-color: transparent;
   --str-chat__dialog-menu-button-hover-background-color: var(--background-core-hover);
+  --str-chat__dialog-menu-button-active-background-color: var(--background-core-pressed);
+  --str-chat__dialog-menu-button-focused-background-color: transparent;
+  --str-chat__dialog-menu-button-disabled-background-color: transparent;
+  --str-chat__dialog-menu-back-button-hover-background-color: var(--background-core-hover);
+  --str-chat__dialog-menu-back-button-active-background-color: var(--background-core-pressed);
+  --str-chat__dialog-menu-back-button-focused-background-color: transparent;
+  --str-chat__dialog-menu-back-button-disabled-background-color: transparent;
   --str-chat__dialog-menu-button-border-block-start: none;
   --str-chat__dialog-menu-button-border-block-end: none;
   --str-chat__dialog-menu-button-border-inline-start: none;
@@ -30,8 +37,61 @@
     @include utils.component-layer-overrides('dialog-menu');
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxxs);
     padding: var(--spacing-xxs);
+
+    .str-chat__context-menu__header {
+      width: 100%;
+      color: var(--text-tertiary);
+      font-size: var(--typography-font-size-sm);
+      font-weight: var(--typography-font-weight-semi-bold, 600);
+      line-height: var(--typography-line-height-tight);
+    }
+
+    .str-chat__context-menu__back-button {
+      @include utils.button-reset;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      height: 32px;
+      width: 100%;
+      padding: var(--spacing-xs);
+      text-align: center;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+
+      color: var(--text-tertiary);
+
+      font-size: var(--typography-font-size-sm);
+      font-weight: var(--typography-font-weight-semi-bold, 600);
+      line-height: var(--typography-line-height-tight);
+
+      &:hover:not(:disabled) {
+        background-color: var(--str-chat__dialog-menu-back-button-hover-background-color);
+      }
+
+      &:active:not(:disabled) {
+        background-color: var(--str-chat__dialog-menu-back-button-active-background-color);
+      }
+
+      &:focus-visible:not(:disabled) {
+        background-color: var(--str-chat__dialog-menu-back-button-focused-background-color);
+      }
+
+      &:disabled {
+        background-color: var(--str-chat__dialog-menu-back-button-disabled-background-color);
+      }
+
+      .str-chat__icon--chevron-right {
+        transform: rotate(180deg);
+      }
+    }
+
+    .str-chat__context-menu__body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxxs);
+    }
 
     .str-chat__context-menu__button {
       @include utils.component-layer-overrides('dialog-menu-button');
@@ -39,14 +99,29 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
+      width: 100%;
       padding: var(--spacing-xs);
       cursor: pointer;
-      font-size: var(--typography-font-size-xs);
+
+      font-size: var(--typography-font-size-sm);
       font-weight: var(--typography-font-weight-semi-bold);
       line-height: var(--typography-line-height-tight);
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: var(--str-chat__dialog-menu-button-hover-background-color);
+      }
+
+      &:active:not(:disabled) {
+        background-color: var(--str-chat__dialog-menu-button-active-background-color);
+      }
+
+      &:focus-visible:not(:disabled) {
+        background-color: var(--str-chat__dialog-menu-button-focused-background-color);
+
+      }
+
+      &:disabled {
+        background-color: var(--str-chat__dialog-menu-button-disabled-background-color);
       }
 
       svg {
@@ -55,10 +130,27 @@
         color: var(--text-secondary);
       }
 
-      .str-chat__context-menu__button__text {
-        flex: 1;
+      .str-chat__context-menu__button__label {
+        @include utils.ellipsis-text;
+        max-width: 80%;
+        flex: auto;
         text-align: left;
+        color: var(--text-primary);
+        white-space: nowrap;
+
       }
+
+      .str-chat__context-menu__button__details {
+        flex: 1;
+        color: var(--text-tertiary);
+        font-weight: var(--typography-font-weight-regular);
+        white-space: nowrap;
+      }
+    }
+
+    .str-chat__emoji-context-menu__button,
+    .str-chat__user-context-menu__button {
+      font-weight: var(--typography-font-weight-regular, 400);
     }
   }
 }

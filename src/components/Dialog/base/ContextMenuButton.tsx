@@ -1,13 +1,16 @@
 import clsx from 'clsx';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentProps, ComponentType, ReactNode } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import { useDialogAnchor } from '../service';
 import { IconChevronRight } from '../../Icons';
+import { Avatar, type AvatarProps } from '../../Avatar';
 
 export type BaseContextMenuButtonProps = {
+  details?: ReactNode;
   hasSubMenu?: boolean;
+  label?: ReactNode;
   Icon?: ComponentType<ComponentProps<'svg'>>;
   SubmenuIcon?: ComponentType<ComponentProps<'svg'>>;
 } & ComponentProps<'button'>;
@@ -15,8 +18,10 @@ export type BaseContextMenuButtonProps = {
 export const BaseContextMenuButton = ({
   children,
   className,
+  details,
   hasSubMenu,
   Icon,
+  label,
   SubmenuIcon = IconChevronRight,
   ...props
 }: BaseContextMenuButtonProps) => (
@@ -24,16 +29,74 @@ export const BaseContextMenuButton = ({
     {...props}
     className={clsx(
       'str-chat__context-menu__button',
-      { 'str-chat__context-menu__button--with-submenu': !!SubmenuIcon },
+      { 'str-chat__context-menu__button--with-submenu': hasSubMenu },
       className,
     )}
     type='button'
   >
     {Icon && <Icon className='str-chat__context-menu__button__icon' />}
-    <div className='str-chat__context-menu__button__text'>{children}</div>
+    {label ? (
+      <>
+        <div className='str-chat__context-menu__button__label'>{label}</div>
+        <div className='str-chat__context-menu__button__details'>{details}</div>
+      </>
+    ) : (
+      <div className='str-chat__context-menu__button__label'>{children}</div>
+    )}
     {!!hasSubMenu && (
       <SubmenuIcon className='str-chat__context-menu__button__submenu-icon' />
     )}
+  </button>
+);
+
+export type UserContextMenuButtonProps = Pick<AvatarProps, 'imageUrl' | 'userName'> &
+  ComponentProps<'button'>;
+
+export const UserContextMenuButton = ({
+  children,
+  className,
+  imageUrl,
+  userName,
+  ...props
+}: UserContextMenuButtonProps) => (
+  <button
+    {...props}
+    className={clsx(
+      'str-chat__context-menu__button str-chat__user-context-menu__button',
+      className,
+    )}
+    type='button'
+  >
+    <Avatar imageUrl={imageUrl} size='sm' userName={userName} />
+    <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
+  </button>
+);
+
+export type EmojiContextMenuButtonProps = { emoji: string } & Pick<
+  BaseContextMenuButtonProps,
+  'label'
+> &
+  ComponentProps<'button'>;
+
+export const EmojiContextMenuButton = ({
+  children,
+  className,
+  emoji,
+  label,
+  ...props
+}: EmojiContextMenuButtonProps) => (
+  <button
+    {...props}
+    className={clsx(
+      'str-chat__context-menu__button str-chat__emoji-context-menu__button',
+      className,
+    )}
+    type='button'
+  >
+    <span className='str-chat__context-menu__button__emoji str-chat__emoji-item--entity'>
+      {emoji}
+    </span>
+    <div className='str-chat__context-menu__button__label'>{children ?? label}</div>
   </button>
 );
 
@@ -43,6 +106,7 @@ type ButtonWithSubmenuProps = {
   submenuPlacement?: PopperLikePlacement;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ContextMenuButtonWithSubmenu = ({
   children,
   className,
@@ -168,12 +232,8 @@ const ContextMenuButtonWithSubmenu = ({
   );
 };
 
-type ContextMenuButtonProps = BaseContextMenuButtonProps &
-  Partial<ButtonWithSubmenuProps>;
+type ContextMenuButtonProps = BaseContextMenuButtonProps;
 
-export const ContextMenuButton = (props: ContextMenuButtonProps) =>
-  props.Submenu ? (
-    <ContextMenuButtonWithSubmenu {...(props as ButtonWithSubmenuProps)} />
-  ) : (
-    <BaseContextMenuButton {...props} />
-  );
+export const ContextMenuButton = (props: ContextMenuButtonProps) => (
+  <BaseContextMenuButton {...props} />
+);

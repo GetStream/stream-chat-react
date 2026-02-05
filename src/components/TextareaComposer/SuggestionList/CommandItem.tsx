@@ -1,49 +1,23 @@
-import type { PropsWithChildren } from 'react';
-import { useMemo } from 'react';
+import type { ComponentProps, PropsWithChildren } from 'react';
 import React from 'react';
 import type { CommandResponse } from 'stream-chat';
-import { useTranslationContext } from '../../../context';
+import { CommandContextMenuItem } from '../../MessageInput/AttachmentSelector/CommandsMenu';
 
 export type CommandItemProps = {
   entity: CommandResponse;
-};
+  focused?: boolean;
+} & ComponentProps<'button'>;
 
 export const CommandItem = (props: PropsWithChildren<CommandItemProps>) => {
-  const { t } = useTranslationContext();
-  const { entity } = props;
-  const knownArgsTranslations = useMemo<Record<string, string>>(
-    () => ({
-      ban: t('ban-command-args'),
-      giphy: t('giphy-command-args'),
-      mute: t('mute-command-args'),
-      unban: t('unban-command-args'),
-      unmute: t('unmute-command-args'),
-    }),
-    [t],
-  );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { entity, focused: _, ...buttonProps } = props;
 
-  const knownDescriptionTranslations = useMemo<Record<string, string>>(
-    () => ({
-      ban: t('ban-command-description'),
-      giphy: t('giphy-command-description'),
-      mute: t('mute-command-description'),
-      unban: t('unban-command-description'),
-      unmute: t('unmute-command-description'),
-    }),
-    [t],
-  );
+  if (!entity.name) return null;
 
   return (
-    <div className='str-chat__slash-command'>
-      <span className='str-chat__slash-command-header'>
-        <strong>{entity.name}</strong>{' '}
-        {entity.args && (knownArgsTranslations[entity.name ?? ''] ?? t(entity.args))}
-      </span>
-      <br />
-      <span className='str-chat__slash-command-description'>
-        {entity.description &&
-          (knownDescriptionTranslations[entity.name ?? ''] ?? t(entity.description))}
-      </span>
-    </div>
+    <CommandContextMenuItem
+      {...buttonProps}
+      command={entity as CommandResponse & { name: string }}
+    />
   );
 };

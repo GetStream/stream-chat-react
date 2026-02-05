@@ -1,14 +1,28 @@
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type { VirtualElement } from '@floating-ui/react';
 import type { CommandItemProps } from './CommandItem';
 import { CommandItem } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
 import { EmoticonItem } from './EmoticonItem';
 import type { SuggestionListItemComponentProps } from './SuggestionListItem';
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
+import type { UserItemProps } from './UserItem';
 import { UserItem } from './UserItem';
 import { useComponentContext } from '../../../context/ComponentContext';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 import { useStateStore } from '../../../store';
+import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
+import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
+import { ContextMenu } from '../../Dialog';
+import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessageComposer } from '../../MessageInput';
 import type {
@@ -16,7 +30,10 @@ import type {
   TextComposerState,
   TextComposerSuggestion,
 } from 'stream-chat';
-import type { UserItemProps } from './UserItem';
+import {
+  CommandsMenuClassName,
+  CommandsMenuHeader,
+} from '../../MessageInput/AttachmentSelector/CommandsMenu';
 
 type SuggestionTrigger = '/' | ':' | '@' | string;
 
@@ -32,8 +49,9 @@ export type SuggestionListProps = Partial<{
   setFocusedItemIndex: (index: number) => void;
 }>;
 
-const textComposerStateSelector = (state: TextComposerState) => ({
-  suggestions: state.suggestions,
+const textComposerStateSelector = ({ selection, suggestions }: TextComposerState) => ({
+  selection,
+  suggestions,
 });
 
 const searchSourceStateSelector = (
@@ -47,13 +65,13 @@ export const defaultComponents: Record<
   React.ComponentType<SuggestionListItemComponentProps>
 > = {
   '/': (props: SuggestionListItemComponentProps) => (
-    <CommandItem entity={props.entity as CommandItemProps['entity']} />
+    <CommandItem {...props} entity={props.entity as CommandItemProps['entity']} />
   ),
   ':': (props: SuggestionListItemComponentProps) => (
-    <EmoticonItem entity={props.entity as EmoticonItemProps['entity']} />
+    <EmoticonItem {...props} entity={props.entity as EmoticonItemProps['entity']} />
   ),
   '@': (props: SuggestionListItemComponentProps) => (
-    <UserItem entity={props.entity as UserItemProps['entity']} />
+    <UserItem {...props} entity={props.entity as UserItemProps['entity']} />
   ),
 } as const;
 
@@ -67,16 +85,75 @@ export const SuggestionList = ({
 }: SuggestionListProps) => {
   const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
     useComponentContext();
+  const { textareaRef } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const { textComposer } = messageComposer;
-  const { suggestions } = useStateStore(textComposer.state, textComposerStateSelector);
+  const { selection, suggestions } = useStateStore(
+    textComposer.state,
+    textComposerStateSelector,
+  );
   const { items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
+
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const caretRectRef = useRef<DOMRect | null>(null);
+  const virtualCaretReference = useMemo<VirtualElement>(
+    () => ({
+      getBoundingClientRect: () => caretRectRef.current ?? new DOMRect(),
+    }),
+    [],
+  );
+
+  const { refs, strategy, update, x, y } = usePopoverPosition({
+    allowFlip: false,
+    offset: 8,
+    placement: 'top-start',
+    // For top placements, the cross-axis is X; we need this to allow flipping the list to the right when it overflows the right edge.
+    shiftOptions: { crossAxis: true },
+  });
 
   const component = suggestions?.trigger
     ? suggestionItemComponents[suggestions?.trigger]
     : undefined;
+
+  const contextMenuItems = useMemo<ContextMenuItemComponent[]>(() => {
+    if (!component) return [];
+    return (items ?? []).map((item, i) => {
+      const Item: ContextMenuItemComponent = ({
+        closeMenu: _, // eslint-disable-line @typescript-eslint/no-unused-vars
+        openSubmenu: __, //eslint-disable-line @typescript-eslint/no-unused-vars
+        ...props
+      }: ContextMenuItemProps) => (
+        <AutocompleteSuggestionItem
+          {...props}
+          component={component}
+          focused={focusedItemIndex === i}
+          item={item}
+          key={item.id.toString()}
+          onMouseEnter={() => setFocusedItemIndex?.(i)}
+        />
+      );
+      return Item;
+    });
+  }, [
+    items,
+    component,
+    focusedItemIndex,
+    setFocusedItemIndex,
+    AutocompleteSuggestionItem,
+  ]);
+
+  const ItemsWrapper = useCallback(
+    ({ children }: React.ComponentProps<'div'>) => (
+      <InfiniteScrollPaginator
+        loadNextOnScrollToBottom={suggestions?.searchSource.search}
+        threshold={100}
+      >
+        {children}
+      </InfiniteScrollPaginator>
+    ),
+    [suggestions?.searchSource.search],
+  );
 
   useEffect(() => {
     if (!closeOnClickOutside || !suggestions || !container) return;
@@ -90,34 +167,62 @@ export const SuggestionList = ({
     };
   }, [closeOnClickOutside, suggestions, container, textComposer]);
 
+  useEffect(() => {
+    refs.setFloating(container);
+  }, [container, refs]);
+
+  useLayoutEffect(() => {
+    if (!suggestions || !update) return;
+    const updatePosition = () => {
+      const rect = getTextareaCaretRect(textareaRef.current ?? null, selection?.end);
+      if (!rect) {
+        caretRectRef.current = null;
+        refs.setReference(null);
+        return;
+      }
+      caretRectRef.current = rect;
+      virtualCaretReference.contextElement = textareaRef.current ?? undefined;
+      refs.setReference(virtualCaretReference);
+      update();
+    };
+
+    updatePosition();
+  }, [
+    container,
+    items?.length,
+    refs,
+    selection?.end,
+    suggestions,
+    textareaRef,
+    update,
+    virtualCaretReference,
+  ]);
+
   if (!suggestions || !items?.length || !component) return null;
 
   return (
     <div
       className={clsx('str-chat__suggestion-list-container', containerClassName)}
       ref={setContainer}
+      style={{
+        left: x ?? 0,
+        position: strategy,
+        top: y ?? 0,
+        visibility: x == null || y == null ? 'hidden' : undefined,
+        zIndex: 1000,
+      }}
     >
-      <InfiniteScrollPaginator
-        loadNextOnScrollToBottom={suggestions.searchSource.search}
-        threshold={100}
-      >
-        <ul
-          className={clsx(
-            'str-chat__suggestion-list str-chat__suggestion-list--react',
-            className,
-          )}
-        >
-          {items.map((item, i) => (
-            <AutocompleteSuggestionItem
-              component={component}
-              focused={focusedItemIndex === i}
-              item={item}
-              key={item.id.toString()}
-              onMouseEnter={() => setFocusedItemIndex?.(i)}
-            />
-          ))}
-        </ul>
-      </InfiniteScrollPaginator>
+      <ContextMenu
+        className={clsx('str-chat__suggestion-list', className)}
+        Header={
+          suggestions.searchSource.type === 'commands' ? CommandsMenuHeader : undefined
+        }
+        items={contextMenuItems}
+        ItemsWrapper={ItemsWrapper}
+        menuClassName={
+          suggestions.searchSource.type === 'commands' ? CommandsMenuClassName : undefined
+        }
+      />
     </div>
   );
 };
