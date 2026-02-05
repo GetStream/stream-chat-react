@@ -1,5 +1,13 @@
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type { VirtualElement } from '@floating-ui/react';
 import type { CommandItemProps } from './CommandItem';
 import { CommandItem } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
@@ -14,6 +22,7 @@ import { useStateStore } from '../../../store';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
 import { ContextMenu } from '../../Dialog';
+import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessageComposer } from '../../MessageInput';
 import type {
@@ -81,8 +90,23 @@ export const SuggestionList = ({
   );
   const { items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
+
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [containerStyle, setContainerStyle] = useState<React.CSSProperties>();
+  const caretRectRef = useRef<DOMRect | null>(null);
+  const virtualCaretReference = useMemo<VirtualElement>(
+    () => ({
+      getBoundingClientRect: () => caretRectRef.current ?? new DOMRect(),
+    }),
+    [],
+  );
+
+  const { refs, strategy, update, x, y } = usePopoverPosition({
+    allowFlip: false,
+    offset: 8,
+    placement: 'top-start',
+    // For top placements, the cross-axis is X; we need this to allow flipping the list to the right when it overflows the right edge.
+    shiftOptions: { crossAxis: true },
+  });
 
   const component = suggestions?.trigger
     ? suggestionItemComponents[suggestions?.trigger]
@@ -139,48 +163,36 @@ export const SuggestionList = ({
     };
   }, [closeOnClickOutside, suggestions, container, textComposer]);
 
-  const updatePosition = useCallback(() => {
-    const rect = getTextareaCaretRect(textareaRef.current ?? null, selection?.end);
-    if (!rect) {
-      setContainerStyle((prev) => (prev ? undefined : prev));
-      return;
-    }
-    const containerWidth = container?.getBoundingClientRect().width ?? 0;
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const shouldFlipX = containerWidth > 0 && rect.left + containerWidth > viewportWidth;
-    const left = shouldFlipX ? Math.max(0, rect.left - containerWidth) : rect.left;
-    const top = rect.top - 8;
-    setContainerStyle((prev) => {
-      if (prev && prev.left === left && prev.top === top) return prev;
-      return {
-        bottom: 'auto',
-        left,
-        position: 'fixed',
-        top,
-        transform: 'translateY(-100%)',
-        zIndex: 1000,
-      };
-    });
-  }, [container, selection?.end, textareaRef]);
+  useEffect(() => {
+    refs.setFloating(container);
+  }, [container, refs]);
 
   useLayoutEffect(() => {
-    if (!suggestions) return;
-    updatePosition();
-  }, [items?.length, suggestions, updatePosition]);
-
-  useEffect(() => {
-    if (!suggestions) return;
-    const textarea = textareaRef.current;
-    const handleScroll = () => updatePosition();
-    window.addEventListener('scroll', handleScroll, true);
-    window.addEventListener('resize', handleScroll);
-    textarea?.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', handleScroll);
-      textarea?.removeEventListener('scroll', handleScroll);
+    if (!suggestions || !update) return;
+    const updatePosition = () => {
+      const rect = getTextareaCaretRect(textareaRef.current ?? null, selection?.end);
+      if (!rect) {
+        caretRectRef.current = null;
+        refs.setReference(null);
+        return;
+      }
+      caretRectRef.current = rect;
+      virtualCaretReference.contextElement = textareaRef.current ?? undefined;
+      refs.setReference(virtualCaretReference);
+      update();
     };
-  }, [suggestions, textareaRef, updatePosition]);
+
+    updatePosition();
+  }, [
+    container,
+    items?.length,
+    refs,
+    selection?.end,
+    suggestions,
+    textareaRef,
+    update,
+    virtualCaretReference,
+  ]);
 
   if (!suggestions || !items?.length || !component) return null;
 
@@ -188,7 +200,13 @@ export const SuggestionList = ({
     <div
       className={clsx('str-chat__suggestion-list-container', containerClassName)}
       ref={setContainer}
-      style={containerStyle}
+      style={{
+        left: x ?? 0,
+        position: strategy,
+        top: y ?? 0,
+        visibility: x == null || y == null ? 'hidden' : undefined,
+        zIndex: 1000,
+      }}
     >
       <ContextMenu
         className={clsx('str-chat__suggestion-list', className)}
