@@ -17,7 +17,9 @@
   --str-chat__message-status-color: var(--str-chat__primary-color);
   --str-chat__message-replies-count-color: var(--str-chat__primary-color);
   --str-chat__message-background-color: transparent;
-  --str-chat__message-highlighted-background-color: var(--str-chat__message-highlight-color);
+  --str-chat__message-highlighted-background-color: var(
+    --str-chat__message-highlight-color
+  );
   --str-chat__message-border-block-start: none;
   --str-chat__message-border-block-end: none;
   --str-chat__message-border-inline-start: none;
@@ -26,7 +28,9 @@
   --str-chat__message-active-background-color: transparent;
 
   --str-chat__message-options-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__message-options-hover-background-color: var(--str-chat__tertiary-surface-color);
+  --str-chat__message-options-hover-background-color: var(
+    --str-chat__tertiary-surface-color
+  );
   --str-chat__message-options-border-radius: var(--str-chat__border-radius-circle);
   --str-chat__message-options-active-color: var(--str-chat__primary-color);
 
@@ -35,7 +39,9 @@
   --str-chat__message-bubble-background-color: var(--chat-bg-incoming);
   --str-chat__own-message-bubble-color: var(--chat-text-message);
   --str-chat__own-message-bubble-background-color: var(--chat-bg-outgoing);
-  --str-chat__quoted-message-bubble-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__quoted-message-bubble-background-color: var(
+    --str-chat__secondary-background-color
+  );
   --str-chat__message-bubble-border-block-start: none;
   --str-chat__message-bubble-border-block-end: none;
   --str-chat__message-bubble-border-inline-start: none;
@@ -80,7 +86,9 @@
   --str-chat__date-separator-box-shadow: none;
 
   --str-chat__translation-notice-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__translation-notice-active-background-color: var(--str-chat__tertiary-surface-color);
+  --str-chat__translation-notice-active-background-color: var(
+    --str-chat__tertiary-surface-color
+  );
 
   --str-chat__message-reminder-color: var(--str-chat__primary-color);
   --str-chat__message-reminder-background-color: var(--str-chat__grey50);
@@ -113,7 +121,9 @@
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
 
   &.str-chat__message-without-touch-support {
-    --str-chat-message-options-size: calc(1 * var(--str-chat__message-options-button-size));
+    --str-chat-message-options-size: calc(
+      1 * var(--str-chat__message-options-button-size)
+    );
   }
 
   .str-chat__message-bubble {
@@ -129,7 +139,6 @@
     color: var(--str-chat__message-link-color);
   }
 }
-
 
 .str-chat__message.str-chat__message--has-attachment {
   --str-chat__message-max-width: var(--str-chat__message-with-attachment-max-width);
@@ -183,7 +192,7 @@
     font: var(--str-chat__caption-medium-text);
   }
 
-  &.str-chat__message--other  {
+  &.str-chat__message--other {
     grid-template-areas:
       '. message-reminder'
       'avatar message'
@@ -210,6 +219,10 @@
     > .str-chat__message-sender-avatar {
       display: none;
     }
+
+    .str-chat__message-inner .str-chat__message-reactions-host {
+      right: 0;
+    }
   }
 
   &.str-chat__message--deleted {
@@ -234,7 +247,7 @@
     grid-area: message;
     display: grid;
     grid-template-areas:
-      'reactions reactions'
+      'reactions .'
       'message-bubble options';
     grid-template-columns: auto 1fr;
     column-gap: var(--str-chat__spacing-2);
@@ -242,7 +255,7 @@
 
     .str-chat__message-options {
       grid-area: options;
-      align-items: flex-start;
+      align-items: center;
       justify-content: flex-end;
       flex-direction: row-reverse;
       width: var(--str-chat-message-options-size);
@@ -286,10 +299,43 @@
     }
 
     .str-chat__message-reactions-host {
+      display: flex;
       grid-area: reactions;
+      min-width: 100%;
+      z-index: 1;
+      position: absolute;
+
+      &:has(.str-chat__message-reactions--top) {
+        bottom: calc(100% - var(--spacing-xs));
+      }
+
+      &:has(.str-chat__message-reactions--bottom) {
+        top: calc(100% + var(--spacing-xxs));
+      }
+
+      &:has(.str-chat__message-reactions--end) {
+        justify-content: flex-end;
+      }
+
+      &:has(.str-chat__message-reactions--start) {
+        justify-content: flex-start;
+      }
+    }
+
+    &:has(.str-chat__message-reactions--top) {
+      margin-top: calc(26px - var(--spacing-xs));
+    }
+
+    &:has(.str-chat__message-reactions--bottom) {
+      margin-bottom: calc(26px + var(--spacing-xxs) * 2);
+
+      grid-template-areas:
+        'message-bubble options'
+        'reactions .';
     }
 
     .str-chat__message-bubble {
+      display: flex;
       grid-area: message-bubble;
       position: relative;
       min-width: 0;
@@ -314,12 +360,19 @@
   &.str-chat__message--me .str-chat__message-inner {
     grid-template-areas:
       'reminder reminder'
-      'reactions reactions'
+      '. reactions'
       'options message-bubble';
     grid-template-columns: 1fr auto;
 
     .str-chat__message-options {
       flex-direction: row;
+    }
+
+    &:has(.str-chat__message-reactions--bottom) {
+      grid-template-areas:
+        'reminder reminder'
+        'options message-bubble'
+        '. reactions';
     }
   }
 
@@ -517,11 +570,19 @@
 }
 
 // Message options display - default mode: they appear when .str-chat__li is hovered
-.str-chat__ul:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support),
-.str-chat__virtual-list:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support) {
+.str-chat__ul:not(
+    .str-chat__message-options-in-bubble,
+    .str-chat__message-with-touch-support
+  ),
+.str-chat__virtual-list:not(
+    .str-chat__message-options-in-bubble,
+    .str-chat__message-with-touch-support
+  ) {
   /* This rule won't be applied in browsers that don't support :has() */
   .str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)),
-  .str-chat__li:focus-within:not(:has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)),
+  .str-chat__li:focus-within:not(
+      :has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)
+    ),
   .str-chat__li:has(.str-chat__message-options--active) {
     .str-chat__message-options {
       display: flex;
@@ -598,7 +659,8 @@
   }
 }
 
-.str-chat__message--other .str-chat__message-inner:not(:has(.str-chat__message-options--active)) {
+.str-chat__message--other
+  .str-chat__message-inner:not(:has(.str-chat__message-options--active)) {
   margin-inline-end: var(--str-chat-message-options-size);
 }
 
