@@ -1,24 +1,39 @@
 import clsx from 'clsx';
-import React, { useState } from 'react';
-import type { PropsWithChildren } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 import { ActionsIcon } from '../../components/Message/icons';
 import {
+  ContextMenu,
+  ContextMenuButton,
+  type ContextMenuItemComponent,
+  type ContextMenuItemProps,
   DialogAnchor,
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../../components/Dialog';
-import { MessageActionsWrapper } from '../../components/MessageActions/MessageActions';
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
 import type { MESSAGE_ACTIONS } from '../../components';
 
-export type MessageActionSetItem = {
-  Component: React.ComponentType;
+type BaseMessageActionSetItem = {
   placement: 'quick' | 'dropdown';
   type: keyof typeof MESSAGE_ACTIONS | (string & {});
 };
+
+export type QuickMessageActionSetItem = BaseMessageActionSetItem & {
+  Component: React.ComponentType;
+  placement: 'quick';
+};
+
+export type DropdownMessageActionSetItem = BaseMessageActionSetItem & {
+  Component: React.ComponentType<ContextMenuItemProps>;
+  placement: 'dropdown';
+};
+
+export type MessageActionSetItem =
+  | QuickMessageActionSetItem
+  | DropdownMessageActionSetItem;
 
 export type MessageActionsProps = {
   disableBaseMessageActionSetFilter?: boolean;
@@ -39,7 +54,7 @@ export const MessageActions = ({
   const { isMyMessage, message } = useMessageContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] =
-    useState<HTMLButtonElement | null>(null);
+    useState<HTMLSpanElement | null>(null);
 
   const filteredMessageActionSet = useBaseMessageActionSetFilter(
     messageActionSet,
@@ -59,6 +74,17 @@ export const MessageActions = ({
     dialogManager?.id,
   );
 
+  const contextMenuItems = useMemo<ContextMenuItemComponent[]>(
+    () =>
+      dropdownActionSet.map(({ Component }) => {
+        const ActionItem: ContextMenuItemComponent = (menuProps) => (
+          <Component {...menuProps} />
+        );
+        return ActionItem;
+      }),
+    [dropdownActionSet],
+  );
+
   // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
     return null;
@@ -72,17 +98,20 @@ export const MessageActions = ({
       })}
     >
       {dropdownActionSet.length > 0 && (
-        <MessageActionsWrapper inline={false} toggleOpen={dialog?.toggle}>
-          <button
+        <>
+          <ContextMenuButton
             aria-expanded={dropdownDialogIsOpen}
             aria-haspopup='true'
             aria-label={t('aria/Open Message Actions Menu')}
             className='str-chat__message-actions-box-button'
             data-testid='message-actions-toggle-button'
+            onClick={() => {
+              dialog?.toggle();
+            }}
             ref={setActionsBoxButtonElement}
           >
             <ActionsIcon className='str-chat__message-action-icon' />
-          </button>
+          </ContextMenuButton>
 
           <DialogAnchor
             dialogManagerId={dialogManager?.id}
@@ -92,36 +121,22 @@ export const MessageActions = ({
             tabIndex={-1}
             trapFocus
           >
-            <DropdownBox open={dropdownDialogIsOpen}>
-              {dropdownActionSet.map(({ Component: DropdownActionComponent, type }) => (
-                <DropdownActionComponent key={type} />
-              ))}
-            </DropdownBox>
+            <ContextMenu
+              backLabel={t('Back')}
+              className={clsx(
+                'str-chat__message-actions-box',
+                { 'str-chat__message-actions-box--open': dropdownDialogIsOpen },
+                'str-chat__dialog-menu',
+              )}
+              items={contextMenuItems}
+              onClose={dialog?.close}
+            />
           </DialogAnchor>
-        </MessageActionsWrapper>
+        </>
       )}
       {quickActionSet.map(({ Component: QuickActionComponent, type }) => (
         <QuickActionComponent key={type} />
       ))}
-    </div>
-  );
-};
-
-const DropdownBox = ({ children, open }: PropsWithChildren<{ open: boolean }>) => {
-  const { t } = useTranslationContext();
-  return (
-    <div
-      className={clsx('str-chat__message-actions-box', {
-        'str-chat__message-actions-box--open': open,
-      })}
-    >
-      <div
-        aria-label={t('aria/Message Options')}
-        className='str-chat__message-actions-list'
-        role='listbox'
-      >
-        {children}
-      </div>
     </div>
   );
 };

@@ -1,5 +1,4 @@
 /* eslint-disable sort-keys */
-import type { ComponentPropsWithoutRef } from 'react';
 import React from 'react';
 
 import { isUserMuted, useMessageComposer, useMessageReminder } from '../../components';
@@ -9,27 +8,21 @@ import {
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
-import { RemindMeActionButton } from '../../components/MessageActions/RemindMeSubmenu';
+import {
+  RemindMeActionButton,
+  RemindMeSubmenu,
+  RemindMeSubmenuHeader,
+} from '../../components/MessageActions/RemindMeSubmenu';
+import { ContextMenuButton } from '../../components/Dialog';
+import type { ContextMenuItemProps } from '../../components/Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 
-export const DefaultDropdownActionButton = ({
-  'aria-selected': ariaSelected = 'false',
-  children,
-  className = msgActionsBoxButtonClassName,
-  role = 'option',
-  ...rest
-}: ComponentPropsWithoutRef<'button'>) => (
-  <button aria-selected={ariaSelected} className={className} role={role} {...rest}>
-    {children}
-  </button>
-);
-
 const DefaultMessageActionComponents = {
   dropdown: {
-    Quote() {
+    Quote({ closeMenu }: ContextMenuItemProps) {
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const messageComposer = useMessageComposer();
@@ -48,100 +41,153 @@ const DefaultMessageActionComponents = {
       };
 
       return (
-        <DefaultDropdownActionButton onClick={handleQuote}>
+        <ContextMenuButton
+          aria-selected='false'
+          className={msgActionsBoxButtonClassName}
+          onClick={() => {
+            handleQuote();
+            closeMenu();
+          }}
+        >
           {t('Quote')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    Pin() {
+    Pin({ closeMenu }: ContextMenuItemProps) {
       const { handlePin, message } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handlePin}>
+        <ContextMenuButton
+          aria-selected='false'
+          className={msgActionsBoxButtonClassName}
+          onClick={(event) => {
+            handlePin(event);
+            closeMenu();
+          }}
+        >
           {!message.pinned ? t('Pin') : t('Unpin')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    MarkUnread() {
+    MarkUnread({ closeMenu }: ContextMenuItemProps) {
       const { handleMarkUnread } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handleMarkUnread}>
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={(event) => {
+            handleMarkUnread(event);
+            closeMenu();
+          }}
+        >
           {t('Mark as unread')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    Flag() {
+    Flag({ closeMenu }: ContextMenuItemProps) {
       const { handleFlag } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handleFlag}>
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={(event) => {
+            handleFlag(event);
+            closeMenu();
+          }}
+        >
           {t('Flag')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    Mute() {
+    Mute({ closeMenu }: ContextMenuItemProps) {
       const { handleMute, message } = useMessageContext();
       const { mutes } = useChatContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handleMute}>
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={(event) => {
+            handleMute(event);
+            closeMenu();
+          }}
+        >
           {isUserMuted(message, mutes) ? t('Unmute') : t('Mute')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    Edit() {
+    Edit({ closeMenu }: ContextMenuItemProps) {
       const messageComposer = useMessageComposer();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton
-          onClick={() => messageComposer.initState({ composition: message })}
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={() => {
+            messageComposer.initState({ composition: message });
+            closeMenu();
+          }}
         >
           {t('Edit Message')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    Delete() {
+    Delete({ closeMenu }: ContextMenuItemProps) {
       const { handleDelete } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton onClick={handleDelete}>
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={(event) => {
+            handleDelete(event);
+            closeMenu();
+          }}
+        >
           {t('Delete')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
-    RemindMe() {
+    RemindMe({ openSubmenu }: ContextMenuItemProps) {
       const { isMyMessage } = useMessageContext();
       return (
         <RemindMeActionButton
           className={msgActionsBoxButtonClassName}
+          hasSubMenu
           isMine={isMyMessage()}
+          onClick={() => {
+            openSubmenu({
+              Header: RemindMeSubmenuHeader,
+              Submenu: RemindMeSubmenu,
+            });
+          }}
         />
       );
     },
-    SaveForLater() {
+    SaveForLater({ closeMenu }: ContextMenuItemProps) {
       const { client } = useChatContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
 
       return (
-        <DefaultDropdownActionButton
-          onClick={() =>
-            reminder
-              ? client.reminders.deleteReminder(reminder.id)
-              : client.reminders.createReminder({ messageId: message.id })
-          }
+        <ContextMenuButton
+          className={msgActionsBoxButtonClassName}
+          onClick={() => {
+            if (reminder) {
+              client.reminders.deleteReminder(reminder.id);
+            } else {
+              client.reminders.createReminder({ messageId: message.id });
+            }
+            closeMenu();
+          }}
         >
           {reminder ? t('Remove reminder') : t('Save for later')}
-        </DefaultDropdownActionButton>
+        </ContextMenuButton>
       );
     },
   },

@@ -39,7 +39,7 @@ export const MessageComposerActions = () => {
     messageComposerStateSelector,
   );
 
-  const { command, text } = useStateStore(
+  const { command } = useStateStore(
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
@@ -81,7 +81,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if ((compositionIsEmpty || (editedMessage && !text)) && recordingEnabled) {
+  } else if (compositionIsEmpty && !editedMessage && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 

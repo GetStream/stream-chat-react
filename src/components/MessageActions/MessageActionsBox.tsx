@@ -2,7 +2,11 @@ import clsx from 'clsx';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
-import { RemindMeActionButton } from './RemindMeSubmenu';
+import {
+  RemindMeActionButton,
+  RemindMeSubmenu,
+  RemindMeSubmenuHeader,
+} from './RemindMeSubmenu';
 import { OPTIONAL_MESSAGE_ACTIONS, useMessageReminder } from '../Message';
 import { useMessageComposer } from '../MessageInput';
 import {
@@ -13,6 +17,7 @@ import {
 } from '../../context';
 import { MESSAGE_ACTIONS } from '../Message/utils';
 import type { MessageContextValue } from '../../context';
+import { ContextMenu, ContextMenuButton, type ContextMenuItemComponent } from '../Dialog';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -28,6 +33,7 @@ export type MessageActionsBoxProps = Pick<
 > & {
   isUserMuted: () => boolean;
   mine: boolean;
+  onClose?: () => void;
   open: boolean;
 } & ComponentProps<'div'>;
 
@@ -42,6 +48,7 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
     handlePin,
     isUserMuted,
     mine,
+    onClose,
     open,
     ...restDivProps
   } = props;
@@ -81,119 +88,207 @@ const UnMemoizedMessageActionsBox = (props: MessageActionsBoxProps) => {
   const buttonClassName =
     'str-chat__message-actions-list-item str-chat__message-actions-list-item-button';
 
-  return (
-    <div {...restDivProps} className={rootClassName} data-testid='message-actions-box'>
-      <div
-        aria-label={t('aria/Message Options')}
-        className='str-chat__message-actions-list'
-        role='listbox'
-      >
-        <CustomMessageActionsList
-          customMessageActions={customMessageActions}
-          message={message}
-        />
-        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleQuote}
-            role='option'
-          >
-            {t('Reply')}
-          </button>
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handlePin}
-            role='option'
-          >
-            {!message.pinned ? t('Pin') : t('Unpin')}
-          </button>
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
-          !threadList &&
-          !!message.id && (
-            <button
-              aria-selected='false'
-              className={buttonClassName}
-              onClick={handleMarkUnread}
-              role='option'
-            >
-              {t('Mark as unread')}
-            </button>
-          )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleFlag}
-            role='option'
-          >
-            {t('Flag')}
-          </button>
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleMute}
-            role='option'
-          >
-            {isUserMuted() ? t('Unmute') : t('Mute')}
-          </button>
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleEdit}
-            role='option'
-          >
-            {t('Edit Message')}
-          </button>
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={handleDelete}
-            role='option'
-          >
-            {t('Delete')}
-          </button>
-        )}
-        {messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1 &&
-          !message.deleted_for_me && (
-            <button
-              aria-selected='false'
-              className={buttonClassName}
-              onClick={(e) => handleDelete(e, { deleteForMe: true })}
-              role='option'
-            >
-              {t('Delete for me')}
-            </button>
-          )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1 && (
-          <RemindMeActionButton className={buttonClassName} isMine={mine} />
-        )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1 && (
-          <button
-            aria-selected='false'
-            className={buttonClassName}
-            onClick={() =>
-              reminder
-                ? client.reminders.deleteReminder(reminder.id)
-                : client.reminders.createReminder({ messageId: message.id })
-            }
-            role='option'
-          >
-            {reminder ? t('Remove reminder') : t('Save for later')}
-          </button>
-        )}
-      </div>
+  const MessageActionsList = ({
+    children,
+    className,
+    ...props
+  }: ComponentProps<'div'>) => (
+    <div
+      {...props}
+      aria-label={t('aria/Message Options')}
+      className={clsx('str-chat__message-actions-list', className)}
+      role='listbox'
+    >
+      {children}
     </div>
+  );
+
+  const contextMenuItems: ContextMenuItemComponent[] = [];
+
+  if (customMessageActions) {
+    const CustomActionsItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <CustomMessageActionsList
+        closeMenu={closeMenu}
+        customMessageActions={customMessageActions}
+        message={message}
+      />
+    );
+    contextMenuItems.push(CustomActionsItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1) {
+    const QuoteItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={() => {
+          handleQuote();
+          closeMenu();
+        }}
+      >
+        {t('Reply')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(QuoteItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id) {
+    const PinItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handlePin(event);
+          closeMenu();
+        }}
+      >
+        {!message.pinned ? t('Pin') : t('Unpin')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(PinItem);
+  }
+
+  if (
+    messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
+    !threadList &&
+    !!message.id
+  ) {
+    const MarkUnreadItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handleMarkUnread(event);
+          closeMenu();
+        }}
+      >
+        {t('Mark as unread')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(MarkUnreadItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
+    const FlagItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handleFlag(event);
+          closeMenu();
+        }}
+      >
+        {t('Flag')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(FlagItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
+    const MuteItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handleMute(event);
+          closeMenu();
+        }}
+      >
+        {isUserMuted() ? t('Unmute') : t('Mute')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(MuteItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
+    const EditItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={() => {
+          handleEdit();
+          closeMenu();
+        }}
+      >
+        {t('Edit Message')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(EditItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
+    const DeleteItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handleDelete(event);
+          closeMenu();
+        }}
+      >
+        {t('Delete')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(DeleteItem);
+  }
+
+  if (
+    messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1 &&
+    !message.deleted_for_me
+  ) {
+    const DeleteForMeItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={(event) => {
+          handleDelete(event, { deleteForMe: true });
+          closeMenu();
+        }}
+      >
+        {t('Delete for me')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(DeleteForMeItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1) {
+    const RemindMeItem: ContextMenuItemComponent = ({ openSubmenu }) => (
+      <RemindMeActionButton
+        className={buttonClassName}
+        hasSubMenu
+        isMine={mine}
+        onClick={() => {
+          openSubmenu({
+            Header: RemindMeSubmenuHeader,
+            Submenu: RemindMeSubmenu,
+          });
+        }}
+      />
+    );
+    contextMenuItems.push(RemindMeItem);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1) {
+    const SaveForLaterItem: ContextMenuItemComponent = ({ closeMenu }) => (
+      <ContextMenuButton
+        className={buttonClassName}
+        onClick={() => {
+          if (reminder) {
+            client.reminders.deleteReminder(reminder.id);
+          } else {
+            client.reminders.createReminder({ messageId: message.id });
+          }
+          closeMenu();
+        }}
+      >
+        {reminder ? t('Remove reminder') : t('Save for later')}
+      </ContextMenuButton>
+    );
+    contextMenuItems.push(SaveForLaterItem);
+  }
+
+  return (
+    <ContextMenu
+      {...restDivProps}
+      backLabel={t('Back')}
+      className={clsx(rootClassName, 'str-chat__dialog-menu')}
+      data-testid='message-actions-box'
+      items={contextMenuItems}
+      ItemsWrapper={MessageActionsList}
+      onClose={onClose}
+    />
   );
 };
 

@@ -4,12 +4,13 @@ import type { LocalMessage } from 'stream-chat';
 import type { CustomMessageActions } from '../../context/MessageContext';
 
 export type CustomMessageActionsListProps = {
+  closeMenu?: () => void;
   message: LocalMessage;
   customMessageActions?: CustomMessageActions;
 };
 
 export const CustomMessageActionsList = (props: CustomMessageActionsListProps) => {
-  const { customMessageActions, message } = props;
+  const { closeMenu, customMessageActions, message } = props;
 
   if (!customMessageActions) return null;
 
@@ -25,7 +26,10 @@ export const CustomMessageActionsList = (props: CustomMessageActionsListProps) =
             aria-selected='false'
             className='str-chat__message-actions-list-item str-chat__message-actions-list-item-button'
             key={customAction}
-            onClick={(event) => customHandler(message, event)}
+            onClick={(event) => {
+              customHandler(message, event);
+              closeMenu?.();
+            }}
             role='option'
           >
             {customAction}

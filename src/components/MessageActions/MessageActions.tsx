@@ -31,8 +31,6 @@ export type MessageActionsProps = Partial<
   ActionsIcon?: React.ComponentType<IconProps>;
   /* Custom CSS class to be added to the `div` wrapping the component */
   customWrapperClass?: string;
-  /* If true, renders the wrapper component as a `span`, not a `div` */
-  inline?: boolean;
   /* Function that returns whether the message was sent by the connected user */
   mine?: () => boolean;
 };
@@ -47,7 +45,6 @@ export const MessageActions = (props: MessageActionsProps) => {
     handleMarkUnread: propHandleMarkUnread,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
-    inline,
     message: propMessage,
     mine,
   } = props;
@@ -101,11 +98,20 @@ export const MessageActions = (props: MessageActionsProps) => {
   if (!renderMessageActions) return null;
 
   return (
-    <MessageActionsWrapper
-      customWrapperClass={customWrapperClass}
-      inline={inline}
-      toggleOpen={dialog?.toggle}
-    >
+    <>
+      <button
+        aria-expanded={dialogIsOpen}
+        aria-haspopup='true'
+        aria-label={t('aria/Open Message Actions Menu')}
+        className='str-chat__message-actions-box-button'
+        data-testid='message-actions-toggle-button'
+        onClick={() => {
+          dialog?.toggle();
+        }}
+        ref={actionsBoxButtonRef}
+      >
+        <ActionsIcon className='str-chat__message-action-icon' />
+      </button>
       <DialogAnchor
         dialogManagerId={dialogManager?.id}
         id={dialogId}
@@ -115,6 +121,7 @@ export const MessageActions = (props: MessageActionsProps) => {
         trapFocus
       >
         <MessageActionsBox
+          className={customWrapperClass}
           getMessageActions={getMessageActions}
           handleDelete={handleDelete}
           handleFlag={handleFlag}
@@ -123,20 +130,11 @@ export const MessageActions = (props: MessageActionsProps) => {
           handlePin={handlePin}
           isUserMuted={isMuted}
           mine={isMine}
+          onClose={dialog?.close}
           open={dialogIsOpen}
         />
       </DialogAnchor>
-      <button
-        aria-expanded={dialogIsOpen}
-        aria-haspopup='true'
-        aria-label={t('aria/Open Message Actions Menu')}
-        className='str-chat__message-actions-box-button'
-        data-testid='message-actions-toggle-button'
-        ref={actionsBoxButtonRef}
-      >
-        <ActionsIcon className='str-chat__message-action-icon' />
-      </button>
-    </MessageActionsWrapper>
+    </>
   );
 };
 
