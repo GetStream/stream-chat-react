@@ -7,10 +7,7 @@ import type {
 } from '../MessageActions';
 
 export const useSplitMessageActionSet = (messageActionSet: MessageActionSetItem[]) =>
-  useMemo<{
-    dropdownActionSet: DropdownMessageActionSetItem[];
-    quickActionSet: QuickMessageActionSetItem[];
-  }>(() => {
+  useMemo(() => {
     const quickActionSet: QuickMessageActionSetItem[] = [];
     const dropdownActionSet: DropdownMessageActionSetItem[] = [];
 
@@ -19,14 +16,5 @@ export const useSplitMessageActionSet = (messageActionSet: MessageActionSetItem[
       if (action.placement === 'dropdown') dropdownActionSet.push(action);
     }
 
-  useMemo(() => {
-    const quickActionSet: QuickMessageActionSetItem[] = [];
-    const dropdownActionSet: DropdownMessageActionSetItem[] = [];
-
-for (const action of messageActionSet) {
-if (action.placement === 'quick') quickActionSet.push(action);
-if (action.placement === 'dropdown') dropdownActionSet.push(action);
-}
-
-return { dropdownActionSet, quickActionSet } as const;
+    return { dropdownActionSet, quickActionSet } as const;
   }, [messageActionSet]);
