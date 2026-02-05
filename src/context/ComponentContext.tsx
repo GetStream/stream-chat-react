@@ -8,7 +8,6 @@ import type {
   BaseImageProps,
   CalloutDialogProps,
   ChannelPreviewActionButtonsProps,
-  CustomMessageActionsListProps,
   DateSeparatorProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
@@ -22,7 +21,6 @@ import type {
   MessageInputProps,
   MessageListNotificationsProps,
   MessageNotificationProps,
-  MessageOptionsProps,
   MessageProps,
   MessageRepliesCountButtonProps,
   MessageStatusProps,
@@ -99,8 +97,6 @@ export type ComponentContextValue = {
   CommandChip?: React.ComponentType;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType;
-  /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
-  CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps>;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditedMessagePreview.tsx) */
@@ -140,12 +136,6 @@ export type ComponentContextValue = {
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
-  /**
-   * Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx)
-   *
-   * @deprecated Use MessageActions property instead.
-   */
-  MessageOptions?: React.ComponentType<MessageOptionsProps>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */

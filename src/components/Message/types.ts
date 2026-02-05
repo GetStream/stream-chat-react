@@ -25,8 +25,6 @@ export type MessageProps = {
   autoscrollToBottom?: () => void;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
-  /** Object containing custom message actions and function handlers */
-  customMessageActions?: MessageContextValue['customMessageActions'];
   /** An array of user IDs that have confirmed the message delivery to their device */
   deliveredTo?: UserResponse[];
   /** If true, disables the ability for users to quote messages, defaults to false */

@@ -29,8 +29,7 @@ import {
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
-import { MessageProvider, WithComponents } from '../../../context';
-import { MessageActionsBox } from '../../MessageActions';
+import { WithComponents } from '../../../context';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
@@ -2287,36 +2286,6 @@ describe('Channel', () => {
           }
         },
       );
-    });
-  });
-
-  describe('Custom Components', () => {
-    it('should render CustomMessageActionsList if provided', async () => {
-      const CustomMessageActionsList = jest
-        .fn()
-        .mockImplementation(() => 'CustomMessageActionsList');
-
-      const messageContextValue = {
-        message: generateMessage(),
-        messageListRect: {},
-      };
-
-      await renderComponent({
-        channel,
-        chatClient,
-        children: (
-          <MessageProvider value={{ ...messageContextValue }}>
-            <MessageActionsBox getMessageActions={jest.fn(() => [])} />
-          </MessageProvider>
-        ),
-        components: {
-          CustomMessageActionsList,
-        },
-      });
-
-      await waitFor(() => {
-        expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
-      });
     });
   });
 });
