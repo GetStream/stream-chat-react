@@ -19,7 +19,8 @@ const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) =
   editedMessage,
 });
 
-const textComposerStateSelector = ({ text }: TextComposerState) => ({
+const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
+  command,
   text,
 });
 
@@ -38,7 +39,7 @@ export const MessageComposerActions = () => {
     messageComposerStateSelector,
   );
 
-  const { text } = useStateStore(
+  const { command, text } = useStateStore(
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
@@ -70,7 +71,7 @@ export const MessageComposerActions = () => {
     <SendButton sendMessage={handleSubmit} />
   ) : (
     <DefaultSendButton sendMessage={handleSubmit}>
-      {editedMessage ? <IconCheckmark /> : <IconPaperPlane />}
+      {editedMessage || command ? <IconCheckmark /> : <IconPaperPlane />}
     </DefaultSendButton>
   );
 

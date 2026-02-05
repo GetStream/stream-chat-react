@@ -234,10 +234,16 @@
         gap: var(--spacing-xxs);
         white-space: nowrap;
 
+        .str-chat__icon--exclamation-triangle path {
+          fill: var(--accent-error);
+        }
+
         .str-chat__attachment-preview-file__retry-upload-button {
           @include utils.button-reset;
-          color: var(--str-chat__primary-color);
+          padding: 0;
+          color: var(--text-link);
           cursor: pointer;
+          line-height: var(--typography-line-height-tight, 16px);
         }
       }
     }

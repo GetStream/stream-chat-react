@@ -9,6 +9,7 @@ export type {
   UnsupportedAttachmentPreviewProps,
   VoiceRecordingPreviewProps,
 } from './AttachmentPreviewList';
+export * from './CommandChip';
 export * from './CooldownTimer';
 export * from './hooks';
 export * from './icons';

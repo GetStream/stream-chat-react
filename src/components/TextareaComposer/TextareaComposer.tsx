@@ -15,13 +15,10 @@ import type {
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
-import {
-  useComponentContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
+import { useComponentContext, useMessageInputContext } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
+import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -83,7 +80,6 @@ export const TextareaComposer = ({
   shouldSubmit: shouldSubmitProp,
   ...restTextareaProps
 }: TextareaComposerProps) => {
-  const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const {
     additionalTextareaProps,
@@ -97,9 +93,7 @@ export const TextareaComposer = ({
   } = useMessageInputContext();
   const cooldownRemaining = useCooldownRemaining();
 
-  const placeholder = cooldownRemaining
-    ? t('Slow mode, wait {{ seconds }}s...', { seconds: cooldownRemaining })
-    : (placeholderProp ?? additionalTextareaProps?.placeholder ?? t('Type your message'));
+  const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
 
   const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
   const minRows = minRowsProp ?? minRowsContext;

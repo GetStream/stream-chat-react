@@ -13,8 +13,8 @@ export const RemindMeActionButton = ({
     <ContextMenuButton
       aria-selected='false'
       className={className}
-      Submenu={RemindMeSubmenu}
-      submenuPlacement={isMine ? 'left-start' : 'right-start'}
+      // Submenu={RemindMeSubmenu}
+      // submenuPlacement={isMine ? 'left-start' : 'right-start'}
     >
       {t('Remind Me')}
     </ContextMenuButton>

@@ -1,0 +1,12 @@
+.str-chat__icon--flag {
+  fill: none;
+  width: 16px;
+  height: 16px;
+
+  path {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.2;
+  }
+}

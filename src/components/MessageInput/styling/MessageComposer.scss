@@ -98,7 +98,6 @@
       display: flex;
       align-items: center;
       margin-inline: var(--spacing-xxs) var(--spacing-xs);
-      min-height: $controls-containers-min-height; // align with the attachment button
 
       textarea {
         @include utils.component-layer-overrides('message-textarea');

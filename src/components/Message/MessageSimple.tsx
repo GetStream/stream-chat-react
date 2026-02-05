@@ -194,7 +194,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
             </div>
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
-              {finalAttachments?.length && !message.quoted_message ? (
+              {finalAttachments?.length ? (
                 <Attachment actionHandler={handleAction} attachments={finalAttachments} />
               ) : null}
               {isAIGenerated ? (

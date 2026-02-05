@@ -1,0 +1,27 @@
+@use '../../../styling/utils';
+
+.str-chat__command-chip {
+  display: flex;
+  padding: var(--spacing-xxs) var(--spacing-sm);
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  border-radius: var(--radius-max);
+
+  color: var(--text-inverse);
+  background-color: var(--background-core-inverse, var(--slate-900));
+  text-transform: uppercase;
+  font-size: var(--typography-font-size-xs);
+  font-weight: var(--typography-font-weight-semi-bold);
+  line-height: var(--typography-line-height-tight);
+
+  .str-chat__command-chip__close-button {
+    @include utils.button-reset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-inverse);
+
+  }
+}
