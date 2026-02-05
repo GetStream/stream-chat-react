@@ -9,7 +9,9 @@ exports[`<MessageText /> should render with a custom inner class when one is set
       class="str-chat__message-inner"
       data-testid="message-inner"
     >
-      <div />
+      <div
+        data-testid="mocked-message-actions"
+      />
       <div
         class="str-chat__message-reactions-host"
       />
@@ -71,7 +73,9 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
       class="str-chat__message-inner"
       data-testid="message-inner"
     >
-      <div />
+      <div
+        data-testid="mocked-message-actions"
+      />
       <div
         class="str-chat__message-reactions-host"
       />
@@ -133,7 +137,9 @@ exports[`<MessageText /> should render with custom theme identifier in generated
       class="str-chat__message-inner"
       data-testid="message-inner"
     >
-      <div />
+      <div
+        data-testid="mocked-message-actions"
+      />
       <div
         class="str-chat__message-reactions-host"
       />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -7,7 +7,6 @@ import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MESSAGE_ACTIONS } from '../utils';
 
@@ -42,9 +41,6 @@ expect.extend(toHaveNoViolations);
 
 Dayjs.extend(calendar);
 
-jest.mock('../MessageOptions', () => ({
-  MessageOptions: jest.fn(() => <div data-testid='mocked-message-options' />),
-}));
 jest.mock('../MessageText', () => ({
   MessageText: jest.fn(() => <div data-testid='mocked-message-text' />),
 }));
@@ -233,16 +229,16 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render message with custom options component when one is given', async () => {
+  it('should render message with custom actions component when one is given', async () => {
     const message = generateAliceMessage({ text: '' });
-    const CustomOptions = () => <div data-testid='custom-message-options'>Options</div>;
+    const CustomActions = () => <div data-testid='custom-message-actions'>Actions</div>;
     const { container, getByTestId } = await renderMessageSimple({
       components: {
-        MessageOptions: CustomOptions,
+        MessageActions: CustomActions,
       },
       message,
     });
-    expect(getByTestId('custom-message-options')).toBeInTheDocument();
+    expect(getByTestId('custom-message-actions')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -497,14 +493,16 @@ describe('<MessageSimple />', () => {
 
   it('should render message options', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { container } = await renderMessageSimple({
+    const { container, getByTestId } = await renderMessageSimple({
       message,
       props: {
         handleOpenThread: jest.fn(),
       },
     });
 
-    expect(MessageOptionsMock).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(getByTestId('message-actions-host')).toBeInTheDocument();
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

@@ -26,13 +26,6 @@ import type {
 import type { RenderTextOptions } from '../components/Message/renderText';
 import type { UnknownType } from '../types/types';
 
-export type CustomMessageActions = {
-  [key: string]: (
-    message: LocalMessage,
-    event: React.BaseSyntheticEvent,
-  ) => Promise<void> | void;
-};
-
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
@@ -88,8 +81,6 @@ export type MessageContextValue = {
   autoscrollToBottom?: () => void;
   /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
-  /** Object containing custom message actions and function handlers */
-  customMessageActions?: CustomMessageActions;
   /** An array of user IDs that have confirmed the message delivery to their device */
   deliveredTo?: UserResponse[];
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */

@@ -7,9 +7,8 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ChatProvider, MessageProvider, useChannelActionContext } from '../../../context';
+import { ChatProvider, useChannelActionContext } from '../../../context';
 import { Channel } from '../../Channel';
-import { MessageActionsBox } from '../../MessageActions';
 import React, { useEffect, useRef } from 'react';
 import { SearchController } from 'stream-chat';
 import { MessageInput } from '../MessageInput';
@@ -53,16 +52,6 @@ const defaultChatContext = {
   searchController: new SearchController(),
 };
 
-const defaultMessageContextValue = {
-  getMessageActions: () => ['delete', 'edit', 'quote'],
-  handleDelete: () => {},
-  handleFlag: () => {},
-  handleMute: () => {},
-  handlePin: () => {},
-  isMyMessage: () => true,
-  message: mainListMessage,
-};
-
 const setup = async ({ channelData } = {}) => {
   const {
     channels: [customChannel],
@@ -102,8 +91,6 @@ const renderComponent = async ({
   customChannel,
   customClient,
   customUser,
-  messageActionsBoxProps = {},
-  messageContextOverrides = {},
   messageInputProps = {},
   thread,
 } = {}) => {
@@ -126,14 +113,6 @@ const renderComponent = async ({
       >
         <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
           <ThreadSetter />
-          <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
-          >
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
-            />
-          </MessageProvider>
           <LegacyThreadContext.Provider
             value={{ legacyThread: thread ?? mainListMessage }}
           >
