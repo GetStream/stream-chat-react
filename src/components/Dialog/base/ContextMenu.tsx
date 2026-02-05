@@ -60,6 +60,7 @@ export type ContextMenuOpenSubmenuParams = {
   Submenu: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
   ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
+  menuClassName?: string;
 };
 
 export type ContextMenuItemProps = ComponentProps<'button'> & {
@@ -92,6 +93,7 @@ type ContextMenuLevel = {
   Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
   ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
+  menuClassName?: string;
 };
 
 export type ContextMenuProps = Omit<ComponentProps<'div'>, 'children'> & {
@@ -99,6 +101,7 @@ export type ContextMenuProps = Omit<ComponentProps<'div'>, 'children'> & {
   items: ContextMenuItemComponent[];
   Header?: ContextMenuHeaderComponent;
   ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
+  menuClassName?: string;
   onClose?: () => void;
   onMenuLevelChange?: (level: number) => void;
 };
@@ -109,6 +112,7 @@ export const ContextMenu = ({
   Header,
   items,
   ItemsWrapper,
+  menuClassName,
   onClose,
   onMenuLevelChange,
   ...props
@@ -118,8 +122,9 @@ export const ContextMenu = ({
       Header,
       items,
       ItemsWrapper,
+      menuClassName,
     }),
-    [Header, items, ItemsWrapper],
+    [Header, items, ItemsWrapper, menuClassName],
   );
   const [menuStack, setMenuStack] = useState<ContextMenuLevel[]>(() => [rootLevel]);
   const activeMenu = menuStack[menuStack.length - 1];
@@ -132,11 +137,13 @@ export const ContextMenu = ({
     ({
       Header,
       ItemsWrapper: SubmenuItemsWrapper,
+      menuClassName,
       Submenu,
     }: ContextMenuOpenSubmenuParams) => {
       const nextLevel: ContextMenuLevel = {
         Header,
         ItemsWrapper: SubmenuItemsWrapper ?? ItemsWrapper,
+        menuClassName,
         Submenu,
       };
       setMenuStack((current) => [...current, nextLevel]);
@@ -163,18 +170,17 @@ export const ContextMenu = ({
 
   return (
     <ContextMenuContext.Provider value={{ closeMenu, openSubmenu, returnToParentMenu }}>
-      <ContextMenuRoot className={className} {...props}>
-        {menuStack.length > 1 &&
-          (activeMenu.Header ? (
-            <activeMenu.Header />
-          ) : (
-            <ContextMenuHeader>
-              <ContextMenuBackButton onClick={returnToParentMenu}>
-                <IconChevronRight />
-                <span>{backLabel}</span>
-              </ContextMenuBackButton>
-            </ContextMenuHeader>
-          ))}
+      <ContextMenuRoot className={clsx(className, activeMenu.menuClassName)} {...props}>
+        {activeMenu.Header ? (
+          <activeMenu.Header />
+        ) : menuStack.length > 1 ? (
+          <ContextMenuHeader>
+            <ContextMenuBackButton onClick={returnToParentMenu}>
+              <IconChevronRight />
+              <span>{backLabel}</span>
+            </ContextMenuBackButton>
+          </ContextMenuHeader>
+        ) : null}
         <ContextMenuBody>
           {activeMenu.Submenu ? (
             <activeMenu.Submenu />

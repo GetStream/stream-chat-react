@@ -1,7 +1,7 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React from 'react';
 import type { CommandResponse } from 'stream-chat';
-import { CommandContextMenuItem } from '../../MessageInput/AttachmentSelector/CommandsSubmenu';
+import { CommandContextMenuItem } from '../../MessageInput/AttachmentSelector/CommandsMenu';
 
 export type CommandItemProps = {
   entity: CommandResponse;

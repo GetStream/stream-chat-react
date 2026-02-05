@@ -1,0 +1,24 @@
+.str-chat__context-menu.str-chat__context-menu--commands {
+  .str-chat__context-menu__button--command {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 2fr);
+
+
+    .str-chat__context-menu__button__icon {
+      grid-column: 1;
+    }
+
+    .str-chat__context-menu__button__label {
+      grid-column: 2;
+    }
+
+    .str-chat__context-menu__button__details {
+      grid-column: 3;
+      text-align: left;
+    }
+  }
+
+  .str-chat__context-menu__header--commands:not(.str-chat__context-menu__header--submenu-commands) {
+    padding: var(--spacing-xs);
+  }
+}

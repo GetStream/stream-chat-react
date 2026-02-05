@@ -41,6 +41,10 @@
 
     .str-chat__context-menu__header {
       width: 100%;
+      color: var(--text-tertiary);
+      font-size: var(--typography-font-size-sm);
+      font-weight: var(--typography-font-weight-semi-bold, 600);
+      line-height: var(--typography-line-height-tight);
     }
 
     .str-chat__context-menu__back-button {
@@ -138,7 +142,6 @@
 
       .str-chat__context-menu__button__details {
         flex: 1;
-        text-align: right;
         color: var(--text-tertiary);
         font-weight: var(--typography-font-weight-regular);
         white-space: nowrap;

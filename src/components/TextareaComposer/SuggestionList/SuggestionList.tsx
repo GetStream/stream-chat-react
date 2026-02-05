@@ -30,6 +30,10 @@ import type {
   TextComposerState,
   TextComposerSuggestion,
 } from 'stream-chat';
+import {
+  CommandsMenuClassName,
+  CommandsMenuHeader,
+} from '../../MessageInput/AttachmentSelector/CommandsMenu';
 
 type SuggestionTrigger = '/' | ':' | '@' | string;
 
@@ -210,8 +214,14 @@ export const SuggestionList = ({
     >
       <ContextMenu
         className={clsx('str-chat__suggestion-list', className)}
+        Header={
+          suggestions.searchSource.type === 'commands' ? CommandsMenuHeader : undefined
+        }
         items={contextMenuItems}
         ItemsWrapper={ItemsWrapper}
+        menuClassName={
+          suggestions.searchSource.type === 'commands' ? CommandsMenuClassName : undefined
+        }
       />
     </div>
   );

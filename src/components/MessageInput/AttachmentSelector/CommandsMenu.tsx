@@ -28,11 +28,13 @@ const icons: Record<string, ComponentType> = {
   unmute: IconVolumeFull,
 };
 
+export const CommandsMenuClassName = 'str-chat__context-menu--commands';
+
 export const CommandsSubmenuHeader = () => {
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
   return (
-    <ContextMenuHeader className='str-chat__context-menu__header--commands'>
+    <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
       <ContextMenuBackButton onClick={returnToParentMenu}>
         <IconChevronRight />
         <span>{t('Instant commands')}</span>
@@ -41,7 +43,16 @@ export const CommandsSubmenuHeader = () => {
   );
 };
 
-export const CommandsSubmenu = () => {
+export const CommandsMenuHeader = () => {
+  const { t } = useTranslationContext();
+  return (
+    <ContextMenuHeader className='str-chat__context-menu__header--commands'>
+      <span>{t('Instant commands')}</span>
+    </ContextMenuHeader>
+  );
+};
+
+export const CommandsMenu = () => {
   const { closeMenu } = useContextMenuContext();
   const messageComposer = useMessageComposer();
   const { textareaRef } = useMessageInputContext();
@@ -114,11 +125,15 @@ export const CommandContextMenuItem = ({
   command: CommandResponse & { name: string };
 }) => {
   const { args, description } = useCommandTranslation(command);
+
+  // todo: retrieve the command trigger char from textComposer - needed adjustment in LLC
+  const details = useMemo(() => `/${command.name} ${args}`, [args, command.name]);
+
   return (
     <ContextMenuButton
       {...props}
       className={clsx('str-chat__context-menu__button--command', className)}
-      details={args}
+      details={details}
       Icon={icons[command.name]}
       key={command.name}
       label={command.name}

@@ -46,7 +46,11 @@ import {
   IconPoll,
 } from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
-import { CommandsSubmenu, CommandsSubmenuHeader } from './CommandsSubmenu';
+import {
+  CommandsMenu,
+  CommandsMenuClassName,
+  CommandsSubmenuHeader,
+} from './CommandsMenu';
 
 const AttachmentSelectorMenuInitButtonIcon = () => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -146,7 +150,11 @@ export const DefaultAttachmentSelectorComponents = {
         Icon={IconCommand}
         onClick={() => {
           if (!hasSubmenu) return;
-          openSubmenu({ Header: submenuHeader, Submenu: submenuItems });
+          openSubmenu({
+            Header: submenuHeader,
+            menuClassName: CommandsMenuClassName,
+            Submenu: submenuItems,
+          });
         }}
       >
         {t('Commands')}
@@ -221,7 +229,7 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
   {
     ActionButton: DefaultAttachmentSelectorComponents.Command,
     Header: CommandsSubmenuHeader,
-    Submenu: CommandsSubmenu,
+    Submenu: CommandsMenu,
     type: 'selectCommand',
   },
 ];
