@@ -5,7 +5,6 @@ import type { ComponentProps } from 'react';
 
 export const RemindMeActionButton = ({
   className,
-  isMine,
 }: { isMine: boolean } & ComponentProps<'button'>) => {
   const { t } = useTranslationContext();
 
