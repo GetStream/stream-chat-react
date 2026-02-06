@@ -43,7 +43,7 @@ export function DurationDisplay({
         className,
       )}
     >
-      {secondsElapsed && (
+      {!!secondsElapsed && (
         <span className='str-chat__duration-display__time-elapsed'>
           {formattedSecondsElapsed}
         </span>

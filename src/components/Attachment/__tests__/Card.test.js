@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { Card } from '../Card';
+import { Card } from '../LinkPreview/Card';
 
 import {
   ChannelActionProvider,

@@ -1,0 +1,14 @@
+.str-chat {
+  --str-chat__quoted-message-bubble-background-color: var(--str-chat__secondary-background-color);
+
+  .str-chat__message {
+    .str-chat__quoted-message-preview {
+      background-color: var(--chat-bg-attachment-incoming);
+    }
+    .str-chat__quoted-message-preview--own {
+      background-color: var(--chat-bg-attachment-outgoing);
+    }
+  }
+}
+
+

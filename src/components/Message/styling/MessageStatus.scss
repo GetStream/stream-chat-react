@@ -1,0 +1,53 @@
+.str-chat {
+  --str-chat__message-status-color: var(--accent-primary);
+}
+
+.str-chat__message-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: var(--str-chat__spacing-0_5);
+  position: relative;
+  --str-chat-icon-color: var(--str-chat__message-status-color);
+  color: var(--str-chat__message-status-color);
+  font: var(--str-chat__body-text);
+
+  svg {
+    width: 16px;
+    height: 16px;
+
+    path {
+      fill: var(--str-chat__message-status-color);
+    }
+  }
+}
+
+.str-chat__message-status.str-chat__message-status-sent {
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.str-chat__message-status-sent {
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.str-chat__message-status-delivered {
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+.str-chat__message-status-sent,
+.str-chat__message-status-delivered {
+  svg {
+    path {
+      fill: var(--str-chat__text-low-emphasis-color);
+    }
+  }
+}

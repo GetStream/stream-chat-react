@@ -39,6 +39,7 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
@@ -77,6 +78,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     PinIndicator,
+    QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionList,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
@@ -191,6 +193,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
             </div>
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
+              {message.quoted_message && <QuotedMessage />}
               {finalAttachments?.length ? (
                 <Attachment actionHandler={handleAction} attachments={finalAttachments} />
               ) : null}

@@ -1,3 +1,50 @@
+@use '../../../styling/utils';
+
 .str-chat__message-actions-box {
   min-width: 180px;
+}
+
+.str-chat__message-options {
+  grid-area: options;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+  width: var(--str-chat-message-options-size);
+  --str-chat-icon-color: var(--str-chat__message-options-color);
+
+  .str-chat__message-actions-box-button,
+  .str-chat__message-reply-in-thread-button,
+  .str-chat__message-reactions-button {
+    // remove default button styles (React SDK uses button compared to div in Angular SDK)
+    @include utils.button-reset;
+    @include utils.flex-row-center;
+    cursor: pointer;
+    width: var(--str-chat__message-options-button-size);
+    height: var(--str-chat__message-options-button-size);
+    border-radius: var(--str-chat__message-options-border-radius);
+    color: var(--str-chat__message-options-color);
+
+    .str-chat__message-action-icon path {
+      fill: var(--str-chat__message-options-color);
+    }
+  }
+
+  .str-chat__message-actions-box-button:hover,
+  .str-chat__message-reply-in-thread-button:hover,
+  .str-chat__message-reactions-button:hover {
+    background-color: var(--str-chat__message-options-hover-background-color);
+  }
+
+  .str-chat__message-actions-box-button:active,
+  .str-chat__message-reply-in-thread-button:active,
+  .str-chat__message-reactions-button:active {
+    .str-chat__message-action-icon path {
+      fill: var(--str-chat__message-options-active-color);
+    }
+  }
+
+  .str-chat__message-actions-box-button,
+  .str-chat__message-actions-container {
+    position: relative;
+  }
 }

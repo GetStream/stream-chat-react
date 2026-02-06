@@ -10,15 +10,11 @@ import {
 } from 'stream-chat';
 
 import {
-  AudioContainer,
   CardContainer,
   FileContainer,
-  GalleryContainer,
   GeolocationContainer,
-  ImageContainer,
   MediaContainer,
   UnsupportedAttachmentContainer,
-  VoiceRecordingContainer,
 } from './AttachmentContainer';
 import { SUPPORTED_VIDEO_FORMATS } from './utils';
 
@@ -27,7 +23,7 @@ import type { SharedLocationResponse, Attachment as StreamAttachment } from 'str
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
-import type { CardProps } from './Card';
+import type { CardProps } from './LinkPreview/Card';
 import type { FileAttachmentProps } from './FileAttachment';
 import type { GalleryProps, ImageProps } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
@@ -35,25 +31,11 @@ import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler'
 import type { GroupedRenderedAttachment } from './utils';
 import type { GeolocationProps } from './Geolocation';
 
-const CONTAINER_MAP = {
-  audio: AudioContainer,
-  // todo: rename to linkPreview
-  card: CardContainer,
-  file: FileContainer,
-  media: MediaContainer,
-  unsupported: UnsupportedAttachmentContainer,
-  voiceRecording: VoiceRecordingContainer,
-} as const;
-
 export const ATTACHMENT_GROUPS_ORDER = [
-  'card',
-  'gallery',
-  'image',
   'media',
-  'audio',
-  'voiceRecording',
-  'file',
+  'card',
   'geolocation',
+  'file',
   'unsupported',
 ] as const;
 
@@ -86,7 +68,7 @@ export type AttachmentProps = {
 };
 
 /**
- * A component used for rendering message attachments. By default, the component supports: AttachmentActions, Audio, Card, File, Gallery, Image, and Video
+ * A component used for rendering message attachments.
  */
 export const Attachment = (props: AttachmentProps) => {
   const { attachments } = props;
@@ -111,87 +93,68 @@ const renderGroupedAttachments = ({
   attachments,
   ...rest
 }: AttachmentProps): GroupedRenderedAttachment => {
-  const uploadedImages: StreamAttachment[] = attachments.filter((attachment) =>
-    isImageAttachment(attachment),
+  const mediaAttachments: StreamAttachment[] = [];
+  const containers = attachments.reduce<GroupedRenderedAttachment>(
+    (typeMap, attachment) => {
+      if (isSharedLocationResponse(attachment)) {
+        typeMap.geolocation.push(
+          <GeolocationContainer
+            {...rest}
+            key={`geolocation-${typeMap.geolocation.length}`}
+            location={attachment}
+          />,
+        );
+      } else if (isScrapedContent(attachment)) {
+        typeMap.card.push(
+          <CardContainer
+            key={`card-${typeMap.card.length}`}
+            {...rest}
+            attachment={attachment}
+          />,
+        );
+      } else if (
+        isImageAttachment(attachment) ||
+        isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
+      ) {
+        mediaAttachments.push(attachment);
+      } else if (
+        isAudioAttachment(attachment) ||
+        isVoiceRecordingAttachment(attachment) ||
+        isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
+      ) {
+        typeMap.file.push(
+          <FileContainer
+            key={`file-${typeMap.file.length}`}
+            {...rest}
+            attachment={attachment}
+          />,
+        );
+      } else {
+        typeMap.unsupported.push(
+          <UnsupportedAttachmentContainer
+            key={`unsupported-${typeMap.unsupported.length}`}
+            {...rest}
+            attachment={attachment}
+          />,
+        );
+      }
+
+      return typeMap;
+    },
+    {
+      card: [],
+      file: [],
+      geolocation: [],
+      media: [],
+      unsupported: [],
+    },
   );
 
-  const containers = attachments
-    .filter((attachment) => !isImageAttachment(attachment))
-    .reduce<GroupedRenderedAttachment>(
-      (typeMap, attachment) => {
-        if (isSharedLocationResponse(attachment)) {
-          typeMap.geolocation.push(
-            <GeolocationContainer
-              {...rest}
-              key='geolocation-container'
-              location={attachment}
-            />,
-          );
-        } else {
-          const attachmentType = getAttachmentType(attachment);
-
-          const Container = CONTAINER_MAP[attachmentType];
-          typeMap[attachmentType].push(
-            <Container
-              key={`${attachmentType}-${typeMap[attachmentType].length}`}
-              {...rest}
-              attachment={attachment}
-            />,
-          );
-        }
-
-        return typeMap;
-      },
-      {
-        audio: [],
-        card: [],
-        file: [],
-        media: [],
-        unsupported: [],
-        // not used in reduce
-        // eslint-disable-next-line sort-keys
-        image: [],
-        // eslint-disable-next-line sort-keys
-        gallery: [],
-        geolocation: [],
-        voiceRecording: [],
-      },
+  if (mediaAttachments.length) {
+    containers.media.push(
+      <MediaContainer key='media-container' {...rest} attachments={mediaAttachments} />,
     );
-
-  if (uploadedImages.length > 1) {
-    containers['gallery'] = [
-      <GalleryContainer
-        key='gallery-container'
-        {...rest}
-        attachment={{
-          images: uploadedImages,
-          type: 'gallery',
-        }}
-      />,
-    ];
-  } else if (uploadedImages.length === 1) {
-    containers['image'] = [
-      <ImageContainer key='image-container' {...rest} attachment={uploadedImages[0]} />,
-    ];
   }
 
   return containers;
-};
-
-export const getAttachmentType = (
-  attachment: AttachmentProps['attachments'][number],
-): keyof typeof CONTAINER_MAP => {
-  if (isScrapedContent(attachment)) {
-    return 'card';
-  } else if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
-    return 'media';
-  } else if (isAudioAttachment(attachment)) {
-    return 'audio';
-  } else if (isVoiceRecordingAttachment(attachment)) {
-    return 'voiceRecording';
-  } else if (isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
-    return 'file';
-  }
-
-  return 'unsupported';
 };

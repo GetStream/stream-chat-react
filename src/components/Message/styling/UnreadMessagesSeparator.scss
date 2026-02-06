@@ -1,0 +1,15 @@
+.str-chat__unread-messages-separator-wrapper {
+  padding-block: var(--str-chat__spacing-2);
+
+  .str-chat__unread-messages-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: var(--str-chat__spacing-2);
+    background-color: var(--str-chat__secondary-surface-color);
+    color: var(--str-chat__text-low-emphasis-color);
+    text-transform: uppercase;
+    font: var(--str-chat__caption-strong-text);
+  }
+}

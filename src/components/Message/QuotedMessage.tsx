@@ -2,7 +2,6 @@ import React from 'react';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { renderText as defaultRenderText } from './renderText';
 import { QuotedMessagePreviewUI } from '../MessageInput';
 
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
@@ -11,7 +10,7 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
   const { message, renderText: contextRenderText } = useMessageContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
 
-  const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
+  const renderText = propsRenderText ?? contextRenderText;
 
   const { quoted_message } = message;
 

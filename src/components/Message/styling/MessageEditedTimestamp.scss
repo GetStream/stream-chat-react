@@ -1,0 +1,13 @@
+.str-chat__message-edited-timestamp {
+  overflow: hidden;
+  transition: height 0.1s;
+  flex-basis: 100%;
+
+  &--open {
+    height: var(--str-chat__message-edited-timestamp-height, 1rem);
+  }
+
+  &--collapsed {
+    height: 0;
+  }
+}

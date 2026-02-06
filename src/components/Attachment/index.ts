@@ -3,7 +3,7 @@ export * from './AttachmentActions';
 export * from './AttachmentContainer';
 export * from './Audio';
 export * from './audioSampling';
-export * from './Card';
+export * from './LinkPreview/Card';
 export * from './components';
 export * from './FileAttachment';
 export * from './Geolocation';
