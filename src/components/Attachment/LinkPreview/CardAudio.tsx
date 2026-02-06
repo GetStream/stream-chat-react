@@ -80,7 +80,15 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
 };
 
 export const CardAudio = ({
-  og: { asset_url, author_name, mime_type, og_scrape_url, text, title, title_link },
+  attachment: {
+    asset_url,
+    author_name,
+    mime_type,
+    og_scrape_url,
+    text,
+    title,
+    title_link,
+  },
 }: AudioProps) => {
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';

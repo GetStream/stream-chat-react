@@ -42,8 +42,7 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
 };
 
 export type AudioProps = {
-  // fixme: rename og to attachment
-  og: Attachment;
+  attachment: Attachment;
 };
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
@@ -53,7 +52,7 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 
 const UnMemoizedAudio = (props: AudioProps) => {
   const {
-    og: { asset_url, file_size, mime_type, title },
+    attachment: { asset_url, file_size, mime_type, title },
   } = props;
 
   /**
@@ -75,7 +74,7 @@ const UnMemoizedAudio = (props: AudioProps) => {
       `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
-    waveformData: props.og.waveform_data,
+    waveformData: props.attachment.waveform_data,
   });
 
   return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;
