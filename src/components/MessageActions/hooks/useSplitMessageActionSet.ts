@@ -1,16 +1,20 @@
 import { useMemo } from 'react';
 
-import type { MessageActionSetItem } from '../MessageActions';
+import type {
+  DropdownMessageActionSetItem,
+  MessageActionSetItem,
+  QuickMessageActionSetItem,
+} from '../MessageActions';
 
 export const useSplitMessageActionSet = (messageActionSet: MessageActionSetItem[]) =>
   useMemo(() => {
-    const quickActionSet: MessageActionSetItem[] = [];
-    const dropdownActionSet: MessageActionSetItem[] = [];
+    const quickActionSet: QuickMessageActionSetItem[] = [];
+    const dropdownActionSet: DropdownMessageActionSetItem[] = [];
 
     for (const action of messageActionSet) {
       if (action.placement === 'quick') quickActionSet.push(action);
       if (action.placement === 'dropdown') dropdownActionSet.push(action);
     }
 
-    return { dropdownActionSet, quickActionSet };
+    return { dropdownActionSet, quickActionSet } as const;
   }, [messageActionSet]);

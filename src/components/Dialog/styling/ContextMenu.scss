@@ -132,7 +132,6 @@
 
       .str-chat__context-menu__button__label {
         @include utils.ellipsis-text;
-        max-width: 80%;
         flex: auto;
         text-align: left;
         color: var(--text-primary);
