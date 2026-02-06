@@ -255,7 +255,7 @@
 
     .str-chat__message-options {
       grid-area: options;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
       flex-direction: row-reverse;
       width: var(--str-chat-message-options-size);
@@ -303,14 +303,13 @@
       grid-area: reactions;
       min-width: 100%;
       z-index: 1;
-      position: absolute;
 
       &:has(.str-chat__message-reactions--top) {
-        bottom: calc(100% - var(--spacing-xs));
+        margin-bottom: calc(var(--spacing-xxs) * -1);
       }
 
       &:has(.str-chat__message-reactions--bottom) {
-        top: calc(100% + var(--spacing-xxs));
+        padding-block: var(--spacing-xxs);
       }
 
       &:has(.str-chat__message-reactions--end) {
@@ -323,12 +322,9 @@
     }
 
     &:has(.str-chat__message-reactions--top) {
-      margin-top: calc(26px - var(--spacing-xs));
     }
 
     &:has(.str-chat__message-reactions--bottom) {
-      margin-bottom: calc(26px + var(--spacing-xxs) * 2);
-
       grid-template-areas:
         'message-bubble options'
         'reactions .';
@@ -336,6 +332,7 @@
 
     .str-chat__message-bubble {
       display: flex;
+      justify-self: flex-start;
       grid-area: message-bubble;
       position: relative;
       min-width: 0;
@@ -354,6 +351,7 @@
   }
 
   &.str-chat__message--me .str-chat__message-bubble {
+    justify-self: flex-end;
     background-color: var(--str-chat__own-message-bubble-background-color);
   }
 

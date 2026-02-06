@@ -27,6 +27,9 @@ import {
   MessageList,
   Window,
   WithComponents,
+  GroupAvatar,
+  ReactionsList,
+  useMessageContext,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -77,6 +80,19 @@ const useUser = () => {
   }, [userId]);
 
   return { userId: userId, tokenProvider };
+};
+
+const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList>) => {
+  const { isMyMessage } = useMessageContext();
+  const messageBelongsToCurrentUser = isMyMessage();
+
+  return (
+    <ReactionsList
+      {...props}
+      horizontalPosition={messageBelongsToCurrentUser ? 'start' : 'end'}
+      verticalPosition='top'
+    />
+  );
 };
 
 const App = () => {
@@ -141,7 +157,13 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <WithComponents overrides={{ emojiSearchIndex: SearchIndex, EmojiPicker }}>
+    <WithComponents
+      overrides={{
+        emojiSearchIndex: SearchIndex,
+        EmojiPicker,
+        ReactionsList: CustomMessageReactions,
+      }}
+    >
       <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
         <ChatView>
           <ChatView.Selector />
