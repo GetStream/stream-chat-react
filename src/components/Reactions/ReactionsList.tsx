@@ -1,4 +1,3 @@
-/* eslint-disable sort-keys */
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
@@ -55,6 +54,7 @@ export type ReactionsListProps = Partial<
    */
   horizontalPosition?: 'start' | 'end' | null;
   verticalPosition?: 'top' | 'bottom' | null;
+  visualStyle?: 'clustered' | 'segmented' | null;
 };
 
 const UnMemoizedReactionsList = (props: ReactionsListProps) => {
@@ -68,6 +68,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
     reactionDetailsSort,
     sortReactionDetails,
     verticalPosition = 'top',
+    visualStyle = 'clustered',
     ...rest
   } = props;
 
@@ -79,12 +80,13 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
   const { t } = useTranslationContext('ReactionsList');
   const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
 
-  const handleReactionButtonClick = (reactionType: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleReactionButtonClick = (reactionType: ReactionType) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
       return;
     }
 
-    setSelectedReactionType(reactionType as ReactionType);
+    setSelectedReactionType(reactionType);
   };
 
   if (!hasReactions) return null;
@@ -98,8 +100,8 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
             typeof horizontalPosition === 'string',
           [`str-chat__message-reactions--${verticalPosition}`]:
             typeof verticalPosition === 'string',
-          'str-chat__message-reactions--clustered': true,
-          'str-chat__message-reactions--segmented': false,
+          [`str-chat__message-reactions--${visualStyle}`]:
+            typeof visualStyle === 'string',
         })}
         role='figure'
       >
@@ -107,26 +109,27 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
           {existingReactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
               EmojiComponent && (
-                <li
-                  className={clsx('str-chat__message-reactions__list-item')}
-                  key={reactionType}
-                >
+                <li className='str-chat__message-reactions__list-item' key={reactionType}>
                   <span className='str-chat__message-reactions__item-icon'>
                     <EmojiComponent />
                   </span>
-                  <span
-                    className='str-chat__message-reactions__item-count'
-                    data-testclass='reaction-list-reaction-count'
-                  >
-                    {reactionCount}
-                  </span>
+                  {visualStyle === 'segmented' && (
+                    <span
+                      className='str-chat__message-reactions__item-count'
+                      data-testclass='message-reactions-item-count'
+                    >
+                      {reactionCount}
+                    </span>
+                  )}
                 </li>
               ),
           )}
         </ul>
-        <span className='str-chat__message-reactions__total-count'>
-          {totalReactionCount}
-        </span>
+        {visualStyle === 'clustered' && (
+          <span className='str-chat__message-reactions__total-count'>
+            {totalReactionCount}
+          </span>
+        )}
       </div>
       {selectedReactionType !== null && (
         <ReactionsListModal

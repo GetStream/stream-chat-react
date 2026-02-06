@@ -111,8 +111,8 @@
     .str-chat__message-bubble {
       background-color: transparent;
       overflow: visible;
-      font-size: 64px;
-      line-height: 64px;
+      font-size: var(--size-64);
+      line-height: 1;
     }
   }
 }
@@ -196,10 +196,10 @@
     grid-template-areas:
       '. message-reminder'
       'avatar message'
-      '. replies'
-      '. translation-notice'
-      '. custom-metadata'
-      '. metadata';
+      'avatar replies'
+      'avatar translation-notice'
+      'avatar custom-metadata'
+      'avatar metadata';
     column-gap: var(--str-chat__spacing-2);
     grid-template-columns: auto 1fr;
     justify-items: flex-start;
@@ -238,7 +238,7 @@
     grid-template-columns: auto;
   }
 
-  .str-chat__message-sender-avatar {
+  .str-chat__avatar:has(~ .str-chat__message-inner) {
     grid-area: avatar;
     align-self: end;
   }
@@ -322,6 +322,7 @@
     }
 
     &:has(.str-chat__message-reactions--top) {
+      // maybe remove later
     }
 
     &:has(.str-chat__message-reactions--bottom) {
