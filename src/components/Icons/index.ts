@@ -9,6 +9,7 @@ export * from './IconCommand';
 export * from './IconCross';
 export * from './IconExclamationCircle';
 export * from './IconExclamationTriangle';
+export * from './IconEyeOpen';
 export * from './IconFile';
 export * from './IconFlag';
 export * from './IconGiphy';

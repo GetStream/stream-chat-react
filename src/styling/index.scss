@@ -1,14 +1,14 @@
 // Base styles
-@use "./accessibility";
-@use "./animations";
-@use "./global-layout-variables";
-@use "./global-theme-variables";
+@use "accessibility";
+@use "animations";
+@use "global-layout-variables";
+@use "global-theme-variables";
 @use 'palette-variables';
 @use "./variables.css";
-@use "./base";
-@use "./icons";
+@use "base";
+@use "icons";
 // Fonts
-@use "./fonts";
+@use "fonts";
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
 @use "../components/Icons/styling" as Icons;

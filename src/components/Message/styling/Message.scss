@@ -103,12 +103,36 @@
 }
 
 .str-chat__message.str-chat__message--is-emoji-only {
-  .str-chat__message-inner {
-    .str-chat__message-bubble {
-      background-color: transparent;
-      overflow: visible;
-      font-size: 64px;
-      line-height: 64px;
+
+  &.str-chat__message--is-emoji-only-count-1,
+  &.str-chat__message--is-emoji-only-count-2,
+  &.str-chat__message--is-emoji-only-count-3 {
+    .str-chat__message-inner {
+      .str-chat__message-bubble {
+        background-color: transparent;
+        overflow: visible;
+      }
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-1 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 64px;
+        line-height: 64px;
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-2 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 48px;
+        line-height: 48px;
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-3 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 32px;
+        line-height: 32px;
     }
   }
 }
@@ -125,6 +149,16 @@
   .str-chat__attachment-list,
   .str-chat__message-text {
     padding: 0;
+  }
+}
+
+.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-giphy-attachment {
+  .str-chat__message-bubble {
+    padding: 0;
+  }
+
+  .str-chat__message-text {
+    display: none;
   }
 }
 

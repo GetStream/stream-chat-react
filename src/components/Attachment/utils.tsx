@@ -12,6 +12,7 @@ export const SUPPORTED_VIDEO_FORMATS = [
 export type AttachmentComponentType =
   | 'card'
   | 'gallery'
+  | 'giphy'
   | 'image'
   | 'media'
   | 'audio'

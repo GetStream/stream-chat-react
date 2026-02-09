@@ -80,7 +80,7 @@
 .str-chat,
 .str-chat__theme-light {
   /* Used for emphasis, brands can inject their main color using this variable */
-  --str-chat__primary-color: var(--color-accent-primary);
+  --str-chat__primary-color: var(--accent-primary);
 
   /* Used for emphasised overlays - color of --str-chat__primary-color with alpha channel */
   --str-chat__primary-overlay-color: rgba(0, 95, 255, 0.6);

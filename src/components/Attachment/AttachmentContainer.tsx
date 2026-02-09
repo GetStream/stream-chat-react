@@ -21,6 +21,7 @@ import {
 } from '../Gallery';
 import { Card as DefaultCard } from './LinkPreview/Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
+import { Giphy as DefaultGiphy } from './Giphy';
 import { Geolocation as DefaultGeolocation } from './Geolocation';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import type {
@@ -43,6 +44,7 @@ import type {
 } from '../../types/types';
 import { IconPlaySolid } from '../Icons';
 import { Button } from '../Button';
+import { VisibilityDisclaimer } from './VisibilityDisclaimer';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponse;
@@ -86,14 +88,19 @@ export const AttachmentActionsContainer = ({
   actionHandler,
   attachment,
   AttachmentActions = DefaultAttachmentActions,
+  attachmentActionsDefaultFocus,
 }: RenderAttachmentProps) => {
   if (!attachment.actions?.length) return null;
+
+  const defaultFocusedActionValue =
+    attachment.type && attachmentActionsDefaultFocus?.[attachment.type];
 
   return (
     <AttachmentActions
       {...attachment}
       actionHandler={actionHandler}
       actions={attachment.actions}
+      defaultFocusedActionValue={defaultFocusedActionValue}
       id={(attachment as LocalAttachment).localMetadata?.id || ''}
       text={attachment.text || ''}
     />
@@ -165,6 +172,29 @@ export const CardContainer = (props: RenderAttachmentProps) => {
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <Card {...attachment} />
+    </AttachmentWithinContainer>
+  );
+};
+
+export const GiphyContainer = (props: RenderAttachmentProps) => {
+  const { attachment, Giphy = DefaultGiphy } = props;
+  const componentType = 'giphy';
+
+  if (attachment.actions && attachment.actions.length) {
+    return (
+      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+        <div className='str-chat__attachment'>
+          <VisibilityDisclaimer />
+          <Giphy attachment={attachment} />
+          <AttachmentActionsContainer {...props} />
+        </div>
+      </AttachmentWithinContainer>
+    );
+  }
+
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+      <Giphy attachment={attachment} />
     </AttachmentWithinContainer>
   );
 };

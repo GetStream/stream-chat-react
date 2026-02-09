@@ -88,7 +88,7 @@ export type CardProps = RenderAttachmentProps['attachment'] & {
 
 const UnMemoizedCard = (props: CardProps) => {
   const { giphy, image_url, og_scrape_url, thumb_url, title, title_link, type } = props;
-  const { giphyVersion: giphyVersionName } = useChannelStateContext('CardHeader');
+  const { giphyVersion: giphyVersionName } = useChannelStateContext('');
   const cardUrl = title_link || og_scrape_url;
 
   let image = thumb_url || image_url;

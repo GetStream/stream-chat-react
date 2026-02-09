@@ -342,6 +342,9 @@ export const messageHasAttachments = (message?: LocalMessage) =>
 export const messageHasSingleAttachment = (message?: LocalMessage) =>
   message?.attachments?.length === 1;
 
+export const messageHasGiphyAttachment = (message?: LocalMessage) =>
+  !!message?.attachments?.some((att) => att.type === 'giphy');
+
 export const getImages = (message?: MessageResponse) => {
   if (!message?.attachments) {
     return [];
@@ -431,6 +434,11 @@ export const isOnlyEmojis = (text?: string) => {
   const noSpace = noEmojis.replace(/[\s\n]/gm, '');
 
   return !noSpace;
+};
+
+export const countEmojis = (text?: string) => {
+  const matches = text?.match(emojiRegex());
+  return matches ? matches.length : 0;
 };
 
 export const isMessageBounced = (

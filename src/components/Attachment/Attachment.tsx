@@ -13,14 +13,19 @@ import {
   CardContainer,
   FileContainer,
   GeolocationContainer,
+  GiphyContainer,
   MediaContainer,
   UnsupportedAttachmentContainer,
 } from './AttachmentContainer';
 import { SUPPORTED_VIDEO_FORMATS } from './utils';
+import { defaultAttachmentActionsDefaultFocus } from './AttachmentActions';
 
 import type { ReactPlayerProps } from 'react-player';
 import type { SharedLocationResponse, Attachment as StreamAttachment } from 'stream-chat';
-import type { AttachmentActionsProps } from './AttachmentActions';
+import type {
+  AttachmentActionsDefaultFocusByType,
+  AttachmentActionsProps,
+} from './AttachmentActions';
 import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
 import type { CardProps } from './LinkPreview/Card';
@@ -30,9 +35,11 @@ import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { GroupedRenderedAttachment } from './utils';
 import type { GeolocationProps } from './Geolocation';
+import type { GiphyAttachmentProps } from './Giphy';
 
 export const ATTACHMENT_GROUPS_ORDER = [
   'media',
+  'giphy',
   'card',
   'geolocation',
   'file',
@@ -44,6 +51,8 @@ export type AttachmentProps = {
   attachments: (StreamAttachment | SharedLocationResponse)[];
   /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
+  /** Which action should be focused on initial render, by attachment type (match by action.value) */
+  attachmentActionsDefaultFocus?: AttachmentActionsDefaultFocusByType;
   /** Custom UI component for displaying attachment actions, defaults to and accepts same props as: [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) */
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
   /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
@@ -55,6 +64,8 @@ export type AttachmentProps = {
   /** Custom UI component for displaying a gallery of image type attachments, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
   Gallery?: React.ComponentType<GalleryProps>;
   Geolocation?: React.ComponentType<GeolocationProps>;
+  /** Custom UI component for displaying a Giphy image, defaults to and accepts same props as: [Giphy](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Giphy.tsx) */
+  Giphy?: React.ComponentType<GiphyAttachmentProps>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
   /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
@@ -71,12 +82,21 @@ export type AttachmentProps = {
  * A component used for rendering message attachments.
  */
 export const Attachment = (props: AttachmentProps) => {
-  const { attachments } = props;
+  const {
+    attachmentActionsDefaultFocus = defaultAttachmentActionsDefaultFocus,
+    attachments,
+    ...rest
+  } = props;
 
   const groupedAttachments = useMemo(
-    () => renderGroupedAttachments(props),
+    () =>
+      renderGroupedAttachments({
+        attachmentActionsDefaultFocus,
+        attachments,
+        ...rest,
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [attachments],
+    [attachments, attachmentActionsDefaultFocus],
   );
 
   return (
@@ -102,6 +122,14 @@ const renderGroupedAttachments = ({
             {...rest}
             key={`geolocation-${typeMap.geolocation.length}`}
             location={attachment}
+          />,
+        );
+      } else if (attachment.type === 'giphy') {
+        typeMap.card.push(
+          <GiphyContainer
+            key={`giphy-${typeMap.giphy.length}`}
+            {...rest}
+            attachment={attachment}
           />,
         );
       } else if (isScrapedContent(attachment)) {
@@ -145,6 +173,7 @@ const renderGroupedAttachments = ({
       card: [],
       file: [],
       geolocation: [],
+      giphy: [],
       media: [],
       unsupported: [],
     },

@@ -81,19 +81,6 @@
   }
 }
 
-.str-chat__message-attachment-card--giphy {
-  .str-chat__message-attachment-card--header {
-    height: var(--str-chat__gif-height);
-
-    img {
-      object-fit: contain;
-      max-height: 100%;
-      max-width: 100%;
-      cursor: default;
-    }
-  }
-}
-
 
 .str-chat__message--has-single-attachment {
   .str-chat__message-attachment-card {
