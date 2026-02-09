@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
-import { RecordingTimer } from './RecordingTimer';
 import { WaveProgressBar } from '../../Attachment';
-import { type AudioPlayerState, useAudioPlayer } from '../../AudioPlayback';
+import {
+  type AudioPlayerState,
+  DurationDisplay,
+  useAudioPlayer,
+} from '../../AudioPlayback';
 import { useStateStore } from '../../../store';
 import { IconPause, IconPlaySolid } from '../../Icons';
 import { Button } from '../../Button';
@@ -66,10 +69,16 @@ export const AudioRecordingPlayback = ({
       >
         {isPlaying ? <IconPause /> : <IconPlaySolid />}
       </Button>
-      <RecordingTimer durationSeconds={displayedDuration} />
+      <DurationDisplay
+        className={clsx('str-chat__recording-timer', {
+          'str-chat__recording-timer--hours': displayedDuration >= 3600,
+        })}
+        duration={durationSeconds}
+        isPlaying={!!isPlaying}
+        secondsElapsed={secondsElapsed}
+      />
       <div className='str-chat__wave-progress-bar__track-container'>
         <WaveProgressBar
-          amplitudesCount={200}
           progress={progress}
           seek={audioPlayer.seek}
           waveformData={waveformData || []}

@@ -2,10 +2,13 @@ import React from 'react';
 import type { Attachment } from 'stream-chat';
 
 import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from './components';
-import { displayDuration } from './utils';
 import { FileIcon } from '../FileIcon';
 import { useMessageContext, useTranslationContext } from '../../context';
-import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback/';
+import {
+  type AudioPlayerState,
+  DurationDisplay,
+  useAudioPlayer,
+} from '../AudioPlayback/';
 import { useStateStore } from '../../store';
 import type { AudioPlayer } from '../AudioPlayback';
 import { PlayButton } from '../Button';
@@ -29,24 +32,19 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
   const { canPlayRecord, isPlaying, playbackRate, progress, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
-  const displayedDuration = secondsElapsed || audioPlayer.durationSeconds;
-
   return (
     <div className={rootClassName} data-testid='voice-recording-widget'>
       <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-        {/*todo: should we be really removing the title?*/}
-        {/*<div*/}
-        {/*  className='str-chat__message-attachment__voice-recording-widget__title'*/}
-        {/*  data-testid='voice-recording-title'*/}
-        {/*  title={audioPlayer.title}*/}
-        {/*>*/}
-        {/*  {audioPlayer.title}*/}
-        {/*</div>*/}
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {audioPlayer.durationSeconds ? (
-              displayDuration(displayedDuration)
+              <DurationDisplay
+                duration={audioPlayer.durationSeconds}
+                isPlaying={!!isPlaying}
+                secondsElapsed={secondsElapsed}
+                showRemaining
+              />
             ) : (
               <FileSizeIndicator
                 fileSize={audioPlayer.fileSize}
@@ -55,7 +53,6 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
             )}
           </div>
           <WaveProgressBar
-            // amplitudesCount={50}
             progress={progress}
             seek={audioPlayer.seek}
             waveformData={audioPlayer.waveformData || []}
@@ -67,7 +64,7 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
           disabled={!canPlayRecord}
           onClick={audioPlayer.increasePlaybackRate}
         >
-          {playbackRate?.toFixed(1)}x
+          x{playbackRate?.toString()}
         </PlaybackRateButton>
       </div>
     </div>
@@ -127,19 +124,14 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
   // const title = attachment.title || t('Voice message');
   <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
     <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-      {/*{title && (*/}
-      {/*  <div*/}
-      {/*    className='str-chat__message-attachment__voice-recording-widget__title'*/}
-      {/*    data-testid='voice-recording-title'*/}
-      {/*    title={title}*/}
-      {/*  >*/}
-      {/*    {title}*/}
-      {/*  </div>*/}
-      {/*)}*/}
       <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
         <div className='str-chat__message-attachment__voice-recording-widget__timer'>
           {attachment.duration ? (
-            displayDuration(attachment.duration)
+            <DurationDisplay
+              duration={attachment.duration}
+              isPlaying={false}
+              secondsElapsed={undefined}
+            />
           ) : (
             <FileSizeIndicator
               fileSize={attachment.file_size}

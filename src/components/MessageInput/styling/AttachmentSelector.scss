@@ -1,4 +1,5 @@
 .str-chat {
+  // todo: find existing replacement for variable button-style-outline-text)
   --str-chat__attachment-selector-button-icon-color: var(--button-style-outline-text);
   --str-chat__attachment-selector-button-icon-color-hover: var(--text-secondary);
   --str-chat__attachment-selector-actions-menu-button-icon-color: var(--text-secondary);

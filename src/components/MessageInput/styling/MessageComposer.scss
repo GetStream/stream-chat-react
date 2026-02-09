@@ -55,6 +55,7 @@
     padding: var(--spacing-xs);
     gap: var(--spacing-xs);
     min-width: 0;
+    flex-shrink: 1;
   }
 
   .str-chat__message-composer-compose-area {

@@ -225,6 +225,19 @@ export class AudioPlayer {
     }, 2000);
   };
 
+  private updateDurationFromElement = (element: HTMLAudioElement) => {
+    const duration = element.duration;
+    if (
+      typeof duration !== 'number' ||
+      isNaN(duration) ||
+      !isFinite(duration) ||
+      duration <= 0
+    ) {
+      return;
+    }
+    this._data.durationSeconds = duration;
+  };
+
   private clearPlaybackStartSafetyTimeout = () => {
     if (!this.elementRef) return;
     clearTimeout(this.playTimeout);
@@ -518,6 +531,9 @@ export class AudioPlayer {
     if (!audioElement) return;
 
     const handleEnded = () => {
+      if (audioElement) {
+        this.updateDurationFromElement(audioElement);
+      }
       this.state.partialNext({
         isPlaying: false,
         secondsElapsed: audioElement?.duration ?? this.durationSeconds ?? 0,
@@ -565,14 +581,22 @@ export class AudioPlayer {
       this.setSecondsElapsed(t);
     };
 
+    const handleLoadedMetadata = () => {
+      if (audioElement) {
+        this.updateDurationFromElement(audioElement);
+      }
+    };
+
     audioElement.addEventListener('ended', handleEnded);
     audioElement.addEventListener('error', handleError);
+    audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
     audioElement.addEventListener('timeupdate', handleTimeupdate);
 
     this.unsubscribeEventListeners = () => {
       audioElement.pause();
       audioElement.removeEventListener('ended', handleEnded);
       audioElement.removeEventListener('error', handleError);
+      audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audioElement.removeEventListener('timeupdate', handleTimeupdate);
     };
   };
