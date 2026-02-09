@@ -36,19 +36,6 @@ export const AudioRecorder = () => {
       ) : null}
 
       <AudioRecorderRecordingControls />
-      {/*{state.stopped ? (*/}
-      {/*  <button*/}
-      {/*    className='str-chat__audio_recorder__complete-button'*/}
-      {/*    data-testid='audio-recorder-complete-button'*/}
-      {/*    disabled={isUploadingFile}*/}
-      {/*    onClick={completeRecording}*/}
-      {/*  >*/}
-      {/*    {isUploadingFile ? <LoadingIndicatorIcon /> : <IconPaperPlane />}*/}
-      {/*  </button>*/}
-      {/*) : (*/}
-
-      {/*)}*/}
     </div>
-    // </div>
   );
 };

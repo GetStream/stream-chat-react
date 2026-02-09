@@ -1,0 +1,91 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* The border radius used for attachment actions */
+  --str-chat__attachment-actions-border-radius: 0;
+
+  /* The text/icon color of attachment actions */
+  --str-chat__attachment-actions-color: var(--button-secondary-text);
+
+  /* The background color of attachment actions */
+  --str-chat__attachment-actions-background-color: transparent;
+
+  /* Top border of attachment actions */
+  --str-chat__attachment-actions-border-block-start: none;
+
+  /* Bottom border of attachment actions */
+  --str-chat__attachment-actions-border-block-end: none;
+
+  /* Left (right in RTL layout) border of attachment actions */
+  --str-chat__attachment-actions-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of attachment actions */
+  --str-chat__attachment-actions-border-inline-end: none;
+
+  /* Box shadow applied to attachment actions */
+  --str-chat__attachment-actions-box-shadow: none;
+
+  /* The border radius used for an attachment action */
+  --str-chat__attachment-action-border-radius: 0;
+
+  /* The text/icon color of an attachment action */
+  --str-chat__attachment-action-color: var(--button-secondary-text);
+
+  /* The background color of an attachment action */
+  --str-chat__attachment-action-background-color: transparent;
+
+  /* Top border of an attachment action */
+  --str-chat__attachment-action-border-block-start: none;
+
+  /* Bottom border of an attachment action */
+  --str-chat__attachment-action-border-block-end: none;
+
+  /* Left (right in RTL layout) border of an attachment action */
+  --str-chat__attachment-action-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of an attachment action */
+  --str-chat__attachment-action-border-inline-end: none;
+
+  /* Box shadow applied to an attachment action */
+  --str-chat__attachment-action-box-shadow: none;
+
+  /* The text/icon color of an attachment action while in pressed state */
+  --str-chat__attachment-action-active-color: var(--str-chat__primary-color);
+
+  /* The text/icon color of an attachment action while in pressed state */
+  --str-chat__attachment-action-focus-color: var(--str-chat__primary-color);
+}
+
+.str-chat__message-attachment-actions {
+  @include utils.component-layer-overrides('attachment-actions');
+
+  .str-chat__message-attachment-actions-form {
+    display: flex;
+    justify-content: stretch;
+    height: 48px;
+
+    .str-chat__message-attachment-actions-button {
+      @include utils.component-layer-overrides('attachment-action');
+      width: 100%;
+      padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+      white-space: nowrap;
+      border-collapse: collapse;
+
+      font-size: var(--typography-font-size-md);
+      font-weight: var(--typography-font-weight-semi-bold);
+      line-height: var(--typography-line-height-normal);
+
+      &.str-chat__button {
+        &:active {
+          color: var(--str-chat__attachment-action-active-color);
+        }
+
+        &:focus-visible {
+          color: var(--str-chat__attachment-action-focus-color);
+          outline: none;
+        }
+      }
+
+    }
+  }
+}

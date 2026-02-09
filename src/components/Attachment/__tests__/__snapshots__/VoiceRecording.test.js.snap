@@ -10,13 +10,6 @@ exports[`QuotedVoiceRecording should render the component 1`] = `
       class="str-chat__message-attachment__voice-recording-widget__metadata"
     >
       <div
-        class="str-chat__message-attachment__voice-recording-widget__title"
-        data-testid="voice-recording-title"
-        title="audio_recording_Mon Feb 05 16:21:34 PST 2024.aac"
-      >
-        audio_recording_Mon Feb 05 16:21:34 PST 2024.aac
-      </div>
-      <div
         class="str-chat__message-attachment__voice-recording-widget__audio-state"
       >
         <div

@@ -19,6 +19,7 @@ export type ImageProps = {
   innerRef?: MutableRefObject<HTMLImageElement | null>;
   previewUrl?: string;
   style?: CSSProperties;
+  withGalleryPreview?: boolean;
 } & (
   | {
       /** The text fallback for the image */

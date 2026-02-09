@@ -14,7 +14,6 @@
   --str-chat__message-secondary-color: var(--str-chat__text-low-emphasis-color);
   --str-chat__message-link-color: var(--chat-text-link);
   --str-chat__message-mention-color: var(--str-chat__primary-color);
-  --str-chat__message-status-color: var(--str-chat__primary-color);
   --str-chat__message-replies-count-color: var(--str-chat__primary-color);
   --str-chat__message-background-color: transparent;
   --str-chat__message-highlighted-background-color: var(--str-chat__message-highlight-color);
@@ -35,7 +34,6 @@
   --str-chat__message-bubble-background-color: var(--chat-bg-incoming);
   --str-chat__own-message-bubble-color: var(--chat-text-message);
   --str-chat__own-message-bubble-background-color: var(--chat-bg-outgoing);
-  --str-chat__quoted-message-bubble-background-color: var(--str-chat__secondary-background-color);
   --str-chat__message-bubble-border-block-start: none;
   --str-chat__message-bubble-border-block-end: none;
   --str-chat__message-bubble-border-inline-start: none;
@@ -60,25 +58,6 @@
   --str-chat__blocked-message-border-inline-end: none;
   --str-chat__blocked-message-box-shadow: none;
 
-  --str-chat__system-message-border-radius: 0;
-  --str-chat__system-message-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__system-message-background-color: transparent;
-  --str-chat__system-message-border-block-start: none;
-  --str-chat__system-message-border-block-end: none;
-  --str-chat__system-message-border-inline-start: none;
-  --str-chat__system-message-border-inline-end: none;
-  --str-chat__system-message-box-shadow: none;
-
-  --str-chat__date-separator-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__date-separator-line-color: var(--str-chat__disabled-color);
-  --str-chat__date-separator-border-radius: 0;
-  --str-chat__date-separator-background-color: transparent;
-  --str-chat__date-separator-border-block-start: none;
-  --str-chat__date-separator-border-block-end: none;
-  --str-chat__date-separator-border-inline-start: none;
-  --str-chat__date-separator-border-inline-end: none;
-  --str-chat__date-separator-box-shadow: none;
-
   --str-chat__translation-notice-color: var(--str-chat__text-low-emphasis-color);
   --str-chat__translation-notice-active-background-color: var(--str-chat__tertiary-surface-color);
 
@@ -98,17 +77,6 @@
   --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 300);
 }
 
-.str-chat__message.str-chat__message--is-emoji-only {
-  .str-chat__message-inner {
-    .str-chat__message-bubble {
-      background-color: transparent;
-      overflow: visible;
-      font-size: 64px;
-      line-height: 64px;
-    }
-  }
-}
-
 .str-chat__message {
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
 
@@ -118,6 +86,10 @@
 
   .str-chat__message-bubble {
     max-width: var(--str-chat__message-max-width);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
   }
 
   .str-chat__message-options {
@@ -130,6 +102,40 @@
   }
 }
 
+.str-chat__message.str-chat__message--is-emoji-only {
+
+  &.str-chat__message--is-emoji-only-count-1,
+  &.str-chat__message--is-emoji-only-count-2,
+  &.str-chat__message--is-emoji-only-count-3 {
+    .str-chat__message-inner {
+      .str-chat__message-bubble {
+        background-color: transparent;
+        overflow: visible;
+      }
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-1 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 64px;
+        line-height: 64px;
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-2 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 48px;
+        line-height: 48px;
+    }
+  }
+
+  &.str-chat__message--is-emoji-only-count-3 {
+    .str-chat__message-inner .str-chat__message-bubble {
+        font-size: 32px;
+        line-height: 32px;
+    }
+  }
+}
 
 .str-chat__message.str-chat__message--has-attachment {
   --str-chat__message-max-width: var(--str-chat__message-with-attachment-max-width);
@@ -143,6 +149,16 @@
   .str-chat__attachment-list,
   .str-chat__message-text {
     padding: 0;
+  }
+}
+
+.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-giphy-attachment {
+  .str-chat__message-bubble {
+    padding: 0;
+  }
+
+  .str-chat__message-text {
+    display: none;
   }
 }
 
@@ -160,7 +176,7 @@
   @include utils.component-layer-overrides('message');
 
   @mixin chat-bubble-spacing {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding-inline: var(--spacing-sm);
 
     p {
       white-space: pre-line;
@@ -239,51 +255,6 @@
     grid-template-columns: auto 1fr;
     column-gap: var(--str-chat__spacing-2);
     position: relative;
-
-    .str-chat__message-options {
-      grid-area: options;
-      align-items: flex-start;
-      justify-content: flex-end;
-      flex-direction: row-reverse;
-      width: var(--str-chat-message-options-size);
-      --str-chat-icon-color: var(--str-chat__message-options-color);
-
-      .str-chat__message-actions-box-button,
-      .str-chat__message-reply-in-thread-button,
-      .str-chat__message-reactions-button {
-        // remove default button styles (React SDK uses button compared to div in Angular SDK)
-        @include utils.button-reset;
-        @include utils.flex-row-center;
-        cursor: pointer;
-        width: var(--str-chat__message-options-button-size);
-        height: var(--str-chat__message-options-button-size);
-        border-radius: var(--str-chat__message-options-border-radius);
-        color: var(--str-chat__message-options-color);
-
-        .str-chat__message-action-icon path {
-          fill: var(--str-chat__message-options-color);
-        }
-      }
-
-      .str-chat__message-actions-box-button:hover,
-      .str-chat__message-reply-in-thread-button:hover,
-      .str-chat__message-reactions-button:hover {
-        background-color: var(--str-chat__message-options-hover-background-color);
-      }
-
-      .str-chat__message-actions-box-button:active,
-      .str-chat__message-reply-in-thread-button:active,
-      .str-chat__message-reactions-button:active {
-        .str-chat__message-action-icon path {
-          fill: var(--str-chat__message-options-active-color);
-        }
-      }
-
-      .str-chat__message-actions-box-button,
-      .str-chat__message-actions-container {
-        position: relative;
-      }
-    }
 
     .str-chat__message-reactions-host {
       grid-area: reactions;
@@ -371,64 +342,11 @@
       content: '•';
       margin-right: var(--str-chat__spacing-1);
     }
-
-    .str-chat__message-edited-timestamp {
-      --str-chat__message-edited-timestamp-height: 1rem;
-      flex-basis: 100%;
-    }
   }
 
   &.str-chat__message--me .str-chat__message-metadata {
     justify-content: flex-end;
     text-align: right;
-  }
-
-  .str-chat__message-status {
-    @include utils.flex-row-center;
-    column-gap: var(--str-chat__spacing-0_5);
-    position: relative;
-    --str-chat-icon-color: var(--str-chat__message-status-color);
-    color: var(--str-chat__message-status-color);
-    font: var(--str-chat__body-text);
-
-    svg {
-      width: 16px;
-      height: 16px;
-
-      path {
-        fill: var(--str-chat__message-status-color);
-      }
-    }
-  }
-
-  .str-chat__message-status.str-chat__message-status-sent {
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-
-  .str-chat__message-status-sent {
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-
-  .str-chat__message-status-delivered {
-    svg {
-      width: 15px;
-      height: 15px;
-    }
-  }
-
-  .str-chat__message-status-sent,
-  .str-chat__message-status-delivered {
-    svg {
-      path {
-        fill: var(--str-chat__text-low-emphasis-color);
-      }
-    }
   }
 
   .str-chat__message-replies-count-button-wrapper,
@@ -451,6 +369,8 @@
 
   .str-chat__message--deleted-inner {
     @include chat-bubble-spacing;
+    // todo: once deleted message designs are ready remove this padding?
+    padding-block: var(--spacing-xs);
     @include utils.component-layer-overrides('deleted-message');
     font: var(--str-chat__body2-text);
   }
@@ -458,6 +378,8 @@
   .str-chat__message--blocked-inner {
     @include chat-bubble-spacing;
     @include utils.component-layer-overrides('blocked-message');
+    // todo: once blocked message designs are ready remove this padding?
+    padding-block: var(--spacing-xs);
     font: var(--str-chat__body2-text);
   }
 
@@ -667,115 +589,7 @@
   }
 }
 
-.str-chat__date-separator {
-  display: flex;
-  padding: 2rem;
-  align-items: center;
-  @include utils.component-layer-overrides('date-separator');
-  font: var(--str-chat__body-text);
-
-  &-line {
-    flex: 1;
-    height: 1px;
-    background-color: var(--str-chat__date-separator-line-color);
-    border: none;
-  }
-
-  > * {
-    &:not(:last-child) {
-      margin-right: 1rem;
-    }
-  }
-}
-
-.str-chat__message--system {
-  width: 100%;
-  text-align: center;
-  @include utils.component-layer-overrides('system-message');
-  font: var(--str-chat__caption-text);
-
-  p {
-    margin: 0;
-  }
-}
-
-.str-chat__unread-messages-separator-wrapper {
-  padding-block: var(--str-chat__spacing-2);
-
-  .str-chat__unread-messages-separator {
-    @include utils.flex-row-center;
-    width: 100%;
-    padding: var(--str-chat__spacing-2);
-    background-color: var(--str-chat__secondary-surface-color);
-    color: var(--str-chat__text-low-emphasis-color);
-    text-transform: uppercase;
-    font: var(--str-chat__caption-strong-text);
-  }
-}
-
-.str-chat__unread-messages-notification {
-  --str-chat-icon-color: var(--str-chat__grey50);
-  background-color: var(--str-chat__text-low-emphasis-color);
-  border-radius: 1.125rem;
-  position: absolute;
-  top: 0.75rem;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  overflow: clip;
-
-  button {
-    padding-block: var(--str-chat__spacing-2);
-    height: 100%;
-    width: 100%;
-    white-space: nowrap;
-    cursor: pointer;
-    color: var(--str-chat__grey50);
-    border: none;
-    background-color: transparent;
-  }
-
-  button:first-of-type {
-    padding-inline: 0.75rem 0.375rem;
-    font: var(--str-chat__caption-text);
-  }
-
-  button:last-of-type {
-    padding-inline: 0.375rem 0.75rem;
-
-    svg {
-      width: 0.875rem;
-    }
-  }
-}
-
-.str-chat-angular__message-bubble {
-  /* transform: translate3d(0, 0, 0) fixes scrolling issues on iOS, see: https://stackoverflow.com/questions/50105780/elements-disappear-when-scrolling-in-safari-webkit-transform-fix-only-works-t/50144295#50144295 */
-  transform: translate3d(0, 0, 0);
-
-  &.str-chat-angular__message-bubble--attachment-modal-open {
-    /* transform: none is required when image carousel is open in order for the modal to be correctly positioned, see how the transform property changes the behavior of fixed positioned elements https://developer.mozilla.org/en-US/docs/Web/CSS/position  */
-    transform: none;
-  }
-}
-
-.str-chat__message-edited-timestamp {
-  overflow: hidden;
-  transition: height 0.1s;
-
-  &--open {
-    height: var(--str-chat__message-edited-timestamp-height, 1rem);
-  }
-
-  &--collapsed {
-    height: 0;
-  }
-}
-
-.str-chat__message-text--pointer-cursor {
-  cursor: pointer;
-}
-
+// todo: not implemented in stream-chat-react
 .str-chat__message-with-touch-support {
   .str-chat__message-bubble {
     -webkit-touch-callout: none;

@@ -1,13 +1,16 @@
 .str-chat {
   .str-chat__duration-display {
     font-size: var(--typography-font-size-xs);
-    line-height: var(typography-line-height-tight);
+    line-height: var(--typography-line-height-tight);
     letter-spacing: 0;
     min-width: 35px;
     width: 35px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    text-align: center;
   }
 
-  &.str-chat__duration-display--hasProgress {
+  .str-chat__duration-display--hasProgress {
     .str-chat__duration-display__time-elapsed {
       color: var(--str-chat__primary-color);
     }

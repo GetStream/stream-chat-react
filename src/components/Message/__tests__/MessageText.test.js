@@ -136,7 +136,7 @@ describe('<MessageText />', () => {
       customProps: { message },
     });
     expect(getByTestId(messageTextTestId)).toHaveClass(
-      'str-chat__message-simple-text-inner--has-attachment',
+      'str-chat__message-simple-text--has-attachment',
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -148,7 +148,7 @@ describe('<MessageText />', () => {
       customProps: { message },
     });
     expect(getByTestId(messageTextTestId)).toHaveClass(
-      'str-chat__message-simple-text-inner--is-emoji',
+      'str-chat__message-text-inner--is-emoji',
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

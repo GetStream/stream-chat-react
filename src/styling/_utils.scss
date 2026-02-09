@@ -44,7 +44,7 @@
   text-overflow: ellipsis;
 }
 
-@mixin ellipsis-text-clamp-lines($clampLinesCount: 2) {
+@mixin ellipsis-text-clamp-lines($clampLinesCount: 1) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: $clampLinesCount;

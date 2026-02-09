@@ -54,7 +54,7 @@ export const AttachmentPreviewRoot = ({
   const url =
     attachment.asset_url || attachment.image_url || attachment.localMetadata.previewUri;
 
-  const canDownloadAttachment = !!url;
+  const canDownloadAttachment = false; //!!url;
 
   const canPreviewAttachment =
     (!!url && isImageAttachment(attachment)) || isVideoAttachment(attachment);

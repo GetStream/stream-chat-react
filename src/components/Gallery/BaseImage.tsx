@@ -32,6 +32,7 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
         }}
         ref={ref}
       />
+      {/* todo: should we keep the download button?*/}
       {error && <DownloadButton assetUrl={props.src} />}
     </>
   );

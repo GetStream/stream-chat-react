@@ -1,7 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
-import { useTranslationContext } from '../../context';
 
 /**
  * Similar to a regular anchor tag, but it sanitizes the href value and prevents XSS
@@ -21,12 +20,10 @@ export type SafeAnchorProps = {
 
 const UnMemoizedSafeAnchor = (props: PropsWithChildren<SafeAnchorProps>) => {
   const { children, className, download, href, rel, target } = props;
-  const { t } = useTranslationContext('SafeAnchor');
   if (!href) return null;
   const sanitized = sanitizeUrl(href);
   return (
     <a
-      aria-label={t('aria/Attachment')}
       className={className}
       download={download}
       href={sanitized}

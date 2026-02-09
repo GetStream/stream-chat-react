@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { Action, Attachment } from 'stream-chat';
 
 import { useTranslationContext } from '../../context';
 
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
+import { Button } from '../Button';
+import clsx from 'clsx';
 
 export type AttachmentActionsProps = Attachment & {
   /** A list of actions */
@@ -14,11 +16,22 @@ export type AttachmentActionsProps = Attachment & {
   text: string;
   /** Click event handler */
   actionHandler?: ActionHandlerReturnType;
+  /** Which action should be focused on initial render (match by action.value) */
+  defaultFocusedActionValue?: string;
+};
+
+export type AttachmentActionsDefaultFocusByType = Partial<
+  Record<NonNullable<Attachment['type']>, string>
+>;
+
+export const defaultAttachmentActionsDefaultFocus: AttachmentActionsDefaultFocusByType = {
+  giphy: 'send',
 };
 
 const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
-  const { actionHandler, actions, id, text } = props;
+  const { actionHandler, actions, defaultFocusedActionValue, id, text } = props;
   const { t } = useTranslationContext('UnMemoizedAttachmentActions');
+  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -35,20 +48,43 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
     [t],
   );
 
+  const focusIndex = useMemo(() => {
+    if (!defaultFocusedActionValue) return null;
+    const index = actions.findIndex(
+      (action) => action.value === defaultFocusedActionValue,
+    );
+    return index >= 0 ? index : null;
+  }, [actions, defaultFocusedActionValue]);
+
+  useEffect(() => {
+    if (focusIndex === null) return;
+    const button = buttonRefs.current[focusIndex];
+    if (button && document.activeElement !== button) {
+      button.focus();
+    }
+  }, [focusIndex]);
+
   return (
     <div className='str-chat__message-attachment-actions'>
       <div className='str-chat__message-attachment-actions-form'>
         <span>{text}</span>
-        {actions.map((action) => (
-          <button
-            className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
+        {actions.map((action, index) => (
+          <Button
+            className={clsx(
+              `str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`,
+              'str-chat__button--ghost',
+              'str-chat__button--secondary',
+            )}
             data-testid={`${action.name}`}
             data-value={action.value}
             key={`${id}-${action.value}`}
             onClick={(event) => handleActionClick(event, action.name, action.value)}
+            ref={(element) => {
+              buttonRefs.current[index] = element;
+            }}
           >
             {action.text ? (knownActionText[action.text] ?? t(action.text)) : null}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

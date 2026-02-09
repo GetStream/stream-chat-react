@@ -4,18 +4,24 @@ import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 import * as linkify from 'linkifyjs';
 import type { Attachment, LocalAttachment, SharedLocationResponse } from 'stream-chat';
-import { isSharedLocationResponse } from 'stream-chat';
+import {
+  isAudioAttachment,
+  isFileAttachment,
+  isSharedLocationResponse,
+  isVideoAttachment,
+  isVoiceRecordingAttachment,
+} from 'stream-chat';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
-import { Audio as DefaultAudio } from './Audio';
 import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import {
   BaseImage,
   Gallery as DefaultGallery,
   ImageComponent as DefaultImage,
 } from '../Gallery';
-import { Card as DefaultCard } from './Card';
+import { Card as DefaultCard } from './LinkPreview/Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
+import { Giphy as DefaultGiphy } from './Giphy';
 import { Geolocation as DefaultGeolocation } from './Geolocation';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import type {
@@ -24,8 +30,13 @@ import type {
   GeolocationContainerProps,
   RenderAttachmentProps,
   RenderGalleryProps,
+  RenderMediaProps,
 } from './utils';
-import { isGalleryAttachmentType, isSvgAttachment } from './utils';
+import {
+  isGalleryAttachmentType,
+  isSvgAttachment,
+  SUPPORTED_VIDEO_FORMATS,
+} from './utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type {
   ImageAttachmentConfiguration,
@@ -33,6 +44,7 @@ import type {
 } from '../../types/types';
 import { IconPlaySolid } from '../Icons';
 import { Button } from '../Button';
+import { VisibilityDisclaimer } from './VisibilityDisclaimer';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponse;
@@ -76,14 +88,19 @@ export const AttachmentActionsContainer = ({
   actionHandler,
   attachment,
   AttachmentActions = DefaultAttachmentActions,
+  attachmentActionsDefaultFocus,
 }: RenderAttachmentProps) => {
   if (!attachment.actions?.length) return null;
+
+  const defaultFocusedActionValue =
+    attachment.type && attachmentActionsDefaultFocus?.[attachment.type];
 
   return (
     <AttachmentActions
       {...attachment}
       actionHandler={actionHandler}
       actions={attachment.actions}
+      defaultFocusedActionValue={defaultFocusedActionValue}
       id={(attachment as LocalAttachment).localMetadata?.id || ''}
       text={attachment.text || ''}
     />
@@ -108,6 +125,97 @@ function getCssDimensionsVariables(url: string) {
 
   return cssVars;
 }
+
+export const MediaContainer = (props: RenderMediaProps) => {
+  const { attachments } = props;
+  const mediaAttachments = attachments;
+  if (!mediaAttachments.length) return null;
+
+  if (mediaAttachments.length > 1) {
+    return (
+      <GalleryContainer
+        {...props}
+        attachment={{ images: mediaAttachments, type: 'gallery' }}
+      />
+    );
+  }
+
+  const mediaAttachment = mediaAttachments[0];
+  const { attachments: _attachments, ...rest } = props; // eslint-disable-line @typescript-eslint/no-unused-vars
+  const attachmentProps: RenderAttachmentProps = {
+    ...rest,
+    attachment: mediaAttachment,
+  };
+
+  if (isVideoAttachment(mediaAttachment, SUPPORTED_VIDEO_FORMATS)) {
+    return <VideoContainer {...attachmentProps} />;
+  }
+
+  return <ImageContainer {...attachmentProps} />;
+};
+
+export const CardContainer = (props: RenderAttachmentProps) => {
+  const { attachment, Card = DefaultCard } = props;
+  const componentType = 'card';
+
+  if (attachment.actions && attachment.actions.length) {
+    return (
+      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+        <div className='str-chat__attachment'>
+          <Card {...attachment} />
+          <AttachmentActionsContainer {...props} />
+        </div>
+      </AttachmentWithinContainer>
+    );
+  }
+
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+      <Card {...attachment} />
+    </AttachmentWithinContainer>
+  );
+};
+
+export const GiphyContainer = (props: RenderAttachmentProps) => {
+  const { attachment, Giphy = DefaultGiphy } = props;
+  const componentType = 'giphy';
+
+  if (attachment.actions && attachment.actions.length) {
+    return (
+      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+        <div className='str-chat__attachment'>
+          <VisibilityDisclaimer />
+          <Giphy attachment={attachment} />
+          <AttachmentActionsContainer {...props} />
+        </div>
+      </AttachmentWithinContainer>
+    );
+  }
+
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+      <Giphy attachment={attachment} />
+    </AttachmentWithinContainer>
+  );
+};
+
+export const FileContainer = (props: RenderAttachmentProps) => {
+  const { attachment } = props;
+
+  if (isVoiceRecordingAttachment(attachment)) {
+    return <VoiceRecordingContainer {...props} />;
+  }
+
+  if (isAudioAttachment(attachment)) {
+    return <AudioContainer {...props} />;
+  }
+
+  if (!attachment.asset_url || !isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
+    return null;
+  }
+
+  return <OtherFilesContainer {...props} />;
+};
 
 export const GalleryContainer = ({
   attachment,
@@ -189,29 +297,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
   );
 };
 
-export const CardContainer = (props: RenderAttachmentProps) => {
-  const { attachment, Card = DefaultCard } = props;
-  const componentType = 'card';
-
-  if (attachment.actions && attachment.actions.length) {
-    return (
-      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-        <div className='str-chat__attachment'>
-          <Card {...attachment} />
-          <AttachmentActionsContainer {...props} />
-        </div>
-      </AttachmentWithinContainer>
-    );
-  }
-
-  return (
-    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Card {...attachment} />
-    </AttachmentWithinContainer>
-  );
-};
-
-export const FileContainer = ({
+export const OtherFilesContainer = ({
   attachment,
   File = DefaultFile,
 }: RenderAttachmentProps) => {
@@ -223,13 +309,14 @@ export const FileContainer = ({
     </AttachmentWithinContainer>
   );
 };
+
 export const AudioContainer = ({
   attachment,
-  Audio = DefaultAudio,
+  Audio = DefaultFile,
 }: RenderAttachmentProps) => (
   <AttachmentWithinContainer attachment={attachment} componentType='audio'>
     <div className='str-chat__attachment'>
-      <Audio og={attachment} />
+      <Audio attachment={attachment} />
     </div>
   </AttachmentWithinContainer>
 );
@@ -246,7 +333,7 @@ export const VoiceRecordingContainer = ({
   </AttachmentWithinContainer>
 );
 
-export const MediaContainer = (props: RenderAttachmentProps) => {
+export const VideoContainer = (props: RenderAttachmentProps) => {
   const { attachment, Media = ReactPlayer } = props;
   const componentType = 'media';
   const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } =

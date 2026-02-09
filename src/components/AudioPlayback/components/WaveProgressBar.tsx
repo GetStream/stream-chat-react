@@ -17,8 +17,6 @@ type WaveProgressBarProps = {
   seek: SeekFn;
   /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveformData: number[];
-  /** Allows to specify the number of bars into which the original waveformData array should be resampled */
-  amplitudesCount?: number;
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress?: number;
   /** Absolute gap width between bars in px (overrides computed gap var). */
@@ -29,7 +27,6 @@ type WaveProgressBarProps = {
 
 export const WaveProgressBar = ({
   amplitudeBarGapWidthPx,
-  amplitudesCount = 40,
   progress = 0,
   relativeAmplitudeBarWidth = 2,
   relativeAmplitudeGap = 1,
@@ -46,6 +43,8 @@ export const WaveProgressBar = ({
   const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
   const lastRootWidth = useRef<number>(0);
   const lastIndicatorWidth = useRef<number>(0);
+  const minAmplitudeBarWidthRef = useRef<number | null>(null);
+  const lastMinAmplitudeBarWidthUsed = useRef<number | null>(null);
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -78,25 +77,45 @@ export const WaveProgressBar = ({
     const parent = trackRoot.parentElement;
     if (!parent) return trackRoot.getBoundingClientRect().width;
     const parentWidth = parent.getBoundingClientRect().width;
+    const computedStyle = window.getComputedStyle(parent);
+    const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+    const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+    const rawColumnGap = computedStyle.columnGap || computedStyle.gap;
+    const parsedColumnGap = parseFloat(rawColumnGap);
+    const columnGap = Number.isNaN(parsedColumnGap) ? 0 : parsedColumnGap;
+    const gapCount = Math.max(0, parent.children.length - 1);
+    const totalGapsWidth = columnGap * gapCount;
     const siblingsWidth = Array.from(parent.children).reduce((total, child) => {
       if (child === trackRoot) return total;
       return total + child.getBoundingClientRect().width;
     }, 0);
-    return Math.max(0, parentWidth - siblingsWidth);
+    return Math.max(
+      0,
+      parentWidth - paddingLeft - paddingRight - totalGapsWidth - siblingsWidth,
+    );
   }, []);
 
   const getTrackAxisX = useMemo(
     () =>
       throttle((availableWidth: number) => {
-        if (availableWidth === lastRootWidth.current) return;
+        const minAmplitudeBarWidth = minAmplitudeBarWidthRef.current;
+        const hasMinWidthChanged =
+          minAmplitudeBarWidth !== lastMinAmplitudeBarWidthUsed.current;
+        if (availableWidth === lastRootWidth.current && !hasMinWidthChanged) return;
         lastRootWidth.current = availableWidth;
+        lastMinAmplitudeBarWidthUsed.current = minAmplitudeBarWidth;
         const possibleAmpCount = Math.floor(
           availableWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
         );
-        const tooManyAmplitudesToRender = possibleAmpCount < amplitudesCount;
-        const barCount = tooManyAmplitudesToRender ? possibleAmpCount : amplitudesCount;
         const amplitudeBarWidthToGapRatio =
           relativeAmplitudeBarWidth / (relativeAmplitudeBarWidth + relativeAmplitudeGap);
+        const maxCountByMinWidth =
+          typeof minAmplitudeBarWidth === 'number' && minAmplitudeBarWidth > 0
+            ? Math.floor(
+                (availableWidth * amplitudeBarWidthToGapRatio) / minAmplitudeBarWidth,
+              )
+            : possibleAmpCount;
+        const barCount = Math.max(0, Math.min(possibleAmpCount, maxCountByMinWidth));
         const barWidth =
           barCount && (availableWidth / barCount) * amplitudeBarWidthToGapRatio;
 
@@ -106,7 +125,7 @@ export const WaveProgressBar = ({
           gap: barWidth * (relativeAmplitudeGap / relativeAmplitudeBarWidth),
         });
       }, 1),
-    [relativeAmplitudeBarWidth, relativeAmplitudeGap, amplitudesCount],
+    [relativeAmplitudeBarWidth, relativeAmplitudeGap],
   );
 
   const resampledWaveformData = useMemo(
@@ -145,13 +164,33 @@ export const WaveProgressBar = ({
     }
   }, [getAvailableTrackWidth, getTrackAxisX, root, progressIndicator]);
 
+  useLayoutEffect(() => {
+    if (!root || typeof window === 'undefined') return;
+    const amplitudeBar = root.querySelector<HTMLElement>(
+      '.str-chat__wave-progress-bar__amplitude-bar',
+    );
+    if (!amplitudeBar) return;
+    const computedStyle = window.getComputedStyle(amplitudeBar);
+    const parsedMinWidth = parseFloat(computedStyle.minWidth);
+    if (!Number.isNaN(parsedMinWidth) && parsedMinWidth > 0) {
+      minAmplitudeBarWidthRef.current = parsedMinWidth;
+    }
+    const availableWidth = getAvailableTrackWidth(root);
+    if (availableWidth > 0) {
+      getTrackAxisX(availableWidth);
+    }
+  }, [getAvailableTrackWidth, getTrackAxisX, root, trackAxisX?.barCount]);
+
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
 
   const amplitudeGapWidth = amplitudeBarGapWidthPx ?? trackAxisX?.gap;
 
   return (
     <div
-      className='str-chat__wave-progress-bar__track'
+      className={clsx('str-chat__wave-progress-bar__track', {
+        'str-chat__wave-progress-bar__track--playback-initiated': progress > 0,
+        // 'str-chat__wave-progress-bar__track--': isPlaying,
+      })}
       data-testid='wave-progress-bar-track'
       onClick={seek}
       onPointerDown={handleDragStart}

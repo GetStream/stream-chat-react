@@ -17,11 +17,13 @@ import { ReminderNotification as DefaultReminderNotification } from './ReminderN
 import { useMessageReminder } from './hooks';
 import {
   areMessageUIPropsEqual,
+  countEmojis,
   isMessageBlocked,
   isMessageBounced,
   isMessageEdited,
   isOnlyEmojis,
   messageHasAttachments,
+  messageHasGiphyAttachment,
   messageHasReactions,
   messageHasSingleAttachment,
 } from './utils';
@@ -39,6 +41,7 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
@@ -77,13 +80,16 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     PinIndicator,
+    QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionList,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
   } = useComponentContext('MessageSimple');
   const hasAttachment = messageHasAttachments(message);
   const hasSingleAttachment = messageHasSingleAttachment(message);
+  const hasGiphyAttachment = messageHasGiphyAttachment(message);
   const hasReactions = messageHasReactions(message);
+  const textHasEmojisOnly = isOnlyEmojis(message.text);
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
@@ -136,11 +142,15 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       ? 'str-chat__message--me str-chat__message-simple--me'
       : 'str-chat__message--other',
     message.text ? 'str-chat__message--has-text' : 'str-chat__message--has-no-text',
+    textHasEmojisOnly
+      ? `str-chat__message--is-emoji-only-count-${countEmojis(message.text)}`
+      : '',
     {
       'str-chat__message--has-attachment': hasAttachment,
+      'str-chat__message--has-giphy-attachment': hasGiphyAttachment,
       'str-chat__message--has-single-attachment': hasSingleAttachment,
       'str-chat__message--highlighted': highlighted,
-      'str-chat__message--is-emoji-only': isOnlyEmojis(message.text),
+      'str-chat__message--is-emoji-only': textHasEmojisOnly,
       'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
@@ -191,6 +201,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
             </div>
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
+              {message.quoted_message && <QuotedMessage />}
               {finalAttachments?.length ? (
                 <Attachment actionHandler={handleAction} attachments={finalAttachments} />
               ) : null}

@@ -51,4 +51,18 @@ describe('AttachmentActions', () => {
       expect(actionHandler).toHaveBeenCalledTimes(2);
     });
   });
+
+  it('should focus default action by value', async () => {
+    const { getByTestId } = render(
+      getComponent({
+        actions,
+        defaultFocusedActionValue: actions[1].value,
+        id: nanoid(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(getByTestId(actions[1].name)).toHaveFocus();
+    });
+  });
 });

@@ -9,9 +9,21 @@ export const SUPPORTED_VIDEO_FORMATS = [
   'video/quicktime',
 ];
 
-export type AttachmentComponentType = (typeof ATTACHMENT_GROUPS_ORDER)[number];
+export type AttachmentComponentType =
+  | 'card'
+  | 'gallery'
+  | 'giphy'
+  | 'image'
+  | 'media'
+  | 'audio'
+  | 'voiceRecording'
+  | 'file'
+  | 'geolocation'
+  | 'unsupported';
 
-export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
+export type AttachmentContainerType = (typeof ATTACHMENT_GROUPS_ORDER)[number];
+
+export type GroupedRenderedAttachment = Record<AttachmentContainerType, ReactNode[]>;
 
 export type GalleryAttachment = {
   images: Attachment[];
@@ -24,6 +36,10 @@ export type RenderAttachmentProps = Omit<AttachmentProps, 'attachments'> & {
 
 export type RenderGalleryProps = Omit<AttachmentProps, 'attachments'> & {
   attachment: GalleryAttachment;
+};
+
+export type RenderMediaProps = Omit<AttachmentProps, 'attachments'> & {
+  attachments: Attachment[];
 };
 
 export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {

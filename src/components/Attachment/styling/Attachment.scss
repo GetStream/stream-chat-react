@@ -4,9 +4,6 @@
   /* The margin applied to every attachment in the attachment list */
   --str-chat__attachment-margin: var(--str-chat__spacing-0_5);
 
-  /* The height of GIFs */
-  --str-chat__gif-height: calc(var(--str-chat__spacing-px) * 200);
-
   /* The border radius used for the borders of the component */
   --str-chat__attachment-list-border-radius: 0;
 
@@ -262,57 +259,6 @@
 
   /* Box shadow applied to audio widget's play / pause button */
   --str-chat__audio-attachment-controls-button-box-shadow: var(--str-chat__circle-fab-box-shadow);
-
-  /* The border radius used for attachment actions */
-  --str-chat__attachment-actions-border-radius: 0;
-
-  /* The text/icon color of attachment actions */
-  --str-chat__attachment-actions-color: var(--str-chat__text-color);
-
-  /* The background color of attachment actions */
-  --str-chat__attachment-actions-background-color: transparent;
-
-  /* Top border of attachment actions */
-  --str-chat__attachment-actions-border-block-start: none;
-
-  /* Bottom border of attachment actions */
-  --str-chat__attachment-actions-border-block-end: none;
-
-  /* Left (right in RTL layout) border of attachment actions */
-  --str-chat__attachment-actions-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of attachment actions */
-  --str-chat__attachment-actions-border-inline-end: none;
-
-  /* Box shadow applied to attachment actions */
-  --str-chat__attachment-actions-box-shadow: none;
-
-  /* The border radius used for an attachment action */
-  --str-chat__attachment-action-border-radius: 0;
-
-  /* The text/icon color of an attachment action */
-  --str-chat__attachment-action-color: var(--str-chat__text-low-emphasis-color);
-
-  /* The background color of an attachment action */
-  --str-chat__attachment-action-background-color: var(--str-chat__secondary-background-color);
-
-  /* Top border of an attachment action */
-  --str-chat__attachment-action-border-block-start: var(--str-chat__surface-color) 1px solid;
-
-  /* Bottom border of an attachment action */
-  --str-chat__attachment-action-border-block-end: var(--str-chat__surface-color) 1px solid;
-
-  /* Left (right in RTL layout) border of an attachment action */
-  --str-chat__attachment-action-border-inline-start: var(--str-chat__surface-color) 1px solid;
-
-  /* Right (left in RTL layout) border of an attachment action */
-  --str-chat__attachment-action-border-inline-end: var(--str-chat__surface-color) 1px solid;
-
-  /* Box shadow applied to an attachment action */
-  --str-chat__attachment-action-box-shadow: none;
-
-  /* The text/icon color of an attachment action while in pressed state */
-  --str-chat__attachment-action-active-color: var(--str-chat__primary-color);
 }
 
 .str-chat__attachment-list {
@@ -324,18 +270,11 @@
   /* The maximum height of videos, the default value is the mase as `--str-chat__attachment-max-width`. The rendered video can be smaller based on the aspect ratio */
   --str-chat__video-height: var(--str-chat__attachment-max-width);
 
-  /* The height of scraped images, the default value is optimized for 1.91:1 aspect ratio */
-  --str-chat__scraped-image-height: calc(var(--str-chat__attachment-max-width) * calc(1 / 1.91));
-
-  /* The height of scraped videos, the default value is optimized for 16:9 aspect ratio */
-  --str-chat__scraped-video-height: calc(var(--str-chat__attachment-max-width) * calc(9 / 16));
-
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: var(--spacing-xs);
   min-width: 0;
-  padding: var(--spacing-xs);
 
   @include utils.component-layer-overrides('attachment-list');
 
@@ -345,6 +284,7 @@
   }
 
   .str-chat__message-attachment {
+    overflow: hidden;
     background-color: var(--chat-bg-attachment-incoming);
     border-radius: var(--message-bubble-radius-attachment);
 
@@ -355,98 +295,13 @@
     }
   }
 
-  .str-chat__message-attachment--card {
-    overflow: hidden;
-    border-radius: var(--message-bubble-radius-attachment);
-    line-height: var(--typography-line-height-tight);
-
-    * {
-      color: var(--chat-text-incoming);
-    }
-
-    .str-chat__message-attachment-card--header {
-      position: relative;
-    }
-
-    .str-chat__message-attachment-card--title {
-      font-size: var(--typography-font-size-sm);
-      font-weight: var(--typography-font-weight-semi-bold);
-    }
-
-    .str-chat__message-attachment-card--source-link,
-    .str-chat__message-attachment-card--text {
-      font-size: var(--typography-font-size-xs);
-    }
-
-    .str-chat__message-attachment-card--title,
-    .str-chat__message-attachment-card--source-link .str-chat__message-attachment-card--url {
-      @include utils.ellipsis-text();
-    }
-
-    .str-chat__message-attachment-card--text {
-      @include utils.ellipsis-text-clamp-lines();
-    }
-
-    .str-chat__message-attachment-card--source-link {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-      max-width: 100%;
-      gap: var(--spacing-xxs);
-
-      .str-chat__message-attachment-card--url {
-        flex: 1;
-        min-width: 0;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-
   .str-chat__message-attachment--image,
-  .str-chat__message-attachment--video,
-  .str-chat__message-attachment-card--header {
+  .str-chat__message-attachment--video {
     width: auto;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-  }
-
-  // Scraped images
-  .str-chat__message-attachment-card--header {
-    height: var(--str-chat__scraped-image-height);
-
-    img {
-      object-fit: cover;
-      max-height: 100%;
-      max-width: 100%;
-      width: 100%;
-      height: 100%;
-      cursor: zoom-in;
-    }
-  }
-
-  .str-chat__message-attachment-card--giphy {
-    .str-chat__message-attachment-card--header {
-      height: var(--str-chat__gif-height);
-
-      img {
-        object-fit: contain;
-        max-height: 100%;
-        max-width: 100%;
-        cursor: default;
-      }
-    }
-
-    // image enlargement available in React SDK only
-    .str-chat__message-attachment-card-react--header {
-      img {
-        cursor: zoom-in;
-      }
-    }
   }
 
   // Images uploaded from files
@@ -464,9 +319,10 @@
     cursor: zoom-in;
   }
 
-  // Video files: uploaded from files and scraped
-  .str-chat__message-attachment--video:not(.str-chat__message-attachment--card),
-  .str-chat__message-attachment-card--video .str-chat__message-attachment-card--header {
+  // Video files: uploaded from files
+
+  .str-chat__message-attachment-card--video .str-chat__message-attachment-card--header, // todo: remove if video previews are not supported
+  .str-chat__message-attachment--video:not(.str-chat__message-attachment--card) {
     $maxWidth: var(--str-chat__attachment-max-width);
     max-width: $maxWidth;
     display: flex;
@@ -539,10 +395,6 @@
       // CDN resize requires max-height to be present on this element - React
       max-height: $maxHeight;
     }
-  }
-
-  .str-chat__message-attachment-card--video .str-chat__message-attachment-card--header {
-    height: var(--str-chat__scraped-video-height);
   }
 
   .str-chat__message-attachment--gallery {
@@ -835,11 +687,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-xs);
     padding: var(--spacing-xs);
     min-height: 60px;
 
     .str-chat__message-attachment__voice-recording-widget__metadata {
+      padding-inline: var(--spacing-xs);
+
       a {
         cursor: pointer;
         text-decoration: none;
@@ -863,14 +716,6 @@
         }
       }
 
-      .str-chat__message-attachment__voice-recording-widget__audio-state {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        height: 100%;
-        width: 175px;
-      }
-
       .str-chat__message-attachment__voice-recording-widget__error-message {
         display: flex;
         align-items: center;
@@ -883,117 +728,34 @@
     }
 
     .str-chat__message-attachment__voice-recording-widget__timer {
-      text-align: center;
       min-width: calc(var(--str-chat__spacing-px) * 40);
       width: calc(var(--str-chat__spacing-px) * 40);
       font-size: var(--typography-font-size-xs);
       font-weight: var(--typography-font-weight-semi-bold);
-      color: var(--text-primary);
-      white-space: nowrap;
-    }
-
-    .str-chat__wave-progress-bar__track {
-      // todo: find out whether the width should be changed if playback rate button is re-introduced
-      //max-width: 80px;
-      //$min_amplitude_height: 2px;
-      //position: relative;
-      //flex: 1;
-      //width: 100%;
-      //height: calc(var(--str-chat__spacing-px) * 25);
-      //display: flex;
-      //align-items: center;
-      //justify-content: space-between;
-      //gap: var(--str-chat__voice-recording-amplitude-bar-gap-width);
-      //
-      //.str-chat__wave-progress-bar__amplitude-bar {
-      //  width: var(--str-chat__voice-recording-amplitude-bar-width);
-      //  min-width: var(--str-chat__voice-recording-amplitude-bar-width);
-      //  height: calc(
-      //          var(--str-chat__wave-progress-bar__amplitude-bar-height) + #{$min_amplitude_height}
-      //  ); // variable set dynamically on element
-      //}
     }
   }
 
   .str-chat__message_attachment__playback-rate-button {
     @include utils.flex-row-center;
     @include utils.button-reset;
-    padding: var(--str-chat__spacing-1_5) var(--str-chat__spacing-2_5);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
-    border-radius: var(--str-chat__border-radius-circle);
-    background-color: #fff; // in design marked as static, excluded from theming
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-none);
+    flex-shrink: 0;
+    width: 40px;
+    min-width: 40px;
+    min-height: 24px;
+    max-height: 24px;
+    padding: var(--spacing-xxs) var(--spacing-none);
+    border-radius: var(--button-radius-lg);
+    border: 1px solid var(--chat-border-on-chat-incoming);
     cursor: pointer;
     font-size: var(--typography-font-size-xs);
   }
 
-  .str-chat__message-attachment-card {
-    width: 100%;
-
-    .str-chat__message-attachment-card--content {
-      padding: var(--spacing-sm);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xxs);
-
-      .str-chat__message-attachment-card--title {
-        @include utils.ellipsis-text;
-      }
-    }
-  }
-
-  .str-chat__message-attachment-card--audio {
-    .str-chat__message-attachment-card--content {
-      padding: 0;
-
-      .str-chat__message-attachment-card-audio-widget {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        padding: var(--spacing-md);
-      }
-    }
-  }
-
-  .str-chat__message-attachment-actions {
-    @include utils.component-layer-overrides('attachment-actions');
-
-    .str-chat__message-attachment-actions-form {
-      display: flex;
-      justify-content: stretch;
-
-      .str-chat__message-attachment-actions-button {
-        @include utils.component-layer-overrides('attachment-action');
-        cursor: pointer;
-        width: 100%;
-        padding: var(--str-chat__spacing-3) var(--str-chat__spacing-4);
-        white-space: nowrap;
-        font: var(--str-chat__subtitle-medium-text);
-        border-collapse: collapse;
-
-        &:active {
-          color: var(--str-chat__attachment-action-active-color);
-        }
-
-        &:not(:last-of-type) {
-          border-inline-end: none;
-        }
-      }
-    }
-  }
-
   .str-chat__message-attachment-with-actions.str-chat__message-attachment--giphy {
-    .str-chat__message-attachment-card {
-      .str-chat__message-attachment-card--content {
-        display: none;
-      }
-    }
-  }
 
-  /* Angular has different UI here, the download icon is too small to use on mobile */
-  .str-chat-angular__message-attachment-file-single
-  .str-chat__message-attachment-file--item__first-row {
-    cursor: pointer;
-    text-decoration: none;
   }
 
   .str-chat__message-attachment-download-icon {
@@ -1020,8 +782,6 @@
 }
 
 .str-chat__quoted-message-preview {
-  /* stylelint-disable-next-line length-zero-no-unit */
-  //--str-chat__attachment-margin: 0px;
 
   * {
     cursor: pointer !important;
@@ -1092,6 +852,10 @@
     .str-chat__message-attachment {
       background-color: var(--chat-bg-outgoing);
     }
+  }
+
+  .str-chat__message_attachment__playback-rate-button {
+    border: 1px solid var(--chat-border-on-chat-outgoing);
   }
 }
 

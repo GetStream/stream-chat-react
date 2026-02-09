@@ -1,0 +1,62 @@
+.str-chat {
+  /* The height of GIFs */
+  --str-chat__gif-height: calc(var(--str-chat__spacing-px) * 200);
+}
+
+.str-chat__message-attachment-giphy {
+  // todo: maybe we do not want to restrict the height
+  //height: var(--str-chat__gif-height);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    object-fit: contain;
+    max-height: 100%;
+    max-width: 100%;
+    height: 100%;
+    width: 100%;
+    cursor: default;
+  }
+}
+
+.str-chat__giphy-badge {
+  display: inline-flex;
+  height: 24px;
+  padding: var(--spacing-xxxs, 2px) var(--spacing-xs, 8px);
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xxs, 4px);
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+
+  border-radius: var(--radius-lg, 12px);
+  background-color: var(--badge-bg-overlay, rgba(0, 0, 0, 0.75));
+  color: var(--badge-text-on-accent, #fff);
+
+  font-feature-settings: 'liga' off, 'clig' off;
+
+  /* metadata/emphasis */
+  font-size: var(--typography-font-size-xs, 12px);
+  font-weight: var(--typography-font-weight-semi-bold, 600);
+  line-height: var(--typography-line-height-tight, 16px);
+  text-transform: uppercase;
+}
+
+.str-chat__message-attachment--giphy--actions {
+  .str-chat__visibility-disclaimer {
+    display: flex;
+    padding: var(--spacing-sm, 12px);
+    align-items: center;
+    gap: var(--spacing-xs, 8px);
+    align-self: stretch;
+
+    color: var(--chat-text-outgoing);
+    font-size: var(--typography-font-size-sm);
+    font-weight: var(--typography-font-weight-semi-bold);
+    line-height: var(--typography-line-height-tight);
+  }
+}

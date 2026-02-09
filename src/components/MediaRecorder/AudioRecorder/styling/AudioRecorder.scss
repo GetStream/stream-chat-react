@@ -9,6 +9,7 @@
   border-radius: var(--radius-3xl);
   border: 1px solid var(--border-core-default);
   background: var(--composer-bg);
+  position: relative;
 
   .str-chat__audio-recorder__recording-playback,
   .str-chat__audio-recorder__recording-preview {
@@ -22,14 +23,14 @@
     .str-chat__recording-timer {
       display: flex;
       align-items: center;
-      width: 3rem;
+      width: 2.75rem;
       font-size: var(--typography-font-size-sm);
       font-weight: var(--typography-font-weight-semi-bold);
       line-height: var(--typography-line-height-tight);
     }
 
     .str-chat__recording-timer--hours {
-      width: 3.75rem;
+      width: 3rem;
     }
   }
 
@@ -99,11 +100,20 @@
 
   .str-chat__wave-progress-bar__track-container,
   .str-chat__waveform-box-container {
-    flex: 1;
+    //flex: 1;
     display: flex;
     align-items: center;
     width: 100%;
-    overflow-x: auto;
+    min-width: 0;
+    //overflow-x: hidden;
+    flex-shrink: 1;
+  }
+
+  .str-chat__wave-progress-bar__track-container {
+    max-width: 500px;
+  }
+  .str-chat__waveform-box-container {
+    max-width: 520px;
   }
 
   .str-chat__wave-progress-bar__track {
@@ -116,7 +126,8 @@
   }
 
   .str-chat__waveform-box-container {
-    justify-content: flex-end;
+    //justify-content: flex-end;
+    overflow: hidden;
 
     .str-chat__wave-progress-bar__track {
       justify-content: flex-end;
@@ -124,9 +135,11 @@
   }
 
   .str-chat__wave-progress-bar__track-container {
+    padding-inline: var(--spacing-xs);
+
     .str-chat__wave-progress-bar__track {
       flex: unset;
-      width: max-content;
+      //width: max-content;
     }
   }
 

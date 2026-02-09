@@ -49,7 +49,7 @@ const renderComponent = (
 ) =>
   render(
     <WithAudioPlayback>
-      <Audio og={props.og} />
+      <Audio attachment={props.og} />
     </WithAudioPlayback>,
   );
 
@@ -248,10 +248,10 @@ describe('Audio', () => {
     render(
       <WithAudioPlayback allowConcurrentPlayback>
         <MessageProvider value={{ message }}>
-          <Audio og={audioAttachment} />
+          <Audio attachment={audioAttachment} />
         </MessageProvider>
         <MessageProvider value={{ message, threadList: true }}>
-          <Audio og={audioAttachment} />
+          <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,
     );
@@ -270,10 +270,10 @@ describe('Audio', () => {
     render(
       <WithAudioPlayback>
         <MessageProvider value={{ message }}>
-          <Audio og={audioAttachment} />
+          <Audio attachment={audioAttachment} />
         </MessageProvider>
         <MessageProvider value={{ message }}>
-          <Audio og={audioAttachment} />
+          <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,
     );

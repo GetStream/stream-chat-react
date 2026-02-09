@@ -13,30 +13,18 @@ exports[`attachment combines scraped & uploaded content should render all upload
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
     >
       <div
-        class="str-chat__player-wrapper"
-        data-testid="video-wrapper"
-        style="--original-height: 1000000; --original-width: 1000000;"
-      >
-        <div
-          data-testid="media-attachment"
-        />
-      </div>
+        data-testid="file-attachment"
+      />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
     >
       <div
-        class="str-chat__player-wrapper"
-        data-testid="video-wrapper"
-        style="--original-height: 1000000; --original-width: 1000000;"
-      >
-        <div
-          data-testid="media-attachment"
-        />
-      </div>
+        data-testid="file-attachment"
+      />
     </div>
     <div
       class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--audio"
@@ -59,20 +47,6 @@ exports[`attachment combines scraped & uploaded content should render all upload
           data-testid="audio-attachment"
         />
       </div>
-    </div>
-    <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
-    >
-      <div
-        data-testid="file-attachment"
-      />
-    </div>
-    <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
-    >
-      <div
-        data-testid="file-attachment"
-      />
     </div>
   </div>
 </div>
@@ -84,13 +58,6 @@ exports[`attachment combines scraped & uploaded content should render attachment
     class="str-chat__attachment-list"
   >
     <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--card str-chat__message-attachment--audio"
-    >
-      <div
-        data-testid="card-attachment"
-      />
-    </div>
-    <div
       class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--gallery"
     >
       <div
@@ -98,17 +65,18 @@ exports[`attachment combines scraped & uploaded content should render attachment
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--card str-chat__message-attachment--audio"
     >
       <div
-        class="str-chat__player-wrapper"
-        data-testid="video-wrapper"
-        style="--original-height: 1000000; --original-width: 1000000;"
-      >
-        <div
-          data-testid="media-attachment"
-        />
-      </div>
+        data-testid="card-attachment"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
+    >
+      <div
+        data-testid="file-attachment"
+      />
     </div>
     <div
       class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--audio"
@@ -120,13 +88,6 @@ exports[`attachment combines scraped & uploaded content should render attachment
           data-testid="audio-attachment"
         />
       </div>
-    </div>
-    <div
-      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
-    >
-      <div
-        data-testid="file-attachment"
-      />
     </div>
   </div>
 </div>

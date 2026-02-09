@@ -1,12 +1,16 @@
 import type { UploadAttachmentPreviewProps } from './types';
-import type { LocalAudioAttachment, LocalVoiceRecordingAttachment } from 'stream-chat';
+import {
+  isVoiceRecordingAttachment,
+  type LocalAudioAttachment,
+  type LocalVoiceRecordingAttachment,
+} from 'stream-chat';
 import { useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { LoadingIndicatorIcon } from '../icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { FileSizeIndicator, WaveProgressBar } from '../../Attachment';
+import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from '../../Attachment';
 import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
@@ -23,7 +27,9 @@ export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unk
   >;
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  canPlayRecord: state.canPlayRecord,
   isPlaying: state.isPlaying,
+  playbackRate: state.currentPlaybackRate,
   progressPercent: state.progressPercent,
   secondsElapsed: state.secondsElapsed,
 });
@@ -54,8 +60,10 @@ export const AudioAttachmentPreview = ({
     };
   }, [audioPlayer]);
 
-  const { isPlaying, progressPercent, secondsElapsed } =
+  const { canPlayRecord, isPlaying, playbackRate, progressPercent, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+
+  const resolvedDuration = audioPlayer?.durationSeconds ?? attachment.duration;
 
   const hasWaveform = !!audioPlayer?.waveformData?.length;
   const hasSizeLimitError = uploadPermissionCheck?.reason === 'size_limit';
@@ -80,29 +88,22 @@ export const AudioAttachmentPreview = ({
 
       <div className='str-chat__attachment-preview-file__info'>
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
-          {attachment.title}
+          {isVoiceRecordingAttachment(attachment) ? t('Voice message') : attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && <LoadingIndicatorIcon />}
           {showProgressControls ? (
             <>
-              {!attachment.duration && !progressPercent && !isPlaying && (
+              {!resolvedDuration && !progressPercent && !isPlaying && (
                 <FileSizeIndicator fileSize={attachment.file_size} />
               )}
               {hasWaveform ? (
                 <>
                   <DurationDisplay
-                    duration={
-                      !progressPercent || progressPercent === 100
-                        ? attachment.duration
-                        : undefined
-                    }
+                    duration={resolvedDuration}
                     isPlaying={Boolean(isPlaying)}
-                    secondsElapsed={
-                      progressPercent && progressPercent < 100
-                        ? secondsElapsed
-                        : undefined
-                    }
+                    secondsElapsed={secondsElapsed}
+                    showRemaining
                   />
                   <WaveProgressBar
                     progress={progressPercent}
@@ -114,7 +115,7 @@ export const AudioAttachmentPreview = ({
                 </>
               ) : (
                 <DurationDisplay
-                  duration={attachment.duration}
+                  duration={resolvedDuration}
                   isPlaying={Boolean(isPlaying)}
                   secondsElapsed={secondsElapsed}
                 />
@@ -150,6 +151,11 @@ export const AudioAttachmentPreview = ({
           )}
         </div>
       </div>
+      {audioPlayer && canPlayRecord && (
+        <PlaybackRateButton onClick={audioPlayer.increasePlaybackRate}>
+          x{playbackRate?.toString()}
+        </PlaybackRateButton>
+      )}
       <RemoveAttachmentPreviewButton
         data-testid='audio-preview-item-delete-button'
         onClick={() => {
