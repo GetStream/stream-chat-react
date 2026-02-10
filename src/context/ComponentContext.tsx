@@ -13,6 +13,7 @@ import type {
   EmptyStateIndicatorProps,
   EventComponentProps,
   FixedHeightMessageProps,
+  GalleryProps,
   GiphyPreviewMessageProps,
   LoadingErrorIndicatorProps,
   LoadingIndicatorProps,
@@ -107,6 +108,8 @@ export type ComponentContextValue = {
   emojiSearchIndex?: EmojiSearchIndex;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
+  /** Custom UI component to display media items in a carousel, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
+  Gallery?: React.ComponentType<GalleryProps>;
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps>;
   /** Custom UI component to render at the top of the `MessageList` */

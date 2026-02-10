@@ -5,10 +5,10 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { BaseImage as DefaultBaseImage } from './BaseImage';
 import { Modal as DefaultModal } from '../Modal';
-import { ModalGallery as DefaultModalGallery } from './ModalGallery';
+import { ModalGallery as DefaultModalGallery } from '../Attachment/ModalGallery';
 import { useComponentContext } from '../../context';
 
-import type { Attachment } from 'stream-chat';
+import type { Attachment, LocalImageAttachment } from 'stream-chat';
 import type { Dimensions } from '../../types/types';
 import clsx from 'clsx';
 
@@ -78,7 +78,9 @@ export const ImageComponent = (props: ImageProps) => {
         {...(innerRef && { ref: innerRef })}
       />
       <Modal className='str-chat__image-modal' onClose={closeModal} open={modalIsOpen}>
-        <ModalGallery images={[props]} index={0} />
+        <ModalGallery
+          items={[{ fallback, image_url, thumb_url } as unknown as LocalImageAttachment]}
+        />
       </Modal>
     </>
   );

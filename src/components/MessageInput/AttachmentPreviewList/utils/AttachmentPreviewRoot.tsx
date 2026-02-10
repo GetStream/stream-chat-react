@@ -11,8 +11,7 @@ import {
   type LocalUploadAttachment,
 } from 'stream-chat';
 import { GlobalModal } from '../../../Modal';
-import { ModalGallery } from '../../../Gallery';
-import { VideoPlayer } from '../../../VideoPlayer';
+import { Gallery } from '../../../Gallery';
 
 type AttachmentPreviewRootProps = Omit<ComponentProps<'div'>, 'onClick' | 'onKeyDown'> & {
   attachment: LocalUploadAttachment;
@@ -102,10 +101,8 @@ export const AttachmentPreviewRoot = ({
         }}
         open={showPreview && canPreviewAttachment}
       >
-        {isImageAttachment(attachment) ? (
-          <ModalGallery images={[{ image_url: url }]} />
-        ) : isVideoAttachment(attachment) && url ? (
-          <VideoPlayer thumbnailUrl={attachment.thumb_url} url={url} />
+        {isImageAttachment(attachment) || isVideoAttachment(attachment) ? (
+          <Gallery items={[attachment]} />
         ) : null}
       </Modal>
     </div>

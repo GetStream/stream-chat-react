@@ -5,7 +5,8 @@ import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 
 import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
+import { ModalGallery } from '../Gallery';
+import type { GalleryItem } from '../Gallery';
 import { MessageActions } from '../MessageActions';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -94,7 +95,7 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
           <MessageDeleted message={message} />
         ) : (
           <>
-            {images && <Gallery images={images} />}
+            {images && <ModalGallery items={images as unknown as GalleryItem[]} />}
             <div className='str-chat__virtual-message__text' data-testid='msg-text'>
               {renderedText}
               <div className='str-chat__virtual-message__data'>

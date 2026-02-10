@@ -1,9 +1,12 @@
 import type { PropsWithChildren } from 'react';
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import ReactPlayer from 'react-player';
 import clsx from 'clsx';
-import * as linkify from 'linkifyjs';
-import type { Attachment, LocalAttachment, SharedLocationResponse } from 'stream-chat';
+import type {
+  Attachment,
+  LocalAttachment,
+  SharedLocationResponse,
+  VideoAttachment as VideoAttachmentType,
+} from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
@@ -14,37 +17,33 @@ import {
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
+import type { GalleryItem } from '../Gallery';
 import {
-  BaseImage,
-  Gallery as DefaultGallery,
   ImageComponent as DefaultImage,
+  ModalGallery as DefaultModalGallery,
 } from '../Gallery';
 import { Card as DefaultCard } from './LinkPreview/Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { Giphy as DefaultGiphy } from './Giphy';
 import { Geolocation as DefaultGeolocation } from './Geolocation';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
-import type {
-  AttachmentComponentType,
-  GalleryAttachment,
-  GeolocationContainerProps,
-  RenderAttachmentProps,
-  RenderGalleryProps,
-  RenderMediaProps,
-} from './utils';
 import {
+  type AttachmentComponentType,
+  type GalleryAttachment,
+  type GeolocationContainerProps,
+  getCssDimensionsVariables,
   isGalleryAttachmentType,
   isSvgAttachment,
+  type RenderAttachmentProps,
+  type RenderGalleryProps,
+  type RenderMediaProps,
   SUPPORTED_VIDEO_FORMATS,
 } from './utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import type {
-  ImageAttachmentConfiguration,
-  VideoAttachmentConfiguration,
-} from '../../types/types';
-import { IconPlaySolid } from '../Icons';
-import { Button } from '../Button';
+import type { ImageAttachmentConfiguration } from '../../types/types';
 import { VisibilityDisclaimer } from './VisibilityDisclaimer';
+import { VideoAttachment } from './VideoAttachment';
+import type { AttachmentProps } from './Attachment';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponse;
@@ -107,51 +106,27 @@ export const AttachmentActionsContainer = ({
   );
 };
 
-function getCssDimensionsVariables(url: string) {
-  const cssVars = {
-    '--original-height': 1000000,
-    '--original-width': 1000000,
-  } as Record<string, number>;
-
-  if (linkify.test(url, 'url')) {
-    const urlParams = new URL(url).searchParams;
-    const oh = Number(urlParams.get('oh'));
-    const ow = Number(urlParams.get('ow'));
-    const originalHeight = oh > 1 ? oh : 1000000;
-    const originalWidth = ow > 1 ? ow : 1000000;
-    cssVars['--original-width'] = originalWidth;
-    cssVars['--original-height'] = originalHeight;
-  }
-
-  return cssVars;
-}
-
 export const MediaContainer = (props: RenderMediaProps) => {
-  const { attachments } = props;
-  const mediaAttachments = attachments;
+  const { attachments: mediaAttachments } = props;
   if (!mediaAttachments.length) return null;
 
   if (mediaAttachments.length > 1) {
     return (
       <GalleryContainer
         {...props}
-        attachment={{ images: mediaAttachments, type: 'gallery' }}
+        attachment={{ items: mediaAttachments, type: 'gallery' }}
       />
     );
   }
 
   const mediaAttachment = mediaAttachments[0];
   const { attachments: _attachments, ...rest } = props; // eslint-disable-line @typescript-eslint/no-unused-vars
-  const attachmentProps: RenderAttachmentProps = {
-    ...rest,
-    attachment: mediaAttachment,
-  };
 
   if (isVideoAttachment(mediaAttachment, SUPPORTED_VIDEO_FORMATS)) {
-    return <VideoContainer {...attachmentProps} />;
+    return <VideoContainer attachment={mediaAttachment} {...rest} />;
   }
 
-  return <ImageContainer {...attachmentProps} />;
+  return <ImageContainer attachment={mediaAttachment} {...rest} />;
 };
 
 export const CardContainer = (props: RenderAttachmentProps) => {
@@ -219,43 +194,12 @@ export const FileContainer = (props: RenderAttachmentProps) => {
 
 export const GalleryContainer = ({
   attachment,
-  Gallery = DefaultGallery,
-}: RenderGalleryProps) => {
-  const imageElements = useRef<HTMLElement[]>([]);
-  const { imageAttachmentSizeHandler } = useChannelStateContext();
-  const [attachmentConfigurations, setAttachmentConfigurations] = useState<
-    ImageAttachmentConfiguration[]
-  >([]);
-
-  useLayoutEffect(() => {
-    if (!imageElements.current || !imageAttachmentSizeHandler) return;
-    const newConfigurations: ImageAttachmentConfiguration[] = [];
-    const nonNullImageElements = imageElements.current.filter((e) => !!e);
-    if (nonNullImageElements.length < imageElements.current.length) {
-      imageElements.current = nonNullImageElements;
-    }
-    imageElements.current.forEach((element, i) => {
-      if (!element) return;
-      const config = imageAttachmentSizeHandler(attachment.images[i], element);
-      newConfigurations.push(config);
-    });
-    setAttachmentConfigurations(newConfigurations);
-  }, [imageAttachmentSizeHandler, attachment]);
-
-  const images = attachment.images.map((image, i) => ({
-    ...image,
-    previewUrl: attachmentConfigurations[i]?.url || 'about:blank',
-    style: getCssDimensionsVariables(
-      attachment.images[i]?.image_url || attachment.images[i]?.thumb_url || '',
-    ),
-  }));
-
-  return (
-    <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-      <Gallery images={images || []} innerRefs={imageElements} key='gallery' />
-    </AttachmentWithinContainer>
-  );
-};
+  ModalGallery = DefaultModalGallery,
+}: RenderGalleryProps) => (
+  <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
+    <ModalGallery items={attachment.items as GalleryItem[]} key='gallery' />
+  </AttachmentWithinContainer>
+);
 
 export const ImageContainer = (props: RenderAttachmentProps) => {
   const { attachment, Image = DefaultImage } = props;
@@ -333,93 +277,22 @@ export const VoiceRecordingContainer = ({
   </AttachmentWithinContainer>
 );
 
-export const VideoContainer = (props: RenderAttachmentProps) => {
-  const { attachment, Media = ReactPlayer } = props;
+export const VideoContainer = (
+  props: Omit<AttachmentProps, 'attachments'> & { attachment: VideoAttachmentType },
+) => {
+  const { attachment, Media } = props;
   const componentType = 'media';
-  const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } =
-    useChannelStateContext();
-  const videoElement = useRef<HTMLDivElement>(null);
-  const [attachmentConfiguration, setAttachmentConfiguration] =
-    useState<VideoAttachmentConfiguration>();
-  const [showVideo, setShowVideo] = React.useState(!shouldGenerateVideoThumbnail);
-
-  useLayoutEffect(() => {
-    if (videoElement.current && videoAttachmentSizeHandler) {
-      const config = videoAttachmentSizeHandler(
-        attachment,
-        videoElement.current,
-        shouldGenerateVideoThumbnail,
-      );
-      setAttachmentConfiguration(config);
-    }
-  }, [
-    videoElement,
-    videoAttachmentSizeHandler,
-    attachment,
-    shouldGenerateVideoThumbnail,
-  ]);
-
-  const renderThumbnailFirst = Boolean(
-    attachment.thumb_url && shouldGenerateVideoThumbnail,
-  );
-
-  // todo: handle failed thumbnail loading
-  const content = (
-    <div
-      className='str-chat__player-wrapper'
-      data-testid='video-wrapper'
-      ref={videoElement}
-      style={getCssDimensionsVariables(attachment.thumb_url || '')}
-    >
-      {renderThumbnailFirst && !showVideo ? (
-        <div className='str-chat__message-attachment__video-thumbnail'>
-          <BaseImage
-            alt={attachment.title}
-            className={'str-chat__message-attachment__video-thumbnail-image'}
-            data-testid='image-test'
-            src={attachment.thumb_url}
-            title={attachment.title}
-          />
-          <Button
-            className={clsx(
-              'str-chat__message-attachment__video-thumbnail__play-indicator',
-              'str-chat__button--secondary',
-              'str-chat__button--solid',
-              'str-chat__button--size-lg',
-              'str-chat__button--circular',
-            )}
-            onClick={() => {
-              setShowVideo(true);
-            }}
-            type='button'
-          >
-            <IconPlaySolid />
-          </Button>
-        </div>
-      ) : (
-        <Media
-          className='react-player'
-          config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
-          controls
-          height='100%'
-          playing={renderThumbnailFirst}
-          url={attachmentConfiguration?.url}
-          width='100%'
-        />
-      )}
-    </div>
-  );
 
   return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <div className='str-chat__attachment'>
-        {content}
+        <VideoAttachment attachment={attachment} VideoPlayer={Media} />
         <AttachmentActionsContainer {...props} />
       </div>
     </AttachmentWithinContainer>
   ) : (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      {content}
+      <VideoAttachment attachment={attachment} VideoPlayer={Media} />
     </AttachmentWithinContainer>
   );
 };
