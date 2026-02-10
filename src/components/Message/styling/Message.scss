@@ -152,20 +152,20 @@
   }
 }
 
-.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
-  .str-chat__attachment-list,
-  .str-chat__message-text {
-    padding: 0;
+.str-chat__message.str-chat__message--has-single-attachment {
+  &.str-chat__message--has-no-text {
+    .str-chat__message-bubble {
+      padding: 0;
+    }
   }
-}
+  &.str-chat__message--has-giphy-attachment {
+    .str-chat__message-bubble {
+      padding: 0;
+    }
 
-.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-giphy-attachment {
-  .str-chat__message-bubble {
-    padding: 0;
-  }
-
-  .str-chat__message-text {
-    display: none;
+    .str-chat__message-text {
+      display: none;
+    }
   }
 }
 
@@ -210,13 +210,23 @@
     grid-template-areas:
       '. message-reminder'
       'avatar message'
-      '. replies'
-      '. translation-notice'
-      '. custom-metadata'
-      '. metadata';
+      'avatar replies'
+      'avatar translation-notice'
+      'avatar custom-metadata'
+      'avatar metadata';
     column-gap: var(--str-chat__spacing-2);
     grid-template-columns: auto 1fr;
     justify-items: flex-start;
+
+    .str-chat__message-inner {
+      .str-chat__message-reactions-host {
+        justify-content: flex-start;
+
+        &:has(.str-chat__message-reactions--flipped-horizontally) {
+          justify-content: flex-end;
+        }
+      }
+    }
   }
 
   &.str-chat__message--me {
@@ -229,9 +239,14 @@
       'metadata';
     justify-items: end;
 
-    // > selector added to not hide sender of inline replies
-    > .str-chat__message-sender-avatar {
-      display: none;
+    .str-chat__message-inner {
+      .str-chat__message-reactions-host {
+        justify-content: flex-end;
+
+        &:has(.str-chat__message-reactions--flipped-horizontally) {
+          justify-content: flex-start;
+        }
+      }
     }
   }
 
@@ -248,7 +263,7 @@
     grid-template-columns: auto;
   }
 
-  .str-chat__message-sender-avatar {
+  .str-chat__avatar:has(~ .str-chat__message-inner) {
     grid-area: avatar;
     align-self: end;
   }
@@ -257,17 +272,40 @@
     grid-area: message;
     display: grid;
     grid-template-areas:
-      'reactions reactions'
+      'reactions .'
       'message-bubble options';
     grid-template-columns: auto 1fr;
     column-gap: var(--str-chat__spacing-2);
     position: relative;
 
     .str-chat__message-reactions-host {
+      display: flex;
       grid-area: reactions;
+      min-width: 100%;
+      z-index: 1;
+
+      &:has(.str-chat__message-reactions--top) {
+        margin-bottom: calc(var(--spacing-xxs) * -1);
+      }
+
+      &:has(.str-chat__message-reactions--bottom) {
+        padding-block: var(--spacing-xxs);
+      }
+    }
+
+    &:has(.str-chat__message-reactions--top) {
+      // maybe remove later
+    }
+
+    &:has(.str-chat__message-reactions--bottom) {
+      grid-template-areas:
+        'message-bubble options'
+        'reactions .';
     }
 
     .str-chat__message-bubble {
+      display: flex;
+      justify-self: flex-start;
       grid-area: message-bubble;
       position: relative;
       min-width: 0;
@@ -286,18 +324,26 @@
   }
 
   &.str-chat__message--me .str-chat__message-bubble {
+    justify-self: flex-end;
     background-color: var(--str-chat__own-message-bubble-background-color);
   }
 
   &.str-chat__message--me .str-chat__message-inner {
     grid-template-areas:
       'reminder reminder'
-      'reactions reactions'
+      '. reactions'
       'options message-bubble';
     grid-template-columns: 1fr auto;
 
     .str-chat__message-options {
       flex-direction: row;
+    }
+
+    &:has(.str-chat__message-reactions--bottom) {
+      grid-template-areas:
+        'reminder reminder'
+        'options message-bubble'
+        '. reactions';
     }
   }
 

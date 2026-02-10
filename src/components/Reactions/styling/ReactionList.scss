@@ -1,0 +1,79 @@
+@use '../../../styling/utils' as utils;
+
+.str-chat__message-reactions {
+  user-select: none;
+  display: flex;
+  color: var(--reaction-text);
+  font-feature-settings:
+    'liga' off,
+    'clig' off;
+  font-family: var(--typography-font-family-sans);
+  font-size: var(--typography-font-size-xxs);
+  font-style: normal;
+  font-weight: var(--typography-font-weight-bold);
+  line-height: 1;
+
+
+  .str-chat__message-reactions__list {
+    list-style: none;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxs);
+    padding: 0;
+
+    .str-chat__message-reactions__list-item {
+      display: flex;
+
+      .str-chat__message-reactions__list-item-button {
+        @include utils.unset-button;
+        display: flex;
+        cursor: pointer;
+        font-weight: inherit;
+
+        .str-chat__message-reactions__item-icon {
+          // FIXME: ridiculous hack so that the emoji block is in a square container (1/1 ratio)
+          font-size: 13px;
+          line-height: 16px;
+          font-family: system-ui, sans-serif;
+          font-style: normal;
+          letter-spacing: 0;
+          display: flex;
+        }
+      }
+    }
+  }
+
+  &.str-chat__message-reactions--clustered {
+    padding: var(--spacing-xxs) var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-max);
+    border: 1px solid var(--reaction-border);
+    background: var(--reaction-bg);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+    gap: var(--spacing-xs);
+
+    .str-chat__message-reactions__total-count {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &.str-chat__message-reactions--segmented {
+    .str-chat__message-reactions__list {
+      display: flex;
+      .str-chat__message-reactions__list-item-button {
+        display: flex;
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        justify-content: center;
+        align-items: center;
+        border-radius: var(--radius-max);
+        border: 1px solid var(--reaction-border);
+        background: var(--reaction-bg);
+        box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+        gap: var(--spacing-xxs);
+      }
+    }
+  }
+}

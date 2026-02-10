@@ -28,6 +28,7 @@
 @use '../components/MessageInput/styling' as MessageComposer;
 @use '../components/Reactions/styling/ReactionSelector' as ReactionSelector;
 @use '../components/TextareaComposer/styling/' as TextareaComposer;
+@use '../components/Reactions/styling/ReactionList' as ReactionList;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);
