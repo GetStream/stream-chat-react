@@ -1,0 +1,58 @@
+@mixin field-background {
+  background-color: var(--str-chat__tertiary-surface-color);
+  border-radius: 0.75rem;
+}
+
+.str-chat__poll-creation-dialog {
+  .str-chat__form__input-fieldset {
+    border: none;
+  }
+
+  .str-chat__form__expandable-field,
+  .str-chat__form__input-field:not(.str-chat__form__input-field--with-label),
+  .str-chat__form__input-field--with-label .str-chat__form__input-field__value {
+    @include field-background;
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+
+      &, &::placeholder {
+        font: var(--str-chat__subtitle-text);
+      }
+    }
+  }
+
+  .str-chat__form__input-field--draggable {
+    input {
+      pointer-events: auto;
+    }
+
+    .str-chat__drag-handle {
+      background-color: var(--str-chat__text-low-emphasis-color);
+      -webkit-mask: var(--str-chat__handle-icon) no-repeat center / contain;
+      mask: var(--str-chat__handle-icon) no-repeat center / contain;
+    }
+  }
+
+  .str-chat__form__input-field--has-error {
+    border: 1px solid var(--str-chat__message-error-message-color);
+  }
+
+  .str-chat__form__expandable-field .str-chat__form__input-field--has-error, {
+    border: none;
+
+    .str-chat__form__input-field__value {
+      border: none;
+    }
+  }
+
+  .str-chat__form__input-field--with-label.str-chat__form__input-field--has-error {
+    border: none;
+
+    .str-chat__form__input-field__value {
+      border: 1px solid var(--str-chat__message-error-message-color);
+    }
+  }
+}

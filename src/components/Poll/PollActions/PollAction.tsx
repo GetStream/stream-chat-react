@@ -2,6 +2,8 @@ import type { PropsWithChildren } from 'react';
 import React from 'react';
 import { Modal as DefaultModal } from '../../Modal';
 import { useComponentContext } from '../../../context';
+import { Button } from '../../Button';
+import clsx from 'clsx';
 
 export type PollActionProps = {
   buttonText: string;
@@ -22,9 +24,17 @@ export const PollAction = ({
   const { Modal = DefaultModal } = useComponentContext();
   return (
     <>
-      <button className='str-chat__poll-action' onClick={openModal}>
+      <Button
+        className={clsx(
+          'str-chat__poll-action',
+          'str-chat__button--outline',
+          'str-chat__button--secondary',
+          'str-chat__button--size-md',
+        )}
+        onClick={openModal}
+      >
         {buttonText}
-      </button>
+      </Button>
       <Modal className={modalClassName} onClose={closeModal} open={modalIsOpen}>
         {children}
       </Modal>

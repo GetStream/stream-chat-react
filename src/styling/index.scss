@@ -26,8 +26,9 @@
 @use "../components/Message/styling" as Message;
 @use "../components/MessageActions/styling" as MessageActions;
 @use "../components/MessageInput/styling" as MessageComposer;
+@use "../components/Poll/styling" as Poll;
 @use "../components/Reactions/styling/ReactionSelector" as ReactionSelector;
-@use "../components/TextareaComposer/styling/" as TextareaComposer;
+@use "../components/TextareaComposer/styling" as TextareaComposer;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);
