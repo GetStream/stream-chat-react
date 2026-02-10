@@ -84,7 +84,9 @@
   --str-chat__image-gallery-attachment-overlay: var(--str-chat__secondary-overlay-color);
 
   /* Text colors used on overlay applied to image gallery attachments */
-  --str-chat__image-gallery-attachment-overlay-text-color: var(--str-chat__secondary-overlay-text-color);
+  --str-chat__image-gallery-attachment-overlay-text-color: var(
+    --str-chat__secondary-overlay-text-color
+  );
 
   /* The border radius used for the borders of card attachments */
   --str-chat__card-attachment-border-radius: 0;
@@ -151,10 +153,14 @@
   --str-chat__geolocation-attachment-color: var(--str-chat__text-color);
 
   /* The text/icon color of geolocation attachments for low emphasis texts (for example file size) */
-  --str-chat__geolocation-attachment-secondary-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__geolocation-attachment-secondary-color: var(
+    --str-chat__text-low-emphasis-color
+  );
 
   /* The background color of geolocation attachments */
-  --str-chat__geolocation-attachment-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__geolocation-attachment-background-color: var(
+    --str-chat__secondary-background-color
+  );
 
   /* Top border of geolocation attachments */
   --str-chat__geolocation-attachment-border-block-start: none;
@@ -180,7 +186,9 @@
   --str-chat__audio-attachment-widget-color: var(--str-chat__text-color);
 
   /* Border radius applied audio widget */
-  --str-chat__audio-attachment-widget-secondary-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__audio-attachment-widget-secondary-color: var(
+    --str-chat__text-low-emphasis-color
+  );
 
   /* The text/icon color for low emphasis texts (for example file size) in audio widget */
   --str-chat__audio-attachment-widget-background-color: transparent;
@@ -232,7 +240,9 @@
   --str-chat__voice-recording-attachment-widget-box-shadow: none;
 
   /* Border radius applied to the play / pause button of audio widget */
-  --str-chat__audio-attachment-controls-button-border-radius: var(--str-chat__border-radius-circle);
+  --str-chat__audio-attachment-controls-button-border-radius: var(
+    --str-chat__border-radius-circle
+  );
 
   /* Text color applied to audio widget's play / pause button */
   --str-chat__audio-attachment-controls-button-color: var(--str-chat__text-color);
@@ -243,7 +253,9 @@
   );
 
   /* Background color applied to audio widget's play / pause button when in pressed (active) state */
-  --str-chat__audio-attachment-controls-button-pressed-background-color: var(--str-chat__surface-color);
+  --str-chat__audio-attachment-controls-button-pressed-background-color: var(
+    --str-chat__surface-color
+  );
 
   /* Top border of audio widget's play / pause button */
   --str-chat__audio-attachment-controls-button-border-block-start: none;
@@ -258,13 +270,15 @@
   --str-chat__audio-attachment-controls-button-border-inline-end: none;
 
   /* Box shadow applied to audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-box-shadow: var(--str-chat__circle-fab-box-shadow);
+  --str-chat__audio-attachment-controls-button-box-shadow: var(
+    --str-chat__circle-fab-box-shadow
+  );
 }
 
 .str-chat__attachment-list {
   /* The maximum allowed width and height of attachments, in case of gallery images this is the maximum size of the whole gallery (not just for a single image inside the gallery). There are some constraints for the acceptable values you can provide for this variable, [Angular documentation](https://getstream.io/chat/docs/sdk/angular/components/AttachmentListComponent/#maximum-size), [React documentation](https://getstream.io/chat/docs/sdk/react/message-components/attachment/#image-and-video-sizing). */
   --str-chat__attachment-max-width: calc(
-          var(--str-chat__message-max-width) - calc(2 * var(--str-chat__attachment-margin))
+    var(--str-chat__message-max-width) - calc(2 * var(--str-chat__attachment-margin))
   );
 
   /* The maximum height of videos, the default value is the mase as `--str-chat__attachment-max-width`. The rendered video can be smaller based on the aspect ratio */
@@ -307,8 +321,8 @@
   // Images uploaded from files
   .str-chat__message-attachment--image:not(.str-chat__message-attachment--card) img {
     @include utils.clamped-height-from-original-image-dimensions(
-                    '--str-chat__attachment-max-width',
-                    '--str-chat__attachment-max-width'
+      '--str-chat__attachment-max-width',
+      '--str-chat__attachment-max-width'
     );
 
     // CDN resize requires max-width and height/max-height to be present on this element
@@ -347,19 +361,23 @@
     }
   }
 
-  .str-chat__message-attachment--video:not(.str-chat__message-attachment--card):not(.str-chat__message-attachment-dynamic-size) {
+  .str-chat__message-attachment--video:not(.str-chat__message-attachment--card):not(
+      .str-chat__message-attachment-dynamic-size
+    ) {
     height: var(--str-chat__video-height);
   }
 
-  .str-chat__message-attachment--video.str-chat__message-attachment-dynamic-size:not(.str-chat__message-attachment--card) {
+  .str-chat__message-attachment--video.str-chat__message-attachment-dynamic-size:not(
+      .str-chat__message-attachment--card
+    ) {
     $maxHeight: var(--str-chat__video-height);
 
     max-height: $maxHeight;
 
     .str-chat__player-wrapper {
       @include utils.clamped-height-from-original-image-dimensions(
-                      '--str-chat__video-height',
-                      '--str-chat__attachment-max-width'
+        '--str-chat__video-height',
+        '--str-chat__attachment-max-width'
       );
       // CDN resize requires max-height to be present on this element - React
       max-height: $maxHeight;
@@ -439,13 +457,11 @@
         font-weight: var(--typography-font-weight-semi-bold);
         font-size: var(--typography-font-size-sm);
 
-
         .str-chat__message-attachment-file--item__name,
         .str-chat__message-attachment-audio-widget--title {
           @include utils.ellipsis-text;
           min-width: 0;
         }
-
       }
 
       .str-chat__message-attachment-file--item__data {
@@ -470,7 +486,7 @@
       padding: var(--str-chat__spacing-2);
 
       .str-chat__message-geolocation__icon {
-        height: calc(var(--str-chat__spacing-px) *150);
+        height: calc(var(--str-chat__spacing-px) * 150);
       }
 
       .str-chat__message-attachment-geolocation__placeholder-link {
@@ -544,8 +560,10 @@
     cursor: pointer;
     background: linear-gradient(
       to right,
-      var(--str-chat__primary-color) var(--str-chat__message-attachment-audio-widget-progress),
-      var(--str-chat__disabled-color) var(--str-chat__message-attachment-audio-widget-progress)
+      var(--str-chat__primary-color)
+        var(--str-chat__message-attachment-audio-widget-progress),
+      var(--str-chat__disabled-color)
+        var(--str-chat__message-attachment-audio-widget-progress)
     );
     border-radius: calc(var(--str-chat__spacing-px) * 5);
 
@@ -631,7 +649,6 @@
   }
 
   .str-chat__message-attachment-with-actions.str-chat__message-attachment--giphy {
-
   }
 
   .str-chat__message-attachment-download-icon {
@@ -658,7 +675,6 @@
 }
 
 .str-chat__quoted-message-preview {
-
   * {
     cursor: pointer !important;
   }
@@ -697,7 +713,6 @@
 }
 
 .str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
-
   .str-chat__message-bubble {
     padding: 0;
     background-color: transparent;
@@ -739,13 +754,15 @@
 .str-chat__li--single,
 .str-chat__li--bottom {
   .str-chat__message--other {
-    &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
+    &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
+      .str-chat__message-attachment {
       border-end-start-radius: var(--message-bubble-radius-tail);
     }
   }
 
   .str-chat__message--me {
-    &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
+    &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
+      .str-chat__message-attachment {
       border-end-end-radius: var(--message-bubble-radius-tail);
     }
   }
@@ -753,7 +770,8 @@
 
 .str-chat__li--top,
 .str-chat__li--middle {
-  &.str-chat__message--has-single-attachment.str-chat__message--has-no-text .str-chat__message-attachment {
+  &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
+    .str-chat__message-attachment {
     border-radius: var(--message-bubble-radius-group-middle);
   }
 }

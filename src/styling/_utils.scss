@@ -6,7 +6,7 @@
 
 @mixin overlay-after($color: black) {
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: $color;
@@ -64,7 +64,7 @@
 }
 
 @mixin focusable {
-  outline: 2px solid  var(--border-utility-focus);
+  outline: 2px solid var(--border-utility-focus);
   outline-offset: 2px;
 }
 
@@ -73,11 +73,14 @@
   overflow-y: hidden;
 }
 
-@mixin clamped-height-from-original-image-dimensions($max-height-css-var, $max-width-css-var) {
+@mixin clamped-height-from-original-image-dimensions(
+  $max-height-css-var,
+  $max-width-css-var
+) {
   height: min(
-          var(#{$max-height-css-var}),
-          min(var(#{$max-width-css-var}, 1000000) / var(--original-width, 1000000), 1px) *
-          var(--original-height, 1000000)
+    var(#{$max-height-css-var}),
+    min(var(#{$max-width-css-var}, 1000000) / var(--original-width, 1000000), 1px) *
+      var(--original-height, 1000000)
   );
 }
 
@@ -118,7 +121,8 @@
   border-radius: var(--str-chat__#{$component-name}-border-radius) #{$important};
   border-block-start: var(--str-chat__#{$component-name}-border-block-start) #{$important};
   border-block-end: var(--str-chat__#{$component-name}-border-block-end) #{$important};
-  border-inline-start: var(--str-chat__#{$component-name}-border-inline-start) #{$important};
+  border-inline-start: var(--str-chat__#{$component-name}-border-inline-start)
+    #{$important};
   border-inline-end: var(--str-chat__#{$component-name}-border-inline-end) #{$important};
 }
 

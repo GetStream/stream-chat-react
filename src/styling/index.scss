@@ -1,35 +1,37 @@
 // Base styles
-@use "accessibility";
-@use "animations";
-@use "global-layout-variables";
-@use "global-theme-variables";
+@use 'accessibility';
+@use 'animations';
+@use 'global-layout-variables';
+@use 'global-theme-variables';
 @use 'palette-variables';
-@use "./variables.css";
-@use "base";
-@use "icons";
+@use './variables.css';
+@use 'base';
+@use 'icons';
 // Fonts
-@use "fonts";
+@use 'fonts';
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
-@use "../components/Icons/styling" as Icons;
-@use "../components/FileIcon/styling/FileIcon";
+@use '../components/Icons/styling' as Icons;
+@use '../components/FileIcon/styling/FileIcon';
 
 // Base components
-@use "../components/Button/styling/Button";
-@use "../components/Dialog/styling" as Dialog;
+@use '../components/Button/styling/Button';
+@use '../components/Dialog/styling' as Dialog;
 
 // Specific components
-@use "../components/Attachment/styling" as Attachment;
-@use "../components/AudioPlayback/styling" as AudioPlayback;
-@use "../components/Avatar/styling/Avatar" as Avatar;
+@use '../components/Attachment/styling' as Attachment;
+@use '../components/AudioPlayback/styling' as AudioPlayback;
+@use '../components/Avatar/styling/Avatar' as Avatar;
 @use "../components/Gallery/styling" as Gallery;
-@use "../components/MediaRecorder/AudioRecorder/styling" as AudioRecorder;
-@use "../components/Message/styling" as Message;
-@use "../components/MessageActions/styling" as MessageActions;
-@use "../components/MessageInput/styling" as MessageComposer;
+@use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
+@use '../components/MediaRecorder/AudioRecorder/styling' as AudioRecorder;
+@use '../components/Message/styling' as Message;
+@use '../components/MessageActions/styling' as MessageActions;
+@use '../components/MessageInput/styling' as MessageComposer;
 @use "../components/Modal/styling" as Modal;
-@use "../components/Reactions/styling/ReactionSelector" as ReactionSelector;
-@use "../components/TextareaComposer/styling" as TextareaComposer;
+@use '../components/Reactions/styling/ReactionList' as ReactionList;
+@use '../components/Reactions/styling/ReactionSelector' as ReactionSelector;
+@use '../components/TextareaComposer/styling' as TextareaComposer;
 @use "../components/VideoPlayer/styling" as VideoPlayer;
 
 // Layers have to be kept the last
