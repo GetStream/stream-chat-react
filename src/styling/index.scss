@@ -22,6 +22,7 @@
 @use '../components/Attachment/styling' as Attachment;
 @use '../components/AudioPlayback/styling' as AudioPlayback;
 @use '../components/Avatar/styling/Avatar' as Avatar;
+@use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
 @use '../components/MediaRecorder/AudioRecorder/styling' as AudioRecorder;
 @use '../components/Message/styling' as Message;
 @use '../components/MessageActions/styling' as MessageActions;
