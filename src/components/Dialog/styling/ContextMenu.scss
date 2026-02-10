@@ -23,8 +23,12 @@
   --str-chat__dialog-menu-button-active-background-color: var(--background-core-pressed);
   --str-chat__dialog-menu-button-focused-background-color: transparent;
   --str-chat__dialog-menu-button-disabled-background-color: transparent;
-  --str-chat__dialog-menu-back-button-hover-background-color: var(--background-core-hover);
-  --str-chat__dialog-menu-back-button-active-background-color: var(--background-core-pressed);
+  --str-chat__dialog-menu-back-button-hover-background-color: var(
+    --background-core-hover
+  );
+  --str-chat__dialog-menu-back-button-active-background-color: var(
+    --background-core-pressed
+  );
   --str-chat__dialog-menu-back-button-focused-background-color: transparent;
   --str-chat__dialog-menu-back-button-disabled-background-color: transparent;
   --str-chat__dialog-menu-button-border-block-start: none;
@@ -70,15 +74,21 @@
       }
 
       &:active:not(:disabled) {
-        background-color: var(--str-chat__dialog-menu-back-button-active-background-color);
+        background-color: var(
+          --str-chat__dialog-menu-back-button-active-background-color
+        );
       }
 
       &:focus-visible:not(:disabled) {
-        background-color: var(--str-chat__dialog-menu-back-button-focused-background-color);
+        background-color: var(
+          --str-chat__dialog-menu-back-button-focused-background-color
+        );
       }
 
       &:disabled {
-        background-color: var(--str-chat__dialog-menu-back-button-disabled-background-color);
+        background-color: var(
+          --str-chat__dialog-menu-back-button-disabled-background-color
+        );
       }
 
       .str-chat__icon--chevron-right {
@@ -117,7 +127,6 @@
 
       &:focus-visible:not(:disabled) {
         background-color: var(--str-chat__dialog-menu-button-focused-background-color);
-
       }
 
       &:disabled {
@@ -136,7 +145,6 @@
         text-align: left;
         color: var(--text-primary);
         white-space: nowrap;
-
       }
 
       .str-chat__context-menu__button__details {

@@ -1,5 +1,7 @@
 .str-chat {
-  --str-chat__quoted-message-bubble-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__quoted-message-bubble-background-color: var(
+    --str-chat__secondary-background-color
+  );
 
   .str-chat__message {
     .str-chat__quoted-message-preview {
@@ -10,5 +12,3 @@
     }
   }
 }
-
-

@@ -23,12 +23,11 @@
     align-items: center;
     gap: var(--str-chat__voice-recording-amplitude-bar-gap-width);
 
-
     .str-chat__wave-progress-bar__amplitude-bar {
       width: 2px;
       min-width: 2px;
       height: calc(
-              var(--str-chat__wave-progress-bar__amplitude-bar-height) + $min_amplitude_height
+        var(--str-chat__wave-progress-bar__amplitude-bar-height) + $min_amplitude_height
       ); // variable set dynamically on element
     }
 

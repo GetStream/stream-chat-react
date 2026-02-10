@@ -32,7 +32,9 @@
   display: flex;
 
   &-name {
-    font-family: Helvetica Neue, sans-serif;
+    font-family:
+      Helvetica Neue,
+      sans-serif;
     font-weight: 500;
     font-size: 11px;
     line-height: 120%;
@@ -40,7 +42,9 @@
   }
 
   &-timestamp {
-    font-family: Helvetica Neue, sans-serif;
+    font-family:
+      Helvetica Neue,
+      sans-serif;
     font-size: 11px;
     line-height: 120%;
     color: #858688;
@@ -109,7 +113,9 @@
   margin-left: 0;
 
   p {
-    font-family: Helvetica Neue, sans-serif;
+    font-family:
+      Helvetica Neue,
+      sans-serif;
     font-size: 15px;
     line-height: 18px;
     color: #000000;
@@ -120,7 +126,9 @@
 /* ------------------------ Replies Count Button ------------------------  */
 
 .str-chat__message-replies-count-button {
-  font-family: Helvetica Neue, sans-serif;
+  font-family:
+    Helvetica Neue,
+    sans-serif;
   font-weight: bold;
   font-size: 13px;
   text-align: right;

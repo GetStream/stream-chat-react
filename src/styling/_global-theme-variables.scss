@@ -33,8 +33,9 @@
   --str-chat__border-radius-circle: var(--radius-max);
 
   /* The font used in the chat, by default, we use [preinstalled OS fonts](https://systemfontstack.com/) */
-  --str-chat__font-family: var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu,
-  Cantarell, Helvetica Neue, sans-serif;
+  --str-chat__font-family:
+    var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 
   // todo: adapt the old text variables to so that they use the new semantic text variables
   /* The font used for caption texts */
