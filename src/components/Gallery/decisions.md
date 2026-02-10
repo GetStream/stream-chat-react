@@ -205,3 +205,88 @@ The old tests were incompatible with the new component APIs. The old Gallery (th
 
 - Old snapshot deleted. New tests don't use snapshots, preferring explicit assertions.
 - Test coverage now matches the new architecture: GalleryContext (2 tests), Gallery provider (14 tests), GalleryUI (19 tests), ModalGallery (13 tests) = 48 tests total.
+
+## Decision: Swipe and slide animation architecture in GalleryUI
+
+**Date:** 2026-02-10
+
+**Context:**
+Task 11 adds touch swipe gestures and slide transition animations to the Gallery carousel. The implementation needs to work with the existing Gallery provider's `goToNext`/`goToPrevious` pattern without modifying the provider's API.
+
+**Decision:**
+Implemented swipe gestures and slide animations entirely in `GalleryUI.tsx` using local state, with a `.str-chat__gallery__slide-container` wrapper for touch events and overflow clipping. The approach uses:
+
+- `isTransitioning` flag to debounce rapid navigation (300ms lock)
+- `isDragging` + `slideOffset` for follow-the-finger drag tracking
+- `slideAnimationClass` (`sliding-left`/`sliding-right`) applied via `clsx` for CSS transitions
+- `prevIndexRef` to detect direction of navigation when `currentIndex` changes
+- `touch-action: pan-y pinch-zoom` on the slide container to let browser handle vertical scrolling while we handle horizontal swipe
+
+**Reasoning:**
+Keeping all swipe/animation logic in GalleryUI (the UI layer) follows the separation of concerns: Gallery provider manages state, GalleryUI manages presentation and interaction. No changes to GalleryContext API or Gallery provider were needed.
+
+**Alternatives considered:**
+
+- Moving transition state into the Gallery provider — rejected because transition/animation is a UI concern, not state management.
+- Using CSS-only animations with keyframes — rejected because the follow-the-finger drag effect requires JavaScript to track touch position.
+- Using a third-party gesture library (e.g., `@use-gesture/react`) — rejected to avoid adding a dependency for a single use case.
+
+**Tradeoffs / Consequences:**
+
+- Added `clsx` as an import (already a project dependency).
+- The `.str-chat__gallery__slide-container` wrapper is a new DOM element — existing CSS selectors that target `.str-chat__gallery__media` as a direct child of `.str-chat__gallery__main` may need adjustment.
+- `prefers-reduced-motion: reduce` disables the slide transition entirely (instant switch), satisfying accessibility requirements.
+
+## Decision: Direction-aware slide animations use CSS keyframes instead of CSS transitions
+
+**Date:** 2026-02-10
+
+**Context:**
+Task 12 adds direction-aware slide animations so that navigating forward slides the incoming item in from the right, and navigating backward slides it in from the left. The previous Task 11 implementation used a generic `.str-chat__gallery__media--sliding` class with `transition: transform 300ms ease-out` and `transform: translateX(0)`, which always animated from the current position to center — not from off-screen.
+
+**Decision:**
+Replaced the single `--sliding` class with two direction-specific classes (`--slide-forward`, `--slide-backward`) that use CSS `@keyframes` animations instead of CSS transitions. The `slideDirection` state tracks `'forward' | 'backward' | null` instead of `'sliding-left' | 'sliding-right' | null`.
+
+- `@keyframes str-chat__gallery-slide-in-from-right`: `translateX(100%)` → `translateX(0)` (for forward navigation)
+- `@keyframes str-chat__gallery-slide-in-from-left`: `translateX(-100%)` → `translateX(0)` (for backward navigation)
+
+**Reasoning:**
+CSS transitions can only animate between the current computed value and a target value. To make an incoming item appear to slide in from off-screen, keyframe animations are needed — they define an explicit start position (`translateX(±100%)`) that the element animates from, regardless of its current position. The animation `fill-mode: both` ensures the element stays at the keyframe's start position before the animation begins and at the end position after it completes.
+
+**Alternatives considered:**
+
+- CSS transitions with a two-phase approach (set initial off-screen position, then transition to center on next frame via `requestAnimationFrame`) — rejected as fragile and prone to flash-of-unstyled-content.
+- Keeping the old `transition: transform` approach — rejected because it can't produce the "slide in from off-screen" effect since the element starts at `translateX(0)`.
+
+**Tradeoffs / Consequences:**
+
+- Keyframe animations replay each time the class is applied (unlike transitions which interpolate between values). This is the desired behavior for gallery navigation where each slide-in is a fresh animation.
+- The drag-to-swipe effect still uses inline `transform` with no transition (`.str-chat__gallery__media--dragging`), which is unchanged.
+- `prefers-reduced-motion: reduce` disables the keyframe animations (they're wrapped in `@media (prefers-reduced-motion: no-preference)`), so items switch instantly for users who prefer reduced motion.
+
+## Decision: Nav buttons always rendered with visibility:hidden instead of conditional rendering
+
+**Date:** 2026-02-10
+
+**Context:**
+Task 13 requires nav buttons to stay at fixed screen coordinates regardless of media item dimensions. Previously, nav buttons were conditionally rendered (`{hasPrevious && <NavButton>}` / `{hasNext && <NavButton>}`), meaning they were mounted/unmounted from the DOM when at boundaries.
+
+**Decision:**
+Always render both nav buttons in the DOM. When a button is not applicable (e.g., prev button on first item), apply `visibility: hidden` + `pointer-events: none` via the `.str-chat__gallery__nav-button--hidden` CSS class, and set `disabled` on the button element. This keeps buttons at their fixed absolute position at all times.
+
+**Reasoning:**
+Since the buttons are positioned with `position: absolute` relative to `.str-chat__gallery__main`, they don't affect layout regardless of whether they are visible or hidden. However, keeping them always in the DOM ensures:
+
+1. The buttons stay at exactly the same screen coordinates between navigation — no re-aiming needed for rapid clicks
+2. Screen readers can still discover the buttons (they're disabled, not removed)
+3. No layout recalculation when buttons appear/disappear
+
+**Alternatives considered:**
+
+- Keep conditional rendering + `position: absolute` — rejected because conditional mount/unmount technically allows the browser to skip positioning, and the flickering of button mount/unmount could cause brief visual artifacts on some browsers.
+- Use `opacity: 0` instead of `visibility: hidden` — rejected because `visibility: hidden` properly removes the element from the accessibility tree while `opacity: 0` does not.
+
+**Tradeoffs / Consequences:**
+
+- Tests updated: instead of checking `.not.toBeInTheDocument()` for hidden buttons, tests now check for `.toBeDisabled()` and the `--hidden` CSS class.
+- Added React imports to `Button.tsx`, `BaseIcon.tsx`, `IconChevronRight.tsx`, and `IconPlaySolid.tsx` to fix pre-existing "React is not defined" errors exposed by always rendering the button+icon components (classic JSX transform requires React in scope).

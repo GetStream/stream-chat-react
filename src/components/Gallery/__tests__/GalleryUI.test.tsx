@@ -92,8 +92,12 @@ describe('GalleryUI', () => {
 
       renderGalleryUI(items);
 
-      expect(screen.queryByLabelText('Previous image')).not.toBeInTheDocument();
-      expect(screen.getByLabelText('Next image')).toBeInTheDocument();
+      const prevButton = screen.getByLabelText('Previous image');
+      expect(prevButton).toBeDisabled();
+      expect(
+        prevButton.closest('.str-chat__gallery__nav-button--hidden'),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Next image')).not.toBeDisabled();
     });
 
     it('should hide next button on last item', () => {
@@ -101,8 +105,12 @@ describe('GalleryUI', () => {
 
       renderGalleryUI(items, 1);
 
-      expect(screen.getByLabelText('Previous image')).toBeInTheDocument();
-      expect(screen.queryByLabelText('Next image')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Previous image')).not.toBeDisabled();
+      const nextButton = screen.getByLabelText('Next image');
+      expect(nextButton).toBeDisabled();
+      expect(
+        nextButton.closest('.str-chat__gallery__nav-button--hidden'),
+      ).toBeInTheDocument();
     });
 
     it('should show both buttons in the middle', () => {

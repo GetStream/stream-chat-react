@@ -168,6 +168,16 @@ The Modal component handles:
 - Supports swipe gestures on touch devices
 - Displays current position indicator (e.g., "3 / 10")
 
+### Swipe & Slide Animations
+
+- Gallery items slide horizontally when navigating (both via buttons, keyboard, and swipe)
+- Slide direction matches navigation direction (next = slide left, previous = slide right)
+- Touch swipe gestures on the media area trigger navigation with a follow-the-finger drag effect
+- Swipe threshold: minimum 50px horizontal movement to trigger navigation; shorter swipes snap back
+- Slide transition uses a smooth ease-out curve (~300ms duration)
+- Respects `prefers-reduced-motion`: when enabled, items switch instantly without animation
+- During a transition, additional navigation inputs are ignored (debounced)
+
 ## Behavior
 
 ### Loading States
@@ -208,7 +218,7 @@ src/components/Gallery/
 ├── BaseImage.tsx            # Image component with error handling
 ├── Image.tsx                # Legacy image component
 ├── index.tsx                # Public exports
-├── gallery-spec.md          # This specification
+├── goal.md                  # This specification (single source of truth)
 ├── styling/
 │   └── index.scss           # Gallery styles (imported by src/styling/index.scss)
 └── __tests__/

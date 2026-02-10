@@ -408,6 +408,132 @@ Each task is self-contained. Tasks that modify the same file have dependencies t
 
 ---
 
+## Task 11: Swipe Gestures & Slide Transition Animations
+
+**Files to modify:** `src/components/Gallery/GalleryUI.tsx`, `src/components/Gallery/styling/Gallery.scss`
+
+**Dependencies:** Task 3, Task 5 (both done)
+
+**Status:** done
+
+**Owner:** ralph
+
+**Scope:**
+
+- Add touch swipe gesture handling to `GalleryUI.tsx`:
+  - Track `touchstart`, `touchmove`, `touchend` events on the `.str-chat__gallery__main` element
+  - During swipe: apply a CSS `transform: translateX()` to the media container following the finger position (drag effect)
+  - On swipe end: if horizontal distance >= 50px threshold, trigger `goToNext`/`goToPrevious`; otherwise snap back to center
+  - Ignore vertical-dominant swipes (compare deltaX vs deltaY)
+- Add slide transition animation for all navigation methods (buttons, keyboard, swipe):
+  - When navigating to next: outgoing item slides out to the left, incoming item slides in from the right
+  - When navigating to previous: outgoing item slides out to the right, incoming item slides in from the left
+  - Use a CSS transition with `ease-out` timing (~300ms duration)
+  - Manage transition state (e.g., `isTransitioning` flag) to debounce rapid navigation inputs
+  - Apply a CSS class (e.g., `.str-chat__gallery__media--sliding-left`, `.str-chat__gallery__media--sliding-right`) during transition
+- Update `styling/Gallery.scss`:
+  - Add transition rules for `.str-chat__gallery__media` with `transform` and `opacity`
+  - Add keyframe or class-based slide-in/slide-out animations
+  - Add `@media (prefers-reduced-motion: reduce)` override that disables slide animations (instant switch)
+  - Ensure the media container has `overflow: hidden` to clip sliding content
+- Add CSS class `.str-chat__gallery__media--dragging` for the follow-the-finger phase (no transition, only transform)
+
+**Acceptance Criteria:**
+
+- [ ] Swiping left on the media area navigates to the next item
+- [ ] Swiping right on the media area navigates to the previous item
+- [ ] Short swipes (< 50px) snap back without navigating
+- [ ] Vertical swipes are ignored (do not trigger horizontal navigation)
+- [ ] Navigation via buttons and keyboard also triggers the slide animation
+- [ ] Slide direction matches navigation direction
+- [ ] Rapid clicks/swipes during a transition are ignored
+- [ ] `prefers-reduced-motion: reduce` disables all slide animations
+- [ ] Video playback is not disrupted by swipe gestures
+- [ ] TypeScript compiles without errors
+- [ ] SCSS compiles without errors
+
+---
+
+## Task 12: Direction-Aware Slide Animations
+
+**Files to modify:** `src/components/Gallery/GalleryUI.tsx`, `src/components/Gallery/styling/Gallery.scss`
+
+**Dependencies:** Task 11 (Swipe Gestures & Slide Transition Animations must be done)
+
+**Status:** done
+
+**Owner:** ralph
+
+**Scope:**
+
+- Ensure the slide animation direction matches the navigation direction in `GalleryUI.tsx`:
+  - When navigating to the **next** item (sliding left): the incoming item enters from the **right** side and slides **right-to-left** into view
+  - When navigating to the **previous** item (sliding right): the incoming item enters from the **left** side and slides **left-to-right** into view
+- Track navigation direction (e.g., `'forward' | 'backward'`) as state so CSS can apply the correct animation
+- Apply direction-specific CSS classes:
+  - `.str-chat__gallery__media--slide-forward` for next-item transitions (item enters from right)
+  - `.str-chat__gallery__media--slide-backward` for previous-item transitions (item enters from left)
+- Update `styling/Gallery.scss`:
+  - Define `@keyframes slide-in-from-right` (starts at `translateX(100%)`, ends at `translateX(0)`)
+  - Define `@keyframes slide-in-from-left` (starts at `translateX(-100%)`, ends at `translateX(0)`)
+  - Apply the correct keyframe based on the direction class
+  - Ensure outgoing item also slides out in the matching direction
+  - Respect `prefers-reduced-motion: reduce` — disable directional animations when enabled
+- Ensure swipe gestures also set the correct direction (swipe left = forward, swipe right = backward)
+
+**Acceptance Criteria:**
+
+- [ ] Navigating to the next item: incoming item slides in from the right
+- [ ] Navigating to the previous item: incoming item slides in from the left
+- [ ] Outgoing item slides out in the opposite direction (left for forward, right for backward)
+- [ ] Button navigation triggers direction-correct animations
+- [ ] Keyboard navigation (ArrowRight/ArrowLeft) triggers direction-correct animations
+- [ ] Swipe gestures trigger direction-correct animations
+- [ ] `prefers-reduced-motion: reduce` disables all directional slide animations
+- [ ] TypeScript compiles without errors
+- [ ] SCSS compiles without errors
+
+---
+
+## Task 13: Fixed-Position Navigation Buttons
+
+**Files to modify:** `src/components/Gallery/styling/Gallery.scss`, `src/components/Gallery/GalleryUI.tsx`
+
+**Dependencies:** Task 12 (Direction-Aware Slide Animations must be done)
+
+**Status:** done
+
+**Owner:** ralph
+
+**Scope:**
+
+- Navigation buttons (prev/next) must remain at a **fixed screen position** regardless of the current media item's dimensions
+- Currently the buttons may shift vertically or horizontally when the displayed image changes size, forcing users to re-aim their pointer between slides
+- Fix the layout so `.str-chat__gallery__nav-button--prev` and `.str-chat__gallery__nav-button--next` are positioned relative to the **gallery container** (or modal viewport), not relative to the media content
+- Buttons should be vertically centered within the gallery viewport and horizontally pinned to the left/right edges
+- The media area should resize/reflow independently without affecting button placement
+- Update `styling/Gallery.scss`:
+  - Ensure `.str-chat__gallery__main` (or an appropriate parent) is the positioning context (`position: relative`) with a fixed/predictable size
+  - Position nav buttons with `position: absolute` relative to this stable container, not the variable-size media
+  - Use consistent `top: 50%; transform: translateY(-50%)` for vertical centering against the container
+- Update `GalleryUI.tsx` if needed:
+  - Move nav buttons outside the media wrapper if the current DOM structure causes them to shift with media size changes
+  - Ensure the buttons remain siblings of (not children of) the resizing media element
+
+**Acceptance Criteria:**
+
+- [ ] Prev/next buttons stay at the exact same screen coordinates when navigating between items of different sizes
+- [ ] Users can rapidly click a nav button without needing to re-aim their pointer between slides
+- [ ] Buttons remain vertically centered in the gallery viewport
+- [ ] Buttons remain horizontally pinned to left/right edges
+- [ ] Layout works correctly for both landscape and portrait images
+- [ ] Layout works correctly when a video item is displayed
+- [ ] Buttons do not overlap or obscure media content at small viewport sizes
+- [ ] TypeScript compiles without errors
+- [ ] SCSS compiles without errors
+
+---
+
 ## Execution Order
 
 ```
@@ -432,6 +558,15 @@ Phase 5 (After Tasks 1-4):
 Phase 6 (After Task 8):
 ├── Task 9: Remove Dependency
 └── Task 10: Tests
+
+Phase 7 (After Tasks 3, 5):
+└── Task 11: Swipe Gestures & Slide Animations
+
+Phase 8 (After Task 11):
+└── Task 12: Direction-Aware Slide Animations
+
+Phase 9 (After Task 12):
+└── Task 13: Fixed-Position Navigation Buttons
 ```
 
 ---
@@ -450,3 +585,6 @@ Phase 6 (After Task 8):
 | 8    | `index.tsx`                                    |
 | 9    | `package.json`                                 |
 | 10   | `__tests__/*`                                  |
+| 11   | `GalleryUI.tsx`, `styling/Gallery.scss`        |
+| 12   | `GalleryUI.tsx`, `styling/Gallery.scss`        |
+| 13   | `styling/Gallery.scss`, `GalleryUI.tsx`        |

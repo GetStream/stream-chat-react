@@ -1,140 +1,193 @@
 @use '../../../styling/utils';
 
-.str-chat__gallery {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  height: 100%;
-}
+.str-chat {
+  @keyframes str-chat__gallery-slide-in-from-right {
+    from {
+      transform: translateX(100%);
+    }
 
-.str-chat__gallery__main {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-}
-
-.str-chat__gallery__media {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  //width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-
-  .str-chat__base-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-}
-
-.str-chat__gallery__media--video {
-  video {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-}
-
-.str-chat__gallery__nav-button {
-  @include utils.button-reset;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-max);
-  background-color: var(--str-chat__secondary-surface-color);
-  color: var(--str-chat__text-color);
-
-  @media (prefers-reduced-motion: no-preference) {
-    transition: background-color 0.15s ease;
+    to {
+      transform: translateX(0);
+    }
   }
 
-  &:hover {
-    background-color: var(--str-chat__tertiary-surface-color);
+  @keyframes str-chat__gallery-slide-in-from-left {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
   }
 
-  &:focus-visible {
-    @include utils.focusable;
+  .str-chat__gallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    height: 100%;
   }
 
-  svg {
-    width: 1rem;
-    height: 1rem;
-  }
-}
-
-.str-chat__gallery__nav-button--prev {
-  left: var(--spacing-sm);
-
-  svg {
-    transform: rotate(180deg);
-  }
-}
-
-.str-chat__gallery__nav-button--next {
-  right: var(--spacing-sm);
-}
-
-.str-chat__gallery__position-indicator {
-  font-size: var(--typography-font-size-sm);
-  line-height: var(--typography-line-height-tight);
-  color: var(--str-chat__text-low-emphasis-color);
-  padding: var(--spacing-xs) 0;
-  user-select: none;
-}
-
-.str-chat__gallery__loading {
-  @include utils.flex-col-center;
-  width: 100%;
-  height: 100%;
-}
-
-.str-chat__gallery__error {
-  @include utils.flex-col-center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  height: 100%;
-  color: var(--str-chat__text-low-emphasis-color);
-  font-size: var(--typography-font-size-sm);
-}
-
-// Gallery modal-specific overrides
-.str-chat__gallery-modal {
-  .str-chat__modal__inner {
-    width: 90%;
-    max-width: 900px;
-    height: 80%;
-    max-height: 80vh;
-    padding: var(--spacing-md);
-  }
-}
-
-@media only screen and (max-device-width: 768px) {
-  .str-chat__gallery__nav-button {
-    width: 2rem;
-    height: 2rem;
+  .str-chat__gallery__main {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
   }
 
-  .str-chat__gallery-modal {
+  .str-chat__gallery__slide-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .str-chat__gallery__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+
+    @media (prefers-reduced-motion: no-preference) {
+      &--slide-forward {
+        animation: str-chat__gallery-slide-in-from-right 300ms ease-out both;
+      }
+
+      &--slide-backward {
+        animation: str-chat__gallery-slide-in-from-left 300ms ease-out both;
+      }
+    }
+
+    &--dragging {
+      transition: none;
+    }
+
+    .str-chat__base-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .str-chat__gallery__media--video {
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .str-chat__button.str-chat__gallery__nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-max);
+    background-color: var(--str-chat__secondary-surface-color);
+    color: var(--str-chat__text-color);
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background-color 0.15s ease;
+    }
+
+    &:hover {
+      background-color: var(--str-chat__tertiary-surface-color);
+    }
+
+    &:focus-visible {
+      @include utils.focusable;
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  .str-chat__gallery__nav-button--hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .str-chat__gallery__nav-button--prev {
+    left: var(--spacing-sm);
+
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .str-chat__gallery__nav-button--next {
+    right: var(--spacing-sm);
+  }
+
+  .str-chat__gallery__position-indicator {
+    font-size: var(--typography-font-size-sm);
+    line-height: var(--typography-line-height-tight);
+    color: var(--str-chat__text-low-emphasis-color);
+    padding: var(--spacing-xs) 0;
+    user-select: none;
+  }
+
+  .str-chat__gallery__loading {
+    @include utils.flex-col-center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .str-chat__gallery__error {
+    @include utils.flex-col-center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    height: 100%;
+    color: var(--str-chat__text-low-emphasis-color);
+    font-size: var(--typography-font-size-sm);
+  }
+
+  // Gallery modal-specific overrides
+  &.str-chat__modal.str-chat__gallery-modal,
+  &.str-chat__modal.str-chat__image-modal {
     .str-chat__modal__inner {
-      width: 95%;
-      height: 90%;
-      max-height: 90vh;
-      padding: var(--spacing-sm);
+      background-color: transparent;
+      width: 90%;
+      height: 80%;
+      max-height: 80vh;
+      padding: var(--spacing-md);
+    }
+  }
+
+  @media only screen and (max-device-width: 768px) {
+    .str-chat__gallery__nav-button {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    &.str-chat__modal.str-chat__gallery-modal,
+    &.str-chat__modal.str-chat__image-modal {
+      .str-chat__modal__inner {
+        width: 95%;
+        height: 90%;
+        max-height: 90vh;
+        padding: var(--spacing-sm);
+      }
     }
   }
 }
