@@ -29,12 +29,14 @@ import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
 import type { CardProps } from './LinkPreview/Card';
 import type { FileAttachmentProps } from './FileAttachment';
-import type { GalleryItem, ImageProps, ModalGalleryProps } from '../Gallery';
+import type { GalleryItem } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { GeolocationProps } from './Geolocation';
 import type { GiphyAttachmentProps } from './Giphy';
 import type { VideoPlayerProps } from '../VideoPlayer';
+import type { ModalGalleryProps } from './ModalGallery';
+import type { ImageProps } from './Image';
 
 export const ATTACHMENT_GROUPS_ORDER = [
   'media',

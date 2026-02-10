@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
-import { isLocalAttachment, isVideoAttachment, type LocalAttachment } from 'stream-chat';
 
 import type { GalleryItem } from '../Gallery';
 import { BaseImage, Gallery, GalleryUI } from '../Gallery';
@@ -13,9 +12,11 @@ const MAX_VISIBLE_THUMBNAILS = 4;
 export type ModalGalleryProps = {
   /** Array of media attachments to display */
   items: GalleryItem[];
+  className?: string;
+  modalClassName?: string;
 };
 
-export const ModalGallery = ({ items }: ModalGalleryProps) => {
+export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryProps) => {
   const { t } = useTranslationContext();
   const { Modal = GlobalModal } = useComponentContext();
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,7 +38,7 @@ export const ModalGallery = ({ items }: ModalGalleryProps) => {
   return (
     <>
       <div
-        className={clsx('str-chat__modal-gallery', {
+        className={clsx('str-chat__modal-gallery', className, {
           'str-chat__modal-gallery--three-images': itemCount === 3,
           'str-chat__modal-gallery--two-images': itemCount === 2,
         })}
@@ -48,34 +49,25 @@ export const ModalGallery = ({ items }: ModalGalleryProps) => {
 
           return (
             <button
-              aria-label={t('Open gallery at image {{ index }}', {
-                index: index + 1,
-              })}
+              aria-label={
+                items.length === 1
+                  ? t('Open image in gallery')
+                  : t('Open gallery at image {{ index }}', {
+                      index: index + 1,
+                    })
+              }
               className='str-chat__modal-gallery__image'
               key={index}
               onClick={() => handleThumbnailClick(index)}
               type='button'
             >
-              {isVideoAttachment(item) ? (
+              {item.videoThumbnailUrl ? (
                 <VideoThumbnail
                   alt={t('User uploaded content')}
-                  src={
-                    item.thumb_url ??
-                    (isLocalAttachment(item)
-                      ? (item as LocalAttachment).localMetadata?.previewUri
-                      : '')
-                  }
+                  src={item.videoThumbnailUrl}
                 />
               ) : (
-                <BaseImage
-                  alt={t('User uploaded content')}
-                  src={
-                    item.image_url ??
-                    (isLocalAttachment(item)
-                      ? (item as LocalAttachment).localMetadata?.previewUri
-                      : '')
-                  }
-                />
+                <BaseImage alt={t('User uploaded content')} src={item.imageUrl} />
               )}
               {showOverlay && (
                 <div className='str-chat__modal-gallery__placeholder'>
@@ -86,7 +78,11 @@ export const ModalGallery = ({ items }: ModalGalleryProps) => {
           );
         })}
       </div>
-      <Modal className='str-chat__gallery-modal' onClose={closeModal} open={modalOpen}>
+      <Modal
+        className={clsx('str-chat__gallery-modal', modalClassName)}
+        onClose={closeModal}
+        open={modalOpen}
+      >
         <Gallery GalleryUI={GalleryUI} initialIndex={selectedIndex} items={items} />
       </Modal>
     </>

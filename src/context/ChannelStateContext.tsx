@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import type {
   Channel,
   ChannelConfigWithInfo,
+  GiphyVersions,
   LocalMessage,
   Mute,
   ChannelState as StreamChannelState,
@@ -10,7 +11,6 @@ import type {
 
 import type {
   ChannelUnreadUiState,
-  GiphyVersions,
   ImageAttachmentSizeHandler,
   UnknownType,
   VideoAttachmentSizeHandler,

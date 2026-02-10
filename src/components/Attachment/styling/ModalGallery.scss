@@ -22,32 +22,6 @@
         grid-template-rows: 1fr;
       }
 
-      .str-chat__modal-gallery__image {
-        padding: 0;
-        margin: 0;
-        position: relative;
-        // todo: we do not know the image background color;
-        background-color: transparent;
-        border: 0;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          cursor: zoom-in;
-          // CDN resize requires max-width to be present on this element
-          max-width: $max-width;
-        }
-
-        &:hover::after {
-          background-color: rgba(0, 0, 0, 0.1);
-        }
-
-        &:focus-visible {
-          @include utils.focusable;
-        }
-      }
-
       &.str-chat__modal-gallery--three-images {
         .str-chat__modal-gallery__image:nth-child(1) {
           grid-column: 1;
@@ -98,6 +72,41 @@
           z-index: 0;
           background-color: var(--background-core-scrim);
         }
+      }
+    }
+  }
+
+  .str-chat__message-attachment--giphy,
+  .str-chat__message-attachment--gallery,
+  .str-chat__message-attachment--image {
+    $max-width: var(--str-chat__attachment-max-width);
+
+    .str-chat__modal-gallery__image {
+      @include utils.button-reset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      position: relative;
+      // todo: we do not know the image background color;
+      background-color: transparent;
+      border: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: zoom-in;
+        // CDN resize requires max-width to be present on this element
+        max-width: $max-width;
+      }
+
+      &:hover::after {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
       }
     }
   }

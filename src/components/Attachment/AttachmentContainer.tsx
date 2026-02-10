@@ -1,5 +1,10 @@
-import type { PropsWithChildren } from 'react';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  type PropsWithChildren,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 import type {
   Attachment,
@@ -17,15 +22,13 @@ import {
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
-import type { GalleryItem } from '../Gallery';
-import {
-  ImageComponent as DefaultImage,
-  ModalGallery as DefaultModalGallery,
-} from '../Gallery';
+import { type GalleryItem, toGalleryItemDescriptors } from '../Gallery';
+import { ImageComponent as DefaultImage } from './Image';
 import { Card as DefaultCard } from './LinkPreview/Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { Giphy as DefaultGiphy } from './Giphy';
 import { Geolocation as DefaultGeolocation } from './Geolocation';
+import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
   type AttachmentComponentType,
@@ -195,11 +198,22 @@ export const FileContainer = (props: RenderAttachmentProps) => {
 export const GalleryContainer = ({
   attachment,
   ModalGallery = DefaultModalGallery,
-}: RenderGalleryProps) => (
-  <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-    <ModalGallery items={attachment.items as GalleryItem[]} key='gallery' />
-  </AttachmentWithinContainer>
-);
+}: RenderGalleryProps) => {
+  const items = useMemo<GalleryItem[]>(
+    () =>
+      attachment.items.reduce<GalleryItem[]>((acc, attachment) => {
+        const item = toGalleryItemDescriptors(attachment);
+        if (item) acc.push(item);
+        return acc;
+      }, []),
+    [attachment.items],
+  );
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
+      <ModalGallery items={items} key='gallery' />
+    </AttachmentWithinContainer>
+  );
+};
 
 export const ImageContainer = (props: RenderAttachmentProps) => {
   const { attachment, Image = DefaultImage } = props;
@@ -217,17 +231,22 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
     }
   }, [imageElement, imageAttachmentSizeHandler, attachment]);
 
-  const imageConfig = {
-    ...attachment,
-    previewUrl: attachmentConfiguration?.url || 'about:blank',
-    style: getCssDimensionsVariables(attachment.image_url || attachment.thumb_url || ''),
+  const imgUrlFromAttachment = attachment.image_url || attachment.thumb_url || '';
+
+  const imageConfig: GalleryItem = {
+    ...toGalleryItemDescriptors({
+      ...attachment,
+      image_url: attachmentConfiguration?.url || imgUrlFromAttachment,
+    }),
+    ref: imageElement,
+    style: getCssDimensionsVariables(imgUrlFromAttachment),
   };
 
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment'>
-          <Image {...imageConfig} innerRef={imageElement} />
+          <Image {...imageConfig} />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -236,7 +255,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Image {...imageConfig} innerRef={imageElement} />
+      <Image {...imageConfig} />
     </AttachmentWithinContainer>
   );
 };

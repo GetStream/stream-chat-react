@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { isLocalAttachment, isVideoAttachment, type LocalAttachment } from 'stream-chat';
 
 import { BaseImage } from './BaseImage';
 import { useGalleryContext } from './GalleryContext';
@@ -196,29 +195,21 @@ export const GalleryUI = () => {
             })}
             style={mediaStyle}
           >
-            {isVideoAttachment(currentItem) ? (
+            {currentItem.videoUrl && currentItem.videoThumbnailUrl ? (
               <div className='str-chat__gallery__media str-chat__gallery__media--video'>
                 {showVideo ? (
-                  <VideoPlayer isPlaying videoUrl={currentItem.asset_url} />
+                  <VideoPlayer isPlaying videoUrl={currentItem.videoUrl} />
                 ) : (
                   <VideoThumbnail
                     alt={currentItem.title ?? ''}
                     onPlay={() => setShowVideo(true)}
-                    src={currentItem.thumb_url}
+                    src={currentItem.videoThumbnailUrl}
                   />
                 )}
               </div>
             ) : (
               <div className='str-chat__gallery__media str-chat__gallery__media--image'>
-                <BaseImage
-                  alt={currentItem.fallback ?? ''}
-                  src={
-                    currentItem.image_url ||
-                    (isLocalAttachment(currentItem)
-                      ? (currentItem as LocalAttachment).localMetadata?.previewUri
-                      : '')
-                  }
-                />
+                <BaseImage alt={currentItem.alt} src={currentItem.imageUrl} />
               </div>
             )}
           </div>

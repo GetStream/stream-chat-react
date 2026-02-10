@@ -305,7 +305,7 @@
   }
 
   // Images uploaded from files
-  .str-chat__message-attachment--image:not(.str-chat__message-attachment--card) > img {
+  .str-chat__message-attachment--image:not(.str-chat__message-attachment--card) img {
     @include utils.clamped-height-from-original-image-dimensions(
                     '--str-chat__attachment-max-width',
                     '--str-chat__attachment-max-width'
@@ -699,6 +699,7 @@
 .str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
 
   .str-chat__message-bubble {
+    padding: 0;
     background-color: transparent;
     border: 1px solid var(--chat-border-incoming);
     box-shadow: var(--background-elevation-elevation-0);
