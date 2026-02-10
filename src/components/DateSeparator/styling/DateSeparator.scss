@@ -1,0 +1,23 @@
+.str-chat__date-separator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+
+
+  .str-chat__date-separator-date {
+    display: flex;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    justify-content: center;
+    align-items: center;
+    color: var(--chat-text-system);
+    background-color: var(--background-core-surface-subtle);
+    border-radius: var(--radius-max);
+
+    /* metadata/emphasis */
+    font-size: var(--typography-font-size-xs);
+    font-weight: var(--typography-font-weight-semi-bold);
+    line-height: var(--typography-line-height-tight);
+  }
+}

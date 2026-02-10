@@ -240,7 +240,7 @@
   "Thread": "스레드",
   "Thread has not been found": "스레드를 찾을 수 없습니다",
   "Thread reply": "스레드 답장",
-  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
+  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Today]\", \"nextDay\": \"[Tomorrow]\", \"lastDay\": \"[Yesterday]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Last] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/PollVote": "{{ timestamp | timestampFormatter(format: MMM D [at] HH:mm) }}",
