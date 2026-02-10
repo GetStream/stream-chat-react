@@ -37,7 +37,9 @@
   background-color: var(--badge-bg-overlay, rgba(0, 0, 0, 0.75));
   color: var(--badge-text-on-accent, #fff);
 
-  font-feature-settings: 'liga' off, 'clig' off;
+  font-feature-settings:
+    'liga' off,
+    'clig' off;
 
   /* metadata/emphasis */
   font-size: var(--typography-font-size-xs, 12px);

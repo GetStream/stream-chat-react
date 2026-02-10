@@ -81,16 +81,18 @@
         @include utils.overlay-after(var(--background-core-hover));
       }
 
-      &[aria-expanded="true"],
-      &:not(:disabled):active { // pressed
+      &[aria-expanded='true'],
+      &:not(:disabled):active {
+        // pressed
         @include utils.overlay-after(var(--background-core-pressed));
       }
 
-      &:not(:disabled):focus-visible { // focused
+      &:not(:disabled):focus-visible {
+        // focused
         @include utils.focusable;
       }
 
-      &:not(:disabled)[aria-pressed="true"] {
+      &:not(:disabled)[aria-pressed='true'] {
         // toggled
         @include utils.overlay-after(0.1);
       }
@@ -107,7 +109,6 @@
 
     &.str-chat__button--floating {
       box-shadow: var(--light-elevation-2);
-
     }
 
     &.str-chat__button--size-lg {

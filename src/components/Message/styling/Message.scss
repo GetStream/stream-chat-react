@@ -16,7 +16,9 @@
   --str-chat__message-mention-color: var(--str-chat__primary-color);
   --str-chat__message-replies-count-color: var(--str-chat__primary-color);
   --str-chat__message-background-color: transparent;
-  --str-chat__message-highlighted-background-color: var(--str-chat__message-highlight-color);
+  --str-chat__message-highlighted-background-color: var(
+    --str-chat__message-highlight-color
+  );
   --str-chat__message-border-block-start: none;
   --str-chat__message-border-block-end: none;
   --str-chat__message-border-inline-start: none;
@@ -25,7 +27,9 @@
   --str-chat__message-active-background-color: transparent;
 
   --str-chat__message-options-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__message-options-hover-background-color: var(--str-chat__tertiary-surface-color);
+  --str-chat__message-options-hover-background-color: var(
+    --str-chat__tertiary-surface-color
+  );
   --str-chat__message-options-border-radius: var(--str-chat__border-radius-circle);
   --str-chat__message-options-active-color: var(--str-chat__primary-color);
 
@@ -59,7 +63,9 @@
   --str-chat__blocked-message-box-shadow: none;
 
   --str-chat__translation-notice-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__translation-notice-active-background-color: var(--str-chat__tertiary-surface-color);
+  --str-chat__translation-notice-active-background-color: var(
+    --str-chat__tertiary-surface-color
+  );
 
   --str-chat__message-reminder-color: var(--str-chat__primary-color);
   --str-chat__message-reminder-background-color: var(--str-chat__grey50);
@@ -81,7 +87,9 @@
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
 
   &.str-chat__message-without-touch-support {
-    --str-chat-message-options-size: calc(1 * var(--str-chat__message-options-button-size));
+    --str-chat-message-options-size: calc(
+      1 * var(--str-chat__message-options-button-size)
+    );
   }
 
   .str-chat__message-bubble {
@@ -103,7 +111,6 @@
 }
 
 .str-chat__message.str-chat__message--is-emoji-only {
-
   &.str-chat__message--is-emoji-only-count-1,
   &.str-chat__message--is-emoji-only-count-2,
   &.str-chat__message--is-emoji-only-count-3 {
@@ -117,22 +124,22 @@
 
   &.str-chat__message--is-emoji-only-count-1 {
     .str-chat__message-inner .str-chat__message-bubble {
-        font-size: 64px;
-        line-height: 64px;
+      font-size: 64px;
+      line-height: 64px;
     }
   }
 
   &.str-chat__message--is-emoji-only-count-2 {
     .str-chat__message-inner .str-chat__message-bubble {
-        font-size: 48px;
-        line-height: 48px;
+      font-size: 48px;
+      line-height: 48px;
     }
   }
 
   &.str-chat__message--is-emoji-only-count-3 {
     .str-chat__message-inner .str-chat__message-bubble {
-        font-size: 32px;
-        line-height: 32px;
+      font-size: 32px;
+      line-height: 32px;
     }
   }
 }
@@ -199,7 +206,7 @@
     font: var(--str-chat__caption-medium-text);
   }
 
-  &.str-chat__message--other  {
+  &.str-chat__message--other {
     grid-template-areas:
       '. message-reminder'
       'avatar message'
@@ -439,11 +446,19 @@
 }
 
 // Message options display - default mode: they appear when .str-chat__li is hovered
-.str-chat__ul:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support),
-.str-chat__virtual-list:not(.str-chat__message-options-in-bubble, .str-chat__message-with-touch-support) {
+.str-chat__ul:not(
+    .str-chat__message-options-in-bubble,
+    .str-chat__message-with-touch-support
+  ),
+.str-chat__virtual-list:not(
+    .str-chat__message-options-in-bubble,
+    .str-chat__message-with-touch-support
+  ) {
   /* This rule won't be applied in browsers that don't support :has() */
   .str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)),
-  .str-chat__li:focus-within:not(:has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)),
+  .str-chat__li:focus-within:not(
+      :has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)
+    ),
   .str-chat__li:has(.str-chat__message-options--active) {
     .str-chat__message-options {
       display: flex;
@@ -520,7 +535,8 @@
   }
 }
 
-.str-chat__message--other .str-chat__message-inner:not(:has(.str-chat__message-options--active)) {
+.str-chat__message--other
+  .str-chat__message-inner:not(:has(.str-chat__message-options--active)) {
   margin-inline-end: var(--str-chat-message-options-size);
 }
 
