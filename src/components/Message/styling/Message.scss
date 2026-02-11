@@ -380,10 +380,11 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: var(--str-chat__spacing-1);
     margin-block-start: var(--str-chat__spacing-0_5);
-    color: var(--str-chat__message-secondary-color);
-    font: var(--str-chat__caption-text);
+    color: var(--chat-text-timestamp);
+    font-size: var(--typography-font-size-xs,);
+    font-weight: var(--typography-font-weight-regular);
+    line-height: var(--typography-line-height-tight);
 
     .str-chat__message-simple-name {
       @include utils.prevent-glitch-text-overflow;

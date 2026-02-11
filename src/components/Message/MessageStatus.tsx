@@ -1,24 +1,17 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
-
-import { MessageDeliveredIcon, MessageSentIcon } from './icons';
 import type { TooltipUsernameMapper } from './utils';
 import { getReadByTooltipText, mapToUserNameOrId } from './utils';
-
-import type { AvatarProps } from '../Avatar';
-import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { IconDoubleCheckmark, IconSingleCheckmark } from '../Icons';
 
 export type MessageStatusProps = {
-  /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
-  Avatar?: React.ComponentType<AvatarProps>;
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
   MessageDeliveredStatus?: React.ComponentType;
   /* Custom component to render when message is considered delivered and read. The default UI renders the last reader's Avatar and a tooltip with string readers' names. */
@@ -35,7 +28,6 @@ export type MessageStatusProps = {
 
 const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const {
-    Avatar: propAvatar,
     MessageDeliveredStatus,
     MessageReadStatus,
     MessageSendingStatus,
@@ -48,7 +40,6 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
     useEnterLeaveHandlers<HTMLSpanElement>();
 
   const { client } = useChatContext('MessageStatus');
-  const { Avatar: contextAvatar } = useComponentContext('MessageStatus');
   const {
     deliveredTo,
     isMyMessage,
@@ -60,8 +51,6 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   } = useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
-
-  const Avatar = propAvatar || contextAvatar || DefaultAvatar;
 
   if (!isMyMessage() || message.type === 'error') return null;
 
@@ -81,7 +70,6 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const readersWithoutOwnUser = read
     ? readBy.filter((item) => item.id !== client.user?.id)
     : [];
-  const [lastReadUser] = readersWithoutOwnUser;
 
   return (
     <span
@@ -132,7 +120,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
             >
               {t('Sent')}
             </PopperTooltip>
-            <MessageSentIcon />
+            <IconSingleCheckmark className='str-chat__message-status-sent' />
           </>
         ))}
 
@@ -148,7 +136,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
             >
               {t('Delivered')}
             </PopperTooltip>
-            <MessageDeliveredIcon />
+            <IconDoubleCheckmark className='str-chat__message-status-delivered' />
           </>
         ))}
 
@@ -165,12 +153,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
             </PopperTooltip>
 
-            <Avatar
-              className='str-chat__avatar--message-status'
-              imageUrl={lastReadUser.image}
-              size='xs'
-              userName={lastReadUser.name || lastReadUser.id}
-            />
+            <IconDoubleCheckmark className='str-chat__message-status-read' />
 
             {readersWithoutOwnUser.length > 1 && (
               <span
