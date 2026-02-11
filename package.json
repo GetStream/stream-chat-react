@@ -231,7 +231,7 @@
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
     "eslint": "eslint --max-warnings 0",
     "eslint-fix": "eslint --fix",
-    "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}'",
+    "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml,scss}'",
     "prettier-fix": "yarn prettier --write",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc -p tsconfig.lib.json -w",

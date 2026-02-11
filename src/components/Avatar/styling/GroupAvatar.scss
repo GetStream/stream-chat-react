@@ -1,0 +1,106 @@
+.str-chat__avatar-group {
+  width: var(--avatar-group-size);
+  height: var(--avatar-group-size);
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &--size-xl {
+    --avatar-group-size: var(--size-64);
+    --avatar-group-badge-size: var(--size-16);
+  }
+
+  &--size-lg {
+    --avatar-group-size: var(--size-40);
+    --avatar-group-badge-size: 14px;
+  }
+
+  &.str-chat__avatar-group--online::after,
+  &.str-chat__avatar-group--offline::after {
+    aspect-ratio: 1/1;
+    content: '';
+    position: absolute;
+    width: var(--avatar-group-badge-size);
+
+    right: -2px;
+    top: -2px;
+
+    border-radius: var(--radius-max, 9999px);
+    border-style: solid;
+    border-color: var(--presence-border, #fff);
+    border-width: 2px;
+  }
+
+  &.str-chat__avatar-group--online::after {
+    background: var(--presence-bg-online, #00c384);
+  }
+
+  &.str-chat__avatar-group--offline::after {
+    background: var(--presence-bg-offline, #687385);
+  }
+
+  // TODO: discuss
+
+  // & > .str-chat__avatar::before {
+  //   content: '';
+  //   border-radius: var(--radius-max);
+  //   width: 100%;
+  //   height: 100%;
+  //   border: 2px solid var(--border-core-on-accent);
+  //   background: transparent;
+  //   position: absolute;
+  //   box-sizing: content-box;
+  // }
+
+  & > .str-chat__avatar {
+    position: absolute;
+    border: 2px solid var(--border-core-on-accent);
+  }
+
+  &:has(> :last-child:nth-child(4)) {
+    & > :nth-child(1) {
+      top: 0;
+      left: 0;
+    }
+    & > :nth-child(2) {
+      top: 0;
+      right: 0;
+    }
+    & > :nth-child(3) {
+      bottom: 0;
+      left: 0;
+    }
+    & > :nth-child(4) {
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  &:has(> :last-child:nth-child(3)) {
+    & > :nth-child(1) {
+      top: 0;
+    }
+    & > :nth-child(2) {
+      bottom: 0;
+      left: 0;
+    }
+    & > :nth-child(3) {
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  &:has(> :last-child:nth-child(2)) {
+    & > :nth-child(1) {
+      top: 0;
+      left: 0;
+    }
+    & > :nth-child(2) {
+      bottom: 0;
+      right: 0;
+    }
+  }
+}

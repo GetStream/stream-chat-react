@@ -20,31 +20,47 @@
   --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
   --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
 
-  --str-chat__attachment-preview-image-border-radius: var(--message-bubble-radius-attachment);
+  --str-chat__attachment-preview-image-border-radius: var(
+    --message-bubble-radius-attachment
+  );
   --str-chat__attachment-preview-image-color: var(--text-primary);
   --str-chat__attachment-preview-image-background-color: transparent;
-  --str-chat__attachment-preview-image-border-block-start: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-image-border-block-end: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-image-border-inline-start: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-image-border-inline-end: 1px solid var(--border-core-default);
+  --str-chat__attachment-preview-image-border-block-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-block-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-inline-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-inline-end: 1px solid
+    var(--border-core-default);
   --str-chat__attachment-preview-image-box-shadow: none;
 
   --str-chat__attachment-preview-file-border-radius: var(--radius-lg);
   --str-chat__attachment-preview-file-color: var(--text-primary);
   --str-chat__attachment-preview-file-background-color: transparent;
-  --str-chat__attachment-preview-file-border-block-start: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-file-border-block-end: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-file-border-inline-start: 1px solid var(--border-core-default);
-  --str-chat__attachment-preview-file-border-inline-end: 1px solid var(--border-core-default);
+  --str-chat__attachment-preview-file-border-block-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-block-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-inline-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-inline-end: 1px solid
+    var(--border-core-default);
   --str-chat__attachment-preview-file-box-shadow: none;
 
   /* React-specific preview variants (classes diverged from v2 theme) */
-  --str-chat__attachment-preview-media-video-indicator-background-color: var(--chat-bg-typing-indicator);
+  --str-chat__attachment-preview-media-video-indicator-background-color: var(
+    --chat-bg-typing-indicator
+  );
   --str-chat__attachment-preview-media-video-indicator-color: var(--badge-text);
   --str-chat__attachment-preview-media-video-indicator-border-radius: var(--radius-max);
 
-  --str-chat__attachment-preview-media-overlay-hover-background-color: var(--background-core-hover);
-  --str-chat__attachment-preview-media-overlay-pressed-background-color: var(--background-core-pressed);
+  --str-chat__attachment-preview-media-overlay-hover-background-color: var(
+    --background-core-hover
+  );
+  --str-chat__attachment-preview-media-overlay-pressed-background-color: var(
+    --background-core-pressed
+  );
 
   --str-chat__attachment-preview-media-uploading-overlay-background: linear-gradient(
     180deg,
@@ -106,7 +122,7 @@
       color: var(--control-playback-toggle-text, var(--text-primary));
       background-color: transparent;
       border-radius: var(--button-radius-lg, 9999px);
-      border: 1px solid var(--control-playback-toggle-border, #D5DBE1);
+      border: 1px solid var(--control-playback-toggle-border, #d5dbe1);
       font-size: var(--typography-font-size-xs, 12px);
       font-weight: var(--typography-font-weight-semi-bold, 600);
       line-height: var(--typography-line-height-tight, 16px);
@@ -152,8 +168,12 @@
       left: var(--spacing-xxs);
       padding-inline: var(--button-padding-x-icon-only-sm);
       padding-block: var(--button-padding-y-sm);
-      border-radius: var(--str-chat__attachment-preview-media-video-indicator-border-radius);
-      background-color: var(--str-chat__attachment-preview-media-video-indicator-background-color);
+      border-radius: var(
+        --str-chat__attachment-preview-media-video-indicator-border-radius
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-video-indicator-background-color
+      );
       color: var(--str-chat__attachment-preview-media-video-indicator-color);
       font-size: var(--typography-font-size-xxs);
       font-weight: var(--typography-font-weight-bold);
@@ -176,13 +196,21 @@
     border-radius: var(--message-bubble-radius-attachment);
 
     &:hover {
-      @include utils.overlay-after(var(--str-chat__attachment-preview-media-overlay-hover-background-color));
-      background-color: var(--str-chat__attachment-preview-media-overlay-hover-background-color);
+      @include utils.overlay-after(
+        var(--str-chat__attachment-preview-media-overlay-hover-background-color)
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-overlay-hover-background-color
+      );
     }
 
     &:active {
-      @include utils.overlay-after(var(--str-chat__attachment-preview-media-overlay-pressed-background-color));
-      background-color: var(--str-chat__attachment-preview-media-overlay-pressed-background-color);
+      @include utils.overlay-after(
+        var(--str-chat__attachment-preview-media-overlay-pressed-background-color)
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-overlay-pressed-background-color
+      );
     }
 
     .str-chat__loading-indicator,
@@ -199,7 +227,9 @@
 
   .str-chat__attachment-preview-media--upload-error {
     .str-chat__attachment-preview-media__overlay {
-      background-color: var(--str-chat__attachment-preview-media-upload-error-overlay-background-color);
+      background-color: var(
+        --str-chat__attachment-preview-media-upload-error-overlay-background-color
+      );
     }
   }
 

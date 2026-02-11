@@ -28,7 +28,8 @@ body {
     --max-content-width: 800px;
   }
 
-  .str-chat__channel-list, .str-chat__thread-list-container {
+  .str-chat__channel-list,
+  .str-chat__thread-list-container {
     flex-basis: 350px;
     flex-shrink: 0;
   }
@@ -37,7 +38,8 @@ body {
     width: 100%;
   }
 
-  .str-chat__main-panel, .str-chat__thread-container {
+  .str-chat__main-panel,
+  .str-chat__thread-container {
     align-items: center;
   }
   .str-chat__main-panel-inner {
@@ -48,8 +50,9 @@ body {
     max-width: var(--max-content-width);
     width: 100%;
   }
-  
-  .str-chat__channel-header, .str-chat__thread-header {
+
+  .str-chat__channel-header,
+  .str-chat__thread-header {
     max-width: var(--max-content-width);
     width: 100%;
   }
@@ -62,7 +65,8 @@ body {
     // flex-shrink: 0;
   }
 
-  .str-chat__list, .str-chat__virtual-list {
+  .str-chat__list,
+  .str-chat__virtual-list {
     display: flex;
     justify-content: center;
     scrollbar-gutter: stable;
