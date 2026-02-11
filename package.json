@@ -119,7 +119,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.31.0"
+    "stream-chat": "^9.32.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -213,7 +213,7 @@
     "react-dom": "^19.0.0",
     "sass": "^1.97.2",
     "semantic-release": "^25.0.2",
-    "stream-chat": "^9.31.0",
+    "stream-chat": "^9.32.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0",
