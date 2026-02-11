@@ -3,7 +3,9 @@
   --str-chat__attachment-selector-button-icon-color: var(--button-style-outline-text);
   --str-chat__attachment-selector-button-icon-color-hover: var(--text-secondary);
   --str-chat__attachment-selector-actions-menu-button-icon-color: var(--text-secondary);
-  --str-chat__attachment-selector-actions-menu-button-icon-color-active: var(--text-secondary);
+  --str-chat__attachment-selector-actions-menu-button-icon-color-active: var(
+    --text-secondary
+  );
 
   .str-chat__attachment-selector {
     .str-chat__attachment-selector__menu-button {
@@ -35,7 +37,9 @@
       &:hover,
       &:focus {
         .str-chat__context-menu__button__icon {
-          color: var(--str-chat__attachment-selector-actions-menu-button-icon-color-active);
+          color: var(
+            --str-chat__attachment-selector-actions-menu-button-icon-color-active
+          );
         }
       }
     }
