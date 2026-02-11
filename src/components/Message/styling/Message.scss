@@ -404,22 +404,10 @@
     text-align: right;
   }
 
-  .str-chat__message-replies-count-button-wrapper,
   .str-chat__message-is-thread-reply-button-wrapper {
     grid-area: replies;
 
-    button {
-      cursor: pointer;
-      padding: 0;
-      border: none;
-      background-color: transparent;
-      font: var(--str-chat__body-medium-text);
-      color: var(--str-chat__message-replies-count-color);
-    }
-
-    button:disabled {
-      cursor: auto;
-    }
+    // TODO: "Thread reply" button styling
   }
 
   .str-chat__message--deleted-inner {

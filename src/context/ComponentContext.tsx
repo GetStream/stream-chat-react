@@ -5,6 +5,7 @@ import type {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,
+  AvatarStackProps,
   BaseImageProps,
   CalloutDialogProps,
   ChannelPreviewActionButtonsProps,
@@ -88,6 +89,8 @@ export type ComponentContextValue = {
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps>;
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
+  /** UI component to display a list of avatars stacked in a row, defaults to and accepts same props as: [AvatarStack](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/AvatarStack.tsx) */
+  AvatarStack?: React.ComponentType<AvatarStackProps>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
   /** Custom UI component to display the contents of callout dialog, accepts same props as: [DefaultCalloutDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/base/Callout.tsx) */

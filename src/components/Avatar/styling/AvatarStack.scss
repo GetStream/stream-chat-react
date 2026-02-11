@@ -1,0 +1,8 @@
+.str-chat__avatar-stack {
+  display: flex;
+  align-items: center;
+
+  & > .str-chat__avatar:not(:first-child) {
+    margin-left: calc(var(--spacing-xs) * -1);
+  }
+}
