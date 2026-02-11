@@ -231,13 +231,15 @@
 
   &.str-chat__message--me {
     grid-template-areas:
-      'message-reminder'
-      'message'
-      'replies'
-      'translation-notice'
-      'custom-metadata'
-      'metadata';
-    justify-items: end;
+      'message-reminder .'
+      'message avatar'
+      'replies avatar'
+      'translation-notice avatar'
+      'custom-metadata avatar'
+      'metadata avatar';
+    column-gap: var(--str-chat__spacing-2);
+    grid-template-columns: 1fr auto;
+    justify-items: flex-end;
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
@@ -593,8 +595,8 @@
 .str-chat__li--middle,
 .str-chat__li--top {
   .str-chat__message {
-    // space below the message
-    margin-block-end: var(--spacing-xxs);
+    // space below the message within a group
+    padding-block-end: var(--spacing-xxs);
 
     .str-chat__message-metadata {
       display: none;
@@ -607,11 +609,19 @@
   }
 }
 
+.str-chat__li--top,
+.str-chat__li--single {
+  .str-chat__message {
+    // space above the message group
+    padding-block-start: var(--spacing-xs);
+  }
+}
+
 .str-chat__li--bottom,
 .str-chat__li--single {
   .str-chat__message {
-    // space below the message
-    margin-block-end: var(--spacing-xs);
+    // space below the message group
+    padding-block-end: var(--spacing-xs);
   }
 }
 

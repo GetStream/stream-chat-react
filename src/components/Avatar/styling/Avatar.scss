@@ -8,13 +8,8 @@
   background: var(--avatar-bg-default, #e3edff);
   color: var(--avatar-text-default, #142f63);
   text-align: center;
-  font-feature-settings:
-    'liga' off,
-    'clig' off;
 
-  font-family: var(--typography-font-family-sans, 'SF Pro');
-  font-style: normal;
-  font-weight: var(--typography-font-weight-semi-bold, 600);
+  font-weight: var(--typography-font-weight-semi-bold);
   line-height: 1;
   text-transform: uppercase;
   width: var(--avatar-size);
@@ -132,3 +127,15 @@
     }
   }
 }
+
+// Display in message list
+.str-chat__li--top,
+.str-chat__li--middle {
+  .str-chat__avatar {
+    // space above the message group
+    background: transparent;
+    pointer-events: none;
+    color: transparent;
+  }
+}
+

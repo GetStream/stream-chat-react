@@ -177,13 +177,13 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
         <div className={rootClassName} key={message.id}>
           {PinIndicator && <PinIndicator />}
           {!!reminder && <ReminderNotification reminder={reminder} />}
-          {message.user && !isMyMessage() && (
+          {message.user && (
             <Avatar
               className='str-chat__avatar--with-border'
               imageUrl={message.user.image}
               onClick={onUserClick}
               onMouseOver={onUserHover}
-              size='lg'
+              size='md'
               userName={message.user.name || message.user.id}
             />
           )}
@@ -210,8 +210,8 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               ) : (
                 <MessageText message={message} renderText={renderText} />
               )}
-              <MessageErrorIcon />
             </div>
+            <MessageErrorIcon />
           </div>
           {showReplyCountButton && (
             <MessageRepliesCountButton
