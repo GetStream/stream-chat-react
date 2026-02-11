@@ -139,3 +139,9 @@
   }
 }
 
+.str-chat__message--me {
+  .str-chat__avatar {
+    display: none;
+  }
+}
+
