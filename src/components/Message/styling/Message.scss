@@ -370,9 +370,9 @@
 
   .str-chat__custom-message-metadata {
     grid-area: custom-metadata;
-    margin-block-start: var(--str-chat__spacing-0_5);
+    height: var(--size-24);
+    margin-block-start: var(--spacing-xxs);
     color: var(--str-chat__message-secondary-color);
-    font: var(--str-chat__caption-text);
   }
 
   .str-chat__message-metadata {
