@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
 import type { GalleryItem } from '../Gallery';
-import { BaseImage, Gallery, GalleryUI } from '../Gallery';
+import { BaseImage, Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
@@ -18,7 +18,7 @@ export type ModalGalleryProps = {
 
 export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryProps) => {
   const { t } = useTranslationContext();
-  const { Modal = GlobalModal } = useComponentContext();
+  const { Gallery = DefaultGallery, Modal = GlobalModal } = useComponentContext();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 

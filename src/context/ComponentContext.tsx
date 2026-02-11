@@ -149,7 +149,7 @@ export type ComponentContextValue = {
   MessageTimestamp?: React.ComponentType<MessageTimestampProps>;
   /** Custom UI component for viewing content in a modal, defaults to and accepts the same props as [Modal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Modal/Modal.tsx) */
   Modal?: React.ComponentType<ModalProps>;
-  /** Custom UI component for viewing message's image attachments, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
+  /** Custom UI component for viewing message's image and giphy attachments with option to expand into the Gallery on Modal, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
