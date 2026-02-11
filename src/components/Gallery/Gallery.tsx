@@ -1,124 +1,83 @@
-import type { CSSProperties, MutableRefObject } from 'react';
-import React, { useState } from 'react';
-import { sanitizeUrl } from '@braintree/sanitize-url';
-import clsx from 'clsx';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { BaseImage as DefaultBaseImage } from './BaseImage';
-import { Modal as DefaultModal } from '../Modal';
-import { ModalGallery as DefaultModalGallery } from './ModalGallery';
+import { GalleryContext } from './GalleryContext';
 
-import { useComponentContext } from '../../context/ComponentContext';
-import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { Attachment } from 'stream-chat';
+import type { GalleryContextValue, GalleryItem } from './GalleryContext';
 
 export type GalleryProps = {
-  images: ((
-    | {
-        image_url?: string | undefined;
-        thumb_url?: string | undefined;
-      }
-    | Attachment
-  ) & { previewUrl?: string; style?: CSSProperties })[];
-  innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
+  /** Array of media attachments to display */
+  items: GalleryItem[];
+  /** Custom UI component to replace the default GalleryUI */
+  GalleryUI?: React.ComponentType;
+  /** Initial index of the item to display (default: 0) */
+  initialIndex?: number;
+  /** Callback when the active item changes */
+  onIndexChange?: (index: number) => void;
 };
 
-const UnMemoizedGallery = (props: GalleryProps) => {
-  const { images, innerRefs } = props;
+export const Gallery = ({
+  GalleryUI,
+  initialIndex = 0,
+  items,
+  onIndexChange,
+}: GalleryProps) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-  const [index, setIndex] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
+  const itemCount = items.length;
 
-  const {
-    BaseImage = DefaultBaseImage,
-    Modal = DefaultModal,
-    ModalGallery = DefaultModalGallery,
-  } = useComponentContext('Gallery');
-  const { t } = useTranslationContext('Gallery');
-
-  const imageFallbackTitle = t('User uploaded content');
-
-  const countImagesDisplayedInPreview = 4;
-  const lastImageIndexInPreview = countImagesDisplayedInPreview - 1;
-
-  const toggleModal = (selectedIndex: number) => {
-    if (modalOpen) {
-      setModalOpen(false);
-    } else {
-      setIndex(selectedIndex);
-      setModalOpen(true);
-    }
-  };
-
-  const renderImages = images.slice(0, countImagesDisplayedInPreview).map((image, i) =>
-    i === lastImageIndexInPreview && images.length > countImagesDisplayedInPreview ? (
-      <button
-        className='str-chat__gallery-placeholder'
-        data-testid='gallery-image-last'
-        key={`gallery-image-${i}`}
-        onClick={() => toggleModal(i)}
-        style={{
-          backgroundImage: `url(${
-            images[lastImageIndexInPreview].previewUrl ||
-            images[lastImageIndexInPreview].image_url ||
-            images[lastImageIndexInPreview].thumb_url
-          })`,
-          ...image.style,
-        }}
-        {...(innerRefs?.current && {
-          ref: (r) => {
-            innerRefs.current[i] = r;
-          },
-        })}
-      >
-        <p>
-          {t('+{{ imageCount }}', {
-            imageCount: images.length - countImagesDisplayedInPreview,
-          })}
-        </p>
-      </button>
-    ) : (
-      <button
-        className='str-chat__gallery-image'
-        data-testid='gallery-image'
-        key={`gallery-image-${i}`}
-        onClick={() => toggleModal(i)}
-      >
-        <BaseImage
-          alt={(image as Attachment)?.fallback || imageFallbackTitle}
-          src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
-          style={image.style}
-          title={(image as Attachment)?.fallback || imageFallbackTitle}
-          {...(innerRefs?.current && {
-            ref: (r) => {
-              innerRefs.current[i] = r;
-            },
-          })}
-        />
-      </button>
-    ),
+  const goToIndex = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < itemCount) {
+        setCurrentIndex(index);
+      }
+    },
+    [itemCount],
   );
 
-  const className = clsx('str-chat__gallery', {
-    'str-chat__gallery--three-images': images.length === 3,
-    'str-chat__gallery--two-images': images.length === 2,
-  });
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev < itemCount - 1 ? prev + 1 : prev));
+  }, [itemCount]);
+
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  useEffect(() => {
+    onIndexChange?.(currentIndex);
+  }, [currentIndex, onIndexChange]);
+
+  const hasNext = currentIndex < itemCount - 1;
+  const hasPrevious = currentIndex > 0;
+  const currentItem = items[currentIndex];
+
+  const contextValue = useMemo<GalleryContextValue>(
+    () => ({
+      currentIndex,
+      currentItem,
+      goToIndex,
+      goToNext,
+      goToPrevious,
+      hasNext,
+      hasPrevious,
+      itemCount,
+      items,
+    }),
+    [
+      currentIndex,
+      currentItem,
+      goToIndex,
+      goToNext,
+      goToPrevious,
+      hasNext,
+      hasPrevious,
+      itemCount,
+      items,
+    ],
+  );
 
   return (
-    <div className={className}>
-      {renderImages}
-      <Modal
-        className='str-chat__gallery-modal'
-        onClose={() => setModalOpen((modalOpen) => !modalOpen)}
-        open={modalOpen}
-      >
-        <ModalGallery images={images} index={index} />
-      </Modal>
-    </div>
+    <GalleryContext.Provider value={contextValue}>
+      {GalleryUI ? <GalleryUI /> : null}
+    </GalleryContext.Provider>
   );
 };
-
-/**
- * Displays images in a simple responsive grid with a light box to view the images.
- */
-export const Gallery = React.memo(UnMemoizedGallery) as typeof UnMemoizedGallery;

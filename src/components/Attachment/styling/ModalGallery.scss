@@ -1,0 +1,113 @@
+@use '../../../styling/utils';
+
+.str-chat__attachment-list {
+  .str-chat__message-attachment--gallery {
+    $max-width: var(--str-chat__attachment-max-width);
+
+    .str-chat__modal-gallery {
+      @include utils.component-layer-overrides('image-gallery-attachment');
+      display: grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: 50% 50%;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      // Safari needs this
+      width: fit-content;
+      gap: var(--str-chat__spacing-0_5);
+      max-width: $max-width;
+      // CDN resize requires height/max-height to be present on the img element, this rule ensures that
+      height: var(--str-chat__attachment-max-width);
+
+      &.str-chat__modal-gallery--two-images {
+        grid-template-rows: 1fr;
+      }
+
+      &.str-chat__modal-gallery--three-images {
+        .str-chat__modal-gallery__image:nth-child(1) {
+          grid-column: 1;
+          grid-row: 1 / span 2; /* Span two rows */
+        }
+
+        .str-chat__modal-gallery__image:nth-child(2) {
+          grid-column: 2;
+          grid-row: 1;
+        }
+
+        .str-chat__modal-gallery__image:nth-child(3) {
+          grid-column: 2;
+          grid-row: 2;
+        }
+      }
+
+      .str-chat__modal-gallery-placeholder {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-size: cover;
+        background-position: top left;
+        background-repeat: no-repeat;
+        margin: 0;
+        cursor: zoom-in;
+        // CDN resize requires max-width to be present on this element
+        max-width: $max-width;
+        color: var(--text-inverse);
+        border: none;
+        font-size: var(--typography-font-size-2xl);
+        font-weight: var(--typography-font-weight-medium);
+        line-height: var(--typography-line-height-relaxed);
+
+        p {
+          position: relative;
+          z-index: 1;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          background-color: var(--background-core-scrim);
+        }
+      }
+    }
+  }
+
+  .str-chat__message-attachment--giphy,
+  .str-chat__message-attachment--gallery,
+  .str-chat__message-attachment--image {
+    $max-width: var(--str-chat__attachment-max-width);
+
+    .str-chat__modal-gallery__image {
+      @include utils.button-reset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      position: relative;
+      // todo: we do not know the image background color;
+      background-color: transparent;
+      border: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: zoom-in;
+        // CDN resize requires max-width to be present on this element
+        max-width: $max-width;
+      }
+
+      &:hover::after {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+  }
+}

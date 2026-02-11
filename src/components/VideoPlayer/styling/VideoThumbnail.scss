@@ -1,0 +1,37 @@
+.str-chat {
+  .str-chat__message-attachment__video-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .str-chat__message-attachment__video-thumbnail-image {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+
+    .str-chat__message-attachment__video-thumbnail__play-indicator,
+    .str-chat__button.str-chat__button--solid.str-chat__message-attachment__video-thumbnail__play-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      $size: 48px;
+      position: absolute;
+      height: $size;
+      width: $size;
+      border-radius: var(--radius-max);
+      background-color: var(--control-play-control-bg-inverse);
+      left: calc(50% - calc($size / 2));
+      top: calc(50% - calc($size / 2));
+
+      svg {
+        height: calc($size / 2);
+        width: calc($size / 2);
+
+        path {
+          fill: var(--control-play-control-icon-inverse);
+        }
+      }
+    }
+  }
+}

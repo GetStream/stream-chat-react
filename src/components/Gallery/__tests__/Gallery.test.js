@@ -1,187 +1,186 @@
-import React, { useEffect } from 'react';
-import { nanoid } from 'nanoid';
-
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import React from 'react';
+import { act, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser, initClientWithChannels } from '../../../mock-builders';
-
-import { Channel } from '../../Channel';
-import { Chat } from '../../Chat';
 import { Gallery } from '../Gallery';
+import { useGalleryContext } from '../GalleryContext';
+import {
+  generateImageAttachment,
+  generateLocalImageUploadAttachmentData,
+} from '../../../mock-builders';
 
-import { ComponentProvider } from '../../../context/ComponentContext';
-import { useChatContext, WithComponents } from '../../../context';
+const makeImageItem = (overrides) =>
+  generateLocalImageUploadAttachmentData(undefined, generateImageAttachment(overrides));
 
-let chatClient;
-
-const mockGalleryAssets = [
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
-];
+const ContextReader = () => {
+  const ctx = useGalleryContext('ContextReader');
+  return (
+    <div data-testid='context-reader'>
+      <span data-testid='current-index'>{ctx.currentIndex}</span>
+      <span data-testid='item-count'>{ctx.itemCount}</span>
+      <span data-testid='has-next'>{String(ctx.hasNext)}</span>
+      <span data-testid='has-previous'>{String(ctx.hasPrevious)}</span>
+      <span data-testid='current-item-url'>{ctx.currentItem?.image_url ?? ''}</span>
+      <button data-testid='go-next' onClick={ctx.goToNext} type='button'>
+        Next
+      </button>
+      <button data-testid='go-previous' onClick={ctx.goToPrevious} type='button'>
+        Previous
+      </button>
+      <button data-testid='go-to-2' onClick={() => ctx.goToIndex(2)} type='button'>
+        Go to 2
+      </button>
+    </div>
+  );
+};
 
 describe('Gallery', () => {
-  afterEach(cleanup);
-
-  it('should render component with default props', () => {
-    const { container } = render(
-      <ComponentProvider value={{}}>
-        <Gallery images={mockGalleryAssets.slice(0, 2)} />
-      </ComponentProvider>,
-    );
-    expect(container).toMatchSnapshot();
+  it('should render without errors when given valid items', () => {
+    const items = [makeImageItem(), makeImageItem()];
+    const { container } = render(<Gallery GalleryUI={ContextReader} items={items} />);
+    expect(container).toBeDefined();
+    expect(screen.getByTestId('context-reader')).toBeInTheDocument();
   });
 
-  it('should render component with 3 images', () => {
-    const { container } = render(
-      <ComponentProvider value={{}}>
-        <Gallery images={mockGalleryAssets.slice(0, 3)} />
-      </ComponentProvider>,
-    );
-    expect(container).toMatchSnapshot();
+  it('should render null when no GalleryUI is provided', () => {
+    const items = [makeImageItem()];
+    const { container } = render(<Gallery items={items} />);
+    expect(container.innerHTML).toBe('');
   });
 
-  it('should render component with 4 images', () => {
-    const { container } = render(
-      <ComponentProvider value={{}}>
-        <Gallery images={mockGalleryAssets.slice(0, 4)} />
-      </ComponentProvider>,
-    );
-    expect(container).toMatchSnapshot();
+  it('should set initialIndex correctly', () => {
+    const items = [
+      makeImageItem({ image_url: 'http://img0.jpg' }),
+      makeImageItem({ image_url: 'http://img1.jpg' }),
+      makeImageItem({ image_url: 'http://img2.jpg' }),
+    ];
+
+    render(<Gallery GalleryUI={ContextReader} initialIndex={1} items={items} />);
+
+    expect(screen.getByTestId('current-index')).toHaveTextContent('1');
+    expect(screen.getByTestId('current-item-url')).toHaveTextContent('http://img1.jpg');
   });
 
-  it('should render component with 5 images', () => {
-    const { container } = render(
-      <ComponentProvider value={{}}>
-        <Gallery images={mockGalleryAssets} />
-      </ComponentProvider>,
-    );
-    expect(container).toMatchSnapshot();
+  it('should provide correct hasNext/hasPrevious at boundaries', () => {
+    const items = [makeImageItem(), makeImageItem(), makeImageItem()];
+
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
+
+    // At index 0: hasPrevious=false, hasNext=true
+    expect(screen.getByTestId('has-previous')).toHaveTextContent('false');
+    expect(screen.getByTestId('has-next')).toHaveTextContent('true');
   });
 
-  it('should open modal on image click', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => null);
+  it('should provide hasNext=false and hasPrevious=false for single item', () => {
+    const items = [makeImageItem()];
 
-    const { getByTestId, getByTitle } = render(
-      <ComponentProvider value={{}}>
-        <Gallery images={mockGalleryAssets.slice(0, 1)} />
-      </ComponentProvider>,
-    );
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
 
-    fireEvent.click(getByTestId('gallery-image'));
-
-    await waitFor(() => {
-      expect(getByTitle('Close')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('has-previous')).toHaveTextContent('false');
+    expect(screen.getByTestId('has-next')).toHaveTextContent('false');
   });
 
-  it('should display correct image count', async () => {
-    chatClient = await getTestClientWithUser({ id: 'test' });
-    const { getByText } = await render(
-      <Chat client={chatClient}>
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets} />
-        </ComponentProvider>
-      </Chat>,
-    );
-    await waitFor(() => {
-      expect(getByText('1 more')).toBeInTheDocument();
-    });
-  });
+  it('should navigate forward with goToNext', () => {
+    const items = [
+      makeImageItem({ image_url: 'http://img0.jpg' }),
+      makeImageItem({ image_url: 'http://img1.jpg' }),
+    ];
 
-  it('should open the modal with image displayed under the "X more" overlay if clicked on the overlay', async () => {
-    chatClient = await getTestClientWithUser({ id: 'test' });
-    const { container, getByText } = render(
-      <Chat client={chatClient}>
-        <ComponentProvider value={{}}>
-          <Gallery images={mockGalleryAssets} />
-        </ComponentProvider>
-      </Chat>,
-    );
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
 
-    const overlay = await waitFor(() => getByText('1 more'));
     act(() => {
-      fireEvent.click(overlay);
+      screen.getByTestId('go-next').click();
     });
 
-    await waitFor(() => {
-      expect(container.querySelector('.image-gallery-index')).toHaveTextContent('4 / 5');
-    });
+    expect(screen.getByTestId('current-index')).toHaveTextContent('1');
+    expect(screen.getByTestId('current-item-url')).toHaveTextContent('http://img1.jpg');
   });
 
-  it('should render custom ModalGallery component from context', async () => {
-    const galleryContent = nanoid();
-    const CustomGallery = () => <div>{galleryContent}</div>;
-    const { getAllByTestId, getByText } = render(
-      <ComponentProvider value={{ ModalGallery: CustomGallery }}>
-        <Gallery images={mockGalleryAssets} />
-      </ComponentProvider>,
-    );
+  it('should navigate backward with goToPrevious', () => {
+    const items = [
+      makeImageItem({ image_url: 'http://img0.jpg' }),
+      makeImageItem({ image_url: 'http://img1.jpg' }),
+    ];
 
-    fireEvent.click(getAllByTestId('gallery-image')[0]);
+    render(<Gallery GalleryUI={ContextReader} initialIndex={1} items={items} />);
 
-    await waitFor(() => {
-      expect(getByText(galleryContent)).toBeInTheDocument();
+    act(() => {
+      screen.getByTestId('go-previous').click();
     });
+
+    expect(screen.getByTestId('current-index')).toHaveTextContent('0');
+    expect(screen.getByTestId('current-item-url')).toHaveTextContent('http://img0.jpg');
   });
 
-  it('should render custom BaseImage component', async () => {
-    const ActiveChannelSetter = ({ activeChannel }) => {
-      const { setActiveChannel } = useChatContext();
-      useEffect(() => {
-        setActiveChannel(activeChannel);
-      }, [activeChannel]); // eslint-disable-line
-      return null;
-    };
+  it('should not navigate past last item', () => {
+    const items = [makeImageItem(), makeImageItem()];
 
-    const {
-      channels: [channel],
-      client,
-    } = await initClientWithChannels();
-    const CustomBaseImage = (props) => (
-      <img {...props} data-testid={'custom-base-image'} />
-    );
-    const images = Array.from({ length: 2 }, (_, i) => ({
-      fallback: `fallback-${i}`,
-      image_url: `image_url-${i}`,
-      thumb_url: `thumb_url-${i}`,
-    }));
-    let result;
-    await act(() => {
-      result = render(
-        <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
-          <Chat client={client}>
-            <ActiveChannelSetter activeChannel={channel} />
-            <Channel>
-              <Gallery images={images} />
-            </Channel>
-          </Chat>
-        </WithComponents>,
-      );
+    render(<Gallery GalleryUI={ContextReader} initialIndex={1} items={items} />);
+
+    act(() => {
+      screen.getByTestId('go-next').click();
     });
-    expect(result.container).toMatchSnapshot();
+
+    expect(screen.getByTestId('current-index')).toHaveTextContent('1');
+  });
+
+  it('should not navigate before first item', () => {
+    const items = [makeImageItem(), makeImageItem()];
+
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
+
+    act(() => {
+      screen.getByTestId('go-previous').click();
+    });
+
+    expect(screen.getByTestId('current-index')).toHaveTextContent('0');
+  });
+
+  it('should navigate to specific index with goToIndex', () => {
+    const items = [makeImageItem(), makeImageItem(), makeImageItem()];
+
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
+
+    act(() => {
+      screen.getByTestId('go-to-2').click();
+    });
+
+    expect(screen.getByTestId('current-index')).toHaveTextContent('2');
+  });
+
+  it('should call onIndexChange when index changes', () => {
+    const onIndexChange = jest.fn();
+    const items = [makeImageItem(), makeImageItem()];
+
+    render(
+      <Gallery GalleryUI={ContextReader} items={items} onIndexChange={onIndexChange} />,
+    );
+
+    // Called on mount with initial index
+    expect(onIndexChange).toHaveBeenCalledWith(0);
+
+    act(() => {
+      screen.getByTestId('go-next').click();
+    });
+
+    expect(onIndexChange).toHaveBeenCalledWith(1);
+  });
+
+  it('should render custom GalleryUI component', () => {
+    const CustomUI = () => <div data-testid='custom-ui'>Custom Gallery</div>;
+    const items = [makeImageItem()];
+
+    render(<Gallery GalleryUI={CustomUI} items={items} />);
+
+    expect(screen.getByTestId('custom-ui')).toBeInTheDocument();
+    expect(screen.getByText('Custom Gallery')).toBeInTheDocument();
+  });
+
+  it('should provide correct itemCount', () => {
+    const items = [makeImageItem(), makeImageItem(), makeImageItem()];
+
+    render(<Gallery GalleryUI={ContextReader} items={items} />);
+
+    expect(screen.getByTestId('item-count')).toHaveTextContent('3');
   });
 });
