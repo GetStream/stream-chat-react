@@ -7,6 +7,8 @@ export * from './LinkPreview/Card';
 export * from './components';
 export * from './FileAttachment';
 export * from './Geolocation';
+export * from './Image';
+export * from './ModalGallery';
 export * from './UnsupportedAttachment';
 export * from './utils';
 export * from './VoiceRecording';

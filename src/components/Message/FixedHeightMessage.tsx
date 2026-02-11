@@ -5,7 +5,7 @@ import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 
 import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
+import { type GalleryItem, toGalleryItemDescriptors } from '../Gallery';
 import { MessageActions } from '../MessageActions';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -15,6 +15,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from './renderText';
 
 import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import { ModalGallery } from '../Attachment';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -68,7 +69,13 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
   const userId = message.user?.id || '';
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);
 
-  const images = message?.attachments?.filter(({ type }) => type === 'image');
+  const images = message?.attachments?.reduce<GalleryItem[]>((acc, attachment) => {
+    if (attachment.type === 'image') {
+      const galleryItem = toGalleryItemDescriptors(attachment);
+      if (galleryItem) acc.push(galleryItem);
+    }
+    return acc;
+  }, []);
 
   return (
     <div
@@ -94,7 +101,7 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
           <MessageDeleted message={message} />
         ) : (
           <>
-            {images && <Gallery images={images} />}
+            {images && <ModalGallery items={images} />}
             <div className='str-chat__virtual-message__text' data-testid='msg-text'>
               {renderedText}
               <div className='str-chat__virtual-message__data'>

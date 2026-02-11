@@ -1,3 +1,5 @@
+@use '../../../styling/utils';
+
 .str-chat {
   /* The height of GIFs */
   --str-chat__gif-height: calc(var(--str-chat__spacing-px) * 200);

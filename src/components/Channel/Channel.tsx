@@ -22,6 +22,7 @@ import type {
   ErrorFromResponse,
   Event,
   EventAPIResponse,
+  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -80,7 +81,6 @@ import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import type {
   ChannelUnreadUiState,
-  GiphyVersions,
   ImageAttachmentSizeHandler,
   VideoAttachmentSizeHandler,
 } from '../../types/types';

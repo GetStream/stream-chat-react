@@ -6,7 +6,7 @@ import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks';
-import { ImageComponent } from '../Gallery';
+import { BaseImage } from '../Gallery';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import { IconChainLink } from '../Icons';
 
@@ -78,11 +78,11 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
       </PopperTooltip>
 
       {(image_url || thumb_url) && (
-        <ImageComponent
+        <BaseImage
+          alt={title}
           className='str-chat__attachment-preview__thumbnail'
-          fallback={title}
-          image_url={image_url}
-          thumb_url={thumb_url}
+          src={thumb_url ?? image_url}
+          title={title}
         />
       )}
       <div className='str-chat__link-preview-card__content'>

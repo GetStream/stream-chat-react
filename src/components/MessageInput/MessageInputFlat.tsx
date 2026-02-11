@@ -90,7 +90,7 @@ const MessageComposerPreviews = () => {
           <EditedMessagePreview
             message={editedMessage}
             onCancel={() => {
-              messageComposer.setEditedMessage(null);
+              messageComposer.clear();
             }}
           />
         </div>

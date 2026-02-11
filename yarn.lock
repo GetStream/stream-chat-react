@@ -3591,13 +3591,6 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-19.0.3.tgz#0804dfd279a165d5a0ad8b53a5b9e65f338050a4"
   integrity sha512-0Knk+HJiMP/qOZgMyNFamlIjw9OFCsyC2ZbigmEEyXXixgre6IQpm/4V+r3qH4GC1JPvRJKInw+on2rV6YZLeA==
 
-"@types/react-image-gallery@^1.2.4":
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/@types/react-image-gallery/-/react-image-gallery-1.2.4.tgz#17c2e3416a5c9ecab14588eac593d4a7aa583163"
-  integrity sha512-H0xpmT5rlSH0qiTvcUDCPDLRBi3J3Xa4COqaDqGb7ffLFpQoPAxpZdNuKCuThhFI0xJmNnMubZiD6B3kCBHtcw==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react@*":
   version "18.2.55"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.55.tgz#38141821b7084404b5013742bc4ae08e44da7a67"
@@ -11404,11 +11397,6 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.2:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.2.tgz#929a97a532304ce9fee4bcae44234f1ce2c21d49"
   integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
 
-react-image-gallery@1.2.12:
-  version "1.2.12"
-  resolved "https://registry.yarnpkg.com/react-image-gallery/-/react-image-gallery-1.2.12.tgz#b08a633cc336bab2a5afdb96941e023925043c6a"
-  integrity sha512-JIh85lh0Av/yewseGJb/ycg00Y/weQiZEC/BQueC2Z5jnYILGB6mkxnrOevNhsM2NdZJpvcDekCluhy6uzEoTA==
-
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -12573,10 +12561,10 @@ stdin-discarder@^0.2.2:
   resolved "https://registry.yarnpkg.com/stdin-discarder/-/stdin-discarder-0.2.2.tgz#390037f44c4ae1a1ae535c5fe38dc3aba8d997be"
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
 
-stream-chat@^9.31.0:
-  version "9.31.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.31.0.tgz#4af1eac2f83431a9a394c71fa7833da4a6629f38"
-  integrity sha512-myFkV8ceNETYgYPBtrluVSMHkrS3udsLNexZIPZn85Ifa/JUaIg9qLvvhFEJQ6827LcuX82Ou2oKROIUBhPhHA==
+stream-chat@^9.32.0:
+  version "9.32.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.32.0.tgz#7bf3fe8bf41ee38f312ed06ad1b59eb0b887cdda"
+  integrity sha512-7gQ86GNbVj9R6QP4XpJD+2mTJZkkHnrtWq9jdf/pmf5JnKqIET6irXYfJa7pIyZRrFMDL1Iv6eXez34ubg/vHw==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"

@@ -1,7 +1,7 @@
 @mixin button-reset {
   background: none;
   border: none;
-  padding-inline: 0;
+  padding: 0;
 }
 
 @mixin overlay-after($color: black) {
