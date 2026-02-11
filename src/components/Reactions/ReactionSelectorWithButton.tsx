@@ -9,6 +9,7 @@ import {
 } from '../../context';
 
 import type { IconProps } from '../../types/types';
+import { QuickMessageActionsButton } from '../MessageActions';
 
 type ReactionSelectorWithButtonProps = {
   /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
@@ -43,7 +44,7 @@ export const ReactionSelectorWithButton = ({
       >
         <ReactionSelector />
       </DialogAnchor>
-      <button
+      <QuickMessageActionsButton
         aria-expanded={dialogIsOpen}
         aria-label={t('aria/Open Reaction Selector')}
         className='str-chat__message-reactions-button'
@@ -52,7 +53,7 @@ export const ReactionSelectorWithButton = ({
         ref={buttonRef}
       >
         <ReactionIcon className='str-chat__message-action-icon' />
-      </button>
+      </QuickMessageActionsButton>
     </>
   );
 };

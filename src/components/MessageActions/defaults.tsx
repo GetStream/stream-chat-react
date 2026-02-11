@@ -13,9 +13,10 @@ import {
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
 } from '../../components/MessageActions/RemindMeSubmenu';
-import { ContextMenuButton } from '../../components/Dialog';
 import type { ContextMenuItemProps } from '../../components/Dialog';
+import { ContextMenuButton } from '../../components/Dialog';
 import type { MessageActionSetItem } from './MessageActions';
+import { QuickMessageActionsButton } from './QuickMessageActionButton';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
@@ -200,14 +201,14 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <button
+        <QuickMessageActionsButton
           aria-label={t('aria/Open Thread')}
           className='str-chat__message-reply-in-thread-button'
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
           <ThreadIcon className='str-chat__message-action-icon' />
-        </button>
+        </QuickMessageActionsButton>
       );
     },
   },
