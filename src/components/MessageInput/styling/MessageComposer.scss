@@ -36,6 +36,12 @@
   --str-chat__cooldown-border-inline-end: 0;
   --str-chat__cooldown-box-shadow: none;
 
+  .str-chat__message-composer-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
   /*
   Styles for floating like composer
    */
