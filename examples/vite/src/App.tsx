@@ -47,7 +47,9 @@ import { humanId } from 'human-id';
 init({ data });
 
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
-const token = import.meta.env.VITE_USER_TOKEN;
+const token =
+  new URLSearchParams(window.location.search).get('token') ||
+  import.meta.env.VITE_USER_TOKEN;
 
 if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
@@ -214,7 +216,7 @@ const App = () => {
                         }))
                       }
                     >
-                      Toggle Visual Style
+                      Toggle Msg Reactions Visual Style
                     </button>
                     <button
                       onClick={() =>
@@ -225,7 +227,7 @@ const App = () => {
                         }))
                       }
                     >
-                      Toggle Vertical Position
+                      Toggle Msg Reactions Vertical Position
                     </button>
                     <button
                       onClick={() =>
@@ -235,7 +237,7 @@ const App = () => {
                         }))
                       }
                     >
-                      Toggle Horizontal Position
+                      Toggle Msg Reactions Horizontal Position
                     </button>
                   </div>
                   <ChannelHeader Avatar={ChannelAvatar} />
