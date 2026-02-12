@@ -388,6 +388,7 @@
 
     .str-chat__message-simple-name {
       @include utils.prevent-glitch-text-overflow;
+      margin-inline-end: var(--spacing-xxs);
     }
 
     .str-chat__message-sender-name {
