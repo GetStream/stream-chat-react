@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Picker from '@emoji-mart/react';
 
-import { EmojiPickerIcon } from './icons';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import type { PopperLikePlacement } from '../../components';
-import { Button, useMessageComposer } from '../../components';
+import {
+  Button,
+  IconEmoji,
+  type PopperLikePlacement,
+  useMessageComposer,
+} from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import clsx from 'clsx';
 import { useIsCooldownActive } from '../../components/MessageInput/hooks/useIsCooldownActive';
@@ -67,7 +70,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = EmojiPickerIcon } = props;
+  const { ButtonIconComponent = IconEmoji } = props;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -118,7 +121,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
         className={props.buttonClassName ?? buttonClassName}
-        disabled={!!isCooldownActive}
+        disabled={isCooldownActive}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
         type='button'

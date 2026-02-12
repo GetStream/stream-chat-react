@@ -1,20 +1,28 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
+import React, {
+  type ComponentType,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
+import { Button, type ButtonProps } from '../Button';
 import { ThreadProvider } from '../Threads';
 import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
-import { useChatContext } from '../../context';
+import { useChatContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
-import clsx from 'clsx';
 
-type ChatView = 'channels' | 'threads';
+export type ChatView = 'channels' | 'threads';
 
 type ChatViewContextValue = {
   activeChatView: ChatView;
-  setActiveChatView: (cv: ChatViewContextValue['activeChatView']) => void;
+  setActiveChatView: (cv: ChatView) => void;
 };
 
 const ChatViewContext = createContext<ChatViewContextValue>({
@@ -22,9 +30,10 @@ const ChatViewContext = createContext<ChatViewContextValue>({
   setActiveChatView: () => undefined,
 });
 
+export const useChatViewContext = () => useContext(ChatViewContext);
+
 export const ChatView = ({ children }: PropsWithChildren) => {
-  const [activeChatView, setActiveChatView] =
-    useState<ChatViewContextValue['activeChatView']>('channels');
+  const [activeChatView, setActiveChatView] = useState<ChatView>('channels');
 
   const { theme } = useChatContext();
 
@@ -38,7 +47,7 @@ export const ChatView = ({ children }: PropsWithChildren) => {
 };
 
 const ChannelsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useContext(ChatViewContext);
+  const { activeChatView } = useChatViewContext();
 
   if (activeChatView !== 'channels') return null;
 
@@ -58,7 +67,7 @@ const ThreadsViewContext = createContext<ThreadsViewContextValue>({
 export const useThreadsViewContext = () => useContext(ThreadsViewContext);
 
 const ThreadsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useContext(ChatViewContext);
+  const { activeChatView } = useChatViewContext();
   const [activeThread, setActiveThread] =
     useState<ThreadsViewContextValue['activeThread']>(undefined);
 
@@ -125,41 +134,104 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
+export const ChatViewSelectorButton = ({
+  children,
+  className,
+  Icon,
+  text,
+  ...props
+}: ButtonProps & { Icon?: ComponentType; text?: string }) => (
+  <Button
+    {...props}
+    className={clsx(
+      'str-chat__chat-view__selector-button',
+      'str-chat__button--ghost',
+      'str-chat__button--secondary',
+      className,
+    )}
+    role='tab'
+  >
+    {text ? (
+      <>
+        {Icon && <Icon />}
+        <div className='str-chat__chat-view__selector-button-text'>{text}</div>
+      </>
+    ) : (
+      children
+    )}
+  </Button>
+);
+
 const selector = ({ unreadThreadCount }: ThreadManagerState) => ({
   unreadThreadCount,
 });
 
-const ChatViewSelector = () => {
-  const { client } = useChatContext();
-  const { unreadThreadCount } = useStateStore(client.threads.state, selector);
-
-  const { activeChatView, setActiveChatView } = useContext(ChatViewContext);
+export const ChatViewChannelsSelectorButton = () => {
+  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { t } = useTranslationContext();
 
   return (
-    <div className='str-chat__chat-view__selector'>
-      <button
-        aria-selected={activeChatView === 'channels'}
-        className='str-chat__chat-view__selector-button'
-        onPointerDown={() => setActiveChatView('channels')}
-        role='tab'
-      >
-        <Icon.MessageBubbleEmpty />
-        <div className='str-chat__chat-view__selector-button-text'>Channels</div>
-      </button>
-      <button
-        aria-selected={activeChatView === 'threads'}
-        className='str-chat__chat-view__selector-button'
-        onPointerDown={() => setActiveChatView('threads')}
-        role='tab'
-      >
-        <UnreadCountBadge count={unreadThreadCount} position='top-right'>
-          <Icon.MessageBubble />
-        </UnreadCountBadge>
-        <div className='str-chat__chat-view__selector-button-text'>Threads</div>
-      </button>
-    </div>
+    <ChatViewSelectorButton
+      aria-selected={activeChatView === 'channels'}
+      Icon={Icon.MessageBubbleEmpty}
+      onPointerDown={() => setActiveChatView('channels')}
+      text={t('Channels')}
+    />
   );
 };
+
+export const ChatViewThreadsSelectorButton = () => {
+  const { client } = useChatContext();
+  const { unreadThreadCount } = useStateStore(client.threads.state, selector) ?? {
+    unreadThreadCount: 0,
+  };
+  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { t } = useTranslationContext();
+
+  return (
+    <ChatViewSelectorButton
+      aria-selected={activeChatView === 'threads'}
+      onPointerDown={() => setActiveChatView('threads')}
+    >
+      <UnreadCountBadge count={unreadThreadCount} position='top-right'>
+        <Icon.MessageBubble />
+      </UnreadCountBadge>
+      <div className='str-chat__chat-view__selector-button-text'>{t('Threads')}</div>
+    </ChatViewSelectorButton>
+  );
+};
+
+export type ChatViewSelectorItem = {
+  Component: React.ComponentType;
+  type: string & {};
+};
+
+export type ChatViewSelectorEntry = ChatViewSelectorItem;
+
+export type ChatViewSelectorProps = {
+  itemSet?: ChatViewSelectorEntry[];
+};
+
+export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
+  {
+    Component: ChatViewChannelsSelectorButton,
+    type: 'channels' as string & {},
+  },
+  {
+    Component: ChatViewThreadsSelectorButton,
+    type: 'threads' as string & {},
+  },
+];
+
+const ChatViewSelector = ({
+  itemSet = defaultChatViewSelectorItemSet,
+}: ChatViewSelectorProps) => (
+  <div className='str-chat__chat-view__selector'>
+    {itemSet.map(({ Component, type }) => (
+      <Component key={type} />
+    ))}
+  </div>
+);
 
 ChatView.Channels = ChannelsView;
 ChatView.Threads = ThreadsView;

@@ -1,4 +1,4 @@
-@layer stream, stream-new, stream-overrides;
+@layer stream, stream-new, stream-overrides, stream-app-overrides;
 
 @import url('./stream-imports-theme.scss') layer(stream);
 @import url('./stream-imports-layout.scss') layer(stream);
@@ -6,6 +6,7 @@
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('stream-chat-react/dist/css/emojis.css') layer(stream-new);
+@import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
 
 :root {
   font-synthesis: none;
@@ -109,7 +110,7 @@ body {
     }
   }
 
-  @container (max-width: 1025px) {
+  @container (max-width: 760px) {
     .str-chat__channel-list,
     .str-chat__chat-view__selector {
       display: none;
