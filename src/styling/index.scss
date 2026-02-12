@@ -23,14 +23,18 @@
 @use '../components/AudioPlayback/styling' as AudioPlayback;
 @use '../components/Avatar/styling/Avatar' as Avatar;
 @use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
+@use '../components/DateSeparator/styling' as DateSeparator;
+@use '../components/Gallery/styling' as Gallery;
 @use '../components/MediaRecorder/AudioRecorder/styling' as AudioRecorder;
 @use '../components/Message/styling' as Message;
 @use '../components/MessageActions/styling' as MessageActions;
 @use '../components/MessageInput/styling' as MessageComposer;
+@use '../components/Modal/styling' as Modal;
 @use '../components/Poll/styling' as Poll;
 @use '../components/Reactions/styling/ReactionList' as ReactionList;
 @use '../components/Reactions/styling/ReactionSelector' as ReactionSelector;
-@use '../components/TextareaComposer/styling/' as TextareaComposer;
+@use '../components/TextareaComposer/styling' as TextareaComposer;
+@use '../components/VideoPlayer/styling' as VideoPlayer;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

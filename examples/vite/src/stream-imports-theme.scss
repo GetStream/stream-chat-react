@@ -1,8 +1,6 @@
 @use 'stream-chat-react/dist/scss/v2/palette-variables';
 //@use 'stream-chat-react/dist/scss/v2/global-theme-variables';
 
-@use 'stream-chat-react/dist/scss/v2/vendor/react-image-gallery';
-
 @use 'stream-chat-react/dist/scss/v2/common/CTAButton/CTAButton-theme';
 @use 'stream-chat-react/dist/scss/v2/common/CircleFAButton/CircleFAButton-theme';
 //@use 'stream-chat-react/dist/scss/v2/Avatar/Avatar-theme';
@@ -30,7 +28,7 @@
 @use 'stream-chat-react/dist/scss/v2/MessageList/VirtualizedMessageList-theme';
 // @use 'stream-chat-react/dist/scss/v2/MessageReactions/MessageReactions-theme';
 @use 'stream-chat-react/dist/scss/v2/MessageReactions/MessageReactionsSelector-theme';
-@use 'stream-chat-react/dist/scss/v2/Modal/Modal-theme';
+//@use 'stream-chat-react/dist/scss/v2/Modal/Modal-theme';
 @use 'stream-chat-react/dist/scss/v2/Notification/MessageNotification-theme';
 @use 'stream-chat-react/dist/scss/v2/Notification/NotificationList-theme';
 @use 'stream-chat-react/dist/scss/v2/Notification/Notification-theme';

@@ -41,7 +41,7 @@ import {
   IconVideoCameraOutline,
 } from '../Icons';
 import clsx from 'clsx';
-import { ImageComponent } from '../Gallery';
+import { BaseImage } from '../Gallery';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 
@@ -189,10 +189,11 @@ const getAttachmentIconWithType = (
       ...result,
       Icon: IconChainLink,
       PreviewImage: (
-        <ImageComponent
+        <BaseImage
+          alt={linkAttachment.title}
           className='str-chat__attachment-preview__thumbnail'
-          fallback={linkAttachment.title}
-          image_url={linkAttachment.thumb_url || linkAttachment.image_url}
+          src={linkAttachment.thumb_url || linkAttachment.image_url}
+          title={linkAttachment.title}
         />
       ),
       previewType: 'link',
@@ -205,10 +206,11 @@ const getAttachmentIconWithType = (
       Icon: IconVideoCameraOutline,
       PreviewImage: (
         <>
-          <ImageComponent
+          <BaseImage
+            alt={videoAttachment.asset_url}
             className='str-chat__attachment-preview__thumbnail'
-            fallback={videoAttachment.asset_url}
-            image_url={videoAttachment.thumb_url}
+            src={videoAttachment.thumb_url}
+            title={videoAttachment.title}
           />
           <div className='str-chat__attachment-preview__thumbnail__play-indicator'>
             <IconPlaySolid />
@@ -224,10 +226,11 @@ const getAttachmentIconWithType = (
       ...result,
       Icon: IconCamera,
       PreviewImage: (
-        <ImageComponent
+        <BaseImage
+          alt={imageAttachment.fallback}
           className='str-chat__attachment-preview__thumbnail'
-          fallback={imageAttachment.fallback}
-          image_url={imageAttachment.image_url}
+          src={imageAttachment.image_url}
+          title={imageAttachment.title}
         />
       ),
       previewType: 'image',

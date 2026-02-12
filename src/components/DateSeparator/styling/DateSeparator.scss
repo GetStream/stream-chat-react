@@ -13,22 +13,26 @@
 }
 
 .str-chat__date-separator {
-  display: flex;
-  padding: 2rem;
-  align-items: center;
   @include utils.component-layer-overrides('date-separator');
-  font: var(--str-chat__body-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-xs) 0;
 
-  &-line {
-    flex: 1;
-    height: 1px;
-    background-color: var(--str-chat__date-separator-line-color);
-    border: none;
-  }
 
-  > * {
-    &:not(:last-child) {
-      margin-right: 1rem;
-    }
+  .str-chat__date-separator-date {
+    display: flex;
+    padding: var(--spacing-xxs) var(--spacing-sm);
+    justify-content: center;
+    align-items: center;
+    color: var(--chat-text-system);
+    background-color: var(--background-core-surface-subtle);
+    border-radius: var(--radius-max);
+
+    /* metadata/emphasis */
+    font-size: var(--typography-font-size-xs);
+    font-weight: var(--typography-font-weight-semi-bold);
+    line-height: var(--typography-line-height-tight);
   }
 }

@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
 import {
   ContextMenu,
-  ContextMenuButton,
   type ContextMenuItemComponent,
   type ContextMenuItemProps,
   DialogAnchor,
@@ -14,6 +13,7 @@ import {
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
 import { ActionsIcon, type MESSAGE_ACTIONS } from '../Message';
+import { Button } from '../Button';
 
 type BaseMessageActionSetItem = {
   placement: 'quick' | 'dropdown';
@@ -98,11 +98,16 @@ export const MessageActions = ({
     >
       {dropdownActionSet.length > 0 && (
         <>
-          <ContextMenuButton
+          <Button
             aria-expanded={dropdownDialogIsOpen}
             aria-haspopup='true'
             aria-label={t('aria/Open Message Actions Menu')}
-            className='str-chat__message-actions-box-button'
+            className={clsx(
+              'str-chat__message-actions-box-button',
+              'str-chat__button--ghost',
+              'str-chat__button--secondary',
+              'str-chat__button--circular',
+            )}
             data-testid='message-actions-toggle-button'
             onClick={() => {
               dialog?.toggle();
@@ -110,7 +115,7 @@ export const MessageActions = ({
             ref={setActionsBoxButtonElement}
           >
             <ActionsIcon className='str-chat__message-action-icon' />
-          </ContextMenuButton>
+          </Button>
 
           <DialogAnchor
             dialogManagerId={dialogManager?.id}

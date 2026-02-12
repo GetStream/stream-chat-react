@@ -3,24 +3,24 @@ import ReactPlayer from 'react-player';
 import React from 'react';
 
 export type VideoPlayerProps = {
-  url: string;
+  isPlaying?: boolean;
+  videoUrl?: string;
   thumbnailUrl?: string;
 };
 
-export const VideoPlayer = ({ thumbnailUrl, url }: VideoPlayerProps) => {
+export const VideoPlayer = ({ isPlaying, thumbnailUrl, videoUrl }: VideoPlayerProps) => {
   const { VideoPlayer: VideoPlayerContext } = useComponentContext();
 
   return VideoPlayerContext ? (
-    <VideoPlayerContext thumbnailUrl={thumbnailUrl} url={url} />
+    <VideoPlayerContext thumbnailUrl={thumbnailUrl} videoUrl={videoUrl} />
   ) : (
     <ReactPlayer
       className='react-player'
-      config={{
-        file: { attributes: { poster: thumbnailUrl } },
-      }}
+      config={{ file: { attributes: { poster: thumbnailUrl } } }}
       controls
       height='100%'
-      url={url}
+      playing={isPlaying}
+      url={videoUrl}
       width='100%'
     />
   );
