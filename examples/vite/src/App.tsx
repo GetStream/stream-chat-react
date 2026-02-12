@@ -47,7 +47,13 @@ if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
 }
 
-const options: ChannelOptions = { limit: 5, presence: true, state: true };
+const options: ChannelOptions = {
+  // limit: 10,
+  // message_limit: 10,
+  // member_limit: 10,
+  presence: true,
+  state: true,
+};
 // pinned_at param leads to BE not returning (empty) channels
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
