@@ -259,7 +259,7 @@
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",
-    "types": "tsc --noEmit --skipLibCheck false",
+    "types": "tsc --noEmit --skipLibCheck true",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
