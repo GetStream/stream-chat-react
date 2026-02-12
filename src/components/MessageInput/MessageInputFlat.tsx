@@ -136,10 +136,10 @@ export const MessageInputFlat = () => {
                 <MessageComposerActions />
               </div>
             </div>
-            <SendToChannelCheckbox />
           </>
         )}
       </div>
+      <SendToChannelCheckbox />
     </WithDragAndDropUpload>
   );
 };

@@ -35,11 +35,16 @@
   --str-chat__cooldown-border-inline-start: 0;
   --str-chat__cooldown-border-inline-end: 0;
   --str-chat__cooldown-box-shadow: none;
+  --str-chat__message-composer-max-width: 768px;
 
   .str-chat__message-composer-container {
     width: 100%;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
     justify-content: center;
+    padding: var(--spacing-xs);
     min-width: 0;
   }
   /*
@@ -57,8 +62,7 @@
     display: flex;
     align-items: end;
     width: 100%;
-    max-width: 768px;
-    padding: var(--spacing-xs);
+    max-width: var(--str-chat__message-composer-max-width);
     gap: var(--spacing-xs);
     min-width: 0;
     flex-shrink: 1;
@@ -195,7 +199,9 @@
   .str-chat__send-to-channel-checkbox__container {
     width: 100%;
     display: flex;
-    padding: 0.5rem 0.75rem;
+    align-items: flex-start;
+    padding-inline: 0.75rem;
+    max-width: var(--str-chat__message-composer-max-width);
 
     .str-chat__send-to-channel-checkbox__field {
       display: flex;
