@@ -96,7 +96,7 @@ export const usePaginatedChannels = (
             : uniqBy([...channels, ...channelQueryResponse], 'cid');
 
         setChannels(newChannels);
-        setHasNextPage(channelQueryResponse.length > 0);
+        setHasNextPage(channelQueryResponse.length >= (newOptions.limit ?? 1));
 
         // Set active channel only on load of first page
         if (!offset && activeChannelHandler) {
