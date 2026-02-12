@@ -113,7 +113,6 @@
     "i18next": "^21.6.14",
     "linkifyjs": "^4.1.0",
     "lodash.debounce": "^4.0.8",
-    "lodash.defaultsdeep": "^4.6.1",
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
@@ -144,8 +143,7 @@
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0 || ^16.14.0",
-    "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0 || ^16.14.0",
-    "stream-chat": "^8.55.0"
+    "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0 || ^16.14.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -239,7 +237,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "semantic-release": "^24.2.3",
-    "stream-chat": "^8.55.0",
+    "stream-chat": "^8.60.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0"

@@ -9,8 +9,6 @@ import type {
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ChannelListProps } from './ChannelList';
 
-export const MAX_QUERY_CHANNELS_LIMIT = 30;
-
 type MoveChannelUpParams<
   SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {

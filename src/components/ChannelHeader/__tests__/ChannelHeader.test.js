@@ -213,6 +213,7 @@ describe('ChannelHeader', () => {
   describe('group channel', () => {
     const props = {
       Avatar: ChannelAvatar,
+      watchers: { limit: 10 },
     };
 
     const getChannelState = (memberCount, channelData) => {

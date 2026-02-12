@@ -186,6 +186,7 @@ describe('ChannelList', () => {
     const props = {
       filters: {},
       List: ChannelListComponent,
+      options: { limit: 25, message_limit: 25 },
       Preview: ChannelPreviewComponent,
     };
 
@@ -291,6 +292,7 @@ describe('ChannelList', () => {
       channelRenderFilterFn: customFilterFunction,
       filters: {},
       List: ChannelListComponent,
+      options: { limit: 25, message_limit: 25 },
       Preview: ChannelPreviewComponent,
     };
 
@@ -612,7 +614,13 @@ describe('ChannelList', () => {
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
             List={ChannelListComponent}
-            options={{ presence: true, state: true, watch: true }}
+            options={{
+              limit: 25,
+              message_limit: 25,
+              presence: true,
+              state: true,
+              watch: true,
+            }}
             Preview={ChannelPreviewComponent}
             setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
@@ -909,6 +917,7 @@ describe('ChannelList', () => {
     const channelListProps = {
       filters: {},
       List: ChannelListComponent,
+      options: { limit: 25, message_limit: 25 },
       Preview: ChannelPreviewComponent,
       renderChannels,
     };
@@ -935,6 +944,7 @@ describe('ChannelList', () => {
       const props = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
       const sendNewMessageOnChannel3 = async () => {
@@ -1043,7 +1053,13 @@ describe('ChannelList', () => {
             <ChannelList
               filters={{}}
               List={ChannelListComponent}
-              options={{ presence: true, state: true, watch: true }}
+              options={{
+                limit: 25,
+                message_limit: 25,
+                presence: true,
+                state: true,
+                watch: true,
+              }}
               Preview={ChannelPreviewComponent}
             />
           </Chat>,
@@ -1082,7 +1098,13 @@ describe('ChannelList', () => {
               filters={{}}
               List={ChannelListComponent}
               onMessageNew={onMessageNew}
-              options={{ presence: true, state: true, watch: true }}
+              options={{
+                limit: 25,
+                message_limit: 25,
+                presence: true,
+                state: true,
+                watch: true,
+              }}
               Preview={ChannelPreviewComponent}
             />
           </Chat>,
@@ -1109,7 +1131,13 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
-        options: { presence: true, state: true, watch: true },
+        options: {
+          limit: 25,
+          message_limit: 25,
+          presence: true,
+          state: true,
+          watch: true,
+        },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1178,6 +1206,7 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1241,6 +1270,7 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1309,6 +1339,7 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1398,6 +1429,7 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1465,7 +1497,13 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
-        options: { presence: true, state: true, watch: true },
+        options: {
+          limit: 25,
+          message_limit: 25,
+          presence: true,
+          state: true,
+          watch: true,
+        },
         Preview: ChannelPreviewComponent,
       };
 
@@ -1533,6 +1571,7 @@ describe('ChannelList', () => {
         const channelListProps = {
           filters: {},
           List: ChannelListComponent,
+          options: { limit: 25, message_limit: 25 },
           Preview: ChannelPreviewComponent,
         };
 
@@ -1573,6 +1612,7 @@ describe('ChannelList', () => {
       const channelListProps = {
         filters: {},
         List: ChannelListComponent,
+        options: { limit: 25, message_limit: 25 },
         Preview: ChannelPreviewComponent,
       };
 

@@ -554,6 +554,7 @@ describe('ChannelPreview', () => {
 
     const channelPreviewProps = {
       Avatar: MockAvatar,
+      watchers: { limit: 10 },
     };
 
     it("should update the direct messaging channel's preview if other user's name has changed", async () => {
