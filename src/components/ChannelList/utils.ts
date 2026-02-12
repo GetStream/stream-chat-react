@@ -3,8 +3,6 @@ import type { Channel, ChannelSort, ChannelSortBase } from 'stream-chat';
 
 import type { ChannelListProps } from './ChannelList';
 
-export const MAX_QUERY_CHANNELS_LIMIT = 30;
-
 type MoveChannelUpParams = {
   channels: Array<Channel>;
   cid: string;
