@@ -10,6 +10,7 @@ export type DateSeparatorProps = TimestampFormatterOptions & {
   date: Date;
   /** Override the default formatting of the date. This is a function that has access to the original date object. */
   formatDate?: (date: Date) => string;
+  // todo: position and unread are not necessary anymore
   /** Set the position of the date in the separator, options are 'left', 'center', 'right', @default right */
   position?: 'left' | 'center' | 'right';
   /** If following messages are not new */
@@ -21,8 +22,6 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
     calendar,
     date: messageCreatedAt,
     formatDate,
-    position = 'right',
-    unread,
     ...restTimestampFormatterOptions
   } = props;
 
@@ -40,15 +39,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
 
   return (
     <div className='str-chat__date-separator' data-testid='date-separator'>
-      {(position === 'right' || position === 'center') && (
-        <hr className='str-chat__date-separator-line' />
-      )}
-      <div className='str-chat__date-separator-date'>
-        {unread ? `${t('New')} - ${formattedDate}` : formattedDate}
-      </div>
-      {(position === 'left' || position === 'center') && (
-        <hr className='str-chat__date-separator-line' />
-      )}
+      <div className='str-chat__date-separator-date'>{formattedDate}</div>
     </div>
   );
 };

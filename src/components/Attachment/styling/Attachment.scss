@@ -585,6 +585,7 @@
     min-height: 60px;
 
     .str-chat__message-attachment__voice-recording-widget__metadata {
+      min-width: 180px;
       padding-inline: var(--spacing-xs);
 
       a {

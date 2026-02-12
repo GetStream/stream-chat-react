@@ -231,13 +231,15 @@
 
   &.str-chat__message--me {
     grid-template-areas:
-      'message-reminder'
-      'message'
-      'replies'
-      'translation-notice'
-      'custom-metadata'
-      'metadata';
-    justify-items: end;
+      'message-reminder .'
+      'message avatar'
+      'replies avatar'
+      'translation-notice avatar'
+      'custom-metadata avatar'
+      'metadata avatar';
+    column-gap: var(--str-chat__spacing-2);
+    grid-template-columns: 1fr auto;
+    justify-items: flex-end;
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
@@ -368,9 +370,9 @@
 
   .str-chat__custom-message-metadata {
     grid-area: custom-metadata;
-    margin-block-start: var(--str-chat__spacing-0_5);
+    height: var(--size-24);
+    margin-block-start: var(--spacing-xxs);
     color: var(--str-chat__message-secondary-color);
-    font: var(--str-chat__caption-text);
   }
 
   .str-chat__message-metadata {
@@ -378,10 +380,11 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: var(--str-chat__spacing-1);
     margin-block-start: var(--str-chat__spacing-0_5);
-    color: var(--str-chat__message-secondary-color);
-    font: var(--str-chat__caption-text);
+    color: var(--chat-text-timestamp);
+    font-size: var(--typography-font-size-xs,);
+    font-weight: var(--typography-font-weight-regular);
+    line-height: var(--typography-line-height-tight);
 
     .str-chat__message-simple-name {
       @include utils.prevent-glitch-text-overflow;
@@ -391,9 +394,8 @@
       font: var(--str-chat__caption-medium-text);
     }
 
-    .str-chat__message-simple-timestamp + .str-chat__mesage-simple-edited::before {
-      content: '•';
-      margin-right: var(--str-chat__spacing-1);
+    .str-chat__mesage-simple-edited {
+      margin-left: var(--spacing-xs);
     }
   }
 
@@ -593,8 +595,8 @@
 .str-chat__li--middle,
 .str-chat__li--top {
   .str-chat__message {
-    // space below the message
-    margin-block-end: var(--spacing-xxs);
+    // space below the message within a group
+    padding-block-end: var(--spacing-xxs);
 
     .str-chat__message-metadata {
       display: none;
@@ -607,11 +609,19 @@
   }
 }
 
+.str-chat__li--top,
+.str-chat__li--single {
+  .str-chat__message {
+    // space above the message group
+    padding-block-start: var(--spacing-xs);
+  }
+}
+
 .str-chat__li--bottom,
 .str-chat__li--single {
   .str-chat__message {
-    // space below the message
-    margin-block-end: var(--spacing-xs);
+    // space below the message group
+    padding-block-end: var(--spacing-xs);
   }
 }
 
@@ -651,6 +661,23 @@
   }
 }
 
+// Avatar display in message list
+.str-chat__li--top,
+.str-chat__li--middle {
+  .str-chat__avatar {
+    // space above the message group
+    background: transparent;
+    pointer-events: none;
+    color: transparent;
+  }
+}
+
+.str-chat__message--me {
+  .str-chat__avatar {
+    display: none;
+  }
+}
+
 // todo: not implemented in stream-chat-react
 .str-chat__message-with-touch-support {
   .str-chat__message-bubble {
@@ -672,9 +699,5 @@
 
   .str-chat__message-options {
     display: none;
-  }
-
-  .stream-chat-angular__image-modal-host {
-    -webkit-touch-callout: default;
   }
 }

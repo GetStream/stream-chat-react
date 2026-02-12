@@ -263,7 +263,7 @@
   "Thread": "Ветка",
   "Thread has not been found": "Ветка не найдена",
   "Thread reply": "Ответ в ветке",
-  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
+  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Today]\", \"nextDay\": \"[Tomorrow]\", \"lastDay\": \"[Yesterday]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Last] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/PollVote": "{{ timestamp | timestampFormatter(format: MMM D [at] HH:mm) }}",

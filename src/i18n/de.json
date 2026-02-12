@@ -245,7 +245,7 @@
   "Thread": "Thread",
   "Thread has not been found": "Thread wurde nicht gefunden",
   "Thread reply": "Thread-Antwort",
-  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
+  "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Today]\", \"nextDay\": \"[Tomorrow]\", \"lastDay\": \"[Yesterday]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Last] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/PollVote": "{{ timestamp | timestampFormatter(format: MMM D [at] HH:mm) }}",
