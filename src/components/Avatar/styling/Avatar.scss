@@ -128,20 +128,3 @@
   }
 }
 
-// Display in message list
-.str-chat__li--top,
-.str-chat__li--middle {
-  .str-chat__avatar {
-    // space above the message group
-    background: transparent;
-    pointer-events: none;
-    color: transparent;
-  }
-}
-
-.str-chat__message--me {
-  .str-chat__avatar {
-    display: none;
-  }
-}
-

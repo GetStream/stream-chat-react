@@ -661,6 +661,23 @@
   }
 }
 
+// Avatar display in message list
+.str-chat__li--top,
+.str-chat__li--middle {
+  .str-chat__avatar {
+    // space above the message group
+    background: transparent;
+    pointer-events: none;
+    color: transparent;
+  }
+}
+
+.str-chat__message--me {
+  .str-chat__avatar {
+    display: none;
+  }
+}
+
 // todo: not implemented in stream-chat-react
 .str-chat__message-with-touch-support {
   .str-chat__message-bubble {
@@ -682,9 +699,5 @@
 
   .str-chat__message-options {
     display: none;
-  }
-
-  .stream-chat-angular__image-modal-host {
-    -webkit-touch-callout: default;
   }
 }
