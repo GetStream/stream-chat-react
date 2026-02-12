@@ -53,7 +53,7 @@ export const GlobalModal = ({
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!open || !isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') maybeClose('escape', event);
@@ -61,13 +61,13 @@ export const GlobalModal = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, maybeClose]);
+  }, [isOpen, maybeClose, open]);
 
   useEffect(() => {
-    if (open && !dialog.isOpen) {
+    if (open && !isOpen) {
       dialog.open();
     }
-  }, [dialog, open]);
+  }, [dialog, isOpen, open]);
 
   if (!open || !isOpen) return null;
 
