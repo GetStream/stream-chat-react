@@ -47,16 +47,6 @@
     padding: var(--spacing-xs);
     min-width: 0;
   }
-  /*
-  Styles for floating like composer
-   */
-  .str-chat__message-composer--floating {
-    position: fixed;
-    bottom: 0;
-    background-color: var(--base-transparent-0);
-    // todo: variable exists only in Figma, not added to tokens repo
-    box-shadow: var(--shadow-web-light-elevation-2);
-  }
 
   .str-chat__message-composer {
     display: flex;
