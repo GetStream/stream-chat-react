@@ -336,7 +336,7 @@
     --chat-waveform-bar: var(--border-core-opacity-25);
     --chat-poll-progress-track-incoming: var(--slate-600);
     --chat-poll-progress-fill-incoming: var(--slate-300);
-    --chat-thread-connector-incoming: var(--slate-200);
+    --chat-thread-connector-incoming: var(--slate-100);
     --system-text: var(--base-black);
     --control-radiocheck-bg: var(--base-transparent-0);
     --control-progress-bar-track: var(--slate-500);
