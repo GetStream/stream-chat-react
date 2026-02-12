@@ -270,6 +270,10 @@
     align-self: end;
   }
 
+  &.str-chat__message--me .str-chat__avatar:has(~ .str-chat__message-inner) {
+    display: none;
+  }
+
   .str-chat__message-inner {
     grid-area: message;
     display: grid;
@@ -657,12 +661,6 @@
     background: transparent;
     pointer-events: none;
     color: transparent;
-  }
-}
-
-.str-chat__message--me {
-  .str-chat__avatar {
-    display: none;
   }
 }
 
