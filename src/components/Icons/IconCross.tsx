@@ -7,7 +7,6 @@ export const IconCross = ({ className, ...props }: ComponentProps<'svg'>) => (
     {...props}
     className={clsx('str-chat__icon--cross', className)}
     viewBox='0 0 10 10'
-    xmlns='http://www.w3.org/2000/svg'
   >
     <path d='M0.75 0.75L8.41667 8.41667M8.41667 0.75L0.75 8.41667' />
   </BaseIcon>
