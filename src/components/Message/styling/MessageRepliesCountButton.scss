@@ -1,0 +1,89 @@
+@use '../../../styling/utils' as utils;
+
+.str-chat__message-replies-count-button-wrapper {
+  grid-area: replies;
+
+  --replies-button-connector-width: 16px;
+  --replies-button-connector-height: 36px;
+  --replies-button-connector-stroke-width: 1px;
+
+  display: flex;
+  padding-block-start: var(--spacing-xxs);
+  padding-block-end: var(--spacing-xxs);
+  margin-block-start: var(--spacing-xxs);
+
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    height: var(--replies-button-connector-height);
+    width: var(--replies-button-connector-width);
+    background: transparent;
+    align-self: end;
+    bottom: calc(50% - var(--replies-button-connector-stroke-width) / 2);
+  }
+
+  .str-chat__message-replies-count-button {
+    @include utils.unset-button;
+
+    cursor: pointer;
+
+    border-radius: var(--radius-max);
+    gap: var(--spacing-xs);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    color: var(--text-primary);
+    font-feature-settings:
+      'liga' off,
+      'clig' off;
+    font-family: var(--typography-font-family-sans);
+    font-size: var(--typography-font-size-sm);
+    font-style: normal;
+    font-weight: var(--typography-font-weight-semi-bold);
+    line-height: var(--typography-line-height-tight);
+  }
+}
+
+// TODO: connector styling should be defined here but applied in Message.scss
+.str-chat__message.str-chat__message--me {
+  .str-chat__message-replies-count-button-wrapper {
+    .str-chat__message-replies-count-button {
+      flex-direction: row;
+    }
+
+    padding-inline-end: var(--spacing-xl);
+
+    &::after {
+      border-bottom-right-radius: var(--radius-max);
+      border-right: var(--replies-button-connector-stroke-width) solid
+        var(--chat-thread-connector-outgoing);
+      border-bottom: var(--replies-button-connector-stroke-width) solid
+        var(--chat-thread-connector-outgoing);
+
+      right: 0;
+    }
+  }
+}
+
+.str-chat__message.str-chat__message--other {
+  .str-chat__message-replies-count-button-wrapper {
+    .str-chat__message-replies-count-button {
+      flex-direction: row-reverse;
+    }
+
+    padding-inline-start: var(--spacing-xl);
+
+    &::after {
+      border-bottom-left-radius: var(--radius-max);
+      border-left: var(--replies-button-connector-stroke-width) solid
+        var(--chat-thread-connector-incoming);
+      border-bottom: var(--replies-button-connector-stroke-width) solid
+        var(--chat-thread-connector-incoming);
+
+      left: 0;
+    }
+  }
+}

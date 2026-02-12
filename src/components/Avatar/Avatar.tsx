@@ -8,9 +8,9 @@ import React, {
 import { IconPeople } from '../Icons';
 
 export type AvatarProps = {
-  /** Image URL or default is an image of the first initial of the name if there is one  */
-  imageUrl?: string | null;
-  // /** Name of the image, used for title tag fallback */
+  /** URL of the avatar image */
+  imageUrl?: string;
+  /** Name of the user, used for title tag fallback */
   userName?: string;
   /** Online status indicator, not rendered if not of type boolean */
   isOnline?: boolean;
@@ -60,7 +60,7 @@ export const Avatar = ({
     const initials = getInitials(nameString);
 
     if (size === 'sm' || size === 'xs') {
-      return getInitials(nameString).charAt(0);
+      return initials.charAt(0);
     }
 
     return initials;
@@ -95,10 +95,7 @@ export const Avatar = ({
       ) : (
         <>
           {!!sizeAwareInitials.length && (
-            <div
-              className={clsx('str-chat__avatar-initials')}
-              data-testid='avatar-fallback'
-            >
+            <div className='str-chat__avatar-initials' data-testid='avatar-fallback'>
               {sizeAwareInitials}
             </div>
           )}

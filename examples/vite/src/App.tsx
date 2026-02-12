@@ -1,12 +1,4 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
@@ -35,14 +27,14 @@ import {
   MessageList,
   Window,
   WithComponents,
-  GroupAvatar,
   ReactionsList,
-  useMessageContext,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 import { humanId } from 'human-id';
+import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
+import { useAppSettingsState } from './AppSettings';
 
 init({ data });
 
@@ -56,7 +48,8 @@ if (!apiKey) {
 }
 
 const options: ChannelOptions = { limit: 5, presence: true, state: true };
-const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
+// pinned_at param leads to BE not returning (empty) channels
+const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
@@ -93,7 +86,8 @@ const useUser = () => {
 };
 
 const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList>) => {
-  const { visualStyle, verticalPosition, flipHorizontalPosition } = useContext(TempCtx);
+  const { reactions } = useAppSettingsState();
+  const { visualStyle, verticalPosition, flipHorizontalPosition } = reactions;
 
   return (
     <ReactionsList
@@ -105,25 +99,8 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
   );
 };
 
-type TempCtxValue = {
-  visualStyle: 'clustered' | 'segmented';
-  verticalPosition: 'top' | 'bottom';
-  flipHorizontalPosition: boolean;
-};
-const TempCtx = createContext<TempCtxValue>({
-  visualStyle: 'clustered',
-  verticalPosition: 'top',
-  flipHorizontalPosition: false,
-});
-
 const App = () => {
   const { userId, tokenProvider } = useUser();
-
-  const [tempCtxValue, setTempCtxValue] = useState<TempCtxValue>({
-    visualStyle: 'clustered',
-    verticalPosition: 'top',
-    flipHorizontalPosition: false,
-  });
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -133,9 +110,12 @@ const App = () => {
 
   const filters: ChannelFilters = useMemo(
     () => ({
-      members: { $in: [userId] },
-      type: 'messaging',
-      archived: false,
+      $or: [
+        {
+          members: { $in: [userId] },
+        },
+        { type: 'public' },
+      ],
     }),
     [userId],
   );
@@ -184,85 +164,49 @@ const App = () => {
   if (!chatClient) return <>Loading...</>;
 
   return (
-    <TempCtx.Provider value={tempCtxValue}>
-      <WithComponents
-        overrides={{
-          emojiSearchIndex: SearchIndex,
-          EmojiPicker,
-          ReactionsList: CustomMessageReactions,
-        }}
-      >
-        <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
-          <ChatView>
-            <ChatView.Selector />
-            <ChatView.Channels>
-              <ChannelList
-                Avatar={ChannelAvatar}
-                filters={filters}
-                options={options}
-                sort={sort}
-                showChannelSearch
-                additionalChannelSearchProps={{ searchForChannels: true }}
-              />
-              <Channel>
-                <Window>
-                  <div style={{ display: 'flex', gap: 10, padding: 10 }}>
-                    <button
-                      onClick={() =>
-                        setTempCtxValue((prev) => ({
-                          ...prev,
-                          visualStyle:
-                            prev.visualStyle === 'clustered' ? 'segmented' : 'clustered',
-                        }))
-                      }
-                    >
-                      Toggle Msg Reactions Visual Style
-                    </button>
-                    <button
-                      onClick={() =>
-                        setTempCtxValue((prev) => ({
-                          ...prev,
-                          verticalPosition:
-                            prev.verticalPosition === 'top' ? 'bottom' : 'top',
-                        }))
-                      }
-                    >
-                      Toggle Msg Reactions Vertical Position
-                    </button>
-                    <button
-                      onClick={() =>
-                        setTempCtxValue((prev) => ({
-                          ...prev,
-                          flipHorizontalPosition: !prev.flipHorizontalPosition,
-                        }))
-                      }
-                    >
-                      Toggle Msg Reactions Horizontal Position
-                    </button>
-                  </div>
-                  <ChannelHeader Avatar={ChannelAvatar} />
-                  <MessageList returnAllReadData />
-                  <AIStateIndicator />
-                  <MessageInput
-                    focus
-                    audioRecordingEnabled
-                    maxRows={10}
-                    asyncMessagesMultiSendEnabled
-                  />
-                </Window>
-                <Thread virtualized />
-              </Channel>
-            </ChatView.Channels>
-            <ChatView.Threads>
-              <ThreadList />
-              <ChatView.ThreadAdapter>
-                <Thread virtualized />
-              </ChatView.ThreadAdapter>
-            </ChatView.Threads>
-          </ChatView>
-        </Chat>
-      </WithComponents>
-    </TempCtx.Provider>
+    <WithComponents
+      overrides={{
+        emojiSearchIndex: SearchIndex,
+        EmojiPicker,
+        ReactionsList: CustomMessageReactions,
+      }}
+    >
+      <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+        <ChatView>
+          <ChatView.Selector itemSet={chatViewSelectorItemSet} />
+          <ChatView.Channels>
+            <ChannelList
+              Avatar={ChannelAvatar}
+              filters={filters}
+              options={options}
+              sort={sort}
+              showChannelSearch
+              additionalChannelSearchProps={{ searchForChannels: true }}
+            />
+            <Channel>
+              <Window>
+                <ChannelHeader Avatar={ChannelAvatar} />
+                <MessageList returnAllReadData />
+                <AIStateIndicator />
+                <MessageInput
+                  focus
+                  audioRecordingEnabled
+                  maxRows={10}
+                  asyncMessagesMultiSendEnabled
+                />
+              </Window>
+              <Thread virtualized />
+            </Channel>
+          </ChatView.Channels>
+          <ChatView.Threads>
+            <ThreadList />
+            <ChatView.ThreadAdapter>
+              <Thread virtualized />
+            </ChatView.ThreadAdapter>
+          </ChatView.Threads>
+        </ChatView>
+      </Chat>
+    </WithComponents>
   );
 };
 

@@ -1,7 +1,8 @@
 import type { MouseEventHandler } from 'react';
 import React from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelStateContext } from '../../context';
+import { useChannelStateContext, useComponentContext } from '../../context';
+import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
 export type MessageRepliesCountButtonProps = {
   /* If supplied, adds custom text to the end of a multiple replies message */
@@ -14,7 +15,10 @@ export type MessageRepliesCountButtonProps = {
   reply_count?: number;
 };
 
-const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonProps) => {
+function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonProps) {
+  const { AvatarStack = DefaultAvatarStack } = useComponentContext(
+    MessageRepliesCountButton.name,
+  );
   const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
   const { channelCapabilities } = useChannelStateContext();
 
@@ -39,10 +43,26 @@ const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonPro
         onClick={onClick}
       >
         {replyCountText}
+
+        <AvatarStack
+          // TODO: figure out place to get this type of data
+          displayInfo={[
+            {
+              id: '0',
+              imageUrl: 'https://getstream.io/random_png?id=mark&name=Mark',
+              userName: 'Mark',
+            },
+            {
+              id: '1',
+              imageUrl: 'https://getstream.io/random_png?id=jane&name=Jane',
+              userName: 'Jane',
+            },
+          ]}
+        />
       </button>
     </div>
   );
-};
+}
 
 export const MessageRepliesCountButton = React.memo(
   UnMemoizedMessageRepliesCountButton,

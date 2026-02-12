@@ -1,0 +1,150 @@
+@layer stream-app-overrides {
+  .app__settings-group {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 16px;
+
+    .app__settings-group_button {
+      color: var(--text-secondary);
+
+      svg {
+        height: 2rem;
+        width: 2rem;
+      }
+    }
+  }
+
+  .app__settings-modal {
+    display: flex;
+    flex-direction: column;
+    width: min(920px, 90vw);
+    max-height: min(80vh, 760px);
+    min-height: min(520px, 72vh);
+    background: #fff;
+    border-radius: 14px;
+  }
+
+  .app__settings-modal__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 16px 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-bottom: 1px solid #dfe5ef;
+
+    svg.str-chat__icon--cog {
+      height: 1.75rem;
+      width: 1.75rem;
+    }
+  }
+
+  .app__settings-modal__body {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+    min-height: 0;
+    height: 100%;
+  }
+
+  .app__settings-modal__tabs {
+    overflow-y: auto;
+    border-right: 1px solid #dfe5ef;
+    padding: 10px;
+  }
+
+  .app__settings-modal__tab {
+    width: 100%;
+    white-space: nowrap;
+    justify-content: flex-start;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .app__settings-modal__tab[aria-selected='true'],
+  .app__settings-modal__tab.app__settings-modal__tab--active {
+    background: #e9f0ff;
+    border-color: #3167f6;
+    font-weight: 600;
+  }
+
+  .app__settings-modal__content {
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  .app__settings-modal__content-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .app__settings-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app__settings-modal__field-label {
+    font-weight: 600;
+    color: #2f3550;
+  }
+
+  .app__settings-modal__options-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .app__settings-modal__option-button[aria-pressed='true'] {
+    border-color: #3167f6;
+    background: #e9f0ff;
+    font-weight: 600;
+  }
+
+  .app__settings-modal__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .app__settings-modal__preview {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--bg-surface);
+
+    .str-chat__li--single {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .str-chat__message-options,
+    .str-chat__message-actions-box-button {
+      display: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .app__settings-modal {
+      width: min(92vw, 680px);
+    }
+
+    .app__settings-modal__body {
+      grid-template-columns: 1fr;
+    }
+
+    .app__settings-modal__tabs {
+      border-right: 0;
+      border-bottom: 1px solid #dfe5ef;
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  }
+}
