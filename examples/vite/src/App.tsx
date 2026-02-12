@@ -48,7 +48,13 @@ const filters: ChannelFilters = {
   type: 'messaging',
   archived: false,
 };
-const options: ChannelOptions = { limit: 5, presence: true, state: true };
+const options: ChannelOptions = {
+  // limit: 10,
+  // message_limit: 10,
+  // member_limit: 10,
+  presence: true,
+  state: true,
+};
 const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
