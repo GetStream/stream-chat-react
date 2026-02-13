@@ -91,7 +91,6 @@
     "i18next": "^25.2.1",
     "linkifyjs": "^4.3.2",
     "lodash.debounce": "^4.0.8",
-    "lodash.defaultsdeep": "^4.6.1",
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
