@@ -667,11 +667,9 @@
 // Avatar display in message list
 .str-chat__li--top,
 .str-chat__li--middle {
-  .str-chat__avatar {
-    // space above the message group
-    background: transparent;
+  .str-chat__message > .str-chat__avatar {
+    visibility: hidden;
     pointer-events: none;
-    color: transparent;
   }
 }
 
