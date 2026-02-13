@@ -8,4 +8,8 @@
   border: 3px solid var(--str-chat__attachment-preview-close-icon-color);
   color: var(--str-chat__attachment-preview-close-icon-color);
   border-radius: var(--radius-max);
+
+  svg {
+    color: var(--control-play-control-icon);
+  }
 }
