@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { type ComponentPropsWithoutRef, useState } from 'react';
 import clsx from 'clsx';
 
 import type { ReactionsListModalProps } from './ReactionsListModal';
@@ -53,6 +53,18 @@ export type ReactionsListProps = Partial<
   visualStyle?: 'clustered' | 'segmented' | null;
 };
 
+const FragmentOrButton = ({
+  buttonIf: renderButton = false,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<'button'> & { buttonIf?: boolean }) => {
+  if (renderButton) {
+    return <button {...props}>{children}</button>;
+  }
+
+  return <>{children}</>;
+};
+
 const UnMemoizedReactionsList = (props: ReactionsListProps) => {
   const {
     flipHorizontalPosition = false,
@@ -96,36 +108,48 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
         })}
         role='figure'
       >
-        <ul className='str-chat__message-reactions__list'>
-          {existingReactions.map(
-            ({ EmojiComponent, reactionCount, reactionType }) =>
-              EmojiComponent && (
-                <li className='str-chat__message-reactions__list-item' key={reactionType}>
-                  <button
-                    className='str-chat__message-reactions__list-item-button'
-                    onClick={() => handleReactionButtonClick(reactionType)}
+        <FragmentOrButton
+          buttonIf={visualStyle === 'clustered'}
+          className='str-chat__message-reactions__list-button'
+          onClick={() =>
+            setSelectedReactionType(existingReactions[0]?.reactionType ?? null)
+          }
+        >
+          <ul className='str-chat__message-reactions__list'>
+            {existingReactions.map(
+              ({ EmojiComponent, reactionCount, reactionType }) =>
+                EmojiComponent && (
+                  <li
+                    className='str-chat__message-reactions__list-item'
+                    key={reactionType}
                   >
-                    <span className='str-chat__message-reactions__item-icon'>
-                      <EmojiComponent />
-                    </span>
-                    {visualStyle === 'segmented' && (
-                      <span
-                        className='str-chat__message-reactions__item-count'
-                        data-testclass='message-reactions-item-count'
-                      >
-                        {reactionCount}
+                    <FragmentOrButton
+                      buttonIf={visualStyle === 'segmented'}
+                      className='str-chat__message-reactions__list-item-button'
+                      onClick={() => handleReactionButtonClick(reactionType)}
+                    >
+                      <span className='str-chat__message-reactions__item-icon'>
+                        <EmojiComponent />
                       </span>
-                    )}
-                  </button>
-                </li>
-              ),
+                      {visualStyle === 'segmented' && (
+                        <span
+                          className='str-chat__message-reactions__item-count'
+                          data-testclass='message-reactions-item-count'
+                        >
+                          {reactionCount}
+                        </span>
+                      )}
+                    </FragmentOrButton>
+                  </li>
+                ),
+            )}
+          </ul>
+          {visualStyle === 'clustered' && (
+            <span className='str-chat__message-reactions__total-count'>
+              {totalReactionCount}
+            </span>
           )}
-        </ul>
-        {visualStyle === 'clustered' && (
-          <span className='str-chat__message-reactions__total-count'>
-            {totalReactionCount}
-          </span>
-        )}
+        </FragmentOrButton>
       </div>
       {selectedReactionType !== null && (
         <ReactionsListModal

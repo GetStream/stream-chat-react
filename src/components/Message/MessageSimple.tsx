@@ -216,6 +216,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
                 reply_count={message.reply_count}
+                thread_participants={message.thread_participants}
               />
             )}
             {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}

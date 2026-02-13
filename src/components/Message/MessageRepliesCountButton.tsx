@@ -1,5 +1,7 @@
 import type { MouseEventHandler } from 'react';
-import React from 'react';
+import type { UserResponse } from 'stream-chat';
+import React, { useMemo } from 'react';
+
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelStateContext, useComponentContext } from '../../context';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
@@ -13,23 +15,39 @@ export type MessageRepliesCountButtonProps = {
   onClick?: MouseEventHandler;
   /* The amount of replies (i.e., threaded messages) on a message */
   reply_count?: number;
+  thread_participants?: UserResponse[];
 };
 
 function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonProps) {
   const { AvatarStack = DefaultAvatarStack } = useComponentContext(
     MessageRepliesCountButton.name,
   );
-  const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
+  const {
+    labelPlural,
+    labelSingle,
+    onClick,
+    reply_count: replyCount = 0,
+    thread_participants: threadParticipants = [],
+  } = props;
   const { channelCapabilities } = useChannelStateContext();
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
-  if (!reply_count) return null;
+  const avatarStackDisplayInfo = useMemo(
+    () =>
+      threadParticipants.slice(0, 3).map((participant) => ({
+        imageUrl: participant.image,
+        userName: participant.name || participant.id,
+      })),
+    [threadParticipants],
+  );
 
-  let replyCountText = t('replyCount', { count: reply_count });
+  if (!replyCount) return null;
 
-  if (labelPlural && reply_count > 1) {
-    replyCountText = `${reply_count} ${labelPlural}`;
+  let replyCountText = t('replyCount', { count: replyCount });
+
+  if (labelPlural && replyCount > 1) {
+    replyCountText = `${replyCount} ${labelPlural}`;
   } else if (labelSingle) {
     replyCountText = `1 ${labelSingle}`;
   }
@@ -44,21 +62,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       >
         {replyCountText}
 
-        <AvatarStack
-          // TODO: figure out place to get this type of data
-          displayInfo={[
-            {
-              id: '0',
-              imageUrl: 'https://getstream.io/random_png?id=mark&name=Mark',
-              userName: 'Mark',
-            },
-            {
-              id: '1',
-              imageUrl: 'https://getstream.io/random_png?id=jane&name=Jane',
-              userName: 'Jane',
-            },
-          ]}
-        />
+        <AvatarStack displayInfo={avatarStackDisplayInfo} />
       </button>
     </div>
   );
