@@ -16,7 +16,9 @@
 
 // Base components
 @use '../components/Button/styling/Button';
+@use '../components/Form/styling' as Form;
 @use '../components/Dialog/styling' as Dialog;
+@use '../components/Modal/styling' as Modal;
 
 // Specific components
 @use '../components/Attachment/styling' as Attachment;
@@ -24,6 +26,7 @@
 @use '../components/Avatar/styling/Avatar' as Avatar;
 @use '../components/Avatar/styling/AvatarStack' as AvatarStack;
 @use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
+@use '../components/Channel/styling' as Channel;
 @use '../components/ChatView/styling' as ChatView;
 @use '../components/DateSeparator/styling' as DateSeparator;
 @use '../components/Gallery/styling' as Gallery;
@@ -31,11 +34,11 @@
 @use '../components/Message/styling' as Message;
 @use '../components/MessageActions/styling' as MessageActions;
 @use '../components/MessageInput/styling' as MessageComposer;
-@use '../components/Modal/styling' as Modal;
 @use '../components/Poll/styling' as Poll;
 @use '../components/Reactions/styling/ReactionList' as ReactionList;
 @use '../components/Reactions/styling/ReactionSelector' as ReactionSelector;
 @use '../components/TextareaComposer/styling' as TextareaComposer;
+@use '../components/Thread/styling' as Thread;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
 
 // Layers have to be kept the last

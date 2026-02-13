@@ -1,0 +1,241 @@
+@use '../../../styling/utils';
+
+.str-chat__channel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .str-chat__container {
+    height: 100%;
+    display: flex;
+
+    .str-chat__main-panel {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+.str-chat__empty-channel {
+  --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 136);
+  @include utils.empty-layout;
+  position: relative;
+
+  .str-chat__empty-channel-notifications {
+    position: absolute;
+    inset-block-end: var(--str-chat__spacing-2);
+  }
+}
+
+.str-chat__loading-channel {
+  $text-height: calc(var(--str-chat__spacing-px) * 16);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .str-chat__loading-channel-header {
+    @include utils.header-layout;
+
+    .str-chat__loading-channel-header-avatar {
+      flex-shrink: 0;
+      width: calc(var(--str-chat__spacing-px) * 40);
+      height: calc(var(--str-chat__spacing-px) * 40);
+      border-radius: var(--str-chat__avatar-border-radius);
+    }
+
+    .str-chat__loading-channel-header-end {
+      @include utils.header-text-layout;
+
+      .str-chat__loading-channel-header-name {
+        border-radius: var(--str-chat__border-radius-xs);
+        height: $text-height;
+        width: calc(var(--str-chat__spacing-px) * 170);
+      }
+
+      .str-chat__loading-channel-header-info {
+        border-radius: var(--str-chat__border-radius-xs);
+        height: $text-height;
+        width: calc(var(--str-chat__spacing-px) * 66);
+      }
+    }
+  }
+
+  .str-chat__loading-channel-message-list {
+    /* stylelint-disable */
+    height: 100%;
+    @include utils.message-list-spacing;
+
+    .str-chat__loading-channel-message {
+      display: flex;
+      width: 100%;
+      column-gap: var(--str-chat__spacing-2);
+      padding: var(--str-chat__spacing-4) 0;
+
+      .str-chat__loading-channel-message-avatar {
+        flex-shrink: 0;
+        width: calc(var(--str-chat__spacing-px) * 49);
+        height: calc(var(--str-chat__spacing-px) * 49);
+      }
+
+      .str-chat__loading-channel-message-end {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        row-gap: var(--str-chat__spacing-2);
+
+        .str-chat__loading-channel-message-last-row {
+          display: flex;
+          width: 100%;
+          column-gap: var(--str-chat__spacing-2);
+        }
+      }
+
+      .str-chat__loading-channel-message-sender {
+        height: $text-height;
+        width: calc(var(--str-chat__spacing-px) * 66);
+      }
+
+      .str-chat__loading-channel-message-text {
+        height: $text-height;
+        width: 100%;
+      }
+
+      .str-chat__loading-channel-message-date {
+        height: $text-height;
+        width: calc(var(--str-chat__spacing-px) * 50);
+      }
+
+      &:nth-of-type(2) {
+        flex-direction: row-reverse;
+
+        .str-chat__loading-channel-message-sender {
+          align-self: end;
+        }
+
+        .str-chat__loading-channel-message-last-row {
+          flex-direction: row-reverse;
+        }
+      }
+    }
+  }
+
+  .str-chat__loading-channel-message-input-row {
+    display: flex;
+    column-gap: var(--str-chat__spacing-2);
+    padding: var(--str-chat__spacing-2);
+
+    .str-chat__loading-channel-message-input {
+      width: 100%;
+      height: calc(var(--str-chat__spacing-px) * 36);
+    }
+
+    .str-chat__loading-channel-message-send {
+      height: calc(var(--str-chat__spacing-px) * 36);
+      width: calc(var(--str-chat__spacing-px) * 36);
+    }
+  }
+}
+
+.str-chat {
+  /* The border radius used for the borders of the component */
+  --str-chat__channel-border-radius: 0;
+
+  /* The text/icon color of the component */
+  --str-chat__channel-color: var(--str-chat__text-color);
+
+  /* The background color of the component */
+  --str-chat__channel-background-color: var(--str-chat__background-color);
+
+  /* Box shadow applied to the component */
+  --str-chat__channel-box-shadow: none;
+
+  /* Top border of the component */
+  --str-chat__channel-border-block-start: none;
+
+  /* Bottom border of the component */
+  --str-chat__channel-border-block-end: none;
+
+  /* Left (right in RTL layout) border of the component */
+  --str-chat__channel-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the component */
+  --str-chat__channel-border-inline-end: none;
+
+  /* The icon color used when no channel is selected */
+  --str-chat__channel-empty-indicator-color: var(--str-chat__disabled-color);
+
+  /* The text color used when no channel is selected */
+  --str-chat__channel-empty-color: var(--str-chat__text-low-emphasis-color);
+
+  /* The color of the loading indicator */
+  --str-chat__channel-loading-state-color: var(--str-chat__disabled-color);
+}
+
+.str-chat__channel {
+  @include utils.component-layer-overrides('channel');
+}
+
+.str-chat__empty-channel {
+  --str-chat-icon-color: var(--str-chat__channel-empty-color);
+  @include utils.component-layer-overrides('channel');
+  @include utils.empty-theme('channel');
+
+  .str-chat__empty-channel-text {
+    color: var(--str-chat__channel-empty-color);
+  }
+}
+
+.str-chat__loading-channel {
+  @include utils.loading-animation;
+
+  .str-chat__loading-channel-header {
+    background-color: var(--str-chat__channel-header-background-color);
+
+    .str-chat__loading-channel-header-avatar {
+      @include utils.loading-item-background('channel');
+      border-radius: var(--str-chat__avatar-border-radius);
+    }
+
+    .str-chat__loading-channel-header-name,
+    .str-chat__loading-channel-header-info {
+      @include utils.loading-item-background('channel');
+      border-radius: var(--str-chat__border-radius-xs);
+    }
+  }
+
+  .str-chat__loading-channel-message-list {
+    background-color: var(--str-chat__message-list-background-color);
+
+    .str-chat__loading-channel-message-avatar {
+      @include utils.loading-item-background('channel');
+      border-radius: var(--str-chat__avatar-border-radius);
+    }
+
+    .str-chat__loading-channel-message-sender,
+    .str-chat__loading-channel-message-text,
+    .str-chat__loading-channel-message-date {
+      @include utils.loading-item-background('channel');
+      border-radius: var(--str-chat__message-bubble-border-radius);
+    }
+  }
+
+  .str-chat__loading-channel-message-input-row {
+    .str-chat__loading-channel-message-input,
+    .str-chat__loading-channel-message-send {
+      @include utils.loading-item-background('channel');
+    }
+
+    .str-chat__loading-channel-message-input {
+      border-radius: var(--str-chat__message-textarea-border-radius);
+    }
+
+    .str-chat__loading-channel-message-send {
+      border-radius: var(--str-chat__message-send-border-radius);
+    }
+  }
+}

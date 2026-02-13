@@ -114,6 +114,105 @@
   }
 }
 
+@mixin header-layout {
+  display: flex;
+  padding: var(--str-chat__spacing-2);
+  column-gap: var(--str-chat__spacing-4);
+  align-items: center;
+}
+
+@mixin header-text-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden; // for Edge
+  overflow-x: hidden; // for ellipsis text
+  flex: 1;
+  row-gap: var(--str-chat__spacing-1_5);
+}
+
+@mixin empty-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--str-chat__spacing-4);
+
+  svg {
+    width: calc(var(--str-chat__spacing-px) * 136);
+    height: calc(var(--str-chat__spacing-px) * 136);
+  }
+}
+
+@mixin empty-theme($component-name) {
+  font: var(--str-chat__headline-text);
+  text-align: center;
+
+  svg path {
+    fill: var(--str-chat__#{$component-name}-empty-indicator-color);
+  }
+}
+
+@mixin message-list-spacing {
+  $spacing: var(--str-chat__spacing-2);
+  padding: 0 $spacing;
+
+  // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
+  .str-chat__li {
+    margin-inline: calc(-1 * #{$spacing});
+    padding-inline: $spacing;
+  }
+
+  .str-chat__parent-message-li {
+    margin-inline: calc(-1 * #{$spacing});
+  }
+
+  @media only screen and (min-device-width: 768px) {
+    $spacing: min(var(--str-chat__spacing-10), 4%);
+
+    padding: 0 $spacing;
+
+    .str-chat__li {
+      margin-inline: calc(-1 * #{$spacing});
+      padding-inline: $spacing;
+    }
+
+    .str-chat__parent-message-li {
+      margin-inline: calc(-1 * #{$spacing} - 2px);
+    }
+  }
+}
+
+@mixin loading-item-background($component-name) {
+  background-image: linear-gradient(
+    -90deg,
+    var(--str-chat__#{$component-name}-loading-state-color) 0%,
+    var(--str-chat__#{$component-name}-loading-state-color) 100%
+  );
+}
+
+@mixin loading-animation {
+  animation: pulsate 1s linear 0s infinite alternate;
+
+  &:nth-of-type(2) {
+    animation: pulsate 1s linear 0.3334s infinite alternate;
+  }
+
+  &:last-of-type {
+    animation: pulsate 1s linear 0.6667s infinite alternate;
+  }
+
+  @keyframes pulsate {
+    from {
+      opacity: 0.5;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}
+
 @mixin component-layer-overrides($component-name, $important: '') {
   background: var(--str-chat__#{$component-name}-background-color) #{$important};
   color: var(--str-chat__#{$component-name}-color) #{$important};
