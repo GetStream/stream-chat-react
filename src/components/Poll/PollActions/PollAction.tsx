@@ -10,6 +10,11 @@ export type PollActionProps = {
   closeModal: () => void;
   modalIsOpen: boolean;
   openModal: () => void;
+  /**
+   * Additional actions are shown based on the poll settings defined by the creator.
+   * Examples are "Suggest an option", "Add a comment", "View N comment(s)".
+   */
+  isAdditionalAction?: boolean;
   modalClassName?: string;
 };
 
@@ -17,6 +22,7 @@ export const PollAction = ({
   buttonText,
   children,
   closeModal,
+  isAdditionalAction,
   modalClassName,
   modalIsOpen,
   openModal,
@@ -30,6 +36,7 @@ export const PollAction = ({
           'str-chat__button--outline',
           'str-chat__button--secondary',
           'str-chat__button--size-md',
+          { 'str-chat__poll-action--additional': isAdditionalAction },
         )}
         onClick={openModal}
       >

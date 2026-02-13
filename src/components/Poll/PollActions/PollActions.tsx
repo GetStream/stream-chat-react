@@ -93,6 +93,28 @@ export const PollActions = ({
 
   return (
     <div className='str-chat__poll-actions'>
+      {!is_closed && created_by_id === client.user?.id && (
+        <PollAction
+          buttonText={t('End vote')}
+          closeModal={closeModal}
+          modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__end-poll-modal')}
+          modalIsOpen={modalOpen === 'end-vote'}
+          openModal={() => setModalOpen('end-vote')}
+        >
+          <EndPollDialog close={closeModal} />
+        </PollAction>
+      )}
+
+      <PollAction
+        buttonText={t('View results')}
+        closeModal={closeModal}
+        modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-results-modal')}
+        modalIsOpen={modalOpen === 'view-results'}
+        openModal={() => setModalOpen('view-results')}
+      >
+        <PollResults close={closeModal} />
+      </PollAction>
+
       {options.length > MAX_OPTIONS_DISPLAYED && (
         <PollAction
           buttonText={t('See all options ({{count}})', {
@@ -113,6 +135,7 @@ export const PollActions = ({
           <PollAction
             buttonText={t('Suggest an option')}
             closeModal={closeModal}
+            isAdditionalAction
             modalClassName={clsx(
               COMMON_MODAL_CLASS,
               'str-chat__suggest-poll-option-modal',
@@ -128,6 +151,7 @@ export const PollActions = ({
         <PollAction
           buttonText={ownAnswer ? t('Update your comment') : t('Add a comment')}
           closeModal={closeModal}
+          isAdditionalAction
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__add-poll-answer-modal')}
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
@@ -140,6 +164,7 @@ export const PollActions = ({
         <PollAction
           buttonText={t('View {{count}} comments', { count: answers_count })}
           closeModal={closeModal}
+          isAdditionalAction
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-answer-list-modal')}
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
@@ -148,28 +173,6 @@ export const PollActions = ({
             close={closeModal}
             onUpdateOwnAnswerClick={onUpdateAnswerClick}
           />
-        </PollAction>
-      )}
-
-      <PollAction
-        buttonText={t('View results')}
-        closeModal={closeModal}
-        modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-results-modal')}
-        modalIsOpen={modalOpen === 'view-results'}
-        openModal={() => setModalOpen('view-results')}
-      >
-        <PollResults close={closeModal} />
-      </PollAction>
-
-      {!is_closed && created_by_id === client.user?.id && (
-        <PollAction
-          buttonText={t('End vote')}
-          closeModal={closeModal}
-          modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__end-poll-modal')}
-          modalIsOpen={modalOpen === 'end-vote'}
-          openModal={() => setModalOpen('end-vote')}
-        >
-          <EndPollDialog close={closeModal} />
         </PollAction>
       )}
     </div>
