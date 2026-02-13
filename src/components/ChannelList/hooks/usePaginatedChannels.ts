@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import uniqBy from 'lodash.uniqby';
 
-import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
-
 import type {
   Channel,
   ChannelFilters,
@@ -15,7 +13,6 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { ChannelsQueryState } from '../../Chat/hooks/useChannelsQueryState';
-import { DEFAULT_INITIAL_CHANNEL_PAGE_SIZE } from '../../../constants/limits';
 
 const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
 const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
@@ -88,8 +85,6 @@ export const usePaginatedChannels = <
         const offset = queryType === 'reload' ? 0 : channels.length;
 
         const newOptions = {
-          limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
-          message_limit: options?.message_limit ?? DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
           offset,
           ...options,
         };
@@ -106,7 +101,7 @@ export const usePaginatedChannels = <
             : uniqBy([...channels, ...channelQueryResponse], 'cid');
 
         setChannels(newChannels);
-        setHasNextPage(channelQueryResponse.length >= newOptions.limit);
+        setHasNextPage(channelQueryResponse.length >= (newOptions.limit ?? 1));
 
         // Set active channel only on load of first page
         if (!offset && activeChannelHandler) {

@@ -11,7 +11,6 @@ import React, {
 } from 'react';
 
 import debounce from 'lodash.debounce';
-import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
 import { nanoid } from 'nanoid';
 import clsx from 'clsx';
@@ -48,7 +47,6 @@ import {
 import { CHANNEL_CONTAINER_ID } from './constants';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
-  DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
   DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
   DEFAULT_THREAD_PAGE_SIZE,
@@ -337,7 +335,7 @@ const ChannelInner = <
     acceptedFiles,
     activeUnreadHandler,
     channel,
-    channelQueryOptions: propChannelQueryOptions,
+    channelQueryOptions,
     children,
     doDeleteMessageRequest,
     doMarkReadRequest,
@@ -356,16 +354,6 @@ const ChannelInner = <
     optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
-
-  const channelQueryOptions: ChannelQueryOptions<StreamChatGenerics> & {
-    messages: { limit: number };
-  } = useMemo(
-    () =>
-      defaultsDeep(propChannelQueryOptions, {
-        messages: { limit: DEFAULT_INITIAL_CHANNEL_PAGE_SIZE },
-      }),
-    [propChannelQueryOptions],
-  );
 
   const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
     useChatContext<StreamChatGenerics>('Channel');

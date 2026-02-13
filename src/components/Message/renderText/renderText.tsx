@@ -1,4 +1,4 @@
-import React, { ComponentType } from 'react';
+import React, { ComponentType, JSX } from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';

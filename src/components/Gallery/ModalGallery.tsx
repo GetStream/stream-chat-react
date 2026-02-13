@@ -52,7 +52,6 @@ export const ModalGallery = <
   );
 
   return (
-    // @ts-expect-error ignore the TS error as react-image-gallery was on @types/react@18 while stream-chat-react being upgraded to React 19 (https://github.com/xiaolin/react-image-gallery/issues/809)
     <ImageGallery
       items={formattedArray}
       renderItem={renderItem}

@@ -12,7 +12,7 @@ import {
   useChannelListShape,
   usePrepareShapeHandlers,
 } from './hooks/useChannelListShape';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
+import { moveChannelUpwards } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import {
@@ -252,10 +252,7 @@ const UnMemoizedChannelList = <
     channels: Array<Channel<SCG>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<SCG>>>>,
   ) => {
-    if (
-      !channels.length ||
-      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
-    ) {
+    if (!channels.length) {
       return;
     }
 
