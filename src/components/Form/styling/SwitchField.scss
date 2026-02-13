@@ -1,0 +1,74 @@
+// fixme: duplicate mixin in poll theme
+@mixin field-background {
+  background-color: var(--str-chat__tertiary-surface-color);
+  border-radius: 0.75rem;
+}
+
+.str-chat__dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .str-chat__form-field-error {
+    margin-left: 0.5rem;
+  }
+}
+
+.str-chat__form__switch-field {
+  @include field-background;
+  width: 100%;
+  padding: 1rem;
+
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  &,
+  label {
+    cursor: pointer;
+  }
+
+  .str-chat__form__switch-field__switch {
+    display: flex;
+    align-items: center;
+    width: calc(var(--str-chat__spacing-px) * 52);
+    height: calc(var(--str-chat__spacing-px) * 32);
+    padding: 0.25rem;
+    cursor: pointer;
+    background-color: var(--str-chat__text-low-emphasis-color);
+    border-radius: 100px;
+
+    .str-chat__form__switch-field__switch-handle {
+      height: 1.5rem;
+      width: 1.5rem;
+      border-radius: var(--str-chat__border-radius-circle);
+      background-color: var(--str-chat__disabled-color);
+    }
+
+    &.str-chat__form__switch-field__switch--on {
+      justify-content: flex-end;
+      background-color: var(--str-chat__green600);
+
+      .str-chat__form__switch-field__switch-handle {
+        background-color: var(--str-chat__background-color);
+        border-radius: var(--str-chat__border-radius-circle);
+      }
+    }
+  }
+}
+
+.str-chat__form__switch-field--disabled {
+  .str-chat__form__switch-field--disabled,
+  .str-chat__form__switch-field--disabled .str-chat__form__switch-field__switch,
+  label {
+    cursor: not-allowed;
+  }
+}
