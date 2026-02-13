@@ -1,9 +1,88 @@
+@use '../../../styling/utils';
+
 @mixin field-background {
   background-color: var(--str-chat__tertiary-surface-color);
   border-radius: 0.75rem;
 }
 
 .str-chat__poll-creation-dialog {
+  .str-chat__modal-header {
+    padding-block: 14px;
+
+    .str-chat__modal-header__close-button {
+      background-image: var(--str-chat__close-icon);
+      background-repeat: no-repeat;
+    }
+  }
+
+  .str-chat__dialog__body {
+    flex: 1 1;
+    padding: 1rem;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+  }
+
+  .str-chat__form__input-fieldset {
+    margin: 0;
+    padding: 0;
+
+    .str-chat__form__input-field {
+      width: 100%;
+      padding: 1rem;
+
+      .str-chat__form__input-field__value {
+        width: 100%;
+
+        .str-chat__form__input-field__error {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .str-chat__form__input-field--with-label {
+    .str-chat__form__input-field__value {
+      padding: 1rem;
+    }
+  }
+
+  .str-chat__form__input-field__value input {
+    width: 100%;
+  }
+
+  .str-chat__form__input-fieldset__values {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .str-chat__form__field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .str-chat__form__input-field--draggable {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .str-chat__drag-handle {
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+}
+
+.str-chat__poll-creation-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100vw);
+  height: min(640px, 100vh);
+
   .str-chat__form__input-fieldset {
     border: none;
   }
@@ -18,7 +97,8 @@
       background: transparent;
       outline: none;
 
-      &, &::placeholder {
+      &,
+      &::placeholder {
         font: var(--str-chat__subtitle-text);
       }
     }
@@ -40,11 +120,34 @@
     border: 1px solid var(--str-chat__message-error-message-color);
   }
 
-  .str-chat__form__expandable-field .str-chat__form__input-field--has-error, {
+  .str-chat__form__expandable-field .str-chat__form__input-field--has-error {
     border: none;
 
     .str-chat__form__input-field__value {
       border: none;
+    }
+  }
+
+  .str-chat__form__expandable-field {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .str-chat__form__switch-field {
+      padding: 0;
+    }
+
+    .str-chat__form__input-field {
+      width: 100%;
+
+      .str-chat__form__input-field__value {
+        padding: 0;
+
+        .str-chat__form-field-error {
+          height: 1rem;
+        }
+      }
     }
   }
 
