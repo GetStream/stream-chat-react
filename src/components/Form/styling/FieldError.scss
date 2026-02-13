@@ -1,4 +1,5 @@
 .str-chat__form-field-error {
-  font-size: 0.75rem;
-  color: var(--str-chat__danger-color);
+  font-size: var(--typography-font-size-xs);
+  line-height: var(--typography-line-height-tight);
+  color: var(--accent-error);
 }

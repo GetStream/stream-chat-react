@@ -11,14 +11,29 @@
   height: 100%;
   z-index: 100;
 
+  .str-chat__modal__inner {
+    @include utils.flex-col-center;
+    position: relative;
+    padding: var(--str-chat__spacing-8) var(--str-chat__spacing-4);
+    max-height: 80%;
+    min-width: 0;
+    min-height: 0;
+  }
+
   .str-chat__modal-header {
     display: flex;
     align-items: center;
+    gap: var(--spacing-md);
     width: 100%;
-    padding: 1.25rem 1rem;
+    padding: var(--spacing-xl);
 
-    button.str-chat__modal-header__go-back-button,
-    .str-chat__modal__close-button {
+    .str-chat__modal-header__title {
+      flex: 1;
+      font: var(--str-chat__heading-sm-text);
+      color: var(--text-primary);
+    }
+
+    button.str-chat__modal-header__go-back-button {
       padding: 1rem;
       background-size: 0.875rem;
       background-repeat: no-repeat;
@@ -28,62 +43,21 @@
     button.str-chat__modal-header__go-back-button {
       background-image: var(--str-chat__arrow-left-icon);
     }
-
-    .str-chat__modal-header__close-button {
-      @include utils.button-reset;
-      cursor: pointer;
-      background-image: var(--str-chat__close-icon);
-      background-repeat: no-repeat;
-      height: 0.875rem;
-      width: 0.875rem;
-    }
-
-    .str-chat__modal-header__title {
-      flex: 1;
-    }
   }
-
-  button.str-chat__modal__close-button {
-    @include utils.unset-button;
-    margin: var(--str-chat__spacing-2);
-    cursor: pointer;
-  }
-
-  .str-chat__modal__close-button {
-    --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 28);
-    @include utils.flex-row-center;
-    padding: var(--str-chat__spacing-2);
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-end: 0;
-    cursor: pointer;
-  }
-
-  .str-chat__modal__inner {
-    @include utils.flex-col-center;
-    padding: var(--str-chat__spacing-8) var(--str-chat__spacing-4);
-    max-height: 80%;
-    min-width: 0;
-    min-height: 0;
-  }
-}
-
-.str-chat__modal--close {
-  display: none;
 }
 
 .str-chat {
   /* The border radius used for the borders of the content area of the component of the content area of the component */
-  --str-chat__modal-border-radius: var(--str-chat__border-radius-sm);
+  --str-chat__modal-border-radius: var(--radius-xl);
 
   /* The text/icon color of the content area of the component */
   --str-chat__modal-color: var(--str-chat__text-color);
 
   /* The background color of the content area of the component */
-  --str-chat__modal-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__modal-background-color: var(--background-elevation-elevation-1);
 
   /* The overlay color of the component */
-  --str-chat__modal-overlay-color: var(--str-chat__secondary-overlay-color);
+  --str-chat__modal-overlay-color: var(--background-core-scrim);
 
   /* The backdrop filter applied to the component */
   --str-chat__modal-overlay-backdrop-filter: blur(3px);
@@ -101,8 +75,9 @@
   --str-chat__modal-border-inline-end: none;
 
   /* Box shadow applied to the content area of the component */
-  --str-chat__modal-box-shadow: none;
+  --str-chat__modal-box-shadow: var(--str-chat__box-shadow-elevation-1);
 
+  // todo: remove these two variables?
   /* The background color of the close button */
   --str-chat__modal-close-icon-background: var(--str-chat__text-low-emphasis-color);
 
@@ -116,32 +91,5 @@
 
   .str-chat__modal__inner {
     @include utils.component-layer-overrides('modal');
-  }
-
-  .str-chat__modal-header {
-    .str-chat__modal-header__title {
-      font: var(--str-chat__subtitle2-medium-text);
-    }
-  }
-
-  .str-chat__modal__close-button {
-    --str-chat-icon-color: var(--str-chat__modal-close-icon-color);
-    @include utils.button-reset;
-
-    .str-chat__icon {
-      background-color: var(--str-chat__modal-close-icon-background);
-      border-radius: 999px;
-    }
-
-    svg {
-      path {
-        fill: var(--str-chat__modal-close-icon-color);
-      }
-
-      rect,
-      circle {
-        fill: var(--str-chat__modal-close-icon-background);
-      }
-    }
   }
 }

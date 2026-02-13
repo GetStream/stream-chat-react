@@ -6,7 +6,6 @@ import '@testing-library/jest-dom';
 import { GlobalModal } from '../GlobalModal';
 import { ModalDialogManagerProvider } from '../../../context';
 
-const CLOSE_BUTTON_SELECTOR = '.str-chat__modal__close-button';
 const OVERLAY_SELECTOR = '.str-chat__modal';
 
 const renderComponent = ({ props } = {}) =>

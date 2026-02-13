@@ -8,7 +8,7 @@ import React, {
 import { useChatContext, useTranslationContext } from '../../context';
 import { useMessageComposer } from '../MessageInput';
 import { ModalHeader } from '../Modal/ModalHeader';
-import { SimpleSwitchField } from '../Form/SwitchField';
+import { SwitchField } from '../Form/SwitchField';
 import { Dropdown, useDropdownContext } from '../Form/Dropdown';
 import type { Coords } from 'stream-chat';
 
@@ -126,11 +126,10 @@ export const ShareLocationDialog = ({
         />
         {validShareDurations.length > 0 && (
           <div className='str-chat__live-location-activation'>
-            <SimpleSwitchField
+            <SwitchField
               checked={durations.length > 0}
               data-testid='share-location-dialog-live-location-switch'
               disabled={!geolocationPosition}
-              labelText={t('Share live location for')}
               onChange={(e) => {
                 e.stopPropagation();
                 if (durations.length > 0) {
@@ -141,6 +140,7 @@ export const ShareLocationDialog = ({
                   setSelectedDuration(validShareDurations[0]);
                 }
               }}
+              title={t('Share live location for')}
             />
             {durations.length > 0 && (
               <Dropdown

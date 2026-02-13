@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { IconCheckmark2, IconExclamationCircle } from '../Icons';
 
 export type TextInputVariant = 'outline' | 'ghost';
 
@@ -14,9 +15,17 @@ export type TextInputProps = Omit<ComponentProps<'input'>, 'className'> & {
   trailing?: ReactNode;
   /** Optional suffix text shown after the input value, inside the field */
   trailingText?: string;
-  /** Helper or error message below the input (string, icon, or other React content) */
+  /** Neutral/helper message below the input (no icon) */
   message?: ReactNode;
-  /** When true, shows error border and error styling for message */
+  /** Error message below the input; shown when error is true, with errorMessageIcon */
+  errorMessage?: ReactNode;
+  /** Icon shown before error message (default: IconExclamationCircle) */
+  errorMessageIcon?: ReactNode;
+  /** Success message below the input; shown when provided, with successMessageIcon */
+  successMessage?: ReactNode;
+  /** Icon shown before success message (default: IconCheckmark2) */
+  successMessageIcon?: ReactNode;
+  /** When true, shows error border and error message styling */
   error?: boolean;
   /** Visual variant: outline = border always visible, ghost = border only on focus */
   variant?: TextInputVariant;
@@ -29,10 +38,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
     className,
     disabled,
     error = false,
+    errorMessage,
+    errorMessageIcon,
     id: idProp,
     label,
     leading,
     message,
+    successMessage,
+    successMessageIcon,
     trailing,
     trailingText,
     variant = 'outline',
@@ -42,13 +55,42 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 ) {
   const generatedId = useStableId();
   const id = idProp ?? generatedId;
-  const messageId = message ? `${id}-message` : undefined;
+
+  const displayError = error && (errorMessage != null || message != null);
+  const displaySuccess = successMessage != null;
+  const displayNeutralMessage = message != null && !error;
+  const displayMessage = displayError || displaySuccess || displayNeutralMessage;
+
+  const messageId = displayMessage ? `${id}-message` : undefined;
+
+  const messageContent = displayError
+    ? ((
+        <>
+          <span aria-hidden className='str-chat__form-text-input__message-icon'>
+            {errorMessageIcon ?? <IconExclamationCircle />}
+          </span>
+          {errorMessage ?? message}
+        </>
+      ) as ReactNode)
+    : displaySuccess
+      ? ((
+          <>
+            <span aria-hidden className='str-chat__form-text-input__message-icon'>
+              {successMessageIcon ?? <IconCheckmark2 />}
+            </span>
+            {successMessage}
+          </>
+        ) as ReactNode)
+      : displayNeutralMessage
+        ? (message as ReactNode)
+        : null;
 
   return (
     <div
       className={clsx(
         'str-chat__form-text-input',
         error && 'str-chat__form-text-input--error',
+        displaySuccess && 'str-chat__form-text-input--success',
         disabled && 'str-chat__form-text-input--disabled',
         className,
       )}
@@ -89,13 +131,17 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
           </span>
         )}
       </div>
-      {!!message && (
+      {messageContent != null && (
         <div
-          className='str-chat__form-text-input__message'
+          className={clsx(
+            'str-chat__form-text-input__message',
+            displayError && 'str-chat__form-field-error',
+            displaySuccess && 'str-chat__form-text-input__message--success',
+          )}
           id={messageId}
           role={error ? 'alert' : undefined}
         >
-          {message}
+          {messageContent}
         </div>
       )}
     </div>

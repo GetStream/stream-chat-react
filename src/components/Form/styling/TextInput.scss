@@ -140,12 +140,27 @@
   }
 
   &__message {
-    font-size: var(--typography-font-size-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxs);
     line-height: var(--typography-line-height-tight);
-    color: var(--text-tertiary);
 
-    .str-chat__form-text-input--error & {
-      color: var(--accent-error);
+    /* Base typography/color only when not error (error uses str-chat__form-field-error) */
+    &:not(.str-chat__form-field-error) {
+      font-size: var(--typography-font-size-xs);
+      color: var(--text-tertiary);
     }
+
+    &--success {
+      color: var(--accent-success);
+    }
+  }
+
+  &__message-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: inherit;
   }
 }

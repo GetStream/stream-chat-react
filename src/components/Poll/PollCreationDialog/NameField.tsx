@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import clsx from 'clsx';
-import { FieldError } from '../../Form/FieldError';
+import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposer } from '../../MessageInput';
 import { useStateStore } from '../../../store';
@@ -23,36 +22,36 @@ export const NameField = () => {
   );
 
   return (
-    <div
-      className={clsx(
-        'str-chat__form__field str-chat__form__input-field str-chat__form__input-field--with-label',
-        {
-          'str-chat__form__input-field--has-error': error,
-        },
-      )}
-    >
-      <label className='str-chat__form__field-label' htmlFor='name'>
-        {t('Question')}
-      </label>
-      <div className={clsx('str-chat__form__input-field__value')}>
-        <FieldError
-          className='str-chat__form__input-field__error'
-          data-testid={'poll-name-input-field-error'}
-          text={error && (knownValidationErrors[error] ?? t('Error'))}
-        />
-        <input
-          id='name'
-          onBlur={() => {
-            pollComposer.handleFieldBlur('name');
-          }}
-          onChange={(e) => {
-            pollComposer.updateFields({ name: e.target.value });
-          }}
-          placeholder={t('Ask a question')}
-          type='text'
-          value={name}
-        />
-      </div>
-    </div>
+    // <div
+    //   className={clsx(
+    //     'str-chat__form__field str-chat__form__input-field str-chat__form__input-field--with-label',
+    //     {
+    //       'str-chat__form__input-field--has-error': error,
+    //     },
+    //   )}
+    // >
+    <TextInput
+      className='str-chat__form__input-field__value'
+      error={!!error}
+      errorMessage={
+        error ? (
+          <span data-testid='poll-name-input-field-error'>
+            {knownValidationErrors[error] ?? t('Error')}
+          </span>
+        ) : undefined
+      }
+      id='name'
+      label={t('Question')}
+      onBlur={() => {
+        pollComposer.handleFieldBlur('name');
+      }}
+      onChange={(e) => {
+        pollComposer.updateFields({ name: e.target.value });
+      }}
+      placeholder={t('Ask a question')}
+      type='text'
+      value={name}
+    />
+    // </div>
   );
 };

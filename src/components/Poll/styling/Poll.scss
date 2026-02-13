@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs);
     min-width: 260px;
     max-width: 400px;
     font-size: var(--typography-font-size-sm);
@@ -136,14 +136,17 @@
   .str-chat__poll-option-list:not(.str-chat__poll-option-list--full) {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-md);
 
     .str-chat__poll-option {
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: minmax(0, auto) 1fr;
       grid-template-rows: 1fr auto;
-      column-gap: var(--spacing-sm);
       row-gap: var(--spacing-xs);
+
+      &.str-chat__poll-option--votable {
+        column-gap: var(--spacing-sm);
+      }
 
       .str-chat__poll-option-data {
         grid-column: 2 / 3;
@@ -199,12 +202,6 @@
     .str-chat__poll-option {
       display: flex;
       flex-direction: column;
-    }
-  }
-
-  .str-chat-react__modal.str-chat__poll-action-modal {
-    .str-chat__modal__close-button {
-      display: none;
     }
   }
 
@@ -385,10 +382,6 @@
   }
 
   .str-chat__modal.str-chat__create-poll-modal {
-    .str-chat__modal__close-button {
-      display: none;
-    }
-
     .str-chat__modal__inner {
       padding: 0;
       max-height: unset;

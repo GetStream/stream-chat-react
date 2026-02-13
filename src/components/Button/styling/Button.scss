@@ -13,8 +13,8 @@
     justify-content: center;
     gap: var(--spacing-xs);
 
-    line-height: var(--typography-line-height-normal);
-    font-weight: var(--typography-font-weight-semi-bold);
+    font: var(--str-chat__body-emphasis-text);
+    text-transform: capitalize;
 
     &.str-chat__button--solid {
       &.str-chat__button--primary {

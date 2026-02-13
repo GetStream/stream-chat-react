@@ -1,11 +1,13 @@
 import clsx from 'clsx';
 import React, { useCallback, useMemo } from 'react';
-import { FieldError } from '../../Form/FieldError';
-import { DragAndDropContainer } from '../../DragAndDrop/DragAndDropContainer';
+import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposer } from '../../MessageInput';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
+import { IconCircleMinus, IconDotGrid2x3 } from '../../Icons';
+import { Button, type ButtonProps } from '../../Button';
+import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   errors: state.errors.options,
@@ -36,59 +38,91 @@ export const OptionFieldSet = () => {
     [pollComposer],
   );
 
+  const clearOption = useCallback(
+    (removedOptionId: string) => {
+      pollComposer.updateFields({
+        options: pollComposer.options.filter((option) => option.id !== removedOptionId),
+      });
+    },
+    [pollComposer],
+  );
+
   const draggable = options.length > 1;
 
   return (
-    <fieldset className='str-chat__form__field str-chat__form__input-fieldset'>
-      <legend className='str-chat__form__field-label'>{t('Options')}</legend>
-      <DragAndDropContainer
-        className='str-chat__form__input-fieldset__values'
-        draggable={draggable}
-        onSetNewOrder={onSetNewOrder}
-      >
-        {options.map((option, i) => {
-          const error = errors?.[option.id];
-          return (
-            <div
-              className={clsx('str-chat__form__input-field', {
-                'str-chat__form__input-field--draggable': draggable,
-                'str-chat__form__input-field--has-error': error,
-              })}
-              key={`new-poll-option-${i}`}
-            >
-              <div className='str-chat__form__input-field__value'>
-                <FieldError
-                  className='str-chat__form__input-field__error'
-                  data-testid={'poll-option-input-field-error'}
-                  text={error && (knownValidationErrors[error] ?? t('Error'))}
-                />
-                <input
-                  id={option.id}
-                  onBlur={() => {
-                    pollComposer.handleFieldBlur('options');
-                  }}
-                  onChange={(e) => {
-                    pollComposer.updateFields({
-                      options: { index: i, text: e.target.value },
-                    });
-                  }}
-                  onKeyUp={(event) => {
-                    const isFocusedLastOptionField = i === options.length - 1;
-                    if (event.key === 'Enter' && !isFocusedLastOptionField) {
-                      const nextInputId = options[i + 1].id;
-                      document.getElementById(nextInputId)?.focus();
-                    }
-                  }}
-                  placeholder={t('Add an option')}
-                  type='text'
-                  value={option.text}
-                />
-              </div>
-              {draggable && <div className='str-chat__drag-handle' />}
-            </div>
-          );
-        })}
-      </DragAndDropContainer>
-    </fieldset>
+    <TextInputFieldSet
+      draggable={draggable}
+      label={t('Options')}
+      onSetNewOrder={onSetNewOrder}
+    >
+      {options.map((option, i) => {
+        const error = errors?.[option.id];
+        return (
+          <div
+            className={clsx('str-chat__form__input-field', {
+              'str-chat__form__input-field--draggable': draggable,
+              'str-chat__form__input-field--has-error': error,
+            })}
+            key={`new-poll-option-${i}`}
+          >
+            <TextInput
+              className='str-chat__form__input-field__value'
+              error={!!error}
+              id={option.id}
+              leading={
+                draggable ? (
+                  <IconDotGrid2x3 className='str-chat__drag-handle' />
+                ) : undefined
+              }
+              message={
+                error ? (
+                  <span data-testid='poll-option-input-field-error'>
+                    {knownValidationErrors[error] ?? t('Error')}
+                  </span>
+                ) : undefined
+              }
+              onBlur={() => {
+                pollComposer.handleFieldBlur('options');
+              }}
+              onChange={(e) => {
+                pollComposer.updateFields({
+                  options: { index: i, text: e.target.value },
+                });
+              }}
+              onKeyUp={(event) => {
+                const isFocusedLastOptionField = i === options.length - 1;
+                if (event.key === 'Enter' && !isFocusedLastOptionField) {
+                  const nextInputId = options[i + 1].id;
+                  document.getElementById(nextInputId)?.focus();
+                }
+              }}
+              placeholder={t('Add an option')}
+              trailing={
+                option.text ? (
+                  <RemoveOptionButton onClick={() => clearOption(option.id)} />
+                ) : undefined
+              }
+              type='text'
+              value={option.text}
+            />
+          </div>
+        );
+      })}
+    </TextInputFieldSet>
   );
 };
+
+const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
+  <Button
+    className={clsx(
+      'str-chat__form__remove-option-button',
+      'str-chat__button--circular',
+      'str-chat__button--ghost',
+      'str-chat__button--size-sm',
+      className,
+    )}
+    {...props}
+  >
+    <IconCircleMinus />
+  </Button>
+);

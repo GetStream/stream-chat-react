@@ -11,3 +11,14 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
+
+// Legacy: dialog field layout (if still used elsewhere)
+.str-chat__dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .str-chat__form-field-error {
+    margin-left: 0.5rem;
+  }
+}

@@ -1,0 +1,95 @@
+// NumericInput: stepper (decrement | input | increment), Figma node 5110-255845
+// Input is type="text" for less restrictive validation; inputMode="numeric" for mobile.
+
+.str-chat__form-numeric-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+
+  &__label {
+    font-size: var(--typography-font-size-sm, 0.875rem);
+    font-weight: var(--typography-font-weight-medium, 500);
+    line-height: var(--typography-line-height-tight, 1.25);
+    color: var(--text-primary, #1a1b25);
+  }
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs, 0.5rem);
+    padding: 0;
+    background: transparent;
+    border-radius: var(--radius-md, 0.5rem);
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  // Stepper buttons: circular, light border (Figma)
+  &__stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background-color: transparent;
+    border: 1px solid var(--border-core-on-surface, #a3acba);
+    border-radius: var(--button-radius-full, 9999px);
+    color: var(--text-tertiary, #687385);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary, #1a1b25);
+    }
+
+    &:disabled {
+      color: var(--text-disabled, #a3acba);
+      cursor: not-allowed;
+    }
+
+    &-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 300;
+      line-height: 1;
+      color: inherit;
+    }
+  }
+
+  &__input {
+    flex: 0 1 auto;
+    min-width: 2ch;
+    width: 2.5rem;
+    padding: var(--spacing-xs, 0.5rem) 0;
+    font-size: var(--typography-font-size-sm, 0.875rem);
+    font-weight: var(--typography-font-weight-medium, 500);
+    line-height: var(--typography-line-height-tight, 1.25);
+    color: var(--input-text-default, #1a1b25);
+    text-align: center;
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
+
+    &::placeholder {
+      color: var(--input-text-placeholder, var(--text-tertiary));
+    }
+
+    .str-chat__form-numeric-input--disabled & {
+      color: var(--input-text-placeholder);
+      cursor: not-allowed;
+    }
+  }
+
+  .str-chat__form-numeric-input__input:focus,
+  .str-chat__form-numeric-input__input:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
