@@ -1,4 +1,3 @@
-/* eslint-disable arrow-body-style */
 import { type ComponentProps, type ElementType } from 'react';
 import { useComponentContext } from '../../context';
 import { type AvatarProps, Avatar as DefaultAvatar } from './Avatar';

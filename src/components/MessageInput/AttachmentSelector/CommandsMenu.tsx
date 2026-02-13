@@ -13,18 +13,18 @@ import {
   IconFlag,
   IconGiphy,
   IconMute,
-  IconPeopleAdd,
-  IconPeopleRemove,
+  IconPersonAdd,
+  IconPersonRemove,
   IconVolumeFull,
 } from '../../Icons';
 import clsx from 'clsx';
 
 const icons: Record<string, ComponentType> = {
-  ban: IconPeopleRemove,
+  ban: IconPersonRemove,
   flag: IconFlag,
   giphy: IconGiphy,
   mute: IconMute,
-  unban: IconPeopleAdd,
+  unban: IconPersonAdd,
   unmute: IconVolumeFull,
 };
 
