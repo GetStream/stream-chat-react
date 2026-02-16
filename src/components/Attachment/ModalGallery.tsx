@@ -6,6 +6,7 @@ import { BaseImage, Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
+import { CloseButtonOnModalOverlay } from '../Modal/CloseButtonOnModalOverlay';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
 
@@ -80,6 +81,7 @@ export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryP
       </div>
       <Modal
         className={clsx('str-chat__gallery-modal', modalClassName)}
+        CloseButtonOnOverlay={CloseButtonOnModalOverlay}
         onClose={closeModal}
         open={modalOpen}
       >
