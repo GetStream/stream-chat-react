@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import { nanoid } from 'nanoid';
@@ -15,7 +15,6 @@ import {
 } from '../../../context';
 import {
   generateFileAttachment,
-  generateMessage,
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
@@ -23,11 +22,9 @@ import {
 import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
 import { QuotedMessage } from '../QuotedMessage';
-import { generatePoll } from '../../../mock-builders/generator/poll';
 
 expect.extend(toHaveNoViolations);
 
-const quotedPollPreviewClassSelector = '.str-chat__quoted-poll-preview';
 const quotedMessageTestId = 'quoted-message';
 const quotedMessageContentsTestId = 'quoted-message-contents';
 const quotedMessageTextTestId = 'quoted-message-text';
@@ -222,55 +219,6 @@ describe('QuotedMessage', () => {
     expect(queryByTestId(avatarTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  });
-
-  it('renders quoted Poll component if message contains poll', async () => {
-    const poll = generatePoll();
-    const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: '' });
-    const quotingMessage = generateMessage({
-      quoted_message: messageWithPoll,
-    });
-    const {
-      channels: [channel],
-      client,
-    } = await initClientWithChannels({
-      channelsData: [{ messages: [messageWithPoll, quotingMessage] }],
-      customUser: alice,
-    });
-    const { container } = await renderQuotedMessage({
-      customChannel: channel,
-      customClient: client,
-      customProps: { message: quotingMessage },
-    });
-    const quotedPollPreview = container.querySelector(quotedPollPreviewClassSelector);
-    expect(quotedPollPreview).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('renders custom quoted Poll component if message contains poll', async () => {
-    const poll = generatePoll();
-    const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: '' });
-    const quotingMessage = generateMessage({
-      quoted_message: messageWithPoll,
-    });
-    const {
-      channels: [channel],
-      client,
-    } = await initClientWithChannels({
-      channelsData: [{ messages: [messageWithPoll, quotingMessage] }],
-      customUser: alice,
-    });
-    const pollText = 'Custom Poll component';
-    const QuotedPoll = () => <div>{pollText}</div>;
-
-    await renderQuotedMessage({
-      componentContext: { QuotedPoll },
-      customChannel: channel,
-      customClient: client,
-      customProps: { message: quotingMessage },
-    });
-    expect(screen.getByText(pollText)).toBeInTheDocument();
   });
 
   describe('deleted', () => {

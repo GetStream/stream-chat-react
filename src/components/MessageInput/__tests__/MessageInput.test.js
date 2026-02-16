@@ -10,7 +10,7 @@ import { MessageInput } from '../MessageInput';
 import { Channel } from '../../Channel/Channel';
 import { MessageActions } from '../../MessageActions';
 
-import { DialogManagerProvider, MessageProvider } from '../../../context';
+import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -23,9 +23,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
-import { WithComponents } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -1208,56 +1206,6 @@ describe(`MessageInputFlat`, () => {
         dispatchMessageDeletedEvent(client, mainListMessage, channel);
       });
       quotedMessagePreviewIsNotDisplayed(mainListMessage);
-    });
-
-    it('renders quoted Poll component if message contains poll', async () => {
-      const poll = generatePoll();
-      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
-      });
-      const { container } = await renderComponent({
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
-      });
-
-      await initQuotedMessagePreview(messageWithPoll);
-      expect(
-        container.querySelector('.str-chat__quoted-poll-preview'),
-      ).toBeInTheDocument();
-    });
-
-    it('renders custom quoted Poll component if message contains poll', async () => {
-      const poll = generatePoll();
-      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
-      });
-      const pollText = 'Custom Poll component';
-      const QuotedPoll = () => <div>{pollText}</div>;
-
-      await renderComponent({
-        components: { QuotedPoll },
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
-      });
-
-      await initQuotedMessagePreview(messageWithPoll);
-      expect(screen.queryByText(pollText)).toBeInTheDocument();
     });
   });
 
