@@ -1,3 +1,9 @@
+## [13.14.0](https://github.com/GetStream/stream-chat-react/compare/v13.13.6...v13.14.0) (2026-02-16)
+
+### Features
+
+* use server-defined default limits for channel and channel lists ([#2940](https://github.com/GetStream/stream-chat-react/issues/2940)) ([e5b528d](https://github.com/GetStream/stream-chat-react/commit/e5b528d44b4c1419a63a77eca457235b99a78edc))
+
 ## [13.13.6](https://github.com/GetStream/stream-chat-react/compare/v13.13.5...v13.13.6) (2026-01-30)
 
 ### Bug Fixes
