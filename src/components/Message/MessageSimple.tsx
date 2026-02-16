@@ -212,14 +212,15 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               )}
             </div>
             <MessageErrorIcon />
+            {showReplyCountButton && (
+              <MessageRepliesCountButton
+                onClick={handleOpenThread}
+                reply_count={message.reply_count}
+                thread_participants={message.thread_participants}
+              />
+            )}
+            {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
           </div>
-          {showReplyCountButton && (
-            <MessageRepliesCountButton
-              onClick={handleOpenThread}
-              reply_count={message.reply_count}
-            />
-          )}
-          {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
           {showMetadata && (
             <div className='str-chat__message-metadata'>
               <MessageStatus />
