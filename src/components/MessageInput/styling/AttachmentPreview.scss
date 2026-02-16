@@ -111,6 +111,7 @@
 
     .str-chat__message_attachment__playback-rate-button {
       @include utils.button-reset;
+      text-transform: none;
       display: flex;
       min-width: 40px;
       min-height: 24px;

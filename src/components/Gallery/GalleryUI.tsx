@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BaseImage } from './BaseImage';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
-import { IconChevronRight } from '../Icons';
+import { IconChevronLeft, IconChevronRight } from '../Icons';
 import { useTranslationContext } from '../../context';
 import { VideoPlayer } from '../VideoPlayer';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
@@ -176,7 +176,7 @@ export const GalleryUI = () => {
           disabled={!hasPrevious}
           onClick={handleGoToPrevious}
         >
-          <IconChevronRight />
+          <IconChevronLeft />
         </NavButton>
         <div
           className='str-chat__gallery__slide-container'

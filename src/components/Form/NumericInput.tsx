@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { forwardRef, useCallback } from 'react';
 import type { ChangeEvent, ComponentProps, KeyboardEvent } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
-import { IconPlus } from '../Icons';
+import { IconPlusSmall } from '../Icons';
 import { Button } from '../Button';
 
 export type NumericInputProps = Omit<
@@ -154,7 +154,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             disabled={disabled || atMax}
             onClick={handleIncrement}
           >
-            <IconPlus className='str-chat__form-numeric-input__stepper-icon' />
+            <IconPlusSmall className='str-chat__form-numeric-input__stepper-icon' />
           </Button>
         </div>
       </div>

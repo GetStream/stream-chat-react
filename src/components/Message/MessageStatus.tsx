@@ -9,7 +9,7 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconDoubleCheckmark, IconSingleCheckmark } from '../Icons';
+import { IconCheckmark1Small, IconClock, IconDoubleCheckmark1Small } from '../Icons';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -102,7 +102,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Sending...')}
+              <IconClock />
             </PopperTooltip>
             <LoadingIndicator />
           </>
@@ -120,7 +120,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
             >
               {t('Sent')}
             </PopperTooltip>
-            <IconSingleCheckmark className='str-chat__message-status-sent' />
+            <IconCheckmark1Small className='str-chat__message-status-sent' />
           </>
         ))}
 
@@ -136,7 +136,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
             >
               {t('Delivered')}
             </PopperTooltip>
-            <IconDoubleCheckmark className='str-chat__message-status-delivered' />
+            <IconDoubleCheckmark1Small className='str-chat__message-status-delivered' />
           </>
         ))}
 
@@ -153,7 +153,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
             </PopperTooltip>
 
-            <IconDoubleCheckmark className='str-chat__message-status-read' />
+            <IconDoubleCheckmark1Small className='str-chat__message-status-read' />
 
             {readersWithoutOwnUser.length > 1 && (
               <span

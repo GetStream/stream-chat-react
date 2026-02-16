@@ -1,7 +1,7 @@
 import { useMessageComposer } from './hooks';
 import { useStateStore } from '../../store';
 import type { TextComposerState } from 'stream-chat';
-import { IconCross, IconLightning } from '../Icons';
+import { IconCrossMedium, IconThunder } from '../Icons';
 import { useMessageInputContext } from '../../context';
 
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
@@ -14,7 +14,7 @@ export const CommandChip = () => {
 
   return (
     <div className='str-chat__command-chip'>
-      <IconLightning />
+      <IconThunder />
       <span>{command.name}</span>
       <button
         className={'str-chat__command-chip__close-button'}
@@ -23,7 +23,7 @@ export const CommandChip = () => {
           textareaRef.current?.focus();
         }}
       >
-        <IconCross />
+        <IconCrossMedium />
       </button>
     </div>
   );

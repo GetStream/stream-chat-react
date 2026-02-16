@@ -9,22 +9,22 @@ import {
   useContextMenuContext,
 } from '../../Dialog';
 import {
-  IconChevronRight,
-  IconFlag,
+  IconChevronLeft,
+  IconFlag2,
   IconGiphy,
   IconMute,
-  IconPersonAdd,
-  IconPersonRemove,
+  IconPeopleAdd,
+  IconPeopleRemove,
   IconVolumeFull,
 } from '../../Icons';
 import clsx from 'clsx';
 
 const icons: Record<string, ComponentType> = {
-  ban: IconPersonRemove,
-  flag: IconFlag,
+  ban: IconPeopleRemove,
+  flag: IconFlag2,
   giphy: IconGiphy,
   mute: IconMute,
-  unban: IconPersonAdd,
+  unban: IconPeopleAdd,
   unmute: IconVolumeFull,
 };
 
@@ -36,7 +36,7 @@ export const CommandsSubmenuHeader = () => {
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
       <ContextMenuBackButton onClick={returnToParentMenu}>
-        <IconChevronRight />
+        <IconChevronLeft />
         <span>{t('Instant commands')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>

@@ -10,6 +10,7 @@
   .str-chat__attachment-selector {
     .str-chat__attachment-selector__menu-button {
       .str-chat__attachment-selector__menu-button__icon {
+        height: var(--icon-size-md);
         width: var(--icon-size-md);
         color: var(--str-chat__attachment-selector-button-icon-color);
       }

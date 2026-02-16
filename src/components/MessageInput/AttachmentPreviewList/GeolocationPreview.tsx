@@ -3,7 +3,7 @@ import type { ComponentType } from 'react';
 import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { GeolocationIcon } from '../../Attachment/icons';
-import { IconClose } from '../../Icons';
+import { IconCrossMedium } from '../../Icons';
 
 type GeolocationPreviewImageProps = {
   location: StaticLocationPreview | LiveLocationPreview;
@@ -38,7 +38,7 @@ export const GeolocationPreview = ({
           onClick={remove}
           type='button'
         >
-          <IconClose />
+          <IconCrossMedium />
         </button>
       )}
 

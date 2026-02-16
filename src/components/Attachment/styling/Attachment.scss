@@ -633,6 +633,7 @@
   .str-chat__message_attachment__playback-rate-button {
     @include utils.flex-row-center;
     @include utils.button-reset;
+    text-transform: none;
     display: flex;
     justify-content: center;
     align-items: center;

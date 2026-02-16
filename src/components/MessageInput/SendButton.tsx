@@ -2,7 +2,7 @@ import React from 'react';
 import { useMessageComposerHasSendableData } from './hooks';
 import type { UpdatedMessage } from 'stream-chat';
 import { useTranslationContext } from '../../context';
-import { IconPaperPlane } from '../Icons/IconPaperPlane';
+import { IconPaperPlane } from '../Icons';
 import { Button } from '../Button';
 import clsx from 'clsx';
 

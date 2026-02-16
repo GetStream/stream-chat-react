@@ -31,14 +31,14 @@ import {
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
-  IconCamera,
   IconChainLink,
-  IconFile,
-  IconLocationPin,
+  IconChart5,
+  IconFileBend,
+  IconMapPin,
   IconMicrophone,
   IconPlaySolid,
-  IconPoll,
-  IconVideoCameraOutline,
+  IconVideo,
+  IconVideoSolid,
 } from '../Icons';
 import clsx from 'clsx';
 import { BaseImage } from '../Gallery';
@@ -165,10 +165,10 @@ const getAttachmentIconWithType = (
   };
   if (!groupedAttachments.total) return result;
   if (groupedAttachments.polls.length > 0)
-    return { ...result, Icon: IconPoll, previewType: 'poll' };
+    return { ...result, Icon: IconChart5, previewType: 'poll' };
   if (groupedAttachments.locations.length > 0)
     // todo: we do not generate the location preview image
-    return { ...result, Icon: IconLocationPin, previewType: 'location' };
+    return { ...result, Icon: IconMapPin, previewType: 'location' };
   if (
     groupedAttachments.documents.length === groupedAttachments.total &&
     groupedAttachments.documents.length === 1
@@ -176,7 +176,7 @@ const getAttachmentIconWithType = (
     const fileAttachment = groupedAttachments.documents[0] as Attachment;
     return {
       ...result,
-      Icon: IconFile,
+      Icon: IconFileBend,
       PreviewImage: (
         <FileIcon fileName={fileAttachment.title} mimeType={fileAttachment.mime_type} />
       ),
@@ -203,7 +203,7 @@ const getAttachmentIconWithType = (
     const videoAttachment = groupedAttachments.videos[0];
     return {
       ...result,
-      Icon: IconVideoCameraOutline,
+      Icon: IconVideo,
       PreviewImage: (
         <>
           <BaseImage
@@ -224,7 +224,7 @@ const getAttachmentIconWithType = (
     const imageAttachment = groupedAttachments.images[0];
     return {
       ...result,
-      Icon: IconCamera,
+      Icon: IconVideoSolid,
       PreviewImage: (
         <BaseImage
           alt={imageAttachment.fallback}
@@ -239,7 +239,7 @@ const getAttachmentIconWithType = (
   if (groupedAttachments.voiceRecordings.length === groupedAttachments.total)
     return { ...result, Icon: IconMicrophone, previewType: 'voice' };
 
-  return { ...result, Icon: IconFile, previewType: 'mixed' };
+  return { ...result, Icon: IconFileBend, previewType: 'mixed' };
 };
 
 export const QuotedMessagePreview = ({

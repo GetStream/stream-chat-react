@@ -2,8 +2,8 @@ import {
   Button,
   ChatViewSelectorButton,
   GlobalModal,
-  IconCog,
-  IconEmoji,
+  IconEmojiSmile,
+  IconSettingsGear2,
 } from 'stream-chat-react';
 import { type ComponentType, useState } from 'react';
 import { ReactionsTab } from './tabs/Reactions';
@@ -11,7 +11,7 @@ import { ReactionsTab } from './tabs/Reactions';
 type TabId = 'reactions';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
-  { Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
+  { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
 
 export const AppSettings = () => {
@@ -21,14 +21,14 @@ export const AppSettings = () => {
   return (
     <div className='app__settings-group'>
       <ChatViewSelectorButton
-        Icon={IconCog}
+        Icon={IconSettingsGear2}
         onClick={() => setOpen(true)}
         text='Settings'
       />
       <GlobalModal open={open} onClose={() => setOpen(false)}>
         <div className='app__settings-modal'>
           <header className='app__settings-modal__header'>
-            <IconCog />
+            <IconSettingsGear2 />
             Settings
           </header>
           <div className='app__settings-modal__body'>
