@@ -70,7 +70,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             />
             <SwitchField
               checked={allow_answers}
-              description={t('Allow voters to add comments')}
+              description={t('Allow others to add comments')}
               id='allow_answers'
               onChange={(e) =>
                 pollComposer.updateFields({ allow_answers: e.target.checked })

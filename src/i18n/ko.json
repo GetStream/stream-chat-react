@@ -32,7 +32,7 @@
   "Allow access to microphone": "마이크로폰에 대한 액세스 허용",
   "Allow comments": "댓글 허용",
   "Allow option suggestion": "옵션 제안 허용",
-  "Allow voters to add comments": "투표자가 댓글을 추가할 수 있도록 허용",
+  "Allow others to add comments": "다른 사람이 댓글을 추가할 수 있도록 허용",
   "Also send as a direct message": "다이렉트 메시지로도 보내기",
   "Also send in channel": "채널에도 보내기",
   "An error has occurred during recording": "녹음 중 오류가 발생했습니다",

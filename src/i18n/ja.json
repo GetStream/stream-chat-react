@@ -32,7 +32,7 @@
   "Allow access to microphone": "マイクロフォンへのアクセスを許可する",
   "Allow comments": "コメントを許可",
   "Allow option suggestion": "オプションの提案を許可",
-  "Allow voters to add comments": "投票者にコメントを追加することを許可する",
+  "Allow others to add comments": "他の人にコメントを追加することを許可する",
   "Also send as a direct message": "ダイレクトメッセージとしても送信",
   "Also send in channel": "チャンネルにも送信",
   "An error has occurred during recording": "録音中にエラーが発生しました",
