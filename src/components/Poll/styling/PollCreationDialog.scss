@@ -1,6 +1,10 @@
 @use '../../../styling/utils';
 
 .str-chat__poll-creation-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100vw);
+  height: min(640px, 100vh);
 
   .str-chat__dialog__body {
     flex: 1 1;
@@ -10,6 +14,13 @@
       flex-direction: column;
       gap: var(--spacing-xl);
     }
+  }
+
+  .str-chat__poll-creation-dialog__features-selectors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: center;
   }
 
   .str-chat__form__input-field__value input,
@@ -41,61 +52,25 @@
   }
 }
 
-.str-chat__poll-creation-dialog {
-  display: flex;
-  flex-direction: column;
-  width: min(480px, 100vw);
-  height: min(640px, 100vh);
+.str-chat__modal.str-chat__create-poll-modal {
+  .str-chat__modal__inner {
+    padding: 0;
+    max-height: unset;
+    display: block;
+  }
+}
 
-  .str-chat__form__input-field--has-error:not(:has(.str-chat__form-text-input)) {
-    border: 1px solid var(--str-chat__message-error-message-color);
+@media only screen and (max-device-width: 768px) {
+  .str-chat__modal--open .str-chat__modal__inner {
+    width: 90%;
   }
 
-  .str-chat__form__expandable-field .str-chat__form__input-field--has-error,
-  .str-chat__form__switch-field__expanded-content .str-chat__form__input-field--has-error {
-    border: none;
-
-    .str-chat__form__input-field__value {
-      border: none;
-    }
-  }
-
-  .str-chat__poll-creation-dialog__features-selectors {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    align-items: center;
-  }
-
-  .str-chat__form__expandable-field {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    .str-chat__form__input-field {
-      width: 100%;
-
-      .str-chat__form__input-field__value {
-        padding: 0;
-
-        .str-chat__form-field-error {
-          height: 1rem;
-        }
-      }
-    }
-  }
-
-  /* Inline expanded content (same row as switch): natural width */
-  .str-chat__form__switch-field__expanded-content .str-chat__form__input-field {
-    width: auto;
-
-    .str-chat__form__input-field__value {
-      padding: 0;
-
-      .str-chat__form-field-error {
-        height: 1rem;
-      }
+  .str-chat__create-poll-modal,
+  .str-chat__poll-answer-list-modal,
+  .str-chat__poll-results-modal {
+    .str-chat__modal__inner {
+      height: 90%;
+      max-height: unset;
     }
   }
 }

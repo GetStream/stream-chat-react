@@ -22,14 +22,6 @@ export const NameField = () => {
   );
 
   return (
-    // <div
-    //   className={clsx(
-    //     'str-chat__form__field str-chat__form__input-field str-chat__form__input-field--with-label',
-    //     {
-    //       'str-chat__form__input-field--has-error': error,
-    //     },
-    //   )}
-    // >
     <TextInput
       className='str-chat__form__input-field__value'
       error={!!error}
@@ -52,6 +44,5 @@ export const NameField = () => {
       type='text'
       value={name}
     />
-    // </div>
   );
 };
