@@ -1,5 +1,5 @@
 import { Button } from '../Button';
-import { IconCross } from '../Icons';
+import { IconCrossMedium } from '../Icons';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 
@@ -17,6 +17,6 @@ export const CloseButtonOnModalOverlay = ({
       className,
     )}
   >
-    {children ?? <IconCross />}
+    {children ?? <IconCrossMedium />}
   </Button>
 );
