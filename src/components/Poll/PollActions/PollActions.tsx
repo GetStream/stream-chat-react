@@ -23,7 +23,7 @@ import {
 } from '../../../context';
 import { useStateStore } from '../../../store';
 
-import type { PollAnswer, PollOption, PollState } from 'stream-chat';
+import type { PollState } from 'stream-chat';
 
 const COMMON_MODAL_CLASS = 'str-chat__poll-action-modal' as const;
 
@@ -35,16 +35,7 @@ type ModalName =
   | 'view-results'
   | 'end-vote';
 
-type PollStateSelectorReturnValue = {
-  allow_answers: boolean | undefined;
-  allow_user_suggested_options: boolean | undefined;
-  answers_count: number;
-  created_by_id: string;
-  is_closed: boolean | undefined;
-  options: PollOption[];
-  ownAnswer: PollAnswer | undefined;
-};
-const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
+const pollStateSelector = (nextValue: PollState) => ({
   allow_answers: nextValue.allow_answers,
   allow_user_suggested_options: nextValue.allow_user_suggested_options,
   answers_count: nextValue.answers_count,
@@ -52,6 +43,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
   is_closed: nextValue.is_closed,
   options: nextValue.options,
   ownAnswer: nextValue.ownAnswer,
+  voteCount: nextValue.vote_count,
 });
 
 export type PollActionsProps = {
@@ -84,12 +76,23 @@ export const PollActions = ({
     is_closed,
     options,
     ownAnswer,
+    voteCount,
   } = useStateStore(poll.state, pollStateSelector);
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const closeModal = useCallback(() => setModalOpen(undefined), []);
   const onUpdateAnswerClick = useCallback(() => setModalOpen('add-comment'), []);
+
+  const hasContents =
+    (!is_closed && created_by_id === client.user?.id) ||
+    !!voteCount ||
+    options.length > MAX_OPTIONS_DISPLAYED ||
+    canCastVote ||
+    (!is_closed && allow_answers) ||
+    (answers_count > 0 && channelCapabilities['query-poll-votes']);
+
+  if (!hasContents) return null;
 
   return (
     <div className='str-chat__poll-actions'>
@@ -105,16 +108,17 @@ export const PollActions = ({
         </PollAction>
       )}
 
-      <PollAction
-        buttonText={t('View results')}
-        closeModal={closeModal}
-        modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-results-modal')}
-        modalIsOpen={modalOpen === 'view-results'}
-        openModal={() => setModalOpen('view-results')}
-      >
-        <PollResults close={closeModal} />
-      </PollAction>
-
+      {!!voteCount && (
+        <PollAction
+          buttonText={t('View results')}
+          closeModal={closeModal}
+          modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-results-modal')}
+          modalIsOpen={modalOpen === 'view-results'}
+          openModal={() => setModalOpen('view-results')}
+        >
+          <PollResults close={closeModal} />
+        </PollAction>
+      )}
       {options.length > MAX_OPTIONS_DISPLAYED && (
         <PollAction
           buttonText={t('See all options ({{count}})', {
