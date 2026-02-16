@@ -1,5 +1,5 @@
 export * from './IconArrowRotateClockwise';
-export * from './IconBin';
+export * from './IconBubbleText';
 export * from './IconCamera';
 export * from './IconChainLink';
 export * from './IconCheckmark';
@@ -33,6 +33,7 @@ export * from './IconPlaySolid';
 export * from './IconPlus';
 export * from './IconPoll';
 export * from './IconSingleCheckmark';
+export * from './IconTrashBin';
 export * from './IconVideoCamera';
 export * from './IconVideoCameraOutline';
 export * from './IconVolumeFull';

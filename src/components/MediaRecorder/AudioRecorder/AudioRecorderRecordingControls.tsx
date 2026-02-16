@@ -1,5 +1,5 @@
 import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageInput';
-import { IconBin, IconMicrophone, IconPause } from '../../Icons';
+import { IconMicrophone, IconPause, IconTrashBin } from '../../Icons';
 import React from 'react';
 import { useMessageInputContext } from '../../../context';
 import { isRecording } from './recordingStateIdentity';
@@ -52,7 +52,7 @@ export const AudioRecorderRecordingControls = () => {
           disabled={isUploadingFile}
           onClick={recorder.cancel}
         >
-          <IconBin />
+          <IconTrashBin />
         </Button>
       )}
       <ToggleRecordingButton />

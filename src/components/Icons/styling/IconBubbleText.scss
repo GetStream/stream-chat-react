@@ -1,0 +1,11 @@
+.str-chat {
+  .str-chat__icon--bubble-text {
+    fill: none;
+    width: 16px;
+    height: 16px;
+
+    path {
+      fill: currentColor;
+    }
+  }
+}
