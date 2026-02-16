@@ -20,7 +20,7 @@
       height: $size;
       width: $size;
       border-radius: var(--radius-max);
-      background-color: var(--control-play-control-bg-inverse);
+      background-color: var(--control-play-control-bg);
       left: calc(50% - calc($size / 2));
       top: calc(50% - calc($size / 2));
 
@@ -29,7 +29,7 @@
         width: calc($size / 2);
 
         path {
-          fill: var(--control-play-control-icon-inverse);
+          fill: var(--control-play-control-icon);
         }
       }
     }
