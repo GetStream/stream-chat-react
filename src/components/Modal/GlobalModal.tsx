@@ -1,12 +1,9 @@
 import clsx from 'clsx';
 import type { PropsWithChildren } from 'react';
-import { useCallback } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
-import { CloseIconRound } from './icons';
-
-import { modalDialogManagerId, useTranslationContext } from '../../context';
+import { modalDialogManagerId } from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
@@ -22,8 +19,6 @@ export const GlobalModal = ({
   onCloseAttempt,
   open,
 }: PropsWithChildren<ModalProps>) => {
-  const { t } = useTranslationContext('Modal');
-
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -81,14 +76,6 @@ export const GlobalModal = ({
         onClick={handleClick}
       >
         <FocusScope autoFocus contain>
-          <button
-            className='str-chat__modal__close-button'
-            ref={closeButtonRef}
-            title={t('Close')}
-            type='button'
-          >
-            <CloseIconRound />
-          </button>
           <div
             className='str-chat__modal__inner str-chat-react__modal__inner'
             ref={innerRef}

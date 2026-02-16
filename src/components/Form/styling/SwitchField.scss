@@ -1,0 +1,149 @@
+// SwitchField — Figma Chat SDK Design System (node 5110-255845 expanded state)
+// Single row: [label / title+description] [optional expanded content] [toggle]
+// CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
+
+.str-chat {
+  --str-chat__switch-field-background-color: var(--input-cards-bg, var(--background-core-surface-subtle));
+  --str-chat__switch-field-border-radius: var(--radius-md);
+  --str-chat__switch-field-title-font-size: var(--typography-font-size-sm, 14px);
+  --str-chat__switch-field-title-font-weight: var(--typography-font-weight-medium, 500);
+  --str-chat__switch-field-title-line-height: var(--typography-line-height-tight, 16px);
+  --str-chat__switch-field-title-color: var(--text-primary, #1a1b25);
+  --str-chat__switch-field-description-font-size: var(--typography-font-size-xs, 12px);
+  --str-chat__switch-field-description-font-weight: var(--typography-font-weight-regular, 400);
+  --str-chat__switch-field-description-color: var(--text-tertiary, #687385);
+  --str-chat__switch-field__track-off-bg: var(--control-toggle-switch-bg, var(--border-core-on-surface, #a3acba));
+  --str-chat__switch-field__track-on-bg: var(--control-toggle-switch-bg-selected, #005fff);
+  --str-chat__switch-field__track-thumb-bg: var(--base-white, #ffffff);
+  --str-chat__switch-field__track-height: 24px;
+  --str-chat__switch-field__track-radius: var(--button-radius-full, 9999px);
+
+  .str-chat__form__switch-fieldset {
+    width: 100%;
+    background-color: var(--str-chat__switch-field-background-color);
+    border-radius: var(--str-chat__switch-field-border-radius);
+  }
+
+  .str-chat__form__switch-field {
+
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-sm ) var(--spacing-md);
+    background-color: var(--str-chat__switch-field-background-color);
+    border-radius: var(--str-chat__switch-field-border-radius);
+    box-sizing: border-box;
+
+    &__input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    &__label {
+      display: flex;
+      align-items: center;
+      flex: 1 1 auto;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs, 4px);
+      min-width: 0;
+    }
+
+    &__title {
+      font-size: var(--str-chat__switch-field-title-font-size);
+      font-weight: var(--str-chat__switch-field-title-font-weight);
+      line-height: var(--str-chat__switch-field-title-line-height);
+      color: var(--str-chat__switch-field-title-color);
+    }
+
+    &__description {
+      font-size: var(--str-chat__switch-field-description-font-size);
+      font-weight: var(--str-chat__switch-field-description-font-weight);
+      line-height: var(--str-chat__switch-field-title-line-height);
+      color: var(--str-chat__switch-field-description-color);
+    }
+
+    &__expanded-content {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    &__switch {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      width: 44px;
+      height: var(--str-chat__switch-field__track-height);
+      padding: var(--spacing-xxs);
+      cursor: pointer;
+      background-color: var(--str-chat__switch-field__track-off-bg);
+      border-radius: var(--str-chat__switch-field__track-radius);
+      transition: background-color 0.2s ease;
+
+      &-handle {
+        width: calc(var(--str-chat__switch-field__track-height) - 8px);
+        height: calc(var(--str-chat__switch-field__track-height) - 8px);
+        border-radius: var(--str-chat__switch-field__track-radius);
+        background-color: var(--str-chat__switch-field__track-thumb-bg);
+        transition: transform 0.2s ease;
+      }
+
+      &--on {
+        background-color: var(--str-chat__switch-field__track-on-bg);
+        justify-content: flex-end;
+
+        .str-chat__form__switch-field__switch-handle {
+          background-color: var(--str-chat__switch-field__track-thumb-bg);
+        }
+      }
+    }
+
+    &--disabled {
+      .str-chat__form__switch-field__label,
+      .str-chat__form__switch-field__switch {
+        cursor: not-allowed;
+      }
+
+      .str-chat__form__switch-field__switch {
+        opacity: 0.7;
+      }
+    }
+
+    .str-chat__form__switch-field__label {
+      .str-chat__form__switch-field__label__text {
+        color: var(--text-primary);
+        font: var(--str-chat__heading-xs-text);
+      }
+
+      .str-chat__form__switch-field__label__description {
+        color: var(--text-tertiary);
+        font: var(--str-chat__metadata-default-text);
+      }
+    }
+
+    .str-chat__form__switch-field__label,
+    .str-chat__form__switch-field__label__content {
+      flex: 1
+    }
+
+    .str-chat__form__switch-field__label--as-error {
+      .str-chat__form__switch-field__label__description {
+        color: var(--accent-error);
+      }
+    }
+  }
+}

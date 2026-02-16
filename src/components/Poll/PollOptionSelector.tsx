@@ -1,16 +1,17 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
+import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
-import { Avatar } from '../Avatar';
+import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import {
   useChannelStateContext,
+  useComponentContext,
   useMessageContext,
   usePollContext,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
-import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 
 type AmountBarProps = {
   amount: number;
@@ -69,7 +70,7 @@ export const PollOptionSelector = ({
   const { t } = useTranslationContext();
   const { channelCapabilities = {} } = useChannelStateContext('PollOptionsShortlist');
   const { message } = useMessageContext();
-
+  const { AvatarStack = DefaultAvatarStack } = useComponentContext();
   const { poll } = usePollContext();
   const {
     is_closed,
@@ -79,6 +80,7 @@ export const PollOptionSelector = ({
     vote_counts_by_option,
     voting_visibility,
   } = useStateStore(poll.state, pollStateSelector);
+
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const winningOptionCount = maxVotedOptionIds[0]
     ? vote_counts_by_option[maxVotedOptionIds[0]]
@@ -96,6 +98,20 @@ export const PollOptionSelector = ({
     [canCastVote, message.id, option.id, ownVotesByOptionId, poll],
   );
 
+  const avatarDisplayInfo = useMemo(
+    () =>
+      latest_votes_by_option?.[option.id] &&
+      (latest_votes_by_option[option.id] as PollVote[])
+        .filter((vote) => !!vote.user && !isVoteAnswer(vote))
+        .slice(0, displayAvatarCount)
+        .map(({ user }) => ({
+          id: user!.id, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+          imageUrl: user!.image, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+          userName: user!.name, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        })),
+    [displayAvatarCount, latest_votes_by_option, option.id],
+  );
+
   return (
     <div
       className={clsx('str-chat__poll-option', {
@@ -109,18 +125,7 @@ export const PollOptionSelector = ({
         <p className='str-chat__poll-option-text'>{option.text}</p>
         {displayAvatarCount && voting_visibility === 'public' && (
           <div className='str-chat__poll-option-voters'>
-            {latest_votes_by_option?.[option.id] &&
-              (latest_votes_by_option[option.id] as PollVote[])
-                .filter((vote) => !!vote.user && !isVoteAnswer(vote))
-                .slice(0, displayAvatarCount)
-                .map(({ user }) => (
-                  <Avatar
-                    imageUrl={user?.image}
-                    key={`poll-option-${option.id}-avatar-${user?.id}`}
-                    size='md'
-                    userName={user?.name}
-                  />
-                ))}
+            <AvatarStack displayInfo={avatarDisplayInfo} />
           </div>
         )}
         <div className='str-chat__poll-option-vote-count'>

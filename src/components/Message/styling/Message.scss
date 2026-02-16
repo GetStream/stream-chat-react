@@ -169,6 +169,16 @@
   }
 }
 
+.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-giphy-attachment {
+  .str-chat__message-bubble {
+    padding: 0;
+  }
+
+  .str-chat__message-text {
+    display: none;
+  }
+}
+
 .str-chat__message-mention {
   color: var(--str-chat__message-mention-color);
   font: var(--str-chat__body2-medium-text);
@@ -657,11 +667,9 @@
 // Avatar display in message list
 .str-chat__li--top,
 .str-chat__li--middle {
-  .str-chat__avatar {
-    // space above the message group
-    background: transparent;
+  .str-chat__message > .str-chat__avatar {
+    visibility: hidden;
     pointer-events: none;
-    color: transparent;
   }
 }
 

@@ -1,6 +1,9 @@
 import React from 'react';
 import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
 import { useMessageInputContext, useTranslationContext } from '../../../context';
+import { Button } from '../../Button';
+import clsx from 'clsx';
+import { IconPaperPlane } from '../../Icons';
 
 export type PollCreationDialogControlsProps = {
   close: () => void;
@@ -16,8 +19,13 @@ export const PollCreationDialogControls = ({
 
   return (
     <div className='str-chat__dialog__controls'>
-      <button
-        className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
+      <Button
+        className={clsx(
+          'str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel',
+          'str-chat__button--secondary',
+          'str-chat__button--ghost',
+          'str-chat__button--size-md',
+        )}
         onClick={() => {
           messageComposer.pollComposer.initState();
           close();
@@ -25,9 +33,14 @@ export const PollCreationDialogControls = ({
         type='button'
       >
         {t('Cancel')}
-      </button>
-      <button
-        className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
+      </Button>
+      <Button
+        className={clsx(
+          'str-chat__dialog__controls-button str-chat__dialog__controls-button--submit',
+          'str-chat__button--primary',
+          'str-chat__button--solid',
+          'str-chat__button--size-md',
+        )}
         disabled={!canCreatePoll}
         onClick={() => {
           messageComposer
@@ -41,8 +54,9 @@ export const PollCreationDialogControls = ({
         }}
         type='submit'
       >
-        {t('Create')}
-      </button>
+        <IconPaperPlane />
+        {t('Send poll')}
+      </Button>
     </div>
   );
 };

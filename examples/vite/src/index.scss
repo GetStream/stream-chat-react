@@ -97,16 +97,26 @@ body {
     max-width: 360px;
   }
 
-  @media (max-width: 960px) {
-    .str-chat__channel-list {
-      flex-basis: 260px;
-      max-width: 260px;
+  .str-chat__chat-view__threads {
+    .str-chat__thread-container {
+      flex: 1 1 auto;
+      min-width: 360px;
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .str-chat__container:has(.str-chat__thread-container) > .str-chat__main-panel {
+      width: 0;
+      min-width: 0;
+      flex: 0 0 0;
+      overflow: hidden;
     }
 
-    .str-chat__thread-list-container,
-    .str-chat__thread-container {
-      flex-basis: 320px;
-      max-width: 320px;
+    .str-chat__container:has(.str-chat__thread-container) > .str-chat__thread-container {
+      flex: 1 1 auto;
+      min-width: 360px;
+      max-width: none;
     }
   }
 

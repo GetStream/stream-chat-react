@@ -1,0 +1,14 @@
+@use '../../../styling/utils';
+
+.str-chat__dropdown {
+  .str-chat__dropdown__open-button {
+    @include utils.button-reset;
+    width: 100%;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .str-chat__dropdown__items {
+    background-color: var(--str-chat__background-color);
+  }
+}

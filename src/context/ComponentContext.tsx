@@ -170,8 +170,6 @@ export type ComponentContextValue = {
   QuotedMessage?: React.ComponentType;
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps>;
-  /** Custom UI component to override the rendering of quoted poll, defaults to and accepts same props as: [QuotedPoll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/QuotedPoll.tsx) */
-  QuotedPoll?: React.ComponentType;
   /** Custom reaction options to be applied to ReactionSelector, ReactionList and SimpleReactionList components */
   reactionOptions?: ReactionOptions;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */

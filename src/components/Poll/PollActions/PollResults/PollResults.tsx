@@ -7,15 +7,10 @@ import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 
-type PollStateSelectorReturnValue = {
-  name: string;
-  options: PollOption[];
-  vote_counts_by_option: Record<string, number>;
-};
-const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
-  name: nextValue.name,
-  options: [...nextValue.options],
-  vote_counts_by_option: nextValue.vote_counts_by_option,
+const pollStateSelector = ({ name, options, vote_counts_by_option }: PollState) => ({
+  name,
+  options: [...options],
+  vote_counts_by_option,
 });
 
 export type PollResultsProps = {

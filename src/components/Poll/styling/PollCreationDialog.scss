@@ -1,0 +1,76 @@
+@use '../../../styling/utils';
+
+.str-chat__poll-creation-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100vw);
+  height: min(640px, 100vh);
+
+  .str-chat__dialog__body {
+    flex: 1 1;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+  }
+
+  .str-chat__poll-creation-dialog__features-selectors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: center;
+  }
+
+  .str-chat__form__input-field__value input,
+  .str-chat__form__input-field__value.str-chat__form-text-input .str-chat__form-text-input__wrapper {
+    width: 100%;
+  }
+
+  .str-chat__form__input-field__value.str-chat__form-text-input .str-chat__form-text-input__wrapper {
+    background-color: transparent;
+  }
+
+  .str-chat__form__switch-field__label {
+    width: 100%;
+  }
+
+  .str-chat__multiple-answers-field__votes-limit-field {
+    padding-top: 0;
+
+    .str-chat__multiple-answers-field__votes-limit-field__numeric-field {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      width: 100%;
+
+      .str-chat__form__switch-field__label {
+        flex: 1;
+      }
+    }
+  }
+}
+
+.str-chat__modal.str-chat__create-poll-modal {
+  .str-chat__modal__inner {
+    padding: 0;
+    max-height: unset;
+    display: block;
+  }
+}
+
+@media only screen and (max-device-width: 768px) {
+  .str-chat__modal--open .str-chat__modal__inner {
+    width: 90%;
+  }
+
+  .str-chat__create-poll-modal,
+  .str-chat__poll-answer-list-modal,
+  .str-chat__poll-results-modal {
+    .str-chat__modal__inner {
+      height: 90%;
+      max-height: unset;
+    }
+  }
+}

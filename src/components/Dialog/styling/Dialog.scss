@@ -19,7 +19,7 @@
   width: 100%;
 
   .str-chat__dialog__body {
-    padding: 2rem 1rem;
+    padding: 0 var(--spacing-xl);
     overflow-y: auto;
 
     .str-chat__dialog__title {
@@ -30,11 +30,11 @@
   .str-chat__dialog__controls {
     display: flex;
     justify-content: flex-end;
-    gap: 1.25rem;
-    padding: 2.25rem 1.25rem;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xl);
 
     .str-chat__dialog__controls-button {
-      @include utils.button-reset;
+      font: var(--str-chat__caption-emphasis-text);
     }
   }
 }
