@@ -1,0 +1,22 @@
+.str-chat__modal__poll-results {
+  .str-chat__amount-bar {
+    display: none;
+  }
+
+  .str-chat__poll-option {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.str-chat__modal__poll-results--option-detail {
+  .str-chat__modal-header__title {
+    padding-inline: 1rem;
+    flex: 1;
+  }
+
+  .str-chat__modal__poll-results__body {
+    padding-inline: 1rem;
+  }
+}
+

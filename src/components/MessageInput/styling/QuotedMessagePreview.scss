@@ -73,14 +73,14 @@
         left: 10px;
         top: 10px;
         border-radius: var(--radius-max);
-        background-color: var(--control-play-control-bg-inverse);
+        background-color: var(--control-play-control-bg);
 
         .str-chat__icon--play-solid {
           height: 12px;
           width: 12px;
 
           path {
-            fill: var(--control-play-control-icon-inverse);
+            fill: var(--control-play-control-icon);
           }
         }
       }

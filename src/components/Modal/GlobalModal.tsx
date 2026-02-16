@@ -15,6 +15,7 @@ import type { ModalCloseEvent, ModalCloseSource, ModalProps } from './Modal';
 export const GlobalModal = ({
   children,
   className,
+  CloseButtonOnOverlay,
   onClose,
   onCloseAttempt,
   open,
@@ -37,12 +38,11 @@ export const GlobalModal = ({
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (!innerRef.current || !closeButtonRef.current) return;
     if (innerRef.current?.contains(target)) return;
 
-    if (closeButtonRef.current.contains(target)) {
+    if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current.contains(target)) {
+    } else if (!innerRef.current?.contains(target)) {
       maybeClose('overlay', event);
     }
   };
@@ -83,6 +83,9 @@ export const GlobalModal = ({
             {children}
           </div>
         </FocusScope>
+        {CloseButtonOnOverlay && (
+          <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+        )}
       </div>
     </DialogPortalEntry>
   );
