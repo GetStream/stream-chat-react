@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
-import { Modal as DefaultModal } from '../../Modal';
+import { GlobalModal } from '../../Modal';
 import { useComponentContext } from '../../../context';
 import { Button } from '../../Button';
 import clsx from 'clsx';
@@ -27,7 +27,7 @@ export const PollAction = ({
   modalIsOpen,
   openModal,
 }: PropsWithChildren<PollActionProps>) => {
-  const { Modal = DefaultModal } = useComponentContext();
+  const { Modal = GlobalModal } = useComponentContext();
   return (
     <>
       <Button
