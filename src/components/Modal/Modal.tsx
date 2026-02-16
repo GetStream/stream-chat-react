@@ -1,5 +1,12 @@
 import clsx from 'clsx';
-import React, { type PropsWithChildren, useCallback, useEffect, useRef } from 'react';
+import React, {
+  type ComponentProps,
+  type ComponentType,
+  type PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { FocusScope } from '@react-aria/focus';
 
 export type ModalCloseEvent =
@@ -14,6 +21,8 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** If provided, the close button is rendered on overlay */
+  CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
   onClose?: (event: ModalCloseEvent) => void;
   /** Optional handler to intercept closing logic. Return false to prevent onClose. */
@@ -23,6 +32,7 @@ export type ModalProps = {
 export const Modal = ({
   children,
   className,
+  CloseButtonOnOverlay,
   onClose,
   onCloseAttempt,
   open,
@@ -42,11 +52,11 @@ export const Modal = ({
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (!innerRef.current || !closeButtonRef.current) return;
+    if (innerRef.current?.contains(target)) return;
 
-    if (closeButtonRef.current.contains(target)) {
+    if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current.contains(target)) {
+    } else if (!innerRef.current?.contains(target)) {
       maybeClose('overlay', event);
     }
   };
@@ -77,6 +87,9 @@ export const Modal = ({
           {children}
         </div>
       </FocusScope>
+      {CloseButtonOnOverlay && (
+        <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+      )}
     </div>
   );
 };
