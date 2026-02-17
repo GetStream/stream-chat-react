@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
 import { DialogPortalEntry } from './DialogPortal';
 import { useDialog, useDialogIsOpen } from '../hooks';
@@ -29,22 +29,33 @@ export function useDialogAnchor<T extends HTMLElement>({
     placement,
   });
 
+  // Freeze reference when dialog opens so submenus (e.g. ContextMenu level 2+) stay aligned to the original anchor
+  const frozenReferenceRef = useRef<HTMLElement | null>(null);
+  if (open && referenceElement && !frozenReferenceRef.current) {
+    frozenReferenceRef.current = referenceElement;
+  }
+  if (!open) {
+    frozenReferenceRef.current = null;
+  }
+  const effectiveReference = open ? frozenReferenceRef.current : referenceElement;
+
   useEffect(() => {
-    refs.setReference(referenceElement);
-  }, [referenceElement, refs]);
+    refs.setReference(effectiveReference);
+  }, [effectiveReference, refs]);
 
   useEffect(() => {
     refs.setFloating(popperElement);
   }, [popperElement, refs]);
 
   useEffect(() => {
-    if (open && popperElement) {
+    if (open && popperElement && effectiveReference) {
+      // Re-run when reference becomes available (e.g. after ref is set) or when updateKey changes (e.g. submenu open)
       // Since the popper's reference element might not be (and usually is not) visible
       // all the time, it's safer to force popper update before showing it.
       // update is non-null only if popperElement is non-null
       update?.();
     }
-  }, [open, placement, popperElement, update, updateKey]);
+  }, [open, placement, popperElement, update, updateKey, effectiveReference]);
 
   if (popperElement && !open) {
     setPopperElement(null);
@@ -83,6 +94,7 @@ export const DialogAnchor = ({
 }: DialogAnchorProps) => {
   const dialog = useDialog({ dialogManagerId, id });
   const open = useDialogIsOpen(id, dialogManagerId);
+
   const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
     open,
