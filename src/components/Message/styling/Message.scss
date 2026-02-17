@@ -486,7 +486,7 @@
     .str-chat__message-error-icon {
       display: block;
       position: absolute;
-      bottom: 0;
+      top: 8px;
       inset-inline-end: calc(-1 * calc(#{$icon-size} / 2));
 
       svg {
