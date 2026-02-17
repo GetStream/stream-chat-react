@@ -3,17 +3,29 @@
 // CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
 
 .str-chat {
-  --str-chat__switch-field-background-color: var(--input-cards-bg, var(--background-core-surface-subtle));
+  --str-chat__switch-field-background-color: var(
+    --input-cards-bg,
+    var(--background-core-surface-subtle)
+  );
   --str-chat__switch-field-border-radius: var(--radius-md);
   --str-chat__switch-field-title-font-size: var(--typography-font-size-sm, 14px);
   --str-chat__switch-field-title-font-weight: var(--typography-font-weight-medium, 500);
   --str-chat__switch-field-title-line-height: var(--typography-line-height-tight, 16px);
   --str-chat__switch-field-title-color: var(--text-primary, #1a1b25);
   --str-chat__switch-field-description-font-size: var(--typography-font-size-xs, 12px);
-  --str-chat__switch-field-description-font-weight: var(--typography-font-weight-regular, 400);
+  --str-chat__switch-field-description-font-weight: var(
+    --typography-font-weight-regular,
+    400
+  );
   --str-chat__switch-field-description-color: var(--text-tertiary, #687385);
-  --str-chat__switch-field__track-off-bg: var(--control-toggle-switch-bg, var(--border-core-on-surface, #a3acba));
-  --str-chat__switch-field__track-on-bg: var(--control-toggle-switch-bg-selected, #005fff);
+  --str-chat__switch-field__track-off-bg: var(
+    --control-toggle-switch-bg,
+    var(--border-core-on-surface, #a3acba)
+  );
+  --str-chat__switch-field__track-on-bg: var(
+    --control-toggle-switch-bg-selected,
+    #005fff
+  );
   --str-chat__switch-field__track-thumb-bg: var(--base-white, #ffffff);
   --str-chat__switch-field__track-height: 24px;
   --str-chat__switch-field__track-radius: var(--button-radius-full, 9999px);
@@ -25,12 +37,11 @@
   }
 
   .str-chat__form__switch-field {
-
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
     width: 100%;
-    padding: var(--spacing-sm ) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background-color: var(--str-chat__switch-field-background-color);
     border-radius: var(--str-chat__switch-field-border-radius);
     box-sizing: border-box;
@@ -137,7 +148,7 @@
 
     .str-chat__form__switch-field__label,
     .str-chat__form__switch-field__label__content {
-      flex: 1
+      flex: 1;
     }
 
     .str-chat__form__switch-field__label--as-error {

@@ -40,7 +40,9 @@
     border-radius: var(--button-radius-full, 9999px);
     color: var(--text-tertiary, #687385);
     cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover:not(:disabled) {
       color: var(--text-primary, #1a1b25);

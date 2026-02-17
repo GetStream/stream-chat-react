@@ -37,36 +37,25 @@
     var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont,
     Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 
-  --str-chat__metadata-default-text: normal
-          var(--typography-font-weight-regular)
-          var(--typography-font-size-xs) /
-          var(--typography-line-height-tight)
-          var(--str-chat__font-family);
+  --str-chat__metadata-default-text: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
 
-  --str-chat__caption-emphasis-text: normal
-          var(--typography-font-weight-semi-bold)
-          var(--typography-font-size-sm) /
-          var(--typography-line-height-tight)
-          var(--str-chat__font-family);
+  --str-chat__caption-emphasis-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
 
-  --str-chat__body-emphasis-text: normal
-          var(--typography-font-weight-semi-bold)
-          var(--typography-font-size-md) /
-          var(--typography-line-height-normal)
-          var(--str-chat__font-family);
+  --str-chat__body-emphasis-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
 
-  --str-chat__heading-xs-text: normal
-          var(--typography-font-weight-medium)
-          var(--typography-font-size-sm) /
-          var(--typography-line-height-tight)
-          var(--str-chat__font-family);
+  --str-chat__heading-xs-text: normal var(--typography-font-weight-medium)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
 
-  --str-chat__heading-sm-text: normal
-          var(--typography-font-weight-semi-bold)
-          var(--typography-font-size-md) /
-          var(--typography-line-height-normal)
-          var(--str-chat__font-family);
-
+  --str-chat__heading-sm-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
 
   // todo: adapt the old text variables to so that they use the new semantic text variables
   /* The font used for caption texts */
@@ -189,7 +178,9 @@
   /* If a component has a box shadow applied to it, this will be the color used for the shadow */
   --str-chat__box-shadow-color: rgba(0, 0, 0, 0.18);
 
-  --str-chat__box-shadow-elevation-1: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 12px 0 rgba(0, 0, 0, 0.16), 0 20px 32px 0 rgba(0, 0, 0, 0.12);
+  --str-chat__box-shadow-elevation-1:
+    0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 12px 0 rgba(0, 0, 0, 0.16),
+    0 20px 32px 0 rgba(0, 0, 0, 0.12);
 
   /* Used for online indicator and success messages */
   --str-chat__info-color: var(--str-chat__green500);
