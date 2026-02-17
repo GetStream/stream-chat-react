@@ -2,16 +2,12 @@ import type React from 'react';
 import { useTextareaRef } from './useTextareaRef';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
 import type { RecordingController } from '../../MediaRecorder/hooks/useMediaRecorder';
-import type { UpdatedMessage } from 'stream-chat';
+import { useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
 import type { MessageInputProps } from '../MessageInput';
 
 export type MessageInputHookProps = {
-  handleSubmit: (
-    event?: React.BaseSyntheticEvent,
-    customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
-  ) => void;
+  handleSubmit: (event?: React.BaseSyntheticEvent) => void;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   recordingController: RecordingController;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
