@@ -19,6 +19,7 @@ export const useBaseMessageActionSetFilter = (
   const { initialMessage: isInitialMessage, message } = useMessageContext();
   const { channelConfig } = useChannelStateContext();
   const {
+    canBlockUser,
     canDelete,
     canEdit,
     canFlag,
@@ -27,6 +28,7 @@ export const useBaseMessageActionSetFilter = (
     canQuote,
     canReact,
     canReply,
+    canSendMessage,
   } = useUserRole(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
 
@@ -37,10 +39,8 @@ export const useBaseMessageActionSetFilter = (
     if (
       isInitialMessage || // not sure whether this thing even works anymore
       !message.type ||
-      message.type === 'error' ||
       message.type === 'system' ||
       message.type === 'ephemeral' ||
-      message.status === 'failed' ||
       message.status === 'sending'
     )
       return [];
@@ -50,7 +50,18 @@ export const useBaseMessageActionSetFilter = (
       if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply)
         return false;
 
+      // failed message menu has special treatment
+      if (message.status === 'failed' || message.type === 'error') {
+        return (
+          (type === 'resendMessage' && !canSendMessage) ||
+          (type === 'edit' && !canEdit) ||
+          (type === 'delete' && !canDelete)
+        );
+      }
+
       if (
+        (type === 'blockUser' && !canBlockUser) ||
+        (type === 'copyMessageText' && !message.text) ||
         (type === 'delete' && !canDelete) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
@@ -67,6 +78,7 @@ export const useBaseMessageActionSetFilter = (
       return true;
     });
   }, [
+    canBlockUser,
     canDelete,
     canEdit,
     canFlag,
@@ -75,10 +87,12 @@ export const useBaseMessageActionSetFilter = (
     canQuote,
     canReact,
     canReply,
+    canSendMessage,
     channelConfig,
     isInitialMessage,
     isMessageThreadReply,
     message.status,
+    message.text,
     message.type,
     disable,
     messageActionSet,

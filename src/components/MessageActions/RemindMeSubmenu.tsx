@@ -7,7 +7,7 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import { IconChevronLeft } from '../Icons';
+import { IconBellNotification, IconChevronLeft } from '../Icons';
 
 // todo: do we need to have isMine as a prop?
 export type RemindMeActionButtonProps = { isMine: boolean } & BaseContextMenuButtonProps;
@@ -20,7 +20,12 @@ export const RemindMeActionButton = ({
   const { t } = useTranslationContext();
 
   return (
-    <ContextMenuButton aria-selected='false' className={className} {...props}>
+    <ContextMenuButton
+      aria-selected='false'
+      className={className}
+      Icon={IconBellNotification}
+      {...props}
+    >
       {t('Remind Me')}
     </ContextMenuButton>
   );

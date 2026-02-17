@@ -2,6 +2,13 @@
 
 .str-chat__message-actions-box {
   min-width: 180px;
+
+  .str-chat__context-menu__button.str-chat__message-actions-list-item-button--destructive {
+    svg,
+    .str-chat__context-menu__button__label {
+      color: var(--accent-error);
+    }
+  }
 }
 
 .str-chat__message-options {
