@@ -20,12 +20,7 @@ export const RemindMeActionButton = ({
   const { t } = useTranslationContext();
 
   return (
-    <ContextMenuButton
-      aria-selected='false'
-      className={className}
-      Icon={IconBellNotification}
-      {...props}
-    >
+    <ContextMenuButton className={className} Icon={IconBellNotification} {...props}>
       {t('Remind Me')}
     </ContextMenuButton>
   );

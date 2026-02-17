@@ -53,7 +53,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Open Thread')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
           Icon={IconBubbleText6ChatMessage}
@@ -87,7 +86,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Quote Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           onClick={() => {
             handleQuote();
@@ -105,7 +103,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconPin}
           onClick={(event) => {
@@ -124,7 +121,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Copy Message Text')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconSquareBehindSquare2_Copy}
           onClick={() => {
@@ -143,7 +139,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Resend Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconArrowRotateClockwise}
           onClick={() => {
@@ -163,7 +158,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Edit Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconEditBig}
           onClick={() => {
@@ -182,7 +176,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Mark Message Unread')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconBubbleWideNotificationChatMessage}
           onClick={(event) => {
@@ -201,7 +194,6 @@ const DefaultMessageActionComponents = {
       return (
         <RemindMeActionButton
           aria-label={t('aria/Remind Me Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           hasSubMenu
           isMine={isMyMessage()}
@@ -223,7 +215,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Bookmark Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={reminder ? IconBookmark : IconBookmark} // todo: what Icon for "Remove reminder" action
           onClick={() => {
@@ -246,7 +237,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Flag Message')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={IconFlag2}
           onClick={(event) => {
@@ -267,7 +257,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
-          aria-selected='false'
           className={msgActionsBoxButtonClassName}
           Icon={isMuted ? IconMute : IconMute} // todo: what icon for "Unmute" action
           onClick={(event) => {
@@ -287,7 +276,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={t('aria/Delete Message')}
-          aria-selected='false'
           className={clsx(
             msgActionsBoxButtonClassName,
             msgActionsBoxButtonClassNameDestructive,
@@ -311,7 +299,6 @@ const DefaultMessageActionComponents = {
       return (
         <ContextMenuButton
           aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
-          aria-selected='false'
           className={clsx(
             msgActionsBoxButtonClassName,
             msgActionsBoxButtonClassNameDestructive,
