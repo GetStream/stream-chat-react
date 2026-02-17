@@ -53,7 +53,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     groupedByUser,
     handleAction,
     handleOpenThread,
-    // handleRetry,
     highlighted,
     isMessageAIGenerated,
     isMyMessage,
@@ -127,16 +126,10 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
 
   let handleClick: (() => void) | undefined = undefined;
 
-  // todo: should we keep the behavior with click-on-blubble?
-  // if (allowRetry) {
-  //   handleClick = () => handleRetry(message);
-  // } else if (isBounced) {
-  //   handleClick = () => setIsBounceDialogOpen(true);
-  // } else if (isEdited) {
-  //   handleClick = () => setEditedTimestampOpen((prev) => !prev);
-  // }
-
-  if (isEdited) {
+  // todo: should we keep the behavior with click-on-blubble -> show the MessageBounceModal?
+  if (isBounced) {
+    handleClick = () => setIsBounceDialogOpen(true);
+  } else if (isEdited) {
     handleClick = () => setEditedTimestampOpen((prev) => !prev);
   }
 
