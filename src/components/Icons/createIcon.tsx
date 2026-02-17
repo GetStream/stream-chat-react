@@ -18,12 +18,7 @@ function toIconClass(name: string) {
 export function createIcon(name: string, content: ReactNode) {
   const iconClass = toIconClass(name);
   const Icon = ({ className, ...props }: ComponentProps<'svg'>) => (
-    <BaseIcon
-      viewBox='0 0 16 16'
-      xmlns='http://www.w3.org/2000/svg'
-      {...props}
-      className={clsx('str-chat__icon', iconClass, className)}
-    >
+    <BaseIcon {...props} className={clsx(iconClass, className)}>
       {content}
     </BaseIcon>
   );
