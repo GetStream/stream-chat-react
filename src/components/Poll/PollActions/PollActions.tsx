@@ -88,7 +88,7 @@ export const PollActions = ({
     (!is_closed && created_by_id === client.user?.id) ||
     !!voteCount ||
     options.length > MAX_OPTIONS_DISPLAYED ||
-    canCastVote ||
+    (canCastVote && allow_user_suggested_options && options.length < MAX_POLL_OPTIONS) ||
     (!is_closed && allow_answers) ||
     (answers_count > 0 && channelCapabilities['query-poll-votes']);
 
