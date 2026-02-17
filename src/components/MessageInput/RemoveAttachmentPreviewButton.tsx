@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { IconClose } from '../Icons';
+import { IconCrossSmall } from '../Icons';
 import { Button } from '../Button';
 import React, { type ComponentProps } from 'react';
 import { useTranslationContext } from '../../context';
@@ -19,7 +19,6 @@ export const RemoveAttachmentPreviewButton = ({
       className={clsx(
         'str-chat__attachment-preview__remove-button',
         'str-chat__button--solid',
-        'str-chat__button--size-sm',
         'str-chat__button--circular',
         className,
       )}
@@ -28,7 +27,7 @@ export const RemoveAttachmentPreviewButton = ({
       {...props}
       disabled={uploadState === 'uploading'}
     >
-      <IconClose />
+      <IconCrossSmall />
     </Button>
   );
 };

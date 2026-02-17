@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { Button } from '../Button';
-import { IconCross } from '../Icons';
+import { IconCrossMedium } from '../Icons';
 
 export type ModalHeaderProps = {
   title: string;
@@ -27,7 +27,7 @@ export const ModalHeader = ({ className, close, goBack, title }: ModalHeaderProp
         )}
         onClick={close}
       >
-        <IconCross />
+        <IconCrossMedium />
       </Button>
     )}
   </div>

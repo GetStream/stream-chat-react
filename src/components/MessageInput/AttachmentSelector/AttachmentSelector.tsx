@@ -39,11 +39,11 @@ import { useStableId } from '../../UtilityComponents/useStableId';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import {
-  IconCommand,
-  IconLocationPin,
+  IconChart5,
+  IconMapPin,
   IconPaperclip,
-  IconPlus,
-  IconPoll,
+  IconPlusLarge,
+  IconRunShortcut,
 } from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
 import {
@@ -59,7 +59,7 @@ const AttachmentSelectorMenuInitButtonIcon = () => {
     return <AttachmentSelectorInitiationButtonContents />;
   }
 
-  return <IconPlus className='str-chat__attachment-selector__menu-button__icon' />;
+  return <IconPlusLarge className='str-chat__attachment-selector__menu-button__icon' />;
 };
 
 export const AttachmentSelectorButton = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -147,7 +147,7 @@ export const DefaultAttachmentSelectorComponents = {
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
         hasSubMenu={hasSubmenu}
-        Icon={IconCommand}
+        Icon={IconRunShortcut}
         onClick={() => {
           if (!hasSubmenu) return;
           openSubmenu({
@@ -183,7 +183,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__add-location-button'
-        Icon={IconLocationPin}
+        Icon={IconMapPin}
         onClick={() => {
           openModalForAction('addLocation');
           closeMenu();
@@ -198,7 +198,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
-        Icon={IconPoll}
+        Icon={IconChart5}
         onClick={() => {
           openModalForAction('createPoll');
           closeMenu();

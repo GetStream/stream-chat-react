@@ -4,7 +4,7 @@ import Picker from '@emoji-mart/react';
 import { useMessageInputContext, useTranslationContext } from '../../context';
 import {
   Button,
-  IconEmoji,
+  IconEmojiSmile,
   type PopperLikePlacement,
   useMessageComposer,
 } from '../../components';
@@ -70,7 +70,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = IconEmoji } = props;
+  const { ButtonIconComponent = IconEmojiSmile } = props;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;

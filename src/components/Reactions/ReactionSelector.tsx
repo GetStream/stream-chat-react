@@ -5,7 +5,7 @@ import { useDialog } from '../Dialog';
 import { defaultReactionOptions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
-import { IconPlus } from '../Icons';
+import { IconPlusLarge } from '../Icons';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -74,7 +74,7 @@ const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
         ))}
       </ul>
       <button className='str-chat__reaction-selector__add-button str-chat__button str-chat__button--secondary str-chat__button--circular str-chat__button--outline str-chat__button--size-sm'>
-        <IconPlus />
+        <IconPlusLarge />
       </button>
     </div>
   );

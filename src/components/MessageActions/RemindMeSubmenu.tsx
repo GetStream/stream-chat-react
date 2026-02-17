@@ -1,13 +1,13 @@
 import React from 'react';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import type { BaseContextMenuButtonProps } from '../Dialog';
 import {
   ContextMenuBackButton,
   ContextMenuButton,
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import type { BaseContextMenuButtonProps } from '../Dialog';
-import { IconChevronRight } from '../Icons';
+import { IconChevronLeft } from '../Icons';
 
 // todo: do we need to have isMine as a prop?
 export type RemindMeActionButtonProps = { isMine: boolean } & BaseContextMenuButtonProps;
@@ -32,7 +32,7 @@ export const RemindMeSubmenuHeader = () => {
   return (
     <ContextMenuHeader>
       <ContextMenuBackButton onClick={returnToParentMenu}>
-        <IconChevronRight />
+        <IconChevronLeft />
         <span>{t('Remind Me')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>

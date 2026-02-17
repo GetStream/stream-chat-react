@@ -18,7 +18,7 @@ import { LoadingIndicatorIcon } from '../icons';
 import {
   IconArrowRotateClockwise,
   IconExclamationCircle,
-  IconVideoCamera,
+  IconVideoSolid,
 } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
@@ -100,7 +100,7 @@ export const MediaAttachmentPreview = ({
             !hasUploadError &&
             uploadState !== 'uploading' && (
               <div className='str-chat__attachment-preview-media__video-indicator'>
-                <IconVideoCamera />
+                <IconVideoSolid />
                 {attachment.duration && <div>{attachment.duration}</div>}
               </div>
             )}

@@ -129,10 +129,6 @@
 
   .str-chat__gallery__nav-button--prev {
     left: var(--spacing-sm);
-
-    svg {
-      transform: rotate(180deg);
-    }
   }
 
   .str-chat__gallery__nav-button--next {

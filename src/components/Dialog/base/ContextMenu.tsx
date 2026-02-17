@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { IconChevronRight } from '../../Icons';
+import { IconChevronLeft } from '../../Icons';
 
 export const ContextMenuBackButton = ({
   children,
@@ -176,7 +176,7 @@ export const ContextMenu = ({
         ) : menuStack.length > 1 ? (
           <ContextMenuHeader>
             <ContextMenuBackButton onClick={returnToParentMenu}>
-              <IconChevronRight />
+              <IconChevronLeft />
               <span>{backLabel}</span>
             </ContextMenuBackButton>
           </ContextMenuHeader>
