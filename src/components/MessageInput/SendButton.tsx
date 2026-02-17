@@ -1,15 +1,12 @@
 import React from 'react';
 import { SendIcon } from './icons';
 import { useMessageComposerHasSendableData } from './hooks';
-import type { UpdatedMessage } from 'stream-chat';
 import { useTranslationContext } from '../../context';
 
 export type SendButtonProps = {
-  sendMessage: (
-    event: React.BaseSyntheticEvent,
-    customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
-  ) => void;
+  sendMessage: (event: React.BaseSyntheticEvent) => void;
 } & React.ComponentProps<'button'>;
+
 export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
   const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();
