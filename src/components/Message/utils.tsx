@@ -441,6 +441,9 @@ export const countEmojis = (text?: string) => {
   return matches ? matches.length : 0;
 };
 
+export const isMessageErrorRetryable = (message: LocalMessage) =>
+  message.status === 'failed' && message.error?.status !== 403;
+
 export const isMessageBounced = (
   message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
 ) =>

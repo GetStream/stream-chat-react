@@ -42,6 +42,7 @@
 
   .str-chat__audio-recorder__recording-preview {
     .str-chat__icon--microphone {
+      height: var(--icon-size-sm);
       width: var(--icon-size-sm);
       color: var(--button-destructive-text);
     }

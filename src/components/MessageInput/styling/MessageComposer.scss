@@ -115,27 +115,22 @@
       display: flex;
       cursor: pointer;
 
-      .str-chat__icon--emoji {
+      svg {
+        height: var(--icon-size-md);
         width: var(--icon-size-md);
       }
     }
 
     .str-chat__start-recording-audio-button {
       .str-chat__icon--microphone {
+        height: var(--icon-size-md);
         width: var(--icon-size-md);
       }
     }
 
     .str-chat__send-button {
       .str-chat__icon--paper-plane {
-        fill: none;
-
-        path {
-          color: var(--button-primary-text-on-accent);
-        }
-      }
-
-      .str-chat__icon--paper-plane {
+        height: var(--icon-size-md);
         width: var(--icon-size-md);
       }
     }

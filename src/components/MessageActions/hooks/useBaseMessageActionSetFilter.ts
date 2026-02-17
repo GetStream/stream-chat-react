@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 
 import { useChannelStateContext, useMessageContext } from '../../../context';
 import { useUserRole } from '../../Message/hooks';
-import { ACTIONS_NOT_WORKING_IN_THREAD } from '../../Message/utils';
+import {
+  ACTIONS_NOT_WORKING_IN_THREAD,
+  isMessageBounced,
+  isMessageErrorRetryable,
+} from '../../Message/utils';
 
 import type { MessageActionSetItem } from '../MessageActions';
 
@@ -31,6 +35,8 @@ export const useBaseMessageActionSetFilter = (
     canSendMessage,
   } = useUserRole(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
+  const isBounced = isMessageBounced(message);
+  const allowRetry = isMessageErrorRetryable(message);
 
   return useMemo(() => {
     if (disable) return messageActionSet;
@@ -51,15 +57,16 @@ export const useBaseMessageActionSetFilter = (
         return false;
 
       // failed message menu has special treatment
-      if (message.status === 'failed' || message.type === 'error') {
+      if (isBounced || message.error) {
         return (
-          (type === 'resendMessage' && !canSendMessage) ||
-          (type === 'edit' && !canEdit) ||
-          (type === 'delete' && !canDelete)
+          (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||
+          (type === 'edit' && canEdit && isBounced) ||
+          (type === 'delete' && canDelete && isBounced)
         );
       }
 
       if (
+        type === 'resendMessage' ||
         (type === 'blockUser' && !canBlockUser) ||
         (type === 'copyMessageText' && !message.text) ||
         (type === 'delete' && !canDelete) ||
@@ -78,6 +85,7 @@ export const useBaseMessageActionSetFilter = (
       return true;
     });
   }, [
+    allowRetry,
     canBlockUser,
     canDelete,
     canEdit,
@@ -89,8 +97,10 @@ export const useBaseMessageActionSetFilter = (
     canReply,
     canSendMessage,
     channelConfig,
+    isBounced,
     isInitialMessage,
     isMessageThreadReply,
+    message.error,
     message.status,
     message.text,
     message.type,

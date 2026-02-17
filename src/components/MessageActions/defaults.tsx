@@ -22,7 +22,12 @@ import {
   ThreadIcon,
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
-import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useChannelActionContext,
+  useChatContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import {
   RemindMeActionButton,
   RemindMeSubmenu,
@@ -132,8 +137,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Resend({ closeMenu }: ContextMenuItemProps) {
-      const messageComposer = useMessageComposer();
-      const { message } = useMessageContext();
+      const { handleRetry, message } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
@@ -143,7 +147,7 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           Icon={IconArrowRotateClockwise}
           onClick={() => {
-            messageComposer.initState({ composition: message });
+            handleRetry(message);
             closeMenu();
           }}
         >
@@ -276,7 +280,8 @@ const DefaultMessageActionComponents = {
       );
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
-      const { handleDelete } = useMessageContext();
+      const { removeMessage } = useChannelActionContext();
+      const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
 
       return (
@@ -289,7 +294,8 @@ const DefaultMessageActionComponents = {
           )}
           Icon={IconTrashBin}
           onClick={(event) => {
-            handleDelete(event);
+            if (message.type === 'error') removeMessage(message);
+            else handleDelete(event);
             closeMenu();
           }}
         >
@@ -380,14 +386,19 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
     type: 'copyMessageText',
   },
   {
-    Component: DefaultMessageActionComponents.dropdown.MarkUnread,
+    Component: DefaultMessageActionComponents.dropdown.Resend,
     placement: 'dropdown',
-    type: 'markUnread',
+    type: 'resendMessage',
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Edit,
     placement: 'dropdown',
     type: 'edit',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.MarkUnread,
+    placement: 'dropdown',
+    type: 'markUnread',
   },
   {
     Component: DefaultMessageActionComponents.dropdown.RemindMe,

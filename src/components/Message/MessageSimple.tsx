@@ -21,6 +21,7 @@ import {
   isMessageBlocked,
   isMessageBounced,
   isMessageEdited,
+  isMessageErrorRetryable,
   isOnlyEmojis,
   messageHasAttachments,
   messageHasGiphyAttachment,
@@ -52,7 +53,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     groupedByUser,
     handleAction,
     handleOpenThread,
-    handleRetry,
+    // handleRetry,
     highlighted,
     isMessageAIGenerated,
     isMyMessage,
@@ -120,17 +121,22 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
   const showReplyCountButton = !threadList && !!message.reply_count;
   const showIsReplyInChannel =
     !threadList && message.show_in_channel && message.parent_id;
-  const allowRetry = message.status === 'failed' && message.error?.status !== 403;
+  const allowRetry = isMessageErrorRetryable(message);
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   let handleClick: (() => void) | undefined = undefined;
 
-  if (allowRetry) {
-    handleClick = () => handleRetry(message);
-  } else if (isBounced) {
-    handleClick = () => setIsBounceDialogOpen(true);
-  } else if (isEdited) {
+  // todo: should we keep the behavior with click-on-blubble?
+  // if (allowRetry) {
+  //   handleClick = () => handleRetry(message);
+  // } else if (isBounced) {
+  //   handleClick = () => setIsBounceDialogOpen(true);
+  // } else if (isEdited) {
+  //   handleClick = () => setEditedTimestampOpen((prev) => !prev);
+  // }
+
+  if (isEdited) {
     handleClick = () => setEditedTimestampOpen((prev) => !prev);
   }
 
