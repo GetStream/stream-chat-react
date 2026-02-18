@@ -192,7 +192,7 @@
   "People matching": "Persone che corrispondono",
   "Photo": "Foto",
   "Pin": "Appunta",
-  "Pinned by": "Appuntato da",
+  "Pinned by {{ name }}": "Appuntato da {{ name }}",
   "Play video": "Riproduci video",
   "Poll": "Sondaggio",
   "Poll comments": "Commenti del sondaggio",

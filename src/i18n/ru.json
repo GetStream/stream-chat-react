@@ -197,7 +197,7 @@
   "People matching": "Совпадающие люди",
   "Photo": "Фото",
   "Pin": "Закрепить",
-  "Pinned by": "Закреплено",
+  "Pinned by {{ name }}": "Закреплено: {{ name }}",
   "Play video": "Воспроизвести видео",
   "Poll": "Опрос",
   "Poll comments": "Комментарии к опросу",
