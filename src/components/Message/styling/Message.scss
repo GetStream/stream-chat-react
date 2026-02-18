@@ -319,6 +319,12 @@
             margin-right: var(--str-chat__message-reactions-host-offset-x);
           }
         }
+
+        .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
+          > .str-chat__message-reactions__list {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
       }
     }
   }
@@ -357,6 +363,12 @@
           &:has(.str-chat__message-reactions--flipped-horizontally) {
             margin-left: var(--str-chat__message-reactions-host-offset-x);
           }
+        }
+
+        .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
+          > .str-chat__message-reactions__list {
+          justify-content: flex-end;
+          flex-wrap: wrap;
         }
       }
     }
