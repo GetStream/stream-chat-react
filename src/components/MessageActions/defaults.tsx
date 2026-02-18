@@ -92,7 +92,7 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Quote')}
+          {t('Quote Reply')}
         </ContextMenuButton>
       );
     },
