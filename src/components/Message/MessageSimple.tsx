@@ -60,6 +60,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     onUserClick,
     onUserHover,
     renderText,
+    showAvatar = 'incoming',
     threadList,
   } = props;
   const { client } = useChatContext('MessageSimple');
@@ -151,6 +152,12 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--is-emoji-only': textHasEmojisOnly,
       'str-chat__message--pinned pinned-message': message.pinned,
+      'str-chat__message--with-avatar': (() => {
+        if (!message.user) return false;
+        if (showAvatar === 'incoming') return !isMyMessage();
+        if (showAvatar === 'outgoing') return isMyMessage();
+        return showAvatar;
+      })(),
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.error?.status !== 403,

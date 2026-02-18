@@ -132,6 +132,7 @@ export const messageRenderer = (
     renderText,
     returnAllReadData,
     shouldGroupByUser,
+    showAvatar,
     sortReactionDetails,
     sortReactions,
     threadList,
@@ -218,6 +219,7 @@ export const messageRenderer = (
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
         returnAllReadData={returnAllReadData}
+        showAvatar={showAvatar}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
         threadList={threadList}

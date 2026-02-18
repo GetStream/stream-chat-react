@@ -91,6 +91,14 @@ export type MessageProps = {
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message if the message is the last one and was posted by my user */
   readBy?: UserResponse[];
+  /**
+   * When set, the message uses the grid layout with an avatar column and shows the sender avatar.
+   * - `true`: show for incoming and outgoing messages
+   * - `'incoming'`: show only for incoming (other users') messages
+   * - `'outgoing'`: show only for own (outgoing) messages
+   * - `false` or omitted: no avatar column
+   */
+  showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (
     text?: string,

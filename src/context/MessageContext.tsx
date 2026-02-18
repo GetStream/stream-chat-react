@@ -115,6 +115,8 @@ export type MessageContextValue = {
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */
   readBy?: UserResponse[];
+  /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
+  showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
   renderText?: (
     text?: string,
