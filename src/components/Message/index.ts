@@ -7,6 +7,7 @@ export * from './MessageDeleted';
 export * from './MessageEditedTimestamp';
 export * from './MessageIsThreadReplyInChannelButtonIndicator';
 export * from './MessageRepliesCountButton';
+export * from './PinIndicator';
 export * from './MessageSimple';
 export * from './MessageStatus';
 export * from './MessageText';

@@ -1,7 +1,5 @@
 import React from 'react';
 
-import type { PinIndicatorProps } from './types';
-
 import type { IconProps } from '../../types/types';
 
 export const ActionsIcon = ({ className = '' }: IconProps) => (
@@ -51,28 +49,6 @@ export const PinIcon = () => (
     />
   </svg>
 );
-
-export const PinIndicator = ({ message, t }: PinIndicatorProps) => {
-  if (!message || !t) return null;
-
-  return (
-    <div style={{ alignItems: 'center', display: 'flex' }}>
-      <PinIcon />
-      <div
-        style={{
-          fontSize: '14px',
-          marginBottom: '0',
-          marginLeft: '8px',
-          marginTop: '0',
-        }}
-      >
-        {message.pinned_by
-          ? `${t('Pinned by')} ${message.pinned_by?.name || message.pinned_by?.id}`
-          : t('Message pinned')}
-      </div>
-    </div>
-  );
-};
 
 export const MessageErrorIcon = () => (
   <div className='str-chat__message-error-icon'>

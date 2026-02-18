@@ -188,7 +188,7 @@
   "People matching": "मेल खाते लोग",
   "Photo": "फ़ोटो",
   "Pin": "पिन",
-  "Pinned by": "द्वारा पिन किया गया",
+  "Pinned by {{ name }}": "{{ name }} द्वारा पिन किया गया",
   "Play video": "वीडियो चलाएं",
   "Poll": "मतदान",
   "Poll comments": "मतदान टिप्पणियाँ",
