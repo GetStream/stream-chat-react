@@ -89,21 +89,26 @@
 
 /* Make spaces between message groups */
 .str-chat__li--top {
-  padding-block-start: calc(var(--spacing-xs) - var(--spacing-xxxs));
+  padding-block-start: var(--spacing-xs);
+  padding-block-end: var(--spacing-xxxs);
 }
 
 .str-chat__li--bottom  {
-  padding-block-end: calc(var(--spacing-xs) - var(--spacing-xxxs));
+  padding-block-start: var(--spacing-xxxs);
+  padding-block-end: var(--spacing-xs);
+}
+
+.str-chat__li--middle  {
+  padding-block: var(--spacing-xxxs);
 }
 
 .str-chat__li--single {
-  padding-block: calc(var(--spacing-xs) - var(--spacing-xxxs));
+  padding-block: var(--spacing-xs);
 }
 
 .str-chat__message {
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
   padding-inline: var(--str-chat__message-composer-padding);
-  padding-block: var(--spacing-xxxs);
 
   &.str-chat__message-without-touch-support {
     --str-chat-message-options-size: calc(
