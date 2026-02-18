@@ -229,7 +229,7 @@
 
   .str-chat__message-reminder {
     grid-area: message-reminder;
-    padding-block: var(--str-chat__spacing-2) var(--str-chat__spacing-0_5);
+    padding-block: var(--spacing-xxs);
     margin: 0;
     @include utils.component-layer-overrides('message-reminder');
     font: var(--str-chat__caption-medium-text);
@@ -237,12 +237,35 @@
 
   @mixin message-grid-no-avatar {
     grid-template-areas:
+      'pin-indicator'
       'message-reminder'
       'message'
       'translation-notice'
       'custom-metadata'
       'metadata';
     grid-template-columns: 1fr;
+  }
+
+  @mixin message-grid-other-with-avatar {
+    grid-template-areas:
+      '. pin-indicator'
+      '. message-reminder'
+      'avatar message'
+      'avatar translation-notice'
+      'avatar custom-metadata'
+      'avatar metadata';
+    grid-template-columns: auto 1fr;
+  }
+
+  @mixin message-grid-me-with-avatar {
+    grid-template-areas:
+      'pin-indicator .'
+      'message-reminder .'
+      'message avatar'
+      'translation-notice avatar'
+      'custom-metadata avatar'
+      'metadata avatar';
+    grid-template-columns: 1fr auto;
   }
 
   .str-chat__message-pin-indicator {
@@ -267,13 +290,7 @@
     justify-items: flex-start;
 
     &.str-chat__message--with-avatar {
-      grid-template-areas:
-        '. message-reminder'
-        'avatar message'
-        'avatar translation-notice'
-        'avatar custom-metadata'
-        'avatar metadata';
-      grid-template-columns: auto 1fr;
+      @include message-grid-other-with-avatar;
     }
 
     &:not(.str-chat__message--with-avatar) {
@@ -300,23 +317,11 @@
   }
 
   &.str-chat__message--pinned.str-chat__message--other {
-    grid-template-areas:
-      '. pin-indicator'
-      '. message-reminder'
-      'avatar message'
-      'avatar translation-notice'
-      'avatar custom-metadata'
-      'avatar metadata';
+    @include message-grid-other-with-avatar;
   }
 
   &.str-chat__message--pinned.str-chat__message--me {
-    grid-template-areas:
-      'pin-indicator .'
-      'message-reminder .'
-      'message avatar'
-      'translation-notice avatar'
-      'custom-metadata avatar'
-      'metadata avatar';
+    @include message-grid-me-with-avatar;
   }
 
   &.str-chat__message--me {
@@ -324,13 +329,7 @@
     justify-items: flex-end;
 
     &.str-chat__message--with-avatar {
-      grid-template-areas:
-        'message-reminder .'
-        'message avatar'
-        'translation-notice avatar'
-        'custom-metadata avatar'
-        'metadata avatar';
-      grid-template-columns: 1fr auto;
+      @include message-grid-me-with-avatar;
     }
 
     &:not(.str-chat__message--with-avatar) {
