@@ -2,7 +2,44 @@
   display: flex;
   align-items: center;
 
-  & > .str-chat__avatar:not(:first-child) {
+  & > .str-chat__avatar:not(:first-child),
+  .str-chat__avatar-stack-badge-count {
     margin-left: calc(var(--spacing-xs) * -1);
+  }
+
+  & > .str-chat__avatar:after {
+    content: '';
+    position: absolute;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border: 2px solid var(--border-core-on-dark);
+    border-radius: inherit;
+  }
+
+  &.str-chat__avatar-stack--size-xs {
+    --avatar-stack-badge-count-size: 20px;
+    --avatar-stack-badge-count-font-size: var(--typography-font-size-xxs);
+  }
+
+  &.str-chat__avatar-stack--size-sm {
+    --avatar-stack-badge-count-size: 24px;
+    // FIXME?: should be sm but it looks way too big
+    --avatar-stack-badge-count-font-size: var(--typography-font-size-xs);
+  }
+
+  .str-chat__avatar-stack-badge-count {
+    font-size: var(--avatar-stack-badge-count-font-size);
+    font-weight: var(--typography-font-weight-bold);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--avatar-stack-badge-count-size);
+    width: var(--avatar-stack-badge-count-size);
+    border-radius: var(--radius-max);
+    border: 1px solid var(--border-core-subtle);
+    background: var(--badge-bg-default);
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+    line-height: 1;
+    z-index: 1;
   }
 }
