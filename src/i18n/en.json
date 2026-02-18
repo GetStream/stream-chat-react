@@ -204,7 +204,7 @@
   "People matching": "People matching",
   "Photo": "Photo",
   "Pin": "Pin",
-  "Pinned by": "Pinned by",
+  "Pinned by {{ name }}": "Pinned by {{ name }}",
   "Play video": "Play video",
   "Poll": "Poll",
   "Poll comments": "Poll comments",

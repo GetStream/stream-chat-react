@@ -42,6 +42,7 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
+import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 
 type MessageSimpleWithContextProps = MessageContextValue;
@@ -80,7 +81,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
-    PinIndicator,
+    PinIndicator = DefaultPinIndicator,
     QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionList,
     ReminderNotification = DefaultReminderNotification,
@@ -151,7 +152,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       'str-chat__message--has-single-attachment': hasSingleAttachment,
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--is-emoji-only': textHasEmojisOnly,
-      'str-chat__message--pinned pinned-message': message.pinned,
+      'str-chat__message--pinned': message.pinned,
       'str-chat__message--with-avatar': (() => {
         if (!message.user) return false;
         if (showAvatar === 'incoming') return !isMyMessage();
@@ -181,7 +182,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       )}
       {
         <div className={rootClassName} key={message.id}>
-          {PinIndicator && <PinIndicator />}
+          {message.pinned && <PinIndicator message={message} />}
           {!!reminder && <ReminderNotification reminder={reminder} />}
           {message.user && (
             <Avatar

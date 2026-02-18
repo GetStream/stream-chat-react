@@ -204,7 +204,7 @@
   "People matching": "Passende Personen",
   "Photo": "Foto",
   "Pin": "Anheften",
-  "Pinned by": "Angeheftet von",
+  "Pinned by {{ name }}": "Angeheftet von {{ name }}",
   "Play video": "Video abspielen",
   "Poll": "Umfrage",
   "Poll comments": "Umfragekommentare",

@@ -209,7 +209,7 @@
   "People matching": "Personas que coinciden",
   "Photo": "Foto",
   "Pin": "Fijar",
-  "Pinned by": "Fijado por",
+  "Pinned by {{ name }}": "Fijado por {{ name }}",
   "Play video": "Reproducir video",
   "Poll": "Encuesta",
   "Poll comments": "Comentarios de la encuesta",

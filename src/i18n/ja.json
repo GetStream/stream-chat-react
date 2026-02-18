@@ -204,7 +204,7 @@
   "People matching": "一致する人",
   "Photo": "写真",
   "Pin": "ピン",
-  "Pinned by": "ピンした方",
+  "Pinned by {{ name }}": "{{ name }}がピンしました",
   "Play video": "動画を再生",
   "Poll": "投票",
   "Poll comments": "投票コメント",

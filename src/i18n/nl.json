@@ -204,7 +204,7 @@
   "People matching": "Mensen die matchen",
   "Photo": "Foto",
   "Pin": "Vastmaken",
-  "Pinned by": "Vastgemaakt door",
+  "Pinned by {{ name }}": "Vastgemaakt door {{ name }}",
   "Play video": "Video afspelen",
   "Poll": "Peiling",
   "Poll comments": "Peiling opmerkingen",

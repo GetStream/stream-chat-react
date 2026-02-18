@@ -1,11 +1,8 @@
-import type { TFunction } from 'i18next';
 import type { ReactNode } from 'react';
-import type { ReactionSort, UserResponse } from 'stream-chat';
+import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
-
-import type { LocalMessage } from 'stream-chat';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
@@ -122,8 +119,3 @@ export type MessageProps = {
 };
 
 export type MessageUIComponentProps = Partial<MessageContextValue>;
-
-export type PinIndicatorProps = {
-  message?: LocalMessage;
-  t?: TFunction;
-};
