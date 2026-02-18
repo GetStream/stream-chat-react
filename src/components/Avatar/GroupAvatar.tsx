@@ -6,8 +6,9 @@ import type { GroupChannelDisplayInfo } from '../ChannelPreview';
 export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
   /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
   groupChannelDisplayInfo: GroupChannelDisplayInfo;
-  size: 'xl' | 'lg' | null;
+  size: '2xl' | 'xl' | 'lg' | null;
   isOnline?: boolean;
+  overflowCount?: number;
 };
 
 /**
@@ -19,9 +20,12 @@ export const GroupAvatar = ({
   className,
   groupChannelDisplayInfo,
   isOnline,
+  overflowCount,
   size,
   ...rest
 }: GroupAvatarProps) => {
+  const displayCountBadge = typeof overflowCount === 'number' && overflowCount > 0;
+
   if (!groupChannelDisplayInfo || groupChannelDisplayInfo.length < 2) {
     const [firstUser] = groupChannelDisplayInfo || [];
 
@@ -37,9 +41,10 @@ export const GroupAvatar = ({
   }
 
   let avatarSize: AvatarProps['size'] = null;
-
-  if (size === 'xl') {
+  if (size === '2xl') {
     avatarSize = 'lg';
+  } else if (size === 'xl') {
+    avatarSize = 'md';
   } else if (size === 'lg') {
     avatarSize = 'sm';
   }
@@ -59,14 +64,19 @@ export const GroupAvatar = ({
       role='button'
       {...rest}
     >
-      {groupChannelDisplayInfo.slice(0, 4).map(({ imageUrl, userName }, index) => (
-        <Avatar
-          imageUrl={imageUrl}
-          key={`${userName}-${imageUrl}-${index}`}
-          size={avatarSize}
-          userName={userName}
-        />
-      ))}
+      {groupChannelDisplayInfo
+        .slice(0, displayCountBadge ? 2 : 4)
+        .map(({ imageUrl, userName }, index) => (
+          <Avatar
+            imageUrl={imageUrl}
+            key={`${userName}-${imageUrl}-${index}`}
+            size={avatarSize}
+            userName={userName}
+          />
+        ))}
+      {displayCountBadge && (
+        <div className='str-chat__avatar-group__count-badge'>+{overflowCount}</div>
+      )}
     </div>
   );
 };

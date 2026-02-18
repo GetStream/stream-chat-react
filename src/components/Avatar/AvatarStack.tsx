@@ -4,14 +4,14 @@ import { type AvatarProps, Avatar as DefaultAvatar } from './Avatar';
 import clsx from 'clsx';
 
 export function AvatarStack({
-  badgeCount,
   component: Component = 'div',
   displayInfo = [],
+  overflowCount,
   size,
 }: {
   component?: ElementType;
   displayInfo?: (Pick<AvatarProps, 'imageUrl' | 'userName'> & { id?: string })[];
-  badgeCount?: number;
+  overflowCount?: number;
   size: 'sm' | 'xs' | null;
 }) {
   const { Avatar = DefaultAvatar } = useComponentContext(AvatarStack.name);
@@ -34,8 +34,8 @@ export function AvatarStack({
           userName={info.userName}
         />
       ))}
-      {typeof badgeCount === 'number' && (
-        <div className='str-chat__avatar-stack-badge-count'>{badgeCount}</div>
+      {typeof overflowCount === 'number' && overflowCount > 0 && (
+        <div className='str-chat__avatar-stack__count-badge'>{overflowCount}</div>
       )}
     </Component>
   );
