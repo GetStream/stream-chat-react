@@ -13,7 +13,7 @@
   line-height: 1;
   text-transform: uppercase;
   width: var(--avatar-size);
-  aspect-ratio: 1/1;
+  height: var(--avatar-size);
   --avatar-badge-angle: -45deg;
 
   // FIXME: temporary thing, should be removed when we get rid of the old CSS
