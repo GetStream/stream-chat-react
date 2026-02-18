@@ -7,7 +7,7 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import { IconBellNotification, IconChevronLeft, IconPlusSmall } from '../Icons';
+import { IconBellNotification, IconChevronLeft } from '../Icons';
 
 // todo: do we need to have isMine as a prop?
 export type RemindMeActionButtonProps = { isMine: boolean } & BaseContextMenuButtonProps;
@@ -53,7 +53,6 @@ export const RemindMeSubmenu = () => {
       {client.reminders.scheduledOffsetsMs.map((offsetMs) => (
         <ContextMenuButton
           className='str-chat__message-actions-list-item-button'
-          Icon={IconPlusSmall}
           key={`reminder-offset-option--${offsetMs}`}
           onClick={() => {
             client.reminders.upsertReminder({
