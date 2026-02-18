@@ -55,31 +55,6 @@
     min-height: 0;
   }
 
-  .str-chat__modal-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    width: 100%;
-    padding: var(--spacing-xl);
-
-    .str-chat__modal-header__title {
-      flex: 1;
-      font: var(--str-chat__heading-sm-text);
-      color: var(--text-primary);
-    }
-
-    button.str-chat__modal-header__go-back-button {
-      padding: 1rem;
-      background-size: 0.875rem;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-    button.str-chat__modal-header__go-back-button {
-      background-image: var(--str-chat__arrow-left-icon);
-    }
-  }
-
   .str-chat__modal__overlay__close-button {
     position: absolute;
     right: 10px;

@@ -5,17 +5,29 @@ import { IconCrossMedium } from '../Icons';
 
 export type ModalHeaderProps = {
   title: string;
+  description?: string;
   className?: string;
   close?: () => void;
   goBack?: () => void;
 };
 
-export const ModalHeader = ({ className, close, goBack, title }: ModalHeaderProps) => (
+export const ModalHeader = ({
+  className,
+  close,
+  description,
+  goBack,
+  title,
+}: ModalHeaderProps) => (
   <div className={clsx('str-chat__modal-header', className)}>
     {goBack && (
       <button className='str-chat__modal-header__go-back-button' onClick={goBack} />
     )}
-    <div className='str-chat__modal-header__title'>{title}</div>
+    <div className='str-chat__modal-header__title-group'>
+      <div className='str-chat__modal-header__title'>{title}</div>
+      {description != null && description !== '' && (
+        <div className='str-chat__modal-header__description'>{description}</div>
+      )}
+    </div>
     {close && (
       <Button
         className={clsx(
