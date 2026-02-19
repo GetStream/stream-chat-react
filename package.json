@@ -118,7 +118,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.32.0"
+    "stream-chat": "^9.35.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -212,7 +212,7 @@
     "react-dom": "^19.0.0",
     "sass": "^1.97.2",
     "semantic-release": "^25.0.2",
-    "stream-chat": "^9.32.0",
+    "stream-chat": "^9.35.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0",
@@ -221,7 +221,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
-    "build-styling": "sass src/styling/index.scss dist/css/index.css && sass src/plugins/Emojis/styling/index.scss dist/css/emojis.css",
+    "build-styling": "sass src/styling/index.scss dist/css/index.css",
     "build-translations": "i18next-cli extract",
     "coverage": "jest --collectCoverage && codecov",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",

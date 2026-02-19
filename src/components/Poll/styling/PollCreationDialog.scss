@@ -24,11 +24,13 @@
   }
 
   .str-chat__form__input-field__value input,
-  .str-chat__form__input-field__value.str-chat__form-text-input .str-chat__form-text-input__wrapper {
+  .str-chat__form__input-field__value.str-chat__form-text-input
+    .str-chat__form-text-input__wrapper {
     width: 100%;
   }
 
-  .str-chat__form__input-field__value.str-chat__form-text-input .str-chat__form-text-input__wrapper {
+  .str-chat__form__input-field__value.str-chat__form-text-input
+    .str-chat__form-text-input__wrapper {
     background-color: transparent;
   }
 

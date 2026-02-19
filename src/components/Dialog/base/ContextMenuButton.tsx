@@ -234,6 +234,24 @@ const ContextMenuButtonWithSubmenu = ({
 
 type ContextMenuButtonProps = BaseContextMenuButtonProps;
 
-export const ContextMenuButton = (props: ContextMenuButtonProps) => (
-  <BaseContextMenuButton {...props} />
-);
+export const ContextMenuButton = ({
+  onBlur,
+  onFocus,
+  ...props
+}: ContextMenuButtonProps) => {
+  const [isFocused, setIsFocused] = useState(false);
+  return (
+    <BaseContextMenuButton
+      {...props}
+      aria-selected={isFocused ? 'true' : 'false'}
+      onBlur={(e) => {
+        setIsFocused(false);
+        onBlur?.(e);
+      }}
+      onFocus={(e) => {
+        setIsFocused(true);
+        onFocus?.(e);
+      }}
+    />
+  );
+};

@@ -6,7 +6,6 @@ import {
   ContextMenu,
   type ContextMenuItemComponent,
   type ContextMenuItemProps,
-  DialogAnchor,
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../Dialog';
@@ -117,25 +116,20 @@ export const MessageActions = ({
             <ActionsIcon className='str-chat__message-action-icon' />
           </Button>
 
-          <DialogAnchor
+          <ContextMenu
+            backLabel={t('Back')}
+            className={clsx('str-chat__message-actions-box', {
+              'str-chat__message-actions-box--open': dropdownDialogIsOpen,
+            })}
             dialogManagerId={dialogManager?.id}
             id={dropdownDialogId}
+            items={contextMenuItems}
+            onClose={dialog?.close}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
             tabIndex={-1}
             trapFocus
-          >
-            <ContextMenu
-              backLabel={t('Back')}
-              className={clsx(
-                'str-chat__message-actions-box',
-                { 'str-chat__message-actions-box--open': dropdownDialogIsOpen },
-                'str-chat__dialog-menu',
-              )}
-              items={contextMenuItems}
-              onClose={dialog?.close}
-            />
-          </DialogAnchor>
+          />
         </>
       )}
       {quickActionSet.map(({ Component: QuickActionComponent, type }) => (

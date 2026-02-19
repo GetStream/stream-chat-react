@@ -1,0 +1,9 @@
+@use '../../../styling/utils';
+
+.str-chat__message-bounce-prompt {
+  max-width: 300px;
+
+  .str-chat__prompt-header svg.str-chat__icon--exclamation-circle {
+    color: var(--text-tertiary);
+  }
+}
