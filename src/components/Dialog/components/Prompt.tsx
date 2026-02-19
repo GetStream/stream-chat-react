@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import { IconCrossMedium } from '../../Icons';
+import { IconArrowLeft, IconCrossMedium } from '../../Icons';
 
 const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__prompt', className)}>
@@ -26,7 +26,18 @@ const PromptHeader = ({
 }: PromptHeaderProps) => (
   <div className={clsx('str-chat__prompt__header', className)}>
     {goBack && (
-      <button className='str-chat__prompt__header__go-back-button' onClick={goBack} />
+      <Button
+        className={clsx(
+          'str-chat__prompt__header__go-back-button',
+          'str-chat__button--secondary',
+          'str-chat__button--ghost',
+          'str-chat__button--circular',
+          'str-chat__button--size-sm',
+        )}
+        onClick={goBack}
+      >
+        <IconArrowLeft />
+      </Button>
     )}
     <div className='str-chat__prompt__header__title-group'>
       <div className='str-chat__prompt__header__title'>{title}</div>
