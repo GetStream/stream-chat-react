@@ -7,14 +7,14 @@ import type { ModalProps } from '../Modal';
 import { Button } from '../Button';
 import clsx from 'clsx';
 import { IconExclamationCircle } from '../Icons';
-import { Alert } from '../Dialog/components/Alert';
+import { Alert } from '../Dialog';
 
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
+// todo: shall we rename this to MessageBounceAlert?
 export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptProps) {
-  const { handleDelete, handleEdit, handleRetry } =
-    useMessageBounceContext('MessageBouncePrompt');
-  const { t } = useTranslationContext('MessageBouncePrompt');
+  const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext();
+  const { t } = useTranslationContext();
 
   function createHandler(
     handle: MouseEventHandler<HTMLButtonElement>,
@@ -61,7 +61,6 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
           )}
           data-testid='message-bounce-edit'
           onClick={createHandler(handleEdit)}
-          type='button'
         >
           {t('Edit Message')}
         </Button>
