@@ -26,10 +26,6 @@ export type MessageProps = {
   deliveredTo?: UserResponse[];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
-  /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
-  endOfGroup?: boolean;
-  /** When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
-  firstOfGroup?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
@@ -50,8 +46,6 @@ export type MessageProps = {
   getMuteUserSuccessNotification?: (user: UserResponse) => string;
   /** Function that returns the notification text to be displayed when a pin message request fails */
   getPinMessageErrorNotification?: (message: LocalMessage) => string;
-  /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
-  groupedByUser?: boolean;
   /** A list of styles to apply to this message, i.e. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether to highlight and focus the message on load */
