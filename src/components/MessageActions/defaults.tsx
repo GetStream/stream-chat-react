@@ -316,7 +316,10 @@ const DefaultMessageActionComponents = {
       const { client } = useChatContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const isBlocked = false; // !!client.blockedUsers[targetId]
+      const isBlocked =
+        !message.user?.id ||
+        new Set(client.blockedUsers.getLatestValue().userIds).has(message.user?.id);
+
       return (
         <ContextMenuButton
           aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
