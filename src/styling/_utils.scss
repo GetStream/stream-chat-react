@@ -73,6 +73,11 @@
   overflow-y: hidden;
 }
 
+@mixin scrollable {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 @mixin clamped-height-from-original-image-dimensions(
   $max-height-css-var,
   $max-width-css-var
@@ -82,36 +87,6 @@
     min(var(#{$max-width-css-var}, 1000000) / var(--original-width, 1000000), 1px) *
       var(--original-height, 1000000)
   );
-}
-
-@mixin message-list-spacing {
-  $spacing: var(--str-chat__spacing-2);
-  padding: 0 $spacing;
-
-  // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
-  .str-chat__li {
-    margin-inline: calc(-1 * #{$spacing});
-    padding-inline: $spacing;
-  }
-
-  .str-chat__parent-message-li {
-    margin-inline: calc(-1 * #{$spacing});
-  }
-
-  @media only screen and (min-device-width: 768px) {
-    $spacing: min(var(--str-chat__spacing-10), 4%);
-
-    padding: 0 $spacing;
-
-    .str-chat__li {
-      margin-inline: calc(-1 * #{$spacing});
-      padding-inline: $spacing;
-    }
-
-    .str-chat__parent-message-li {
-      margin-inline: calc(-1 * #{$spacing} - 2px);
-    }
-  }
 }
 
 @mixin header-layout {
@@ -154,32 +129,18 @@
 }
 
 @mixin message-list-spacing {
-  $spacing: var(--str-chat__spacing-2);
-  padding: 0 $spacing;
+  // 800px container, 16px padding, 768px content — align with composer
+  $spacing: var(--str-chat__message-composer-padding, 16px);
+  padding: 0;
+  padding-inline: $spacing;
 
   // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
   .str-chat__li {
     margin-inline: calc(-1 * #{$spacing});
-    padding-inline: $spacing;
   }
 
   .str-chat__parent-message-li {
     margin-inline: calc(-1 * #{$spacing});
-  }
-
-  @media only screen and (min-device-width: 768px) {
-    $spacing: min(var(--str-chat__spacing-10), 4%);
-
-    padding: 0 $spacing;
-
-    .str-chat__li {
-      margin-inline: calc(-1 * #{$spacing});
-      padding-inline: $spacing;
-    }
-
-    .str-chat__parent-message-li {
-      margin-inline: calc(-1 * #{$spacing} - 2px);
-    }
   }
 }
 

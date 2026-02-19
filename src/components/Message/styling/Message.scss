@@ -87,8 +87,28 @@
   --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 300);
 }
 
+/* Make spaces between message groups */
+.str-chat__li--top {
+  padding-block-start: var(--spacing-xs);
+  padding-block-end: var(--spacing-xxxs);
+}
+
+.str-chat__li--bottom  {
+  padding-block-start: var(--spacing-xxxs);
+  padding-block-end: var(--spacing-xs);
+}
+
+.str-chat__li--middle  {
+  padding-block: var(--spacing-xxxs);
+}
+
+.str-chat__li--single {
+  padding-block: var(--spacing-xs);
+}
+
 .str-chat__message {
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
+  padding-inline: var(--str-chat__message-composer-padding);
 
   &.str-chat__message-without-touch-support {
     --str-chat-message-options-size: calc(
@@ -214,10 +234,43 @@
 
   .str-chat__message-reminder {
     grid-area: message-reminder;
-    padding-block: var(--str-chat__spacing-2) var(--str-chat__spacing-0_5);
+    padding-block: var(--spacing-xxs);
     margin: 0;
     @include utils.component-layer-overrides('message-reminder');
     font: var(--str-chat__caption-medium-text);
+  }
+
+  @mixin message-grid-no-avatar {
+    grid-template-areas:
+      'pin-indicator'
+      'message-reminder'
+      'message'
+      'translation-notice'
+      'custom-metadata'
+      'metadata';
+    grid-template-columns: 1fr;
+  }
+
+  @mixin message-grid-other-with-avatar {
+    grid-template-areas:
+      '. pin-indicator'
+      '. message-reminder'
+      'avatar message'
+      'avatar translation-notice'
+      'avatar custom-metadata'
+      'avatar metadata';
+    grid-template-columns: auto 1fr;
+  }
+
+  @mixin message-grid-me-with-avatar {
+    grid-template-areas:
+      'pin-indicator .'
+      'message-reminder .'
+      'message avatar'
+      'translation-notice avatar'
+      'custom-metadata avatar'
+      'metadata avatar';
+    grid-template-columns: 1fr auto;
   }
 
   .str-chat__message-pin-indicator {
@@ -238,15 +291,16 @@
   }
 
   &.str-chat__message--other {
-    grid-template-areas:
-      '. message-reminder'
-      'avatar message'
-      'avatar translation-notice'
-      'avatar custom-metadata'
-      'avatar metadata';
     column-gap: var(--str-chat__spacing-2);
-    grid-template-columns: auto 1fr;
     justify-items: flex-start;
+
+    &.str-chat__message--with-avatar {
+      @include message-grid-other-with-avatar;
+    }
+
+    &:not(.str-chat__message--with-avatar) {
+      @include message-grid-no-avatar;
+    }
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
@@ -268,35 +322,24 @@
   }
 
   &.str-chat__message--pinned.str-chat__message--other {
-    grid-template-areas:
-      '. pin-indicator'
-      '. message-reminder'
-      'avatar message'
-      'avatar translation-notice'
-      'avatar custom-metadata'
-      'avatar metadata';
+    @include message-grid-other-with-avatar;
   }
 
   &.str-chat__message--pinned.str-chat__message--me {
-    grid-template-areas:
-      'pin-indicator .'
-      'message-reminder .'
-      'message avatar'
-      'translation-notice avatar'
-      'custom-metadata avatar'
-      'metadata avatar';
+    @include message-grid-me-with-avatar;
   }
 
   &.str-chat__message--me {
-    grid-template-areas:
-      'message-reminder .'
-      'message avatar'
-      'translation-notice avatar'
-      'custom-metadata avatar'
-      'metadata avatar';
     column-gap: var(--str-chat__spacing-2);
-    grid-template-columns: 1fr auto;
     justify-items: flex-end;
+
+    &.str-chat__message--with-avatar {
+      @include message-grid-me-with-avatar;
+    }
+
+    &:not(.str-chat__message--with-avatar) {
+      @include message-grid-no-avatar;
+    }
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
@@ -315,6 +358,7 @@
         }
       }
     }
+
   }
 
   &.str-chat__message--deleted {
@@ -335,7 +379,7 @@
     align-self: end;
   }
 
-  &.str-chat__message--me .str-chat__avatar:has(~ .str-chat__message-inner) {
+  &:not(.str-chat__message--with-avatar) .str-chat__avatar {
     display: none;
   }
 
@@ -660,33 +704,14 @@
 .str-chat__li--middle,
 .str-chat__li--top {
   .str-chat__message {
-    // space below the message within a group
-    padding-block-end: var(--spacing-xxs);
-
     .str-chat__message-metadata {
       display: none;
     }
 
-    // > selector added to not hide sender of inline replies
-    > .str-chat__message-sender-avatar {
+    // Hide sender avatar in middle/top of group (only show on last message in group)
+    > .str-chat__avatar {
       visibility: hidden;
     }
-  }
-}
-
-.str-chat__li--top,
-.str-chat__li--single {
-  .str-chat__message {
-    // space above the message group
-    padding-block-start: var(--spacing-xs);
-  }
-}
-
-.str-chat__li--bottom,
-.str-chat__li--single {
-  .str-chat__message {
-    // space below the message group
-    padding-block-end: var(--spacing-xs);
   }
 }
 
@@ -729,7 +754,7 @@
 // Avatar display in message list
 .str-chat__li--top,
 .str-chat__li--middle {
-  .str-chat__message > .str-chat__avatar {
+  .str-chat__message.str-chat__message--with-avatar > .str-chat__avatar {
     visibility: hidden;
     pointer-events: none;
   }
