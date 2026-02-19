@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {
   type ComponentProps,
   type ComponentType,
@@ -10,6 +11,9 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { IconChevronLeft } from '../../Icons';
+import { useDialogIsOpen } from '../hooks';
+import type { DialogAnchorProps } from '../service/DialogAnchor';
+import { DialogAnchor } from '../service/DialogAnchor';
 
 export const ContextMenuBackButton = ({
   children,
@@ -96,7 +100,7 @@ type ContextMenuLevel = {
   menuClassName?: string;
 };
 
-export type ContextMenuProps = Omit<ComponentProps<'div'>, 'children'> & {
+type ContextMenuBaseProps = Omit<ComponentProps<'div'>, 'children'> & {
   backLabel?: ReactNode;
   items: ContextMenuItemComponent[];
   Header?: ContextMenuHeaderComponent;
@@ -106,7 +110,24 @@ export type ContextMenuProps = Omit<ComponentProps<'div'>, 'children'> & {
   onMenuLevelChange?: (level: number) => void;
 };
 
-export const ContextMenu = ({
+/** When provided, ContextMenu renders inside DialogAnchor and wires menu level for submenu alignment. */
+type ContextMenuAnchorProps = Partial<
+  Pick<
+    DialogAnchorProps,
+    | 'id'
+    | 'dialogManagerId'
+    | 'placement'
+    | 'referenceElement'
+    | 'tabIndex'
+    | 'trapFocus'
+    | 'allowFlip'
+    | 'focus'
+  >
+>;
+
+export type ContextMenuProps = ContextMenuBaseProps & ContextMenuAnchorProps;
+
+function ContextMenuContent({
   backLabel = 'Back',
   className,
   Header,
@@ -116,7 +137,7 @@ export const ContextMenu = ({
   onClose,
   onMenuLevelChange,
   ...props
-}: ContextMenuProps) => {
+}: ContextMenuBaseProps) {
   const rootLevel = useMemo<ContextMenuLevel>(
     () => ({
       Header,
@@ -207,4 +228,65 @@ export const ContextMenu = ({
       </ContextMenuRoot>
     </ContextMenuContext.Provider>
   );
+}
+
+export const ContextMenu = (props: ContextMenuProps) => {
+  const {
+    allowFlip,
+    dialogManagerId,
+    focus,
+    id,
+    placement,
+    referenceElement,
+    tabIndex,
+    trapFocus,
+    ...menuProps
+  } = props;
+
+  const isAnchored = id != null;
+
+  const [menuLevel, setMenuLevel] = useState(1);
+  const open = useDialogIsOpen(id ?? '', dialogManagerId);
+
+  useEffect(() => {
+    if (isAnchored && !open) setMenuLevel(1);
+  }, [isAnchored, open]);
+
+  const content = (
+    <ContextMenuContent
+      {...menuProps}
+      onMenuLevelChange={isAnchored ? setMenuLevel : menuProps.onMenuLevelChange}
+    />
+  );
+
+  if (isAnchored) {
+    const {
+      backLabel: _b,
+      Header: _h,
+      items: _i,
+      ItemsWrapper: _w,
+      menuClassName: _m,
+      onClose: _c,
+      onMenuLevelChange: _l,
+      ...anchorDivProps
+    } = menuProps;
+    return (
+      <DialogAnchor
+        allowFlip={allowFlip}
+        dialogManagerId={dialogManagerId}
+        focus={focus}
+        id={id}
+        placement={placement}
+        referenceElement={referenceElement}
+        tabIndex={tabIndex}
+        trapFocus={trapFocus}
+        updateKey={menuLevel}
+        {...anchorDivProps}
+      >
+        {content}
+      </DialogAnchor>
+    );
+  }
+
+  return content;
 };

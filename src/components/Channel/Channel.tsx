@@ -967,15 +967,23 @@ const ChannelInner = (
   };
 
   const retrySendMessage = async (localMessage: LocalMessage) => {
+    /**
+     * If type is not checked, and we for example send message.type === 'error',
+     * then request fails with error: "message.type must be one of ['' regular system]".
+     * For now, we re-send any other type to prevent breaking behavior.
+     */
+
+    const type = localMessage.type === 'error' ? 'regular' : localMessage.type;
     updateMessage({
       ...localMessage,
       error: undefined,
       status: 'sending',
+      type,
     });
 
     await doSendMessage({
       localMessage,
-      message: localMessageToNewMessagePayload(localMessage),
+      message: localMessageToNewMessagePayload({ ...localMessage, type }),
     });
   };
 

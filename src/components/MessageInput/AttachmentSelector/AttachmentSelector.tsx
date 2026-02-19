@@ -17,7 +17,6 @@ import {
   type ContextMenuItemProps,
   type ContextMenuOpenSubmenuParams,
   type ContextMenuSubmenu,
-  DialogAnchor,
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../../Dialog';
@@ -329,7 +328,6 @@ export const AttachmentSelector = ({
   const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
-  const [menuLevel, setMenuLevel] = useState(1);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const contextMenuItems = useMemo(
@@ -378,25 +376,20 @@ export const AttachmentSelector = ({
           onClick={() => menuDialog?.toggle()}
           ref={menuButtonRef}
         />
-        <DialogAnchor
+        <ContextMenu
           allowFlip
+          backLabel={t('Back')}
+          className='str-chat__attachment-selector-actions-menu'
+          data-testid='attachment-selector-actions-menu'
           dialogManagerId={dialogManager?.id}
           id={menuDialogId}
+          items={contextMenuItems}
+          onClose={menuDialog.close}
           placement='top-start'
           referenceElement={menuButtonRef.current}
           tabIndex={-1}
           trapFocus
-          updateKey={menuLevel}
-        >
-          <ContextMenu
-            backLabel={t('Back')}
-            className='str-chat__attachment-selector-actions-menu str-chat__dialog-menu'
-            data-testid='attachment-selector-actions-menu'
-            items={contextMenuItems}
-            onClose={menuDialog.close}
-            onMenuLevelChange={setMenuLevel}
-          />
-        </DialogAnchor>
+        />
         <Portal
           getPortalDestination={getModalPortalDestination ?? getDefaultPortalDestination}
           isOpen={modalIsOpen}

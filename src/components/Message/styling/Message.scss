@@ -68,7 +68,7 @@
   );
 
   --str-chat__message-reminder-color: var(--str-chat__primary-color);
-  --str-chat__message-reminder-background-color: var(--str-chat__grey50);
+  --str-chat__message-reminder-background-color: transparent;
   --str-chat__message-reminder-border-block-start: none;
   --str-chat__message-reminder-border-block-end: none;
   --str-chat__message-reminder-border-inline-start: none;
@@ -76,6 +76,9 @@
   --str-chat__message-reminder-box-shadow: none;
   --str-chat__message-reminder-border-radius: 0;
   --str-chat__message-reactions-host-offset-x: -6px;
+
+  /* Background color for pinned messages (Figma: background/core/highlight) */
+  --str-chat__message-pinned-background-color: var(--background-core-highlight);
 
   /* The maximum allowed width of the message component */
   --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 480);
@@ -217,6 +220,23 @@
     font: var(--str-chat__caption-medium-text);
   }
 
+  .str-chat__message-pin-indicator {
+    grid-area: pin-indicator;
+    padding-block: var(--spacing-xxs);
+
+    .str-chat__message-pin-indicator__content {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xxs);
+      font: var(--str-chat__metadata-default-text);
+      color: var(--text-primary-text);
+    }
+  }
+
+  &.str-chat__message--me .str-chat__message-pin-indicator .str-chat__message-pin-indicator__content {
+    justify-content: flex-end;
+  }
+
   &.str-chat__message--other {
     grid-template-areas:
       '. message-reminder'
@@ -245,6 +265,26 @@
         }
       }
     }
+  }
+
+  &.str-chat__message--pinned.str-chat__message--other {
+    grid-template-areas:
+      '. pin-indicator'
+      '. message-reminder'
+      'avatar message'
+      'avatar translation-notice'
+      'avatar custom-metadata'
+      'avatar metadata';
+  }
+
+  &.str-chat__message--pinned.str-chat__message--me {
+    grid-template-areas:
+      'pin-indicator .'
+      'message-reminder .'
+      'message avatar'
+      'translation-notice avatar'
+      'custom-metadata avatar'
+      'metadata avatar';
   }
 
   &.str-chat__message--me {
@@ -486,7 +526,7 @@
     .str-chat__message-error-icon {
       display: block;
       position: absolute;
-      bottom: 0;
+      top: 8px;
       inset-inline-end: calc(-1 * calc(#{$icon-size} / 2));
 
       svg {
@@ -500,6 +540,10 @@
 .str-chat__message--highlighted {
   transition: background-color 0.1s ease-out;
   background-color: var(--str-chat__message-highlighted-background-color);
+}
+
+.str-chat__message--pinned {
+  background-color: var(--str-chat__message-pinned-background-color);
 }
 
 /* This rule won't be applied in browsers that don't support :has() */
