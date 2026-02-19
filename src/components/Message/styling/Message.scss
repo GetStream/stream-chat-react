@@ -75,7 +75,7 @@
   --str-chat__message-reminder-border-inline-end: none;
   --str-chat__message-reminder-box-shadow: none;
   --str-chat__message-reminder-border-radius: 0;
-  --str-chat__message-reactions-host-offset-x: -6px;
+  --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   /* Background color for pinned messages (Figma: background/core/highlight) */
   --str-chat__message-pinned-background-color: var(--background-core-highlight);
@@ -311,11 +311,19 @@
         }
 
         &:has(.str-chat__message-reactions--top) {
-          margin-left: var(--str-chat__message-reactions-host-offset-x);
+          padding-inline-start: calc(
+            var(--str-chat__message-reactions-host-offset-x) * -1
+          );
 
           &:has(.str-chat__message-reactions--flipped-horizontally) {
             margin-right: var(--str-chat__message-reactions-host-offset-x);
           }
+        }
+
+        .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
+          > .str-chat__message-reactions__list {
+          justify-content: flex-start;
+          flex-wrap: wrap;
         }
       }
     }
@@ -350,11 +358,17 @@
         }
 
         &:has(.str-chat__message-reactions--top) {
-          margin-right: var(--str-chat__message-reactions-host-offset-x);
+          padding-inline-end: calc(var(--str-chat__message-reactions-host-offset-x) * -1);
 
           &:has(.str-chat__message-reactions--flipped-horizontally) {
             margin-left: var(--str-chat__message-reactions-host-offset-x);
           }
+        }
+
+        .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
+          > .str-chat__message-reactions__list {
+          justify-content: flex-end;
+          flex-wrap: wrap;
         }
       }
     }

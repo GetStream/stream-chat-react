@@ -125,7 +125,7 @@ export const PollOptionSelector = ({
         <p className='str-chat__poll-option-text'>{option.text}</p>
         {displayAvatarCount && voting_visibility === 'public' && (
           <div className='str-chat__poll-option-voters'>
-            <AvatarStack displayInfo={avatarDisplayInfo} />
+            <AvatarStack displayInfo={avatarDisplayInfo} size='xs' />
           </div>
         )}
         <div className='str-chat__poll-option-vote-count'>
