@@ -1,30 +1,12 @@
 import React from 'react';
 import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
-import type { BaseContextMenuButtonProps } from '../Dialog';
 import {
   ContextMenuBackButton,
   ContextMenuButton,
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import { IconBellNotification, IconChevronLeft } from '../Icons';
-
-// todo: do we need to have isMine as a prop?
-export type RemindMeActionButtonProps = { isMine: boolean } & BaseContextMenuButtonProps;
-
-export const RemindMeActionButton = ({
-  className,
-  isMine: _, // eslint-disable-line @typescript-eslint/no-unused-vars
-  ...props
-}: RemindMeActionButtonProps) => {
-  const { t } = useTranslationContext();
-
-  return (
-    <ContextMenuButton className={className} Icon={IconBellNotification} {...props}>
-      {t('Remind Me')}
-    </ContextMenuButton>
-  );
-};
+import { IconChevronLeft } from '../Icons';
 
 export const RemindMeSubmenuHeader = () => {
   const { t } = useTranslationContext();
