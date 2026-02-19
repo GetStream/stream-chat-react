@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModalHeader } from '../../Modal/ModalHeader';
+import { Prompt } from '../../Dialog';
 import { PollVote } from '../PollVote';
 import { usePollAnswerPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
@@ -34,9 +34,9 @@ export const PollAnswerList = ({
   const { answers, error, hasNextPage, loading, loadMore } = usePollAnswerPagination();
 
   return (
-    <div className='str-chat__modal__poll-answer-list'>
-      <ModalHeader close={close} title={t('Poll comments')} />
-      <div className='str-chat__modal__poll-answer-list__body'>
+    <Prompt.Root className='str-chat__modal__poll-answer-list'>
+      <Prompt.Header close={close} title={t('Poll comments')} />
+      <Prompt.Body className='str-chat__modal__poll-answer-list__body'>
         <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
           <div className='str-chat__poll-answer-list'>
             {answers.map((answer) => (
@@ -55,12 +55,19 @@ export const PollAnswerList = ({
           )}
         </InfiniteScrollPaginator>
         {error?.message && <div>{error?.message}</div>}
-      </div>
-      {answers.length > 0 && !is_closed && (
-        <button className='str-chat__poll-action' onClick={onUpdateOwnAnswerClick}>
-          {ownAnswer ? t('Update your comment') : t('Add a comment')}
-        </button>
-      )}
-    </div>
+      </Prompt.Body>
+      <Prompt.Footer>
+        {answers.length > 0 && !is_closed && (
+          <Prompt.FooterControls>
+            <Prompt.FooterControlsButton
+              className='str-chat__poll-action'
+              onClick={onUpdateOwnAnswerClick}
+            >
+              {ownAnswer ? t('Update your comment') : t('Add a comment')}
+            </Prompt.FooterControlsButton>
+          </Prompt.FooterControls>
+        )}
+      </Prompt.Footer>
+    </Prompt.Root>
   );
 };

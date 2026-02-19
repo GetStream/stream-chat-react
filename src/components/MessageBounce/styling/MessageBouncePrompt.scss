@@ -1,9 +1,9 @@
 @use '../../../styling/utils';
 
-.str-chat__message-bounce-prompt {
+.str-chat__message-bounce-alert {
   max-width: 300px;
 
-  .str-chat__prompt-header svg.str-chat__icon--exclamation-circle {
+  .str-chat__alert-header svg.str-chat__icon--exclamation-circle {
     color: var(--text-tertiary);
   }
 }

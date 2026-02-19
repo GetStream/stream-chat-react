@@ -231,9 +231,6 @@
 
   .str-chat__modal__inner {
     $content-offset-inline: 1rem;
-    padding: 0 0 0.5rem;
-    overflow: hidden;
-    max-width: 400px;
 
     .str-chat__tooltip {
       max-width: 300px;
@@ -244,7 +241,7 @@
         height: 1rem;
       }
 
-      .str-chat__dialog__controls {
+      .str-chat__prompt__footer__controls {
         padding-bottom: 0;
       }
     }

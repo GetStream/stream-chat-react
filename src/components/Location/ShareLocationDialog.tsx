@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useMessageComposer } from '../MessageInput';
-import { ModalHeader } from '../Modal/ModalHeader';
+import { Prompt } from '../Dialog';
 import { SwitchField } from '../Form/SwitchField';
 import { Dropdown, useDropdownContext } from '../Form/Dropdown';
 import type { Coords } from 'stream-chat';
@@ -111,12 +111,12 @@ export const ShareLocationDialog = ({
   useEffect(() => setupPositionWatching(), [setupPositionWatching]);
 
   return (
-    <div
-      className='str-chat__dialog str-chat__share-location-dialog'
+    <Prompt.Root
+      className='str-chat__prompt str-chat__share-location-dialog'
       data-testid='share-location-dialog'
     >
-      <ModalHeader close={close} title={t('Share Location')} />
-      <div className='str-chat__dialog__body'>
+      <Prompt.Header close={close} title={t('Share Location')} />
+      <Prompt.Body>
         <GeolocationMap
           geolocationPositionError={geolocationPositionError}
           latitude={geolocationPosition?.coords.latitude}
@@ -155,87 +155,89 @@ export const ShareLocationDialog = ({
             )}
           </div>
         )}
-      </div>
-      <div className='str-chat__dialog__controls'>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
-          onClick={() => {
-            messageComposer.locationComposer.initState();
-            close();
-          }}
-        >
-          {t('Cancel')}
-        </button>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-          disabled={!geolocationPosition}
-          onClick={async () => {
-            let coords = geolocationPosition && {
-              latitude: geolocationPosition.coords.latitude,
-              longitude: geolocationPosition.coords.longitude,
-            };
-            if (!coords) {
-              coords = (await getPosition()).coords;
-            }
-            messageComposer.locationComposer.setData({
-              ...coords,
-              durationMs: selectedDuration,
-            });
-            close();
-          }}
-          type='submit'
-        >
-          {t('Attach')}
-        </button>
-        <button
-          className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-          disabled={!geolocationPosition}
-          onClick={async () => {
-            let coords = geolocationPosition && {
-              latitude: geolocationPosition.coords.latitude,
-              longitude: geolocationPosition.coords.longitude,
-            };
-            if (!coords) {
-              try {
+      </Prompt.Body>
+      <Prompt.Footer>
+        <Prompt.FooterControls className='str-chat__prompt__footer__controls'>
+          <Prompt.FooterControlsButton
+            className='str-chat__prompt__footer__controls-button--cancel'
+            onClick={() => {
+              messageComposer.locationComposer.initState();
+              close();
+            }}
+          >
+            {t('Cancel')}
+          </Prompt.FooterControlsButton>
+          <Prompt.FooterControlsButton
+            className='str-chat__prompt__footer__controls-button--submit'
+            disabled={!geolocationPosition}
+            onClick={async () => {
+              let coords = geolocationPosition && {
+                latitude: geolocationPosition.coords.latitude,
+                longitude: geolocationPosition.coords.longitude,
+              };
+              if (!coords) {
                 coords = (await getPosition()).coords;
-              } catch (e) {
+              }
+              messageComposer.locationComposer.setData({
+                ...coords,
+                durationMs: selectedDuration,
+              });
+              close();
+            }}
+            type='submit'
+          >
+            {t('Attach')}
+          </Prompt.FooterControlsButton>
+          <Prompt.FooterControlsButton
+            className='str-chat__prompt__footer__controls-button--submit'
+            disabled={!geolocationPosition}
+            onClick={async () => {
+              let coords = geolocationPosition && {
+                latitude: geolocationPosition.coords.latitude,
+                longitude: geolocationPosition.coords.longitude,
+              };
+              if (!coords) {
+                try {
+                  coords = (await getPosition()).coords;
+                } catch (e) {
+                  client.notifications.addError({
+                    message: t('Failed to retrieve location'),
+                    options: {
+                      originalError: e instanceof Error ? e : undefined,
+                      type: 'browser-api:location:get:failed',
+                    },
+                    origin: { emitter: 'ShareLocationDialog' },
+                  });
+                  return;
+                }
+              }
+
+              messageComposer.locationComposer.setData({
+                ...coords,
+                durationMs: selectedDuration,
+              });
+              try {
+                await messageComposer.sendLocation();
+              } catch (err) {
                 client.notifications.addError({
-                  message: t('Failed to retrieve location'),
+                  message: t('Failed to share location'),
                   options: {
-                    originalError: e instanceof Error ? e : undefined,
-                    type: 'browser-api:location:get:failed',
+                    originalError: err instanceof Error ? err : undefined,
+                    type: 'api:location:share:failed',
                   },
                   origin: { emitter: 'ShareLocationDialog' },
                 });
                 return;
               }
-            }
-
-            messageComposer.locationComposer.setData({
-              ...coords,
-              durationMs: selectedDuration,
-            });
-            try {
-              await messageComposer.sendLocation();
-            } catch (err) {
-              client.notifications.addError({
-                message: t('Failed to share location'),
-                options: {
-                  originalError: err instanceof Error ? err : undefined,
-                  type: 'api:location:share:failed',
-                },
-                origin: { emitter: 'ShareLocationDialog' },
-              });
-              return;
-            }
-            close();
-          }}
-          type='submit'
-        >
-          {t('Share')}
-        </button>
-      </div>
-    </div>
+              close();
+            }}
+            type='submit'
+          >
+            {t('Share')}
+          </Prompt.FooterControlsButton>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
+    </Prompt.Root>
   );
 };
 

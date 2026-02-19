@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import { PollOptionVotesList } from './PollOptionVotesList';
 import { PollOptionWithLatestVotes } from './PollOptionWithLatestVotes';
-import { ModalHeader } from '../../../Modal/ModalHeader';
+import { Prompt } from '../../../Dialog';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
@@ -29,25 +29,25 @@ export const PollResults = ({ close }: PollResultsProps) => {
   const goBack = useCallback(() => setOptionToView(undefined), []);
 
   return (
-    <div
+    <Prompt.Root
       className={clsx('str-chat__modal__poll-results', {
         'str-chat__modal__poll-results--option-detail': optionToView,
       })}
     >
       {optionToView ? (
         <>
-          <ModalHeader close={close} goBack={goBack} title={optionToView.text} />
-          <div className='str-chat__modal__poll-results__body'>
+          <Prompt.Header close={close} goBack={goBack} title={optionToView.text} />
+          <Prompt.Body className='str-chat__modal__poll-results__body'>
             <PollOptionVotesList
               key={`poll-option-detail-${optionToView.id}`}
               option={optionToView}
             />
-          </div>
+          </Prompt.Body>
         </>
       ) : (
         <>
-          <ModalHeader close={close} title={t('Poll results')} />
-          <div className='str-chat__modal__poll-results__body'>
+          <Prompt.Header close={close} title={t('Poll results')} />
+          <Prompt.Body className='str-chat__modal__poll-results__body'>
             <div className='str-chat__modal__poll-results__title'>{name}</div>
             <div className='str-chat__modal__poll-results__option-list'>
               {options
@@ -65,9 +65,9 @@ export const PollResults = ({ close }: PollResultsProps) => {
                   />
                 ))}
             </div>
-          </div>
+          </Prompt.Body>
         </>
       )}
-    </div>
+    </Prompt.Root>
   );
 };

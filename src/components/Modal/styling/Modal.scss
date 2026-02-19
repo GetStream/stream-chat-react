@@ -49,10 +49,10 @@
     @include utils.component-layer-overrides('modal');
     @include utils.flex-col-center;
     position: relative;
-    padding: var(--str-chat__spacing-8) var(--str-chat__spacing-4);
     max-height: 80%;
     min-width: 0;
     min-height: 0;
+    overflow: hidden;
   }
 
   .str-chat__modal__overlay__close-button {

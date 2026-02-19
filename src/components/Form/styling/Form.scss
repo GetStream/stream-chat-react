@@ -13,7 +13,7 @@ input[type='number'] {
 }
 
 // Legacy: dialog field layout (if still used elsewhere)
-.str-chat__dialog__field {
+.str-chat__prompt__field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

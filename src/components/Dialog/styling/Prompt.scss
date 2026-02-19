@@ -1,48 +1,87 @@
+@use '../../../styling/utils';
 
-@mixin flex-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+// todo: once we have designs for dialogs + context menus create base class instead of a mixin
+@mixin dialog-base {
+
 }
 
-.str-chat__prompt-root {
-  @include flex-column;
-  gap: var(--spacing-2xl);
-  padding: var(--spacing-xl);
-  text-align: center;
+.str-chat__dialog-overlay {
+  inset: 0;
+  position: absolute;
+  height: var(--str-chat__dialog-overlay-height);
+  width: 100%;
+  z-index: 2;
+}
 
-  .str-chat__prompt-header {
-    @include flex-column;
+.str-chat__prompt {
+  width: 100%;
+
+  .str-chat__prompt__header {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-md);
     width: 100%;
+    padding: var(--spacing-xl);
 
-    svg {
-      height: var(--button-visual-height-sm);
-      width: var(--button-visual-height-sm);
+    .str-chat__prompt__header__title-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+      flex: 1;
+      min-width: 0;
     }
 
-    .str-chat__prompt-header__copy {
-      @include flex-column;
-      gap: var(--spacing-xs);
-      width: 100%;
+    .str-chat__prompt__header__title {
+      font: var(--str-chat__heading-sm-text);
+      color: var(--text-primary);
+    }
 
-      .str-chat__prompt-header__title {
-        font: var(--str-chat__heading-sm-text);
-      }
+    .str-chat__prompt__header__description {
+      font: var(--str-chat__body-text);
+      color: var(--text-secondary);
+    }
 
-      .str-chat__prompt-header__description {
-        font: var(--str-chat__caption-default-tex);
+    button.str-chat__prompt__header__go-back-button {
+      @include utils.button-reset;
+      flex-shrink: 0;
+      padding: var(--spacing-sm);
+      background-image: var(--str-chat__arrow-left-icon);
+      background-size: var(--icon-size-md);
+      background-repeat: no-repeat;
+      background-position: center;
+      color: var(--text-primary);
+
+      &:focus-visible {
+        @include utils.focusable;
       }
+    }
+
+    .str-chat__prompt__header__close-button {
+      flex-shrink: 0;
+      color: var(--text-primary);
     }
   }
 
-  .str-chat__prompt-actions {
-    @include flex-column;
-    gap: var(--spacing-xs);
-    width: 100%;
+  .str-chat__prompt__body {
+    padding: 0 var(--spacing-xl);
+    overflow-y: auto;
 
-    button {
-      width: 100%;
+    .str-chat__prompt__title {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .str-chat__prompt__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    padding: var(--spacing-xl);
+
+    .str-chat__prompt__footer__controls {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
     }
   }
 }
