@@ -54,10 +54,6 @@
   .str-chat__message {
     margin-block-end: 0 !important;
   }
-
-  .str-chat__virtual-list-message-wrapper {
-    padding-block-end: var(--str-chat__spacing-0_5);
-  }
 }
 
 // Theme (only available in React SDK)
