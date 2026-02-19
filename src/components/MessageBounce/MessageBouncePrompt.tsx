@@ -4,6 +4,10 @@ import { useMessageBounceContext, useTranslationContext } from '../../context';
 import type { MouseEventHandler, PropsWithChildren } from 'react';
 
 import type { ModalProps } from '../Modal';
+import { Button } from '../Button';
+import clsx from 'clsx';
+import { IconExclamationCircle } from '../Icons';
+import { Prompt } from '../Dialog/base/Prompt';
 
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
@@ -22,34 +26,58 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
   }
 
   return (
-    <div className='str-chat__message-bounce-prompt' data-testid='message-bounce-prompt'>
-      <div className='str-chat__message-bounce-prompt-header'>
-        {children ?? t('This message did not meet our content guidelines')}
-      </div>
-      <div className='str-chat__message-bounce-actions'>
-        <button
-          className='str-chat__message-bounce-edit'
+    <Prompt.Root
+      className='str-chat__message-bounce-prompt'
+      data-testid='message-bounce-prompt'
+    >
+      <Prompt.Header
+        className='str-chat__message-bounce-prompt-header'
+        Icon={IconExclamationCircle}
+        title={
+          !children ? t('This message did not meet our content guidelines') : undefined
+        }
+      >
+        {children}
+      </Prompt.Header>
+      <Prompt.Actions className={'str-chat__message-bounce-actions'}>
+        <Button
+          className={clsx(
+            'str-chat__message-bounce-delete',
+            'str-chat__button--outline',
+            'str-chat__button--destructive',
+            'str-chat__button--size-md',
+          )}
+          data-testid='message-bounce-delete'
+          onClick={createHandler(handleDelete)}
+        >
+          {t('Delete')}
+        </Button>
+        <Button
+          className={clsx(
+            'str-chat__message-bounce-edit',
+            'str-chat__button--outline',
+            'str-chat__button--secondary',
+            'str-chat__button--size-md',
+          )}
           data-testid='message-bounce-edit'
           onClick={createHandler(handleEdit)}
           type='button'
         >
           {t('Edit Message')}
-        </button>
-        <button
-          className='str-chat__message-bounce-send'
+        </Button>
+        <Button
+          className={clsx(
+            'str-chat__message-bounce-send',
+            'str-chat__button--outline',
+            'str-chat__button--secondary',
+            'str-chat__button--size-md',
+          )}
           data-testid='message-bounce-send'
           onClick={createHandler(handleRetry)}
         >
           {t('Send Anyway')}
-        </button>
-        <button
-          className='str-chat__message-bounce-delete'
-          data-testid='message-bounce-delete'
-          onClick={createHandler(handleDelete)}
-        >
-          {t('Delete')}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Prompt.Actions>
+    </Prompt.Root>
   );
 }
