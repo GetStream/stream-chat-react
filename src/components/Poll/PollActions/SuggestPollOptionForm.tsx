@@ -69,38 +69,36 @@ export const SuggestPollOptionForm = ({
       <Prompt.Header close={close} title={t('Suggest an option')} />
       <Prompt.Body>
         <form autoComplete='off' onSubmit={handleSubmit}>
-          <div className='str-chat__prompt__field'>
-            <TextInput
-              error={!!fieldErrors.optionText}
-              errorMessage={fieldErrors.optionText?.message}
-              id='optionText'
-              label={t('Suggest an option')}
-              name='optionText'
-              onChange={(e) => setFieldValue('optionText', e.target.value)}
-              required
-              type='text'
-              value={value.optionText}
-            />
-          </div>
-          <Prompt.Footer>
-            <Prompt.FooterControls>
-              <Prompt.FooterControlsButton
-                className='str-chat__prompt__footer__controls-button--cancel'
-                onClick={close}
-              >
-                {t('Cancel')}
-              </Prompt.FooterControlsButton>
-              <Prompt.FooterControlsButton
-                className='str-chat__prompt__footer__controls-button--submit'
-                disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
-                type='submit'
-              >
-                {t('Send')}
-              </Prompt.FooterControlsButton>
-            </Prompt.FooterControls>
-          </Prompt.Footer>
+          <TextInput
+            error={!!fieldErrors.optionText}
+            errorMessage={fieldErrors.optionText?.message}
+            id='optionText'
+            name='optionText'
+            onChange={(e) => setFieldValue('optionText', e.target.value)}
+            required
+            title={t('Suggest an option')}
+            type='text'
+            value={value.optionText}
+          />
         </form>
       </Prompt.Body>
+      <Prompt.Footer>
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonSecondary
+            className='str-chat__prompt__footer__controls-button--cancel'
+            onClick={close}
+          >
+            {t('Cancel')}
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
+            className='str-chat__prompt__footer__controls-button--submit'
+            disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
+            type='submit'
+          >
+            {t('Send')}
+          </Prompt.FooterControlsButtonPrimary>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
     </Prompt.Root>
   );
 };

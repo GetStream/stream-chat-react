@@ -20,13 +20,13 @@ export const EndPollDialog = ({ close }: EndPollDialogProps) => {
       </Prompt.Body>
       <Prompt.Footer>
         <Prompt.FooterControls>
-          <Prompt.FooterControlsButton
+          <Prompt.FooterControlsButtonSecondary
             className='str-chat__dialog__controls-button--cancel'
             onClick={close}
           >
             {t('Cancel')}
-          </Prompt.FooterControlsButton>
-          <Prompt.FooterControlsButton
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
             className='str-chat__dialog__controls-button--end-poll'
             onClick={() => {
               poll.close();
@@ -34,7 +34,7 @@ export const EndPollDialog = ({ close }: EndPollDialogProps) => {
             }}
           >
             {t('End')}
-          </Prompt.FooterControlsButton>
+          </Prompt.FooterControlsButtonPrimary>
         </Prompt.FooterControls>
       </Prompt.Footer>
     </Prompt.Root>

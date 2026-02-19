@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
 import { useMessageInputContext, useTranslationContext } from '../../../context';
-import { Button } from '../../Button';
 import clsx from 'clsx';
 import { IconPaperPlane } from '../../Icons';
 import { Prompt } from '../../Dialog';
@@ -19,15 +18,10 @@ export const PollCreationDialogControls = ({
   const canCreatePoll = useCanCreatePoll();
 
   return (
-    <Prompt.Footer className='str-chat__prompt__footer__controls'>
+    <Prompt.Footer>
       <Prompt.FooterControls>
-        <Prompt.FooterControlsButton
-          className={clsx(
-            'str-chat__prompt__footer__controls-button--cancel',
-            'str-chat__button--secondary',
-            'str-chat__button--ghost',
-            'str-chat__button--size-md',
-          )}
+        <Prompt.FooterControlsButtonSecondary
+          className={clsx('str-chat__prompt__footer__controls-button--cancel')}
           onClick={() => {
             messageComposer.pollComposer.initState();
             close();
@@ -35,14 +29,9 @@ export const PollCreationDialogControls = ({
           type='button'
         >
           {t('Cancel')}
-        </Prompt.FooterControlsButton>
-        <Button
-          className={clsx(
-            'str-chat__prompt__footer__controls-button--submit',
-            'str-chat__button--primary',
-            'str-chat__button--solid',
-            'str-chat__button--size-md',
-          )}
+        </Prompt.FooterControlsButtonSecondary>
+        <Prompt.FooterControlsButtonPrimary
+          className={clsx('str-chat__prompt__footer__controls-button--submit')}
           disabled={!canCreatePoll}
           onClick={() => {
             messageComposer
@@ -58,7 +47,7 @@ export const PollCreationDialogControls = ({
         >
           <IconPaperPlane />
           {t('Send poll')}
-        </Button>
+        </Prompt.FooterControlsButtonPrimary>
       </Prompt.FooterControls>
     </Prompt.Footer>
   );

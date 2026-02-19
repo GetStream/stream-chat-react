@@ -59,12 +59,12 @@ export const PollAnswerList = ({
       <Prompt.Footer>
         {answers.length > 0 && !is_closed && (
           <Prompt.FooterControls>
-            <Prompt.FooterControlsButton
+            <Prompt.FooterControlsButtonSecondary
               className='str-chat__poll-action'
               onClick={onUpdateOwnAnswerClick}
             >
               {ownAnswer ? t('Update your comment') : t('Add a comment')}
-            </Prompt.FooterControlsButton>
+            </Prompt.FooterControlsButtonSecondary>
           </Prompt.FooterControls>
         )}
       </Prompt.Footer>

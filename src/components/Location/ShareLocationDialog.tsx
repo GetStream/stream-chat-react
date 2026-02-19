@@ -157,8 +157,8 @@ export const ShareLocationDialog = ({
         )}
       </Prompt.Body>
       <Prompt.Footer>
-        <Prompt.FooterControls className='str-chat__prompt__footer__controls'>
-          <Prompt.FooterControlsButton
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonSecondary
             className='str-chat__prompt__footer__controls-button--cancel'
             onClick={() => {
               messageComposer.locationComposer.initState();
@@ -166,8 +166,8 @@ export const ShareLocationDialog = ({
             }}
           >
             {t('Cancel')}
-          </Prompt.FooterControlsButton>
-          <Prompt.FooterControlsButton
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
             className='str-chat__prompt__footer__controls-button--submit'
             disabled={!geolocationPosition}
             onClick={async () => {
@@ -187,8 +187,8 @@ export const ShareLocationDialog = ({
             type='submit'
           >
             {t('Attach')}
-          </Prompt.FooterControlsButton>
-          <Prompt.FooterControlsButton
+          </Prompt.FooterControlsButtonPrimary>
+          <Prompt.FooterControlsButtonSecondary
             className='str-chat__prompt__footer__controls-button--submit'
             disabled={!geolocationPosition}
             onClick={async () => {
@@ -234,7 +234,7 @@ export const ShareLocationDialog = ({
             type='submit'
           >
             {t('Share')}
-          </Prompt.FooterControlsButton>
+          </Prompt.FooterControlsButtonSecondary>
         </Prompt.FooterControls>
       </Prompt.Footer>
     </Prompt.Root>

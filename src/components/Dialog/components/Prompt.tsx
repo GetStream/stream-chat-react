@@ -86,10 +86,29 @@ const PromptFooterControls = ({ children, className }: PromptFooterControlsProps
   <div className={clsx('str-chat__prompt__footer__controls', className)}>{children}</div>
 );
 
-const PromptFooterControlsButton = ({ className, ...props }: ButtonProps) => (
+const PromptFooterControlsButtonSecondary = ({ className, ...props }: ButtonProps) => (
   <Button
     {...props}
-    className={clsx('str-chat__prompt__footer__controls-button', className)}
+    className={clsx(
+      'str-chat__prompt__footer__controls-button',
+      'str-chat__button--secondary',
+      'str-chat__button--ghost',
+      'str-chat__button--size-md',
+      className,
+    )}
+  />
+);
+
+const PromptFooterControlsButtonPrimary = ({ className, ...props }: ButtonProps) => (
+  <Button
+    {...props}
+    className={clsx(
+      'str-chat__prompt__footer__controls-button',
+      'str-chat__button--primary',
+      'str-chat__button--solid',
+      'str-chat__button--size-md',
+      className,
+    )}
   />
 );
 
@@ -97,7 +116,8 @@ export const Prompt = {
   Body: PromptBody,
   Footer: PromptFooter,
   FooterControls: PromptFooterControls,
-  FooterControlsButton: PromptFooterControlsButton,
+  FooterControlsButtonPrimary: PromptFooterControlsButtonPrimary,
+  FooterControlsButtonSecondary: PromptFooterControlsButtonSecondary,
   Header: PromptHeader,
   Root: PromptRoot,
 };
