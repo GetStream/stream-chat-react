@@ -5,7 +5,7 @@ import { MultipleAnswersField } from './MultipleAnswersField';
 import { NameField } from './NameField';
 import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
-import { ModalHeader } from '../../Modal/ModalHeader';
+import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
 import { useMessageComposer } from '../../MessageInput';
 import { useTranslationContext } from '../../../context';
@@ -33,12 +33,12 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   }, [pollComposer, close]);
 
   return (
-    <div
-      className='str-chat__dialog str-chat__poll-creation-dialog'
+    <Prompt.Root
+      className='str-chat__poll-creation-dialog'
       data-testid='poll-creation-dialog'
     >
-      <ModalHeader close={onClose} title={t('Create poll')} />
-      <div className='str-chat__dialog__body'>
+      <Prompt.Header close={onClose} title={t('Create poll')} />
+      <Prompt.Body>
         <form autoComplete='off'>
           <NameField />
           <OptionFieldSet />
@@ -79,8 +79,8 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             />
           </div>
         </form>
-      </div>
+      </Prompt.Body>
       <PollCreationDialogControls close={close} />
-    </div>
+    </Prompt.Root>
   );
 };

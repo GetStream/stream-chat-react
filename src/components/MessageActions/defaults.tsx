@@ -1,7 +1,8 @@
 /* eslint-disable sort-keys */
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
+  GlobalModal,
   IconArrowRotateClockwise,
   IconBellNotification,
   IconBellOff,
@@ -32,6 +33,7 @@ import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionS
 import {
   useChannelActionContext,
   useChatContext,
+  useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -44,6 +46,7 @@ import { ContextMenuButton } from '../../components/Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
+import { DeleteMessageAlert } from './DeleteMessageAlert';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
@@ -290,26 +293,41 @@ const DefaultMessageActionComponents = {
       );
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
+      const { Modal = GlobalModal } = useComponentContext();
       const { removeMessage } = useChannelActionContext();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
+      const [openModal, setOpenModal] = useState(false);
 
       return (
-        <ContextMenuButton
-          aria-label={t('aria/Delete Message')}
-          className={clsx(
-            msgActionsBoxButtonClassName,
-            msgActionsBoxButtonClassNameDestructive,
-          )}
-          Icon={IconTrashBin}
-          onClick={(event) => {
-            if (message.type === 'error') removeMessage(message);
-            else handleDelete(event);
-            closeMenu();
-          }}
-        >
-          {t('Delete')}
-        </ContextMenuButton>
+        <>
+          <ContextMenuButton
+            aria-label={t('aria/Delete Message')}
+            className={clsx(
+              msgActionsBoxButtonClassName,
+              msgActionsBoxButtonClassNameDestructive,
+            )}
+            Icon={IconTrashBin}
+            onClick={() => {
+              setOpenModal(true);
+            }}
+          >
+            {t('Delete')}
+          </ContextMenuButton>
+          <Modal open={openModal}>
+            <DeleteMessageAlert
+              onClose={() => {
+                setOpenModal(false);
+              }}
+              onDelete={() => {
+                if (message.type === 'error') removeMessage(message);
+                else handleDelete();
+                setOpenModal(false);
+                closeMenu();
+              }}
+            />
+          </Modal>
+        </>
       );
     },
     BlockUser({ closeMenu }: ContextMenuItemProps) {

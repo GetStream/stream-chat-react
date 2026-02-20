@@ -37,10 +37,7 @@ export type MessageContextValue = {
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
-  handleDelete: (
-    event: BaseSyntheticEvent,
-    options?: DeleteMessageOptions,
-  ) => Promise<void> | void;
+  handleDelete: (options?: DeleteMessageOptions) => Promise<void> | void;
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,

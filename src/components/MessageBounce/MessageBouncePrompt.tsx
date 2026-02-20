@@ -7,14 +7,14 @@ import type { ModalProps } from '../Modal';
 import { Button } from '../Button';
 import clsx from 'clsx';
 import { IconExclamationCircle } from '../Icons';
-import { Prompt } from '../Dialog/base/Prompt';
+import { Alert } from '../Dialog';
 
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
+// todo: shall we rename this to MessageBounceAlert?
 export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptProps) {
-  const { handleDelete, handleEdit, handleRetry } =
-    useMessageBounceContext('MessageBouncePrompt');
-  const { t } = useTranslationContext('MessageBouncePrompt');
+  const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext();
+  const { t } = useTranslationContext();
 
   function createHandler(
     handle: MouseEventHandler<HTMLButtonElement>,
@@ -26,20 +26,20 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
   }
 
   return (
-    <Prompt.Root
-      className='str-chat__message-bounce-prompt'
+    <Alert.Root
+      className='str-chat__message-bounce-alert'
       data-testid='message-bounce-prompt'
     >
-      <Prompt.Header
-        className='str-chat__message-bounce-prompt-header'
+      <Alert.Header
+        className='str-chat__message-bounce-alert-header'
         Icon={IconExclamationCircle}
         title={
           !children ? t('This message did not meet our content guidelines') : undefined
         }
       >
         {children}
-      </Prompt.Header>
-      <Prompt.Actions className={'str-chat__message-bounce-actions'}>
+      </Alert.Header>
+      <Alert.Actions className={'str-chat__message-bounce-actions'}>
         <Button
           className={clsx(
             'str-chat__message-bounce-delete',
@@ -61,7 +61,6 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
           )}
           data-testid='message-bounce-edit'
           onClick={createHandler(handleEdit)}
-          type='button'
         >
           {t('Edit Message')}
         </Button>
@@ -77,7 +76,7 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
         >
           {t('Send Anyway')}
         </Button>
-      </Prompt.Actions>
-    </Prompt.Root>
+      </Alert.Actions>
+    </Alert.Root>
   );
 }
