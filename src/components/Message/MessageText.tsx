@@ -7,7 +7,8 @@ import { useMessageContext, useTranslationContext } from '../../context';
 import { renderText as defaultRenderText } from './renderText';
 import { MessageErrorText } from './MessageErrorText';
 
-import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
+import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 
 export type MessageTextProps = {
   /* Replaces the CSS class name placed on the component's inner `div` container */
@@ -31,6 +32,7 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     onMentionsClickMessage,
     onMentionsHoverMessage,
     renderText: contextRenderText,
+    translationView = 'translated',
     unsafeHTML,
   } = useMessageContext('MessageText');
 
@@ -41,8 +43,9 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const hasAttachment = messageHasAttachments(message);
 
   const messageTextToRender =
-    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message.text;
+    translationView === 'original'
+      ? message.text
+      : getTranslatedMessageText({ language: userLanguage, message }) || message.text;
 
   const messageText = useMemo(
     () => renderText(messageTextToRender, message.mentioned_users),

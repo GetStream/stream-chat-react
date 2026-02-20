@@ -24,6 +24,7 @@ import {
   useChannelStateContext,
   useChatContext,
   useComponentContext,
+  useMessageTranslationViewContext,
 } from '../../context';
 
 import { MessageSimple as DefaultMessage } from './MessageSimple';
@@ -74,6 +75,14 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const { client, isMessageAIGenerated } = useChatContext('Message');
   const { channelConfig, read } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext('Message');
+  const { getTranslationView, setTranslationView: setTranslationViewInContext } =
+    useMessageTranslationViewContext();
+
+  const translationView = getTranslationView(message.id, !!message.i18n);
+  const setTranslationView = useCallback(
+    (view: 'original' | 'translated') => setTranslationViewInContext(message.id, view),
+    [message.id, setTranslationViewInContext],
+  );
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
@@ -161,6 +170,8 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     messageIsUnread,
     onUserClick,
     onUserHover,
+    setTranslationView,
+    translationView,
   };
 
   return (

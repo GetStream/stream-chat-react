@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { ReactNode } from 'react';
-import type { Channel, PollVote, TranslationLanguages, UserResponse } from 'stream-chat';
+import type { Channel, PollVote, UserResponse } from 'stream-chat';
 
-import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { ChatContextValue } from '../../context';
+import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
+import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PluggableList } from 'unified';
 import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import remarkGfm from 'remark-gfm';
@@ -45,7 +46,7 @@ export const getLatestMessagePreview = (
     channel.state.latestMessages[channel.state.latestMessages.length - 1];
 
   const previewTextToRender =
-    latestMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    getTranslatedMessageText({ language: userLanguage, message: latestMessage }) ||
     latestMessage?.text;
   const poll = latestMessage?.poll;
 

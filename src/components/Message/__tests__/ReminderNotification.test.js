@@ -21,12 +21,12 @@ const renderComponent = async ({ reminder }) => {
 };
 
 describe('ReminderNotification', () => {
-  it('displays text for bookmark notifications', async () => {
+  it('displays text for bookmark notifications (saved for later)', async () => {
     const reminder = new Reminder({ data: generateReminderResponse() });
     const { container } = await renderComponent({ reminder });
     expect(container).toMatchSnapshot();
   });
-  it('displays text for time due in case of timed reminders', async () => {
+  it('displays text for time due in case of timed reminders (remind me)', async () => {
     const reminder = new Reminder({
       data: generateReminderResponse({
         scheduleOffsetMs: 60 * 1000,

@@ -52,7 +52,13 @@ export type AttachmentProps = {
   attachments: (StreamAttachment | SharedLocationResponse)[];
   /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
-  /** Which action should be focused on initial render, by attachment type (match by action.value) */
+  /**
+   * Which attachment action button receives focus on initial render, keyed by attachment type.
+   * Values must match an action's `value` (e.g. `'send'`, `'cancel'`, `'shuffle'` for giphy attachment).
+   * Default: `{ giphy: 'send' }`.
+   * To disable auto-focus (e.g. when rendering the Giphy preview above the composer so focus
+   * stays in the message input), pass an empty object: `attachmentActionsDefaultFocus={{}}`.
+   */
   attachmentActionsDefaultFocus?: AttachmentActionsDefaultFocusByType;
   /** Custom UI component for displaying attachment actions, defaults to and accepts same props as: [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) */
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;

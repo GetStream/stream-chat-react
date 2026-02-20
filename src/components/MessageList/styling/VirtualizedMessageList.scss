@@ -11,7 +11,10 @@
   margin: 0;
   width: 100%;
   /* Max container = composer width + padding; matches message list */
-  max-width: calc(var(--str-chat__message-composer-max-width) + var(--str-chat__message-composer-padding));
+  max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
   height: 100%;
 
   .str-chat__message-list-scroll {

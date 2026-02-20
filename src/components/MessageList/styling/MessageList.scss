@@ -15,7 +15,10 @@
   overscroll-behavior: none;
   width: 100%;
   /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
-  max-width: calc(var(--str-chat__message-composer-max-width) + var(--str-chat__message-composer-padding));
+  max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
   height: 100%;
   max-height: 100%;
   @include utils.component-layer-overrides('message-list');
@@ -101,13 +104,17 @@
   --str-chat__message-list-border-inline-end: none;
 
   /* The border radius used for the borders of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-radius: var(--str-chat__circle-fab-border-radius);
+  --str-chat__jump-to-latest-message-border-radius: var(
+    --str-chat__circle-fab-border-radius
+  );
 
   /* The text/icon color of the jump to latest message button */
   --str-chat__jump-to-latest-message-color: var(--str-chat__circle-fab-color);
 
   /* The background color of the jump to latest message button */
-  --str-chat__jump-to-latest-message-background-color: var(--str-chat__circle-fab-background-color);
+  --str-chat__jump-to-latest-message-background-color: var(
+    --str-chat__circle-fab-background-color
+  );
 
   /* The background color of the jump to latest message button in pressed state */
   --str-chat__jump-to-latest-message-pressed-background-color: var(
@@ -123,7 +130,9 @@
   );
 
   /* Bottom border of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-block-end: var(--str-chat__circle-fab-border-block-end);
+  --str-chat__jump-to-latest-message-border-block-end: var(
+    --str-chat__circle-fab-border-block-end
+  );
 
   /* Left (right in RTL layout) border of the jump to latest message button */
   --str-chat__jump-to-latest-message-border-inline-start: var(
@@ -153,14 +162,18 @@
 }
 
 .str-chat__jump-to-latest-message {
-  --str-chat-icon-color: var(--str-chat__jump-to-latest-message-unread-count-background-color);
+  --str-chat-icon-color: var(
+    --str-chat__jump-to-latest-message-unread-count-background-color
+  );
 
   .str-chat__circle-fab {
     @include utils.component-layer-overrides('jump-to-latest-message');
     @include utils.circle-fab-overrides('jump-to-latest-message');
 
     .str-chat__jump-to-latest-unread-count {
-      background-color: var(--str-chat__jump-to-latest-message-unread-count-background-color);
+      background-color: var(
+        --str-chat__jump-to-latest-message-unread-count-background-color
+      );
       color: var(--str-chat__jump-to-latest-message-unread-count-color);
       border-radius: var(--str-chat__jump-to-latest-message-border-radius);
       font: var(--str-chat__caption-text);

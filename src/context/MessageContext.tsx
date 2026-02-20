@@ -132,6 +132,16 @@ export type MessageContextValue = {
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
+  /**
+   * User-specific view for translated messages: which text to show.
+   * - `'original'`: show `message.text` (source language).
+   * - `'translated'`: show the translation for the **current user language** (from
+   *   `useTranslationContext().userLanguage`), i.e. `message.i18n[userLanguage + '_text']`
+   *   or fallback to `message.text` when missing. Resolved via `getTranslatedMessageText`.
+   */
+  translationView?: 'original' | 'translated';
+  /** Set whether this message shows original or translated text (user-specific, does not change message data). */
+  setTranslationView?: (view: 'original' | 'translated') => void;
 };
 
 export const MessageContext = React.createContext<MessageContextValue | undefined>(
