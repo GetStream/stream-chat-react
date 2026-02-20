@@ -67,14 +67,6 @@
     --str-chat__tertiary-surface-color
   );
 
-  --str-chat__message-reminder-color: var(--str-chat__primary-color);
-  --str-chat__message-reminder-background-color: transparent;
-  --str-chat__message-reminder-border-block-start: none;
-  --str-chat__message-reminder-border-block-end: none;
-  --str-chat__message-reminder-border-inline-start: none;
-  --str-chat__message-reminder-border-inline-end: none;
-  --str-chat__message-reminder-box-shadow: none;
-  --str-chat__message-reminder-border-radius: 0;
   --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   /* Background color for pinned messages (Figma: background/core/highlight) */
@@ -232,16 +224,9 @@
   hyphens: auto;
   overflow-wrap: break-word;
 
-  .str-chat__message-reminder {
-    grid-area: message-reminder;
-    padding-block: var(--spacing-xxs);
-    margin: 0;
-    @include utils.component-layer-overrides('message-reminder');
-    font: var(--str-chat__caption-medium-text);
-  }
-
   @mixin message-grid-no-avatar {
     grid-template-areas:
+      'message-saved-for-later'
       'pin-indicator'
       'message-reminder'
       'message'
@@ -253,6 +238,7 @@
 
   @mixin message-grid-other-with-avatar {
     grid-template-areas:
+      '. message-saved-for-later'
       '. pin-indicator'
       '. message-reminder'
       'avatar message'
@@ -264,6 +250,7 @@
 
   @mixin message-grid-me-with-avatar {
     grid-template-areas:
+      'message-saved-for-later .'
       'pin-indicator .'
       'message-reminder .'
       'message avatar'

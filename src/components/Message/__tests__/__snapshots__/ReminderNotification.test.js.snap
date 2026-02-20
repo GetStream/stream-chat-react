@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ReminderNotification displays text for bookmark notifications 1`] = `
+exports[`ReminderNotification displays text for bookmark notifications (saved for later) 1`] = `
 <div>
   <p
-    class="str-chat__message-reminder"
+    class="str-chat__message-saved-for-later"
   >
     <span>
       Saved for later
@@ -18,30 +18,34 @@ exports[`ReminderNotification displays text for reminder deadline if trespassed 
     class="str-chat__message-reminder"
   >
     <span>
-      Saved for later
+      Reminder set
     </span>
     <span>
-       | 
+       · 
     </span>
-    <span>
+    <span
+      class="str-chat__message-reminder__time-left"
+    >
       Due since 01/01/1970
     </span>
   </p>
 </div>
 `;
 
-exports[`ReminderNotification displays text for time due in case of timed reminders 1`] = `
+exports[`ReminderNotification displays text for time due in case of timed reminders (remind me) 1`] = `
 <div>
   <p
     class="str-chat__message-reminder"
   >
     <span>
-      Saved for later
+      Reminder set
     </span>
     <span>
-       | 
+       · 
     </span>
-    <span>
+    <span
+      class="str-chat__message-reminder__time-left"
+    >
       Due in a minute
     </span>
   </p>
