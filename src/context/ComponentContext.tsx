@@ -154,6 +154,8 @@ export type ComponentContextValue = {
   Modal?: React.ComponentType<ModalProps>;
   /** Custom UI component for viewing message's image and giphy attachments with option to expand into the Gallery on Modal, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
+  /** Custom UI component to show "Also sent in channel" in thread message lists when message.show_in_channel is true, defaults to and accepts same props as: [MessageAlsoSentInChannelIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageAlsoSentInChannelIndicator.tsx) */
+  MessageAlsoSentInChannelIndicator?: React.ComponentType;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/PinIndicator.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
   /** Custom UI component to override default poll actions rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
