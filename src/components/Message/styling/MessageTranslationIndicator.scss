@@ -1,0 +1,33 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__message-translation-indicator-color: var(
+    --text-primary-text,
+    var(--text-primary)
+  );
+  --str-chat__message-translation-indicator-background-color: transparent;
+}
+
+/* Translation indicator: below reminder in message grid. */
+.str-chat__message-translation-indicator {
+  display: flex;
+  align-items: center;
+  grid-area: translation-indicator;
+  padding-block: var(--spacing-xxs);
+  gap: var(--spacing-xxs);
+  margin: 0;
+  color: var(--str-chat__message-translation-indicator-color);
+  @include utils.component-layer-overrides('message-translation-indicator');
+
+  &, .str-chat__message-translation-indicator__translation-toggle {
+    font: var(--str-chat__metadata-default-text);
+  }
+
+  .str-chat__message-translation-indicator__sign {
+    font: var(--str-chat__metadata-emphasis-text);
+  }
+
+  svg path {
+    stroke-width: 1.5px;
+  }
+}

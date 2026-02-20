@@ -12,6 +12,7 @@ export * from './MessageSimple';
 export * from './MessageStatus';
 export * from './MessageText';
 export * from './MessageTimestamp';
+export * from './MessageTranslationIndicator';
 export * from './QuotedMessage';
 export * from './ReminderNotification';
 export * from './renderText';

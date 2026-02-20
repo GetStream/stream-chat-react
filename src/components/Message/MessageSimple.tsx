@@ -14,6 +14,7 @@ import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMes
 import { isDateSeparatorMessage } from '../MessageList';
 import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
+import { MessageTranslationIndicator as DefaultMessageTranslationIndicator } from './MessageTranslationIndicator';
 import { useMessageReminder } from './hooks';
 import {
   areMessageUIPropsEqual,
@@ -87,6 +88,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
+    MessageTranslationIndicator = DefaultMessageTranslationIndicator,
     PinIndicator = DefaultPinIndicator,
     QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionList,
@@ -190,6 +192,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
         <div className={rootClassName} key={message.id}>
           {message.pinned && <PinIndicator message={message} />}
           {!!reminder && <ReminderNotification reminder={reminder} />}
+          <MessageTranslationIndicator message={message} />
           {message.user && (
             <Avatar
               className='str-chat__avatar--with-border'
