@@ -203,9 +203,6 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
             onKeyUp={handleClick}
           >
             <MessageActions />
-            <div className='str-chat__message-reactions-host'>
-              {hasReactions && <ReactionsList reverse />}
-            </div>
             <div className='str-chat__message-bubble'>
               {poll && <Poll poll={poll} />}
               {message.quoted_message && <QuotedMessage />}
@@ -217,6 +214,9 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
               ) : (
                 <MessageText message={message} renderText={renderText} />
               )}
+            </div>
+            <div className='str-chat__message-reactions-host'>
+              {hasReactions && <ReactionsList reverse />}
             </div>
             <MessageErrorIcon />
             {showReplyCountButton && (
