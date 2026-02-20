@@ -1,4 +1,4 @@
-import React, { type ComponentPropsWithoutRef, useState } from 'react';
+import React, { type ComponentPropsWithoutRef, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import type { ReactionsListModalProps } from './ReactionsListModal';
@@ -53,6 +53,9 @@ export type ReactionsListProps = Partial<
   visualStyle?: 'clustered' | 'segmented' | null;
 };
 
+/**
+ * Renders a button if `buttonIf` is true, otherwise renders a fragment. No props but children are passed to fragment, but all props are passed to button if it's rendered.
+ */
 const FragmentOrButton = ({
   buttonIf: renderButton = false,
   children,
@@ -77,7 +80,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
     ...rest
   } = props;
 
-  const { existingReactions, hasReactions, totalReactionCount } =
+  const { existingReactions, hasReactions, totalReactionCount, uniqueReactionTypeCount } =
     useProcessReactions(rest);
   const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
     null,
@@ -85,13 +88,31 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
   const { t } = useTranslationContext('ReactionsList');
   const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
 
-  const handleReactionButtonClick = (reactionType: ReactionType) => {
+  const handleReactionButtonClick = (reactionType: ReactionType | null) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
       return;
     }
 
     setSelectedReactionType(reactionType);
   };
+
+  /**
+   * In segmented style with top position we show max 4 reactions and a
+   * count of the rest, so we need to cap the existing reactions to display
+   * at 4 and calculate the count of the rest.
+   */
+  const cappedExistingReactions = useMemo(() => {
+    if (visualStyle !== 'segmented' || verticalPosition !== 'top') return null;
+
+    const sliced = existingReactions.slice(0, 4);
+    return {
+      reactionCountToDisplay: sliced.reduce(
+        (accumulatedCount, { reactionCount }) => accumulatedCount + reactionCount,
+        0,
+      ),
+      reactionsToDisplay: sliced,
+    };
+  }, [existingReactions, verticalPosition, visualStyle]);
 
   if (!hasReactions) return null;
 
@@ -116,7 +137,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
           }
         >
           <ul className='str-chat__message-reactions__list'>
-            {existingReactions.map(
+            {(cappedExistingReactions?.reactionsToDisplay ?? existingReactions).map(
               ({ EmojiComponent, reactionCount, reactionType }) =>
                 EmojiComponent && (
                   <li
@@ -131,7 +152,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
                       <span className='str-chat__message-reactions__item-icon'>
                         <EmojiComponent />
                       </span>
-                      {visualStyle === 'segmented' && (
+                      {visualStyle === 'segmented' && reactionCount > 1 && (
                         <span
                           className='str-chat__message-reactions__item-count'
                           data-testclass='message-reactions-item-count'
@@ -142,6 +163,20 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
                     </FragmentOrButton>
                   </li>
                 ),
+            )}
+            {uniqueReactionTypeCount > 4 && cappedExistingReactions && (
+              <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
+                <button
+                  className='str-chat__message-reactions__list-item-button'
+                  onClick={() =>
+                    handleReactionButtonClick(
+                      existingReactions.at(-1)?.reactionType ?? null,
+                    )
+                  }
+                >
+                  +{totalReactionCount - cappedExistingReactions.reactionCountToDisplay}
+                </button>
+              </li>
             )}
           </ul>
           {visualStyle === 'clustered' && (
