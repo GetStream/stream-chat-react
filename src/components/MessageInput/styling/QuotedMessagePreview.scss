@@ -1,6 +1,10 @@
 @use '../../../styling/utils';
 
 .str-chat {
+  .str-chat__message-composer__quoted-message-preview-slot {
+    padding: var(--spacing-xxs);
+  }
+
   .str-chat__quoted-message-preview {
     display: flex;
     align-items: center;

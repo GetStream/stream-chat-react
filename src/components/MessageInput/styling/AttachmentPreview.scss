@@ -73,6 +73,24 @@
 
   --str-chat__attachment-preview-file-fatal-error-color: var(--color-accent-error);
 
+  .str-chat__message-composer-voice-preview-slot {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-xxs);
+    min-width: 0;
+
+    .str-chat__attachment-preview-audio {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+
+      .str-chat__attachment-preview-file__data {
+        width: 100%;
+      }
+    }
+  }
+
   .str-chat__attachment-preview-list {
     @include utils.component-layer-overrides('attachment-preview-list');
     padding: var(--spacing-xxs);
@@ -309,6 +327,5 @@
     height: var(--button-visual-height-md);
     width: var(--button-visual-height-md);
     border: 1px solid var(--control-play-control-border);
-    background-color: var(--control-play-control-bg);
   }
 }

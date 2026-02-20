@@ -118,14 +118,13 @@ describe('AttachmentPreviewList', () => {
       expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
       expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
       expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
-      expect(
-        screen.getByTitle(`voice-recording-attachment-${state}`),
-      ).toBeInTheDocument();
+      // Voice recordings are rendered in VoiceRecordingPreviewSlot above the list (REACT-794)
       expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
     },
   );
 
-  describe.each(['audio', 'file', 'image', 'unsupported', 'voiceRecording', 'video'])(
+  // voiceRecording is rendered in VoiceRecordingPreviewSlot (REACT-794), not in AttachmentPreviewList
+  describe.each(['audio', 'file', 'image', 'unsupported', 'video'])(
     '%s attachments rendering',
     (type) => {
       const customAttachment = {
@@ -143,7 +142,6 @@ describe('AttachmentPreviewList', () => {
         image: generateImageAttachment,
         unsupported: () => customAttachment,
         video: generateVideoAttachment,
-        voiceRecording: generateVoiceRecordingAttachment,
       };
 
       it('retries upload on upload button click', async () => {
@@ -265,7 +263,6 @@ describe('AttachmentPreviewList', () => {
           image: 'ImageAttachmentPreview',
           unsupported: 'UnsupportedAttachmentPreview',
           video: 'MediaAttachmentPreview',
-          voiceRecording: 'VoiceRecordingPreview',
         };
         const title = `${type}-attachment`;
         const id = `${type}-id`;

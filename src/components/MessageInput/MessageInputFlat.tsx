@@ -4,7 +4,10 @@ import {
   AttachmentSelector as DefaultAttachmentSelector,
   SimpleAttachmentSelector,
 } from './AttachmentSelector/AttachmentSelector';
-import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
+import {
+  AttachmentPreviewList as DefaultAttachmentPreviewList,
+  VoiceRecordingPreviewSlot as DefaultVoiceRecordingPreviewSlot,
+} from './AttachmentPreviewList';
 import { AudioRecorder as DefaultAudioRecorder } from '../MediaRecorder';
 import { EditedMessagePreview as DefaultEditedMessagePreview } from './EditedMessagePreview';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
@@ -55,6 +58,7 @@ const MessageComposerPreviews = () => {
     EditedMessagePreview = DefaultEditedMessagePreview,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
+    VoiceRecordingPreviewSlot = DefaultVoiceRecordingPreviewSlot,
   } = useComponentContext();
 
   const messageComposer = useMessageComposer();
@@ -97,6 +101,7 @@ const MessageComposerPreviews = () => {
       ) : (
         <QuotedMessagePreview />
       )}
+      <VoiceRecordingPreviewSlot />
       <AttachmentPreviewList />
       <LinkPreviewList />
     </div>
