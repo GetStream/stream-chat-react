@@ -13,7 +13,6 @@ import {
   UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview,
   type UnsupportedAttachmentPreviewProps,
 } from './UnsupportedAttachmentPreview';
-import { type VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
 import {
   FileAttachmentPreview as DefaultFileAttachmentPreview,
   type FileAttachmentPreviewProps,
@@ -40,7 +39,6 @@ export type AttachmentPreviewListProps = {
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
   UnsupportedAttachmentPreview?: ComponentType<UnsupportedAttachmentPreviewProps>;
   VideoAttachmentPreview?: ComponentType<MediaAttachmentPreviewProps>;
-  VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
 };
 
 export const AttachmentPreviewList = ({
@@ -50,7 +48,6 @@ export const AttachmentPreviewList = ({
   ImageAttachmentPreview = MediaAttachmentPreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = MediaAttachmentPreview,
-  VoiceRecordingPreview = DefaultAudioAttachmentPreview,
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
@@ -79,16 +76,9 @@ export const AttachmentPreviewList = ({
       )}
       {attachments.map((attachment) => {
         if (isScrapedContent(attachment)) return null;
-        if (isLocalVoiceRecordingAttachment(attachment)) {
-          return (
-            <VoiceRecordingPreview
-              attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
-              key={attachment.localMetadata.id || attachment.asset_url}
-              removeAttachments={messageComposer.attachmentManager.removeAttachments}
-            />
-          );
-        } else if (isLocalAudioAttachment(attachment)) {
+        // Voice recordings are rendered in the dedicated slot above (VoiceRecordingPreviewSlot)
+        if (isLocalVoiceRecordingAttachment(attachment)) return null;
+        if (isLocalAudioAttachment(attachment)) {
           return (
             <AudioAttachmentPreview
               attachment={attachment}
