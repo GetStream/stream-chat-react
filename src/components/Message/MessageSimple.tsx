@@ -219,9 +219,6 @@ const MessageSimpleWithContext = ({
           onKeyUp={handleClick}
         >
           {!isDeleted && <MessageActions />}
-          <div className='str-chat__message-reactions-host'>
-            {hasReactions && <ReactionsList reverse />}
-          </div>
           {message.deleted_at ? (
             <MessageDeletedBubble />
           ) : (
@@ -241,6 +238,9 @@ const MessageSimpleWithContext = ({
                   <MessageText message={message} renderText={renderText} />
                 )}
               </MessageBubble>
+              <div className='str-chat__message-reactions-host'>
+                {hasReactions && <ReactionsList reverse />}
+              </div>
               <MessageErrorIcon />
             </>
           )}

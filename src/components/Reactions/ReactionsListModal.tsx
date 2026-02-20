@@ -1,29 +1,34 @@
 import React, { useMemo } from 'react';
-import clsx from 'clsx';
 
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
-import type { ModalProps } from '../Modal';
-import { GlobalModal } from '../Modal';
 import { useFetchReactions } from './hooks/useFetchReactions';
-import { LoadingIndicator } from '../Loading';
-import { Avatar } from '../Avatar';
-import type { MessageContextValue } from '../../context';
-import { useComponentContext, useMessageContext } from '../../context';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import {
+  useChatContext,
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import type { ReactionSort } from 'stream-chat';
+import type { MessageContextValue } from '../../context';
 
-export type ReactionsListModalProps = ModalProps &
-  Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>> & {
-    reactions: ReactionSummary[];
-    selectedReactionType: ReactionType;
-    onSelectedReactionTypeChange?: (reactionType: ReactionType) => void;
-    sort?: ReactionSort;
-    /** @deprecated use `sort` instead */
-    sortReactionDetails?: ReactionDetailsComparator;
-  };
+export type ReactionsListModalProps = Partial<
+  Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
+> & {
+  reactions: ReactionSummary[];
+  selectedReactionType: ReactionType | null;
+  onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
+  sort?: ReactionSort;
+  /** @deprecated use `sort` instead */
+  sortReactionDetails?: ReactionDetailsComparator;
+  totalReactionCount?: number;
+};
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
+// TODO: rename to MessageReactionsDetail
 export function ReactionsListModal({
   handleFetchReactions,
   onSelectedReactionTypeChange,
@@ -31,27 +36,34 @@ export function ReactionsListModal({
   reactions,
   selectedReactionType,
   sortReactionDetails: propSortReactionDetails,
-  ...modalProps
+  totalReactionCount,
 }: ReactionsListModalProps) {
-  const { Modal = GlobalModal } = useComponentContext();
-  const selectedReaction = reactions.find(
-    ({ reactionType }) => reactionType === selectedReactionType,
-  );
-  const SelectedEmojiComponent = selectedReaction?.EmojiComponent ?? null;
+  const { client } = useChatContext();
+  const { Avatar = DefaultAvatar, LoadingIndicator = DefaultLoadingIndicator } =
+    useComponentContext('ReactionsListModal');
+  const { t } = useTranslationContext();
+
   const {
+    handleReaction: contextHandleReaction,
     reactionDetailsSort: contextReactionDetailsSort,
     sortReactionDetails: contextSortReactionDetails,
   } = useMessageContext('ReactionsListModal');
+
   const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
+
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
-  const { isLoading: areReactionsLoading, reactions: reactionDetails } =
-    useFetchReactions({
-      handleFetchReactions,
-      reactionType: selectedReactionType,
-      shouldFetch: modalProps.open,
-      sort: reactionDetailsSort,
-    });
+
+  const {
+    isLoading: areReactionsLoading,
+    reactions: reactionDetails,
+    refetch,
+  } = useFetchReactions({
+    handleFetchReactions,
+    reactionType: selectedReactionType,
+    shouldFetch: true,
+    sort: reactionDetailsSort,
+  });
 
   const reactionDetailsWithLegacyFallback = useMemo(
     () =>
@@ -62,75 +74,94 @@ export function ReactionsListModal({
   );
 
   return (
-    <Modal
-      {...modalProps}
-      className={clsx('str-chat__message-reactions-details-modal', modalProps.className)}
+    <div
+      className='str-chat__message-reactions-detail'
+      data-testid='reactions-list-modal'
     >
-      <div
-        className='str-chat__message-reactions-details'
-        data-testid='reactions-list-modal'
-      >
-        <div className='str-chat__message-reactions-details-reaction-types'>
+      {typeof totalReactionCount === 'number' && (
+        <div className='str-chat__message-reactions-detail__total-count'>
+          {t('{{ count }} reactions', { count: totalReactionCount })}
+        </div>
+      )}
+      <div className='str-chat__message-reactions-detail__reaction-type-list-container'>
+        <ul className='str-chat__message-reactions-detail__reaction-type-list'>
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
               EmojiComponent && (
-                <div
-                  className={clsx('str-chat__message-reactions-details-reaction-type', {
-                    'str-chat__message-reactions-details-reaction-type--selected':
-                      selectedReactionType === reactionType,
-                  })}
-                  data-testid={`reaction-details-selector-${reactionType}`}
+                <li
+                  className='str-chat__message-reactions-detail__reaction-type-list-item'
                   key={reactionType}
-                  onClick={() =>
-                    onSelectedReactionTypeChange?.(reactionType as ReactionType)
-                  }
                 >
-                  <span className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
-                    <EmojiComponent />
-                  </span>
-                  &nbsp;
-                  <span className='str-chat__message-reaction-count'>
-                    {reactionCount}
-                  </span>
-                </div>
+                  <button
+                    aria-pressed={reactionType === selectedReactionType}
+                    className='str-chat__message-reactions-detail__reaction-type-list-item-button'
+                    onClick={() => onSelectedReactionTypeChange?.(reactionType)}
+                  >
+                    <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
+                      <EmojiComponent />
+                    </span>
+                    {reactionCount > 1 && (
+                      <span
+                        className='str-chat__message-reactions-detail__reaction-type-list-item-count'
+                        data-testclass='message-reactions-item-count'
+                      >
+                        {reactionCount}
+                      </span>
+                    )}
+                  </button>
+                </li>
               ),
           )}
-        </div>
-        {SelectedEmojiComponent && (
-          <div className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback str-chat__message-reaction-emoji-big'>
-            <SelectedEmojiComponent />
+        </ul>
+      </div>
+      <div
+        className='str-chat__message-reactions-detail__user-list'
+        data-testid='all-reacting-users'
+      >
+        {areReactionsLoading && (
+          <div className='str-chat__message-reactions-detail__loading-overlay'>
+            <LoadingIndicator />
           </div>
         )}
-        <div
-          className='str-chat__message-reactions-details-reacting-users'
-          data-testid='all-reacting-users'
-        >
-          {areReactionsLoading ? (
-            <LoadingIndicator />
-          ) : (
-            reactionDetailsWithLegacyFallback.map(({ user }) => (
-              <div
-                className='str-chat__message-reactions-details-reacting-user'
-                key={user?.id}
-              >
-                <Avatar
-                  className='stream-chat__avatar--reaction'
-                  data-testid='avatar'
-                  imageUrl={user?.image as string | undefined}
-                  size='md'
-                  userName={user?.name || user?.id}
-                />
+        {reactionDetailsWithLegacyFallback.map(({ user }) => {
+          const belongsToCurrentUser = client.user?.id === user?.id;
+          return (
+            <div
+              className='str-chat__message-reactions-detail__user-list-item'
+              key={user?.id}
+            >
+              <Avatar
+                className='str-chat__avatar--with-border'
+                data-testid='avatar'
+                imageUrl={user?.image as string | undefined}
+                size='sm'
+                userName={user?.name || user?.id}
+              />
+              <div className='str-chat__message-reactions-detail__user-list-item-info'>
                 <span
-                  className='str-chat__user-item--name'
+                  className='str-chat__message-reactions-detail__user-list-item-username'
                   data-testid='reaction-user-username'
                 >
-                  {user?.name || user?.id}
+                  {belongsToCurrentUser ? t('You') : user?.name || user?.id}
                 </span>
+                {belongsToCurrentUser && selectedReactionType && (
+                  <button
+                    className='str-chat__message-reactions-detail__user-list-item-button'
+                    data-testid='remove-reaction-button'
+                    onClick={(e) => {
+                      contextHandleReaction(selectedReactionType, e).then(() => {
+                        refetch();
+                      });
+                    }}
+                  >
+                    {t('Tap to remove')}
+                  </button>
+                )}
               </div>
-            ))
-          )}
-        </div>
+            </div>
+          );
+        })}
       </div>
-    </Modal>
+    </div>
   );
 }

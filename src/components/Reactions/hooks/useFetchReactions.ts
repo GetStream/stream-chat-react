@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ReactionResponse, ReactionSort } from 'stream-chat';
 import type { MessageContextValue } from '../../../context';
 import { useMessageContext } from '../../../context';
@@ -6,7 +6,7 @@ import { useMessageContext } from '../../../context';
 import type { ReactionType } from '../types';
 
 export interface FetchReactionsOptions {
-  reactionType: ReactionType;
+  reactionType: ReactionType | null;
   shouldFetch: boolean;
   handleFetchReactions?: MessageContextValue['handleFetchReactions'];
   sort?: ReactionSort;
@@ -24,9 +24,10 @@ export function useFetchReactions(options: FetchReactionsOptions) {
   } = options;
   const [isLoading, setIsLoading] = useState(shouldFetch);
   const handleFetchReactions = propHandleFetchReactions ?? contextHandleFetchReactions;
+  const [refetchNonce, setRefetchNonce] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!shouldFetch) {
+    if (!shouldFetch || !reactionType) {
       return;
     }
 
@@ -54,7 +55,11 @@ export function useFetchReactions(options: FetchReactionsOptions) {
     return () => {
       cancel = true;
     };
-  }, [handleFetchReactions, reactionType, shouldFetch, sort]);
+  }, [handleFetchReactions, reactionType, shouldFetch, sort, refetchNonce]);
 
-  return { isLoading, reactions };
+  const refetch = useCallback(() => {
+    setRefetchNonce(Math.random());
+  }, []);
+
+  return { isLoading, reactions, refetch };
 }
