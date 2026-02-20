@@ -81,7 +81,7 @@
   --str-chat__message-pinned-background-color: var(--background-core-highlight);
 
   /* The maximum allowed width of the message component */
-  --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 480);
+  --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 400);
 
   /* The maximum allowed width of the message component, if it has attachments */
   --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 300);
@@ -93,12 +93,12 @@
   padding-block-end: var(--spacing-xxxs);
 }
 
-.str-chat__li--bottom  {
+.str-chat__li--bottom {
   padding-block-start: var(--spacing-xxxs);
   padding-block-end: var(--spacing-xs);
 }
 
-.str-chat__li--middle  {
+.str-chat__li--middle {
   padding-block: var(--spacing-xxxs);
 }
 
@@ -286,7 +286,9 @@
     }
   }
 
-  &.str-chat__message--me .str-chat__message-pin-indicator .str-chat__message-pin-indicator__content {
+  &.str-chat__message--me
+    .str-chat__message-pin-indicator
+    .str-chat__message-pin-indicator__content {
     justify-content: flex-end;
   }
 
@@ -372,7 +374,6 @@
         }
       }
     }
-
   }
 
   &.str-chat__message--deleted {
@@ -510,11 +511,14 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    margin-block-start: var(--str-chat__spacing-0_5);
+    height: var(--size-24);
     color: var(--chat-text-timestamp);
-    font-size: var(--typography-font-size-xs,);
-    font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-tight);
+
+    * {
+      font-size: var(--typography-font-size-xs,);
+      font-weight: var(--typography-font-weight-regular);
+      line-height: var(--typography-line-height-tight);
+    }
 
     .str-chat__message-simple-name {
       @include utils.prevent-glitch-text-overflow;
