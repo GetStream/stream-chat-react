@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import { type ComponentType, useMemo } from 'react';
 import React from 'react';
 import {
   isLocalAttachment,
@@ -8,6 +8,7 @@ import {
   isLocalVideoAttachment,
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
+  isVoiceRecordingAttachment,
 } from 'stream-chat';
 import {
   UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview,
@@ -53,15 +54,15 @@ export const AttachmentPreviewList = ({
 
   // todo: we could also allow to attach poll to a message composition
   const { attachments, location } = useAttachmentsForPreview();
+  const filteredAttachments = useMemo(
+    () => attachments.filter((a) => !isVoiceRecordingAttachment(a)),
+    [attachments],
+  );
 
-  if (!attachments.length && !location) return null;
+  if (!filteredAttachments.length && !location) return null;
 
   return (
     <div className='str-chat__attachment-preview-list'>
-      {/*<div*/}
-      {/*  className='str-chat__attachment-list-scroll-container'*/}
-      {/*  data-testid='attachment-list-scroll-container'*/}
-      {/*>*/}
       {location && (
         <GeolocationPreview
           location={location}
@@ -126,7 +127,6 @@ export const AttachmentPreviewList = ({
         }
         return null;
       })}
-      {/*</div>*/}
     </div>
   );
 };
