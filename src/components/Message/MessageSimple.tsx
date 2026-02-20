@@ -12,6 +12,7 @@ import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
+import { MessageAlsoSentInChannelIndicator as DefaultMessageAlsoSentInChannelIndicator } from './MessageAlsoSentInChannelIndicator';
 import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
 import { useMessageReminder } from './hooks';
@@ -38,7 +39,11 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useChatContext,
+  useTranslationContext,
+} from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
@@ -64,8 +69,10 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     showAvatar = 'incoming',
     threadList,
   } = props;
-  const { client } = useChatContext('MessageSimple');
-  const { t } = useTranslationContext('MessageSimple');
+  const { channel } = useChannelStateContext();
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
+  const memberCount = Object.keys(channel?.state?.members ?? {}).length;
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
@@ -74,6 +81,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     MessageActions = DefaultMessageActions,
+    MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted = DefaultMessageDeleted,
@@ -183,6 +191,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       {
         <div className={rootClassName} key={message.id}>
           {message.pinned && <PinIndicator message={message} />}
+          {threadList && message.show_in_channel && <MessageAlsoSentInChannelIndicator />}
           {!!reminder && <ReminderNotification reminder={reminder} />}
           {message.user && (
             <Avatar
@@ -231,7 +240,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
           {showMetadata && (
             <div className='str-chat__message-metadata'>
               <MessageStatus />
-              {!isMyMessage() && !!message.user && (
+              {!isMyMessage() && !!message.user && memberCount > 2 && (
                 <span className='str-chat__message-simple-name'>
                   {message.user.name || message.user.id}
                 </span>

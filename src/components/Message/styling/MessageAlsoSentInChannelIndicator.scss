@@ -1,0 +1,27 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__message-also-sent-in-channel-color: var(--text-primary);
+  --str-chat__message-also-sent-in-channel-background-color: transparent;
+  --str-chat__message-also-sent-in-channel-border-block-start: none;
+  --str-chat__message-also-sent-in-channel-border-block-end: none;
+  --str-chat__message-also-sent-in-channel-border-inline-start: none;
+  --str-chat__message-also-sent-in-channel-border-inline-end: none;
+  --str-chat__message-also-sent-in-channel-box-shadow: none;
+  --str-chat__message-also-sent-in-channel-border-radius: 0;
+}
+
+.str-chat__message-also-sent-in-channel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  grid-area: also-sent-in-channel;
+  padding-block: var(--spacing-xxs);
+  @include utils.component-layer-overrides('message-also-sent-in-channel');
+  font: var(--str-chat__metadata-emphasis-text);
+
+  svg path {
+    stroke-width: 1.5px;
+    stroke: var(--str-chat__message-also-sent-in-channel-color);
+  }
+}

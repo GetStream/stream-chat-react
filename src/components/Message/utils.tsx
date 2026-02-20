@@ -241,6 +241,7 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
+    prevMessage.show_in_channel === nextMessage.show_in_channel &&
     prevMessage.status === nextMessage.status &&
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
@@ -312,6 +313,7 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.highlighted !== nextProps.highlighted) return false;
+  if (prevProps.threadList !== nextProps.threadList) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;

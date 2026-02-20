@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { IconPin } from '../Icons';
-import { useTranslationContext } from '../../context';
+import { useChatContext, useTranslationContext } from '../../context';
 import type { LocalMessage } from 'stream-chat';
 
 export type PinIndicatorProps = {
@@ -14,12 +14,18 @@ export type PinIndicatorProps = {
  */
 export const PinIndicator = ({ message }: PinIndicatorProps) => {
   const { t } = useTranslationContext();
+  const { client } = useChatContext();
 
   if (!message) return null;
 
+  const isOwnPin = !!message.pinned_by?.id && message.pinned_by.id === client.user?.id;
   const name = message.pinned_by?.name ?? message.pinned_by?.id ?? '';
 
-  const label = name ? t('Pinned by {{ name }}', { name }) : t('Message pinned');
+  const label = isOwnPin
+    ? t('Pinned by You')
+    : name
+      ? t('Pinned by {{ name }}', { name })
+      : t('Message pinned');
 
   return (
     <div className='str-chat__message-pin-indicator'>

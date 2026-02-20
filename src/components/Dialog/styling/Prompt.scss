@@ -1,10 +1,5 @@
 @use '../../../styling/utils';
 
-// todo: once we have designs for dialogs + context menus create base class instead of a mixin
-@mixin dialog-base {
-
-}
-
 .str-chat__dialog-overlay {
   inset: 0;
   position: absolute;
