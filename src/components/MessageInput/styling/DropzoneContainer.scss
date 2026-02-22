@@ -1,0 +1,21 @@
+// Full-screen drop overlay: root must be positioned so overlay fills it.
+.str-chat__dropzone-root {
+  position: relative;
+}
+
+// Overlay fills the entire drop root (message view).
+.str-chat__dropzone-container {
+  inset: 0;
+  position: absolute;
+}
+
+// When backdrop-filter is not supported, use a dimmed background only (no blur).
+@supports not (backdrop-filter: blur(1px)) {
+  .str-chat__dropzone-container {
+    backdrop-filter: none;
+    background-color: var(
+      --str-chat__dropzone-container-background-color-fallback,
+      rgba(0, 0, 0, 0.4)
+    );
+  }
+}

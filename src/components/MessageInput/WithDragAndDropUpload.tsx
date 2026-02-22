@@ -123,29 +123,34 @@ export const WithDragAndDropUpload = ({
   // nested WithDragAndDropUpload components render wrappers without functionality
   // (MessageInputFlat has a default WithDragAndDropUpload)
   if (dragAndDropUploadContext.subscribeToDrop !== null) {
-    return <Component className={className}>{children}</Component>;
+    return React.createElement(Component, { className }, children);
   }
 
-  return (
-    <DragAndDropUploadContext.Provider
-      value={{
-        subscribeToDrop,
-      }}
-    >
-      <Component {...getRootProps({ className, style })}>
-        {/* TODO: could be a replaceable component */}
-        {isDragActive && (
-          <div
-            className={clsx('str-chat__dropzone-container', {
-              'str-chat__dropzone-container--not-accepted': isDragReject,
-            })}
-          >
-            {!isDragReject && <p>{t('Drag your files here')}</p>}
-            {isDragReject && <p>{t('Some of the files will not be accepted')}</p>}
-          </div>
-        )}
-        {children}
-      </Component>
-    </DragAndDropUploadContext.Provider>
+  const rootClassName = clsx('str-chat__dropzone-root', className);
+
+  const overlay = isDragActive
+    ? React.createElement(
+        'div',
+        {
+          className: clsx('str-chat__dropzone-container', {
+            'str-chat__dropzone-container--not-accepted': isDragReject,
+          }),
+          role: 'presentation',
+        },
+        isDragReject
+          ? React.createElement('p', null, t('Some of the files will not be accepted'))
+          : React.createElement('p', null, t('Drag your files here')),
+      )
+    : null;
+
+  return React.createElement(
+    DragAndDropUploadContext.Provider,
+    { value: { subscribeToDrop } },
+    React.createElement(
+      Component,
+      getRootProps({ className: rootClassName, style }),
+      overlay,
+      children,
+    ),
   );
 };

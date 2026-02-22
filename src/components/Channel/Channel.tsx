@@ -88,6 +88,7 @@ import {
 } from '../Attachment/attachment-sizing';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
+import { WithDragAndDropUpload } from '../MessageInput';
 
 export type ChannelProps = {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
@@ -1156,7 +1157,9 @@ const ChannelInner = (
         <ChannelActionProvider value={channelActionContextValue}>
           <TypingProvider value={typingContextValue}>
             <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-              <div className={clsx(chatContainerClass)}>{children}</div>
+              <WithDragAndDropUpload className={clsx(chatContainerClass)} component='div'>
+                {children}
+              </WithDragAndDropUpload>
             </WithAudioPlayback>
           </TypingProvider>
         </ChannelActionProvider>
