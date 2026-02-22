@@ -1,0 +1,85 @@
+.str-chat__message-reactions-details-modal {
+  .str-chat__modal__inner {
+    max-height: 80%;
+    min-width: 90%;
+    max-width: 90%;
+    width: min(480px, 90vw);
+    height: min(640px, 90vh);
+    flex-basis: min-content;
+
+    @media only screen and (min-device-width: 768px) {
+      min-width: 40vh;
+      max-width: 60vh;
+      width: min-content;
+    }
+  }
+}
+
+.str-chat__message-reactions-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-4);
+  max-height: 100%;
+  height: 100%;
+  min-height: 0;
+
+  .str-chat__message-reactions-details-reaction-types {
+    display: flex;
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    gap: var(--str-chat__spacing-4);
+    align-items: center;
+    flex-shrink: 0;
+
+    .str-chat__message-reactions-details-reaction-type {
+      display: flex;
+      align-items: center;
+      padding: var(--str-chat__spacing-1) 0;
+      flex-shrink: 0;
+      cursor: pointer;
+      border-block-end: solid transparent;
+
+      .str-chat__message-reaction-emoji--with-fallback {
+        width: 18px;
+        line-height: 18px;
+      }
+    }
+
+    .str-chat__message-reactions-details-reaction-type--selected {
+      border-block-end: var(--str-chat__messsage-reactions-details--selected-color);
+    }
+  }
+
+  .str-chat__message-reaction-emoji-big {
+    --str-chat__stream-emoji-size: 1em;
+    align-self: center;
+    font-size: 2rem;
+  }
+
+  .str-chat__message-reaction-emoji-big.str-chat__message-reaction-emoji--with-fallback {
+    line-height: 2rem;
+  }
+
+  .str-chat__message-reactions-details-reacting-users {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-3);
+    max-height: 100%;
+    overflow-y: auto;
+    min-height: 30vh;
+
+    .str-chat__loading-indicator {
+      margin: auto;
+    }
+
+    .str-chat__message-reactions-details-reacting-user {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-2);
+      font: var(--str-chat__subtitle-text);
+    }
+  }
+}

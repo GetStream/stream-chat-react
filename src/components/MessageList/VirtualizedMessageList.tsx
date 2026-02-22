@@ -77,6 +77,7 @@ type PropsDrilledToMessage =
   | 'openThread'
   | 'reactionDetailsSort'
   | 'renderText'
+  | 'showAvatar'
   | 'sortReactions'
   | 'sortReactionDetails';
 
@@ -220,6 +221,7 @@ const VirtualizedMessageListWithContext = (
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     shouldGroupByUser = false,
+    showAvatar,
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
@@ -513,6 +515,7 @@ const VirtualizedMessageListWithContext = (
                 renderText,
                 returnAllReadData,
                 shouldGroupByUser,
+                showAvatar,
                 sortReactionDetails,
                 sortReactions,
                 threadList,

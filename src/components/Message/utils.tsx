@@ -272,7 +272,6 @@ export const areMessagePropsEqual = (
   const { message: nextMessage, Message: nextMessageUI } = nextProps;
 
   if (prevMessageUI !== nextMessageUI) return false;
-  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
 
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
     return false;

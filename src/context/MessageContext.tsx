@@ -37,10 +37,7 @@ export type MessageContextValue = {
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
-  handleDelete: (
-    event: BaseSyntheticEvent,
-    options?: DeleteMessageOptions,
-  ) => Promise<void> | void;
+  handleDelete: (options?: DeleteMessageOptions) => Promise<void> | void;
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,
@@ -115,6 +112,8 @@ export type MessageContextValue = {
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */
   readBy?: UserResponse[];
+  /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
+  showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
   renderText?: (
     text?: string,

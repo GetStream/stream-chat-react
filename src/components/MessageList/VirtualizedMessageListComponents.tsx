@@ -5,13 +5,11 @@ import type { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { isMessageEdited, Message } from '../Message';
+import { Message } from '../Message';
 
 import { useComponentContext } from '../../context';
-import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
-
-import type { LocalMessage } from 'stream-chat';
 import type { GroupStyle, RenderedMessage } from './utils';
+import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
 
@@ -131,7 +129,7 @@ export const messageRenderer = (
     reactionDetailsSort,
     renderText,
     returnAllReadData,
-    shouldGroupByUser,
+    showAvatar,
     sortReactionDetails,
     sortReactions,
     threadList,
@@ -160,27 +158,6 @@ export const messageRenderer = (
     return MessageSystem ? <MessageSystem message={message} /> : null;
   }
 
-  const maybePrevMessage = messageList[streamMessageIndex - 1] as
-    | LocalMessage
-    | undefined;
-  const maybeNextMessage = messageList[streamMessageIndex + 1] as
-    | LocalMessage
-    | undefined;
-  const groupedByUser =
-    shouldGroupByUser &&
-    streamMessageIndex > 0 &&
-    message.user?.id === maybePrevMessage?.user?.id;
-
-  // FIXME: firstOfGroup & endOfGroup should be derived from groupStyles which apply a more complex logic
-  const firstOfGroup =
-    shouldGroupByUser &&
-    (message.user?.id !== maybePrevMessage?.user?.id ||
-      (maybePrevMessage && isMessageEdited(maybePrevMessage)));
-
-  const endOfGroup =
-    shouldGroupByUser &&
-    (message.user?.id !== maybeNextMessage?.user?.id || isMessageEdited(message));
-
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
     firstUnreadMessageId,
     isFirstMessage: streamMessageIndex === 0,
@@ -203,10 +180,7 @@ export const messageRenderer = (
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
-        endOfGroup={endOfGroup}
-        firstOfGroup={firstOfGroup}
         formatDate={formatDate}
-        groupedByUser={groupedByUser}
         groupStyles={[messageGroupStyles[message.id] ?? '']}
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
@@ -218,6 +192,7 @@ export const messageRenderer = (
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
         returnAllReadData={returnAllReadData}
+        showAvatar={showAvatar}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
         threadList={threadList}

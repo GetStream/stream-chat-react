@@ -399,7 +399,7 @@ describe('<MessageActions />', () => {
       await toggleOpenMessageActions();
 
       await act(async () => {
-        await fireEvent.click(screen.getByText('Quote'));
+        await fireEvent.click(screen.getByText('Quote Reply'));
       });
 
       expect(setQuotedMessageSpy).toHaveBeenCalledWith(message);

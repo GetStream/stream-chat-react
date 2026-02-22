@@ -1,18 +1,26 @@
 /* eslint-disable sort-keys */
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
+  GlobalModal,
   IconArrowRotateClockwise,
+  IconBellNotification,
+  IconBellOff,
   IconBookmark,
+  IconBookmarkRemove,
   IconBubbleText6ChatMessage,
   IconBubbleWideNotificationChatMessage,
   IconCircleBanSign,
+  IconCloseQuote2,
   IconEditBig,
   IconFlag2,
   IconMute,
+  IconPeopleAdded,
   IconPin,
   IconSquareBehindSquare2_Copy,
   IconTrashBin,
+  IconUnpin,
+  IconVolumeFull,
   isUserMuted,
   useMessageComposer,
   useMessageReminder,
@@ -25,11 +33,11 @@ import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionS
 import {
   useChannelActionContext,
   useChatContext,
+  useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 import {
-  RemindMeActionButton,
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
 } from '../../components/MessageActions/RemindMeSubmenu';
@@ -38,6 +46,7 @@ import { ContextMenuButton } from '../../components/Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
+import { DeleteMessageAlert } from './DeleteMessageAlert';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
@@ -87,12 +96,13 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Quote Message')}
           className={msgActionsBoxButtonClassName}
+          Icon={IconCloseQuote2}
           onClick={() => {
             handleQuote();
             closeMenu();
           }}
         >
-          {t('Quote')}
+          {t('Quote Reply')}
         </ContextMenuButton>
       );
     },
@@ -104,7 +114,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconPin}
+          Icon={isPinned ? IconUnpin : IconPin}
           onClick={(event) => {
             handlePin(event);
             closeMenu();
@@ -187,23 +197,35 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    RemindMe({ openSubmenu }: ContextMenuItemProps) {
-      const { isMyMessage } = useMessageContext();
+    RemindMe({ closeMenu, openSubmenu }: ContextMenuItemProps) {
+      const { client } = useChatContext();
       const { t } = useTranslationContext();
+      const { message } = useMessageContext();
+      const reminder = useMessageReminder(message.id);
+      const messageAlreadyBookmarked = reminder && !reminder?.remindAt;
+
+      if (messageAlreadyBookmarked) return null;
 
       return (
-        <RemindMeActionButton
-          aria-label={t('aria/Remind Me Message')}
+        <ContextMenuButton
+          aria-label={reminder ? t('aria/Remind Me Message') : t('aria/Remove Reminder')}
           className={msgActionsBoxButtonClassName}
-          hasSubMenu
-          isMine={isMyMessage()}
+          hasSubMenu={!reminder}
+          Icon={reminder ? IconBellOff : IconBellNotification}
           onClick={() => {
-            openSubmenu({
-              Header: RemindMeSubmenuHeader,
-              Submenu: RemindMeSubmenu,
-            });
+            if (reminder) {
+              client.reminders.deleteReminder(reminder.id);
+              closeMenu();
+            } else {
+              openSubmenu({
+                Header: RemindMeSubmenuHeader,
+                Submenu: RemindMeSubmenu,
+              });
+            }
           }}
-        />
+        >
+          {reminder ? t('Remove reminder') : t('Remind me')}
+        </ContextMenuButton>
       );
     },
     SaveForLater({ closeMenu }: ContextMenuItemProps) {
@@ -211,22 +233,24 @@ const DefaultMessageActionComponents = {
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
+      const messageAlreadyHasReminderScheduled = Boolean(reminder && reminder?.remindAt);
+
+      if (messageAlreadyHasReminderScheduled) return null;
 
       return (
         <ContextMenuButton
-          aria-label={t('aria/Bookmark Message')}
+          aria-label={
+            reminder ? t('aria/Remove Save For Later') : t('aria/Bookmark Message')
+          }
           className={msgActionsBoxButtonClassName}
-          Icon={reminder ? IconBookmark : IconBookmark} // todo: what Icon for "Remove reminder" action
+          Icon={reminder ? IconBookmarkRemove : IconBookmark}
           onClick={() => {
-            if (reminder) {
-              client.reminders.deleteReminder(reminder.id);
-            } else {
-              client.reminders.createReminder({ messageId: message.id });
-            }
+            if (reminder) client.reminders.deleteReminder(reminder.id);
+            else client.reminders.createReminder({ messageId: message.id });
             closeMenu();
           }}
         >
-          {reminder ? t('Remove reminder') : t('Save for later')}
+          {reminder ? t('Remove save for later') : t('Save for later')}
         </ContextMenuButton>
       );
     },
@@ -258,7 +282,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
           className={msgActionsBoxButtonClassName}
-          Icon={isMuted ? IconMute : IconMute} // todo: what icon for "Unmute" action
+          Icon={isMuted ? IconVolumeFull : IconMute}
           onClick={(event) => {
             handleMute(event);
             closeMenu();
@@ -269,41 +293,56 @@ const DefaultMessageActionComponents = {
       );
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
+      const { Modal = GlobalModal } = useComponentContext();
       const { removeMessage } = useChannelActionContext();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
+      const [openModal, setOpenModal] = useState(false);
 
       return (
-        <ContextMenuButton
-          aria-label={t('aria/Delete Message')}
-          className={clsx(
-            msgActionsBoxButtonClassName,
-            msgActionsBoxButtonClassNameDestructive,
-          )}
-          Icon={IconTrashBin}
-          onClick={(event) => {
-            if (message.type === 'error') removeMessage(message);
-            else handleDelete(event);
-            closeMenu();
-          }}
-        >
-          {t('Delete')}
-        </ContextMenuButton>
+        <>
+          <ContextMenuButton
+            aria-label={t('aria/Delete Message')}
+            className={clsx(
+              msgActionsBoxButtonClassName,
+              msgActionsBoxButtonClassNameDestructive,
+            )}
+            Icon={IconTrashBin}
+            onClick={() => {
+              setOpenModal(true);
+            }}
+          >
+            {t('Delete')}
+          </ContextMenuButton>
+          <Modal open={openModal}>
+            <DeleteMessageAlert
+              onClose={() => {
+                setOpenModal(false);
+              }}
+              onDelete={() => {
+                if (message.type === 'error') removeMessage(message);
+                else handleDelete();
+                setOpenModal(false);
+                closeMenu();
+              }}
+            />
+          </Modal>
+        </>
       );
     },
     BlockUser({ closeMenu }: ContextMenuItemProps) {
       const { client } = useChatContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const isBlocked = false; // !!client.blockedUsers[targetId]
+      const isBlocked =
+        !message.user?.id ||
+        new Set(client.blockedUsers.getLatestValue().userIds).has(message.user?.id);
+
       return (
         <ContextMenuButton
           aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
-          className={clsx(
-            msgActionsBoxButtonClassName,
-            msgActionsBoxButtonClassNameDestructive,
-          )}
-          Icon={isBlocked ? IconCircleBanSign : IconCircleBanSign} // todo: what icon for "Unblock User" action
+          className={clsx(msgActionsBoxButtonClassName)}
+          Icon={isBlocked ? IconPeopleAdded : IconCircleBanSign}
           onClick={() => {
             const targetId = message.user?.id;
             if (targetId) {

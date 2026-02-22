@@ -43,6 +43,7 @@ export const useBaseMessageActionSetFilter = (
 
     // filter out all actions if any of these are true
     if (
+      isBounced ||
       isInitialMessage || // not sure whether this thing even works anymore
       !message.type ||
       message.type === 'system' ||
@@ -57,7 +58,7 @@ export const useBaseMessageActionSetFilter = (
         return false;
 
       // failed message menu has special treatment
-      if (isBounced || message.error) {
+      if (message.error) {
         return (
           (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||
           (type === 'edit' && canEdit && isBounced) ||

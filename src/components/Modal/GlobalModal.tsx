@@ -24,6 +24,7 @@ export const GlobalModal = ({
   const isOpen = useModalDialogIsOpen();
   const innerRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closingRef = useRef(false);
 
   const maybeClose = useCallback(
     (source: ModalCloseSource, event: ModalCloseEvent) => {
@@ -31,12 +32,17 @@ export const GlobalModal = ({
       if (allow !== false) {
         onClose?.(event);
         dialog.close();
+        closingRef.current = true;
       }
     },
     [dialog, onClose, onCloseAttempt],
   );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
+    // Prevent DialogPortalDestination overlay from handling any click (closeAll).
+    // Ensures overlay/button close is fully controlled by onCloseAttempt/onClose.
+    event.stopPropagation();
+
     const target = event.target as HTMLButtonElement | HTMLDivElement;
     if (innerRef.current?.contains(target)) return;
 
@@ -58,8 +64,13 @@ export const GlobalModal = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, maybeClose, open]);
 
+  // Sync open prop → dialog open. Don't close here (dialog ref changes after close → effect loop).
+  // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
   useEffect(() => {
-    if (open && !isOpen) {
+    if (!open) {
+      closingRef.current = false;
+    }
+    if (open && !isOpen && !closingRef.current) {
       dialog.open();
     }
   }, [dialog, isOpen, open]);

@@ -62,7 +62,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       >
         {replyCountText}
 
-        <AvatarStack displayInfo={avatarStackDisplayInfo} />
+        <AvatarStack displayInfo={avatarStackDisplayInfo} size='xs' />
       </button>
     </div>
   );

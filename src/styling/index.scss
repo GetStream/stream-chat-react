@@ -7,7 +7,6 @@
 @use './variables.css';
 @use 'base';
 @use 'icons';
-// Fonts
 @use 'fonts';
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
@@ -33,10 +32,11 @@
 @use '../components/MediaRecorder/AudioRecorder/styling' as AudioRecorder;
 @use '../components/Message/styling' as Message;
 @use '../components/MessageActions/styling' as MessageActions;
+@use '../components/MessageBounce/styling' as MessageBounce;
 @use '../components/MessageInput/styling' as MessageComposer;
+@use '../components/MessageList/styling' as MessageList;
 @use '../components/Poll/styling' as Poll;
-@use '../components/Reactions/styling/ReactionList' as ReactionList;
-@use '../components/Reactions/styling/ReactionSelector' as ReactionSelector;
+@use '../components/Reactions/styling' as Reactions;
 @use '../components/TextareaComposer/styling' as TextareaComposer;
 @use '../components/Thread/styling' as Thread;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
