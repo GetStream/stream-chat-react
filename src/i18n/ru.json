@@ -262,6 +262,7 @@
   "Select up to {{count}}_many": "Выберите до {{count}}",
   "Select up to {{count}}_other": "Выберите до {{count}}",
   "Send": "Отправить",
+  "Send a message to start the conversation": "Отправьте сообщение, чтобы начать разговор",
   "Send Anyway": "Мне всё равно, отправить",
   "Send message request failed": "Не удалось отправить запрос на отправку сообщения",
   "Send poll": "Отправить опрос",

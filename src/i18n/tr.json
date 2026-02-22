@@ -244,6 +244,7 @@
   "Select up to {{count}}_one": "En fazla {{count}}'yi seçin",
   "Select up to {{count}}_other": "En fazla {{count}}'yi seçin",
   "Send": "Gönder",
+  "Send a message to start the conversation": "Sohbete başlamak için bir mesaj gönderin",
   "Send Anyway": "Yine de gönder",
   "Send message request failed": "Mesaj gönderme isteği başarısız oldu",
   "Send poll": "Anketi gönder",

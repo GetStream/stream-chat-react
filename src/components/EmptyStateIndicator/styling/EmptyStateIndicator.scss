@@ -1,0 +1,33 @@
+// Figma design: empty channel only (str-chat__empty-channel). str-chat__channel-list-empty unchanged.
+.str-chat__empty-channel {
+  --str-chat-icon-color: var(--text-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--str-chat__spacing-4);
+  position: relative;
+  gap: var(--str-chat__spacing-3); // 12px – Figma spacing/sm
+  text-align: center;
+
+  svg {
+    width: calc(var(--str-chat__spacing-px) * 136);
+    height: calc(var(--str-chat__spacing-px) * 136);
+
+    path {
+      fill: var(--text-tertiary);
+    }
+  }
+
+  .str-chat__empty-channel-notifications {
+    position: absolute;
+    inset-block-end: var(--str-chat__spacing-2);
+  }
+
+  .str-chat__empty-channel-text {
+    font: 400 14px / 20px var(--str-chat__font-family); // Figma caption/default
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+}

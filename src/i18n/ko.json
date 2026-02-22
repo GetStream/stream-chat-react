@@ -244,6 +244,7 @@
   "Select up to {{count}}_one": "{{count}}개까지 선택",
   "Select up to {{count}}_other": "{{count}}개까지 선택",
   "Send": "보내다",
+  "Send a message to start the conversation": "메시지를 보내 대화를 시작하세요",
   "Send Anyway": "어쨌든 보내기",
   "Send message request failed": "메시지 보내기 요청 실패",
   "Send poll": "투표 보내기",

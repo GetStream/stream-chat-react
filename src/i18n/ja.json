@@ -244,6 +244,7 @@
   "Select up to {{count}}_one": "最大{{count}}まで選択",
   "Select up to {{count}}_other": "最大{{count}}まで選択",
   "Send": "送信",
+  "Send a message to start the conversation": "メッセージを送って会話を始めましょう",
   "Send Anyway": "とにかく送信する",
   "Send message request failed": "メッセージ送信リクエストが失敗しました",
   "Send poll": "アンケートを送信",

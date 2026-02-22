@@ -28,7 +28,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   }
 
   if (listType === 'message') {
-    const text = t('No chats here yet…');
+    const text = t('Send a message to start the conversation');
     return (
       <div className='str-chat__empty-channel'>
         <ChatBubble />
