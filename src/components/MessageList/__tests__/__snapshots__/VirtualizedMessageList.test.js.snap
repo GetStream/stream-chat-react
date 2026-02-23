@@ -47,7 +47,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
                   class="str-chat__empty-channel-text"
                   role="listitem"
                 >
-                  No chats here yet…
+                  Send a message to start the conversation
                 </p>
               </div>
             </div>

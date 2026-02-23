@@ -8,6 +8,7 @@ export type {
   AttachmentPreviewProps,
   UnsupportedAttachmentPreviewProps,
   VoiceRecordingPreviewProps,
+  VoiceRecordingPreviewSlotProps,
 } from './AttachmentPreviewList';
 export * from './CommandChip';
 export * from './CooldownTimer';
@@ -18,4 +19,8 @@ export * from './MessageInput';
 export * from './MessageInputFlat';
 export * from './QuotedMessagePreview';
 export * from './SendButton';
-export { WithDragAndDropUpload } from './WithDragAndDropUpload';
+export {
+  FileDragAndDropContent,
+  type FileDragAndDropContentProps,
+  WithDragAndDropUpload,
+} from './WithDragAndDropUpload';

@@ -12,6 +12,7 @@ import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
+import { MessageAlsoSentInChannelIndicator as DefaultMessageAlsoSentInChannelIndicator } from './MessageAlsoSentInChannelIndicator';
 import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
 import { MessageTranslationIndicator as DefaultMessageTranslationIndicator } from './MessageTranslationIndicator';
@@ -81,6 +82,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     MessageActions = DefaultMessageActions,
+    MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted = DefaultMessageDeleted,
@@ -191,6 +193,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
       {
         <div className={rootClassName} key={message.id}>
           {message.pinned && <PinIndicator message={message} />}
+          {threadList && message.show_in_channel && <MessageAlsoSentInChannelIndicator />}
           {!!reminder && <ReminderNotification reminder={reminder} />}
           <MessageTranslationIndicator message={message} />
           {message.user && (
