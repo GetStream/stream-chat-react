@@ -1,0 +1,58 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__message-saved-for-later-color: var(--str-chat__primary-color);
+  --str-chat__message-saved-for-later-background-color: transparent;
+  --str-chat__message-saved-for-later-border-block-start: none;
+  --str-chat__message-saved-for-later-border-block-end: none;
+  --str-chat__message-saved-for-later-border-inline-start: none;
+  --str-chat__message-saved-for-later-border-inline-end: none;
+  --str-chat__message-saved-for-later-box-shadow: none;
+  --str-chat__message-saved-for-later-border-radius: 0;
+
+  --str-chat__message-reminder-color: var(--text-primary);
+  --str-chat__message-reminder-background-color: transparent;
+  --str-chat__message-reminder-border-block-start: none;
+  --str-chat__message-reminder-border-block-end: none;
+  --str-chat__message-reminder-border-inline-start: none;
+  --str-chat__message-reminder-border-inline-end: none;
+  --str-chat__message-reminder-box-shadow: none;
+  --str-chat__message-reminder-border-radius: 0;
+}
+
+/* Saved for Later: above pin indicator. Font and spacing aligned with pin indicator. */
+.str-chat__message-saved-for-later {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  grid-area: message-saved-for-later;
+  padding-block: var(--spacing-xxs);
+  margin: 0;
+  @include utils.component-layer-overrides('message-saved-for-later');
+  font: var(--str-chat__metadata-emphasis-text);
+
+  svg path {
+    stroke-width: 1.5px;
+    stroke: var(--str-chat__message-saved-for-later-color);
+  }
+}
+
+/* Remind Me: below pin indicator. Font and spacing aligned with pin indicator. */
+.str-chat__message-reminder {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  grid-area: message-reminder;
+  padding-block: var(--spacing-xxs);
+  margin: 0;
+  @include utils.component-layer-overrides('message-reminder');
+  font: var(--str-chat__metadata-emphasis-text);
+
+  svg path {
+    stroke-width: 1.5px;
+  }
+
+  .str-chat__message-reminder__time-left {
+    font: var(--str-chat__metadata-default-text);
+  }
+}

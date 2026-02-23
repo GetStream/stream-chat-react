@@ -5,6 +5,7 @@ export * from './Message';
 export * from './MessageBlocked';
 export * from './MessageDeleted';
 export * from './MessageEditedTimestamp';
+export * from './MessageAlsoSentInChannelIndicator';
 export * from './MessageIsThreadReplyInChannelButtonIndicator';
 export * from './MessageRepliesCountButton';
 export * from './PinIndicator';
