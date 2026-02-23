@@ -67,7 +67,7 @@ import type {
   SearchSourceResultListProps,
 } from '../experimental';
 
-import type { PropsWithChildrenOnly, UnknownType } from '../types/types';
+import type { PropsWithChildrenOnly } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 import type { ShareLocationDialogProps } from '../components/Location';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
@@ -276,26 +276,3 @@ export const useComponentContext = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => useContext(ComponentContext) as unknown as ComponentContextValue;
-
-/**
- * Typescript currently does not support partial inference, so if ComponentContext
- * typing is desired while using the HOC withComponentContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withComponentContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithComponentContextComponent = (props: Omit<P, keyof ComponentContextValue>) => {
-    const componentContext = useComponentContext();
-
-    return <Component {...(props as P)} {...componentContext} />;
-  };
-
-  WithComponentContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithComponentContextComponent;
-};

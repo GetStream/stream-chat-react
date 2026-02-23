@@ -24,7 +24,6 @@ import type {
 } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
-import type { UnknownType } from '../types/types';
 
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
@@ -170,27 +169,4 @@ export const useMessageContext = (
   }
 
   return contextValue as unknown as MessageContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference, so if MessageContext
- * typing is desired while using the HOC withMessageContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withMessageContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithMessageContextComponent = (props: Omit<P, keyof MessageContextValue>) => {
-    const messageContext = useMessageContext();
-
-    return <Component {...(props as P)} {...messageContext} />;
-  };
-
-  WithMessageContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithMessageContextComponent;
 };
