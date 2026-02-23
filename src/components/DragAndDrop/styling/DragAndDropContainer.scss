@@ -1,0 +1,51 @@
+// Ported from stream-chat-css DragAndDropContainer (layout + theme)
+
+.str-chat {
+  /* Top border of the component */
+  --str-chat__drag-and-drop-container-border-block-start: 2px solid transparent;
+
+  /* Bottom border of the component */
+  --str-chat__drag-and-drop-container-border-block-end: 2px solid transparent;
+
+  /* Top border of the component on dragover */
+  --str-chat__drag-and-drop-container-on-dragover-border-block-start: 2px solid
+    var(--str-chat__primary-color);
+
+  /* Bottom border of the component on dragover */
+  --str-chat__drag-and-drop-container-on-dragover-border-block-end: 2px solid
+    var(--str-chat__primary-color);
+
+  /* Left (right in RTL layout) border of the component on dragover */
+  --str-chat__drag-and-drop-container-on-dragover-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the component on dragover */
+  --str-chat__drag-and-drop-container-on-dragover-border-inline-end: none;
+}
+
+.str-chat__drag-and-drop-container--dragging {
+  cursor: grabbing;
+}
+
+.str-chat__drag-and-drop-container__item[draggable='true'] {
+  cursor: grab;
+
+  &:active {
+    background: transparent;
+  }
+}
+
+.str-chat__drag-and-drop-container__item {
+  display: flex;
+  width: 100%;
+  padding-block: 0.25rem;
+  border-bottom: var(--str-chat__drag-and-drop-container-border-block-start);
+  border-top: var(--str-chat__drag-and-drop-container-border-block-start);
+
+  &.str-chat__drag-and-drop-container__item--dragged-over-from-top {
+    border-bottom: var(--str-chat__drag-and-drop-container-on-dragover-border-block-end);
+  }
+
+  &.str-chat__drag-and-drop-container__item--dragged-over-from-bottom {
+    border-top: var(--str-chat__drag-and-drop-container-on-dragover-border-block-start);
+  }
+}
