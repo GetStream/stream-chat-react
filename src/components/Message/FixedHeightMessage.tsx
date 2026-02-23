@@ -14,8 +14,9 @@ import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from './renderText';
 
-import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 import { ModalGallery } from '../Attachment';
+import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -58,8 +59,7 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
   const role = useUserRole(message);
 
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message?.text;
+    getTranslatedMessageText({ language: userLanguage, message }) || message?.text;
 
   const renderedText = useMemo(
     () => renderText(messageTextToRender, message.mentioned_users),

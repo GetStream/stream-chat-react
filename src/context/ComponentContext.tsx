@@ -49,6 +49,7 @@ import type {
   ThreadListItemProps,
   ThreadListItemUIProps,
   TimestampProps,
+  TranslationIndicatorProps,
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
@@ -189,6 +190,8 @@ export type ComponentContextValue = {
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Custom UI component to display the message reminder information in the Message UI, defaults to and accepts same props as: [ReminderNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/ReminderNotification.tsx) */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
+  /** Custom UI component to display the message translation indicator when message has i18n, defaults to and accepts same props as: [MessageTranslationIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/TranslationIndicator.tsx) */
+  MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType<SearchProps>;
   /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */

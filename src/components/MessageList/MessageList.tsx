@@ -20,6 +20,7 @@ import { DialogManagerProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
+import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import type { InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { InfiniteScroll } from '../InfiniteScrollPaginator/InfiniteScroll';
@@ -237,60 +238,62 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
         scrollToBottom,
       }}
     >
-      <MessageListMainPanel>
-        <DialogManagerProvider id={dialogManagerId}>
-          {!threadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification
-              unreadCount={channelUnreadUiState?.unread_messages}
-            />
-          )}
-          <div
-            className={clsx(messageListClass, customClasses?.threadList)}
-            onScroll={onScroll}
-            ref={setListElement}
-            tabIndex={0}
-          >
-            {showEmptyStateIndicator ? (
-              <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
-            ) : (
-              <InfiniteScroll
-                className='str-chat__message-list-scroll'
-                data-testid='reverse-infinite-scroll'
-                hasNextPage={props.hasMoreNewer}
-                hasPreviousPage={props.hasMore}
-                head={props.head}
-                isLoading={props.loadingMore}
-                loader={
-                  <div className='str-chat__list__loading' key='loading-indicator'>
-                    {props.loadingMore && <LoadingIndicator size={20} />}
-                  </div>
-                }
-                loadNextPage={loadMoreNewer}
-                loadPreviousPage={loadMore}
-                threshold={loadMoreScrollThreshold}
-                {...restInternalInfiniteScrollProps}
-              >
-                <MessageListWrapper className='str-chat__ul'>
-                  {elements}
-                </MessageListWrapper>
-                <TypingIndicator threadList={threadList} />
-
-                <div key='bottom' />
-              </InfiniteScroll>
+      <MessageTranslationViewProvider>
+        <MessageListMainPanel>
+          <DialogManagerProvider id={dialogManagerId}>
+            {!threadList && showUnreadMessagesNotification && (
+              <UnreadMessagesNotification
+                unreadCount={channelUnreadUiState?.unread_messages}
+              />
             )}
-          </div>
-        </DialogManagerProvider>
-      </MessageListMainPanel>
-      <MessageListNotifications
-        hasNewMessages={hasNewMessages}
-        isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-        isNotAtLatestMessageSet={hasMoreNewer}
-        MessageNotification={MessageNotification}
-        notifications={notifications}
-        scrollToBottom={scrollToBottomFromNotification}
-        threadList={threadList}
-        unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
-      />
+            <div
+              className={clsx(messageListClass, customClasses?.threadList)}
+              onScroll={onScroll}
+              ref={setListElement}
+              tabIndex={0}
+            >
+              {showEmptyStateIndicator ? (
+                <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
+              ) : (
+                <InfiniteScroll
+                  className='str-chat__message-list-scroll'
+                  data-testid='reverse-infinite-scroll'
+                  hasNextPage={props.hasMoreNewer}
+                  hasPreviousPage={props.hasMore}
+                  head={props.head}
+                  isLoading={props.loadingMore}
+                  loader={
+                    <div className='str-chat__list__loading' key='loading-indicator'>
+                      {props.loadingMore && <LoadingIndicator size={20} />}
+                    </div>
+                  }
+                  loadNextPage={loadMoreNewer}
+                  loadPreviousPage={loadMore}
+                  threshold={loadMoreScrollThreshold}
+                  {...restInternalInfiniteScrollProps}
+                >
+                  <MessageListWrapper className='str-chat__ul'>
+                    {elements}
+                  </MessageListWrapper>
+                  <TypingIndicator threadList={threadList} />
+
+                  <div key='bottom' />
+                </InfiniteScroll>
+              )}
+            </div>
+          </DialogManagerProvider>
+        </MessageListMainPanel>
+        <MessageListNotifications
+          hasNewMessages={hasNewMessages}
+          isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+          isNotAtLatestMessageSet={hasMoreNewer}
+          MessageNotification={MessageNotification}
+          notifications={notifications}
+          scrollToBottom={scrollToBottomFromNotification}
+          threadList={threadList}
+          unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
+        />
+      </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );
 };
