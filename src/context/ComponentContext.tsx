@@ -13,6 +13,7 @@ import type {
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
   EventComponentProps,
+  FileDragAndDropContentProps,
   FixedHeightMessageProps,
   GalleryProps,
   GiphyPreviewMessageProps,
@@ -103,6 +104,8 @@ export type ComponentContextValue = {
   CooldownTimer?: React.ComponentType;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  /** Custom UI component to display the contents on file drag-and-drop overlay, defaults to and accepts same props as: [FileDragAndDropContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/WithDragAndDropUpload.tsx) */
+  FileDragAndDropContent?: React.ComponentType<FileDragAndDropContentProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageInput */
