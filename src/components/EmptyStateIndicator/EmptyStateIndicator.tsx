@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { ChatBubble } from './icons';
+import { IconBubble3ChatMessage } from '../Icons';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
@@ -31,7 +32,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     const text = t('Send a message to start the conversation');
     return (
       <div className='str-chat__empty-channel'>
-        <ChatBubble />
+        <IconBubble3ChatMessage />
         <p className='str-chat__empty-channel-text' role='listitem'>
           {text}
         </p>

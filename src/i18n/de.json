@@ -250,6 +250,7 @@
   "Select up to {{count}}_one": "Bis zu {{count}} auswählen",
   "Select up to {{count}}_other": "Bis zu {{count}} auswählen",
   "Send": "Senden",
+  "Send a message to start the conversation": "Senden Sie eine Nachricht, um die Unterhaltung zu beginnen",
   "Send Anyway": "Trotzdem senden",
   "Send message request failed": "Senden der Nachrichtenanfrage fehlgeschlagen",
   "Send poll": "Umfrage senden",

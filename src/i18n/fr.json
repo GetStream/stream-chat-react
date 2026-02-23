@@ -259,6 +259,7 @@
   "Select up to {{count}}_many": "Sélectionner jusqu'à {{count}}",
   "Select up to {{count}}_other": "Sélectionner jusqu'à {{count}}",
   "Send": "Envoyer",
+  "Send a message to start the conversation": "Envoyez un message pour commencer la conversation",
   "Send Anyway": "Envoyer quand même",
   "Send message request failed": "Échec de la demande d'envoi de message",
   "Send poll": "Envoyer le sondage",
