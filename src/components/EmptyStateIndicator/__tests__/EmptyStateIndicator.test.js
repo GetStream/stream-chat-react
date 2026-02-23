@@ -22,7 +22,9 @@ describe('EmptyStateIndicator', () => {
 
   it('should display correct text when listType is message', () => {
     render(<EmptyStateIndicator listType='message' />);
-    expect(screen.queryByText('No chats here yet…')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Send a message to start the conversation'),
+    ).toBeInTheDocument();
   });
 
   it('should display correct text when listType is channel', () => {

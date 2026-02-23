@@ -253,6 +253,7 @@
   "Select up to {{count}}_one": "Selecteer tot {{count}}",
   "Select up to {{count}}_other": "Selecteer tot {{count}}",
   "Send": "Verstuur",
+  "Send a message to start the conversation": "Stuur een bericht om het gesprek te beginnen",
   "Send Anyway": "Toch versturen",
   "Send message request failed": "Verzoek om bericht te verzenden mislukt",
   "Send poll": "Peiling versturen",

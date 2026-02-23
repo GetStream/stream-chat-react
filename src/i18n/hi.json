@@ -254,6 +254,7 @@
   "Select up to {{count}}_one": "अधिकतम {{count}} तक चुनें",
   "Select up to {{count}}_other": "अधिकतम {{count}} तक चुनें",
   "Send": "भेजे",
+  "Send a message to start the conversation": "बातचीत शुरू करने के लिए संदेश भेजें",
   "Send Anyway": "वैसे भी भेजें",
   "Send message request failed": "संदेश भेजने का अनुरोध विफल रहा",
   "Send poll": "पोल भेजें",

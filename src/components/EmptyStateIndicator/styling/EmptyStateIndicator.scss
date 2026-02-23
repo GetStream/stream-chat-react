@@ -1,0 +1,38 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* The text color used when no channel is selected */
+  --str-chat__channel-empty-color: var(--text-secondary);
+}
+
+.str-chat__empty-channel {
+  --str-chat-icon-color: var(--text-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--spacing-md);
+  position: relative;
+  gap: var(--spacing-xs);
+  text-align: center;
+  @include utils.component-layer-overrides('channel');
+  color: var(--text-secondary);
+  font: var(--str-chat__caption-default-text);
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: var(--str-chat-icon-color);
+  }
+
+  .str-chat__empty-channel-notifications {
+    position: absolute;
+    inset-block-end: var(--str-chat__spacing-2);
+  }
+
+  .str-chat__empty-channel-text {
+    margin: 0;
+    max-width: 160px;
+  }
+}

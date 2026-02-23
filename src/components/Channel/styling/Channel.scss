@@ -21,17 +21,6 @@
   }
 }
 
-.str-chat__empty-channel {
-  --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 136);
-  @include utils.empty-layout;
-  position: relative;
-
-  .str-chat__empty-channel-notifications {
-    position: absolute;
-    inset-block-end: var(--str-chat__spacing-2);
-  }
-}
-
 .str-chat__loading-channel {
   $text-height: calc(var(--str-chat__spacing-px) * 16);
   height: 100%;
@@ -169,25 +158,12 @@
   /* The icon color used when no channel is selected */
   --str-chat__channel-empty-indicator-color: var(--str-chat__disabled-color);
 
-  /* The text color used when no channel is selected */
-  --str-chat__channel-empty-color: var(--str-chat__text-low-emphasis-color);
-
   /* The color of the loading indicator */
   --str-chat__channel-loading-state-color: var(--str-chat__disabled-color);
 }
 
 .str-chat__channel {
   @include utils.component-layer-overrides('channel');
-}
-
-.str-chat__empty-channel {
-  --str-chat-icon-color: var(--str-chat__channel-empty-color);
-  @include utils.component-layer-overrides('channel');
-  @include utils.empty-theme('channel');
-
-  .str-chat__empty-channel-text {
-    color: var(--str-chat__channel-empty-color);
-  }
 }
 
 .str-chat__loading-channel {

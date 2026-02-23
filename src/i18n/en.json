@@ -253,6 +253,7 @@
   "Select up to {{count}}_one": "Select up to {{count}}",
   "Select up to {{count}}_other": "Select up to {{count}}",
   "Send": "Send",
+  "Send a message to start the conversation": "Send a message to start the conversation",
   "Send Anyway": "Send Anyway",
   "Send message request failed": "Send message request failed",
   "Send poll": "Send poll",
