@@ -1,8 +1,11 @@
 @use 'Message';
+@use 'MessageAlsoSentInChannelIndicator';
 @use 'MessageEditedTimestamp';
+@use 'MessageIsThreadReplyInChannelButtonIndicator';
 @use 'MessageStatus';
 @use 'MessageSystem';
 @use 'QuotedMessage';
+@use 'ReminderNotification';
 @use 'UnreadMessageNotification';
 @use 'UnreadMessagesSeparator';
 @use 'MessageRepliesCountButton';

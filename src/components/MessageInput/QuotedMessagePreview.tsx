@@ -253,12 +253,14 @@ export const QuotedMessagePreview = ({
   );
 
   return quotedMessage ? (
-    <QuotedMessagePreviewUI
-      getQuotedMessageAuthor={getQuotedMessageAuthor}
-      onRemove={() => messageComposer.setQuotedMessage(null)}
-      quotedMessage={quotedMessage}
-      renderText={renderText}
-    />
+    <div className='str-chat__message-composer__quoted-message-preview-slot'>
+      <QuotedMessagePreviewUI
+        getQuotedMessageAuthor={getQuotedMessageAuthor}
+        onRemove={() => messageComposer.setQuotedMessage(null)}
+        quotedMessage={quotedMessage}
+        renderText={renderText}
+      />
+    </div>
   ) : null;
 };
 

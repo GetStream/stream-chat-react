@@ -5,7 +5,6 @@ import {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
-  Event,
   createCommandInjectionMiddleware,
   createDraftCommandInjectionMiddleware,
   createActiveCommandGuardMiddleware,
@@ -28,6 +27,7 @@ import {
   Window,
   WithComponents,
   ReactionsList,
+  WithDragAndDropUpload,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -37,6 +37,14 @@ import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
 
 init({ data });
+
+const parseUserIdFromToken = (token: string) => {
+  const [, payload] = token.split('.');
+
+  if (!payload) throw new Error('Token is missing');
+
+  return JSON.parse(atob(payload))?.user_id;
+};
 
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
 const token =
@@ -79,7 +87,7 @@ const useUser = () => {
   }, [userId]);
 
   const tokenProvider = useCallback(() => {
-    return token
+    return token && userId === parseUserIdFromToken(token)
       ? Promise.resolve(token)
       : fetch(
           `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
@@ -190,18 +198,22 @@ const App = () => {
               additionalChannelSearchProps={{ searchForChannels: true }}
             />
             <Channel>
-              <Window>
-                <ChannelHeader Avatar={ChannelAvatar} />
-                <MessageList returnAllReadData />
-                <AIStateIndicator />
-                <MessageInput
-                  focus
-                  audioRecordingEnabled
-                  maxRows={10}
-                  asyncMessagesMultiSendEnabled
-                />
-              </Window>
-              <Thread virtualized />
+              <WithDragAndDropUpload>
+                <Window>
+                  <ChannelHeader Avatar={ChannelAvatar} />
+                  <MessageList returnAllReadData />
+                  <AIStateIndicator />
+                  <MessageInput
+                    focus
+                    audioRecordingEnabled
+                    maxRows={10}
+                    asyncMessagesMultiSendEnabled
+                  />
+                </Window>
+              </WithDragAndDropUpload>
+              <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+                <Thread virtualized />
+              </WithDragAndDropUpload>
             </Channel>
           </ChatView.Channels>
           <ChatView.Threads>

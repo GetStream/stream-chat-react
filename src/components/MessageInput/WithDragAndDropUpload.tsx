@@ -8,6 +8,7 @@ import { useMessageInputContext, useTranslationContext } from '../../context';
 import { useAttachmentManagerState, useMessageComposer } from './hooks';
 import { useStateStore } from '../../store';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
+import { IconFileArrowLeftIn } from '../Icons';
 
 const DragAndDropUploadContext = React.createContext<{
   subscribeToDrop: ((fn: (files: File[]) => void) => () => void) | null;
@@ -72,8 +73,6 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
-  const { t } = useTranslationContext();
-
   const messageInputContext = useMessageInputContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
   const messageComposer = useMessageComposer();
@@ -108,7 +107,11 @@ export const WithDragAndDropUpload = ({
     dropHandlersRef.current.forEach((fn) => fn(files));
   }, []);
 
-  const { getRootProps, isDragActive, isDragReject } = useDropzone({
+  const {
+    getRootProps,
+    isDragActive,
+    isDragReject: isDragRejected,
+  } = useDropzone({
     accept,
     // apply `disabled` rules if available, otherwise allow anything and
     // let the `uploadNewFiles` handle the limitations internally
@@ -126,26 +129,45 @@ export const WithDragAndDropUpload = ({
     return <Component className={className}>{children}</Component>;
   }
 
+  const rootClassName = clsx('str-chat__dropzone-root', className);
+
   return (
-    <DragAndDropUploadContext.Provider
-      value={{
-        subscribeToDrop,
-      }}
-    >
-      <Component {...getRootProps({ className, style })}>
-        {/* TODO: could be a replaceable component */}
+    <DragAndDropUploadContext.Provider value={{ subscribeToDrop }}>
+      <Component {...getRootProps({ className: rootClassName, style })}>
         {isDragActive && (
           <div
             className={clsx('str-chat__dropzone-container', {
-              'str-chat__dropzone-container--not-accepted': isDragReject,
+              'str-chat__dropzone-container--not-accepted': isDragRejected,
             })}
+            role='presentation'
           >
-            {!isDragReject && <p>{t('Drag your files here')}</p>}
-            {isDragReject && <p>{t('Some of the files will not be accepted')}</p>}
+            <FileDragAndDropContent isDragRejected={isDragRejected} />
           </div>
         )}
         {children}
       </Component>
     </DragAndDropUploadContext.Provider>
+  );
+};
+
+export type FileDragAndDropContentProps = {
+  isDragRejected: boolean;
+};
+
+export const FileDragAndDropContent = ({
+  isDragRejected,
+}: FileDragAndDropContentProps) => {
+  const { t } = useTranslationContext();
+  return (
+    <div className='str-chat__dropzone-container__content'>
+      {isDragRejected ? (
+        <p>{t('Some of the files will not be accepted')}</p>
+      ) : (
+        <>
+          <IconFileArrowLeftIn />
+          <p>{t('Drag your files here')}</p>
+        </>
+      )}
+    </div>
   );
 };
