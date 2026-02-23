@@ -228,6 +228,7 @@
     grid-template-areas:
       'message-saved-for-later'
       'pin-indicator'
+      'also-sent-in-channel'
       'message-reminder'
       'translation-indicator'
       'message'
@@ -241,6 +242,7 @@
     grid-template-areas:
       '. message-saved-for-later'
       '. pin-indicator'
+      '. also-sent-in-channel'
       '. message-reminder'
       '. translation-indicator'
       'avatar message'
@@ -254,6 +256,7 @@
     grid-template-areas:
       'message-saved-for-later .'
       'pin-indicator .'
+      'also-sent-in-channel .'
       'message-reminder .'
       'translation-indicator .'
       'message avatar'
@@ -279,6 +282,12 @@
   &.str-chat__message--me
     .str-chat__message-pin-indicator
     .str-chat__message-pin-indicator__content {
+    justify-content: flex-end;
+  }
+
+  &.str-chat__message--me
+    .str-chat__message-also-sent-in-channel
+    .str-chat__message-also-sent-in-channel__content {
     justify-content: flex-end;
   }
 

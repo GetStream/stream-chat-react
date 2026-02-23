@@ -1,5 +1,7 @@
 @use 'Message';
+@use 'MessageAlsoSentInChannelIndicator';
 @use 'MessageEditedTimestamp';
+@use 'MessageIsThreadReplyInChannelButtonIndicator';
 @use 'MessageStatus';
 @use 'MessageSystem';
 @use 'MessageTranslationIndicator';

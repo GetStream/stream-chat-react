@@ -52,6 +52,7 @@ import type {
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
+  VoiceRecordingPreviewSlotProps,
 } from '../components';
 
 import type {
@@ -80,6 +81,8 @@ export type ComponentContextValue = {
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
   AttachmentSelector?: React.ComponentType;
+  /** Custom UI component for the dedicated voice recording preview slot above composer attachments (REACT-794), defaults to and accepts same props as: [VoiceRecordingPreviewSlot](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx) */
+  VoiceRecordingPreviewSlot?: React.ComponentType<VoiceRecordingPreviewSlotProps>;
   /** Custom UI component for contents of attachment selector initiation button */
   AttachmentSelectorInitiationButtonContents?: React.ComponentType;
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
@@ -155,6 +158,8 @@ export type ComponentContextValue = {
   Modal?: React.ComponentType<ModalProps>;
   /** Custom UI component for viewing message's image and giphy attachments with option to expand into the Gallery on Modal, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
+  /** Custom UI component to show "Also sent in channel" in thread message lists when message.show_in_channel is true, defaults to and accepts same props as: [MessageAlsoSentInChannelIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageAlsoSentInChannelIndicator.tsx) */
+  MessageAlsoSentInChannelIndicator?: React.ComponentType;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/PinIndicator.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
   /** Custom UI component to override default poll actions rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
