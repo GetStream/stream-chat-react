@@ -90,16 +90,18 @@ body {
     //max-width: none;
   }
 
+  .str-chat__dropzone-root--thread,
   .str-chat__thread-list-container,
   .str-chat__thread-container {
-    flex: 0 0 360px;
+    //flex: 0 0 360px;
     max-width: 360px;
   }
 
   .str-chat__chat-view__threads {
+    .str-chat__dropzone-root--thread,
     .str-chat__thread-container {
       flex: 1 1 auto;
-      min-width: 360px;
+      //min-width: 360px;
       max-width: none;
     }
   }
@@ -119,7 +121,7 @@ body {
     }
   }
 
-  @container (max-width: 760px) {
+  @container (max-width: 860px) {
     .str-chat__channel-list,
     .str-chat__chat-view__selector {
       display: none;
