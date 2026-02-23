@@ -20,7 +20,7 @@ import {
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../../Dialog';
-import { Modal as DefaultModal } from '../../Modal';
+import { GlobalModal } from '../../Modal';
 import { ShareLocationDialog as DefaultLocationDialog } from '../../Location';
 import { PollCreationDialog as DefaultPollCreationDialog } from '../../Poll';
 import { Portal } from '../../Portal/Portal';
@@ -302,7 +302,7 @@ export const AttachmentSelector = ({
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
-  const { Modal = DefaultModal } = useComponentContext();
+  const { Modal = GlobalModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposer();
   const isCooldownActive = useIsCooldownActive();

@@ -1,8 +1,10 @@
-import React from 'react';
-import { FormDialog } from '../../Dialog/FormDialog';
+import React, { useCallback, useMemo } from 'react';
 import { useChatContext, usePollContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { PollOption, PollState } from 'stream-chat';
+import { Prompt } from '../../Dialog';
+import { TextInput } from '../../Form';
+import { useFormState } from '../../Form/hooks';
 
 type PollStateSelectorReturnValue = { options: PollOption[] };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
@@ -23,42 +25,80 @@ export const SuggestPollOptionForm = ({
   const { poll } = usePollContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
 
+  const initialValue = useMemo(() => ({ optionText: '' }), []);
+  const validators = useMemo(
+    () => ({
+      optionText: (v: string) => {
+        const trimmed = typeof v === 'string' ? v.trim() : '';
+        if (!trimmed) {
+          return new Error(t('This field cannot be empty or contain only spaces'));
+        }
+        const existingOption = options.find((option) => option.text === trimmed);
+        if (existingOption) {
+          return new Error(t('Option already exists'));
+        }
+        return undefined;
+      },
+    }),
+    [t, options],
+  );
+
+  const onSubmit = useCallback(
+    async (formValue: { optionText: string }) => {
+      const { poll_option } = await client.createPollOption(poll.id, {
+        text: formValue.optionText,
+      });
+      poll.castVote(poll_option.id, messageId);
+      close();
+    },
+    [client, poll, messageId, close],
+  );
+
+  const { fieldErrors, handleSubmit, setFieldValue, value } = useFormState<{
+    optionText: string;
+  }>({
+    initialValue,
+    onSubmit,
+    validators,
+  });
+
+  const submitDisabled = !value.optionText?.trim();
+
   return (
-    <FormDialog<{ optionText: '' }>
-      className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'
-      close={close}
-      fields={{
-        optionText: {
-          element: 'input',
-          props: {
-            id: 'optionText',
-            name: 'optionText',
-            required: true,
-            type: 'text',
-            value: '',
-          },
-          validator: (value) => {
-            const valueString = typeof value !== 'undefined' ? value.toString() : value;
-            const trimmedValue = valueString?.trim();
-            if (!trimmedValue) {
-              return new Error(t('This field cannot be empty or contain only spaces'));
-            }
-            const existingOption = options.find((option) => option.text === trimmedValue);
-            if (existingOption) {
-              return new Error(t('Option already exists'));
-            }
-            return;
-          },
-        },
-      }}
-      onSubmit={async (value) => {
-        const { poll_option } = await client.createPollOption(poll.id, {
-          text: value.optionText,
-        });
-        poll.castVote(poll_option.id, messageId);
-      }}
-      shouldDisableSubmitButton={(value) => !value.optionText}
-      title={t('Suggest an option')}
-    />
+    <Prompt.Root className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'>
+      <Prompt.Header close={close} title={t('Suggest an option')} />
+      <Prompt.Body>
+        <form autoComplete='off' onSubmit={handleSubmit}>
+          <TextInput
+            error={!!fieldErrors.optionText}
+            errorMessage={fieldErrors.optionText?.message}
+            id='optionText'
+            name='optionText'
+            onChange={(e) => setFieldValue('optionText', e.target.value)}
+            required
+            title={t('Suggest an option')}
+            type='text'
+            value={value.optionText}
+          />
+        </form>
+      </Prompt.Body>
+      <Prompt.Footer>
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonSecondary
+            className='str-chat__prompt__footer__controls-button--cancel'
+            onClick={close}
+          >
+            {t('Cancel')}
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
+            className='str-chat__prompt__footer__controls-button--submit'
+            disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
+            type='submit'
+          >
+            {t('Send')}
+          </Prompt.FooterControlsButtonPrimary>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
+    </Prompt.Root>
   );
 };

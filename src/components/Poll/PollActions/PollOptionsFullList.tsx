@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModalHeader } from '../../Modal/ModalHeader';
+import { Prompt } from '../../Dialog';
 import { PollOptionList } from '../PollOptionList';
 import { useStateStore } from '../../../store';
 import { usePollContext, useTranslationContext } from '../../../context';
@@ -21,12 +21,12 @@ export const PollOptionsFullList = ({ close }: FullPollOptionsListingProps) => {
   const { name } = useStateStore(poll.state, pollStateSelector);
 
   return (
-    <div className={'str-chat__modal__poll-option-list'}>
-      <ModalHeader close={close} title={t('Poll options')} />
-      <div className='str-chat__modal__poll-option-list__body'>
+    <Prompt.Root className={'str-chat__modal__poll-option-list'}>
+      <Prompt.Header close={close} title={t('Poll options')} />
+      <Prompt.Body className='str-chat__modal__poll-option-list__body'>
         <div className='str-chat__modal__poll-option-list__title'>{name}</div>
         <PollOptionList />
-      </div>
-    </div>
+      </Prompt.Body>
+    </Prompt.Root>
   );
 };

@@ -63,7 +63,6 @@ type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
 const MessageWithContext = (props: MessageWithContextProps) => {
   const {
     canPin,
-    groupedByUser,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -166,8 +165,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   return (
     <MessageProvider value={messageContextValue}>
-      <MessageUIComponent groupedByUser={groupedByUser} />
-      {/* TODO - remove prop in next major release, maintains VML backwards compatibility */}
+      <MessageUIComponent />
     </MessageProvider>
   );
 };
@@ -263,10 +261,7 @@ export const Message = (props: MessageProps) => {
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       deliveredTo={props.deliveredTo}
       disableQuotedMessages={props.disableQuotedMessages}
-      endOfGroup={props.endOfGroup}
-      firstOfGroup={props.firstOfGroup}
       formatDate={props.formatDate}
-      groupedByUser={props.groupedByUser}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}

@@ -176,6 +176,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       reactionDetailsSort,
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
+      showAvatar: props.showAvatar,
       sortReactionDetails,
       sortReactions,
       unsafeHTML,
@@ -188,7 +189,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     threadList,
   });
 
-  const messageListClass = customClasses?.messageList || 'str-chat__list';
+  const messageListClass = customClasses?.messageList || 'str-chat__message-list';
 
   const loadMore = React.useCallback(() => {
     if (loadMoreCallback) {
@@ -319,6 +320,7 @@ type PropsDrilledToMessage =
   | 'reactionDetailsSort'
   | 'renderText'
   | 'retrySendMessage'
+  | 'showAvatar'
   | 'sortReactions'
   | 'sortReactionDetails'
   | 'unsafeHTML';

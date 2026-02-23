@@ -1,0 +1,48 @@
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.str-chat__alert-root {
+  @include flex-column;
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-xl);
+  text-align: center;
+
+  .str-chat__alert-header {
+    @include flex-column;
+    gap: var(--spacing-md);
+    width: 100%;
+
+    svg {
+      height: var(--button-visual-height-sm);
+      width: var(--button-visual-height-sm);
+    }
+
+    .str-chat__alert-header__copy {
+      @include flex-column;
+      gap: var(--spacing-xs);
+      width: 100%;
+
+      .str-chat__alert-header__title {
+        font: var(--str-chat__heading-sm-text);
+      }
+
+      .str-chat__alert-header__description {
+        font: var(--str-chat__caption-default-tex);
+      }
+    }
+  }
+
+  .str-chat__alert-actions {
+    @include flex-column;
+    gap: var(--spacing-xs);
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+}
