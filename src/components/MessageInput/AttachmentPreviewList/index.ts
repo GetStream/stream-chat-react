@@ -7,3 +7,7 @@ export type { UploadAttachmentPreviewProps as AttachmentPreviewProps } from './t
 export type { UnsupportedAttachmentPreviewProps } from './UnsupportedAttachmentPreview';
 export type { MediaAttachmentPreviewProps } from './MediaAttachmentPreview';
 export type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+export {
+  VoiceRecordingPreviewSlot,
+  type VoiceRecordingPreviewSlotProps,
+} from './VoiceRecordingPreviewSlot';

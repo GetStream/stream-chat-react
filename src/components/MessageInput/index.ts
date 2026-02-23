@@ -8,6 +8,7 @@ export type {
   AttachmentPreviewProps,
   UnsupportedAttachmentPreviewProps,
   VoiceRecordingPreviewProps,
+  VoiceRecordingPreviewSlotProps,
 } from './AttachmentPreviewList';
 export * from './CommandChip';
 export * from './CooldownTimer';
