@@ -1,0 +1,29 @@
+.str-chat__jump-to-latest-message {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  inset-block-end: var(--spacing-md);
+  inset-inline-end: var(--spacing-md);
+  z-index: 2;
+  border-radius: var(--radius-max);
+  background-color: var(--background-elevation-elevation-1);
+  // todo - we ned to have the shadows in variables that are supported in light and dark mode too
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 2px 4px 0 rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.06);
+
+  .str-chat__jump-to-latest-message__button {
+    height: 40px;
+    width: 40px;
+    position: static;
+  }
+
+  .str-chat__jump-to-latest__unread-count {
+    position: absolute;
+    inset-block-end: 100%;
+    margin-block-end: var(--str-chat__spacing-1);
+    right: -15%;
+    top: -15%;
+  }
+}

@@ -6,10 +6,11 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: var(--str-chat__spacing-2);
+    padding: var(--str-chat__spacing-2) var(--str-chat__spacing-3);
     background-color: var(--str-chat__secondary-surface-color);
     color: var(--str-chat__text-low-emphasis-color);
     text-transform: uppercase;
     font: var(--str-chat__caption-strong-text);
+    letter-spacing: 0.02em;
   }
 }

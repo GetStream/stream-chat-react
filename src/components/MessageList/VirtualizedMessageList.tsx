@@ -1,5 +1,7 @@
 import type { RefObject } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+
+import { FloatingDateSeparator } from './FloatingDateSeparator';
 import type {
   ComputeItemKey,
   ScrollSeekConfiguration,
@@ -22,8 +24,8 @@ import {
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
 
-import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
+import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import { getGroupStyles, getLastReceived, processMessages } from './utils';
@@ -40,7 +42,10 @@ import {
   messageRenderer,
 } from './VirtualizedMessageListComponents';
 
-import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from '../MessageList';
+import {
+  UnreadMessagesSeparator as DefaultUnreadMessagesSeparator,
+  ScrollToLatestMessageButton,
+} from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
@@ -243,8 +248,8 @@ const VirtualizedMessageListWithContext = (
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageListMainPanel = DefaultMessageListMainPanel,
     MessageListNotifications = DefaultMessageListNotifications,
-    MessageNotification = DefaultMessageNotification,
     MessageSystem = DefaultMessageSystem,
+    NewMessageNotification = DefaultNewMessageNotification,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
@@ -302,6 +307,16 @@ const VirtualizedMessageListWithContext = (
     messages?.length,
     client.userID,
   ]);
+
+  /**
+   * This indirection via a ref is needed because Virtuoso’s itemsRendered is set at render time,
+   * while FloatingDateSeparator lives in a child component that may run its hooks in a different order.
+   * Using a ref lets the parent provide the callback to Virtuoso while the child keeps ownership
+   * of the actual handler implementation.
+   */
+  const floatingDateItemsRenderedRef = useRef<
+    ((rendered: RenderedMessage[]) => void) | null
+  >(null);
 
   const lastOwnMessage = useLastOwnMessage({ messages, ownUserId: client.user?.id });
 
@@ -405,7 +420,13 @@ const VirtualizedMessageListWithContext = (
 
   const handleItemsRendered = useMemo(
     () =>
-      makeItemsRenderedHandler([toggleShowUnreadMessagesNotification], processedMessages),
+      makeItemsRenderedHandler(
+        [
+          toggleShowUnreadMessagesNotification,
+          (rendered) => floatingDateItemsRenderedRef.current?.(rendered),
+        ],
+        processedMessages,
+      ),
     [processedMessages, toggleShowUnreadMessagesNotification],
   );
   const followOutput = (isAtBottom: boolean) => {
@@ -479,6 +500,11 @@ const VirtualizedMessageListWithContext = (
                 customClasses?.virtualizedMessageList || 'str-chat__virtual-list'
               }
             >
+              <FloatingDateSeparator
+                disableDateSeparator={disableDateSeparator}
+                itemsRenderedRef={floatingDateItemsRenderedRef}
+                processedMessages={processedMessages}
+              />
               <Virtuoso<UnknownType, VirtuosoContext>
                 atBottomStateChange={atBottomStateChange}
                 atBottomThreshold={100}
@@ -546,20 +572,21 @@ const VirtualizedMessageListWithContext = (
                 {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
                 {...(defaultItemHeight ? { defaultItemHeight } : {})}
               />
+              <NewMessageNotification
+                newMessageCount={channelUnreadUiState?.unread_messages}
+                showNotification={newMessagesNotification || hasMoreNewer}
+              />
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                isNotAtLatestMessageSet={hasMoreNewer}
+                onClick={scrollToBottom}
+                threadList={threadList}
+              />
             </div>
           </DialogManagerProvider>
           {TypingIndicator && <TypingIndicator />}
         </MessageListMainPanel>
-        <MessageListNotifications
-          hasNewMessages={newMessagesNotification}
-          isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-          isNotAtLatestMessageSet={hasMoreNewer}
-          MessageNotification={MessageNotification}
-          notifications={notifications}
-          scrollToBottom={scrollToBottom}
-          threadList={threadList}
-          unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
-        />
+        <MessageListNotifications notifications={notifications} />
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>

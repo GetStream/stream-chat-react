@@ -22,7 +22,6 @@ import {
   type MessageDeletedProps,
   type MessageInputProps,
   type MessageListNotificationsProps,
-  type MessageNotificationProps,
   type MessageProps,
   type MessageRepliesCountButtonProps,
   type MessageStatusProps,
@@ -30,6 +29,7 @@ import {
   type MessageUIComponentProps,
   type ModalGalleryProps,
   type ModalProps,
+  type NewMessageNotificationProps,
   type PinIndicatorProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
@@ -148,8 +148,8 @@ export type ComponentContextValue = {
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
-  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
-  MessageNotification?: React.ComponentType<MessageNotificationProps>;
+  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [NewMessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/NewMessageNotification.tsx) */
+  NewMessageNotification?: React.ComponentType<NewMessageNotificationProps>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */

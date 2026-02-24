@@ -1,2 +1,4 @@
 @use 'MessageList';
+@use 'NewMessageNotification';
+@use 'ScrollToLatestMessageButton';
 @use 'VirtualizedMessageList';

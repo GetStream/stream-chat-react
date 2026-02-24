@@ -9,8 +9,8 @@ import {
 } from './hooks/MessageList';
 import { useMarkRead } from './hooks/useMarkRead';
 
-import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
+import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
@@ -29,6 +29,7 @@ import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
+import { FloatingDateSeparator } from './FloatingDateSeparator';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 
@@ -43,6 +44,7 @@ import {
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
 } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -97,7 +99,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     MessageListMainPanel = DefaultMessageListMainPanel,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageListWrapper = 'ul',
-    MessageNotification = DefaultMessageNotification,
+    NewMessageNotification = DefaultNewMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext('MessageList');
@@ -246,6 +248,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 unreadCount={channelUnreadUiState?.unread_messages}
               />
             )}
+            <FloatingDateSeparator
+              disableDateSeparator={disableDateSeparator}
+              listElement={listElement}
+              processedMessages={enrichedMessages}
+            />
             <div
               className={clsx(messageListClass, customClasses?.threadList)}
               onScroll={onScroll}
@@ -280,19 +287,20 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <div key='bottom' />
                 </InfiniteScroll>
               )}
+              <NewMessageNotification
+                newMessageCount={channelUnreadUiState?.unread_messages}
+                showNotification={hasNewMessages || hasMoreNewer}
+              />
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                isNotAtLatestMessageSet={hasMoreNewer}
+                onClick={scrollToBottomFromNotification}
+                threadList={threadList}
+              />
             </div>
           </DialogManagerProvider>
         </MessageListMainPanel>
-        <MessageListNotifications
-          hasNewMessages={hasNewMessages}
-          isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-          isNotAtLatestMessageSet={hasMoreNewer}
-          MessageNotification={MessageNotification}
-          notifications={notifications}
-          scrollToBottom={scrollToBottomFromNotification}
-          threadList={threadList}
-          unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
-        />
+        <MessageListNotifications notifications={notifications} />
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );
