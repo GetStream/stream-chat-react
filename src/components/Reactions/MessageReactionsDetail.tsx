@@ -14,7 +14,7 @@ import {
 import type { ReactionSort } from 'stream-chat';
 import type { MessageContextValue } from '../../context';
 
-export type ReactionsListModalProps = Partial<
+export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
 > & {
   reactions: ReactionSummary[];
@@ -28,8 +28,7 @@ export type ReactionsListModalProps = Partial<
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
-// TODO: rename to MessageReactionsDetail
-export function ReactionsListModal({
+export function MessageReactionsDetail({
   handleFetchReactions,
   onSelectedReactionTypeChange,
   reactionDetailsSort: propReactionDetailsSort,
@@ -37,17 +36,17 @@ export function ReactionsListModal({
   selectedReactionType,
   sortReactionDetails: propSortReactionDetails,
   totalReactionCount,
-}: ReactionsListModalProps) {
+}: MessageReactionsDetailProps) {
   const { client } = useChatContext();
   const { Avatar = DefaultAvatar, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext('ReactionsListModal');
+    useComponentContext(MessageReactionsDetail.name);
   const { t } = useTranslationContext();
 
   const {
     handleReaction: contextHandleReaction,
     reactionDetailsSort: contextReactionDetailsSort,
     sortReactionDetails: contextSortReactionDetails,
-  } = useMessageContext('ReactionsListModal');
+  } = useMessageContext(MessageReactionsDetail.name);
 
   const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
 

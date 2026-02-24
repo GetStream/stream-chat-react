@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 
-import { ReactionsListModal as DefaultReactionsListModal } from './ReactionsListModal';
+import { MessageReactionsDetail as DefaultMessageReactionsDetail } from './MessageReactionsDetail';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import type { MessageContextValue } from '../../context';
 import {
@@ -96,7 +96,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
     null,
   );
   const { t } = useTranslationContext('ReactionsList');
-  const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
+  const { MessageReactionsDetail = DefaultMessageReactionsDetail } = useComponentContext();
   const { isMyMessage, message } = useMessageContext('ReactionsList');
 
   const divRef = useRef<ComponentRef<'div'>>(null);
@@ -216,7 +216,7 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
         trapFocus
         updatePositionOnContentResize
       >
-        <ReactionsListModal
+        <MessageReactionsDetail
           handleFetchReactions={handleFetchReactions}
           onSelectedReactionTypeChange={setSelectedReactionType}
           reactions={existingReactions}
