@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import { isOnlyEmojis, messageHasAttachments } from './utils';
+import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
 
 import type { MessageContextValue } from '../../context';
 import { useMessageContext, useTranslationContext } from '../../context';
@@ -62,7 +62,7 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
       <div
         className={clsx(innerClass, {
           [` str-chat__message-text-inner--is-emoji`]:
-            isOnlyEmojis(message.text) && !message.quoted_message,
+            messageTextHasEmojisOnly(message) && !message.quoted_message,
           [`str-chat__message-text-inner--has-attachment`]: hasAttachment,
         })}
         data-testid='message-text-inner-wrapper'

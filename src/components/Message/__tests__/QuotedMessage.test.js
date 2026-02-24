@@ -32,7 +32,7 @@ const quotedAttachmentListTestId = 'quoted-attachment-list';
 const quotingAttachmentListTestId = 'quoting-attachment-list';
 const avatarTestId = 'avatar';
 const quotedText = 'X';
-const deletedMessageText = 'This message was deleted...';
+const deletedMessageText = 'Message deleted';
 
 const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
 

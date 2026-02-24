@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 
 import { useUserRole } from './hooks';
-import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 
 import { Avatar } from '../Avatar';
@@ -47,8 +46,7 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
   const { groupedByUser: contextGroupedByUser, message: contextMessage } =
     useMessageContext('FixedHeightMessage');
 
-  const { MessageDeleted = DefaultMessageDeleted } =
-    useComponentContext('FixedHeightMessage');
+  const { MessageDeleted } = useComponentContext('FixedHeightMessage');
 
   const { userLanguage } = useTranslationContext('FixedHeightMessage');
 
@@ -97,7 +95,7 @@ const UnMemoizedFixedHeightMessage = (props: FixedHeightMessageProps) => {
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-        {message.deleted_at || message.type === 'deleted' ? (
+        {MessageDeleted && (message.deleted_at || message.type === 'deleted') ? (
           <MessageDeleted message={message} />
         ) : (
           <>
