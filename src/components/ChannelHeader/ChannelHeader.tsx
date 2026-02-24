@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { IconLayoutAlignLeft } from '../Icons/icons';
 import { MenuIcon as DefaultMenuIcon } from './icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
@@ -17,6 +18,8 @@ export type ChannelHeaderProps = {
   live?: boolean;
   /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
   MenuIcon?: React.ComponentType;
+  /** When true, shows IconLayoutAlignLeft instead of MenuIcon for sidebar expansion */
+  sidebarCollapsed?: boolean;
   /** Set title manually */
   title?: string;
 };
@@ -30,6 +33,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     image: overrideImage,
     live,
     MenuIcon = DefaultMenuIcon,
+    sidebarCollapsed = false,
     title: overrideTitle,
   } = props;
 
@@ -44,22 +48,26 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
 
   const { member_count, subtitle } = channel?.data || {};
 
+  const headerClassName = [
+    'str-chat__channel-header',
+    sidebarCollapsed && 'str-chat__channel-header--sidebar-collapsed',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className='str-chat__channel-header'>
+    <div className={headerClassName}>
       <button
-        aria-label={t('aria/Menu')}
-        className='str-chat__header-hamburger'
+        aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}
+        className={
+          sidebarCollapsed
+            ? 'str-chat__header-sidebar-toggle'
+            : 'str-chat__header-hamburger'
+        }
         onClick={openMobileNav}
       >
-        <MenuIcon />
+        {sidebarCollapsed ? <IconLayoutAlignLeft /> : <MenuIcon />}
       </button>
-      <Avatar
-        className='str-chat__avatar--channel-header'
-        groupChannelDisplayInfo={groupChannelDisplayInfo}
-        imageUrl={displayImage}
-        size='lg'
-        userName={displayTitle}
-      />
       <div className='str-chat__channel-header-end'>
         <p className='str-chat__channel-header-title'>
           {displayTitle}{' '}
@@ -80,6 +88,13 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
           {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
         </p>
       </div>
+      <Avatar
+        className='str-chat__avatar--channel-header'
+        groupChannelDisplayInfo={groupChannelDisplayInfo}
+        imageUrl={displayImage}
+        size='lg'
+        userName={displayTitle}
+      />
     </div>
   );
 };
