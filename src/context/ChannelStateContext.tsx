@@ -12,7 +12,6 @@ import type {
 import type {
   ChannelUnreadUiState,
   ImageAttachmentSizeHandler,
-  UnknownType,
   VideoAttachmentSizeHandler,
 } from '../types/types';
 
@@ -86,29 +85,4 @@ export const useChannelStateContext = (componentName?: string) => {
   }
 
   return contextValue as unknown as ChannelStateContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference, so if ChannelStateContext
- * typing is desired while using the HOC withChannelStateContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withChannelStateContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithChannelStateContextComponent = (
-    props: Omit<P, keyof ChannelStateContextValue>,
-  ) => {
-    const channelStateContext = useChannelStateContext();
-
-    return <Component {...(props as P)} {...channelStateContext} />;
-  };
-
-  WithChannelStateContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithChannelStateContextComponent;
 };
