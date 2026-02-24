@@ -49,14 +49,14 @@ Following the project's established pattern of static imports with `propComponen
 The old `Gallery.tsx` contained a thumbnail grid + modal component (with `images` and `innerRefs` props). The new architecture separates this into a Gallery provider (carousel state) and ModalGallery (thumbnail grid + modal).
 
 **Decision:**
-Replace the old Gallery.tsx content entirely with the new Gallery provider. The old Gallery functionality will be reimplemented as ModalGallery in Task 4. Downstream type errors in `AttachmentContainer.tsx` and `FixedHeightMessage.tsx` are expected and will be resolved in Tasks 4 and 8.
+Replace the old Gallery.tsx content entirely with the new Gallery provider. The old Gallery functionality will be reimplemented as ModalGallery in Task 4. Downstream type errors in `AttachmentContainer.tsx` are expected and will be resolved in Tasks 4 and 8.
 
 **Reasoning:**
 The plan explicitly says "replace existing content" for Gallery.tsx. The old GalleryProps type (with `images`/`innerRefs`) is incompatible with the new GalleryProps (with `items`/`initialIndex`/`onIndexChange`/`GalleryUI`). A clean replacement is necessary.
 
 **Tradeoffs / Consequences:**
 
-- Temporary TypeScript errors in downstream consumers (`AttachmentContainer.tsx`, `FixedHeightMessage.tsx`) until Tasks 4 and 8 update them.
+- Temporary TypeScript errors in downstream consumers (`AttachmentContainer.tsx`) until Tasks 4 and 8 update them.
 
 ## Decision: GalleryUI defers loading/error states to BaseImage and native elements
 

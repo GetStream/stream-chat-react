@@ -1,4 +1,3 @@
-export * from './FixedHeightMessage';
 export * from './hooks';
 export * from './icons';
 export * from './Message';
