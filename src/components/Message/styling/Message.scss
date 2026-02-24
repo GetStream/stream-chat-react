@@ -376,7 +376,9 @@
     align-self: end;
   }
 
-  &:not(.str-chat__message--with-avatar) .str-chat__avatar {
+  &:not(.str-chat__message--with-avatar)
+    .str-chat__avatar:has(~ .str-chat__message-inner) {
+    // hide only avatars next to message bubble, not the rest of them down the tree
     display: none;
   }
 
@@ -394,7 +396,6 @@
     .str-chat__message-reactions-host {
       display: flex;
       grid-area: reactions;
-      z-index: 1;
 
       &:has(.str-chat__message-reactions--top) {
         margin-bottom: calc(var(--spacing-xxs) * -1);

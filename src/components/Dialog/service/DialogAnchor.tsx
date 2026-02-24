@@ -4,8 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
 import { DialogPortalEntry } from './DialogPortal';
 import { useDialog, useDialogIsOpen } from '../hooks';
-import { usePopoverPosition } from '../hooks/usePopoverPosition';
+import { type OffsetOpt, usePopoverPosition } from '../hooks/usePopoverPosition';
 import type { PopperLikePlacement } from '../hooks';
+import type { Placement } from '@floating-ui/react';
 
 export interface DialogAnchorOptions {
   open: boolean;
@@ -13,21 +14,43 @@ export interface DialogAnchorOptions {
   referenceElement: HTMLElement | null;
   allowFlip?: boolean;
   updateKey?: unknown;
+  updatePositionOnContentResize?: boolean;
+  offset?: OffsetOpt;
 }
 
 export function useDialogAnchor<T extends HTMLElement>({
   allowFlip,
+  offset,
   open,
   placement,
   referenceElement,
   updateKey,
+  updatePositionOnContentResize = false,
 }: DialogAnchorOptions) {
   const [popperElement, setPopperElement] = useState<T | null>(null);
-  const { refs, strategy, update, x, y } = usePopoverPosition({
+  // keeps track of the first "chosen" placement (after popperElement is set) to avoid popper "jumping" to a different placement when it updates and finds a better fit; resets when popperElement is unset (!open)
+  const [stabilisedChosenPlacement, setStabilisedChosenPlacement] =
+    useState<Placement | null>(null);
+
+  const {
+    placement: chosenPlacement,
+    refs,
+    strategy,
+    update,
+    x,
+    y,
+  } = usePopoverPosition({
     allowFlip,
     freeze: true,
-    placement,
+    offset,
+    placement: stabilisedChosenPlacement ?? placement,
   });
+
+  if (!stabilisedChosenPlacement && popperElement && placement !== chosenPlacement) {
+    setStabilisedChosenPlacement(chosenPlacement);
+  } else if (stabilisedChosenPlacement && !popperElement) {
+    setStabilisedChosenPlacement(null);
+  }
 
   // Freeze reference when dialog opens so submenus (e.g. ContextMenu level 2+) stay aligned to the original anchor
   const frozenReferenceRef = useRef<HTMLElement | null>(null);
@@ -57,6 +80,18 @@ export function useDialogAnchor<T extends HTMLElement>({
     }
   }, [open, placement, popperElement, update, updateKey, effectiveReference]);
 
+  useEffect(() => {
+    if (!popperElement || !updatePositionOnContentResize) return;
+
+    const resizeObserver = new ResizeObserver(update);
+
+    resizeObserver.observe(popperElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [popperElement, update, updatePositionOnContentResize]);
+
   if (popperElement && !open) {
     setPopperElement(null);
   }
@@ -85,11 +120,13 @@ export const DialogAnchor = ({
   dialogManagerId,
   focus = true,
   id,
+  offset,
   placement = 'auto',
   referenceElement = null,
   tabIndex,
   trapFocus,
   updateKey,
+  updatePositionOnContentResize,
   ...restDivProps
 }: DialogAnchorProps) => {
   const dialog = useDialog({ dialogManagerId, id });
@@ -97,10 +134,12 @@ export const DialogAnchor = ({
 
   const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
+    offset,
     open,
     placement,
     referenceElement,
     updateKey,
+    updatePositionOnContentResize,
   });
 
   useEffect(() => {
