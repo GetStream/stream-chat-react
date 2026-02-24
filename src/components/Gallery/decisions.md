@@ -122,15 +122,15 @@ The new ModalGallery is a composition component: thumbnail grid + Modal + Galler
 
 - Downstream consumers (`Image.tsx`, `AttachmentPreviewRoot.tsx`, `ComponentContext.tsx`) that use the old `ModalGalleryProps` shape will need updates in Task 8 (Exports & Public API).
 
-## Decision: GalleryContainer and FixedHeightMessage use ModalGallery instead of Gallery
+## Decision: GalleryContainer use ModalGallery instead of Gallery
 
 **Date:** 2026-02-09
 
 **Context:**
-The old `Gallery` component was a thumbnail grid that accepted `images: Attachment[]` and `innerRefs`. The new `Gallery` is a carousel provider accepting `items: GalleryItem[]`. The `GalleryContainer` (in `AttachmentContainer.tsx`) and `FixedHeightMessage` used the old `Gallery` API.
+The old `Gallery` component was a thumbnail grid that accepted `images: Attachment[]` and `innerRefs`. The new `Gallery` is a carousel provider accepting `items: GalleryItem[]`. The `GalleryContainer` (in `AttachmentContainer.tsx`) used the old `Gallery` API.
 
 **Decision:**
-Replace `Gallery` usage with `ModalGallery` in both `GalleryContainer` and `FixedHeightMessage`. Pass `attachment.images` cast to `GalleryItem[]` via `as unknown as GalleryItem[]`. The `AttachmentProps.Gallery` prop was renamed to `AttachmentProps.ModalGallery` with `ModalGalleryProps` type.
+Replace `Gallery` usage with `ModalGallery` in both `GalleryContainer`. Pass `attachment.images` cast to `GalleryItem[]` via `as unknown as GalleryItem[]`. The `AttachmentProps.Gallery` prop was renamed to `AttachmentProps.ModalGallery` with `ModalGalleryProps` type.
 
 **Reasoning:**
 The old `Gallery` rendered a thumbnail grid, which is now `ModalGallery`'s responsibility. The `GalleryContainer`'s `imageAttachmentSizeHandler` and `innerRefs` logic was removed since `ModalGallery` handles its own thumbnail rendering. The type cast is necessary because `Attachment[]` (from stream-chat) is structurally compatible with `GalleryItem` for the properties used by the Gallery UI (image_url, thumb_url, fallback).

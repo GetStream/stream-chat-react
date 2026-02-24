@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
-import { MessageDeletedBubble } from './MessageDeletedBubble';
+import { MessageDeletedBubble as DefaultMessageDeletedBubble } from './MessageDeletedBubble';
 import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
 import { MessageActions as DefaultMessageActions } from '../MessageActions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
@@ -85,6 +85,7 @@ const MessageSimpleWithContext = ({
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted,
+    MessageDeletedBubble = DefaultMessageDeletedBubble,
     MessageIsThreadReplyInChannelButtonIndicator = DefaultMessageIsThreadReplyInChannelButtonIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
