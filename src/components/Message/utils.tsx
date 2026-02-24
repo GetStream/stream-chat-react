@@ -428,18 +428,18 @@ export const getReadByTooltipText = (
   return outStr;
 };
 
-export const isOnlyEmojis = (text?: string) => {
-  if (!text) return false;
-
-  const noEmojis = text.replace(emojiRegex(), '');
-  const noSpace = noEmojis.replace(/[\s\n]/gm, '');
-
-  return !noSpace;
-};
-
 export const countEmojis = (text?: string) => {
   const matches = text?.match(emojiRegex());
   return matches ? matches.length : 0;
+};
+
+export const messageTextHasEmojisOnly = (message: LocalMessage) => {
+  if (!message.text) return false;
+
+  const noEmojis = message.text.replace(emojiRegex(), '');
+  const noSpace = noEmojis.replace(/[\s\n]/gm, '');
+
+  return !noSpace;
 };
 
 export const isMessageErrorRetryable = (message: LocalMessage) =>

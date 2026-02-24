@@ -19,7 +19,8 @@
   color: var(--str-chat__message-translation-indicator-color);
   @include utils.component-layer-overrides('message-translation-indicator');
 
-  &, .str-chat__message-translation-indicator__translation-toggle {
+  &,
+  .str-chat__message-translation-indicator__translation-toggle {
     font: var(--str-chat__metadata-default-text);
   }
 

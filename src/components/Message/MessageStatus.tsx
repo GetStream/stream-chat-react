@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 import type { TooltipUsernameMapper } from './utils';
 import { getReadByTooltipText, mapToUserNameOrId } from './utils';
-import { LoadingIndicator } from '../Loading';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
@@ -16,7 +15,7 @@ export type MessageStatusProps = {
   MessageDeliveredStatus?: React.ComponentType;
   /* Custom component to render when message is considered delivered and read. The default UI renders the last reader's Avatar and a tooltip with string readers' names. */
   MessageReadStatus?: React.ComponentType;
-  /* Custom component to render when message is considered as being the in the process of delivery. The default UI renders LoadingIndicator and a tooltip with string 'Sending'. */
+  /* Custom component to render when message is considered as being the in the process of delivery. The default UI renders a clock icon and a tooltip with string 'Sending...'. */
   MessageSendingStatus?: React.ComponentType;
   /* Custom component to render when message is considered created on the server, but not delivered. The default UI renders MessageSentIcon and a tooltip with string 'Sent'. */
   MessageSentStatus?: React.ComponentType;
@@ -102,9 +101,9 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              <IconClock />
+              {t('Sending...')}
             </PopperTooltip>
-            <LoadingIndicator />
+            <IconClock className='str-chat__message-status-sending' />
           </>
         ))}
 

@@ -48,6 +48,6 @@ Each task must include:
 
 ```md
 - [ ] <Task description>
-                                          - Status: in-progress | pending | done | blocked
-                                          - Owner: <agent-name> | unassigned
+- Status: in-progress | pending | done | blocked
+- Owner: <agent-name> | unassigned
 ```
