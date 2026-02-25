@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     width: fit-content;
-    padding:  var(--spacing-xxs) var(--spacing-xs);
+    padding: var(--spacing-xxs) var(--spacing-xs);
     background: var(--background-elevation-elevation-1);
     border-radius: var(--button-radius-lg);
     border: 1px solid var(--button-secondary-border);
@@ -20,7 +20,8 @@
       text-transform: lowercase;
     }
 
-    button.str-chat__button--secondary, button.button.str-chat__button--outline {
+    button.str-chat__button--secondary,
+    button.button.str-chat__button--outline {
       border: none;
     }
 

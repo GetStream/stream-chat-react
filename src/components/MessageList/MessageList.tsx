@@ -121,6 +121,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
+    listElement,
     showAlways: !!showUnreadNotificationAlways,
     unreadCount: channelUnreadUiState?.unread_messages,
   });
