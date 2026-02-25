@@ -9,13 +9,10 @@ export const CloseButtonOnModalOverlay = ({
   ...props
 }: ComponentProps<'button'>) => (
   <Button
+    appearance='ghost'
+    circular
+    className={clsx('str-chat__modal__overlay__close-button', className)}
     {...props}
-    className={clsx(
-      'str-chat__modal__overlay__close-button',
-      'str-chat__button--circular',
-      'str-chat__button--ghost',
-      className,
-    )}
   >
     {children ?? <IconCrossMedium />}
   </Button>

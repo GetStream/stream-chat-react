@@ -3,7 +3,6 @@ import { useMessageComposerHasSendableData } from './hooks';
 import { useTranslationContext } from '../../context';
 import { IconPaperPlane } from '../Icons';
 import { Button } from '../Button';
-import clsx from 'clsx';
 
 export type SendButtonProps = {
   sendMessage: (event: React.BaseSyntheticEvent) => void;
@@ -14,18 +13,16 @@ export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) 
   const hasSendableData = useMessageComposerHasSendableData();
   return (
     <Button
+      appearance='solid'
       aria-label={t('aria/Send')}
-      className={clsx(
-        'str-chat__send-button',
-        'str-chat__button--solid',
-        'str-chat__button--primary',
-        'str-chat__button--size-sm',
-        'str-chat__button--circular',
-      )}
+      circular
+      className='str-chat__send-button'
       data-testid='send-button'
       disabled={!hasSendableData}
       onClick={sendMessage}
+      size='sm'
       type='button'
+      variant='primary'
       {...rest}
     >
       {children ?? <IconPaperPlane />}
