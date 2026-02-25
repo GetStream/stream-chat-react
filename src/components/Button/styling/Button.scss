@@ -111,6 +111,10 @@
       box-shadow: var(--light-elevation-2);
     }
 
+    &::after {
+      border-radius: inherit;
+    }
+
     &.str-chat__button--size-lg {
       padding-block: var(--button-padding-y-lg);
       padding-inline: var(--button-padding-x-with-label-lg);
