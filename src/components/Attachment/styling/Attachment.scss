@@ -269,6 +269,7 @@
   /* Right (left in RTL layout) border of audio widget's play / pause button */
   --str-chat__audio-attachment-controls-button-border-inline-end: none;
 
+  // todo: we need to solve whether we want to keep the CSS variables. E.g. --str-chat__circle-fab-box-shadow is not declared.
   /* Box shadow applied to audio widget's play / pause button */
   --str-chat__audio-attachment-controls-button-box-shadow: var(
     --str-chat__circle-fab-box-shadow

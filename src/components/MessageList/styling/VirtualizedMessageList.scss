@@ -5,6 +5,10 @@
 // Layout
 .str-chat__virtual-list {
   @include utils.scrollable;
+  --str-chat__message-list-scroll-max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
   position: relative;
   flex: 1;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */

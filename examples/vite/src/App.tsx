@@ -203,7 +203,6 @@ const App = () => {
                 <Window>
                   <ChannelHeader Avatar={ChannelAvatar} />
                   <MessageList returnAllReadData />
-                  {/*<VirtualizedMessageList />*/}
                   <AIStateIndicator />
                   <MessageInput
                     focus

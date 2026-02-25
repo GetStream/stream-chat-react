@@ -129,7 +129,8 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
   const hasReactions = existingReactions.length > 0;
 
   const totalReactionCount = useMemo(
-    () => Object.values(reactionGroups ?? {}).reduce((total, { count }) => total + count, 0),
+    () =>
+      Object.values(reactionGroups ?? {}).reduce((total, { count }) => total + count, 0),
 
     [reactionGroups],
   );

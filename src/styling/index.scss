@@ -14,7 +14,8 @@
 @use '../components/FileIcon/styling/FileIcon';
 
 // Base components
-@use '../components/Button/styling/Button';
+@use '../components/Badge/styling' as Badge;
+@use '../components/Button/styling' as Button;
 @use '../components/Form/styling' as Form;
 @use '../components/Dialog/styling' as Dialog;
 @use '../components/Modal/styling' as Modal;

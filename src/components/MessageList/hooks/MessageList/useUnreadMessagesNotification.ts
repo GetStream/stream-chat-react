@@ -3,9 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageListMainPanel';
 import { UNREAD_MESSAGE_SEPARATOR_CLASS } from '../../UnreadMessagesSeparator';
 
-const targetScrolledAboveVisibleContainerArea = (element: Element) => {
+const targetScrolledAboveVisibleContainerArea = (
+  element: Element,
+  container?: Element,
+) => {
   const { bottom: targetBottom } = element.getBoundingClientRect();
-  return targetBottom < 0;
+  const containerTop = container?.getBoundingClientRect().top ?? 0;
+  return targetBottom < containerTop;
 };
 
 const targetScrolledBelowVisibleContainerArea = (
@@ -13,11 +17,13 @@ const targetScrolledBelowVisibleContainerArea = (
   container: Element,
 ) => {
   const { top: targetTop } = element.getBoundingClientRect();
-  const { top: containerBottom } = container.getBoundingClientRect();
+  const { bottom: containerBottom } = container.getBoundingClientRect();
   return targetTop > containerBottom;
 };
 
 export type UseUnreadMessagesNotificationParams = {
+  /** Scroll container (the element with overflow that actually scrolls). When provided, used as IntersectionObserver root and for initial visibility. */
+  listElement: HTMLDivElement | null;
   isMessageListScrolledToBottom: boolean;
   showAlways: boolean;
   unreadCount?: number;
@@ -25,6 +31,7 @@ export type UseUnreadMessagesNotificationParams = {
 
 export const useUnreadMessagesNotification = ({
   isMessageListScrolledToBottom,
+  listElement,
   showAlways,
   unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
@@ -39,8 +46,20 @@ export const useUnreadMessagesNotification = ({
       return;
     }
 
-    const [msgListPanel] = document.getElementsByClassName(MESSAGE_LIST_MAIN_PANEL_CLASS);
-    if (!msgListPanel) return;
+    const scrollRoot = listElement ?? null;
+    if (!scrollRoot) {
+      const [msgListPanel] = document.getElementsByClassName(
+        MESSAGE_LIST_MAIN_PANEL_CLASS,
+      );
+      if (!msgListPanel) return;
+      const [observedTarget] = document.getElementsByClassName(
+        UNREAD_MESSAGE_SEPARATOR_CLASS,
+      );
+      if (!observedTarget) {
+        setShow(true);
+      }
+      return;
+    }
 
     const [observedTarget] = document.getElementsByClassName(
       UNREAD_MESSAGE_SEPARATOR_CLASS,
@@ -50,11 +69,13 @@ export const useUnreadMessagesNotification = ({
       return;
     }
 
-    const scrolledBelowSeparator =
-      targetScrolledAboveVisibleContainerArea(observedTarget);
+    const scrolledBelowSeparator = targetScrolledAboveVisibleContainerArea(
+      observedTarget,
+      scrollRoot,
+    );
     const scrolledAboveSeparator = targetScrolledBelowVisibleContainerArea(
       observedTarget,
-      msgListPanel,
+      scrollRoot,
     );
 
     setShow(
@@ -66,16 +87,18 @@ export const useUnreadMessagesNotification = ({
     const observer = new IntersectionObserver(
       (elements) => {
         if (!elements.length) return;
-        const { boundingClientRect, isIntersecting } = elements[0];
+        const entry = elements[0];
+        const { boundingClientRect, isIntersecting, rootBounds } = entry;
         if (isIntersecting) {
           setShow(false);
           return;
         }
-        const separatorIsAboveContainerTop = boundingClientRect.bottom < 0;
+        const rootTop = rootBounds?.top ?? 0;
+        const separatorIsAboveContainerTop = boundingClientRect.bottom < rootTop;
         setShow(showAlways || separatorIsAboveContainerTop);
         isScrolledAboveTargetTop.current = separatorIsAboveContainerTop;
       },
-      { root: msgListPanel },
+      { root: scrollRoot },
     );
     observer.observe(observedTarget);
 
@@ -84,6 +107,7 @@ export const useUnreadMessagesNotification = ({
     };
   }, [
     intersectionObserverIsSupported,
+    listElement,
     isMessageListScrolledToBottom,
     messages,
     showAlways,

@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
-import { ArrowDown } from './icons';
-
 import { useChannelStateContext, useChatContext } from '../../context';
 
 import type { Event } from 'stream-chat';
-import type { MessageNotificationProps } from './MessageNotification';
+import { Badge } from '../Badge';
+import { Button } from '../Button';
+import { IconArrowDown } from '../Icons';
 
-const UnMemoizedScrollToBottomButton = (
-  props: Pick<
-    MessageNotificationProps,
-    'isMessageListScrolledToBottom' | 'onClick' | 'threadList'
-  >,
+type ScrollToLatestMessageButtonProps = {
+  /** When true, user has jumped to an older message set and newer messages can be loaded */
+  isNotAtLatestMessageSet?: boolean;
+  isMessageListScrolledToBottom?: boolean;
+  onClick: React.MouseEventHandler;
+  threadList?: boolean;
+};
+
+const UnMemoizedScrollToLatestMessageButton = (
+  props: ScrollToLatestMessageButtonProps,
 ) => {
-  const { isMessageListScrolledToBottom, onClick, threadList } = props;
+  const {
+    isMessageListScrolledToBottom,
+    isNotAtLatestMessageSet = false,
+    onClick,
+    threadList,
+  } = props;
 
   const { channel: activeChannel, client } = useChatContext();
   const { thread } = useChannelStateContext();
@@ -54,8 +64,15 @@ const UnMemoizedScrollToBottomButton = (
     return () => {
       client.off(observedEvent, handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeChannel, isMessageListScrolledToBottom, observedEvent, replyCount, thread]);
+  }, [
+    activeChannel,
+    client,
+    isMessageListScrolledToBottom,
+    observedEvent,
+    replyCount,
+    thread,
+    threadList,
+  ]);
 
   useEffect(() => {
     if (isMessageListScrolledToBottom) {
@@ -64,36 +81,38 @@ const UnMemoizedScrollToBottomButton = (
     }
   }, [isMessageListScrolledToBottom, thread]);
 
-  if (isMessageListScrolledToBottom) return null;
+  if (isMessageListScrolledToBottom && !isNotAtLatestMessageSet) return null;
 
   return (
     <div className='str-chat__jump-to-latest-message'>
-      <button
+      <Button
         aria-live='polite'
-        className={`
-        str-chat__message-notification-scroll-to-latest
-        str-chat__circle-fab
-      `}
-        data-testid='message-notification'
+        className={clsx(
+          'str-chat__jump-to-latest-message__button',
+          'str-chat__button--secondary',
+          'str-chat__button--outline',
+          'str-chat__button--size-md',
+          'str-chat__button--circular',
+        )}
+        data-testid='scroll-to-latest-message-button'
         onClick={onClick}
       >
-        <ArrowDown />
-        {countUnread > 0 && (
-          <div
-            className={clsx(
-              'str-chat__message-notification',
-              'str-chat__jump-to-latest-unread-count',
-            )}
-            data-testid={'unread-message-notification-counter'}
-          >
-            {countUnread}
-          </div>
-        )}
-      </button>
+        <IconArrowDown />
+      </Button>
+      {countUnread > 0 && (
+        <Badge
+          className='str-chat__jump-to-latest__unread-count'
+          data-testid='unread-message-notification-counter'
+          size='md'
+          variant='primary'
+        >
+          {countUnread}
+        </Badge>
+      )}
     </div>
   );
 };
 
-export const ScrollToBottomButton = React.memo(
-  UnMemoizedScrollToBottomButton,
-) as typeof UnMemoizedScrollToBottomButton;
+export const ScrollToLatestMessageButton = React.memo(
+  UnMemoizedScrollToLatestMessageButton,
+) as typeof UnMemoizedScrollToLatestMessageButton;

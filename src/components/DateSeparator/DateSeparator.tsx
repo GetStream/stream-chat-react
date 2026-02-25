@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -6,8 +7,12 @@ import { getDateString } from '../../i18n/utils';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type DateSeparatorProps = TimestampFormatterOptions & {
+  /** Optional className for the root element */
+  className?: string;
   /** The date to format */
   date: Date;
+  /** When true, applies floating positioning (fixed at top when scrolling) */
+  floating?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object. */
   formatDate?: (date: Date) => string;
   // todo: position and unread are not necessary anymore
@@ -20,7 +25,9 @@ export type DateSeparatorProps = TimestampFormatterOptions & {
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const {
     calendar,
+    className,
     date: messageCreatedAt,
+    floating,
     formatDate,
     ...restTimestampFormatterOptions
   } = props;
@@ -38,7 +45,15 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   });
 
   return (
-    <div className='str-chat__date-separator' data-testid='date-separator'>
+    <div
+      className={clsx(
+        'str-chat__date-separator',
+        { 'str-chat__date-separator--floating': floating },
+        className,
+      )}
+      data-date={messageCreatedAt.toISOString()}
+      data-testid={floating ? 'floating-date-separator' : 'date-separator'}
+    >
       <div className='str-chat__date-separator-date'>{formattedDate}</div>
     </div>
   );
