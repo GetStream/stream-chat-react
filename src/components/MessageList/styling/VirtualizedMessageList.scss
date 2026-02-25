@@ -5,24 +5,29 @@
 // Layout
 .str-chat__virtual-list {
   @include utils.scrollable;
+  --str-chat__message-list-scroll-max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
   position: relative;
   flex: 1;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
   margin: 0;
   width: 100%;
-  /* Max container = composer width + padding; matches message list */
-  max-width: calc(
-    var(--str-chat__message-composer-max-width) +
-      var(--str-chat__message-composer-padding)
-  );
   height: 100%;
 
   .str-chat__message-list-scroll {
     overscroll-behavior: none;
   }
 
-  .str-chat__message-list-scroll > div {
-    @include utils.message-list-spacing;
+  .str-chat__virtual-list-message-wrapper {
+    /* Max container = composer width + padding; matches message list */
+    max-width: calc(
+      var(--str-chat__message-composer-max-width) +
+        var(--str-chat__message-composer-padding)
+    );
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .str-chat__parent-message-li {

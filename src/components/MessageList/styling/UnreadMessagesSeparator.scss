@@ -1,0 +1,35 @@
+.str-chat__unread-messages-separator-wrapper {
+  padding-block: var(--spacing-xs);
+  display: flex;
+  justify-content: center;
+
+  .str-chat__unread-messages-separator {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    padding: var(--spacing-xxs) var(--spacing-xs);
+    background: var(--background-elevation-elevation-1);
+    border-radius: var(--button-radius-lg);
+    border: 1px solid var(--button-secondary-border);
+    overflow: clip;
+
+    .str-chat__unread-messages-separator__text {
+      padding-inline: var(--spacing-xs) var(--spacing-xxs);
+      border-radius: var(--button-radius-lg) 0 0 var(--button-radius-lg);
+      font: var(--str-chat__caption-emphasis-text);
+      text-transform: lowercase;
+    }
+
+    button.str-chat__button--secondary,
+    button.button.str-chat__button--outline {
+      border: none;
+    }
+
+    button {
+      svg {
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
+}

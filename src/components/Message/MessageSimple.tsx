@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
-import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
+import { MessageDeletedBubble as DefaultMessageDeletedBubble } from './MessageDeletedBubble';
 import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
 import { MessageActions as DefaultMessageActions } from '../MessageActions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
@@ -24,11 +24,11 @@ import {
   isMessageBounced,
   isMessageEdited,
   isMessageErrorRetryable,
-  isOnlyEmojis,
   messageHasAttachments,
   messageHasGiphyAttachment,
   messageHasReactions,
   messageHasSingleAttachment,
+  messageTextHasEmojisOnly,
 } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -50,30 +50,29 @@ import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
+import { MessageBubble } from './MessageBubble';
 
 type MessageSimpleWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
-  const {
-    endOfGroup,
-    firstOfGroup,
-    groupedByUser,
-    handleAction,
-    handleOpenThread,
-    highlighted,
-    isMessageAIGenerated,
-    isMyMessage,
-    message,
-    onUserClick,
-    onUserHover,
-    renderText,
-    showAvatar = 'incoming',
-    threadList,
-  } = props;
+const MessageSimpleWithContext = ({
+  endOfGroup,
+  firstOfGroup,
+  groupedByUser,
+  handleAction,
+  handleOpenThread,
+  highlighted,
+  isMessageAIGenerated,
+  isMyMessage,
+  message,
+  onUserClick,
+  onUserHover,
+  renderText,
+  showAvatar = 'incoming',
+  threadList,
+}: MessageSimpleWithContextProps) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const memberCount = Object.keys(channel?.state?.members ?? {}).length;
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
@@ -85,7 +84,8 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
-    MessageDeleted = DefaultMessageDeleted,
+    MessageDeleted,
+    MessageDeletedBubble = DefaultMessageDeletedBubble,
     MessageIsThreadReplyInChannelButtonIndicator = DefaultMessageIsThreadReplyInChannelButtonIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
@@ -97,15 +97,12 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
   } = useComponentContext('MessageSimple');
-  const hasAttachment = messageHasAttachments(message);
-  const hasSingleAttachment = messageHasSingleAttachment(message);
-  const hasGiphyAttachment = messageHasGiphyAttachment(message);
-  const hasReactions = messageHasReactions(message);
-  const textHasEmojisOnly = isOnlyEmojis(message.text);
+
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
+
   const finalAttachments = useMemo(
     () =>
       !message.shared_location && !message.attachments
@@ -120,7 +117,7 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     return null;
   }
 
-  if (message.deleted_at || message.type === 'deleted') {
+  if (MessageDeleted && (message.deleted_at || message.type === 'deleted')) {
     return <MessageDeleted message={message} />;
   }
 
@@ -128,22 +125,24 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     return <MessageBlocked />;
   }
 
-  const showMetadata = !groupedByUser || endOfGroup;
-  const showReplyCountButton = !threadList && !!message.reply_count;
-  const showIsReplyInChannel =
-    !threadList && message.show_in_channel && message.parent_id;
+  const poll = message.poll_id && client.polls.fromState(message.poll_id);
+
+  const memberCount = Object.keys(channel?.state?.members ?? {}).length;
+  const isDeleted = !!message.deleted_at;
+  const hasAttachment = !isDeleted && messageHasAttachments(message);
+  const hasSingleAttachment = !isDeleted && messageHasSingleAttachment(message);
+  const hasGiphyAttachment = !isDeleted && messageHasGiphyAttachment(message);
+  const hasReactions = !isDeleted && messageHasReactions(message);
+  const textHasEmojisOnly = !isDeleted && messageTextHasEmojisOnly(message);
+
   const allowRetry = isMessageErrorRetryable(message);
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
-  let handleClick: (() => void) | undefined = undefined;
-
-  // todo: should we keep the behavior with click-on-blubble -> show the MessageBounceModal?
-  if (isBounced) {
-    handleClick = () => setIsBounceDialogOpen(true);
-  } else if (isEdited) {
-    handleClick = () => setEditedTimestampOpen((prev) => !prev);
-  }
+  const showMetadata = !groupedByUser || endOfGroup;
+  const showReplyCountButton = !threadList && !!message.reply_count;
+  const showIsReplyInChannel =
+    !threadList && message.show_in_channel && message.parent_id;
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -179,7 +178,13 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
     },
   );
 
-  const poll = message.poll_id && client.polls.fromState(message.poll_id);
+  let handleClick: (() => void) | undefined = undefined;
+
+  if (isBounced) {
+    handleClick = () => setIsBounceDialogOpen(true);
+  } else if (isEdited) {
+    handleClick = () => setEditedTimestampOpen((prev) => !prev);
+  }
 
   return (
     <>
@@ -190,75 +195,80 @@ const MessageSimpleWithContext = (props: MessageSimpleWithContextProps) => {
           open={isBounceDialogOpen}
         />
       )}
-      {
-        <div className={rootClassName} key={message.id}>
-          {message.pinned && <PinIndicator message={message} />}
-          {threadList && message.show_in_channel && <MessageAlsoSentInChannelIndicator />}
-          {!!reminder && <ReminderNotification reminder={reminder} />}
-          <MessageTranslationIndicator message={message} />
-          {message.user && (
-            <Avatar
-              className='str-chat__avatar--with-border'
-              imageUrl={message.user.image}
-              onClick={onUserClick}
-              onMouseOver={onUserHover}
-              size='md'
-              userName={message.user.name || message.user.id}
+      <div className={rootClassName} key={message.id}>
+        {message.pinned && <PinIndicator message={message} />}
+        {threadList && message.show_in_channel && <MessageAlsoSentInChannelIndicator />}
+        {!!reminder && <ReminderNotification reminder={reminder} />}
+        <MessageTranslationIndicator message={message} />
+        {message.user && (
+          <Avatar
+            className='str-chat__avatar--with-border'
+            imageUrl={message.user.image}
+            onClick={onUserClick}
+            onMouseOver={onUserHover}
+            size='md'
+            userName={message.user.name || message.user.id}
+          />
+        )}
+        <div
+          className={clsx('str-chat__message-inner', {
+            'str-chat__simple-message--error-failed': allowRetry || isBounced,
+          })}
+          data-testid='message-inner'
+          onClick={handleClick}
+          onKeyUp={handleClick}
+        >
+          {!isDeleted && <MessageActions />}
+          {message.deleted_at ? (
+            <MessageDeletedBubble />
+          ) : (
+            <>
+              <MessageBubble>
+                {poll && <Poll poll={poll} />}
+                {message.quoted_message && <QuotedMessage />}
+                {finalAttachments?.length ? (
+                  <Attachment
+                    actionHandler={handleAction}
+                    attachments={finalAttachments}
+                  />
+                ) : null}
+                {isAIGenerated ? (
+                  <StreamedMessageText message={message} renderText={renderText} />
+                ) : (
+                  <MessageText message={message} renderText={renderText} />
+                )}
+              </MessageBubble>
+              <div className='str-chat__message-reactions-host'>
+                {hasReactions && <ReactionsList reverse />}
+              </div>
+              <MessageErrorIcon />
+            </>
+          )}
+          {showReplyCountButton && (
+            <MessageRepliesCountButton
+              onClick={handleOpenThread}
+              reply_count={message.reply_count}
+              thread_participants={message.thread_participants}
             />
           )}
-          <div
-            className={clsx('str-chat__message-inner', {
-              'str-chat__simple-message--error-failed': allowRetry || isBounced,
-            })}
-            data-testid='message-inner'
-            onClick={handleClick}
-            onKeyUp={handleClick}
-          >
-            <MessageActions />
-            <div className='str-chat__message-reactions-host'>
-              {hasReactions && <ReactionsList reverse />}
-            </div>
-            <div className='str-chat__message-bubble'>
-              {poll && <Poll poll={poll} />}
-              {message.quoted_message && <QuotedMessage />}
-              {finalAttachments?.length ? (
-                <Attachment actionHandler={handleAction} attachments={finalAttachments} />
-              ) : null}
-              {isAIGenerated ? (
-                <StreamedMessageText message={message} renderText={renderText} />
-              ) : (
-                <MessageText message={message} renderText={renderText} />
-              )}
-            </div>
-            <MessageErrorIcon />
-            {showReplyCountButton && (
-              <MessageRepliesCountButton
-                onClick={handleOpenThread}
-                reply_count={message.reply_count}
-                thread_participants={message.thread_participants}
-              />
-            )}
-            {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
-          </div>
-          {showMetadata && (
-            <div className='str-chat__message-metadata'>
-              <MessageStatus />
-              {!isMyMessage() && !!message.user && memberCount > 2 && (
-                <span className='str-chat__message-simple-name'>
-                  {message.user.name || message.user.id}
-                </span>
-              )}
-              <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
-              {isEdited && (
-                <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
-              )}
-              {isEdited && (
-                <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />
-              )}
-            </div>
-          )}
+          {showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}
         </div>
-      }
+        {showMetadata && (
+          <div className='str-chat__message-metadata'>
+            <MessageStatus />
+            {!isMyMessage() && !!message.user && memberCount > 2 && (
+              <span className='str-chat__message-simple-name'>
+                {message.user.name || message.user.id}
+              </span>
+            )}
+            <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
+            {isEdited && (
+              <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
+            )}
+            {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
+          </div>
+        )}
+      </div>
     </>
   );
 };

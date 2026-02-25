@@ -15,6 +15,7 @@ Apply when generating or modifying UI code in this repo.
 - **Location:** `src/components/<ComponentName>/styling/`.
 - **Required:** Each component styling folder has an `index.scss`.
 - **Registration:** Each `src/components/<ComponentName>/styling/index.scss` is imported in `src/styling/index.scss` with an alias.
+- **Specificity:** Each component has own `.scss` file in the `src/components/<ComponentName>/styling` folder
 
 **Import order in `src/styling/index.scss`:**
 
@@ -35,6 +36,17 @@ Apply when generating or modifying UI code in this repo.
 
 Source: `.ai/DEV_PATTERNS.md`.
 
+## Translating quantities (plurals)
+
+- **Use plural suffixes only:** `_one`, `_other`, and `_few`, `_many` where the locale requires them.
+- **Do not** add a standalone key (e.g. `"{{count}} new messages"`). Only add quantified variants: `"{{count}} new messages_one"`, `"{{count}} new messages_other"`, etc.
+- Follow existing patterns in `src/i18n/` (e.g. `{{count}} unread_one`, `unreadMessagesSeparatorText_other`).
+- Locale plural rules (CLDR): `en`, `de`, `nl`, `tr`, `hi`, `ko`, `ja` use `_one` + `_other`; `es`, `fr`, `it`, `pt` add `_many`; `ru` uses `_one`, `_few`, `_many`, `_other`.
+
 ## Imports
 
 When importing from 'stream-chat' library, always import by library name (from 'stream-chat'), not relative path (from '..path/to/from 'stream-chat-js/src').
+
+## React components
+
+Try to avoid inline `style` attribute and prefer adding styles to `.scss` files.

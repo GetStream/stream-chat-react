@@ -1,17 +1,8 @@
 @use '../../../styling/utils' as utils;
+@use './common' as common;
 
 .str-chat__message-reactions {
-  user-select: none;
   display: flex;
-  color: var(--reaction-text);
-  font-feature-settings:
-    'liga' off,
-    'clig' off;
-  font-family: var(--typography-font-family-sans);
-  font-size: var(--typography-font-size-xxs);
-  font-style: normal;
-  font-weight: var(--typography-font-weight-bold);
-  line-height: 1;
 
   .str-chat__message-reactions__list {
     list-style: none;
@@ -26,72 +17,35 @@
     }
   }
 
+  .str-chat__message-reactions__list-item-button {
+    // temporary hacky fix
+    min-height: 26px;
+  }
+
   .str-chat__message-reactions__list-button,
   .str-chat__message-reactions__list-item-button {
-    @include utils.unset-button;
-    display: flex;
-    cursor: pointer;
-    position: relative;
-    font-weight: inherit;
-    display: flex;
-    padding: var(--spacing-xxs) var(--spacing-xs);
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-max);
-    border: 1px solid var(--reaction-border);
-    background: var(--reaction-bg);
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+    @include common.reaction-button;
 
-    .str-chat__message-reactions__item-icon {
+    .str-chat__message-reactions__list-item-icon {
       // FIXME: ridiculous hack so that the emoji block is in a square container (1/1 ratio)
       font-size: 13px;
       line-height: 16px;
-      font-family: system-ui, sans-serif;
+      font-family: system-ui;
       font-style: normal;
       letter-spacing: 0;
       display: flex;
     }
 
-    &:not(:disabled) {
-      &:hover,
-      &:active,
-      &[aria-pressed='true'] {
-        &::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          width: 100%;
-          height: 100%;
-        }
-      }
-
-      &:hover::before {
-        background: var(--background-core-hover);
-      }
-      &:active::before {
-        background: var(--background-core-pressed);
-      }
-      &[aria-pressed='true']::before {
-        background: var(--background-core-selected);
-      }
-    }
-  }
-
-  &.str-chat__message-reactions--clustered {
-    .str-chat__message-reactions__list-button {
-      gap: var(--spacing-xxs);
-
-      .str-chat__message-reactions__total-count {
-        display: flex;
-        align-items: center;
-      }
-    }
-  }
-
-  &.str-chat__message-reactions--segmented {
-    .str-chat__message-reactions__list-item-button {
-      gap: var(--spacing-xxs);
+    .str-chat__message-reactions__total-count,
+    .str-chat__message-reactions__overflow-count,
+    .str-chat__message-reactions__list-item-count {
+      display: flex;
+      align-items: center;
+      color: var(--reaction-text);
+      font-family: var(--typography-font-family-sans);
+      font-size: var(--typography-font-size-xxs);
+      font-weight: var(--typography-font-weight-bold);
+      line-height: 1;
     }
   }
 }

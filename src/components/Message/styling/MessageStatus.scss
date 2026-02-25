@@ -5,19 +5,13 @@
     justify-content: center;
     column-gap: var(--str-chat__spacing-0_5);
     position: relative;
-
+    color: var(--accent-neutral);
     svg {
-      height: 20px;
-      width: 20px;
-
-      path {
-        fill: var(--accent-neutral);
-      }
+      height: 16px;
+      width: 16px;
 
       &.str-chat__message-status-read {
-        path {
-          fill: var(--accent-primary);
-        }
+        color: var(--accent-primary);
       }
     }
   }

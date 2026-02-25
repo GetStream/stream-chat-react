@@ -5,7 +5,7 @@
     @include utils.button-reset;
     position: relative; /* creates positioning context for pseudo ::after overlay */
     overflow: hidden;
-
+    white-space: nowrap;
     cursor: pointer;
 
     display: flex;
@@ -109,6 +109,10 @@
 
     &.str-chat__button--floating {
       box-shadow: var(--light-elevation-2);
+    }
+
+    &::after {
+      border-radius: inherit;
     }
 
     &.str-chat__button--size-lg {

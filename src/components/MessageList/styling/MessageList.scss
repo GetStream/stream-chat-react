@@ -10,22 +10,28 @@
   align-items: center;
 }
 
-.str-chat__message-list {
-  @include utils.scrollable;
-  overscroll-behavior: none;
-  width: 100%;
-  /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
-  max-width: calc(
+.str-chat__message-list-main-panel {
+  --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)
   );
+}
+
+.str-chat__message-list {
+  @include utils.scrollable;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overscroll-behavior: none;
+  width: 100%;
   height: 100%;
   max-height: 100%;
   @include utils.component-layer-overrides('message-list');
 
   .str-chat__message-list-scroll {
     @include utils.message-list-spacing;
-
+    /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
+    max-width: var(--str-chat__message-list-scroll-max-width);
     .str-chat__ul {
       list-style: none;
       padding: 0;
@@ -48,20 +54,6 @@
       text-align: start;
       padding-top: var(--str-chat__spacing-3);
     }
-  }
-}
-
-.str-chat__jump-to-latest-message {
-  position: absolute;
-  inset-block-end: var(--str-chat__spacing-4);
-  inset-inline-end: var(--str-chat__spacing-2);
-  z-index: 2;
-
-  .str-chat__jump-to-latest-unread-count {
-    position: absolute;
-    padding: var(--str-chat__spacing-0_5) var(--str-chat__spacing-2);
-    left: 50%;
-    transform: translateX(-50%) translateY(-100%);
   }
 }
 
@@ -103,80 +95,9 @@
   /* Right (left in RTL layout) border of the component */
   --str-chat__message-list-border-inline-end: none;
 
-  /* The border radius used for the borders of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-radius: var(
-    --str-chat__circle-fab-border-radius
-  );
-
-  /* The text/icon color of the jump to latest message button */
-  --str-chat__jump-to-latest-message-color: var(--str-chat__circle-fab-color);
-
-  /* The background color of the jump to latest message button */
-  --str-chat__jump-to-latest-message-background-color: var(
-    --str-chat__circle-fab-background-color
-  );
-
-  /* The background color of the jump to latest message button in pressed state */
-  --str-chat__jump-to-latest-message-pressed-background-color: var(
-    --str-chat__circle-fab-pressed-background-color
-  );
-
-  /* Box shadow applied to the jump to latest message button */
-  --str-chat__jump-to-latest-message-box-shadow: var(--str-chat__circle-fab-box-shadow);
-
-  /* Top border of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-block-start: var(
-    --str-chat__circle-fab-border-block-start
-  );
-
-  /* Bottom border of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-block-end: var(
-    --str-chat__circle-fab-border-block-end
-  );
-
-  /* Left (right in RTL layout) border of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-inline-start: var(
-    --str-chat__circle-fab-border-inline-start
-  );
-
-  /* Right (left in RTL layout) border of the jump to latest message button */
-  --str-chat__jump-to-latest-message-border-inline-end: var(
-    --str-chat__circle-fab-border-inline-end
-  );
-
-  /* The background color of the unread messages count on the jump to latest message button */
-  --str-chat__jump-to-latest-message-unread-count-background-color: var(
-    --str-chat__jump-to-latest-message-color
-  );
-
-  /* The text/icon color of the unread messages count on the jump to latest message button */
-  --str-chat__jump-to-latest-message-unread-count-color: var(
-    --str-chat__jump-to-latest-message-background-color
-  );
-
   /* The color used for displaying thread replies and thread separator at the start of a thread */
   --str-chat__thread-head-start-color: var(--str-chat__text-low-emphasis-color);
 
   /* The color used for the separator below the first message in a thread */
   --str-chat__thread-head-start-border-block-end-color: var(--str-chat__surface-color);
-}
-
-.str-chat__jump-to-latest-message {
-  --str-chat-icon-color: var(
-    --str-chat__jump-to-latest-message-unread-count-background-color
-  );
-
-  .str-chat__circle-fab {
-    @include utils.component-layer-overrides('jump-to-latest-message');
-    @include utils.circle-fab-overrides('jump-to-latest-message');
-
-    .str-chat__jump-to-latest-unread-count {
-      background-color: var(
-        --str-chat__jump-to-latest-message-unread-count-background-color
-      );
-      color: var(--str-chat__jump-to-latest-message-unread-count-color);
-      border-radius: var(--str-chat__jump-to-latest-message-border-radius);
-      font: var(--str-chat__caption-text);
-    }
-  }
 }

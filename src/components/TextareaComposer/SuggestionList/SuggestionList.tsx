@@ -118,7 +118,15 @@ export const SuggestionList = ({
 
   const contextMenuItems = useMemo<ContextMenuItemComponent[]>(() => {
     if (!component) return [];
-    return (items ?? []).map((item, i) => {
+    const sortedItems =
+      suggestions?.searchSource.type === 'commands'
+        ? [...(items ?? [])].sort((a, b) =>
+            String((a as { name?: string }).name ?? '').localeCompare(
+              String((b as { name?: string }).name ?? ''),
+            ),
+          )
+        : (items ?? []);
+    return sortedItems.map((item, i) => {
       const Item: ContextMenuItemComponent = ({
         closeMenu: _, // eslint-disable-line @typescript-eslint/no-unused-vars
         openSubmenu: __, //eslint-disable-line @typescript-eslint/no-unused-vars
@@ -141,6 +149,7 @@ export const SuggestionList = ({
     focusedItemIndex,
     setFocusedItemIndex,
     AutocompleteSuggestionItem,
+    suggestions?.searchSource.type,
   ]);
 
   const ItemsWrapper = useCallback(

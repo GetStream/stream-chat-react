@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { ScrollToBottomButton } from '../ScrollToBottomButton';
+import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
 import { ChannelStateProvider, ChatProvider } from '../../../context';
 import {
   createClientWithChannel,
@@ -11,7 +11,7 @@ import {
   generateMessage,
 } from '../../../mock-builders';
 
-const BUTTON_TEST_ID = 'message-notification';
+const BUTTON_TEST_ID = 'scroll-to-latest-message-button';
 const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
 
 const mainList = 'the main message list';
@@ -42,7 +42,7 @@ const dispatchMessageEvents = ({ channel, client, newMessage, parentMsg, user })
 describe.each([
   [mainList, threadList],
   [threadList, mainList],
-])('ScrollToBottomButton in %s', (containerMsgList, otherMsgList) => {
+])('ScrollToLatestMessageButton in %s', (containerMsgList, otherMsgList) => {
   beforeEach(async () => {
     const result = await createClientWithChannel();
     client = result.client;
@@ -64,7 +64,7 @@ describe.each([
     const { container } = render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom onClick={onClick} />
+          <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -75,7 +75,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -86,7 +89,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -105,7 +111,7 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom onClick={onClick} />
+          <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -131,7 +137,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -158,7 +167,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -187,7 +199,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -217,7 +232,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -241,7 +259,10 @@ describe.each([
     render(
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
-          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+          <ScrollToLatestMessageButton
+            isMessageListScrolledToBottom={false}
+            onClick={onClick}
+          />
         </ChannelStateProvider>
       </ChatProvider>,
     );
@@ -280,13 +301,13 @@ describe.each([
       <ChatProvider value={{ channel, client }}>
         <ChannelStateProvider value={channelStateContext}>
           <div id={mainListId}>
-            <ScrollToBottomButton
+            <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
             />
           </div>
           <div id={threadListId}>
-            <ScrollToBottomButton
+            <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
               threadList

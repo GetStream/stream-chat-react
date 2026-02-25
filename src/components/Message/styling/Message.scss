@@ -4,10 +4,6 @@
   /* The width/height of the message options button(s), for Angular SDK it's only used on desktop devices starting from version 5 */
   --str-chat__message-options-button-size: calc(var(--str-chat__spacing-px) * 26);
 
-  /*
-   * Message theme variables (ported from @stream-chat-css v2 Message theme),
-   * set to match the current React SDK styling values in this file.
-   */
   --str-chat__message-border-radius: 0;
   --str-chat__message-color: var(--str-chat__text-color);
   --str-chat__message-error-message-color: var(--str-chat__danger-color);
@@ -43,15 +39,6 @@
   --str-chat__message-bubble-border-inline-start: none;
   --str-chat__message-bubble-border-inline-end: none;
   --str-chat__message-bubble-box-shadow: none;
-
-  --str-chat__deleted-message-border-radius: var(--str-chat__border-radius-md);
-  --str-chat__deleted-message-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__deleted-message-background-color: var(--str-chat__secondary-surface-color);
-  --str-chat__deleted-message-border-block-start: none;
-  --str-chat__deleted-message-border-block-end: none;
-  --str-chat__deleted-message-border-inline-start: none;
-  --str-chat__deleted-message-border-inline-end: none;
-  --str-chat__deleted-message-box-shadow: none;
 
   --str-chat__blocked-message-border-radius: var(--str-chat__border-radius-md);
   --str-chat__blocked-message-color: var(--str-chat__text-low-emphasis-color);
@@ -375,10 +362,6 @@
     }
   }
 
-  &.str-chat__message--deleted {
-    grid-template-areas: 'message';
-  }
-
   &.str-chat__message--blocked {
     grid-template-areas: 'message';
   }
@@ -393,7 +376,9 @@
     align-self: end;
   }
 
-  &:not(.str-chat__message--with-avatar) .str-chat__avatar {
+  &:not(.str-chat__message--with-avatar)
+    .str-chat__avatar:has(~ .str-chat__message-inner) {
+    // hide only avatars next to message bubble, not the rest of them down the tree
     display: none;
   }
 
@@ -411,7 +396,6 @@
     .str-chat__message-reactions-host {
       display: flex;
       grid-area: reactions;
-      z-index: 1;
 
       &:has(.str-chat__message-reactions--top) {
         margin-bottom: calc(var(--spacing-xxs) * -1);
@@ -514,9 +498,7 @@
     color: var(--chat-text-timestamp);
 
     * {
-      font-size: var(--typography-font-size-xs,);
-      font-weight: var(--typography-font-weight-regular);
-      line-height: var(--typography-line-height-tight);
+      font: var(--str-chat__metadata-default-text);
     }
 
     .str-chat__message-simple-name {
@@ -542,14 +524,6 @@
     grid-area: replies;
 
     // TODO: "Thread reply" button styling
-  }
-
-  .str-chat__message--deleted-inner {
-    @include chat-bubble-spacing;
-    // todo: once deleted message designs are ready remove this padding?
-    padding-block: var(--spacing-xs);
-    @include utils.component-layer-overrides('deleted-message');
-    font: var(--str-chat__body2-text);
   }
 
   .str-chat__message--blocked-inner {
@@ -578,6 +552,19 @@
 
   .str-chat__simple-message--error-failed {
     cursor: pointer;
+  }
+
+  &.str-chat__message--deleted {
+    .str-chat__message-bubble {
+      padding: var(--spacing-sm);
+
+      .str-chat__message-text {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        gap: var(--spacing-xxs);
+      }
+    }
   }
 
   &.str-chat__message--error,

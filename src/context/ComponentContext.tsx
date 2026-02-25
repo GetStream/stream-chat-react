@@ -1,59 +1,58 @@
 import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
-import type {
-  AttachmentPreviewListProps,
-  AttachmentProps,
-  AvatarProps,
-  AvatarStackProps,
-  BaseImageProps,
-  CalloutDialogProps,
-  ChannelPreviewActionButtonsProps,
-  DateSeparatorProps,
-  EmojiSearchIndex,
-  EmptyStateIndicatorProps,
-  EventComponentProps,
-  FileDragAndDropContentProps,
-  FixedHeightMessageProps,
-  GalleryProps,
-  GiphyPreviewMessageProps,
-  LoadingErrorIndicatorProps,
-  LoadingIndicatorProps,
-  MessageBouncePromptProps,
-  MessageDeletedProps,
-  MessageInputProps,
-  MessageListNotificationsProps,
-  MessageNotificationProps,
-  MessageProps,
-  MessageRepliesCountButtonProps,
-  MessageStatusProps,
-  MessageTimestampProps,
-  MessageUIComponentProps,
-  ModalGalleryProps,
-  ModalProps,
-  PinIndicatorProps,
-  PollCreationDialogProps,
-  PollOptionSelectorProps,
-  QuotedMessagePreviewProps,
-  ReactionOptions,
-  ReactionSelectorProps,
-  ReactionsListModalProps,
-  ReactionsListProps,
-  RecordingPermissionDeniedNotificationProps,
-  ReminderNotificationProps,
-  SendButtonProps,
-  StartRecordingAudioButtonProps,
-  StreamedMessageTextProps,
-  TextareaComposerProps,
-  ThreadHeaderProps,
-  ThreadListItemProps,
-  ThreadListItemUIProps,
-  TimestampProps,
-  TranslationIndicatorProps,
-  TypingIndicatorProps,
-  UnreadMessagesNotificationProps,
-  UnreadMessagesSeparatorProps,
-  VoiceRecordingPreviewSlotProps,
+import {
+  type AttachmentPreviewListProps,
+  type AttachmentProps,
+  type AvatarProps,
+  type AvatarStackProps,
+  type BaseImageProps,
+  type CalloutDialogProps,
+  type ChannelPreviewActionButtonsProps,
+  type DateSeparatorProps,
+  type EmojiSearchIndex,
+  type EmptyStateIndicatorProps,
+  type EventComponentProps,
+  type FileDragAndDropContentProps,
+  type GalleryProps,
+  type GiphyPreviewMessageProps,
+  type LoadingErrorIndicatorProps,
+  type LoadingIndicatorProps,
+  type MessageBouncePromptProps,
+  type MessageDeletedProps,
+  type MessageInputProps,
+  type MessageListNotificationsProps,
+  type MessageProps,
+  type MessageReactionsDetailProps,
+  type MessageRepliesCountButtonProps,
+  type MessageStatusProps,
+  type MessageTimestampProps,
+  type MessageUIComponentProps,
+  type ModalGalleryProps,
+  type ModalProps,
+  type NewMessageNotificationProps,
+  type PinIndicatorProps,
+  type PollCreationDialogProps,
+  type PollOptionSelectorProps,
+  type QuotedMessagePreviewProps,
+  type ReactionOptions,
+  type ReactionSelectorProps,
+  type ReactionsListProps,
+  type RecordingPermissionDeniedNotificationProps,
+  type ReminderNotificationProps,
+  type SendButtonProps,
+  type StartRecordingAudioButtonProps,
+  type StreamedMessageTextProps,
+  type TextareaComposerProps,
+  type ThreadHeaderProps,
+  type ThreadListItemProps,
+  type ThreadListItemUIProps,
+  type TimestampProps,
+  type TranslationIndicatorProps,
+  type TypingIndicatorProps,
+  type UnreadMessagesNotificationProps,
+  type UnreadMessagesSeparatorProps,
+  type VoiceRecordingPreviewSlotProps,
 } from '../components';
 
 import type {
@@ -67,7 +66,7 @@ import type {
   SearchSourceResultListProps,
 } from '../experimental';
 
-import type { PropsWithChildrenOnly, UnknownType } from '../types/types';
+import type { PropsWithChildrenOnly } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 import type { ShareLocationDialogProps } from '../components/Location';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
@@ -140,15 +139,17 @@ export type ComponentContextValue = {
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   /** Custom UI component for a moderation-blocked message, defaults to and accepts same props as: [MessageBlocked](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageBlocked.tsx) */
   MessageBlocked?: React.ComponentType;
-  /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
+  /** Custom UI component for a deleted message. Has no default component */
   MessageDeleted?: React.ComponentType<MessageDeletedProps>;
+  /** Custom UI component for a message bubble of a deleted message, defaults to and accepts same props as: [MessageDeletedBubble](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeletedBubble.tsx) */
+  MessageDeletedBubble?: React.ComponentType;
   /** Custom UI component for an indicator that a message is a thread reply sent to channel list: [MessageIsThreadReplyInChannelButtonIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageIsThreadReplyInChannelButtonIndicator.tsx) */
   MessageIsThreadReplyInChannelButtonIndicator?: React.ComponentType;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
-  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
-  MessageNotification?: React.ComponentType<MessageNotificationProps>;
+  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [NewMessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/NewMessageNotification.tsx) */
+  NewMessageNotification?: React.ComponentType<NewMessageNotificationProps>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */
@@ -185,8 +186,8 @@ export type ComponentContextValue = {
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps>;
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps>;
-  /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
-  ReactionsListModal?: React.ComponentType<ReactionsListModalProps>;
+  /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [MessageReactionsDetail](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/MessageReactionsDetail.tsx) */
+  MessageReactionsDetail?: React.ComponentType<MessageReactionsDetailProps>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Custom UI component to display the message reminder information in the Message UI, defaults to and accepts same props as: [ReminderNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/ReminderNotification.tsx) */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
@@ -249,7 +250,7 @@ export type ComponentContextValue = {
   /** Component used to play video. If not provided, ReactPlayer is used as a default video player. */
   VideoPlayer?: React.ComponentType<VideoPlayerProps>;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
-  VirtualMessage?: React.ComponentType<FixedHeightMessageProps>;
+  VirtualMessage?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component to wrap MessageList children. Default is the `ul` tag */
   MessageListWrapper?: React.ComponentType<PropsWithChildren>;
   /** Custom UI component to wrap each element of MessageList. Default is the `li` tag */
@@ -276,26 +277,3 @@ export const useComponentContext = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _componentName?: string,
 ) => useContext(ComponentContext) as unknown as ComponentContextValue;
-
-/**
- * Typescript currently does not support partial inference, so if ComponentContext
- * typing is desired while using the HOC withComponentContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withComponentContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithComponentContextComponent = (props: Omit<P, keyof ComponentContextValue>) => {
-    const componentContext = useComponentContext();
-
-    return <Component {...(props as P)} {...componentContext} />;
-  };
-
-  WithComponentContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithComponentContextComponent;
-};

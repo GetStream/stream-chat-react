@@ -1,2 +1,6 @@
 @use 'MessageList';
+@use 'NewMessageNotification';
+@use 'ScrollToLatestMessageButton';
+@use 'UnreadMessageNotification';
+@use 'UnreadMessagesSeparator';
 @use 'VirtualizedMessageList';

@@ -12,6 +12,17 @@
   --str-chat__date-separator-box-shadow: none;
 }
 
+.str-chat__date-separator--floating {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
 .str-chat__date-separator {
   @include utils.component-layer-overrides('date-separator');
   display: flex;

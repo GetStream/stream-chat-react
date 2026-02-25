@@ -7,9 +7,7 @@ import type {
   SearchController,
 } from 'stream-chat';
 
-import { getDisplayName } from './utils/getDisplayName';
 import type { ChatProps } from '../components/Chat/Chat';
-import type { UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
 
 type CSSClasses =
@@ -89,21 +87,4 @@ export const useChatContext = (componentName?: string) => {
   }
 
   return contextValue as unknown as ChatContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference so if ChatContext
- * typing is desired while using the HOC withChatContext the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withChatContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithChatContextComponent = (props: Omit<P, keyof ChatContextValue>) => {
-    const chatContext = useChatContext();
-
-    return <Component {...(props as P)} {...chatContext} />;
-  };
-  WithChatContextComponent.displayName = `WithChatContext${getDisplayName(Component)}`;
-  return WithChatContextComponent;
 };

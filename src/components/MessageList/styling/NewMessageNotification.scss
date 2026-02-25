@@ -1,0 +1,22 @@
+@use '../../../styling/utils';
+
+.str-chat__new-message-notification {
+  position: absolute;
+  inset-block-end: 16px;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+
+  .str-chat__message-notification__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xxs) var(--spacing-sm);
+    background-color: var(--background-core-surface-subtle);
+    border-radius: var(--radius-max);
+    font: var(--str-chat__metadata-emphasis-text);
+    color: var(--chat-text-system);
+  }
+}

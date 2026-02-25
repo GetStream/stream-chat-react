@@ -1,3 +1,4 @@
+export * from './useFloatingDateSeparator';
 export * from './useGiphyPreview';
 export * from './useMessageSetKey';
 export * from './useNewMessageNotification';
