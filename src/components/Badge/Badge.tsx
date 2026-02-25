@@ -20,7 +20,7 @@ export const Badge = ({
   children,
   className,
   size = 'md',
-  variant = 'primary',
+  variant = 'default',
   ...spanProps
 }: BadgeProps) => (
   <span
