@@ -59,9 +59,11 @@ export const CommandsMenu = () => {
   const channelConfig = messageComposer.channel.getConfig();
   const commands = useMemo<(CommandResponse & { name: string })[]>(
     () =>
-      (channelConfig?.commands ?? []).filter(
-        (command): command is CommandResponse & { name: string } => !!command.name,
-      ),
+      (channelConfig?.commands ?? [])
+        .filter(
+          (command): command is CommandResponse & { name: string } => !!command.name,
+        )
+        .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
     [channelConfig],
   );
 
