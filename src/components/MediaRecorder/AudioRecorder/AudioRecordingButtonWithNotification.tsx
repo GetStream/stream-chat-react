@@ -5,7 +5,6 @@ import { useAttachmentManagerState } from '../../MessageInput';
 import { useComponentContext, useMessageInputContext } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
-import clsx from 'clsx';
 import { IconMicrophone } from '../../Icons';
 
 const dialogId = 'recording-permission-denied-notification';
@@ -66,15 +65,13 @@ export const DefaultStartRecordingAudioButton = forwardRef<
 >(function StartRecordingAudioButton(props, ref) {
   return (
     <Button
+      appearance='ghost'
       aria-label='Start recording audio'
-      className={clsx(
-        'str-chat__start-recording-audio-button',
-        'str-chat__button--ghost',
-        'str-chat__button--secondary',
-        'str-chat__button--size-sm',
-        'str-chat__button--circular',
-      )}
+      circular
+      className='str-chat__start-recording-audio-button'
       data-testid='start-recording-audio-button'
+      size='sm'
+      variant='secondary'
       {...props}
       ref={ref}
     >

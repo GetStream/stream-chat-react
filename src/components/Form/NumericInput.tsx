@@ -116,15 +116,15 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         )}
         <div className={clsx('str-chat__form-numeric-input__wrapper')}>
           <Button
+            appearance='outline'
             aria-label='Decrease value'
+            circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--decrement',
-              'str-chat__button--circular',
-              'str-chat__button--secondary',
-              'str-chat__button--outline',
             )}
             disabled={disabled || atMin}
             onClick={handleDecrement}
+            variant='secondary'
           >
             <span aria-hidden className='str-chat__form-numeric-input__stepper-icon'>
               −
@@ -143,16 +143,16 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             {...inputProps}
           />
           <Button
+            appearance='outline'
             aria-label='Increase value'
+            circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--increment',
-              'str-chat__button--circular',
-              'str-chat__button--secondary',
-              'str-chat__button--outline',
-              'str-chat__button--size-sm',
             )}
             disabled={disabled || atMax}
             onClick={handleIncrement}
+            size='sm'
+            variant='secondary'
           >
             <IconPlusSmall className='str-chat__form-numeric-input__stepper-icon' />
           </Button>

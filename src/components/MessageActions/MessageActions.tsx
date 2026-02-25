@@ -98,20 +98,18 @@ export const MessageActions = ({
       {dropdownActionSet.length > 0 && (
         <>
           <Button
+            appearance='ghost'
             aria-expanded={dropdownDialogIsOpen}
             aria-haspopup='true'
             aria-label={t('aria/Open Message Actions Menu')}
-            className={clsx(
-              'str-chat__message-actions-box-button',
-              'str-chat__button--ghost',
-              'str-chat__button--secondary',
-              'str-chat__button--circular',
-            )}
+            circular
+            className='str-chat__message-actions-box-button'
             data-testid='message-actions-toggle-button'
             onClick={() => {
               dialog?.toggle();
             }}
             ref={setActionsBoxButtonElement}
+            variant='secondary'
           >
             <ActionsIcon className='str-chat__message-action-icon' />
           </Button>

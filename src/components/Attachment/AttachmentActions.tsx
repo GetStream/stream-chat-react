@@ -70,10 +70,9 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
         <span>{text}</span>
         {actions.map((action, index) => (
           <Button
+            appearance='ghost'
             className={clsx(
               `str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`,
-              'str-chat__button--ghost',
-              'str-chat__button--secondary',
             )}
             data-testid={`${action.name}`}
             data-value={action.value}
@@ -82,6 +81,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
             ref={(element) => {
               buttonRefs.current[index] = element;
             }}
+            variant='secondary'
           >
             {action.text ? (knownActionText[action.text] ?? t(action.text)) : null}
           </Button>

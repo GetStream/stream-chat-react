@@ -15,17 +15,15 @@ export const RemoveAttachmentPreviewButton = ({
   const { t } = useTranslationContext();
   return (
     <Button
+      appearance='solid'
       aria-label={t('aria/Remove attachment')}
-      className={clsx(
-        'str-chat__attachment-preview__remove-button',
-        'str-chat__button--solid',
-        'str-chat__button--circular',
-        className,
-      )}
+      circular
+      className={clsx('str-chat__attachment-preview__remove-button', className)}
       data-testid='preview-item-delete-button'
-      type='button'
-      {...props}
       disabled={uploadState === 'uploading'}
+      type='button'
+      variant='secondary'
+      {...props}
     >
       <IconCrossSmall />
     </Button>

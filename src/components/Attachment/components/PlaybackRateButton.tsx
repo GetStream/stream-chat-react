@@ -9,7 +9,6 @@ export const PlaybackRateButton = ({ children, onClick }: PlaybackRateButtonProp
     className={clsx('str-chat__message_attachment__playback-rate-button')}
     data-testid='playback-rate-button'
     onClick={onClick}
-    type='button'
   >
     {children}
   </Button>
