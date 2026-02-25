@@ -96,7 +96,8 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
     null,
   );
   const { t } = useTranslationContext('ReactionsList');
-  const { MessageReactionsDetail = DefaultMessageReactionsDetail } = useComponentContext();
+  const { MessageReactionsDetail = DefaultMessageReactionsDetail } =
+    useComponentContext();
   const { isMyMessage, message } = useMessageContext('ReactionsList');
 
   const divRef = useRef<ComponentRef<'div'>>(null);
