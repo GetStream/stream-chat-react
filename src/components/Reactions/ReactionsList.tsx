@@ -1,11 +1,20 @@
-import React, { type ComponentPropsWithoutRef, useState } from 'react';
+import React, {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 
-import type { ReactionsListModalProps } from './ReactionsListModal';
-import { ReactionsListModal as DefaultReactionsListModal } from './ReactionsListModal';
+import { MessageReactionsDetail as DefaultMessageReactionsDetail } from './MessageReactionsDetail';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import type { MessageContextValue } from '../../context';
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
@@ -16,6 +25,7 @@ import type {
   ReactionsComparator,
   ReactionType,
 } from './types';
+import { DialogAnchor, useDialogOnNearestManager } from '../Dialog';
 
 export type ReactionsListProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -53,6 +63,9 @@ export type ReactionsListProps = Partial<
   visualStyle?: 'clustered' | 'segmented' | null;
 };
 
+/**
+ * Renders a button if `buttonIf` is true, otherwise renders a fragment. No props but children are passed to fragment, but all props are passed to button if it's rendered.
+ */
 const FragmentOrButton = ({
   buttonIf: renderButton = false,
   children,
@@ -77,21 +90,47 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
     ...rest
   } = props;
 
-  const { existingReactions, hasReactions, totalReactionCount } =
+  const { existingReactions, hasReactions, totalReactionCount, uniqueReactionTypeCount } =
     useProcessReactions(rest);
   const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
     null,
   );
   const { t } = useTranslationContext('ReactionsList');
-  const { ReactionsListModal = DefaultReactionsListModal } = useComponentContext();
+  const { MessageReactionsDetail = DefaultMessageReactionsDetail } =
+    useComponentContext();
+  const { isMyMessage, message } = useMessageContext('ReactionsList');
 
-  const handleReactionButtonClick = (reactionType: ReactionType) => {
+  const divRef = useRef<ComponentRef<'div'>>(null);
+  const dialogId = `message-reactions-detail-${message.id}`;
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+
+  const handleReactionButtonClick = (reactionType: ReactionType | null) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
       return;
     }
 
     setSelectedReactionType(reactionType);
+
+    dialog.open();
   };
+
+  /**
+   * In segmented style with top position we show max 4 reactions and a
+   * count of the rest, so we need to cap the existing reactions to display
+   * at 4 and calculate the count of the rest.
+   */
+  const cappedExistingReactions = useMemo(() => {
+    if (visualStyle !== 'segmented' || verticalPosition !== 'top') return null;
+
+    const sliced = existingReactions.slice(0, 4);
+    return {
+      reactionCountToDisplay: sliced.reduce(
+        (accumulatedCount, { reactionCount }) => accumulatedCount + reactionCount,
+        0,
+      ),
+      reactionsToDisplay: sliced,
+    };
+  }, [existingReactions, verticalPosition, visualStyle]);
 
   if (!hasReactions) return null;
 
@@ -106,17 +145,18 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
           [`str-chat__message-reactions--${visualStyle}`]:
             typeof visualStyle === 'string',
         })}
+        ref={divRef}
         role='figure'
       >
         <FragmentOrButton
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
           onClick={() =>
-            setSelectedReactionType(existingReactions[0]?.reactionType ?? null)
+            handleReactionButtonClick(existingReactions[0]?.reactionType ?? null)
           }
         >
           <ul className='str-chat__message-reactions__list'>
-            {existingReactions.map(
+            {(cappedExistingReactions?.reactionsToDisplay ?? existingReactions).map(
               ({ EmojiComponent, reactionCount, reactionType }) =>
                 EmojiComponent && (
                   <li
@@ -128,12 +168,12 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
                       className='str-chat__message-reactions__list-item-button'
                       onClick={() => handleReactionButtonClick(reactionType)}
                     >
-                      <span className='str-chat__message-reactions__item-icon'>
+                      <span className='str-chat__message-reactions__list-item-icon'>
                         <EmojiComponent />
                       </span>
-                      {visualStyle === 'segmented' && (
+                      {visualStyle === 'segmented' && reactionCount > 1 && (
                         <span
-                          className='str-chat__message-reactions__item-count'
+                          className='str-chat__message-reactions__list-item-count'
                           data-testclass='message-reactions-item-count'
                         >
                           {reactionCount}
@@ -143,6 +183,22 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
                   </li>
                 ),
             )}
+            {uniqueReactionTypeCount > 4 && cappedExistingReactions && (
+              <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
+                <button
+                  className='str-chat__message-reactions__list-item-button'
+                  onClick={() =>
+                    handleReactionButtonClick(
+                      existingReactions.at(-1)?.reactionType ?? null,
+                    )
+                  }
+                >
+                  <span className='str-chat__message-reactions__overflow-count'>
+                    +{totalReactionCount - cappedExistingReactions.reactionCountToDisplay}
+                  </span>
+                </button>
+              </li>
+            )}
           </ul>
           {visualStyle === 'clustered' && (
             <span className='str-chat__message-reactions__total-count'>
@@ -151,19 +207,25 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
           )}
         </FragmentOrButton>
       </div>
-      {selectedReactionType !== null && (
-        <ReactionsListModal
+
+      <DialogAnchor
+        dialogManagerId={dialogManager?.id}
+        id={dialogId}
+        offset={8}
+        placement={isMyMessage() ? 'bottom-end' : 'bottom-start'}
+        referenceElement={divRef.current}
+        trapFocus
+        updatePositionOnContentResize
+      >
+        <MessageReactionsDetail
           handleFetchReactions={handleFetchReactions}
-          onClose={() => setSelectedReactionType(null)}
-          onSelectedReactionTypeChange={
-            setSelectedReactionType as ReactionsListModalProps['onSelectedReactionTypeChange']
-          }
-          open={selectedReactionType !== null}
+          onSelectedReactionTypeChange={setSelectedReactionType}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}
           sortReactionDetails={sortReactionDetails}
+          totalReactionCount={totalReactionCount}
         />
-      )}
+      </DialogAnchor>
     </>
   );
 };

@@ -1,0 +1,46 @@
+@use '../../../styling/utils' as utils;
+
+@mixin reaction-button() {
+  @include utils.unset-button;
+  display: flex;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  gap: var(--spacing-xxs);
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-max);
+  border: 1px solid var(--reaction-border);
+  background: var(--reaction-bg);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: 1;
+  user-select: none;
+
+  &:not(:disabled) {
+    &:hover,
+    &:active,
+    &[aria-pressed='true'] {
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &:hover::before {
+      background: var(--background-core-hover);
+    }
+    &:active::before {
+      background: var(--background-core-pressed);
+    }
+    &[aria-pressed='true']::before {
+      background: var(--background-core-selected);
+    }
+  }
+}

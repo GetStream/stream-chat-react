@@ -21,7 +21,7 @@ function autoMiddlewareFor(p: PopperLikePlacement) {
   return autoPlacement({ alignment });
 }
 
-type OffsetOpt =
+export type OffsetOpt =
   | number
   | { mainAxis?: number; crossAxis?: number; alignmentAxis?: number }
   | [crossAxis: number, mainAxis: number]; // keep your tuple compat

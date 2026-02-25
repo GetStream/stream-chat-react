@@ -63,6 +63,19 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     [reactionOptions],
   );
 
+  /**
+   * Amount of unique reaction types ("haha", "like", etc.) on a message.
+   */
+  const uniqueReactionTypeCount = useMemo(() => {
+    if (!reactionGroups) {
+      return 0;
+    }
+
+    return Object.keys(reactionGroups).filter((reactionType) =>
+      isSupportedReaction(reactionType),
+    ).length;
+  }, [isSupportedReaction, reactionGroups]);
+
   const getLatestReactedUserNames = useCallback(
     (reactionType?: string) =>
       latestReactions?.flatMap((reaction) => {
@@ -117,13 +130,15 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
 
   const totalReactionCount = useMemo(
     () =>
-      existingReactions.reduce((total, { reactionCount }) => total + reactionCount, 0),
-    [existingReactions],
+      Object.values(reactionGroups ?? {}).reduce((total, { count }) => total + count, 0),
+
+    [reactionGroups],
   );
 
   return {
     existingReactions,
     hasReactions,
     totalReactionCount,
-  };
+    uniqueReactionTypeCount,
+  } as const;
 };

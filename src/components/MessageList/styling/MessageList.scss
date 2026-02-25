@@ -12,21 +12,22 @@
 
 .str-chat__message-list {
   @include utils.scrollable;
+  display: flex;
+  justify-content: center;
   position: relative;
   overscroll-behavior: none;
   width: 100%;
-  /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
-  max-width: calc(
-    var(--str-chat__message-composer-max-width) +
-      var(--str-chat__message-composer-padding)
-  );
   height: 100%;
   max-height: 100%;
   @include utils.component-layer-overrides('message-list');
 
   .str-chat__message-list-scroll {
     @include utils.message-list-spacing;
-
+    /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
+    max-width: calc(
+      var(--str-chat__message-composer-max-width) +
+        var(--str-chat__message-composer-padding)
+    );
     .str-chat__ul {
       list-style: none;
       padding: 0;

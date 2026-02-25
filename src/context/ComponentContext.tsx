@@ -23,6 +23,7 @@ import {
   type MessageInputProps,
   type MessageListNotificationsProps,
   type MessageProps,
+  type MessageReactionsDetailProps,
   type MessageRepliesCountButtonProps,
   type MessageStatusProps,
   type MessageTimestampProps,
@@ -36,7 +37,6 @@ import {
   type QuotedMessagePreviewProps,
   type ReactionOptions,
   type ReactionSelectorProps,
-  type ReactionsListModalProps,
   type ReactionsListProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
@@ -186,8 +186,8 @@ export type ComponentContextValue = {
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps>;
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps>;
-  /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [ReactionsListModal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx) */
-  ReactionsListModal?: React.ComponentType<ReactionsListModalProps>;
+  /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [MessageReactionsDetail](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/MessageReactionsDetail.tsx) */
+  MessageReactionsDetail?: React.ComponentType<MessageReactionsDetailProps>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Custom UI component to display the message reminder information in the Message UI, defaults to and accepts same props as: [ReminderNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/ReminderNotification.tsx) */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;

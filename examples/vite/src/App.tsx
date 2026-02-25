@@ -28,6 +28,7 @@ import {
   WithComponents,
   ReactionsList,
   WithDragAndDropUpload,
+  useChatContext,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -209,6 +210,7 @@ const App = () => {
                     maxRows={10}
                     asyncMessagesMultiSendEnabled
                   />
+                  <ChannelExposer />
                 </Window>
               </WithDragAndDropUpload>
               <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
@@ -226,6 +228,15 @@ const App = () => {
       </Chat>
     </WithComponents>
   );
+};
+
+const ChannelExposer = () => {
+  const { channel, client } = useChatContext();
+  // @ts-expect-error expose client and channel for debugging purposes
+  window.client = client;
+  // @ts-expect-error expose client and channel for debugging purposes
+  window.channel = channel;
+  return null;
 };
 
 export default App;
