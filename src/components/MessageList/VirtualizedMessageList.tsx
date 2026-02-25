@@ -576,13 +576,13 @@ const VirtualizedMessageListWithContext = (
                 newMessageCount={channelUnreadUiState?.unread_messages}
                 showNotification={newMessagesNotification || hasMoreNewer}
               />
-              <ScrollToLatestMessageButton
-                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer}
-                onClick={scrollToBottom}
-                threadList={threadList}
-              />
             </div>
+            <ScrollToLatestMessageButton
+              isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+              isNotAtLatestMessageSet={hasMoreNewer}
+              onClick={scrollToBottom}
+              threadList={threadList}
+            />
           </DialogManagerProvider>
           {TypingIndicator && <TypingIndicator />}
         </MessageListMainPanel>

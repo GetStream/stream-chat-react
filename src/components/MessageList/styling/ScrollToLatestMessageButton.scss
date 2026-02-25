@@ -3,7 +3,10 @@
   width: 40px;
   position: absolute;
   inset-block-end: var(--spacing-md);
-  inset-inline-end: var(--spacing-md);
+  inset-inline-end: max(
+    var(--spacing-md),
+    calc((100% - var(--str-chat__message-list-scroll-max-width)) / 2 + var(--spacing-md))
+  );
   z-index: 2;
   border-radius: var(--radius-max);
   background-color: var(--background-elevation-elevation-1);
