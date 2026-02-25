@@ -143,8 +143,6 @@ export type ComponentContextValue = {
   MessageDeleted?: React.ComponentType<MessageDeletedProps>;
   /** Custom UI component for a message bubble of a deleted message, defaults to and accepts same props as: [MessageDeletedBubble](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeletedBubble.tsx) */
   MessageDeletedBubble?: React.ComponentType;
-  /** Custom UI component for an indicator that a message is a thread reply sent to channel list: [MessageIsThreadReplyInChannelButtonIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageIsThreadReplyInChannelButtonIndicator.tsx) */
-  MessageIsThreadReplyInChannelButtonIndicator?: React.ComponentType;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;

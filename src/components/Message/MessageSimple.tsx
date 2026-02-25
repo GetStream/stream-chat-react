@@ -13,7 +13,6 @@ import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp'
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
 import { MessageAlsoSentInChannelIndicator as DefaultMessageAlsoSentInChannelIndicator } from './MessageAlsoSentInChannelIndicator';
-import { MessageIsThreadReplyInChannelButtonIndicator as DefaultMessageIsThreadReplyInChannelButtonIndicator } from './MessageIsThreadReplyInChannelButtonIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
 import { MessageTranslationIndicator as DefaultMessageTranslationIndicator } from './MessageTranslationIndicator';
 import { useMessageReminder } from './hooks';
@@ -86,7 +85,6 @@ const MessageSimpleWithContext = ({
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted,
     MessageDeletedBubble = DefaultMessageDeletedBubble,
-    // MessageIsThreadReplyInChannelButtonIndicator = DefaultMessageIsThreadReplyInChannelButtonIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
@@ -141,8 +139,6 @@ const MessageSimpleWithContext = ({
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
-  // const showIsReplyInChannel =
-  //   !threadList && message.show_in_channel && message.parent_id;
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -171,7 +167,7 @@ const MessageSimpleWithContext = ({
       'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.error?.status !== 403,
-      // 'str-chat__message-with-thread-link': showReplyCountButton || showIsReplyInChannel,
+      'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
       'str-chat__virtual-message__wrapper--group': groupedByUser,
@@ -251,7 +247,6 @@ const MessageSimpleWithContext = ({
               thread_participants={message.thread_participants}
             />
           )}
-          {/*{showIsReplyInChannel && <MessageIsThreadReplyInChannelButtonIndicator />}*/}
         </div>
         {showMetadata && (
           <div className='str-chat__message-metadata'>
