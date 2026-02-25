@@ -365,8 +365,6 @@
   "unmute-command-description": "ユーザーのミュートを解除する",
   "Unpin": "ピンを解除する",
   "Unread messages": "未読メッセージ",
-  "unreadMessagesSeparatorText_one": "未読メッセージ 1 件",
-  "unreadMessagesSeparatorText_other": "未読メッセージ {{count}} 件",
   "Unsupported attachment": "サポートされていない添付ファイル",
   "unsupported file type": "サポートされていないファイル形式",
   "Update your comment": "コメントを更新",

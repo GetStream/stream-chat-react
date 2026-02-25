@@ -365,8 +365,6 @@
   "unmute-command-description": "사용자 음소거 해제",
   "Unpin": "핀 해제",
   "Unread messages": "읽지 않은 메시지",
-  "unreadMessagesSeparatorText_one": "읽지 않은 메시지 1개",
-  "unreadMessagesSeparatorText_other": "읽지 않은 메시지 {{count}}개",
   "Unsupported attachment": "지원되지 않는 첨부 파일",
   "unsupported file type": "지원되지 않는 파일 형식",
   "Update your comment": "댓글 업데이트",

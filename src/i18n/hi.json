@@ -366,8 +366,6 @@
   "unmute-command-description": "एक उपयोगकर्ता को अनम्यूट करें",
   "Unpin": "अनपिन",
   "Unread messages": "अपठित संदेश",
-  "unreadMessagesSeparatorText_one": "1 अपठित संदेश",
-  "unreadMessagesSeparatorText_other": "{{count}} अपठित संदेश",
   "Unsupported attachment": "असमर्थित अटैचमेंट",
   "unsupported file type": "असमर्थित फ़ाइल प्रकार",
   "Update your comment": "अपने टिप्पणी को अपडेट करें",

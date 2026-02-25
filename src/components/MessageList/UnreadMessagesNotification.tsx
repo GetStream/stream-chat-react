@@ -1,6 +1,8 @@
 import React from 'react';
-import { CloseIcon } from './icons';
 import { useChannelActionContext, useTranslationContext } from '../../context';
+import { Button } from '../Button';
+import { IconArrowUp, IconCrossMedium } from '../Icons';
+import clsx from 'clsx';
 
 export type UnreadMessagesNotificationProps = {
   /**
@@ -8,7 +10,7 @@ export type UnreadMessagesNotificationProps = {
    */
   queryMessageLimit?: number;
   /**
-   * Configuration parameter to determine, whether the unread count is to be shown on the component. Disabled by default.
+   * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
    */
   showCount?: boolean;
   /**
@@ -19,27 +21,34 @@ export type UnreadMessagesNotificationProps = {
 
 export const UnreadMessagesNotification = ({
   queryMessageLimit,
-  showCount,
+  showCount = true,
   unreadCount,
 }: UnreadMessagesNotificationProps) => {
-  const { jumpToFirstUnreadMessage, markRead } = useChannelActionContext(
-    'UnreadMessagesNotification',
-  );
+  const { jumpToFirstUnreadMessage, markRead } = useChannelActionContext();
   const { t } = useTranslationContext('UnreadMessagesNotification');
 
   return (
     <div
-      className='str-chat__unread-messages-notification'
+      className={clsx('str-chat__unread-messages-notification', {
+        'str-chat__unread-messages-notification--with-count': unreadCount && showCount,
+      })}
       data-testid='unread-messages-notification'
     >
-      <button onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}>
+      <Button
+        className={clsx('str-chat__button--secondary', 'str-chat__button--outline')}
+        onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}
+      >
+        <IconArrowUp />
         {unreadCount && showCount
-          ? t('{{count}} unread', { count: unreadCount ?? 0 })
+          ? t('{{count}} unread', { count: unreadCount })
           : t('Unread messages')}
-      </button>
-      <button onClick={() => markRead()}>
-        <CloseIcon />
-      </button>
+      </Button>
+      <Button
+        className={clsx('str-chat__button--secondary', 'str-chat__button--outline')}
+        onClick={() => markRead()}
+      >
+        <IconCrossMedium />
+      </Button>
     </div>
   );
 };

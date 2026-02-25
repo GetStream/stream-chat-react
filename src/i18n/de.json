@@ -365,8 +365,6 @@
   "unmute-command-description": "Stummschaltung eines Benutzers aufheben",
   "Unpin": "Anheftung aufheben",
   "Unread messages": "Ungelesene Nachrichten",
-  "unreadMessagesSeparatorText_one": "1 ungelesene Nachricht",
-  "unreadMessagesSeparatorText_other": "{{count}} ungelesene Nachrichten",
   "Unsupported attachment": "Nicht unterstützter Anhang",
   "unsupported file type": "Nicht unterstützter Dateityp",
   "Update your comment": "Ihren Kommentar aktualisieren",

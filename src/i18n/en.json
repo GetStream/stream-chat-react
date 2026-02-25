@@ -365,8 +365,6 @@
   "unmute-command-description": "Unmute a user",
   "Unpin": "Unpin",
   "Unread messages": "Unread messages",
-  "unreadMessagesSeparatorText_one": "1 unread message",
-  "unreadMessagesSeparatorText_other": "{{count}} unread messages",
   "Unsupported attachment": "Unsupported attachment",
   "unsupported file type": "unsupported file type",
   "Update your comment": "Update your comment",

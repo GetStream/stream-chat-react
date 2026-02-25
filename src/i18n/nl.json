@@ -367,8 +367,6 @@
   "unmute-command-description": "Een gebruiker niet meer dempen",
   "Unpin": "Losmaken",
   "Unread messages": "Ongelezen berichten",
-  "unreadMessagesSeparatorText_one": "1 ongelezen bericht",
-  "unreadMessagesSeparatorText_other": "{{count}} ongelezen berichten",
   "Unsupported attachment": "Niet-ondersteunde bijlage",
   "unsupported file type": "niet-ondersteund bestandstype",
   "Update your comment": "Werk je opmerking bij",

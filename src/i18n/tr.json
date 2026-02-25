@@ -365,8 +365,6 @@
   "unmute-command-description": "Bir kullanıcının sesini aç",
   "Unpin": "Sabitlemeyi kaldır",
   "Unread messages": "Okunmamış mesajlar",
-  "unreadMessagesSeparatorText_one": "1 okunmamış mesaj",
-  "unreadMessagesSeparatorText_other": "{{count}} okunmamış mesaj",
   "Unsupported attachment": "Desteklenmeyen ek",
   "unsupported file type": "desteklenmeyen dosya türü",
   "Update your comment": "Yorumunuzu güncelleyin",
