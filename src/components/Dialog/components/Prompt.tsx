@@ -27,14 +27,12 @@ const PromptHeader = ({
   <div className={clsx('str-chat__prompt__header', className)}>
     {goBack && (
       <Button
-        className={clsx(
-          'str-chat__prompt__header__go-back-button',
-          'str-chat__button--secondary',
-          'str-chat__button--ghost',
-          'str-chat__button--circular',
-          'str-chat__button--size-sm',
-        )}
+        appearance='ghost'
+        circular
+        className='str-chat__prompt__header__go-back-button'
         onClick={goBack}
+        size='sm'
+        variant='secondary'
       >
         <IconArrowLeft />
       </Button>
@@ -47,14 +45,12 @@ const PromptHeader = ({
     </div>
     {close && (
       <Button
-        className={clsx(
-          'str-chat__prompt__header__close-button',
-          'str-chat__button--secondary',
-          'str-chat__button--ghost',
-          'str-chat__button--size-sm',
-          'str-chat__button--circular',
-        )}
+        appearance='ghost'
+        circular
+        className='str-chat__prompt__header__close-button'
         onClick={close}
+        size='sm'
+        variant='secondary'
       >
         <IconCrossMedium />
       </Button>
@@ -88,27 +84,21 @@ const PromptFooterControls = ({ children, className }: PromptFooterControlsProps
 
 const PromptFooterControlsButtonSecondary = ({ className, ...props }: ButtonProps) => (
   <Button
+    appearance='ghost'
+    className={clsx('str-chat__prompt__footer__controls-button', className)}
+    size='md'
+    variant='secondary'
     {...props}
-    className={clsx(
-      'str-chat__prompt__footer__controls-button',
-      'str-chat__button--secondary',
-      'str-chat__button--ghost',
-      'str-chat__button--size-md',
-      className,
-    )}
   />
 );
 
 const PromptFooterControlsButtonPrimary = ({ className, ...props }: ButtonProps) => (
   <Button
+    appearance='solid'
+    className={clsx('str-chat__prompt__footer__controls-button', className)}
+    size='md'
+    variant='primary'
     {...props}
-    className={clsx(
-      'str-chat__prompt__footer__controls-button',
-      'str-chat__button--primary',
-      'str-chat__button--solid',
-      'str-chat__button--size-md',
-      className,
-    )}
   />
 );
 

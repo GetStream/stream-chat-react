@@ -65,15 +65,12 @@ export const AttachmentSelectorButton = forwardRef<HTMLButtonElement, ButtonProp
   function AttachmentSelectorButton({ className, ...props }, ref) {
     return (
       <Button
-        className={clsx(
-          'str-chat__attachment-selector__menu-button',
-          'str-chat__button--outline',
-          'str-chat__button--secondary',
-          'str-chat__button--size-lg',
-          'str-chat__button--circular',
-          className,
-        )}
+        appearance='outline'
+        circular
+        className={clsx('str-chat__attachment-selector__menu-button', className)}
         data-testid='invoke-attachment-selector-button'
+        size='lg'
+        variant='secondary'
         {...props}
         ref={ref}
       >

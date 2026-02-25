@@ -142,14 +142,11 @@ export const ChatViewSelectorButton = ({
   ...props
 }: ButtonProps & { Icon?: ComponentType; text?: string }) => (
   <Button
-    {...props}
-    className={clsx(
-      'str-chat__chat-view__selector-button',
-      'str-chat__button--ghost',
-      'str-chat__button--secondary',
-      className,
-    )}
+    appearance='ghost'
+    className={clsx('str-chat__chat-view__selector-button', className)}
     role='tab'
+    variant='secondary'
+    {...props}
   >
     {text ? (
       <>

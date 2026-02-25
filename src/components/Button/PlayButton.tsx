@@ -9,16 +9,13 @@ export type PlayButtonProps = ComponentProps<'button'> & {
 
 export const PlayButton = ({ className, isPlaying, ...props }: PlayButtonProps) => (
   <Button
-    {...props}
-    className={clsx(
-      'str-chat__button-play',
-      'str-chat__button--secondary',
-      'str-chat__button--outline',
-      'str-chat__button--size-sm',
-      'str-chat__button--circular',
-      className,
-    )}
+    appearance='outline'
+    circular
+    className={clsx('str-chat__button-play', className)}
     data-testid={isPlaying ? 'pause-audio' : 'play-audio'}
+    size='sm'
+    variant='secondary'
+    {...props}
   >
     {isPlaying ? <IconPause /> : <IconPlaySolid />}
   </Button>

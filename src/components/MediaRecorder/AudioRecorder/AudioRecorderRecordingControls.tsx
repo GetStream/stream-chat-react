@@ -4,7 +4,6 @@ import React from 'react';
 import { useMessageInputContext } from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
-import clsx from 'clsx';
 
 const ToggleRecordingButton = () => {
   const {
@@ -13,16 +12,14 @@ const ToggleRecordingButton = () => {
 
   return (
     <Button
-      className={clsx(
-        'str-chat__audio_recorder__toggle-recording-button',
-        'str-chat__button--secondary',
-        'str-chat__button--outline',
-        'str-chat__button--size-sm',
-        'str-chat__button--circular',
-      )}
+      appearance='outline'
+      circular
+      className='str-chat__audio_recorder__toggle-recording-button'
       onClick={() =>
         isRecording(recordingState) ? recorder?.pause() : recorder?.resume()
       }
+      size='sm'
+      variant='secondary'
     >
       {isRecording(recordingState) ? <IconPause /> : <IconMicrophone />}
     </Button>
@@ -41,31 +38,27 @@ export const AudioRecorderRecordingControls = () => {
     <div className='str-chat__audio_recorder__recording-controls'>
       {!isRecording(recordingState) && (
         <Button
-          className={clsx(
-            'str-chat__audio_recorder__cancel-button',
-            'str-chat__button--secondary',
-            'str-chat__button--ghost',
-            'str-chat__button--size-sm',
-            'str-chat__button--circular',
-          )}
+          appearance='ghost'
+          circular
+          className='str-chat__audio_recorder__cancel-button'
           data-testid={'cancel-recording-audio-button'}
           disabled={isUploadingFile}
           onClick={recorder.cancel}
+          size='sm'
+          variant='secondary'
         >
           <IconTrashBin />
         </Button>
       )}
       <ToggleRecordingButton />
       <Button
-        className={clsx(
-          'str-chat__audio_recorder__stop-button',
-          'str-chat__button--solid',
-          'str-chat__button--primary',
-          'str-chat__button--size-sm',
-          'str-chat__button--circular',
-        )}
+        appearance='solid'
+        circular
+        className='str-chat__audio_recorder__stop-button'
         data-testid='audio-recorder-stop-button'
         onClick={completeRecording}
+        size='sm'
+        variant='primary'
       >
         {isUploadingFile ? <LoadingIndicatorIcon /> : <CheckSignIcon />}
       </Button>

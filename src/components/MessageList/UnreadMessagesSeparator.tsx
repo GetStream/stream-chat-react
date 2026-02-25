@@ -1,7 +1,6 @@
 import React from 'react';
 import { useChannelActionContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import clsx from 'clsx';
 import { IconCrossMedium } from '../Icons';
 
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
@@ -34,13 +33,11 @@ export const UnreadMessagesSeparator = ({
           : t('Unread messages')}
       </div>
       <Button
-        className={clsx(
-          'str-chat__button--secondary',
-          'str-chat__button--ghost',
-          'str-chat__button--circular',
-          'str-chat__button--size-sm',
-        )}
+        appearance='ghost'
+        circular
         onClick={() => markRead()}
+        size='sm'
+        variant='secondary'
       >
         <IconCrossMedium />
       </Button>

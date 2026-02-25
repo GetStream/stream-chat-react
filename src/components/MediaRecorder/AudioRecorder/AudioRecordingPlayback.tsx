@@ -57,15 +57,13 @@ export const AudioRecordingPlayback = ({
       })}
     >
       <Button
-        className={clsx(
-          'str-chat__audio_recorder__toggle-playback-button',
-          'str-chat__button--secondary',
-          'str-chat__button--ghost',
-          'str-chat__button--size-sm',
-          'str-chat__button--circular',
-        )}
+        appearance='ghost'
+        circular
+        className='str-chat__audio_recorder__toggle-playback-button'
         data-testid='audio-recording-preview-toggle-play-btn'
         onClick={audioPlayer.togglePlay}
+        size='sm'
+        variant='secondary'
       >
         {isPlaying ? <IconPause /> : <IconPlaySolid />}
       </Button>

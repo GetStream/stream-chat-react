@@ -43,6 +43,7 @@ export const PollCreationDialogControls = ({
               })
               .catch(console.error);
           }}
+          type='submit'
         >
           <IconPaperPlane />
           {t('Send poll')}

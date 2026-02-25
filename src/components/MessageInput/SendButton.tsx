@@ -21,7 +21,6 @@ export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) 
       disabled={!hasSendableData}
       onClick={sendMessage}
       size='sm'
-      type='button'
       variant='primary'
       {...rest}
     >

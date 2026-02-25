@@ -54,15 +54,12 @@ const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogPro
   <div className='str-chat__callout'>
     {children}
     <Button
-      className={clsx(
-        className,
-        'str-chat__callout__close-button',
-        'str-chat__button--ghost',
-        'str-chat__button--secondary',
-        'str-chat__button--size-sm',
-        'str-chat__button--circular',
-      )}
+      appearance='ghost'
+      circular
+      className={clsx(className, 'str-chat__callout__close-button')}
       onClick={onClose}
+      size='sm'
+      variant='secondary'
     >
       <IconCrossMedium />
     </Button>

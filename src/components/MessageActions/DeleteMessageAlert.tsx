@@ -1,6 +1,5 @@
 import { Alert } from '../Dialog';
 import { Button } from '../Button';
-import clsx from 'clsx';
 import React from 'react';
 import { useTranslationContext } from '../../context';
 import type { ModalProps } from '../Modal';
@@ -22,26 +21,22 @@ export const DeleteMessageAlert = ({ onClose, onDelete }: DeleteMessageAlertProp
       />
       <Alert.Actions>
         <Button
-          className={clsx(
-            'str-chat__delete-message-alert__delete-button',
-            'str-chat__button--outline',
-            'str-chat__button--destructive',
-            'str-chat__button--size-md',
-          )}
+          appearance='outline'
+          className='str-chat__delete-message-alert__delete-button'
           data-testid='delete-message-alert-delete-button'
           onClick={onDelete}
+          size='md'
+          variant='danger'
         >
           {t('Delete message')}
         </Button>
         <Button
-          className={clsx(
-            'str-chat__delete-message-alert__cancel-button',
-            'str-chat__button--outline',
-            'str-chat__button--secondary',
-            'str-chat__button--size-md',
-          )}
+          appearance='outline'
+          className='str-chat__delete-message-alert__cancel-button'
           data-testid='delete-message-alert-cancel-button'
           onClick={onClose}
+          size='md'
+          variant='secondary'
         >
           {t('Cancel')}
         </Button>

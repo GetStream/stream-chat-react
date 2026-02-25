@@ -5,7 +5,6 @@ import type { MouseEventHandler, PropsWithChildren } from 'react';
 
 import type { ModalProps } from '../Modal';
 import { Button } from '../Button';
-import clsx from 'clsx';
 import { IconExclamationCircle } from '../Icons';
 import { Alert } from '../Dialog';
 
@@ -41,38 +40,32 @@ export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptPr
       </Alert.Header>
       <Alert.Actions className={'str-chat__message-bounce-actions'}>
         <Button
-          className={clsx(
-            'str-chat__message-bounce-delete',
-            'str-chat__button--outline',
-            'str-chat__button--destructive',
-            'str-chat__button--size-md',
-          )}
+          appearance='outline'
+          className='str-chat__message-bounce-delete'
           data-testid='message-bounce-delete'
           onClick={createHandler(handleDelete)}
+          size='md'
+          variant='danger'
         >
           {t('Delete')}
         </Button>
         <Button
-          className={clsx(
-            'str-chat__message-bounce-edit',
-            'str-chat__button--outline',
-            'str-chat__button--secondary',
-            'str-chat__button--size-md',
-          )}
+          appearance='outline'
+          className='str-chat__message-bounce-edit'
           data-testid='message-bounce-edit'
           onClick={createHandler(handleEdit)}
+          size='md'
+          variant='secondary'
         >
           {t('Edit Message')}
         </Button>
         <Button
-          className={clsx(
-            'str-chat__message-bounce-send',
-            'str-chat__button--outline',
-            'str-chat__button--secondary',
-            'str-chat__button--size-md',
-          )}
+          appearance='outline'
+          className='str-chat__message-bounce-send'
           data-testid='message-bounce-send'
           onClick={createHandler(handleRetry)}
+          size='md'
+          variant='secondary'
         >
           {t('Send Anyway')}
         </Button>

@@ -109,16 +109,14 @@ export const MediaAttachmentPreview = ({
 
           {hasRetriableError && (
             <Button
+              appearance='solid'
               aria-label={t('aria/Retry upload')}
-              className={clsx(
-                'str-chat__attachment-preview-media__retry-upload-button',
-                'str-chat__button--solid',
-                'str-chat__button--destructive',
-                'str-chat__button--size-sm',
-                'str-chat__button--circular',
-              )}
+              circular
+              className='str-chat__attachment-preview-media__retry-upload-button'
               data-testid='video-preview-item-retry-button'
               onClick={retry}
+              size='sm'
+              variant='danger'
             >
               <IconArrowRotateClockwise />
             </Button>

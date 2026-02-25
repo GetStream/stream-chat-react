@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import clsx from 'clsx';
 
 import { useChannelStateContext, useChatContext } from '../../context';
 
@@ -86,16 +85,14 @@ const UnMemoizedScrollToLatestMessageButton = (
   return (
     <div className='str-chat__jump-to-latest-message'>
       <Button
+        appearance='outline'
         aria-live='polite'
-        className={clsx(
-          'str-chat__jump-to-latest-message__button',
-          'str-chat__button--secondary',
-          'str-chat__button--outline',
-          'str-chat__button--size-md',
-          'str-chat__button--circular',
-        )}
+        circular
+        className='str-chat__jump-to-latest-message__button'
         data-testid='scroll-to-latest-message-button'
         onClick={onClick}
+        size='md'
+        variant='secondary'
       >
         <IconArrowDown />
       </Button>
