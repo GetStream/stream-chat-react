@@ -24,15 +24,15 @@ export const VideoThumbnail = ({
       />
       {onPlay ? (
         <Button
+          appearance='solid'
           aria-label={t('Play video')}
+          circular
           className={clsx(
             'str-chat__message-attachment__video-thumbnail__play-indicator',
-            'str-chat__button--secondary',
-            'str-chat__button--solid',
-            'str-chat__button--size-lg',
-            'str-chat__button--circular',
           )}
           onClick={onPlay}
+          size='lg'
+          variant='secondary'
         >
           <IconPlaySolid />
         </Button>

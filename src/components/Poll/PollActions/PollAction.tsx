@@ -31,14 +31,13 @@ export const PollAction = ({
   return (
     <>
       <Button
-        className={clsx(
-          'str-chat__poll-action',
-          'str-chat__button--outline',
-          'str-chat__button--secondary',
-          'str-chat__button--size-md',
-          { 'str-chat__poll-action--additional': isAdditionalAction },
-        )}
+        appearance='outline'
+        className={clsx('str-chat__poll-action', {
+          'str-chat__poll-action--additional': isAdditionalAction,
+        })}
         onClick={openModal}
+        size='md'
+        variant='secondary'
       >
         {buttonText}
       </Button>

@@ -114,13 +114,11 @@ export const OptionFieldSet = () => {
 
 const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
   <Button
-    className={clsx(
-      'str-chat__form__remove-option-button',
-      'str-chat__button--circular',
-      'str-chat__button--ghost',
-      'str-chat__button--size-sm',
-      className,
-    )}
+    appearance='ghost'
+    circular
+    className={clsx('str-chat__form__remove-option-button', className)}
+    size='sm'
+    variant='secondary'
     {...props}
   >
     <IconCircleMinus />

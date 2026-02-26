@@ -288,6 +288,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <div key='bottom' />
                 </InfiniteScroll>
               )}
+              <NewMessageNotification
+                newMessageCount={channelUnreadUiState?.unread_messages}
+                showNotification={hasNewMessages || hasMoreNewer}
+              />
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                isNotAtLatestMessageSet={hasMoreNewer}
+                onClick={scrollToBottomFromNotification}
+                threadList={threadList}
+              />
             </div>
             <NewMessageNotification
               newMessageCount={channelUnreadUiState?.unread_messages}

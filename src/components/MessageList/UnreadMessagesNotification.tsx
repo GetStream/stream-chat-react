@@ -35,18 +35,16 @@ export const UnreadMessagesNotification = ({
       data-testid='unread-messages-notification'
     >
       <Button
-        className={clsx('str-chat__button--secondary', 'str-chat__button--outline')}
+        appearance='outline'
         onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}
+        variant='secondary'
       >
         <IconArrowUp />
         {unreadCount && showCount
           ? t('{{count}} unread', { count: unreadCount })
           : t('Unread messages')}
       </Button>
-      <Button
-        className={clsx('str-chat__button--secondary', 'str-chat__button--outline')}
-        onClick={() => markRead()}
-      >
+      <Button appearance='outline' onClick={() => markRead()} variant='secondary'>
         <IconCrossMedium />
       </Button>
     </div>

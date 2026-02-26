@@ -9,7 +9,6 @@ import {
   useMessageComposer,
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
-import clsx from 'clsx';
 import { useIsCooldownActive } from '../../components/MessageInput/hooks/useIsCooldownActive';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
@@ -35,14 +34,12 @@ export type EmojiPickerProps = {
   popperOptions?: Partial<{ placement: PopperLikePlacement }>;
 };
 
-const classNames: EmojiPickerProps = {
-  buttonClassName: clsx(
-    'str-chat__emoji-picker-button',
-    'str-chat__button--ghost',
-    'str-chat__button--secondary',
-    'str-chat__button--size-sm',
-    'str-chat__button--circular',
-  ),
+const defaultButtonClassName = 'str-chat__emoji-picker-button';
+
+const classNames: Pick<
+  EmojiPickerProps,
+  'pickerContainerClassName' | 'wrapperClassName'
+> = {
   pickerContainerClassName: 'str-chat__message-textarea-emoji-picker-container',
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
@@ -68,7 +65,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     refs.setFloating(popperElement);
   }, [popperElement, refs]);
 
-  const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
+  const { pickerContainerClassName, wrapperClassName } = classNames;
 
   const { ButtonIconComponent = IconEmojiSmile } = props;
 
@@ -118,13 +115,17 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         </div>
       )}
       <Button
+        appearance='ghost'
         aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
-        className={props.buttonClassName ?? buttonClassName}
+        circular
+        className={props.buttonClassName ?? defaultButtonClassName}
         disabled={isCooldownActive}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
+        size='sm'
         type='button'
+        variant='secondary'
       >
         {ButtonIconComponent && <ButtonIconComponent />}
       </Button>
