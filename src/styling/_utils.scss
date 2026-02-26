@@ -99,6 +99,7 @@
 @mixin header-text-layout {
   display: flex;
   flex-direction: column;
+  align-items: center;
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
   flex: 1;
