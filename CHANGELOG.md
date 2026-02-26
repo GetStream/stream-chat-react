@@ -1,3 +1,9 @@
+## [13.14.1](https://github.com/GetStream/stream-chat-react/compare/v13.14.0...v13.14.1) (2026-02-26)
+
+### Bug Fixes
+
+* remove customMessageData from handleSubmit type declaration ([#2950](https://github.com/GetStream/stream-chat-react/issues/2950)) ([38abf76](https://github.com/GetStream/stream-chat-react/commit/38abf763fb7bffe3208bcd23f94367d01e6fa3cb))
+
 ## [13.14.0](https://github.com/GetStream/stream-chat-react/compare/v13.13.6...v13.14.0) (2026-02-16)
 
 ### Features
