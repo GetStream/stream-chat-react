@@ -1,5 +1,7 @@
-import { useMessageComposer } from './hooks';
+import clsx from 'clsx';
 import React from 'react';
+import { useMessageComposer } from './hooks';
+import { IconCheckmark2 } from '../Icons';
 import type { MessageComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useTranslationContext } from '../../context';
@@ -15,21 +17,37 @@ export const SendToChannelCheckbox = () => {
 
   if (messageComposer.editedMessage || !messageComposer.threadId) return null;
 
+  const labelText =
+    Object.keys(messageComposer.channel.state.members).length === 2
+      ? t('Also send as a direct message')
+      : t('Also send in channel');
+
   return (
-    <div className='str-chat__send-to-channel-checkbox__container'>
-      <div className='str-chat__send-to-channel-checkbox__field'>
+    <div
+      className={clsx('str-chat__send-to-channel-checkbox__container', {
+        'str-chat__send-to-channel-checkbox__container--checked': showReplyInChannel,
+      })}
+      data-testid='send-to-channel-checkbox'
+    >
+      <label
+        className='str-chat__send-to-channel-checkbox__field'
+        htmlFor='send-to-channel-checkbox'
+      >
         <input
+          aria-checked={showReplyInChannel}
+          checked={showReplyInChannel}
+          className='str-chat__send-to-channel-checkbox__input'
           id='send-to-channel-checkbox'
-          onClick={messageComposer.toggleShowReplyInChannel}
+          onChange={() => messageComposer.toggleShowReplyInChannel()}
           type='checkbox'
-          value={showReplyInChannel.toString()}
         />
-        <label htmlFor='send-to-channel-checkbox'>
-          {Object.keys(messageComposer.channel.state.members).length === 2
-            ? t('Also send as a direct message')
-            : t('Also send in channel')}
-        </label>
-      </div>
+        <span aria-hidden className='str-chat__send-to-channel-checkbox__visual'>
+          <span className='str-chat__send-to-channel-checkbox__checkmark'>
+            <IconCheckmark2 />
+          </span>
+        </span>
+        <span className='str-chat__send-to-channel-checkbox__label'>{labelText}</span>
+      </label>
     </div>
   );
 };
