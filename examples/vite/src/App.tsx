@@ -29,10 +29,13 @@ import {
   ReactionsList,
   WithDragAndDropUpload,
   useChatContext,
+  defaultReactionOptions,
+  ReactionOptions,
+  mapEmojiMartData,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data';
+import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
@@ -68,6 +71,11 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
+
+const newReactionOptions: ReactionOptions = {
+  ...defaultReactionOptions,
+  extended: mapEmojiMartData(data),
+};
 
 const useUser = () => {
   const userId = useMemo(() => {
@@ -184,6 +192,7 @@ const App = () => {
         emojiSearchIndex: SearchIndex,
         EmojiPicker,
         ReactionsList: CustomMessageReactions,
+        reactionOptions: newReactionOptions,
       }}
     >
       <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>

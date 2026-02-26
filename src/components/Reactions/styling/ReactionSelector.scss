@@ -13,6 +13,15 @@
   /* shadow/ios/light/elevation-3 */
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
 
+  &:has(.str-chat__reaction-selector-extended-list) {
+    padding: 0;
+    display: block;
+    overflow-y: auto;
+    scrollbar-width: none;
+    border-radius: var(--radius-lg);
+    max-height: 250px;
+  }
+
   .str-chat__reaction-selector__add-button {
     width: 32px;
     aspect-ratio: 1/1;
@@ -20,6 +29,29 @@
     .str-chat__icon--plus {
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
+    }
+  }
+
+  .str-chat__reaction-selector-extended-list {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: 100%;
+    overflow-y: auto;
+    padding-block: var(--spacing-md);
+    padding-inline: var(--spacing-sm);
+
+    .str-chat__reaction-selector-extended-list__button {
+      .str-chat__reaction-icon {
+        height: 24px;
+        width: 24px;
+        font-size: 24px;
+        letter-spacing: 0;
+        line-height: 0;
+        font-family: system-ui;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
   }
 
