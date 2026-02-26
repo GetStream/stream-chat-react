@@ -71,9 +71,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 1, Task 2
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -85,9 +85,9 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Existing ChatView usage does not break at runtime.
-- [ ] New props and context are typed/exported.
-- [ ] `str-chat__chat-view` behavior remains stable for existing layouts.
+- [x] Existing ChatView usage does not break at runtime.
+- [x] New props and context are typed/exported.
+- [x] `str-chat__chat-view` behavior remains stable for existing layouts.
 
 ## Task 4: Header Toggle Wiring for Entity List Pane
 
@@ -95,9 +95,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 3
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -107,8 +107,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Header toggle hides/shows entity list pane via ChatView state.
-- [ ] Override prop still takes precedence when provided.
+- [x] Header toggle hides/shows entity list pane via ChatView state.
+- [x] Override prop still takes precedence when provided.
 
 ## Task 5: Built-in Two-Step DX Layout API
 

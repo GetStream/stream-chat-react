@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, {
   type ComponentType,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,30 +15,125 @@ import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
+import { createLayoutController } from './layoutController/LayoutController';
+import { resolveTargetSlotChannelDefault } from './layoutSlotResolvers';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
+import type {
+  ChatViewLayoutState,
+  DuplicateEntityPolicy,
+  LayoutController,
+  LayoutEntityBinding,
+  ResolveDuplicateEntity,
+  ResolveTargetSlot,
+} from './layoutController/layoutControllerTypes';
 
 export type ChatView = 'channels' | 'threads';
 
+export type ChatViewEntityInferer = {
+  kind: LayoutEntityBinding['kind'];
+  match: (source: unknown) => boolean;
+  toBinding: (source: unknown) => LayoutEntityBinding;
+};
+
+export type ChatViewProps = PropsWithChildren<{
+  duplicateEntityPolicy?: DuplicateEntityPolicy;
+  entityInferers?: ChatViewEntityInferer[];
+  layoutController?: LayoutController;
+  maxSlots?: number;
+  resolveDuplicateEntity?: ResolveDuplicateEntity;
+  resolveTargetSlot?: ResolveTargetSlot;
+}>;
+
 type ChatViewContextValue = {
   activeChatView: ChatView;
+  activeView: ChatView;
+  entityInferers: ChatViewEntityInferer[];
+  layoutController: LayoutController;
   setActiveChatView: (cv: ChatView) => void;
+  setActiveView: (cv: ChatView) => void;
 };
+
+const DEFAULT_MAX_SLOTS = 1;
+
+const createVisibleSlots = (maxSlots: number) =>
+  Array.from({ length: Math.max(0, maxSlots) }, (_, index) => `slot${index + 1}`);
+
+const defaultLayoutController = createLayoutController({
+  initialState: {
+    activeView: 'channels',
+    visibleSlots: createVisibleSlots(DEFAULT_MAX_SLOTS),
+  },
+});
 
 const ChatViewContext = createContext<ChatViewContextValue>({
   activeChatView: 'channels',
+  activeView: 'channels',
+  entityInferers: [],
+  layoutController: defaultLayoutController,
   setActiveChatView: () => undefined,
+  setActiveView: () => undefined,
 });
 
 export const useChatViewContext = () => useContext(ChatViewContext);
 
-export const ChatView = ({ children }: PropsWithChildren) => {
-  const [activeChatView, setActiveChatView] = useState<ChatView>('channels');
+const activeViewSelector = ({ activeView }: ChatViewLayoutState) => ({ activeView });
 
+export const ChatView = ({
+  children,
+  duplicateEntityPolicy,
+  entityInferers = [],
+  layoutController,
+  maxSlots = DEFAULT_MAX_SLOTS,
+  resolveDuplicateEntity,
+  resolveTargetSlot,
+}: ChatViewProps) => {
   const { theme } = useChatContext();
 
-  const value = useMemo(() => ({ activeChatView, setActiveChatView }), [activeChatView]);
+  const internalLayoutController = useMemo(
+    () =>
+      createLayoutController({
+        duplicateEntityPolicy,
+        initialState: {
+          activeView: 'channels',
+          visibleSlots: createVisibleSlots(maxSlots),
+        },
+        resolveDuplicateEntity,
+        resolveTargetSlot: resolveTargetSlot ?? resolveTargetSlotChannelDefault,
+      }),
+    [
+      duplicateEntityPolicy,
+      maxSlots,
+      resolveDuplicateEntity,
+      resolveTargetSlot,
+    ],
+  );
+
+  const effectiveLayoutController = layoutController ?? internalLayoutController;
+
+  const { activeView } =
+    useStateStore(effectiveLayoutController.state, activeViewSelector) ??
+    activeViewSelector(effectiveLayoutController.state.getLatestValue());
+
+  const setActiveView = useCallback(
+    (cv: ChatView) => {
+      effectiveLayoutController.setActiveView(cv);
+    },
+    [effectiveLayoutController],
+  );
+
+  const value = useMemo(
+    () => ({
+      activeChatView: activeView,
+      activeView,
+      entityInferers,
+      layoutController: effectiveLayoutController,
+      setActiveChatView: setActiveView,
+      setActiveView,
+    }),
+    [activeView, effectiveLayoutController, entityInferers, setActiveView],
+  );
 
   return (
     <ChatViewContext.Provider value={value}>
@@ -47,9 +143,9 @@ export const ChatView = ({ children }: PropsWithChildren) => {
 };
 
 const ChannelsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useChatViewContext();
+  const { activeView } = useChatViewContext();
 
-  if (activeChatView !== 'channels') return null;
+  if (activeView !== 'channels') return null;
 
   return <div className='str-chat__chat-view__channels'>{children}</div>;
 };
@@ -67,13 +163,13 @@ const ThreadsViewContext = createContext<ThreadsViewContextValue>({
 export const useThreadsViewContext = () => useContext(ThreadsViewContext);
 
 const ThreadsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useChatViewContext();
+  const { activeView } = useChatViewContext();
   const [activeThread, setActiveThread] =
     useState<ThreadsViewContextValue['activeThread']>(undefined);
 
   const value = useMemo(() => ({ activeThread, setActiveThread }), [activeThread]);
 
-  if (activeChatView !== 'threads') return null;
+  if (activeView !== 'threads') return null;
 
   return (
     <ThreadsViewContext.Provider value={value}>
@@ -164,14 +260,14 @@ const selector = ({ unreadThreadCount }: ThreadManagerState) => ({
 });
 
 export const ChatViewChannelsSelectorButton = () => {
-  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { activeView, setActiveView } = useChatViewContext();
   const { t } = useTranslationContext();
 
   return (
     <ChatViewSelectorButton
-      aria-selected={activeChatView === 'channels'}
+      aria-selected={activeView === 'channels'}
       Icon={Icon.MessageBubbleEmpty}
-      onPointerDown={() => setActiveChatView('channels')}
+      onPointerDown={() => setActiveView('channels')}
       text={t('Channels')}
     />
   );
@@ -182,13 +278,13 @@ export const ChatViewThreadsSelectorButton = () => {
   const { unreadThreadCount } = useStateStore(client.threads.state, selector) ?? {
     unreadThreadCount: 0,
   };
-  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { activeView, setActiveView } = useChatViewContext();
   const { t } = useTranslationContext();
 
   return (
     <ChatViewSelectorButton
-      aria-selected={activeChatView === 'threads'}
-      onPointerDown={() => setActiveChatView('threads')}
+      aria-selected={activeView === 'threads'}
+      onPointerDown={() => setActiveView('threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         <Icon.MessageBubble />

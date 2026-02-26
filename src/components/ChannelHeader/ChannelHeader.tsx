@@ -2,11 +2,12 @@ import React from 'react';
 
 import { IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { useChatViewContext } from '../ChatView';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useStateStore } from '../../store';
 import type { ChannelAvatarProps } from '../Avatar';
 import { Button } from '../Button';
 import clsx from 'clsx';
@@ -18,11 +19,17 @@ export type ChannelHeaderProps = {
   image?: string;
   /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
   MenuIcon?: React.ComponentType;
+  /** Optional external toggle override for sidebar/entity list pane behavior */
+  onSidebarToggle?: () => void;
   /** When true, shows IconLayoutAlignLeft instead of MenuIcon for sidebar expansion */
   sidebarCollapsed?: boolean;
   /** Set title manually */
   title?: string;
 };
+
+const entityListPaneOpenSelector = ({ entityListPaneOpen }: { entityListPaneOpen: boolean }) => ({
+  entityListPaneOpen,
+});
 
 /**
  * The ChannelHeader component renders some basic information about a Channel.
@@ -32,12 +39,13 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     Avatar = DefaultAvatar,
     image: overrideImage,
     MenuIcon = IconLayoutAlignLeft,
-    sidebarCollapsed = true,
+    onSidebarToggle,
+    sidebarCollapsed: sidebarCollapsedProp,
     title: overrideTitle,
   } = props;
 
   const { channel } = useChannelStateContext();
-  const { openMobileNav } = useChatContext('ChannelHeader');
+  const { layoutController } = useChatViewContext();
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -45,6 +53,11 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
+  const { entityListPaneOpen } =
+    useStateStore(layoutController.state, entityListPaneOpenSelector) ??
+    entityListPaneOpenSelector(layoutController.state.getLatestValue());
+  const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;
+  const handleSidebarToggle = onSidebarToggle ?? layoutController.toggleEntityListPane;
 
   return (
     <div
@@ -57,7 +70,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}
         circular
         className='str-chat__header-sidebar-toggle'
-        onClick={openMobileNav}
+        onClick={handleSidebarToggle}
         size='md'
         variant='secondary'
       >

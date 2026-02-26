@@ -60,3 +60,62 @@ Pure resolver functions are independently testable and reusable by integrators. 
 
 **Tradeoffs / Consequences:**  
 `replaceActive` and `activeOrLast` currently resolve identically by design; keeping both exported names improves API clarity for different integration intents.
+
+## Decision: Keep activeChatView as a compatibility alias over controller activeView
+
+**Date:** 2026-02-26  
+**Context:**  
+Task 3 introduces `layoutController` as the source of truth in ChatView context, but existing consumers and selectors read `activeChatView` and call `setActiveChatView`.
+
+**Decision:**  
+Expose both `activeView`/`setActiveView` and compatibility aliases `activeChatView`/`setActiveChatView` from `useChatViewContext()`, all mapped to `layoutController.state.activeView` and `layoutController.setActiveView`.
+
+**Reasoning:**  
+This keeps existing ChatView usage stable while enabling the new controller-first API without forcing immediate downstream migration.
+
+**Alternatives considered:**
+
+- Remove old names and migrate all call sites at once — rejected because it would be a broad breaking change outside Task 3 scope.
+
+**Tradeoffs / Consequences:**  
+Context temporarily carries duplicate field names until follow-up cleanup/migration tasks.
+
+## Decision: Use default channel resolver fallback for internally created controllers
+
+**Date:** 2026-02-26  
+**Context:**  
+Task 3 requires ChatView to wire a default resolver fallback when `resolveTargetSlot` is absent.
+
+**Decision:**  
+When ChatView creates its internal controller, default `resolveTargetSlot` to `resolveTargetSlotChannelDefault`; external `layoutController` instances are left untouched.
+
+**Reasoning:**  
+This gives predictable out-of-the-box replacement behavior for the built-in path while respecting externally managed controller policy.
+
+**Alternatives considered:**
+
+- Leave resolver undefined and rely on controller fallback only — rejected because it does not satisfy Task 3 acceptance and weakens default DX.
+- Force `maxSlots` and resolver onto external controllers — rejected because external controllers should remain authoritative.
+
+**Tradeoffs / Consequences:**  
+Internal and external controller paths may differ by integrator design, which is intentional for flexibility.
+
+## Decision: ChannelHeader toggle now defaults to ChatView layout controller
+
+**Date:** 2026-02-26  
+**Context:**  
+Task 4 requires ChannelHeader's sidebar toggle to be driven by ChatView layout state, while still allowing external override handlers.
+
+**Decision:**  
+Update `ChannelHeader` so the toggle button uses `layoutController.toggleEntityListPane()` by default, add an optional `onSidebarToggle` prop that takes precedence when provided, and derive `sidebarCollapsed` from `!entityListPaneOpen` when `sidebarCollapsed` is not controlled by props.
+
+**Reasoning:**  
+This aligns header behavior with the new ChatView layout-controller source of truth and preserves integrator escape hatches for custom sidebar behavior.
+
+**Alternatives considered:**
+
+- Keep using `ChatContext.openMobileNav` as default toggle path — rejected because layout responsibilities are being moved to ChatView.
+- Require `sidebarCollapsed` to always be controlled by the parent — rejected because default controller-driven behavior should work out of the box.
+
+**Tradeoffs / Consequences:**  
+When `ChannelHeader` is rendered outside a ChatView provider, it falls back to the default ChatView context controller state rather than `openMobileNav`; follow-up integration tests in Task 6 should validate expected host usage patterns.
