@@ -272,9 +272,7 @@
     justify-content: flex-end;
   }
 
-  &.str-chat__message--me
-    .str-chat__message-also-sent-in-channel
-    .str-chat__message-also-sent-in-channel__content {
+  &.str-chat__message--me .str-chat__message-also-sent-in-channel {
     justify-content: flex-end;
   }
 

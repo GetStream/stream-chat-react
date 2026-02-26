@@ -24,4 +24,11 @@
     stroke-width: 1.5px;
     stroke: var(--str-chat__message-also-sent-in-channel-color);
   }
+
+  .str-chat__message-also-sent-in-channel__link-button {
+    @include utils.button-reset;
+    cursor: pointer;
+    font: var(--str-chat__metadata-default-text);
+    color: var(--text-link);
+  }
 }
