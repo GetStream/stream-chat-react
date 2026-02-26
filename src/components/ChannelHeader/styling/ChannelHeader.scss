@@ -1,63 +1,60 @@
 @use '../../../styling/utils';
 
+.str-chat {
+  /* The border radius used for the borders of the component */
+  --str-chat__channel-header-border-radius: 0;
+
+  /* The text/icon color of the component */
+  --str-chat__channel-header-color: 0;
+
+  /* The background color of the component */
+  --str-chat__channel-header-background-color: var(--background-elevation-elevation-1);
+
+  /* Top border of the component */
+  --str-chat__channel-header-border-block-start: none;
+
+  /* Bottom border of the component */
+  --str-chat__channel-header-border-block-end: 1px solid var(--border-core-default);
+
+  /* Left (right in RTL layout) border of the component */
+  --str-chat__channel-header-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the component */
+  --str-chat__channel-header-border-inline-end: none;
+
+  /* Box shadow applied to the component */
+  --str-chat__channel-header-box-shadow: none;
+
+  /* The text/icon color used to display member information about the channel */
+  --str-chat__channel-header__data__subtitle-color: var(--text-secondary);
+}
+
 .str-chat__channel-header {
-  @include utils.header-layout;
-  background-color: var(--str-chat__channel-header-background-color);
+  @include utils.component-layer-overrides('channel-header');
+  display: flex;
+  padding: var(--spacing-md);
+  column-gap: var(--spacing-sm);
+  align-items: center;
   flex: 1;
   min-width: 0;
 
-  .str-chat__header-hamburger,
-  .str-chat__header-sidebar-toggle {
-    $icon-size: calc(var(--str-chat__spacing-px) * 24);
-    @include utils.unset-button;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: calc(var(--str-chat__spacing-px) * 40);
-    height: calc(var(--str-chat__spacing-px) * 40);
-    cursor: pointer;
-    color: var(--str-chat__text-color);
-
-    svg {
-      width: $icon-size;
-      height: $icon-size;
-    }
-
-    &:focus-visible {
-      @include utils.focusable;
-    }
-  }
-
-  .str-chat__channel-header-end {
+  .str-chat__channel-header__data {
     @include utils.header-text-layout;
     min-width: 0;
   }
 
-  .str-chat__channel-header-title,
-  .str-chat__channel-header-subtitle,
-  .str-chat__channel-header-info {
+  .str-chat__channel-header__data__title,
+  .str-chat__channel-header__data__subtitle {
     @include utils.ellipsis-text;
   }
 
-  .str-chat__channel-header-title {
-    font: var(--str-chat__headline-text);
-    color: var(--str-chat__text-color);
+  .str-chat__channel-header__data__title {
+    font: var(--str-chat__heading-sm-text);
   }
 
-  .str-chat__channel-header-subtitle {
-    font: var(--str-chat__body-text);
-    color: var(--str-chat__text-low-emphasis-color);
-  }
-
-  .str-chat__channel-header-info {
-    font: var(--str-chat__body-text);
-    color: var(--str-chat__text-low-emphasis-color);
-  }
-
-  .str-chat__avatar--channel-header {
-    flex-shrink: 0;
-    margin-inline-start: auto;
+  .str-chat__channel-header__data__subtitle {
+    font: var(--str-chat__caption-default-text);
+    color: var(--str-chat__channel-header__data__subtitle-color);
   }
 
   &.str-chat__channel-header--sidebar-collapsed {
