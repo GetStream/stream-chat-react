@@ -1,6 +1,6 @@
 ---
 name: ralph-protocol
-description: Collaboration protocol for Ralph loop (Plan → Act → Reflect → Refine). Use when working from goal.md, plan.md, state.json, decisions.md; when executing tasks in a shared plan; or when the user mentions Ralph, multi-agent, or file-based collaboration.
+description: Collaboration protocol for Ralph loop (Plan → Act → Reflect → Refine). Use when working from spec.md, plan.md, state.json, decisions.md; when executing tasks in a shared plan; or when the user mentions Ralph, multi-agent, or file-based collaboration.
 ---
 
 # Ralph Protocol (Agent Collaboration)
@@ -11,14 +11,14 @@ Files are the source of truth. All agents share memory via files. No silent deci
 
 | File             | Purpose                                                                                                                                                                                   |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **goal.md**      | What we achieve; success criteria; constraints; non-goals. Read first. Only change if goal actually changes. No implementation details.                                                   |
+| **spec.md**      | What we achieve; success criteria; constraints; non-goals. Read first. Only change if scope or constraints actually change. No implementation details.                                      |
 | **plan.md**      | How we achieve it. Ordered tasks, ownership, dependencies, status (`pending \| in-progress \| done \| blocked`). Propose changes before big deviations; don't rewrite completed sections. |
 | **state.json**   | Current memory. Task statuses, flags (`blocked`, `needs-review`, etc.). Update immediately after acting. Read before assuming anything.                                                   |
 | **decisions.md** | Log of non-trivial decisions (what + why). Append only; never delete. Prevents reopening or contradicting past choices.                                                                   |
 
 ## Workflow
 
-**Before acting:** Read goal.md → plan.md → state.json → decisions.md.
+**Before acting:** Read spec.md → plan.md → state.json → decisions.md.
 
 **During:** Follow the plan; no overlapping work unless coordinated; no undocumented decisions.
 
@@ -42,6 +42,6 @@ When acceptance criteria involve UI: use Playwright (MCP or project config). Tak
 
 ## Loop reminder
 
-Each iteration: Plan (update plan.md if needed) → Act (scoped work) → Reflect (learnings) → Refine (plan or decisions).
+Each iteration: Plan (update plan.md if needed) → Act (scoped work) → Reflect (learnings) → Refine (plan or decision log).
 
 For decision log format and state.json example, see [reference.md](reference.md). Plan structure and worktrees: use make-plans and worktrees skills.

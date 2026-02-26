@@ -1,0 +1,20 @@
+{
+  "tasks": {
+    "task-1-core-types-and-controller-engine": "done",
+    "task-2-resolver-registry-and-built-in-strategies": "done",
+    "task-3-chatview-integration-context-and-props": "pending",
+    "task-4-header-toggle-wiring-for-entity-list-pane": "pending",
+    "task-5-built-in-two-step-dx-layout-api": "pending",
+    "task-6-tests-for-controller-resolvers-and-integration": "pending",
+    "task-7-docs-and-spec-alignment": "pending"
+  },
+  "flags": {
+    "blocked": false,
+    "needs-review": false
+  },
+  "meta": {
+    "last_updated": "2026-02-26",
+    "worktree": "../stream-chat-react-worktrees/chatview-layout-controller",
+    "branch": "feat/chatview-layout-controller"
+  }
+}
