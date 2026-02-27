@@ -15,13 +15,17 @@ export const firstFree: SlotResolver = ({ state }) =>
 export const existingThreadSlotForThread: SlotResolver = ({ entity, state }) => {
   if (entity.kind !== 'thread') return null;
 
-  return state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null;
+  return (
+    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+  );
 };
 
 export const existingThreadSlotForChannel: SlotResolver = ({ entity, state }) => {
   if (entity.kind !== 'channel') return null;
 
-  return state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null;
+  return (
+    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+  );
 };
 
 export const earliestOccupied: SlotResolver = ({ state }) => {

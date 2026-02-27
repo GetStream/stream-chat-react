@@ -1,6 +1,6 @@
 import type {
-  Channel as StreamChannel,
   StateStore,
+  Channel as StreamChannel,
   Thread as StreamThread,
 } from 'stream-chat';
 

@@ -27,7 +27,11 @@ export type ChannelHeaderProps = {
   title?: string;
 };
 
-const entityListPaneOpenSelector = ({ entityListPaneOpen }: { entityListPaneOpen: boolean }) => ({
+const entityListPaneOpenSelector = ({
+  entityListPaneOpen,
+}: {
+  entityListPaneOpen: boolean;
+}) => ({
   entityListPaneOpen,
 });
 

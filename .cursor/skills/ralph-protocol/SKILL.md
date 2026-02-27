@@ -11,7 +11,7 @@ Files are the source of truth. All agents share memory via files. No silent deci
 
 | File             | Purpose                                                                                                                                                                                   |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **spec.md**      | What we achieve; success criteria; constraints; non-goals. Read first. Only change if scope or constraints actually change. No implementation details.                                      |
+| **spec.md**      | What we achieve; success criteria; constraints; non-goals. Read first. Only change if scope or constraints actually change. No implementation details.                                    |
 | **plan.md**      | How we achieve it. Ordered tasks, ownership, dependencies, status (`pending \| in-progress \| done \| blocked`). Propose changes before big deviations; don't rewrite completed sections. |
 | **state.json**   | Current memory. Task statuses, flags (`blocked`, `needs-review`, etc.). Update immediately after acting. Read before assuming anything.                                                   |
 | **decisions.md** | Log of non-trivial decisions (what + why). Append only; never delete. Prevents reopening or contradicting past choices.                                                                   |

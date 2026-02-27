@@ -116,9 +116,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 3
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -128,8 +128,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Integrator can render multi-slot workspace in two steps (`ChatView` + `slotRenderers`).
-- [ ] Existing custom-layout usage still works.
+- [x] Integrator can render multi-slot workspace in two steps (`ChatView` + `slotRenderers`).
+- [x] Existing custom-layout usage still works.
 
 ## Task 6: Tests for Controller, Resolvers, and Integration
 
@@ -178,32 +178,38 @@ Primary spec for this plan:
 ## Execution order
 
 Phase 1 (Parallel):
+
 - Task 1: Core Types and Controller Engine
 
 Phase 2 (After Task 1):
+
 - Task 2: Resolver Registry and Built-in Strategies
 
 Phase 3 (After Tasks 1, 2):
+
 - Task 3: ChatView Integration (Context and Props)
 
 Phase 4 (After Task 3):
+
 - Task 4: Header Toggle Wiring for Entity List Pane
 - Task 5: Built-in Two-Step DX Layout API
 
 Phase 5 (After Tasks 2, 3, 4, 5):
+
 - Task 6: Tests for Controller, Resolvers, and Integration
 
 Phase 6 (After Tasks 5, 6):
+
 - Task 7: Docs and Spec Alignment
 
 ## File Ownership Summary
 
-| Task | Creates/Modifies |
-| ---- | ---------------- |
-| 1    | `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/layoutController/layoutControllerTypes.ts` |
-| 2    | `layoutSlotResolvers.ts` |
-| 3    | `ChatView.tsx`, `index.tsx` |
-| 4    | `ChannelHeader.tsx` |
-| 5    | `ChatView.tsx`, `layout/WorkspaceLayout.tsx` |
+| Task | Creates/Modifies                                                                                                                       |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/layoutController/layoutControllerTypes.ts`    |
+| 2    | `layoutSlotResolvers.ts`                                                                                                               |
+| 3    | `ChatView.tsx`, `index.tsx`                                                                                                            |
+| 4    | `ChannelHeader.tsx`                                                                                                                    |
+| 5    | `ChatView.tsx`, `layout/WorkspaceLayout.tsx`                                                                                           |
 | 6    | `ChatView/__tests__/layoutController.test.ts`, `ChatView/__tests__/ChatView.test.tsx`, `ChannelHeader/__tests__/ChannelHeader.test.js` |
-| 7    | `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md` |
+| 7    | `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`                     |

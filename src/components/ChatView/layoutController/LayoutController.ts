@@ -87,7 +87,10 @@ const upsertSlotBinding = (
   };
 };
 
-const clearSlotBinding = (current: ChatViewLayoutState, slot: LayoutSlot): ChatViewLayoutState => {
+const clearSlotBinding = (
+  current: ChatViewLayoutState,
+  slot: LayoutSlot,
+): ChatViewLayoutState => {
   if (!current.slotBindings[slot] && !current.slotMeta[slot]) return current;
 
   const nextSlotBindings = { ...current.slotBindings };
@@ -187,7 +190,12 @@ export const createLayoutController = (
 
   const open: LayoutController['open'] = (entity, openOptions) => {
     const current = state.getLatestValue();
-    const targetSlot = resolveOpenTargetSlot(current, entity, openOptions, resolveTargetSlot);
+    const targetSlot = resolveOpenTargetSlot(
+      current,
+      entity,
+      openOptions,
+      resolveTargetSlot,
+    );
 
     if (!targetSlot) {
       return {

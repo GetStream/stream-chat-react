@@ -245,7 +245,8 @@ const resolveTargetSlotChannelDefault = ({
   if (requestedSlot) return requestedSlot;
 
   const freeSlot = state.visibleSlots.find((slot) => !state.slotBindings[slot]);
-  const fallback = activeSlot ?? state.visibleSlots[state.visibleSlots.length - 1] ?? null;
+  const fallback =
+    activeSlot ?? state.visibleSlots[state.visibleSlots.length - 1] ?? null;
   const threadOccupiedSlot = state.visibleSlots.find(
     (slot) => state.slotBindings[slot]?.kind === 'thread',
   );
@@ -283,12 +284,16 @@ const firstFree: SlotResolver = ({ state }) =>
 
 const existingThreadSlotForThread: SlotResolver = ({ state, entity }) => {
   if (entity.kind !== 'thread') return null;
-  return state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null;
+  return (
+    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+  );
 };
 
 const existingThreadSlotForChannel: SlotResolver = ({ state, entity }) => {
   if (entity.kind !== 'channel') return null;
-  return state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null;
+  return (
+    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+  );
 };
 
 const activeOrLast: SlotResolver = ({ state, activeSlot }) =>
@@ -399,7 +404,10 @@ Example (advanced mode): render `DynamicSlotsLayout` as `ChatView` children.
 
 ```tsx
 const ChatShell = () => (
-  <ChatView maxSlots={3} resolveTargetSlot={layoutSlotResolvers.resolveTargetSlotChannelDefault}>
+  <ChatView
+    maxSlots={3}
+    resolveTargetSlot={layoutSlotResolvers.resolveTargetSlotChannelDefault}
+  >
     <div className='app-shell'>
       <NavRail />
       <EntityListPane />
@@ -479,9 +487,7 @@ Example:
 <ChatView
   maxSlots={3}
   duplicateEntityPolicy='move'
-  resolveDuplicateEntity={({ entity }) =>
-    entity.kind === 'thread' ? 'move' : 'reject'
-  }
+  resolveDuplicateEntity={({ entity }) => (entity.kind === 'thread' ? 'move' : 'reject')}
 />
 ```
 
@@ -490,7 +496,13 @@ const identity = entity.key;
 const existing = identity ? findSlotByKey(identity) : undefined;
 const policy =
   existing && resolveDuplicateEntity
-    ? resolveDuplicateEntity({ state, entity, existingSlot: existing, requestedSlot, activeSlot })
+    ? resolveDuplicateEntity({
+        state,
+        entity,
+        existingSlot: existing,
+        requestedSlot,
+        activeSlot,
+      })
     : duplicateEntityPolicy;
 if (policy === 'move' && existing) clear(existing);
 if (policy === 'reject' && existing) return existing;
@@ -641,15 +653,31 @@ Example snapshot:
 ### 2) Multiple channels side-by-side
 
 ```ts
-layoutController.bind('slot1', { kind: 'channel', source: channelGeneral, key: channelGeneral.cid });
-layoutController.bind('slot2', { kind: 'channel', source: channelSupport, key: channelSupport.cid });
-layoutController.bind('slot3', { kind: 'channel', source: channelRandom, key: channelRandom.cid });
+layoutController.bind('slot1', {
+  kind: 'channel',
+  source: channelGeneral,
+  key: channelGeneral.cid,
+});
+layoutController.bind('slot2', {
+  kind: 'channel',
+  source: channelSupport,
+  key: channelSupport.cid,
+});
+layoutController.bind('slot3', {
+  kind: 'channel',
+  source: channelRandom,
+  key: channelRandom.cid,
+});
 ```
 
 ### 3) Mixed layout: channel + thread + pinned list
 
 ```ts
-layoutController.bind('slot1', { kind: 'channel', source: channelGeneral, key: channelGeneral.cid });
+layoutController.bind('slot1', {
+  kind: 'channel',
+  source: channelGeneral,
+  key: channelGeneral.cid,
+});
 layoutController.bind('slot2', { kind: 'thread', source: thread101, key: thread101.id });
 layoutController.bind('slot3', {
   kind: 'pinnedMessagesList',
@@ -664,9 +692,7 @@ layoutController.bind('slot3', {
 const ChannelListItem = ({ channel }: { channel: StreamChannel }) => {
   const { layoutController } = useChatViewContext();
   return (
-    <button onClick={() => layoutController.openChannel(channel)}>
-      Open channel
-    </button>
+    <button onClick={() => layoutController.openChannel(channel)}>Open channel</button>
   );
 };
 ```
@@ -676,11 +702,7 @@ const ChannelListItem = ({ channel }: { channel: StreamChannel }) => {
 ```tsx
 const ThreadListItem = ({ thread }: { thread: StreamThread }) => {
   const { layoutController } = useChatViewContext();
-  return (
-    <button onClick={() => layoutController.openThread(thread)}>
-      Open thread
-    </button>
-  );
+  return <button onClick={() => layoutController.openThread(thread)}>Open thread</button>;
 };
 ```
 
@@ -743,10 +765,9 @@ Example:
 ```ts
 // persist
 const serialized = Object.fromEntries(
-  Object.entries(layoutController.state.getLatestValue().slotBindings).map(([slot, entity]) => [
-    slot,
-    entity ? { key: entity.key, kind: entity.kind } : null,
-  ]),
+  Object.entries(layoutController.state.getLatestValue().slotBindings).map(
+    ([slot, entity]) => [slot, entity ? { key: entity.key, kind: entity.kind } : null],
+  ),
 );
 
 // restore

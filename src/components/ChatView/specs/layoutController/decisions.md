@@ -119,3 +119,29 @@ This aligns header behavior with the new ChatView layout-controller source of tr
 
 **Tradeoffs / Consequences:**  
 When `ChannelHeader` is rendered outside a ChatView provider, it falls back to the default ChatView context controller state rather than `openMobileNav`; follow-up integration tests in Task 6 should validate expected host usage patterns.
+
+## Decision: Add opt-in built-in ChatView workspace layout with kind-based slot renderers
+
+**Date:** 2026-02-26  
+**Context:**  
+Task 5 requires a two-step DX path so integrators can render a nav-rail/entity-list/workspace shell without building custom `DynamicSlotsLayout` and `SlotOutlet` components.
+
+**Decision:**  
+Extend `ChatView` with optional `layout='nav-rail-entity-list-workspace'` and `slotRenderers` props. In this mode, `ChatView` renders:
+
+- nav rail (`ChatViewSelector`)
+- entity list pane (`ChannelList` when `activeView='channels'`, `ThreadList` when `activeView='threads'`) controlled by `entityListPaneOpen`
+- workspace slots from `visibleSlots`, where each bound entity is rendered by `slotRenderers[entity.kind]`.
+
+The layout container is implemented in `src/components/ChatView/layout/WorkspaceLayout.tsx`, while existing custom-children behavior remains the default when `layout` is not provided.
+
+**Reasoning:**  
+This provides the requested low-friction two-step integration while preserving the advanced/custom layout escape hatch and existing usage patterns.
+
+**Alternatives considered:**
+
+- Replace current `children` composition model entirely — rejected because it would break advanced/custom integrations.
+- Hardcode slot rendering for built-in entity kinds — rejected because it would reduce extensibility and conflict with the spec’s renderer-by-kind design.
+
+**Tradeoffs / Consequences:**  
+Built-in mode uses default `ChannelList`/`ThreadList` props; deeper pane customization remains available through custom layout mode until dedicated built-in pane configuration is introduced.
