@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { LegacyThreadContext } from './LegacyThreadContext';
@@ -7,6 +7,7 @@ import type { MessageInputProps } from '../MessageInput';
 import { MessageInput, MessageInputFlat } from '../MessageInput';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
@@ -103,7 +104,13 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     replies,
   } = useStateStore(threadInstance?.state, selector) ?? {};
 
-  const closeThread = () => threadInstance?.deactivate();
+  const { closeThread: closeThreadFromNavigation } = useChatViewNavigation();
+
+  const closeThread = useCallback(() => {
+    closeThreadFromNavigation();
+    // Keep legacy behavior when Thread is used outside ChatView navigation flow.
+    threadInstance?.deactivate();
+  }, [closeThreadFromNavigation, threadInstance]);
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;

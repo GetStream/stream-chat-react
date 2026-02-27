@@ -395,3 +395,48 @@ This gives consumers a domain-focused API without forcing direct `LayoutControll
 
 **Tradeoffs / Consequences:**  
 Some pre-existing high-level helpers on `LayoutController` remain available for compatibility, but the recommended consumer path is now `useChatViewNavigation()`.
+
+## Decision: Re-scope remaining roadmap by inserting Thread adaptation as Task 14 and renumbering tests to Task 15
+
+**Date:** 2026-02-27  
+**Context:**  
+After Task 13 completion, remaining work was a broad test task. New priority requires adapting `Thread.tsx` to the layout-controller API before final test stabilization.
+
+**Decision:**  
+Update collaboration artifacts to:
+
+- add new **Task 14**: `Thread.tsx` layout-controller adaptation,
+- move existing tests task to **Task 15** and add dependency on Task 14,
+- update execution phases and file-ownership summary accordingly,
+- update `state.json` task keys and `spec.md` remaining-work notes to match new sequencing.
+
+**Reasoning:**  
+Thread behavior must align with layout-controller navigation semantics first; test stabilization should run after this integration change to avoid churn.
+
+**Alternatives considered:**
+
+- Keep tests as Task 14 and fold Thread adaptation into tests task — rejected because it mixes implementation and verification scopes.
+- Insert Thread adaptation later without renumbering — rejected because user explicitly requested new Task 14 and renumbered tests Task 15.
+
+**Tradeoffs / Consequences:**  
+Any automation or scripts referencing old `task-14-tests-*` key should be updated to the new `task-15-tests-*` key.
+
+## Decision: Route Thread close/back action through ChatView navigation API with safe legacy fallback
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 14 requires adapting `src/components/Thread/Thread.tsx` to layout-controller-based navigation without changing Thread UI behavior or breaking non-ChatView usage.
+
+**Decision:**  
+Update `Thread.tsx` to use `useChatViewNavigation()` and route the close handler through `closeThread()` first, then call `threadInstance.deactivate()` as a compatibility fallback.
+
+**Reasoning:**  
+`closeThread()` enables slot-aware navigation semantics (including controller back-stack behavior) when Thread is rendered inside ChatView navigation context, while the explicit `deactivate()` keeps legacy behavior intact for non-ChatView contexts.
+
+**Alternatives considered:**
+
+- Replace `deactivate()` entirely with `closeThread()` — rejected because default/no-provider navigation path can be a no-op outside ChatView.
+- Keep `deactivate()` only — rejected because it bypasses new layout-controller navigation orchestration.
+
+**Tradeoffs / Consequences:**  
+In ChatView contexts, both calls run in sequence; this favors compatibility but may be simplified later once all Thread usage is guaranteed to be navigation-context backed.

@@ -301,11 +301,35 @@ Primary spec for this plan:
 - [x] Consumer DX path uses `useChatViewNavigation()` without direct low-level controller usage.
 - [x] Existing advanced integrations can still use low-level controller methods (`open`, `bind`, `clear`, etc.).
 
-## Task 14: Tests for Slot Stack, Unified Slots, and Navigation DX
+## Task 14: Thread Component Layout-Controller Adaptation
+
+**File(s) to create/modify:** `src/components/Thread/Thread.tsx`
+
+**Dependencies:** Task 13
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Route `Thread.tsx` interaction handlers through `useChatViewNavigation()` (or equivalent ChatView layout API path) instead of legacy thread-only close assumptions.
+- On close/back actions, use slot-aware transitions (`closeThread` + controller back-stack behavior) so one-slot mobile flow is deterministic.
+- Keep existing Thread component rendering/UI behavior unchanged; adjust only action wiring and navigation interaction points.
+- Preserve safe compatibility when Thread is rendered outside ChatView (no hard failure on missing layout navigation context).
+
+**Acceptance Criteria:**
+
+- [x] `Thread.tsx` uses ChatView layout-controller/navigation APIs for thread close/back transitions.
+- [x] Thread close/back behavior follows slot-aware controller semantics in one-slot flow.
+- [x] Thread UI rendering behavior is unchanged from current behavior.
+- [x] Rendering Thread outside ChatView remains safe (no runtime crash/regression).
+
+## Task 15: Tests for Slot Stack, Unified Slots, and Navigation DX
 
 **File(s) to create/modify:** `src/components/ChatView/__tests__/layoutController.test.ts`, `src/components/ChatView/__tests__/ChatView.test.tsx`, `src/components/ChannelHeader/__tests__/ChannelHeader.test.js`, `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx` (new)
 
-**Dependencies:** Task 8, Task 9, Task 10, Task 11, Task 12, Task 13
+**Dependencies:** Task 8, Task 9, Task 10, Task 11, Task 12, Task 13, Task 14
 
 **Status:** pending
 
@@ -369,9 +393,13 @@ Phase 10 (After Task 12):
 
 - Task 13: High-Level Navigation Hook and Context Split
 
-Phase 11 (After Tasks 8-13):
+Phase 11 (After Task 13):
 
-- Task 14: Tests for Slot Stack, Unified Slots, and Navigation DX
+- Task 14: Thread Component Layout-Controller Adaptation
+
+Phase 12 (After Tasks 8-14):
+
+- Task 15: Tests for Slot Stack, Unified Slots, and Navigation DX
 
 ## File Ownership Summary
 
@@ -390,4 +418,5 @@ Phase 11 (After Tasks 8-13):
 | 11   | `layout/Slot.tsx`, `ChatView/styling/*`, `layout/WorkspaceLayout.tsx`                                                                                                                    |
 | 12   | `layoutController/LayoutController.ts`, `layoutController/layoutControllerTypes.ts`, `layoutController/serialization.ts`                                                                 |
 | 13   | `ChatView.tsx`, `ChatViewNavigationContext.tsx`, `index.tsx`, `ChannelHeader.tsx`                                                                                                        |
-| 14   | `ChatView/__tests__/layoutController.test.ts`, `ChatView/__tests__/ChatView.test.tsx`, `ChannelHeader/__tests__/ChannelHeader.test.js`, `ChatView/__tests__/ChatViewNavigation.test.tsx` |
+| 14   | `src/components/Thread/Thread.tsx`                                                                                                                                                       |
+| 15   | `ChatView/__tests__/layoutController.test.ts`, `ChatView/__tests__/ChatView.test.tsx`, `ChannelHeader/__tests__/ChannelHeader.test.js`, `ChatView/__tests__/ChatViewNavigation.test.tsx` |

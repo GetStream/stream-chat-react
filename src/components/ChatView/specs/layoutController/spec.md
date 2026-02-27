@@ -199,10 +199,17 @@ layoutController.bind('slot1', {
 />
 ```
 
-## Non-goals in this iteration
+## Remaining Follow-up Work
 
 The following are not yet implemented and remain future work:
 
-- mount-preserving hide/unhide slot primitive
-- `openView` and serializer/restore APIs
-- separate `useChatViewNavigation()` high-level hook
+- Full regression/navigation test sweep for slot stack, unified slots, and ChatView navigation DX
+
+## Thread.tsx Adaptation Plan
+
+`src/components/Thread/Thread.tsx` should adopt the ChatView layout API with the following changes:
+
+1. Use `useChatViewNavigation()` for thread-level navigation actions (open/close/back) instead of local-only thread-close assumptions.
+2. On close/back actions, prefer slot-aware transitions (`closeThread`/controller back stack behavior) so one-slot mobile flow is deterministic.
+3. Keep existing Thread UI/render behavior unchanged; only route interaction handlers through the navigation/layout API.
+4. Preserve compatibility when Thread renders outside ChatView (fallback behavior should remain safe/no-op where layout context is absent).

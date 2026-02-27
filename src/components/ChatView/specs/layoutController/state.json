@@ -13,7 +13,8 @@
     "task-11-generic-slot-component-with-mount-preserving-hide-unhide": "done",
     "task-12-deep-linking-serialization-and-openview": "done",
     "task-13-high-level-navigation-hook-and-context-split": "done",
-    "task-14-tests-for-slot-stack-unified-slots-and-navigation-dx": "pending"
+    "task-14-thread-component-layout-controller-adaptation": "done",
+    "task-15-tests-for-slot-stack-unified-slots-and-navigation-dx": "pending"
   },
   "flags": {
     "blocked": false,
