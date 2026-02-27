@@ -160,9 +160,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 5, Task 6
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -172,8 +172,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Spec reflects implemented API exactly.
-- [ ] Examples compile logically against final exported types.
+- [x] Spec reflects implemented API exactly.
+- [x] Examples compile logically against final exported types.
 
 ## Task 8: Slot Parent Stack and Back Navigation
 
@@ -181,9 +181,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 3
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -193,8 +193,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] One-slot flow `channelList -> channel -> thread` can pop back deterministically.
-- [ ] Header icon/action switches between back and list-toggle semantics using slot history.
+- [x] One-slot flow `channelList -> channel -> thread` can pop back deterministically.
+- [x] Header icon/action switches between back and list-toggle semantics using slot history.
 
 ## Task 9: Unify ChannelList into Slot Model
 

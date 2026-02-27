@@ -30,6 +30,7 @@ export type ChatViewLayoutState = {
   entityListPaneOpen: boolean;
   mode: LayoutMode;
   slotBindings: Record<LayoutSlot, LayoutEntityBinding | undefined>;
+  slotHistory?: Record<LayoutSlot, LayoutEntityBinding[] | undefined>;
   slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
   visibleSlots: LayoutSlot[];
 };
@@ -67,6 +68,10 @@ export type OpenOptions = {
   targetSlot?: LayoutSlot;
 };
 
+export type CloseOptions = {
+  restoreFromHistory?: boolean;
+};
+
 export type CreateLayoutControllerOptions = {
   duplicateEntityPolicy?: DuplicateEntityPolicy;
   initialState?: Partial<ChatViewLayoutState>;
@@ -78,12 +83,15 @@ export type CreateLayoutControllerOptions = {
 export type LayoutController = {
   bind: (slot: LayoutSlot, entity?: LayoutEntityBinding) => void;
   clear: (slot: LayoutSlot) => void;
+  close: (slot: LayoutSlot, options?: CloseOptions) => void;
   open: (entity: LayoutEntityBinding, options?: OpenOptions) => OpenResult;
   openChannel: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
   openMemberList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
   openPinnedMessagesList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
   openThread: (thread: StreamThread, options?: OpenOptions) => OpenResult;
   openUserList: (source: UserListEntitySource, options?: OpenOptions) => OpenResult;
+  popParent: (slot: LayoutSlot) => LayoutEntityBinding | undefined;
+  pushParent: (slot: LayoutSlot, entity: LayoutEntityBinding) => void;
   setActiveView: (next: ChatView) => void;
   setEntityListPaneOpen: (next: boolean) => void;
   setMode: (next: LayoutMode) => void;

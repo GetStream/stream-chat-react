@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IconLayoutAlignLeft } from '../Icons/icons';
+import { IconChevronLeft, IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChatViewContext } from '../ChatView';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
@@ -9,6 +9,7 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import type { ChannelAvatarProps } from '../Avatar';
+import type { ChatViewLayoutState } from '../ChatView/layoutController/layoutControllerTypes';
 import { Button } from '../Button';
 import clsx from 'clsx';
 
@@ -27,12 +28,14 @@ export type ChannelHeaderProps = {
   title?: string;
 };
 
-const entityListPaneOpenSelector = ({
+const channelHeaderLayoutSelector = ({
+  activeSlot,
   entityListPaneOpen,
-}: {
-  entityListPaneOpen: boolean;
-}) => ({
+  slotHistory,
+}: ChatViewLayoutState) => ({
+  activeSlot,
   entityListPaneOpen,
+  slotHistory,
 });
 
 /**
@@ -57,11 +60,23 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const { entityListPaneOpen } =
-    useStateStore(layoutController.state, entityListPaneOpenSelector) ??
-    entityListPaneOpenSelector(layoutController.state.getLatestValue());
+  const { activeSlot, entityListPaneOpen, slotHistory } =
+    useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
+    channelHeaderLayoutSelector(layoutController.state.getLatestValue());
+  const hasParentHistory = !!(activeSlot && slotHistory?.[activeSlot]?.length);
   const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;
   const handleSidebarToggle = onSidebarToggle ?? layoutController.toggleEntityListPane;
+  const handleHeaderAction = hasParentHistory
+    ? () => {
+        if (!activeSlot) return;
+        layoutController.close(activeSlot);
+      }
+    : handleSidebarToggle;
+  const actionAriaLabel = hasParentHistory
+    ? t('aria/Go back')
+    : sidebarCollapsed
+      ? t('aria/Expand sidebar')
+      : t('aria/Menu');
 
   return (
     <div
@@ -71,14 +86,14 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     >
       <Button
         appearance='ghost'
-        aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}
+        aria-label={actionAriaLabel}
         circular
         className='str-chat__header-sidebar-toggle'
-        onClick={handleSidebarToggle}
+        onClick={handleHeaderAction}
         size='md'
         variant='secondary'
       >
-        {sidebarCollapsed && <MenuIcon />}
+        {hasParentHistory ? <IconChevronLeft /> : sidebarCollapsed && <MenuIcon />}
       </Button>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>

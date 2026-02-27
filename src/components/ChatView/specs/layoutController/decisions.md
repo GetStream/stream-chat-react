@@ -196,3 +196,50 @@ This directly maps to Task 6 acceptance criteria while keeping tests in module-l
 
 **Tradeoffs / Consequences:**  
 In this local environment, executing Jest is blocked by missing runtime dependency (`@babel/runtime/helpers/interopRequireDefault`) from linked `stream-chat-js`; typecheck passes, and full Jest verification should be rerun once dependency linkage is fixed.
+
+## Decision: Align spec with currently implemented Task 1-6 API surface
+
+**Date:** 2026-02-27  
+**Context:**  
+`spec.md` had drifted toward planned future tasks (`openView`, slot history, unified `channelList` slot entity, and `useChatViewNavigation`) that are not implemented yet. Task 7 requires spec-to-code alignment and migration guidance based on current exports.
+
+**Decision:**  
+Rewrite `spec.md` as an implementation snapshot for completed tasks only:
+
+- document current `LayoutController` contract (`bind`, `clear`, `open`, domain open helpers, `setActiveView`, `setMode`, `setEntityListPaneOpen`, `toggleEntityListPane`),
+- document current state shape (`entityListPaneOpen`, `slotBindings`, `slotMeta`, `visibleSlots`),
+- document current resolver registry and default chain,
+- document built-in ChatView layout mode (`layout='nav-rail-entity-list-workspace'` + `slotRenderers`),
+- add migration notes and low-level vs high-level usage examples,
+- explicitly list deferred/future APIs as non-goals for this iteration.
+
+**Reasoning:**  
+Keeping the spec strictly aligned with shipped code avoids false integration assumptions while still preserving roadmap context.
+
+**Alternatives considered:**
+
+- Keep future API proposals inline as if implemented — rejected because it contradicts Task 7 acceptance criteria.
+- Remove future references entirely — rejected because briefly flagging non-goals clarifies why some planned items are still pending.
+
+**Tradeoffs / Consequences:**  
+Spec consumers now get accurate implementation guidance, while future tasks (8+) remain documented as pending in `plan.md`.
+
+## Decision: Add per-slot parent history and header back-priority behavior in Task 8
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 8 requires deterministic back navigation inside a slot and header behavior that prefers back when slot history exists.
+
+**Decision:**  
+Extend layout controller state with per-slot `slotHistory`, add low-level commands `pushParent`, `popParent`, and `close`, and make `open(...)` push replaced entities onto slot history before rebinding. Update `ChannelHeader` so the leading action uses `close(activeSlot)` (with back icon/label) whenever the active slot has parent history; otherwise it keeps existing list-toggle behavior (`onSidebarToggle` override first, then `toggleEntityListPane`).
+
+**Reasoning:**  
+Controller-managed history keeps navigation deterministic and domain-agnostic, while header logic can remain presentation-first and state-driven.
+
+**Alternatives considered:**
+
+- Track history only in ChannelHeader local/UI state — rejected because navigation state must survive outside header lifecycles.
+- Add back logic only for threads in header — rejected because Task 8 requires generic per-slot stack behavior.
+
+**Tradeoffs / Consequences:**  
+`slotHistory` is optional at the type level for compatibility with existing typed state fixtures, but initialized and maintained by controller internals. Additional slot-model unification (`channelList` as slot entity) is deferred to Task 9.

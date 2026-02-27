@@ -18,6 +18,7 @@ const DEFAULT_LAYOUT_STATE: ChatViewLayoutState = {
   entityListPaneOpen: true,
   mode: 'default',
   slotBindings: {},
+  slotHistory: {},
   slotMeta: {},
   visibleSlots: [],
 };
@@ -50,12 +51,70 @@ const buildInitialState = (
     ...DEFAULT_LAYOUT_STATE.slotBindings,
     ...(partialState?.slotBindings ?? {}),
   },
+  slotHistory: {
+    ...DEFAULT_LAYOUT_STATE.slotHistory,
+    ...(partialState?.slotHistory ?? {}),
+  },
   slotMeta: {
     ...DEFAULT_LAYOUT_STATE.slotMeta,
     ...(partialState?.slotMeta ?? {}),
   },
   visibleSlots: partialState?.visibleSlots ?? DEFAULT_LAYOUT_STATE.visibleSlots,
 });
+
+const isSameEntityBinding = (
+  first: LayoutEntityBinding,
+  second: LayoutEntityBinding,
+): boolean => {
+  const firstKey = resolveEntityKey(first);
+  const secondKey = resolveEntityKey(second);
+
+  if (firstKey && secondKey) return firstKey === secondKey;
+
+  return first === second;
+};
+
+const pushSlotHistory = (
+  current: ChatViewLayoutState,
+  slot: LayoutSlot,
+  entity: LayoutEntityBinding,
+): ChatViewLayoutState => {
+  const slotHistory = current.slotHistory?.[slot] ?? [];
+
+  return {
+    ...current,
+    slotHistory: {
+      ...(current.slotHistory ?? {}),
+      [slot]: [...slotHistory, entity],
+    },
+  };
+};
+
+const popSlotHistory = (
+  current: ChatViewLayoutState,
+  slot: LayoutSlot,
+): { popped?: LayoutEntityBinding; state: ChatViewLayoutState } => {
+  const slotHistory = current.slotHistory?.[slot];
+  if (!slotHistory?.length) return { state: current };
+
+  const popped = slotHistory[slotHistory.length - 1];
+  const nextSlotHistory = { ...(current.slotHistory ?? {}) };
+  const remainingHistory = slotHistory.slice(0, -1);
+
+  if (remainingHistory.length) {
+    nextSlotHistory[slot] = remainingHistory;
+  } else {
+    delete nextSlotHistory[slot];
+  }
+
+  return {
+    popped,
+    state: {
+      ...current,
+      slotHistory: nextSlotHistory,
+    },
+  };
+};
 
 const upsertSlotBinding = (
   current: ChatViewLayoutState,
@@ -91,7 +150,13 @@ const clearSlotBinding = (
   current: ChatViewLayoutState,
   slot: LayoutSlot,
 ): ChatViewLayoutState => {
-  if (!current.slotBindings[slot] && !current.slotMeta[slot]) return current;
+  if (
+    !current.slotBindings[slot] &&
+    !current.slotMeta[slot] &&
+    !current.slotHistory?.[slot]
+  ) {
+    return current;
+  }
 
   const nextSlotBindings = { ...current.slotBindings };
   delete nextSlotBindings[slot];
@@ -99,12 +164,16 @@ const clearSlotBinding = (
   const nextSlotMeta = { ...current.slotMeta };
   delete nextSlotMeta[slot];
 
+  const nextSlotHistory = { ...(current.slotHistory ?? {}) };
+  delete nextSlotHistory[slot];
+
   const nextActiveSlot = current.activeSlot === slot ? undefined : current.activeSlot;
 
   return {
     ...current,
     activeSlot: nextActiveSlot,
     slotBindings: nextSlotBindings,
+    slotHistory: nextSlotHistory,
     slotMeta: nextSlotMeta,
   };
 };
@@ -188,6 +257,42 @@ export const createLayoutController = (
     state.next((current) => clearSlotBinding(current, slot));
   };
 
+  const pushParent: LayoutController['pushParent'] = (slot, entity) => {
+    state.next((current) => pushSlotHistory(current, slot, entity));
+  };
+
+  const popParent: LayoutController['popParent'] = (slot) => {
+    let popped: LayoutEntityBinding | undefined;
+
+    state.next((current) => {
+      const result = popSlotHistory(current, slot);
+      popped = result.popped;
+      return result.state;
+    });
+
+    return popped;
+  };
+
+  const close: LayoutController['close'] = (slot, options) => {
+    const restoreFromHistory = options?.restoreFromHistory ?? true;
+    if (!restoreFromHistory) {
+      clear(slot);
+      return;
+    }
+
+    state.next((current) => {
+      const { popped, state: nextState } = popSlotHistory(current, slot);
+      if (!popped) return clearSlotBinding(nextState, slot);
+
+      const restored = upsertSlotBinding(nextState, slot, popped);
+
+      return {
+        ...restored,
+        activeSlot: slot,
+      };
+    });
+  };
+
   const open: LayoutController['open'] = (entity, openOptions) => {
     const current = state.getLatestValue();
     const targetSlot = resolveOpenTargetSlot(
@@ -232,7 +337,12 @@ export const createLayoutController = (
     const shouldActivateSlot = openOptions?.activate ?? true;
 
     state.next((nextState) => {
-      const next = upsertSlotBinding(nextState, targetSlot, entity);
+      const currentSlotBinding = nextState.slotBindings[targetSlot];
+      const withHistory =
+        currentSlotBinding && !isSameEntityBinding(currentSlotBinding, entity)
+          ? pushSlotHistory(nextState, targetSlot, currentSlotBinding)
+          : nextState;
+      const next = upsertSlotBinding(withHistory, targetSlot, entity);
 
       if (!shouldActivateSlot) return next;
 
@@ -312,12 +422,15 @@ export const createLayoutController = (
   return {
     bind,
     clear,
+    close,
     open,
     openChannel,
     openMemberList,
     openPinnedMessagesList,
     openThread,
     openUserList,
+    popParent,
+    pushParent,
     setActiveView,
     setEntityListPaneOpen,
     setMode,
