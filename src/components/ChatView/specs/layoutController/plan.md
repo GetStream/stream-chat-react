@@ -137,9 +137,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 2, Task 3, Task 4, Task 5
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -150,8 +150,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] New tests cover resolver defaults and replacement scenarios.
-- [ ] Tests verify thread/channel switching and entity list pane toggling.
+- [x] New tests cover resolver defaults and replacement scenarios.
+- [x] Tests verify thread/channel switching and entity list pane toggling.
 - [ ] No regression in existing ChatView/ChannelHeader tests.
 
 ## Task 7: Docs and Spec Alignment

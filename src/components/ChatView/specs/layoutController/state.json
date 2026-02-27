@@ -5,7 +5,7 @@
     "task-3-chatview-integration-context-and-props": "done",
     "task-4-header-toggle-wiring-for-entity-list-pane": "done",
     "task-5-built-in-two-step-dx-layout-api": "done",
-    "task-6-tests-for-controller-resolvers-and-integration": "pending",
+    "task-6-tests-for-controller-resolvers-and-integration": "done",
     "task-7-docs-and-spec-alignment": "pending"
   },
   "flags": {

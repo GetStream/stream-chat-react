@@ -145,3 +145,27 @@ This provides the requested low-friction two-step integration while preserving t
 
 **Tradeoffs / Consequences:**  
 Built-in mode uses default `ChannelList`/`ThreadList` props; deeper pane customization remains available through custom layout mode until dedicated built-in pane configuration is introduced.
+
+## Decision: Add Task 6 coverage across controller, resolver, ChatView integration, and ChannelHeader toggle behavior
+
+**Date:** 2026-02-26  
+**Context:**  
+Task 6 requires tests for resolver behavior, controller `open` outcomes/`occupiedAt`, thread-to-channel integration flow, and ChannelHeader entity list pane toggling.
+
+**Decision:**  
+Add:
+
+- `src/components/ChatView/__tests__/layoutController.test.ts` for controller open statuses (`opened`/`replaced`/`rejected`), `occupiedAt` lifecycle, duplicate policies (`reject`/`move`), and `resolveTargetSlotChannelDefault` replacement fallbacks.
+- `src/components/ChatView/__tests__/ChatView.test.tsx` for integration coverage of switching `activeView` from threads to channels while opening a channel, plus built-in workspace mode rendering with `slotRenderers` and custom children mode preservation.
+- new ChannelHeader tests in `src/components/ChannelHeader/__tests__/ChannelHeader.test.js` to assert default ChatView-driven entity pane toggle and `onSidebarToggle` precedence.
+
+**Reasoning:**  
+This directly maps to Task 6 acceptance criteria while keeping tests in module-local `__tests__` folders and reusing existing repository test patterns.
+
+**Alternatives considered:**
+
+- Add only controller unit tests and defer integration/header coverage — rejected because Task 6 explicitly requires both integration and toggle behavior checks.
+- Add integration tests only to story-level/e2e suites — rejected because Task 6 scope is unit/integration tests in component modules.
+
+**Tradeoffs / Consequences:**  
+In this local environment, executing Jest is blocked by missing runtime dependency (`@babel/runtime/helpers/interopRequireDefault`) from linked `stream-chat-js`; typecheck passes, and full Jest verification should be rerun once dependency linkage is fixed.
