@@ -312,3 +312,29 @@ Component-based API improves composability (hooks/context/local state in fallbac
 
 **Tradeoffs / Consequences:**  
 This is an API rename from `slotFallbackRenderer` to `SlotFallback`/`slotFallbackComponents`; consumers using the previous prop must migrate.
+
+## Decision: Implement generic Slot primitive with hidden-state class contract in WorkspaceLayout
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 11 requires mount-preserving hide/unhide semantics and a consistent slot-level CSS contract for visibility.
+
+**Decision:**  
+Add `src/components/ChatView/layout/Slot.tsx` as a generic slot wrapper and migrate `WorkspaceLayout` to render both entity-list and workspace entries through this component. `Slot` exposes:
+
+- root class `str-chat__chat-view__slot`,
+- hidden modifier class `str-chat__chat-view__slot--hidden`,
+- `hidden` prop (mapped to `aria-hidden` and CSS class) while keeping the subtree mounted.
+
+Add corresponding ChatView SCSS classes for workspace layout shell and slot visibility.
+
+**Reasoning:**  
+Centralizing slot visibility behavior in one primitive avoids duplicating hide logic and ensures a stable class contract for future hidden-slot controller state wiring.
+
+**Alternatives considered:**
+
+- Keep raw `section` tags and toggle `hidden` directly in each caller — rejected because visibility contract becomes fragmented.
+- Add explicit `--visible` modifier class — rejected as unnecessary; hidden state alone is sufficient and simpler.
+
+**Tradeoffs / Consequences:**  
+Current Task 11 implementation uses existing layout visibility inputs (`entityListHidden` / slot `hidden`) and class contract. Dedicated controller APIs for arbitrary hidden slots remain follow-up work.

@@ -244,9 +244,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 10
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -256,8 +256,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Hidden slots remain mounted (no pagination re-initialization).
-- [ ] Slot visibility is controllable via layout state and reflected in CSS class contract.
+- [x] Hidden slots remain mounted (no pagination re-initialization).
+- [x] Slot visibility is controllable via layout state and reflected in CSS class contract.
 
 ## Task 12: Deep-Linking, Serialization, and openView
 
