@@ -1,52 +1,39 @@
 import type {
   ChatViewLayoutSnapshot,
   ChatViewLayoutState,
-  DeserializeLayoutEntityBinding,
+  DeserializeLayoutSlotBinding,
   RestoreLayoutStateOptions,
-  SerializeLayoutEntityBinding,
+  SerializeLayoutSlotBinding,
   SerializeLayoutStateOptions,
 } from './layoutControllerTypes';
 import type { LayoutController } from './layoutControllerTypes';
-import type { SerializedLayoutEntityBinding } from './layoutControllerTypes';
+import type { SerializedLayoutSlotBinding } from './layoutControllerTypes';
 
-const isDefaultSerializableKind = (kind: SerializedLayoutEntityBinding['kind']) =>
-  kind === 'channelList' || kind === 'userList' || kind === 'searchResults';
+type LayoutStateSlotHistory = NonNullable<ChatViewLayoutState['slotHistory']>;
+type LayoutSnapshotSlotHistory = ChatViewLayoutSnapshot['slotHistory'];
 
-const defaultSerializeEntityBinding: SerializeLayoutEntityBinding = (entity) => {
-  if (!isDefaultSerializableKind(entity.kind)) return;
+const defaultSerializeSlotBinding: SerializeLayoutSlotBinding = (binding) => ({
+  key: binding.key,
+  payload: binding.payload,
+});
 
-  return {
-    key: entity.key,
-    kind: entity.kind,
-    source: entity.source,
-  };
-};
-
-const defaultDeserializeEntityBinding: DeserializeLayoutEntityBinding = (entity) => {
-  if (!isDefaultSerializableKind(entity.kind)) return;
-
-  return {
-    key: entity.key,
-    kind: entity.kind,
-    source: entity.source,
-  };
-};
+const defaultDeserializeSlotBinding: DeserializeLayoutSlotBinding = (binding) => binding;
 
 const serializeSlotHistory = ({
-  serializeEntityBinding,
+  serializeSlotBinding,
   slotHistory,
 }: {
-  serializeEntityBinding: SerializeLayoutEntityBinding;
+  serializeSlotBinding: SerializeLayoutSlotBinding;
   slotHistory: ChatViewLayoutState['slotHistory'];
 }) =>
-  Object.entries(slotHistory ?? {}).reduce<ChatViewLayoutSnapshot['slotHistory']>(
+  Object.entries(slotHistory ?? {}).reduce<LayoutSnapshotSlotHistory>(
     (nextHistory, [slot, entities]) => {
       if (!entities?.length) return nextHistory;
 
       const serializedEntities = entities
-        .map(serializeEntityBinding)
+        .map(serializeSlotBinding)
         .filter(
-          (entity): entity is SerializedLayoutEntityBinding => entity !== undefined,
+          (binding): binding is SerializedLayoutSlotBinding => binding !== undefined,
         );
 
       nextHistory[slot] = serializedEntities.length ? serializedEntities : undefined;
@@ -57,19 +44,21 @@ const serializeSlotHistory = ({
   );
 
 const deserializeSlotHistory = ({
-  deserializeEntityBinding,
+  deserializeSlotBinding,
   slotHistory,
 }: {
-  deserializeEntityBinding: DeserializeLayoutEntityBinding;
-  slotHistory: ChatViewLayoutSnapshot['slotHistory'];
+  deserializeSlotBinding: DeserializeLayoutSlotBinding;
+  slotHistory: LayoutSnapshotSlotHistory;
 }) =>
-  Object.entries(slotHistory).reduce<ChatViewLayoutState['slotHistory']>(
+  Object.entries(slotHistory).reduce<LayoutStateSlotHistory>(
     (nextHistory, [slot, entities]) => {
       if (!entities?.length) return nextHistory;
 
       const deserializedEntities = entities
-        .map(deserializeEntityBinding)
-        .filter((entity): entity is NonNullable<typeof entity> => entity !== undefined);
+        .map(deserializeSlotBinding)
+        .filter(
+          (binding): binding is NonNullable<typeof binding> => binding !== undefined,
+        );
 
       if (deserializedEntities.length) {
         nextHistory[slot] = deserializedEntities;
@@ -84,8 +73,10 @@ export const serializeLayoutState = (
   state: ChatViewLayoutState,
   options: SerializeLayoutStateOptions = {},
 ): ChatViewLayoutSnapshot => {
-  const serializeEntityBinding =
-    options.serializeEntityBinding ?? defaultSerializeEntityBinding;
+  const serializeSlotBinding =
+    options.serializeSlotBinding ??
+    options.serializeEntityBinding ??
+    defaultSerializeSlotBinding;
 
   const slotBindings = state.visibleSlots.reduce<ChatViewLayoutSnapshot['slotBindings']>(
     (nextBindings, slot) => {
@@ -95,7 +86,7 @@ export const serializeLayoutState = (
         return nextBindings;
       }
 
-      nextBindings[slot] = serializeEntityBinding(binding);
+      nextBindings[slot] = serializeSlotBinding(binding);
       return nextBindings;
     },
     {},
@@ -111,7 +102,7 @@ export const serializeLayoutState = (
     mode: state.mode,
     slotBindings,
     slotHistory: serializeSlotHistory({
-      serializeEntityBinding,
+      serializeSlotBinding,
       slotHistory: state.slotHistory,
     }),
     slotMeta: {
@@ -125,13 +116,15 @@ export const restoreLayoutState = (
   snapshot: ChatViewLayoutSnapshot,
   options: RestoreLayoutStateOptions = {},
 ): ChatViewLayoutState => {
-  const deserializeEntityBinding =
-    options.deserializeEntityBinding ?? defaultDeserializeEntityBinding;
+  const deserializeSlotBinding =
+    options.deserializeSlotBinding ??
+    options.deserializeEntityBinding ??
+    defaultDeserializeSlotBinding;
 
   const slotBindings = Object.entries(snapshot.slotBindings).reduce<
     ChatViewLayoutState['slotBindings']
   >((nextBindings, [slot, entity]) => {
-    nextBindings[slot] = entity ? deserializeEntityBinding(entity) : undefined;
+    nextBindings[slot] = entity ? deserializeSlotBinding(entity) : undefined;
     return nextBindings;
   }, {});
 
@@ -145,7 +138,7 @@ export const restoreLayoutState = (
     mode: snapshot.mode,
     slotBindings,
     slotHistory: deserializeSlotHistory({
-      deserializeEntityBinding,
+      deserializeSlotBinding,
       slotHistory: snapshot.slotHistory,
     }),
     slotMeta: {

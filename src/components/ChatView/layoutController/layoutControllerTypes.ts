@@ -1,8 +1,4 @@
-import type {
-  StateStore,
-  Channel as StreamChannel,
-  Thread as StreamThread,
-} from 'stream-chat';
+import type { StateStore } from 'stream-chat';
 
 import type { ChatView } from '../ChatView';
 
@@ -10,26 +6,10 @@ export type LayoutSlot = string;
 export type LayoutMode = string;
 export type LayoutView = ChatView;
 
-export type UserListEntitySource = {
-  query: string;
+export type LayoutSlotBinding = {
+  key?: string;
+  payload: unknown;
 };
-
-export type ChannelListEntitySource = {
-  view?: ChatView;
-};
-
-export type SearchResultsEntitySource = {
-  query: string;
-};
-
-export type LayoutEntityBinding =
-  | { key?: string; kind: 'channelList'; source: ChannelListEntitySource }
-  | { key?: string; kind: 'channel'; source: StreamChannel }
-  | { key?: string; kind: 'thread'; source: StreamThread }
-  | { key?: string; kind: 'memberList'; source: StreamChannel }
-  | { key?: string; kind: 'userList'; source: UserListEntitySource }
-  | { key?: string; kind: 'searchResults'; source: SearchResultsEntitySource }
-  | { key?: string; kind: 'pinnedMessagesList'; source: StreamChannel };
 
 export type LayoutSlotMeta = {
   occupiedAt?: number;
@@ -43,39 +23,43 @@ export type ChatViewLayoutState = {
   maxSlots?: number;
   minSlots?: number;
   mode: LayoutMode;
-  slotBindings: Record<LayoutSlot, LayoutEntityBinding | undefined>;
-  slotHistory?: Record<LayoutSlot, LayoutEntityBinding[] | undefined>;
+  slotBindings: Record<LayoutSlot, LayoutSlotBinding | undefined>;
+  slotHistory?: Record<LayoutSlot, LayoutSlotBinding[] | undefined>;
   slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
   visibleSlots: LayoutSlot[];
 };
 
 export type ResolveTargetSlotArgs = {
   activeSlot?: LayoutSlot;
-  entity: LayoutEntityBinding;
+  binding: LayoutSlotBinding;
   requestedSlot?: LayoutSlot;
   state: ChatViewLayoutState;
 };
 
-export type DuplicateEntityPolicy = 'allow' | 'move' | 'reject';
+export type DuplicateSlotPolicy = 'allow' | 'move' | 'reject';
+/** @deprecated Use DuplicateSlotPolicy */
+export type DuplicateEntityPolicy = DuplicateSlotPolicy;
 
-export type ResolveDuplicateEntityArgs = {
+export type ResolveDuplicateSlotArgs = {
   activeSlot?: LayoutSlot;
-  entity: LayoutEntityBinding;
+  binding: LayoutSlotBinding;
   existingSlot: LayoutSlot;
   requestedSlot?: LayoutSlot;
   state: ChatViewLayoutState;
 };
 
-export type ResolveDuplicateEntity = (
-  args: ResolveDuplicateEntityArgs,
-) => DuplicateEntityPolicy;
+export type ResolveDuplicateSlot = (
+  args: ResolveDuplicateSlotArgs,
+) => DuplicateSlotPolicy;
+/** @deprecated Use ResolveDuplicateSlot */
+export type ResolveDuplicateEntity = ResolveDuplicateSlot;
 
 export type ResolveTargetSlot = (args: ResolveTargetSlotArgs) => LayoutSlot | null;
 
 export type OpenResult =
   | { slot: LayoutSlot; status: 'opened' }
-  | { replaced: LayoutEntityBinding; slot: LayoutSlot; status: 'replaced' }
-  | { reason: 'duplicate-entity' | 'no-available-slot'; status: 'rejected' };
+  | { replaced: LayoutSlotBinding; slot: LayoutSlot; status: 'replaced' }
+  | { reason: 'duplicate-binding' | 'no-available-slot'; status: 'rejected' };
 
 export type OpenOptions = {
   activate?: boolean;
@@ -91,10 +75,9 @@ export type OpenViewOptions = {
   slot?: LayoutSlot;
 };
 
-export type SerializedLayoutEntityBinding = {
+export type SerializedLayoutSlotBinding = {
   key?: string;
-  kind: LayoutEntityBinding['kind'];
-  source: unknown;
+  payload: unknown;
 };
 
 export type ChatViewLayoutSnapshot = {
@@ -103,49 +86,56 @@ export type ChatViewLayoutSnapshot = {
   entityListPaneOpen: boolean;
   hiddenSlots: Record<LayoutSlot, boolean | undefined>;
   mode: LayoutMode;
-  slotBindings: Record<LayoutSlot, SerializedLayoutEntityBinding | undefined>;
-  slotHistory: Record<LayoutSlot, SerializedLayoutEntityBinding[] | undefined>;
+  slotBindings: Record<LayoutSlot, SerializedLayoutSlotBinding | undefined>;
+  slotHistory: Record<LayoutSlot, SerializedLayoutSlotBinding[] | undefined>;
   slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
   visibleSlots: LayoutSlot[];
 };
 
-export type SerializeLayoutEntityBinding = (
-  entity: LayoutEntityBinding,
-) => SerializedLayoutEntityBinding | undefined;
+export type SerializeLayoutSlotBinding = (
+  binding: LayoutSlotBinding,
+) => SerializedLayoutSlotBinding | undefined;
+/** @deprecated Use SerializeLayoutSlotBinding */
+export type SerializeLayoutEntityBinding = SerializeLayoutSlotBinding;
 
-export type DeserializeLayoutEntityBinding = (
-  entity: SerializedLayoutEntityBinding,
-) => LayoutEntityBinding | undefined;
+export type DeserializeLayoutSlotBinding = (
+  binding: SerializedLayoutSlotBinding,
+) => LayoutSlotBinding | undefined;
+/** @deprecated Use DeserializeLayoutSlotBinding */
+export type DeserializeLayoutEntityBinding = DeserializeLayoutSlotBinding;
 
 export type SerializeLayoutStateOptions = {
+  serializeSlotBinding?: SerializeLayoutSlotBinding;
+  /** @deprecated Use serializeSlotBinding */
   serializeEntityBinding?: SerializeLayoutEntityBinding;
 };
 
 export type RestoreLayoutStateOptions = {
+  deserializeSlotBinding?: DeserializeLayoutSlotBinding;
+  /** @deprecated Use deserializeSlotBinding */
   deserializeEntityBinding?: DeserializeLayoutEntityBinding;
 };
 
 export type CreateLayoutControllerOptions = {
+  duplicateSlotPolicy?: DuplicateSlotPolicy;
+  /** @deprecated Use duplicateSlotPolicy */
   duplicateEntityPolicy?: DuplicateEntityPolicy;
   initialState?: Partial<ChatViewLayoutState>;
+  resolveDuplicateSlot?: ResolveDuplicateSlot;
+  /** @deprecated Use resolveDuplicateSlot */
   resolveDuplicateEntity?: ResolveDuplicateEntity;
   resolveTargetSlot?: ResolveTargetSlot;
   state?: StateStore<ChatViewLayoutState>;
 };
 
 export type LayoutController = {
-  bind: (slot: LayoutSlot, entity?: LayoutEntityBinding) => void;
+  bind: (slot: LayoutSlot, binding?: LayoutSlotBinding) => void;
   clear: (slot: LayoutSlot) => void;
   close: (slot: LayoutSlot, options?: CloseOptions) => void;
-  open: (entity: LayoutEntityBinding, options?: OpenOptions) => OpenResult;
+  open: (binding: LayoutSlotBinding, options?: OpenOptions) => OpenResult;
   openView: (view: LayoutView, options?: OpenViewOptions) => void;
-  openChannel: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
-  openMemberList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
-  openPinnedMessagesList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
-  openThread: (thread: StreamThread, options?: OpenOptions) => OpenResult;
-  openUserList: (source: UserListEntitySource, options?: OpenOptions) => OpenResult;
-  popParent: (slot: LayoutSlot) => LayoutEntityBinding | undefined;
-  pushParent: (slot: LayoutSlot, entity: LayoutEntityBinding) => void;
+  popParent: (slot: LayoutSlot) => LayoutSlotBinding | undefined;
+  pushParent: (slot: LayoutSlot, binding: LayoutSlotBinding) => void;
   setActiveView: (next: ChatView) => void;
   setEntityListPaneOpen: (next: boolean) => void;
   setMode: (next: LayoutMode) => void;

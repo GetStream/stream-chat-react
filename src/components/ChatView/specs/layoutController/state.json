@@ -14,7 +14,9 @@
     "task-12-deep-linking-serialization-and-openview": "done",
     "task-13-high-level-navigation-hook-and-context-split": "done",
     "task-14-thread-component-layout-controller-adaptation": "done",
-    "task-15-tests-for-slot-stack-unified-slots-and-navigation-dx": "pending"
+    "task-15-tests-for-slot-stack-unified-slots-and-navigation-dx": "done",
+    "task-16-slot-self-visibility-from-slot-prop": "done",
+    "task-17-remove-entity-semantics-from-layoutcontroller-slot-only-controller": "done"
   },
   "flags": {
     "blocked": false,

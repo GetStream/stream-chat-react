@@ -2,7 +2,7 @@ import React from 'react';
 
 import { IconChevronLeft, IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { useChatViewContext } from '../ChatView';
+import { getChatViewEntityBinding, useChatViewContext } from '../ChatView';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
@@ -70,7 +70,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
     channelHeaderLayoutSelector(layoutController.state.getLatestValue());
   const channelListSlot = visibleSlots.find(
-    (slot) => slotBindings[slot]?.kind === 'channelList',
+    (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
   );
   const hasParentHistory = !!(activeSlot && slotHistory?.[activeSlot]?.length);
   const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;

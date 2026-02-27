@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
 import { useStateStore } from '../../store';
-import { useChatViewContext } from './ChatView';
+import {
+  createChatViewSlotBinding,
+  getChatViewEntityBinding,
+  useChatViewContext,
+} from './ChatView';
 
 import type { PropsWithChildren } from 'react';
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
-import type { ChatView } from './ChatView';
+import type { ChatView, ChatViewEntityBinding } from './ChatView';
 import type {
   ChatViewLayoutState,
-  LayoutEntityBinding,
   LayoutSlot,
   OpenResult,
 } from './layoutController/layoutControllerTypes';
@@ -54,8 +57,10 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     chatViewNavigationStateSelector(layoutController.state.getLatestValue());
 
   const value = useMemo<ChatViewNavigation>(() => {
-    const findSlotByKind = (kind: LayoutEntityBinding['kind']) =>
-      visibleSlots.find((slot) => slotBindings[slot]?.kind === kind);
+    const findSlotByKind = (kind: ChatViewEntityBinding['kind']) =>
+      visibleSlots.find(
+        (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === kind,
+      );
     const resolveSlot = (slot?: LayoutSlot) => slot ?? activeSlot;
 
     const openView: ChatViewNavigation['openView'] = (view, options) => {
@@ -66,11 +71,11 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       openView('channels', options);
 
       return layoutController.open(
-        {
+        createChatViewSlotBinding({
           key: channel.cid ?? undefined,
           kind: 'channel',
           source: channel,
-        },
+        }),
         {
           targetSlot: options?.slot,
         },
@@ -87,11 +92,11 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       openView('threads', options);
 
       return layoutController.open(
-        {
+        createChatViewSlotBinding({
           key: thread.id ?? undefined,
           kind: 'thread',
           source: thread,
-        },
+        }),
         {
           targetSlot: options?.slot,
         },
@@ -118,11 +123,14 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
 
       if (targetSlot) {
         if (!existingChannelListSlot) {
-          layoutController.bind(targetSlot, {
-            key: 'channel-list',
-            kind: 'channelList',
-            source: { view: activeView },
-          });
+          layoutController.bind(
+            targetSlot,
+            createChatViewSlotBinding({
+              key: 'channel-list',
+              kind: 'channelList',
+              source: { view: activeView },
+            }),
+          );
         }
 
         layoutController.setSlotHidden(targetSlot, false);

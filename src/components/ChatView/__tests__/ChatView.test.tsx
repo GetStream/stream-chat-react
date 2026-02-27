@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StateStore } from 'stream-chat';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 jest.mock('../../ChannelList', () => ({
@@ -123,6 +123,66 @@ describe('ChatView', () => {
 
     expect(screen.getByTestId('channel-list')).toBeInTheDocument();
     expect(screen.getByTestId('channel-slot')).toHaveTextContent('messaging:workspace');
+  });
+
+  it('renders fallback workspace content when minSlots reserves an empty slot', () => {
+    renderWithProviders(
+      <ChatView layout='nav-rail-entity-list-workspace' maxSlots={2} minSlots={2} />,
+    );
+
+    expect(screen.getByTestId('channel-list')).toBeInTheDocument();
+    expect(screen.getByText('Select a channel to start messaging')).toBeInTheDocument();
+  });
+
+  it('keeps channelList slot mounted when hidden/unhidden', () => {
+    const layoutController = createLayoutController({
+      initialState: {
+        visibleSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    const StatefulChannelList = () => {
+      const [count, setCount] = useState(0);
+
+      return (
+        <button
+          data-testid='channel-list-counter'
+          onClick={() => setCount((value) => value + 1)}
+          type='button'
+        >
+          {count}
+        </button>
+      );
+    };
+
+    const { container } = renderWithProviders(
+      <ChatView
+        layout='nav-rail-entity-list-workspace'
+        layoutController={layoutController}
+        maxSlots={2}
+        minSlots={2}
+        slotRenderers={{
+          channelList: () => <StatefulChannelList />,
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('channel-list-counter'));
+    expect(screen.getByTestId('channel-list-counter')).toHaveTextContent('1');
+
+    act(() => {
+      layoutController.setEntityListPaneOpen(false);
+    });
+    expect(
+      container.querySelector(
+        '.str-chat__chat-view__workspace-layout-entity-list-pane.str-chat__chat-view__slot--hidden',
+      ),
+    ).toBeInTheDocument();
+
+    act(() => {
+      layoutController.setEntityListPaneOpen(true);
+    });
+    expect(screen.getByTestId('channel-list-counter')).toHaveTextContent('1');
   });
 
   it('preserves custom children layout when built-in layout is not set', () => {

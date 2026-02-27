@@ -23,32 +23,53 @@ import { createLayoutController } from './layoutController/LayoutController';
 import { resolveTargetSlotChannelDefault } from './layoutSlotResolvers';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import type { Thread, ThreadManagerState } from 'stream-chat';
+import type { Channel as StreamChannel, Thread, ThreadManagerState } from 'stream-chat';
 import type {
   ChatViewLayoutState,
-  DuplicateEntityPolicy,
+  DuplicateSlotPolicy,
   LayoutController,
-  LayoutEntityBinding,
-  ResolveDuplicateEntity,
+  LayoutSlotBinding,
+  ResolveDuplicateSlot,
   ResolveTargetSlot,
 } from './layoutController/layoutControllerTypes';
 
 export type ChatView = 'channels' | 'threads';
 
+export type UserListEntitySource = {
+  query: string;
+};
+
+export type ChannelListEntitySource = {
+  view?: ChatView;
+};
+
+export type SearchResultsEntitySource = {
+  query: string;
+};
+
+export type ChatViewEntityBinding =
+  | { key?: string; kind: 'channelList'; source: ChannelListEntitySource }
+  | { key?: string; kind: 'channel'; source: StreamChannel }
+  | { key?: string; kind: 'thread'; source: Thread }
+  | { key?: string; kind: 'memberList'; source: StreamChannel }
+  | { key?: string; kind: 'userList'; source: UserListEntitySource }
+  | { key?: string; kind: 'searchResults'; source: SearchResultsEntitySource }
+  | { key?: string; kind: 'pinnedMessagesList'; source: StreamChannel };
+
 export type ChatViewEntityInferer = {
-  kind: LayoutEntityBinding['kind'];
+  kind: ChatViewEntityBinding['kind'];
   match: (source: unknown) => boolean;
-  toBinding: (source: unknown) => LayoutEntityBinding;
+  toBinding: (source: unknown) => ChatViewEntityBinding;
 };
 
 export type ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
 
-type LayoutEntityByKind<TKind extends LayoutEntityBinding['kind']> = Extract<
-  LayoutEntityBinding,
+type LayoutEntityByKind<TKind extends ChatViewEntityBinding['kind']> = Extract<
+  ChatViewEntityBinding,
   { kind: TKind }
 >;
 
-export type ChatViewSlotRendererProps<TKind extends LayoutEntityBinding['kind']> = {
+export type ChatViewSlotRendererProps<TKind extends ChatViewEntityBinding['kind']> = {
   entity: LayoutEntityByKind<TKind>;
   slot: string;
   source: LayoutEntityByKind<TKind>['source'];
@@ -59,19 +80,19 @@ export type ChatViewSlotFallbackProps = {
 };
 
 export type ChatViewSlotRenderers = Partial<{
-  [TKind in LayoutEntityBinding['kind']]: (
+  [TKind in ChatViewEntityBinding['kind']]: (
     props: ChatViewSlotRendererProps<TKind>,
   ) => ReactNode;
 }>;
 
 export type ChatViewProps = PropsWithChildren<{
-  duplicateEntityPolicy?: DuplicateEntityPolicy;
+  duplicateEntityPolicy?: DuplicateSlotPolicy;
   entityInferers?: ChatViewEntityInferer[];
   layout?: ChatViewBuiltinLayout;
   layoutController?: LayoutController;
   maxSlots?: number;
   minSlots?: number;
-  resolveDuplicateEntity?: ResolveDuplicateEntity;
+  resolveDuplicateEntity?: ResolveDuplicateSlot;
   resolveTargetSlot?: ResolveTargetSlot;
   SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
   slotFallbackComponents?: Partial<
@@ -134,8 +155,26 @@ const workspaceLayoutStateSelector = ({
   visibleSlots,
 });
 
+const isChatViewEntityBinding = (value: unknown): value is ChatViewEntityBinding => {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<ChatViewEntityBinding>;
+  return typeof candidate.kind === 'string' && 'source' in candidate;
+};
+
+export const getChatViewEntityBinding = (
+  binding?: LayoutSlotBinding,
+): ChatViewEntityBinding | undefined =>
+  isChatViewEntityBinding(binding?.payload) ? binding.payload : undefined;
+
+export const createChatViewSlotBinding = (
+  entity: ChatViewEntityBinding,
+): LayoutSlotBinding => ({
+  key: entity.key ? `${entity.kind}:${entity.key}` : undefined,
+  payload: entity,
+});
+
 const renderSlotBinding = (
-  entity: LayoutEntityBinding | undefined,
+  entity: ChatViewEntityBinding | undefined,
   slot: string,
   slotRenderers: ChatViewSlotRenderers | undefined,
 ): ReactNode | null => {
@@ -264,19 +303,26 @@ export const ChatView = ({
     if (layout !== 'nav-rail-entity-list-workspace') return;
 
     const existingChannelListSlot = workspaceLayoutState.visibleSlots.find(
-      (slot) => workspaceLayoutState.slotBindings[slot]?.kind === 'channelList',
+      (slot) =>
+        getChatViewEntityBinding(workspaceLayoutState.slotBindings[slot])?.kind ===
+        'channelList',
     );
 
     if (existingChannelListSlot) {
-      const existingEntity = workspaceLayoutState.slotBindings[existingChannelListSlot];
+      const existingEntity = getChatViewEntityBinding(
+        workspaceLayoutState.slotBindings[existingChannelListSlot],
+      );
       if (
         existingEntity?.kind === 'channelList' &&
         existingEntity.source.view !== workspaceLayoutState.activeView
       ) {
-        effectiveLayoutController.bind(existingChannelListSlot, {
-          ...existingEntity,
-          source: { view: workspaceLayoutState.activeView },
-        });
+        effectiveLayoutController.bind(
+          existingChannelListSlot,
+          createChatViewSlotBinding({
+            ...existingEntity,
+            source: { view: workspaceLayoutState.activeView },
+          }),
+        );
       }
       return;
     }
@@ -286,11 +332,14 @@ export const ChatView = ({
     );
     if (!firstFreeSlot) return;
 
-    effectiveLayoutController.bind(firstFreeSlot, {
-      key: 'channel-list',
-      kind: 'channelList',
-      source: { view: workspaceLayoutState.activeView },
-    });
+    effectiveLayoutController.bind(
+      firstFreeSlot,
+      createChatViewSlotBinding({
+        key: 'channel-list',
+        kind: 'channelList',
+        source: { view: workspaceLayoutState.activeView },
+      }),
+    );
   }, [
     effectiveLayoutController,
     layout,
@@ -302,42 +351,25 @@ export const ChatView = ({
   const content =
     layout === 'nav-rail-entity-list-workspace'
       ? (() => {
-          const slots = workspaceLayoutState.visibleSlots.map((slot) => ({
-            content: renderSlotBinding(
-              workspaceLayoutState.slotBindings[slot],
+          const slots = workspaceLayoutState.visibleSlots.map((slot) => {
+            const content = renderSlotBinding(
+              getChatViewEntityBinding(workspaceLayoutState.slotBindings[slot]),
               slot,
               slotRenderers,
-            ),
-            slot,
-          }));
-          const entityListSlot = slots.find(
-            ({ slot }) => workspaceLayoutState.slotBindings[slot]?.kind === 'channelList',
-          );
+            );
+            const Fallback = resolveSlotFallbackComponent({
+              slot,
+              SlotFallback,
+              slotFallbackComponents,
+            });
 
-          return (
-            <WorkspaceLayout
-              entityListHidden={!workspaceLayoutState.entityListPaneOpen}
-              entityListSlot={entityListSlot}
-              navRail={<ChatViewSelector />}
-              slots={slots
-                .filter(
-                  ({ slot }) =>
-                    workspaceLayoutState.slotBindings[slot]?.kind !== 'channelList',
-                )
-                .map(({ content, slot }) => {
-                  const Fallback = resolveSlotFallbackComponent({
-                    slot,
-                    SlotFallback,
-                    slotFallbackComponents,
-                  });
+            return {
+              content: content ?? <Fallback slot={slot} />,
+              slot,
+            };
+          });
 
-                  return {
-                    content: content ?? <Fallback slot={slot} />,
-                    slot,
-                  };
-                })}
-            />
-          );
+          return <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />;
         })()
       : children;
 

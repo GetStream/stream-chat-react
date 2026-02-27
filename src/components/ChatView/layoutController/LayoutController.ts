@@ -1,13 +1,12 @@
 import { StateStore } from 'stream-chat';
-import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 
 import type {
   ChatViewLayoutState,
   CreateLayoutControllerOptions,
-  DuplicateEntityPolicy,
+  DuplicateSlotPolicy,
   LayoutController,
-  LayoutEntityBinding,
   LayoutSlot,
+  LayoutSlotBinding,
   OpenOptions,
   OpenResult,
 } from './layoutControllerTypes';
@@ -24,22 +23,21 @@ const DEFAULT_LAYOUT_STATE: ChatViewLayoutState = {
   visibleSlots: [],
 };
 
-const DEFAULT_DUPLICATE_ENTITY_POLICY: DuplicateEntityPolicy = 'allow';
+const DEFAULT_DUPLICATE_SLOT_POLICY: DuplicateSlotPolicy = 'allow';
 
-const resolveEntityKey = (entity: LayoutEntityBinding) =>
-  entity.key ? `${entity.kind}:${entity.key}` : undefined;
+const resolveBindingKey = (binding: LayoutSlotBinding) => binding.key;
 
-const findEntitySlot = (
+const findBindingSlot = (
   state: ChatViewLayoutState,
-  entity: LayoutEntityBinding,
+  binding: LayoutSlotBinding,
 ): LayoutSlot | undefined => {
-  const identityKey = resolveEntityKey(entity);
+  const identityKey = resolveBindingKey(binding);
   if (!identityKey) return;
 
   return state.visibleSlots.find((slot) => {
-    const boundEntity = state.slotBindings[slot];
-    if (!boundEntity) return false;
-    return resolveEntityKey(boundEntity) === identityKey;
+    const boundBinding = state.slotBindings[slot];
+    if (!boundBinding) return false;
+    return resolveBindingKey(boundBinding) === identityKey;
   });
 };
 
@@ -67,12 +65,12 @@ const buildInitialState = (
   visibleSlots: partialState?.visibleSlots ?? DEFAULT_LAYOUT_STATE.visibleSlots,
 });
 
-const isSameEntityBinding = (
-  first: LayoutEntityBinding,
-  second: LayoutEntityBinding,
+const isSameSlotBinding = (
+  first: LayoutSlotBinding,
+  second: LayoutSlotBinding,
 ): boolean => {
-  const firstKey = resolveEntityKey(first);
-  const secondKey = resolveEntityKey(second);
+  const firstKey = resolveBindingKey(first);
+  const secondKey = resolveBindingKey(second);
 
   if (firstKey && secondKey) return firstKey === secondKey;
 
@@ -82,7 +80,7 @@ const isSameEntityBinding = (
 const pushSlotHistory = (
   current: ChatViewLayoutState,
   slot: LayoutSlot,
-  entity: LayoutEntityBinding,
+  binding: LayoutSlotBinding,
 ): ChatViewLayoutState => {
   const slotHistory = current.slotHistory?.[slot] ?? [];
 
@@ -90,7 +88,7 @@ const pushSlotHistory = (
     ...current,
     slotHistory: {
       ...(current.slotHistory ?? {}),
-      [slot]: [...slotHistory, entity],
+      [slot]: [...slotHistory, binding],
     },
   };
 };
@@ -98,7 +96,7 @@ const pushSlotHistory = (
 const popSlotHistory = (
   current: ChatViewLayoutState,
   slot: LayoutSlot,
-): { popped?: LayoutEntityBinding; state: ChatViewLayoutState } => {
+): { popped?: LayoutSlotBinding; state: ChatViewLayoutState } => {
   const slotHistory = current.slotHistory?.[slot];
   if (!slotHistory?.length) return { state: current };
 
@@ -124,11 +122,11 @@ const popSlotHistory = (
 const upsertSlotBinding = (
   current: ChatViewLayoutState,
   slot: LayoutSlot,
-  entity: LayoutEntityBinding,
+  binding: LayoutSlotBinding,
 ): ChatViewLayoutState => {
   const nextSlotBindings: ChatViewLayoutState['slotBindings'] = {
     ...current.slotBindings,
-    [slot]: entity,
+    [slot]: binding,
   };
 
   const wasOccupied = !!current.slotBindings[slot];
@@ -185,7 +183,7 @@ const clearSlotBinding = (
 
 const resolveOpenTargetSlot = (
   state: ChatViewLayoutState,
-  entity: LayoutEntityBinding,
+  binding: LayoutSlotBinding,
   options: OpenOptions | undefined,
   resolveTargetSlot: CreateLayoutControllerOptions['resolveTargetSlot'],
 ): LayoutSlot | undefined => {
@@ -200,7 +198,7 @@ const resolveOpenTargetSlot = (
 
   const resolvedSlot = resolveTargetSlot?.({
     activeSlot: state.activeSlot,
-    entity,
+    binding,
     requestedSlot,
     state,
   });
@@ -210,21 +208,14 @@ const resolveOpenTargetSlot = (
 
   return resolvedSlot;
 };
-
-const getChannelEntityKey = (channel: StreamChannel) => channel.cid ?? undefined;
-const getThreadEntityKey = (thread: StreamThread) => thread.id ?? undefined;
-const getMemberListEntityKey = (channel: StreamChannel) =>
-  channel.cid ? `member-list:${channel.cid}` : undefined;
-const getPinnedMessagesListEntityKey = (channel: StreamChannel) =>
-  channel.cid ? `pinned-messages:${channel.cid}` : undefined;
-const getUserListEntityKey = ({ query }: { query: string }) => `user-list:${query}`;
-
 export const createLayoutController = (
   options: CreateLayoutControllerOptions = {},
 ): LayoutController => {
   const {
-    duplicateEntityPolicy = DEFAULT_DUPLICATE_ENTITY_POLICY,
+    duplicateEntityPolicy,
+    duplicateSlotPolicy = duplicateEntityPolicy ?? DEFAULT_DUPLICATE_SLOT_POLICY,
     initialState,
+    resolveDuplicateSlot = options.resolveDuplicateEntity,
     resolveDuplicateEntity,
     resolveTargetSlot,
     state = new StateStore<ChatViewLayoutState>(buildInitialState(initialState)),
@@ -273,25 +264,25 @@ export const createLayoutController = (
     }));
   };
 
-  const bind: LayoutController['bind'] = (slot, entity) => {
-    if (!entity) {
+  const bind: LayoutController['bind'] = (slot, binding) => {
+    if (!binding) {
       state.next((current) => clearSlotBinding(current, slot));
       return;
     }
 
-    state.next((current) => upsertSlotBinding(current, slot, entity));
+    state.next((current) => upsertSlotBinding(current, slot, binding));
   };
 
   const clear: LayoutController['clear'] = (slot) => {
     state.next((current) => clearSlotBinding(current, slot));
   };
 
-  const pushParent: LayoutController['pushParent'] = (slot, entity) => {
-    state.next((current) => pushSlotHistory(current, slot, entity));
+  const pushParent: LayoutController['pushParent'] = (slot, binding) => {
+    state.next((current) => pushSlotHistory(current, slot, binding));
   };
 
   const popParent: LayoutController['popParent'] = (slot) => {
-    let popped: LayoutEntityBinding | undefined;
+    let popped: LayoutSlotBinding | undefined;
 
     state.next((current) => {
       const result = popSlotHistory(current, slot);
@@ -322,11 +313,11 @@ export const createLayoutController = (
     });
   };
 
-  const open: LayoutController['open'] = (entity, openOptions) => {
+  const open: LayoutController['open'] = (binding, openOptions) => {
     const current = state.getLatestValue();
     const targetSlot = resolveOpenTargetSlot(
       current,
-      entity,
+      binding,
       openOptions,
       resolveTargetSlot,
     );
@@ -338,40 +329,48 @@ export const createLayoutController = (
       } satisfies OpenResult;
     }
 
-    const existingEntitySlot = findEntitySlot(current, entity);
+    const existingBindingSlot = findBindingSlot(current, binding);
 
-    if (existingEntitySlot) {
+    if (existingBindingSlot) {
       const duplicatePolicy =
-        resolveDuplicateEntity?.({
+        resolveDuplicateSlot?.({
           activeSlot: current.activeSlot,
-          entity,
-          existingSlot: existingEntitySlot,
+          binding,
+          existingSlot: existingBindingSlot,
           requestedSlot: openOptions?.targetSlot,
           state: current,
-        }) ?? duplicateEntityPolicy;
+        }) ??
+        resolveDuplicateEntity?.({
+          activeSlot: current.activeSlot,
+          binding,
+          existingSlot: existingBindingSlot,
+          requestedSlot: openOptions?.targetSlot,
+          state: current,
+        }) ??
+        duplicateSlotPolicy;
 
       if (duplicatePolicy === 'reject') {
         return {
-          reason: 'duplicate-entity',
+          reason: 'duplicate-binding',
           status: 'rejected',
         } satisfies OpenResult;
       }
 
-      if (duplicatePolicy === 'move' && existingEntitySlot !== targetSlot) {
-        state.next((nextState) => clearSlotBinding(nextState, existingEntitySlot));
+      if (duplicatePolicy === 'move' && existingBindingSlot !== targetSlot) {
+        state.next((nextState) => clearSlotBinding(nextState, existingBindingSlot));
       }
     }
 
-    const replacedEntity = state.getLatestValue().slotBindings[targetSlot];
+    const replacedBinding = state.getLatestValue().slotBindings[targetSlot];
     const shouldActivateSlot = openOptions?.activate ?? true;
 
     state.next((nextState) => {
       const currentSlotBinding = nextState.slotBindings[targetSlot];
       const withHistory =
-        currentSlotBinding && !isSameEntityBinding(currentSlotBinding, entity)
+        currentSlotBinding && !isSameSlotBinding(currentSlotBinding, binding)
           ? pushSlotHistory(nextState, targetSlot, currentSlotBinding)
           : nextState;
-      const next = upsertSlotBinding(withHistory, targetSlot, entity);
+      const next = upsertSlotBinding(withHistory, targetSlot, binding);
 
       if (!shouldActivateSlot) return next;
 
@@ -381,9 +380,9 @@ export const createLayoutController = (
       };
     });
 
-    if (replacedEntity && replacedEntity !== entity) {
+    if (replacedBinding && replacedBinding !== binding) {
       return {
-        replaced: replacedEntity,
+        replaced: replacedBinding,
         slot: targetSlot,
         status: 'replaced',
       } satisfies OpenResult;
@@ -395,69 +394,11 @@ export const createLayoutController = (
     } satisfies OpenResult;
   };
 
-  const openChannel: LayoutController['openChannel'] = (channel, openOptions) =>
-    open(
-      {
-        key: getChannelEntityKey(channel),
-        kind: 'channel',
-        source: channel,
-      },
-      openOptions,
-    );
-
-  const openThread: LayoutController['openThread'] = (thread, openOptions) =>
-    open(
-      {
-        key: getThreadEntityKey(thread),
-        kind: 'thread',
-        source: thread,
-      },
-      openOptions,
-    );
-
-  const openMemberList: LayoutController['openMemberList'] = (channel, openOptions) =>
-    open(
-      {
-        key: getMemberListEntityKey(channel),
-        kind: 'memberList',
-        source: channel,
-      },
-      openOptions,
-    );
-
-  const openUserList: LayoutController['openUserList'] = (source, openOptions) =>
-    open(
-      {
-        key: getUserListEntityKey(source),
-        kind: 'userList',
-        source,
-      },
-      openOptions,
-    );
-
-  const openPinnedMessagesList: LayoutController['openPinnedMessagesList'] = (
-    channel,
-    openOptions,
-  ) =>
-    open(
-      {
-        key: getPinnedMessagesListEntityKey(channel),
-        kind: 'pinnedMessagesList',
-        source: channel,
-      },
-      openOptions,
-    );
-
   return {
     bind,
     clear,
     close,
     open,
-    openChannel,
-    openMemberList,
-    openPinnedMessagesList,
-    openThread,
-    openUserList,
     openView,
     popParent,
     pushParent,

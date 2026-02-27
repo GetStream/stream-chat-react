@@ -213,3 +213,33 @@ The following are not yet implemented and remain future work:
 2. On close/back actions, prefer slot-aware transitions (`closeThread`/controller back stack behavior) so one-slot mobile flow is deterministic.
 3. Keep existing Thread UI/render behavior unchanged; only route interaction handlers through the navigation/layout API.
 4. Preserve compatibility when Thread renders outside ChatView (fallback behavior should remain safe/no-op where layout context is absent).
+
+## New requirement: Slot self-managed visibility
+
+`Slot` must determine whether it is hidden using only its `slot` prop and ChatView layout/controller state.
+
+Requirements:
+
+- `Slot` must not require an external `hidden` (or equivalent) prop to decide visibility.
+- Visibility lookup must be deterministic for a given `slot` key.
+- Parent layouts may pass rendering context, but visibility authority for a slot remains slot-key driven.
+
+This keeps slot visibility logic encapsulated and reduces divergence between `WorkspaceLayout` orchestration and `Slot` behavior.
+
+## New requirement: LayoutController must be slot-only (no entity-slot notion)
+
+`LayoutController` should not encode any notion of entity semantics (such as entity kinds, entity-specific slot behavior, or entity-aware slot identity).
+
+Requirements:
+
+- `LayoutController` is responsible only for generic slot state and slot operations.
+- Slot occupancy and visibility are managed as slot primitives, without entity-specific controller policy.
+- Entity/domain mapping (channel, thread, list, search, etc.) must live in higher-level ChatView navigation/composition layers.
+
+This de-opinionates the low-level controller API and keeps domain-specific behavior in higher-level integration APIs.
+
+## Implementation update: Task 17
+
+- `LayoutController` now manages generic slot bindings (`payload`) and slot primitives only.
+- High-level domain operations (`openChannel`, `openThread`, hide/unhide channel list) remain in `ChatViewNavigationContext`.
+- ChatView no longer models a dedicated `entityListSlot`; all rendered slots flow through the same slot list in `WorkspaceLayout`.

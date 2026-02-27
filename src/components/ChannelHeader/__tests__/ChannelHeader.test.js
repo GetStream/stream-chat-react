@@ -494,4 +494,51 @@ describe('ChannelHeader', () => {
     expect(onSidebarToggle).toHaveBeenCalledTimes(1);
     expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(true);
   });
+
+  it('should use back action when active slot has parent history', async () => {
+    const onSidebarToggle = jest.fn();
+    const layoutController = createLayoutController({
+      initialState: {
+        activeSlot: 'slot1',
+        entityListPaneOpen: true,
+        slotBindings: {
+          slot1: {
+            key: 'channel:active',
+            kind: 'channel',
+            source: { cid: 'messaging:active' },
+          },
+        },
+        slotHistory: {
+          slot1: [
+            {
+              key: 'channel-list',
+              kind: 'channelList',
+              source: { view: 'channels' },
+            },
+          ],
+        },
+        visibleSlots: ['slot1'],
+      },
+    });
+
+    await renderComponent({
+      chatViewProps: {
+        layoutController,
+      },
+      props: {
+        onSidebarToggle,
+      },
+    });
+
+    act(() => {
+      screen.getByRole('button', { name: 'aria/Go back' }).click();
+    });
+
+    await waitFor(() =>
+      expect(layoutController.state.getLatestValue().slotBindings.slot1?.kind).toBe(
+        'channelList',
+      ),
+    );
+    expect(onSidebarToggle).not.toHaveBeenCalled();
+  });
 });

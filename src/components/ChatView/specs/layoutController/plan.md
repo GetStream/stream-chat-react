@@ -331,9 +331,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 8, Task 9, Task 10, Task 11, Task 12, Task 13, Task 14
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -344,8 +344,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] One-slot back-stack scenarios are covered.
-- [ ] Deep-link serialization/deserialization and `openView` are covered.
+- [x] One-slot back-stack scenarios are covered.
+- [x] Deep-link serialization/deserialization and `openView` are covered.
 - [ ] No regression in ChatView/ChannelHeader behavior with new slot model.
 
 ## Execution order
@@ -420,3 +420,65 @@ Phase 12 (After Tasks 8-14):
 | 13   | `ChatView.tsx`, `ChatViewNavigationContext.tsx`, `index.tsx`, `ChannelHeader.tsx`                                                                                                        |
 | 14   | `src/components/Thread/Thread.tsx`                                                                                                                                                       |
 | 15   | `ChatView/__tests__/layoutController.test.ts`, `ChatView/__tests__/ChatView.test.tsx`, `ChannelHeader/__tests__/ChannelHeader.test.js`, `ChatView/__tests__/ChatViewNavigation.test.tsx` |
+| 16   | `src/components/ChatView/layout/Slot.tsx`, `src/components/ChatView/layout/WorkspaceLayout.tsx`, `src/components/ChatView/specs/layoutController/spec.md`                                |
+
+## Task 16: Slot Self-Visibility from Slot Prop
+
+**File(s) to create/modify:** `src/components/ChatView/layout/Slot.tsx`, `src/components/ChatView/layout/WorkspaceLayout.tsx`, `src/components/ChatView/specs/layoutController/spec.md`
+
+**Dependencies:** Task 11
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Update `Slot` so hidden/visible state is derived internally from the `slot` prop and layout/controller state.
+- Remove requirement for parent components to pass explicit hidden state for slot visibility decisions.
+- Keep mount-preserving hide/unhide behavior unchanged.
+
+**Acceptance Criteria:**
+
+- [x] `Slot` visibility can be computed without a parent-provided hidden prop.
+- [x] Visibility behavior remains compatible with existing mount-preserving hide/unhide semantics.
+
+## Execution order update
+
+Phase 13 (After Task 11):
+
+- Task 16: Slot Self-Visibility from Slot Prop
+
+## Task 17: Remove Entity Semantics from LayoutController (Slot-Only Controller)
+
+**File(s) to create/modify:** `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/ChatView.tsx`, `src/components/ChatView/specs/layoutController/spec.md`
+
+**Dependencies:** Task 16
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Refactor `LayoutController` to model slot primitives only, without entity-binding-aware semantics.
+- Move entity/domain interpretation and mapping to ChatView navigation/composition layers.
+- Preserve backward compatibility through a migration path (aliases/shims where feasible) while introducing slot-only low-level contracts.
+
+**Acceptance Criteria:**
+
+- [x] LayoutController low-level API and state no longer depend on entity kinds/domain entities.
+- [x] Entity-specific open/close behavior exists only in higher-level ChatView navigation/composition APIs.
+- [x] Existing integration paths have documented migration guidance in spec.
+
+## Execution order update
+
+Phase 14 (After Task 16):
+
+- Task 17: Remove Entity Semantics from LayoutController (Slot-Only Controller)
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                               |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 17   | `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/ChatView.tsx`, `src/components/ChatView/specs/layoutController/spec.md` |

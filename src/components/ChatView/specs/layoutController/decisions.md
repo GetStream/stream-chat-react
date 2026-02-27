@@ -440,3 +440,93 @@ Update `Thread.tsx` to use `useChatViewNavigation()` and route the close handler
 
 **Tradeoffs / Consequences:**  
 In ChatView contexts, both calls run in sequence; this favors compatibility but may be simplified later once all Thread usage is guaranteed to be navigation-context backed.
+
+## Decision: Complete Task 15 with focused coverage across controller, navigation hook, ChatView layout, and ChannelHeader back behavior
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 15 requires test coverage for slot back-stack behavior, unified slot model (`channelList` slot + hide/unhide), `openView`, serialization round-trips, and the high-level navigation DX.
+
+**Decision:**  
+Add/extend tests in:
+
+- `src/components/ChatView/__tests__/layoutController.test.ts` for `openView` activation and serialization/restore behavior,
+- `src/components/ChatView/__tests__/ChatView.test.tsx` for `minSlots` fallback rendering and mount-preserving channel-list hide/unhide behavior,
+- `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx` (new) for `useChatViewNavigation()` open/close flows and `channelList` hide/unhide semantics,
+- `src/components/ChannelHeader/__tests__/ChannelHeader.test.js` for back-action precedence when slot history exists.
+
+**Reasoning:**  
+This keeps tests aligned with the new API split: low-level controller semantics in unit tests, high-level consumer behavior in navigation/layout integration tests, and header wiring checks in component tests.
+
+**Alternatives considered:**
+
+- Cover all new behavior only through end-to-end ChatView integration tests — rejected because failures would be less localized and harder to diagnose.
+- Keep navigation behavior tests inside `ChatView.test.tsx` only — rejected to avoid overloading one suite and to keep hook DX tests explicit.
+
+**Tradeoffs / Consequences:**  
+Typecheck and ESLint passed for touched files. Local Jest execution is currently blocked in this worktree environment by missing `@babel/runtime` resolution from linked `stream-chat-js` artifacts, so full runtime regression confirmation remains pending environment fix.
+
+## Decision: Require Slot to derive hidden state from slot key and layout state
+
+**Date:** 2026-02-27  
+**Context:**  
+A new requirement was introduced for the Slot primitive: visibility must be intrinsic to Slot behavior and not delegated to parent-provided hidden flags.
+
+**Decision:**  
+Add an explicit spec requirement that `Slot` determines hidden/visible state from its `slot` prop and ChatView layout/controller state.
+
+**Reasoning:**  
+This centralizes visibility logic, reduces orchestration coupling in `WorkspaceLayout`, and avoids drift where different parents compute slot visibility differently.
+
+**Alternatives considered:**
+
+- Keep parent-driven `hidden` prop as source of truth — rejected because it duplicates visibility logic outside Slot.
+- Hybrid parent + Slot visibility rules — rejected because conflict resolution becomes ambiguous.
+
+**Tradeoffs / Consequences:**  
+`Slot` becomes slightly more state-aware, and parent layouts lose some direct control over visibility heuristics. In return, visibility behavior becomes consistent across all usages.
+
+## Decision: Implement Slot-owned visibility derivation by slot key
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 16 required `Slot` to determine hidden/visible state without parent-provided hidden props.
+
+**Decision:**  
+`Slot` now derives hidden state from ChatView layout controller state keyed by its own `slot` prop:
+
+- explicit slot hiding via `hiddenSlots[slot]`, and
+- compatibility fallback for the channel list slot when `entityListPaneOpen` is false.
+
+`WorkspaceLayout` no longer passes `hidden`/`entityListHidden` visibility authority to `Slot`.
+
+**Reasoning:**  
+This centralizes visibility behavior in one primitive and prevents parent-specific visibility drift.
+
+**Alternatives considered:**
+
+- Keep `hidden` prop as required parent input — rejected because it duplicates logic and violates Task 16.
+- Use only `hiddenSlots` and ignore `entityListPaneOpen` — rejected for now to preserve compatibility with existing list-pane controls.
+
+**Tradeoffs / Consequences:**  
+`Slot` is now context-aware. Targeted typecheck passes; targeted Jest run is currently blocked in this environment by missing `@babel/runtime/helpers/interopRequireDefault` from linked `stream-chat-js` dist artifacts.
+
+## Decision: Make LayoutController slot-only and remove ChatView entity-list slot concept
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 17 required removing entity semantics from low-level layout control while keeping high-level domain actions in `ChatViewNavigationContext`. A follow-up clarification required that ChatView should not have a dedicated `entityListSlot` concept.
+
+**Decision:**  
+Refactor `LayoutController` state/contracts to generic slot bindings (`payload`) and drop entity-specific controller methods. Keep `openChannel`/`openThread`/related domain methods only in `ChatViewNavigationContext`, where domain entities are mapped to generic slot bindings. Remove dedicated `entityListSlot` handling from `WorkspaceLayout`/`ChatView`; all slots are rendered through a single slot list.
+
+**Reasoning:**  
+This preserves a strict separation of concerns: low-level controller manages slot primitives only, while ChatView/navigation own product-domain semantics.
+
+**Alternatives considered:**
+
+- Keep entity-specific methods on `LayoutController` for convenience — rejected because it violates slot-only controller requirements.
+- Keep `entityListSlot` as a special ChatView lane — rejected because it preserves an opinionated slot category in ChatView composition.
+
+**Tradeoffs / Consequences:**  
+Entity typing now lives in ChatView-level helpers (`createChatViewSlotBinding` / `getChatViewEntityBinding`) rather than controller types. Typecheck passes; runtime Jest verification remains blocked in this environment by missing `@babel/runtime` from linked `stream-chat-js` artifacts.

@@ -12,19 +12,28 @@ export const requestedSlotResolver: SlotResolver = ({ requestedSlot }) =>
 export const firstFree: SlotResolver = ({ state }) =>
   state.visibleSlots.find((slot) => !state.slotBindings[slot]) ?? null;
 
-export const existingThreadSlotForThread: SlotResolver = ({ entity, state }) => {
-  if (entity.kind !== 'thread') return null;
+const readBindingKind = (binding: ResolveTargetSlotArgs['binding'] | undefined) => {
+  const payload = binding?.payload as { kind?: unknown } | undefined;
+  return typeof payload?.kind === 'string' ? payload.kind : undefined;
+};
+
+export const existingThreadSlotForThread: SlotResolver = ({ binding, state }) => {
+  if (readBindingKind(binding) !== 'thread') return null;
 
   return (
-    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+    state.visibleSlots.find(
+      (slot) => readBindingKind(state.slotBindings[slot]) === 'thread',
+    ) ?? null
   );
 };
 
-export const existingThreadSlotForChannel: SlotResolver = ({ entity, state }) => {
-  if (entity.kind !== 'channel') return null;
+export const existingThreadSlotForChannel: SlotResolver = ({ binding, state }) => {
+  if (readBindingKind(binding) !== 'channel') return null;
 
   return (
-    state.visibleSlots.find((slot) => state.slotBindings[slot]?.kind === 'thread') ?? null
+    state.visibleSlots.find(
+      (slot) => readBindingKind(state.slotBindings[slot]) === 'thread',
+    ) ?? null
   );
 };
 
