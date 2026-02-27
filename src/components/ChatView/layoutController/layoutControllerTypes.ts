@@ -38,6 +38,8 @@ export type ChatViewLayoutState = {
   activeSlot?: LayoutSlot;
   activeView: ChatView;
   entityListPaneOpen: boolean;
+  maxSlots?: number;
+  minSlots?: number;
   mode: LayoutMode;
   slotBindings: Record<LayoutSlot, LayoutEntityBinding | undefined>;
   slotHistory?: Record<LayoutSlot, LayoutEntityBinding[] | undefined>;

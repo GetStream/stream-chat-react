@@ -115,6 +115,9 @@ Default chain for channel-centric behavior:
 - `entityInferers?: ChatViewEntityInferer[]`
 - `layoutController?: LayoutController`
 - `layout?: 'nav-rail-entity-list-workspace'`
+- `minSlots?: number`
+- `SlotFallback?: ComponentType<{ slot: string }>`
+- `slotFallbackComponents?: Partial<Record<string, ComponentType<{ slot: string }>>>`
 - `slotRenderers?: ChatViewSlotRenderers`
 
 When `layoutController` is not provided, ChatView creates one internally and defaults `resolveTargetSlot` to `resolveTargetSlotChannelDefault`.
@@ -132,6 +135,10 @@ Context (`useChatViewContext`) exposes both:
 - nav rail (`ChatViewSelector`)
 - entity list pane from the slot bound with `kind: 'channelList'`
 - workspace area from the remaining visible slots, rendered via `slotRenderers[kind]`
+- unbound workspace slots via per-slot fallback components:
+  - `slotFallbackComponents[slot]` first
+  - then `SlotFallback`
+  - then SDK default fallback
 
 Custom-children mode remains unchanged when `layout` is omitted.
 
@@ -140,7 +147,8 @@ Custom-children mode remains unchanged when `layout` is omitted.
 `ChannelHeader` now defaults sidebar toggle behavior to ChatView layout state:
 
 - derives list visibility from whether a `channelList` slot binding exists
-- default toggle uses `layoutController.bind(...)` / `layoutController.clear(...)` for `channelList` entities
+- default toggle uses hide/unhide (`setEntityListPaneOpen(false/true)`) to keep list slot mounted
+- it binds a `channelList` slot only when opening and no list slot is bound yet
 - `onSidebarToggle` still overrides default behavior when passed
 
 ## Migration notes
@@ -179,7 +187,11 @@ layoutController.bind('slot1', {
 ```tsx
 <ChatView
   layout='nav-rail-entity-list-workspace'
+  minSlots={2}
   maxSlots={2}
+  slotFallbackComponents={{
+    slot2: EmptyWorkspacePanel,
+  }}
   slotRenderers={{
     channel: ({ source }) => <Channel channel={source} />,
     thread: ({ source }) => <Thread thread={source} />,
@@ -191,7 +203,6 @@ layoutController.bind('slot1', {
 
 The following are not yet implemented and remain future work:
 
-- `minSlots` + fallback slot rendering
 - mount-preserving hide/unhide slot primitive
 - `openView` and serializer/restore APIs
 - separate `useChatViewNavigation()` high-level hook

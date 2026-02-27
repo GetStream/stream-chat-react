@@ -53,6 +53,10 @@ export type ChatViewSlotRendererProps<TKind extends LayoutEntityBinding['kind']>
   source: LayoutEntityByKind<TKind>['source'];
 };
 
+export type ChatViewSlotFallbackProps = {
+  slot: string;
+};
+
 export type ChatViewSlotRenderers = Partial<{
   [TKind in LayoutEntityBinding['kind']]: (
     props: ChatViewSlotRendererProps<TKind>,
@@ -65,8 +69,13 @@ export type ChatViewProps = PropsWithChildren<{
   layout?: ChatViewBuiltinLayout;
   layoutController?: LayoutController;
   maxSlots?: number;
+  minSlots?: number;
   resolveDuplicateEntity?: ResolveDuplicateEntity;
   resolveTargetSlot?: ResolveTargetSlot;
+  SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  slotFallbackComponents?: Partial<
+    Record<string, ComponentType<ChatViewSlotFallbackProps>>
+  >;
   slotRenderers?: ChatViewSlotRenderers;
 }>;
 
@@ -80,9 +89,18 @@ type ChatViewContextValue = {
 };
 
 const DEFAULT_MAX_SLOTS = 1;
+const DEFAULT_MIN_SLOTS = 1;
 
-const createVisibleSlots = (maxSlots: number) =>
-  Array.from({ length: Math.max(0, maxSlots) }, (_, index) => `slot${index + 1}`);
+const resolveInitialSlotCount = ({
+  maxSlots,
+  minSlots,
+}: {
+  maxSlots: number;
+  minSlots: number;
+}) => Math.min(Math.max(1, minSlots), Math.max(1, maxSlots));
+
+const createVisibleSlots = (slotCount: number) =>
+  Array.from({ length: Math.max(0, slotCount) }, (_, index) => `slot${index + 1}`);
 
 const defaultLayoutController = createLayoutController({
   initialState: {
@@ -154,6 +172,24 @@ const renderSlotBinding = (
   }
 };
 
+const DefaultSlotFallback = () => (
+  <div className='str-chat__chat-view__workspace-layout-slot-fallback'>
+    Select a channel to start messaging
+  </div>
+);
+
+const resolveSlotFallbackComponent = ({
+  slot,
+  SlotFallback,
+  slotFallbackComponents,
+}: {
+  SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  slot: string;
+  slotFallbackComponents?: Partial<
+    Record<string, ComponentType<ChatViewSlotFallbackProps>>
+  >;
+}) => slotFallbackComponents?.[slot] ?? SlotFallback ?? DefaultSlotFallback;
+
 export const ChatView = ({
   children,
   duplicateEntityPolicy,
@@ -161,11 +197,15 @@ export const ChatView = ({
   layout,
   layoutController,
   maxSlots = DEFAULT_MAX_SLOTS,
+  minSlots = DEFAULT_MIN_SLOTS,
   resolveDuplicateEntity,
   resolveTargetSlot,
+  SlotFallback,
+  slotFallbackComponents,
   slotRenderers,
 }: ChatViewProps) => {
   const { theme } = useChatContext();
+  const initialSlotCount = resolveInitialSlotCount({ maxSlots, minSlots });
 
   const internalLayoutController = useMemo(
     () =>
@@ -173,12 +213,21 @@ export const ChatView = ({
         duplicateEntityPolicy,
         initialState: {
           activeView: 'channels',
-          visibleSlots: createVisibleSlots(maxSlots),
+          maxSlots,
+          minSlots,
+          visibleSlots: createVisibleSlots(initialSlotCount),
         },
         resolveDuplicateEntity,
         resolveTargetSlot: resolveTargetSlot ?? resolveTargetSlotChannelDefault,
       }),
-    [duplicateEntityPolicy, maxSlots, resolveDuplicateEntity, resolveTargetSlot],
+    [
+      duplicateEntityPolicy,
+      initialSlotCount,
+      maxSlots,
+      minSlots,
+      resolveDuplicateEntity,
+      resolveTargetSlot,
+    ],
   );
 
   const effectiveLayoutController = layoutController ?? internalLayoutController;
@@ -269,10 +318,23 @@ export const ChatView = ({
               entityListHidden={!workspaceLayoutState.entityListPaneOpen}
               entityListSlot={entityListSlot}
               navRail={<ChatViewSelector />}
-              slots={slots.filter(
-                ({ slot }) =>
-                  workspaceLayoutState.slotBindings[slot]?.kind !== 'channelList',
-              )}
+              slots={slots
+                .filter(
+                  ({ slot }) =>
+                    workspaceLayoutState.slotBindings[slot]?.kind !== 'channelList',
+                )
+                .map(({ content, slot }) => {
+                  const Fallback = resolveSlotFallbackComponent({
+                    slot,
+                    SlotFallback,
+                    slotFallbackComponents,
+                  });
+
+                  return {
+                    content: content ?? <Fallback slot={slot} />,
+                    slot,
+                  };
+                })}
             />
           );
         })()

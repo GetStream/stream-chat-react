@@ -223,9 +223,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 9
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -235,8 +235,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] `minSlots={2}` can render `channelList + empty workspace` before channel selection.
-- [ ] Fallback content disappears when slot receives entity binding and reappears when cleared.
+- [x] `minSlots={2}` can render `channelList + empty workspace` before channel selection.
+- [x] Fallback content disappears when slot receives entity binding and reappears when cleared.
 
 ## Task 11: Generic Slot Component with Mount-Preserving Hide/Unhide
 

@@ -268,3 +268,47 @@ Binding kind already provides the semantic signal; adding a second classificatio
 
 **Tradeoffs / Consequences:**  
 Controller legacy fields (`entityListPaneOpen` and related methods) still exist for backward compatibility, but built-in layout paths now derive list visibility from slot bindings rather than that flag.
+
+## Decision: Implement Task 10 min-slot initialization and unbound-slot fallback rendering in ChatView built-in layout
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 10 requires minimum slot rendering before entity selection and fallback content for unbound slots while preserving `maxSlots` as the upper bound.
+
+**Decision:**  
+Add `minSlots` to `ChatViewProps` and initialize internal `visibleSlots` count from a clamped value `minSlots..maxSlots`. Add optional `slotFallbackRenderer` prop and default fallback content for unbound workspace slots in built-in layout mode. Extend layout state type with optional `minSlots` and `maxSlots` metadata.
+
+**Reasoning:**  
+This guarantees a visible empty workspace pane (e.g., alongside `channelList`) before channel selection, while keeping existing resolver and slot binding behavior intact.
+
+**Alternatives considered:**
+
+- Keep initialization at `maxSlots` only and rely on blank slots — rejected because `minSlots` would have no practical effect.
+- Render fallback only via consumer-provided renderer — rejected because acceptance requires out-of-the-box empty workspace behavior.
+
+**Tradeoffs / Consequences:**  
+Built-in fallback text is currently a simple default string unless `slotFallbackRenderer` is provided. Additional localization/styling refinements can be layered later without changing slot semantics.
+
+## Decision: Replace function-based fallback API with component-based fallback API supporting per-slot overrides
+
+**Date:** 2026-02-27  
+**Context:**  
+The initial Task 10 fallback API used `slotFallbackRenderer(props)`, but customization needs are better expressed as mountable React components and per-slot overrides.
+
+**Decision:**  
+Change ChatView fallback API to:
+
+- `SlotFallback?: ComponentType<{ slot: string }>` as global fallback component,
+- `slotFallbackComponents?: Partial<Record<string, ComponentType<{ slot: string }>>>` for per-slot overrides,
+- resolution order: per-slot component -> global component -> SDK default fallback component.
+
+**Reasoning:**  
+Component-based API improves composability (hooks/context/local state in fallback UIs) and allows explicit per-slot customization without conditional render logic in userland callback functions.
+
+**Alternatives considered:**
+
+- Keep `slotFallbackRenderer` function — rejected due weaker composability and harder per-slot specialization ergonomics.
+- Accept only per-slot components without global default — rejected because a global fallback component remains convenient for common cases.
+
+**Tradeoffs / Consequences:**  
+This is an API rename from `slotFallbackRenderer` to `SlotFallback`/`slotFallbackComponents`; consumers using the previous prop must migrate.
