@@ -10,12 +10,7 @@ import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-  useComponentContext,
-} from '../../context';
+import { useChatContext, useComponentContext } from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 
@@ -50,18 +45,16 @@ export type ThreadProps = {
  * The Thread component renders a parent Message with a list of replies
  */
 export const Thread = (props: ThreadProps) => {
-  const { channel, channelConfig, thread } = useChannelStateContext('Thread');
   const threadInstance = useThreadContext();
 
-  if (!thread && !threadInstance) return null;
-  if (channelConfig?.replies === false) return null;
+  if (!threadInstance) return null;
+  if (threadInstance.channel.getConfig()?.replies === false) return null;
 
   // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
-    // FIXME: TS is having trouble here as at least one of the two would always be defined
     <ThreadInner
       {...props}
-      key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`}
+      key={`thread-${threadInstance.id}-${threadInstance.channel.cid}`}
     />
   );
 };
@@ -69,7 +62,10 @@ export const Thread = (props: ThreadProps) => {
 const selector = (nextValue: ThreadState) => ({
   isLoadingNext: nextValue.pagination.isLoadingNext,
   isLoadingPrev: nextValue.pagination.isLoadingPrev,
+  isStateStale: nextValue.isStateStale,
+  nextCursor: nextValue.pagination.nextCursor,
   parentMessage: nextValue.parentMessage,
+  prevCursor: nextValue.pagination.prevCursor,
   replies: nextValue.replies,
 });
 
@@ -88,15 +84,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   } = props;
 
   const threadInstance = useThreadContext();
-
-  const {
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages = [],
-    threadSuppressAutoscroll,
-  } = useChannelStateContext('Thread');
-  const { closeThread, loadMoreThread } = useChannelActionContext('Thread');
   const { customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
@@ -106,8 +93,17 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     VirtualMessage,
   } = useComponentContext('Thread');
 
-  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
-    useStateStore(threadInstance?.state, selector) ?? {};
+  const {
+    isLoadingNext,
+    isLoadingPrev,
+    isStateStale,
+    nextCursor,
+    parentMessage,
+    prevCursor,
+    replies,
+  } = useStateStore(threadInstance?.state, selector) ?? {};
+
+  const closeThread = () => threadInstance?.deactivate();
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
@@ -119,13 +115,12 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
-    if (threadInstance) return;
-
-    if ((thread?.reply_count ?? 0) > 0) {
-      // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
-      loadMoreThread();
+    if (threadInstance && isStateStale) {
+      void threadInstance.reload();
     }
-  }, [thread, loadMoreThread, threadInstance]);
+  }, [isStateStale, threadInstance]);
+
+  if (!threadInstance || !parentMessage) return null;
 
   const threadProps: Pick<
     VirtualizedMessageListProps,
@@ -136,24 +131,15 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     | 'loadMore'
     | 'loadingMore'
     | 'messages'
-  > = threadInstance
-    ? {
-        loadingMore: isLoadingPrev,
-        loadingMoreNewer: isLoadingNext,
-        loadMore: threadInstance.loadPrevPage,
-        loadMoreNewer: threadInstance.loadNextPage,
-        messages: replies,
-      }
-    : {
-        hasMore: threadHasMore,
-        loadingMore: threadLoadingMore,
-        loadMore: loadMoreThread,
-        messages: threadMessages,
-      };
-
-  const messageAsThread = thread ?? parentMessage;
-
-  if (!messageAsThread) return null;
+  > = {
+    hasMore: prevCursor !== null,
+    hasMoreNewer: nextCursor !== null,
+    loadingMore: isLoadingPrev,
+    loadingMoreNewer: isLoadingNext,
+    loadMore: threadInstance.loadPrevPage,
+    loadMoreNewer: threadInstance.loadNextPage,
+    messages: replies,
+  };
 
   const threadClass =
     customClasses?.thread ||
@@ -163,8 +149,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
 
   const head = (
     <ThreadHead
-      key={messageAsThread.id}
-      message={messageAsThread}
+      key={parentMessage.id}
+      message={parentMessage}
       Message={MessageUIComponent}
       {...additionalParentMessageProps}
     />
@@ -174,17 +160,16 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     // Thread component needs a context which we can use for message composer
     <LegacyThreadContext.Provider
       value={{
-        legacyThread: thread ?? undefined,
+        legacyThread: parentMessage ?? undefined,
       }}
     >
       <div className={threadClass}>
-        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        <ThreadHeader closeThread={closeThread} thread={parentMessage} />
         <ThreadMessageList
           disableDateSeparator={!enableDateSeparator}
           head={head}
           Message={MessageUIComponent}
           messageActions={messageActions}
-          suppressAutoscroll={threadSuppressAutoscroll}
           threadList
           {...threadProps}
           {...(virtualized
@@ -195,7 +180,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           focus={autoFocus}
           Input={ThreadInput}
           isThreadInput
-          parent={thread ?? parentMessage}
+          parent={parentMessage}
           {...additionalMessageInputProps}
         />
       </div>
