@@ -41,6 +41,7 @@ export const ReactionSelectorWithButton = ({
         placement={isMyMessage() ? 'top-end' : 'top-start'}
         referenceElement={buttonRef.current}
         trapFocus
+        updatePositionOnContentResize
       >
         <ReactionSelector />
       </DialogAnchor>

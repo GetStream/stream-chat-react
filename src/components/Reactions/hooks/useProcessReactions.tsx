@@ -52,14 +52,35 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
   );
 
   const getEmojiByReactionType = useCallback(
-    (reactionType: string) =>
-      reactionOptions.find(({ type }) => type === reactionType)?.Component ?? null,
+    (reactionType: string) => {
+      if (Array.isArray(reactionOptions)) {
+        return (
+          reactionOptions.find(({ type }) => type === reactionType)?.Component ?? null
+        );
+      }
+
+      return (
+        reactionOptions.quick[reactionType]?.Component ??
+        reactionOptions.extended?.[reactionType]?.Component ??
+        null
+      );
+    },
     [reactionOptions],
   );
 
   const isSupportedReaction = useCallback(
-    (reactionType: string) =>
-      reactionOptions.some((reactionOption) => reactionOption.type === reactionType),
+    (reactionType: string) => {
+      if (Array.isArray(reactionOptions)) {
+        return reactionOptions.some(
+          (reactionOption) => reactionOption.type === reactionType,
+        );
+      }
+
+      return (
+        typeof reactionOptions.quick[reactionType] !== 'undefined' ||
+        typeof reactionOptions.extended?.[reactionType] !== 'undefined'
+      );
+    },
     [reactionOptions],
   );
 
