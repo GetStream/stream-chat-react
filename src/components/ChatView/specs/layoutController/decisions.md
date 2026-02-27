@@ -243,3 +243,28 @@ Controller-managed history keeps navigation deterministic and domain-agnostic, w
 
 **Tradeoffs / Consequences:**  
 `slotHistory` is optional at the type level for compatibility with existing typed state fixtures, but initialized and maintained by controller internals. Additional slot-model unification (`channelList` as slot entity) is deferred to Task 9.
+
+## Decision: Unify entity-list rendering via channelList slot without introducing a WorkspaceLayout variant prop
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 9 requires treating channel list as a regular slot entity and removing layout-path dependence on `entityListPaneOpen`. An intermediate proposal added a `variant` flag on `WorkspaceLayout` slots to identify list-pane placement.
+
+**Decision:**  
+Do not add a `variant` prop. Instead:
+
+- `ChatView` derives the entity-list pane by finding the slot binding with `kind: 'channelList'`,
+- `ChatView` passes that slot as `entityListSlot` to `WorkspaceLayout`,
+- remaining slot entries are passed as workspace slots,
+- `ChannelHeader` toggles list visibility by binding/clearing `channelList` slot entities (with `onSidebarToggle` override still supported when no back-history action is active).
+
+**Reasoning:**  
+Binding kind already provides the semantic signal; adding a second classification prop would duplicate source-of-truth and increase mismatch risk.
+
+**Alternatives considered:**
+
+- Add `variant: 'entity-list' | 'workspace'` on each slot — rejected as redundant metadata.
+- Keep dedicated `entityListPaneOpen` rendering gate — rejected because Task 9 requires slot-model unification.
+
+**Tradeoffs / Consequences:**  
+Controller legacy fields (`entityListPaneOpen` and related methods) still exist for backward compatibility, but built-in layout paths now derive list visibility from slot bindings rather than that flag.

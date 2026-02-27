@@ -104,10 +104,12 @@ export const useChatViewContext = () => useContext(ChatViewContext);
 
 const activeViewSelector = ({ activeView }: ChatViewLayoutState) => ({ activeView });
 const workspaceLayoutStateSelector = ({
+  activeView,
   entityListPaneOpen,
   slotBindings,
   visibleSlots,
 }: ChatViewLayoutState) => ({
+  activeView,
   entityListPaneOpen,
   slotBindings,
   visibleSlots,
@@ -117,21 +119,34 @@ const renderSlotBinding = (
   entity: LayoutEntityBinding | undefined,
   slot: string,
   slotRenderers: ChatViewSlotRenderers | undefined,
-) => {
-  if (!entity || !slotRenderers) return null;
+): ReactNode | null => {
+  if (!entity) return null;
 
   switch (entity.kind) {
+    case 'channelList':
+      return (
+        slotRenderers?.channelList?.({ entity, slot, source: entity.source }) ??
+        (entity.source.view === 'threads' ? (
+          <ThreadList />
+        ) : (
+          <ChannelList showChannelSearch />
+        ))
+      );
     case 'channel':
-      return slotRenderers.channel?.({ entity, slot, source: entity.source }) ?? null;
+      return slotRenderers?.channel?.({ entity, slot, source: entity.source }) ?? null;
     case 'thread':
-      return slotRenderers.thread?.({ entity, slot, source: entity.source }) ?? null;
+      return slotRenderers?.thread?.({ entity, slot, source: entity.source }) ?? null;
     case 'memberList':
-      return slotRenderers.memberList?.({ entity, slot, source: entity.source }) ?? null;
+      return slotRenderers?.memberList?.({ entity, slot, source: entity.source }) ?? null;
     case 'userList':
-      return slotRenderers.userList?.({ entity, slot, source: entity.source }) ?? null;
+      return slotRenderers?.userList?.({ entity, slot, source: entity.source }) ?? null;
+    case 'searchResults':
+      return (
+        slotRenderers?.searchResults?.({ entity, slot, source: entity.source }) ?? null
+      );
     case 'pinnedMessagesList':
       return (
-        slotRenderers.pinnedMessagesList?.({ entity, slot, source: entity.source }) ??
+        slotRenderers?.pinnedMessagesList?.({ entity, slot, source: entity.source }) ??
         null
       );
     default:
@@ -195,26 +210,73 @@ export const ChatView = ({
     useStateStore(effectiveLayoutController.state, workspaceLayoutStateSelector) ??
     workspaceLayoutStateSelector(effectiveLayoutController.state.getLatestValue());
 
-  const content =
-    layout === 'nav-rail-entity-list-workspace' ? (
-      <WorkspaceLayout
-        entityListPane={
-          activeView === 'threads' ? <ThreadList /> : <ChannelList showChannelSearch />
-        }
-        entityListPaneOpen={workspaceLayoutState.entityListPaneOpen}
-        navRail={<ChatViewSelector />}
-        slots={workspaceLayoutState.visibleSlots.map((slot) => ({
-          content: renderSlotBinding(
-            workspaceLayoutState.slotBindings[slot],
-            slot,
-            slotRenderers,
-          ),
-          slot,
-        }))}
-      />
-    ) : (
-      children
+  useEffect(() => {
+    if (layout !== 'nav-rail-entity-list-workspace') return;
+
+    const existingChannelListSlot = workspaceLayoutState.visibleSlots.find(
+      (slot) => workspaceLayoutState.slotBindings[slot]?.kind === 'channelList',
     );
+
+    if (existingChannelListSlot) {
+      const existingEntity = workspaceLayoutState.slotBindings[existingChannelListSlot];
+      if (
+        existingEntity?.kind === 'channelList' &&
+        existingEntity.source.view !== workspaceLayoutState.activeView
+      ) {
+        effectiveLayoutController.bind(existingChannelListSlot, {
+          ...existingEntity,
+          source: { view: workspaceLayoutState.activeView },
+        });
+      }
+      return;
+    }
+
+    const firstFreeSlot = workspaceLayoutState.visibleSlots.find(
+      (slot) => !workspaceLayoutState.slotBindings[slot],
+    );
+    if (!firstFreeSlot) return;
+
+    effectiveLayoutController.bind(firstFreeSlot, {
+      key: 'channel-list',
+      kind: 'channelList',
+      source: { view: workspaceLayoutState.activeView },
+    });
+  }, [
+    effectiveLayoutController,
+    layout,
+    workspaceLayoutState.activeView,
+    workspaceLayoutState.slotBindings,
+    workspaceLayoutState.visibleSlots,
+  ]);
+
+  const content =
+    layout === 'nav-rail-entity-list-workspace'
+      ? (() => {
+          const slots = workspaceLayoutState.visibleSlots.map((slot) => ({
+            content: renderSlotBinding(
+              workspaceLayoutState.slotBindings[slot],
+              slot,
+              slotRenderers,
+            ),
+            slot,
+          }));
+          const entityListSlot = slots.find(
+            ({ slot }) => workspaceLayoutState.slotBindings[slot]?.kind === 'channelList',
+          );
+
+          return (
+            <WorkspaceLayout
+              entityListHidden={!workspaceLayoutState.entityListPaneOpen}
+              entityListSlot={entityListSlot}
+              navRail={<ChatViewSelector />}
+              slots={slots.filter(
+                ({ slot }) =>
+                  workspaceLayoutState.slotBindings[slot]?.kind !== 'channelList',
+              )}
+            />
+          );
+        })()
+      : children;
 
   return (
     <ChatViewContext.Provider value={value}>

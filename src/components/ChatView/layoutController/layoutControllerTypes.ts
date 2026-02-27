@@ -13,11 +13,21 @@ export type UserListEntitySource = {
   query: string;
 };
 
+export type ChannelListEntitySource = {
+  view?: ChatView;
+};
+
+export type SearchResultsEntitySource = {
+  query: string;
+};
+
 export type LayoutEntityBinding =
+  | { key?: string; kind: 'channelList'; source: ChannelListEntitySource }
   | { key?: string; kind: 'channel'; source: StreamChannel }
   | { key?: string; kind: 'thread'; source: StreamThread }
   | { key?: string; kind: 'memberList'; source: StreamChannel }
   | { key?: string; kind: 'userList'; source: UserListEntitySource }
+  | { key?: string; kind: 'searchResults'; source: SearchResultsEntitySource }
   | { key?: string; kind: 'pinnedMessagesList'; source: StreamChannel };
 
 export type LayoutSlotMeta = {

@@ -9,15 +9,15 @@ export type WorkspaceLayoutSlot = {
 };
 
 export type WorkspaceLayoutProps = {
-  entityListPane?: ReactNode;
-  entityListPaneOpen?: boolean;
+  entityListHidden?: boolean;
+  entityListSlot?: WorkspaceLayoutSlot;
   navRail?: ReactNode;
   slots: WorkspaceLayoutSlot[];
 };
 
 export const WorkspaceLayout = ({
-  entityListPane,
-  entityListPaneOpen = true,
+  entityListHidden = false,
+  entityListSlot,
   navRail,
   slots,
 }: WorkspaceLayoutProps) => (
@@ -25,10 +25,14 @@ export const WorkspaceLayout = ({
     {navRail ? (
       <div className='str-chat__chat-view__workspace-layout-nav-rail'>{navRail}</div>
     ) : null}
-    {entityListPaneOpen ? (
-      <div className='str-chat__chat-view__workspace-layout-entity-list-pane'>
-        {entityListPane}
-      </div>
+    {entityListSlot?.content ? (
+      <section
+        className='str-chat__chat-view__workspace-layout-entity-list-pane'
+        hidden={entityListHidden}
+        key={entityListSlot.slot}
+      >
+        {entityListSlot.content}
+      </section>
     ) : null}
     <div
       className={clsx('str-chat__chat-view__workspace-layout-slots', {

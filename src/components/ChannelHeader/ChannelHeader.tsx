@@ -30,12 +30,18 @@ export type ChannelHeaderProps = {
 
 const channelHeaderLayoutSelector = ({
   activeSlot,
+  activeView,
   entityListPaneOpen,
+  slotBindings,
   slotHistory,
+  visibleSlots,
 }: ChatViewLayoutState) => ({
   activeSlot,
+  activeView,
   entityListPaneOpen,
+  slotBindings,
   slotHistory,
+  visibleSlots,
 });
 
 /**
@@ -60,12 +66,42 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const { activeSlot, entityListPaneOpen, slotHistory } =
+  const {
+    activeSlot,
+    activeView,
+    entityListPaneOpen,
+    slotBindings,
+    slotHistory,
+    visibleSlots,
+  } =
     useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
     channelHeaderLayoutSelector(layoutController.state.getLatestValue());
+  const channelListSlot = visibleSlots.find(
+    (slot) => slotBindings[slot]?.kind === 'channelList',
+  );
   const hasParentHistory = !!(activeSlot && slotHistory?.[activeSlot]?.length);
   const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;
-  const handleSidebarToggle = onSidebarToggle ?? layoutController.toggleEntityListPane;
+  const handleSidebarToggle =
+    onSidebarToggle ??
+    (() => {
+      if (!entityListPaneOpen) {
+        if (!channelListSlot) {
+          const targetSlot = activeSlot ?? visibleSlots[0];
+          if (!targetSlot) return;
+
+          layoutController.bind(targetSlot, {
+            key: 'channel-list',
+            kind: 'channelList',
+            source: { view: activeView },
+          });
+        }
+
+        layoutController.setEntityListPaneOpen(true);
+        return;
+      }
+
+      layoutController.setEntityListPaneOpen(false);
+    });
   const handleHeaderAction = hasParentHistory
     ? () => {
         if (!activeSlot) return;

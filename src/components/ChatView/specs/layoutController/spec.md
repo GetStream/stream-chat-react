@@ -130,8 +130,8 @@ Context (`useChatViewContext`) exposes both:
 `layout='nav-rail-entity-list-workspace'` renders:
 
 - nav rail (`ChatViewSelector`)
-- entity list pane (`ChannelList` for channels, `ThreadList` for threads)
-- workspace slots, rendered via `slotRenderers[kind]`
+- entity list pane from the slot bound with `kind: 'channelList'`
+- workspace area from the remaining visible slots, rendered via `slotRenderers[kind]`
 
 Custom-children mode remains unchanged when `layout` is omitted.
 
@@ -139,8 +139,8 @@ Custom-children mode remains unchanged when `layout` is omitted.
 
 `ChannelHeader` now defaults sidebar toggle behavior to ChatView layout state:
 
-- reads `entityListPaneOpen` from `layoutController.state`
-- default toggle uses `layoutController.toggleEntityListPane`
+- derives list visibility from whether a `channelList` slot binding exists
+- default toggle uses `layoutController.bind(...)` / `layoutController.clear(...)` for `channelList` entities
 - `onSidebarToggle` still overrides default behavior when passed
 
 ## Migration notes
@@ -167,7 +167,11 @@ const { layoutController } = useChatViewContext();
 
 layoutController.openChannel(channel, { activate: true });
 layoutController.openThread(thread, { targetSlot: 'slot2' });
-layoutController.setEntityListPaneOpen(false);
+layoutController.clear('slot1');
+layoutController.bind('slot1', {
+  kind: 'channelList',
+  source: { view: 'channels' },
+});
 ```
 
 ### High-level (built-in layout mode)
@@ -187,8 +191,6 @@ layoutController.setEntityListPaneOpen(false);
 
 The following are not yet implemented and remain future work:
 
-- slot parent stack/back navigation (`slotHistory`)
-- `channelList` as a slot entity kind
 - `minSlots` + fallback slot rendering
 - mount-preserving hide/unhide slot primitive
 - `openView` and serializer/restore APIs

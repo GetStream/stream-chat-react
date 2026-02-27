@@ -202,9 +202,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 8
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -214,8 +214,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Channel list can be opened/closed/replaced via slot binding APIs.
-- [ ] No layout code path depends on legacy `entityListPaneOpen`.
+- [x] Channel list can be opened/closed/replaced via slot binding APIs.
+- [x] No layout code path depends on legacy `entityListPaneOpen`.
 
 ## Task 10: Min Slots and Fallback Workspace States
 
