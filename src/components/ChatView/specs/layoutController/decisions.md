@@ -368,3 +368,30 @@ This enables deep-link and persistence flows without trying to serialize non-pla
 
 **Tradeoffs / Consequences:**  
 Out-of-the-box round-trip fully preserves serializable entity kinds; channel/thread restoration requires consumer-provided deserialize hooks in the restore options.
+
+## Decision: Add dedicated ChatViewNavigation context/hook for high-level domain actions and route ChannelHeader through it
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 13 requires a less intimidating DX path for common navigation flows and a context split between low-level layout control and high-level domain actions.
+
+**Decision:**  
+Add `ChatViewNavigationContext.tsx` with `useChatViewNavigation()` and a provider mounted inside `ChatView`. The navigation hook exposes:
+
+- `openChannel`, `closeChannel`,
+- `openThread`, `closeThread`,
+- `hideChannelList`, `unhideChannelList`,
+- `openView`.
+
+Update `ChannelHeader` to use `useChatViewNavigation()` for list hide/unhide behavior while keeping back action semantics based on slot history. Export the navigation context/hook via `ChatView/index.tsx`.
+
+**Reasoning:**  
+This gives consumers a domain-focused API without forcing direct `LayoutController` command orchestration for common flows, while still preserving low-level controller access for advanced integrations.
+
+**Alternatives considered:**
+
+- Keep all navigation logic in `ChannelHeader` and expose no new hook — rejected because it does not improve consumer DX.
+- Replace low-level controller APIs entirely — rejected because advanced workflows still require low-level primitives.
+
+**Tradeoffs / Consequences:**  
+Some pre-existing high-level helpers on `LayoutController` remain available for compatibility, but the recommended consumer path is now `useChatViewNavigation()`.

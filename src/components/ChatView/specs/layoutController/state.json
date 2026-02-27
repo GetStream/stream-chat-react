@@ -12,7 +12,7 @@
     "task-10-min-slots-and-fallback-workspace-states": "done",
     "task-11-generic-slot-component-with-mount-preserving-hide-unhide": "done",
     "task-12-deep-linking-serialization-and-openview": "done",
-    "task-13-high-level-navigation-hook-and-context-split": "in-progress",
+    "task-13-high-level-navigation-hook-and-context-split": "done",
     "task-14-tests-for-slot-stack-unified-slots-and-navigation-dx": "pending"
   },
   "flags": {

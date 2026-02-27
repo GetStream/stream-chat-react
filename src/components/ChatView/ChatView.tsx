@@ -17,6 +17,7 @@ import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
+import { ChatViewNavigationProvider } from './ChatViewNavigationContext';
 import { WorkspaceLayout } from './layout/WorkspaceLayout';
 import { createLayoutController } from './layoutController/LayoutController';
 import { resolveTargetSlotChannelDefault } from './layoutSlotResolvers';
@@ -342,7 +343,9 @@ export const ChatView = ({
 
   return (
     <ChatViewContext.Provider value={value}>
-      <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{content}</div>
+      <ChatViewNavigationProvider>
+        <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{content}</div>
+      </ChatViewNavigationProvider>
     </ChatViewContext.Provider>
   );
 };

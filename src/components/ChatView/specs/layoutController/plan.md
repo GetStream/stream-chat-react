@@ -286,7 +286,7 @@ Primary spec for this plan:
 
 **Dependencies:** Task 12
 
-**Status:** in-progress
+**Status:** done
 
 **Owner:** codex
 
@@ -298,8 +298,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] Consumer DX path uses `useChatViewNavigation()` without direct low-level controller usage.
-- [ ] Existing advanced integrations can still use low-level controller methods (`open`, `bind`, `clear`, etc.).
+- [x] Consumer DX path uses `useChatViewNavigation()` without direct low-level controller usage.
+- [x] Existing advanced integrations can still use low-level controller methods (`open`, `bind`, `clear`, etc.).
 
 ## Task 14: Tests for Slot Stack, Unified Slots, and Navigation DX
 

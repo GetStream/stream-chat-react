@@ -3,6 +3,7 @@ import React from 'react';
 import { IconChevronLeft, IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChatViewContext } from '../ChatView';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -30,14 +31,12 @@ export type ChannelHeaderProps = {
 
 const channelHeaderLayoutSelector = ({
   activeSlot,
-  activeView,
   entityListPaneOpen,
   slotBindings,
   slotHistory,
   visibleSlots,
 }: ChatViewLayoutState) => ({
   activeSlot,
-  activeView,
   entityListPaneOpen,
   slotBindings,
   slotHistory,
@@ -59,6 +58,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
 
   const { channel } = useChannelStateContext();
   const { layoutController } = useChatViewContext();
+  const { hideChannelList, unhideChannelList } = useChatViewNavigation();
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -66,14 +66,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const {
-    activeSlot,
-    activeView,
-    entityListPaneOpen,
-    slotBindings,
-    slotHistory,
-    visibleSlots,
-  } =
+  const { activeSlot, entityListPaneOpen, slotBindings, slotHistory, visibleSlots } =
     useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
     channelHeaderLayoutSelector(layoutController.state.getLatestValue());
   const channelListSlot = visibleSlots.find(
@@ -84,23 +77,12 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const handleSidebarToggle =
     onSidebarToggle ??
     (() => {
-      if (!entityListPaneOpen) {
-        if (!channelListSlot) {
-          const targetSlot = activeSlot ?? visibleSlots[0];
-          if (!targetSlot) return;
-
-          layoutController.bind(targetSlot, {
-            key: 'channel-list',
-            kind: 'channelList',
-            source: { view: activeView },
-          });
-        }
-
-        layoutController.setEntityListPaneOpen(true);
+      if (entityListPaneOpen) {
+        hideChannelList({ slot: channelListSlot });
         return;
       }
 
-      layoutController.setEntityListPaneOpen(false);
+      unhideChannelList({ slot: channelListSlot ?? activeSlot });
     });
   const handleHeaderAction = hasParentHistory
     ? () => {
