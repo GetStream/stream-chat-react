@@ -40,6 +40,33 @@ This keeps the plan memory synchronized with actual repository state and prevent
 **Tradeoffs / Consequences:**  
 Follow-up tasks should treat Task 1 APIs as the baseline and only refine via explicit plan updates.
 
+## Decision: Adopt unified slot navigation model for next implementation phase
+
+**Date:** 2026-02-27  
+**Context:**  
+New requirements were introduced after the initial controller implementation to support one-slot mobile back navigation, unified slot treatment for channel list/search, min-slot fallbacks, mount-preserving hide/unhide, deep-link restore, and a less intimidating DX API.
+
+**Decision:**  
+Evolve the spec and plan with a unified slot model:
+
+- add per-slot parent stacks,
+- model `channelList` as an entity slot (no dedicated entity-list-pane state),
+- support `minSlots` with fallback content,
+- introduce a mount-preserving `Slot` primitive for hide/unhide,
+- add `openView` and serializer/restore contract,
+- move high-level domain methods (`openChannel`, `openThread`, etc.) into `useChatViewNavigation()` and keep `LayoutController` low-level.
+
+**Reasoning:**  
+This design cleanly handles mobile one-slot navigation, avoids divergent list-pane semantics, improves deep-link behavior, and makes common integration paths easier without removing advanced low-level control.
+
+**Alternatives considered:**
+
+- Keep current entity-list-pane as a special layout region and only patch back behavior — rejected because it still blocks list replacement in the same slot and creates split semantics.
+- Keep all high-level methods on `LayoutController` — rejected because it keeps DX intimidating and mixes domain-level workflow into low-level layout primitives.
+
+**Tradeoffs / Consequences:**  
+The implementation requires a second phase touching controller types, ChatView contexts, ChannelHeader behavior, and tests. Existing APIs remain usable during migration but should converge on the new navigation hook model.
+
 ## Decision: Implement resolver composition as pure slot resolvers
 
 **Date:** 2026-02-26  

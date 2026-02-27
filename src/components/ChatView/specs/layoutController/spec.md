@@ -13,36 +13,44 @@ We should move all layout orchestration to `ChatView` and expose it through a ty
 
 ## Proposal A: Callback-only API (minimal)
 
-- Add `entityListPaneOpen`, `onEntityListPaneToggle`, `onViewChange`, and slot binding callbacks to `ChatView`.
+- Add slot-level open/close/hide callbacks to `ChatView`.
 - Keep state controlled/uncontrolled with `default*` variants.
 - Pros: simple.
-- Cons: scales poorly when adding more layout modes and slot types.
+- Cons: scales poorly for parent-stack back navigation and deep-link restore.
 
 ## Proposal B: StateStore + commands API (reactive style)
 
-- `ChatView` keeps internal `StateStore` state and exposes command functions through context.
-- Commands stay generic: `toggleEntityListPane`, `setActiveView`, `setMode`, `bind`, `clear`, `open`.
-- Pros: predictable transitions with reactive subscriptions.
+- `ChatView` keeps internal `StateStore` state and exposes typed commands through context.
+- Commands stay generic: `setActiveView`, `setMode`, `bind`, `clear`, `open`, `close`, `openView`.
+- Pros: predictable transitions with reactive subscriptions and clear slot history transitions.
 - Cons: requires strict state shape discipline to avoid ad-hoc store growth.
 
-## Proposal C (recommended): Generic LayoutController instance passed via ChatView props
+## Proposal C (recommended): LayoutController + separate DX navigation API
 
-- Add a new prop on `ChatView`, e.g. `layoutController?: LayoutController`.
+- `ChatView` accepts `layoutController?: LayoutController`.
 - If omitted, `ChatView` creates a default controller internally.
-- `ChatView` exposes the controller and derived layout state through context.
+- `ChatView` also exposes a separate high-level navigation surface (`useChatViewNavigation`) for common actions:
+  - `openChannel`, `closeChannel`
+  - `openThread`, `closeThread`
+  - `hideChannelList`, `unhideChannelList`
+  - `openView`
+- `LayoutController` remains low-level and domain-agnostic.
 
 Example API shape:
 
 ```ts
 type LayoutSlot = string;
 type LayoutMode = string;
+type LayoutView = string;
 
 type LayoutEntityBinding =
+  | { kind: 'channelList'; source: ChannelListSource; key?: string }
   | { kind: 'channel'; source: StreamChannel; key?: string }
   | { kind: 'thread'; source: StreamThread; key?: string }
   | { kind: 'memberList'; source: StreamChannel; key?: string }
   | { kind: 'userList'; source: { query: string }; key?: string }
-  | { kind: 'pinnedMessagesList'; source: StreamChannel; key?: string };
+  | { kind: 'pinnedMessagesList'; source: StreamChannel; key?: string }
+  | { kind: 'searchResults'; source: SearchResultsSource; key?: string };
 
 type ResolveTargetSlotArgs = {
   state: ChatViewLayoutState;
@@ -56,123 +64,66 @@ type OpenResult =
   | { status: 'replaced'; slot: LayoutSlot; replaced: LayoutEntityBinding }
   | { status: 'rejected'; reason: 'no-available-slot' };
 
+type SlotStackItem = {
+  entity: LayoutEntityBinding;
+  view?: LayoutView;
+};
+
 type ChatViewLayoutState = {
   mode: LayoutMode;
-  activeView: 'channels' | 'threads';
-  entityListPaneOpen: boolean;
+  activeView: LayoutView;
+  activeSlot?: LayoutSlot;
   visibleSlots: LayoutSlot[];
   slotBindings: Record<LayoutSlot, LayoutEntityBinding | undefined>;
   slotMeta?: Record<LayoutSlot, { occupiedAt?: number } | undefined>;
+  slotHistory: Record<LayoutSlot, SlotStackItem[] | undefined>;
+  hiddenSlots: Record<LayoutSlot, boolean | undefined>;
+  minSlots: number;
+  maxSlots: number;
 };
 
 interface LayoutController {
   state: StateStore<ChatViewLayoutState>;
-
-  toggleEntityListPane(): void;
-  setEntityListPaneOpen(next: boolean): void;
-
-  setActiveView(next: 'channels' | 'threads'): void;
+  setActiveView(next: LayoutView): void;
   setMode(next: LayoutMode): void;
-
+  openView(
+    view: LayoutView,
+    options?: { slot?: LayoutSlot; pushToHistory?: boolean },
+  ): void;
   bind(slot: LayoutSlot, entity?: LayoutEntityBinding): void;
   clear(slot: LayoutSlot): void;
-
-  // DX helper: app defines maxSlots, controller decides placement.
-  // `targetSlot`: explicit slot requested by caller (for example "open in right pane").
-  // `activate`: when true, the chosen slot becomes activeSlot/focused pane after open.
-  //             This matters for follow-up actions and replace-active resolver strategies.
   open(
     entity: LayoutEntityBinding,
     options?: { targetSlot?: LayoutSlot; activate?: boolean },
   ): OpenResult;
-
-  // High-level convenience API (preferred for most integrators).
-  openChannel(
-    channel: StreamChannel,
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
-  openThread(
-    thread: StreamThread,
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
-  openMemberList(
-    channel: StreamChannel,
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
-  openUserList(
-    source: { query: string },
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
-  openPinnedMessagesList(
-    channel: StreamChannel,
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
-
-  // Optional inferred API. Uses registered inferers to derive kind/key.
-  openEntity(
-    source: unknown,
-    options?: { targetSlot?: LayoutSlot; activate?: boolean },
-  ): OpenResult;
+  close(slot: LayoutSlot, options?: { restoreFromHistory?: boolean }): void;
+  pushParent(slot: LayoutSlot, item: SlotStackItem): void;
+  popParent(slot: LayoutSlot): SlotStackItem | undefined;
+  setSlotHidden(slot: LayoutSlot, hidden: boolean): void;
 }
+
+type ChatViewNavigation = {
+  openChannel(channel: StreamChannel, options?: { slot?: LayoutSlot }): OpenResult;
+  closeChannel(options?: { slot?: LayoutSlot }): void;
+  openThread(thread: StreamThread, options?: { slot?: LayoutSlot }): OpenResult;
+  closeThread(options?: { slot?: LayoutSlot }): void;
+  hideChannelList(options?: { slot?: LayoutSlot }): void;
+  unhideChannelList(options?: { slot?: LayoutSlot }): void;
+  openView(view: LayoutView, options?: { slot?: LayoutSlot }): void;
+};
 ```
 
 Notes:
 
-- `source` is the render-ready instance/object used by outlets.
-- `key` is optional stable identity for deduplication and persistence.
-- If app needs URL/session restore, it should provide serializer/deserializer outside the controller.
-- When no slot is free, controller calls `resolveTargetSlot(args)` (if provided by integrator).
-- Low-level `open(binding)` remains for advanced/custom entity types.
-- Most integrators should use high-level helpers (`openChannel`, `openThread`, ...).
-- `occupiedAt` invariant: whenever a slot transitions from empty -> occupied, controller must write
-  `slotMeta[slot].occupiedAt = Date.now()` (or equivalent monotonic timestamp). When a slot is
-  cleared, `slotMeta[slot]` should be removed/reset. This keeps earliest-slot strategies deterministic.
-
-Suggested ChatView config for full-capacity behavior:
-
-```ts
-type ChatViewProps = {
-  maxSlots: number;
-  resolveTargetSlot?: (args: ResolveTargetSlotArgs) => LayoutSlot | null;
-  duplicateEntityPolicy?: 'allow' | 'move' | 'reject';
-  resolveDuplicateEntity?: (args: {
-    state: ChatViewLayoutState;
-    entity: LayoutEntityBinding;
-    existingSlot: LayoutSlot;
-    requestedSlot?: LayoutSlot;
-    activeSlot?: LayoutSlot;
-  }) => 'allow' | 'move' | 'reject';
-  entityInferers?: Array<{
-    kind: LayoutEntityBinding['kind'];
-    match: (source: unknown) => boolean;
-    toBinding: (source: unknown) => LayoutEntityBinding;
-  }>;
-};
-```
-
-Default behavior can be equivalent to `replace-active`.
-
-High-level method mapping:
-
-```ts
-openChannel(channel, options) {
-  return open({ kind: 'channel', source: channel, key: channel.cid }, options);
-}
-
-openThread(thread, options) {
-  return open({ kind: 'thread', source: thread, key: thread.id }, options);
-}
-```
-
-Optional inferred API:
-
-```ts
-openEntity(source, options) {
-  const inferer = entityInferers.find((i) => i.match(source));
-  if (!inferer) throw new Error('No entity inferer matched source');
-  return open(inferer.toBinding(source), options);
-}
-```
+- `ChannelList` is a first-class slot entity (`kind: 'channelList'`), not a separate pane concept.
+- Parent stack is per-slot (`slotHistory`), enabling back navigation in one-slot mobile layouts.
+- Header action semantics are state-driven:
+  - show back arrow when slot has parent history to pop
+  - show list hide/unhide toggle when history is empty
+- `minSlots` guarantees placeholders/fallback panes can remain visible before entity selection.
+- Hidden slots stay mounted (`hiddenSlots`) so pagination/stateful lists are not re-initialized.
+- `openView` is part of controller and navigation APIs to support URL/deep-link and cross-view transitions.
+- Deep-link serialization should include view + slot history metadata, not just current bindings.
 
 ## Resolver strategies and selection flow
 
@@ -353,14 +304,15 @@ export const layoutSlotResolvers = {
 
 Most developers should only configure:
 
-- `maxSlots` (for example `3`)
+- `minSlots` and `maxSlots`
 - placement policy (`fill-empty-then-replace-last`, `replace-active`, etc.)
+- initial entities (commonly `channelList` + fallback workspace slot)
 
 Example:
 
 ```tsx
-<ChatView maxSlots={3} placement='fill-empty-then-replace-last'>
-  <DynamicSlotsLayout />
+<ChatView minSlots={2} maxSlots={2} placement='fill-empty-then-replace-last'>
+  <WorkspaceLayout />
 </ChatView>
 ```
 
@@ -372,14 +324,16 @@ To avoid requiring custom `DynamicSlotsLayout` + `SlotOutlet`, provide a built-i
 
 Step 1: declare top-level ChatView layout shell.
 
-Step 2: provide slot binding render config (by `kind`).
+Step 2: provide slot binding render config (by `kind`) and optional per-slot fallbacks.
 
 ```tsx
 <ChatView
+  minSlots={2}
   maxSlots={3}
-  layout='nav-rail-entity-list-workspace'
+  layout='nav-rail-workspace'
   placement='fill-empty-then-replace-last'
   slotRenderers={{
+    channelList: ({ source }) => <ChannelList {...source} />,
     channel: ({ source }) => <Channel channel={source} />,
     thread: ({ source }) => (
       <ChatView.ThreadProvider thread={source}>
@@ -389,6 +343,10 @@ Step 2: provide slot binding render config (by `kind`).
     memberList: ({ source }) => <MemberList channel={source} />,
     userList: ({ source }) => <UserList query={source.query} />,
     pinnedMessagesList: ({ source }) => <PinnedMessagesList channel={source} />,
+    searchResults: ({ source }) => <SearchResults {...source} />,
+  }}
+  slotFallbacks={{
+    workspace: <EmptyChannelWorkspacePrompt />,
   }}
 />
 ```
@@ -405,12 +363,12 @@ Example (advanced mode): render `DynamicSlotsLayout` as `ChatView` children.
 ```tsx
 const ChatShell = () => (
   <ChatView
+    minSlots={2}
     maxSlots={3}
     resolveTargetSlot={layoutSlotResolvers.resolveTargetSlotChannelDefault}
   >
     <div className='app-shell'>
       <NavRail />
-      <EntityListPane />
       <DynamicSlotsLayout />
     </div>
   </ChatView>
@@ -512,41 +470,96 @@ bind(targetSlot, entity);
 ## ChatView context contract (with controller)
 
 - `useChatViewContext()` returns:
-  - `layoutController`
-  - convenience wrappers (`toggleEntityListPane`, `bind`, `clear`, `open`) for DX (optional)
+  - `layoutController` (low-level API)
+  - `navigation` from `useChatViewNavigation()` (high-level API)
 - Layout state is consumed through `layoutController.state` and `useStateStore(...)`.
 - `str-chat__header-sidebar-toggle` click behavior:
-  - default: `layoutController.toggleEntityListPane()`
+  - default: if current slot has parent history, pop parent (back)
+  - otherwise hide/unhide channel-list slot
   - optional override in `ChannelHeader` via `onSidebarToggle`
-- `ChannelHeader` can derive collapsed state from context when prop is not provided:
-  - `sidebarCollapsed = !useStateStore(layoutController.state).entityListPaneOpen`
+- `ChannelHeader` icon is derived from layout state:
+  - show back arrow when `slotHistory[currentSlot]?.length > 0`
+  - show sidebar/list icon when history is empty
 
 ## ChannelList and slot counting
 
 Recommended default:
 
-- Use a composite left region:
-  - fixed `navRail` (view switcher: Channels/Threads/Settings)
-  - toggleable `entityListPane` (ChannelList/ThreadList based on `activeView`)
-- Keep both outside dynamic content slots.
-- `maxSlots` counts only dynamic content panes to the right.
+- Treat `ChannelList` as a regular slot entity.
+- Keep `navRail` outside slots (if present), but all list/content panes are slots.
+- `minSlots` controls guaranteed visible slot count (including fallback-only slots).
+- `maxSlots` controls upper bound of concurrently active slots.
 
-Example layout with `maxSlots={3}`:
+Example layout with `minSlots={2}`, `maxSlots={3}`:
 
-- `navRail | entityListPane | slot1 | slot2 | slot3`
+- `navRail | slot1(channelList) | slot2(channel-or-fallback) | slot3(optional)`
 
-Optional advanced mode:
+One-slot mobile layout:
 
-- Include `ChannelList` as a slot if it must be movable/replaceable/closable.
-- In that mode, integrator may configure `maxSlots={4}` and reserve one slot for list UI.
+- `minSlots={1}`, `maxSlots={1}`
+- active slot transitions: `channelList -> channel -> thread`
+- back action pops slot parent stack: `thread -> channel -> channelList`
 
-`ChannelHeader` toggle behavior in this model:
+## Slot visibility and mount lifecycle
 
-- Header button should toggle `entityListPaneOpen` (not `navRail`).
-- `navRail` stays visible to preserve navigation.
-- Reopened `entityListPane` renders list by current `activeView`:
-  - `activeView='channels'` -> ChannelList
-  - `activeView='threads'` -> ThreadList
+To preserve pagination and long-lived list state, hiding a slot must not unmount it.
+
+Recommended primitive:
+
+```tsx
+type SlotProps = {
+  slot: LayoutSlot;
+  keepMounted?: boolean;
+};
+
+const Slot = ({ slot, keepMounted = true }: SlotProps) => {
+  const { layoutController } = useChatViewContext();
+  const { hiddenSlots } = useStateStore(layoutController.state);
+  const isHidden = !!hiddenSlots[slot];
+
+  return (
+    <section
+      className={clsx('str-chat__slot', {
+        'str-chat__slot--hidden': isHidden,
+        'str-chat__slot--visible': !isHidden,
+      })}
+      data-slot={slot}
+    >
+      <SlotOutlet slot={slot} />
+    </section>
+  );
+};
+```
+
+`str-chat__slot--hidden` should be CSS-hidden while still mounted.
+
+## Deep-linking and serialization
+
+Navigation should be serializable with an SDK-level helper interface.
+
+```ts
+type SerializedLayout = {
+  activeView: LayoutView;
+  activeSlot?: LayoutSlot;
+  slots: Array<{
+    slot: LayoutSlot;
+    entity?: { key?: string; kind: LayoutEntityBinding['kind'] };
+    hidden?: boolean;
+    parents?: Array<{
+      key?: string;
+      kind: LayoutEntityBinding['kind'];
+      view?: LayoutView;
+    }>;
+  }>;
+};
+
+interface LayoutSerializationAdapter {
+  serialize(state: ChatViewLayoutState): SerializedLayout;
+  restore(serialized: SerializedLayout): Promise<void>;
+}
+```
+
+`openView` is the canonical entry point for applying route/view changes from deep links before opening concrete entities.
 
 ## TSX example: dynamic 3-slot layout (any combination)
 
@@ -690,10 +703,8 @@ layoutController.bind('slot3', {
 
 ```tsx
 const ChannelListItem = ({ channel }: { channel: StreamChannel }) => {
-  const { layoutController } = useChatViewContext();
-  return (
-    <button onClick={() => layoutController.openChannel(channel)}>Open channel</button>
-  );
+  const { openChannel } = useChatViewNavigation();
+  return <button onClick={() => openChannel(channel)}>Open channel</button>;
 };
 ```
 
@@ -701,8 +712,8 @@ const ChannelListItem = ({ channel }: { channel: StreamChannel }) => {
 
 ```tsx
 const ThreadListItem = ({ thread }: { thread: StreamThread }) => {
-  const { layoutController } = useChatViewContext();
-  return <button onClick={() => layoutController.openThread(thread)}>Open thread</button>;
+  const { openThread } = useChatViewNavigation();
+  return <button onClick={() => openThread(thread)}>Open thread</button>;
 };
 ```
 
@@ -716,15 +727,15 @@ Scenario:
 - Expected outcome:
   - channel opens in a workspace slot (via resolver chain),
   - `activeView` switches to `'channels'`,
-  - entity list pane shows ChannelList when open.
+  - channel-list slot is restored/shown when required by view policy.
 
 ```tsx
 const ViewReplyInChannelAction = ({ channel }: { channel: StreamChannel }) => {
-  const { layoutController } = useChatViewContext();
+  const { openChannel, openView } = useChatViewNavigation();
 
   const onViewInChannel = () => {
-    layoutController.setActiveView('channels');
-    layoutController.openChannel(channel, { activate: true });
+    openView('channels');
+    openChannel(channel, { slot: 'workspace' });
   };
 
   return <button onClick={onViewInChannel}>View in channel</button>;
@@ -757,7 +768,7 @@ Recommended flow:
 
 1. Persist a compact snapshot: slot -> `entity.key` (+ optionally `kind`/`activeView`).
 2. On restore, resolve each key back to a live instance (channel/thread/etc.).
-3. Rebind resolved instances into slots using `layoutController.bind(...)`.
+3. Rebind resolved instances into slots using `layoutController.bind(...)` and restore `slotHistory`.
 4. Skip entries that cannot be resolved (deleted channel, revoked access, etc.).
 
 Example:
@@ -782,17 +793,19 @@ if (slot1?.kind === 'channel') {
 
 ## Suggested migration path
 
-1. Add controller API to `ChatView` context backed by `StateStore` (non-breaking, with default controller).
-2. Change `ChannelHeader` toggle to consume `ChatView` controller, keep `onSidebarToggle` prop override.
-3. Deprecate and remove `openMobileNav` from `ChatContext`.
-4. Add simplified dynamic slot mode (`maxSlots`, placement policy, `open(entity)` with `source`), then migrate examples/e2e.
-5. Add optional serializer/deserializer helpers for persistence.
-6. Introduce typed adapters as optional advanced API.
+1. Keep low-level `LayoutController` in `ChatView` context backed by `StateStore`.
+2. Add per-slot parent stack and back-pop transitions (`pushParent`/`popParent`) for one-slot/mobile workflows.
+3. Move `ChannelList` into slot model (`kind: 'channelList'`) and remove dedicated entity-list-pane semantics.
+4. Add `minSlots` + fallback slot rendering for pre-selection states.
+5. Add mount-preserving slot hiding (`hiddenSlots` + `Slot` CSS class contract).
+6. Add `openView` and layout serialization adapter for deep-link/navigation restore.
+7. Add `useChatViewNavigation()` and move high-level domain methods there.
 
 ## Summary
 
 - Recommended design: pass a generic `LayoutController` (or use default one) through `ChatView` and expose it in `ChatView` context.
+- Keep `LayoutController` low-level and domain-agnostic; expose domain navigation via `useChatViewNavigation()`.
 - Bindings should carry source instances so outlets render directly without extra lookup.
 - Optional `key` handles deduplication and persistence.
-- Simple path: developers set `maxSlots` and open entities; slots can host any type combination, including multiple channels.
-- DX path: developers usually call high-level helpers (`openChannel`, `openThread`, ...) and avoid manual `kind` authoring.
+- `ChannelList` is a slot entity, enabling one-slot mobile flows and list replacement (e.g. search results) in the same slot.
+- `minSlots` and slot fallbacks provide stable empty-state layouts before entity selection.
