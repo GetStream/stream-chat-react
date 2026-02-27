@@ -42,10 +42,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-md);
     justify-content: center;
     padding: var(--str-chat__message-composer-padding);
     min-width: 0;
+    border-top: 1px solid var(--border-core-default);
+    background: var(--background-elevation-elevation-1);
   }
 
   .str-chat__message-composer {
@@ -176,34 +178,6 @@
     .str-chat__recording-permission-denied-notification__message {
       margin: var(--spacing-xs) 0 0;
       font-weight: var(--typography-font-weight-regular, 400);
-    }
-  }
-
-  // todo: need designs?
-  .str-chat__send-to-channel-checkbox__container {
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-    padding-inline: 0.75rem;
-    max-width: var(--str-chat__message-composer-max-width);
-
-    .str-chat__send-to-channel-checkbox__field {
-      display: flex;
-      align-items: center;
-
-      * {
-        cursor: pointer;
-      }
-
-      label {
-        padding-inline: 0.5rem;
-        color: var(--str-chat__text-low-emphasis-color);
-        font: var(--str-chat__body-text);
-      }
-
-      input {
-        margin: 0;
-      }
     }
   }
 }
