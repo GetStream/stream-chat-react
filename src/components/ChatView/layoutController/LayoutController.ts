@@ -16,6 +16,7 @@ const DEFAULT_LAYOUT_STATE: ChatViewLayoutState = {
   activeSlot: undefined,
   activeView: 'channels',
   entityListPaneOpen: true,
+  hiddenSlots: {},
   mode: 'default',
   slotBindings: {},
   slotHistory: {},
@@ -47,6 +48,10 @@ const buildInitialState = (
 ): ChatViewLayoutState => ({
   ...DEFAULT_LAYOUT_STATE,
   ...partialState,
+  hiddenSlots: {
+    ...DEFAULT_LAYOUT_STATE.hiddenSlots,
+    ...(partialState?.hiddenSlots ?? {}),
+  },
   slotBindings: {
     ...DEFAULT_LAYOUT_STATE.slotBindings,
     ...(partialState?.slotBindings ?? {}),
@@ -229,6 +234,20 @@ export const createLayoutController = (
     state.partialNext({ activeView: next });
   };
 
+  const openView: LayoutController['openView'] = (view, options) => {
+    const targetSlot = options?.slot;
+    const shouldActivateSlot = options?.activateSlot ?? true;
+
+    state.next((current) => ({
+      ...current,
+      activeSlot:
+        shouldActivateSlot && targetSlot && current.visibleSlots.includes(targetSlot)
+          ? targetSlot
+          : current.activeSlot,
+      activeView: view,
+    }));
+  };
+
   const setMode: LayoutController['setMode'] = (next) => {
     state.partialNext({ mode: next });
   };
@@ -241,6 +260,16 @@ export const createLayoutController = (
     state.next((current) => ({
       ...current,
       entityListPaneOpen: !current.entityListPaneOpen,
+    }));
+  };
+
+  const setSlotHidden: LayoutController['setSlotHidden'] = (slot, hidden) => {
+    state.next((current) => ({
+      ...current,
+      hiddenSlots: {
+        ...(current.hiddenSlots ?? {}),
+        [slot]: hidden,
+      },
     }));
   };
 
@@ -429,11 +458,13 @@ export const createLayoutController = (
     openPinnedMessagesList,
     openThread,
     openUserList,
+    openView,
     popParent,
     pushParent,
     setActiveView,
     setEntityListPaneOpen,
     setMode,
+    setSlotHidden,
     state,
     toggleEntityListPane,
   };

@@ -8,6 +8,7 @@ import type { ChatView } from '../ChatView';
 
 export type LayoutSlot = string;
 export type LayoutMode = string;
+export type LayoutView = ChatView;
 
 export type UserListEntitySource = {
   query: string;
@@ -38,6 +39,7 @@ export type ChatViewLayoutState = {
   activeSlot?: LayoutSlot;
   activeView: ChatView;
   entityListPaneOpen: boolean;
+  hiddenSlots?: Record<LayoutSlot, boolean | undefined>;
   maxSlots?: number;
   minSlots?: number;
   mode: LayoutMode;
@@ -84,6 +86,45 @@ export type CloseOptions = {
   restoreFromHistory?: boolean;
 };
 
+export type OpenViewOptions = {
+  activateSlot?: boolean;
+  slot?: LayoutSlot;
+};
+
+export type SerializedLayoutEntityBinding = {
+  key?: string;
+  kind: LayoutEntityBinding['kind'];
+  source: unknown;
+};
+
+export type ChatViewLayoutSnapshot = {
+  activeSlot?: LayoutSlot;
+  activeView: LayoutView;
+  entityListPaneOpen: boolean;
+  hiddenSlots: Record<LayoutSlot, boolean | undefined>;
+  mode: LayoutMode;
+  slotBindings: Record<LayoutSlot, SerializedLayoutEntityBinding | undefined>;
+  slotHistory: Record<LayoutSlot, SerializedLayoutEntityBinding[] | undefined>;
+  slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
+  visibleSlots: LayoutSlot[];
+};
+
+export type SerializeLayoutEntityBinding = (
+  entity: LayoutEntityBinding,
+) => SerializedLayoutEntityBinding | undefined;
+
+export type DeserializeLayoutEntityBinding = (
+  entity: SerializedLayoutEntityBinding,
+) => LayoutEntityBinding | undefined;
+
+export type SerializeLayoutStateOptions = {
+  serializeEntityBinding?: SerializeLayoutEntityBinding;
+};
+
+export type RestoreLayoutStateOptions = {
+  deserializeEntityBinding?: DeserializeLayoutEntityBinding;
+};
+
 export type CreateLayoutControllerOptions = {
   duplicateEntityPolicy?: DuplicateEntityPolicy;
   initialState?: Partial<ChatViewLayoutState>;
@@ -97,6 +138,7 @@ export type LayoutController = {
   clear: (slot: LayoutSlot) => void;
   close: (slot: LayoutSlot, options?: CloseOptions) => void;
   open: (entity: LayoutEntityBinding, options?: OpenOptions) => OpenResult;
+  openView: (view: LayoutView, options?: OpenViewOptions) => void;
   openChannel: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
   openMemberList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
   openPinnedMessagesList: (channel: StreamChannel, options?: OpenOptions) => OpenResult;
@@ -107,6 +149,7 @@ export type LayoutController = {
   setActiveView: (next: ChatView) => void;
   setEntityListPaneOpen: (next: boolean) => void;
   setMode: (next: LayoutMode) => void;
+  setSlotHidden: (slot: LayoutSlot, hidden: boolean) => void;
   state: StateStore<ChatViewLayoutState>;
   toggleEntityListPane: () => void;
 };

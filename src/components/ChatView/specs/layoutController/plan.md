@@ -265,9 +265,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 10
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -277,8 +277,8 @@ Primary spec for this plan:
 
 **Acceptance Criteria:**
 
-- [ ] View-first deep links (`openView` then entity opens) are supported.
-- [ ] Layout snapshot round-trip preserves slot stack and visibility semantics.
+- [x] View-first deep links (`openView` then entity opens) are supported.
+- [x] Layout snapshot round-trip preserves slot stack and visibility semantics.
 
 ## Task 13: High-Level Navigation Hook and Context Split
 
@@ -286,9 +286,9 @@ Primary spec for this plan:
 
 **Dependencies:** Task 12
 
-**Status:** pending
+**Status:** in-progress
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 

@@ -338,3 +338,33 @@ Centralizing slot visibility behavior in one primitive avoids duplicating hide l
 
 **Tradeoffs / Consequences:**  
 Current Task 11 implementation uses existing layout visibility inputs (`entityListHidden` / slot `hidden`) and class contract. Dedicated controller APIs for arbitrary hidden slots remain follow-up work.
+
+## Decision: Add openView + snapshot serialization/restore helpers with safe default entity handling
+
+**Date:** 2026-02-27  
+**Context:**  
+Task 12 requires view-first navigation (`openView`) and layout snapshot round-tripping including slot bindings, hidden slots, and parent history while avoiding unsafe assumptions for non-serializable runtime entities.
+
+**Decision:**  
+Update controller and types to include:
+
+- `openView(view, options?)` on `LayoutController`,
+- `hiddenSlots` in layout state and `setSlotHidden(slot, hidden)` command,
+- typed snapshot model (`ChatViewLayoutSnapshot`) and serializer contracts in `layoutControllerTypes.ts`.
+
+Add `src/components/ChatView/layoutController/serialization.ts` with:
+
+- `serializeLayoutState(...)` / `restoreLayoutState(...)`,
+- `serializeLayoutControllerState(...)` / `restoreLayoutControllerState(...)`,
+- default serializer/deserializer that only handles plain-data entity kinds (`channelList`, `userList`, `searchResults`) and skips unresolved kinds unless custom serializer/deserializer callbacks are provided.
+
+**Reasoning:**  
+This enables deep-link and persistence flows without trying to serialize non-plain runtime objects (e.g., channel/thread instances), while still preserving history/visibility semantics for serializable bindings.
+
+**Alternatives considered:**
+
+- Attempt default serialization for all entity kinds — rejected due unsafe/non-deterministic runtime object encoding.
+- Store only active view and drop slot state — rejected because Task 12 explicitly requires preserving stack/visibility semantics.
+
+**Tradeoffs / Consequences:**  
+Out-of-the-box round-trip fully preserves serializable entity kinds; channel/thread restoration requires consumer-provided deserialize hooks in the restore options.
