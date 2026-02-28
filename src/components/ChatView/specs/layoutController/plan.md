@@ -482,3 +482,263 @@ Phase 14 (After Task 16):
 | Task | Creates/Modifies                                                                                                                                                                                                                                                                               |
 | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 17   | `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/ChatView.tsx`, `src/components/ChatView/specs/layoutController/spec.md` |
+
+## Task 18: Remove Thread Pagination Fields from ChannelStateContextValue
+
+**File(s) to create/modify:** `src/context/ChannelStateContext.tsx`, `src/components/Channel/channelState.ts`, `src/components/Channel/hooks/useCreateChannelStateContext.ts` and other impacted files.
+
+**Dependencies:** Task 17
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove thread-pagination/thread-message fields from `ChannelState` / `ChannelStateContextValue`:
+  - `thread?: LocalMessage | null`
+  - `threadHasMore?: boolean`
+  - `threadLoadingMore?: boolean`
+  - `threadMessages?: LocalMessage[]`
+  - `threadSuppressAutoscroll?: boolean`
+- Keep thread pagination source-of-truth in `Thread` instance (`ThreadContext` + `Thread.state`), not channel context.
+- Preserve compatibility where possible by migrating consumers to thread-instance selectors/hooks.
+
+**Acceptance Criteria:**
+
+- [x] `ChannelStateContextValue` no longer exposes thread pagination fields.
+- [x] Thread pagination rendering still works through `ThreadContext`-based state.
+
+## Task 19: Add `members` StateStore to ChannelState (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** None
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Introduce dedicated `StateStore` for `members` in SDK `ChannelState`.
+- Keep backward compatibility via existing API surface (getters/setters or equivalent adapter path).
+- Ensure existing direct `channel.state.members` consumers continue to function during migration.
+
+**Acceptance Criteria:**
+
+- [ ] `members` has a dedicated reactive store in `channel_state.ts`.
+- [ ] Backward-compatible access path for `members` is preserved.
+
+## Task 20: Add `read` StateStore to ChannelState (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 19
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Introduce dedicated `StateStore` for `read` in SDK `ChannelState`.
+- Keep backward compatibility for existing `read` access.
+- Validate that read-dependent consumers (receipts/unread logic) keep behavior.
+
+**Acceptance Criteria:**
+
+- [ ] `read` has a dedicated reactive store in `channel_state.ts`.
+- [ ] Backward-compatible access path for `read` is preserved.
+
+## Task 21: Add `watcherCount` StateStore to ChannelState (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 20
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Introduce reactive storage for `watcherCount` as part of a shared watcher store contract.
+- Preserve backward-compatible reads/writes for `watcherCount`.
+- Ensure watcher count updates remain event-driven and stable.
+
+**Acceptance Criteria:**
+
+- [ ] `watcherCount` is managed by dedicated reactive store infrastructure.
+- [ ] Backward-compatible access path for `watcherCount` is preserved.
+
+## Task 22: Add `watchers` StateStore to ChannelState (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 21
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Add reactive storage for `watchers` in the same store family as `watcherCount`.
+- Keep `watchers` backward compatibility via adapter/getter path.
+- Confirm watcher list updates stay in sync with watcher count updates.
+
+**Acceptance Criteria:**
+
+- [ ] `watchers` is managed by dedicated reactive store infrastructure.
+- [ ] `watchers` + `watcherCount` updates stay synchronized.
+
+## Task 23: Convert `mutedUsers` to Dedicated StateStore (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 22
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Convert `mutedUsers` in SDK `ChannelState` to dedicated `StateStore`.
+- Preserve backward-compatible property behavior.
+- Keep existing mute-dependent UI hooks/components functioning unchanged.
+
+**Acceptance Criteria:**
+
+- [ ] `mutedUsers` is backed by dedicated reactive store.
+- [ ] Existing mute access APIs continue working.
+
+## Task 24: Move `typing` Reactive State to TextComposer StateStore (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `src/context/TypingContext.tsx`, `src/components/Channel/hooks/useCreateTypingContext.ts`
+
+**Dependencies:** Task 18
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Relocate typing reactive source-of-truth to existing `TextComposer` state store.
+- Keep compatibility with current React TypingContext consumption.
+- Remove duplicated typing ownership from channel-context-centric paths.
+
+**Acceptance Criteria:**
+
+- [ ] `typing` source-of-truth is `TextComposer` reactive state.
+- [ ] Existing typing indicators/context consumers continue to work.
+
+## Task 25: Remove `suppressAutoscroll` from ChannelStateContext and Make It MessageList Props
+
+**File(s) to create/modify:** `src/context/ChannelStateContext.tsx`, `src/components/MessageList/MessageList.tsx`, `src/components/MessageList/VirtualizedMessageList.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/components/Channel/Channel.tsx`
+
+**Dependencies:** Task 18
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Remove `suppressAutoscroll` from `ChannelStateContextValue`.
+- Treat `suppressAutoscroll` as explicit prop input for `MessageList` and `VirtualizedMessageList`.
+- Keep channel-level behavior backward compatible through prop defaulting/migration bridge.
+
+**Acceptance Criteria:**
+
+- [ ] `ChannelStateContextValue` no longer includes `suppressAutoscroll`.
+- [ ] `MessageList` and `VirtualizedMessageList` support `suppressAutoscroll` via props without regressions.
+
+## Task 26: Integration Layer for Backward Compatibility of New Stores
+
+**File(s) to create/modify:** `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`
+
+**Dependencies:** Task 19, Task 20, Task 21, Task 22, Task 23, Task 24, Task 25
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Add compatibility bridge layer so migrated stores can be consumed through existing SDK/React interfaces during transition.
+- Ensure each moved value (`members`, `read`, `watcherCount`, `watchers`, `mutedUsers`, `typing`) has a stable fallback path.
+- Keep `pinnedMessages` explicitly out of scope.
+
+**Acceptance Criteria:**
+
+- [ ] Compatibility bridge documented and implemented for all moved values.
+- [ ] No breaking public API removals outside approved scope.
+
+## Task 27: Tests for ChannelStateContext Decomposition and Store Migration
+
+**File(s) to create/modify:** `src/components/MessageList/__tests__/MessageList.test.js`, `src/components/MessageInput/__tests__/*`, `src/components/TypingIndicator/__tests__/*`, `src/components/Channel/__tests__/Channel.test.js`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 26
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Add coverage for:
+  - channel resolution through `useChannel`,
+  - removed `ChannelStateContext` fields,
+  - new reactive stores (`members`, `read`, `watcherCount`, `watchers`, `mutedUsers`, `typing`),
+  - `suppressAutoscroll` prop behavior in MessageList variants.
+- Include compatibility-focused regression checks.
+
+**Acceptance Criteria:**
+
+- [ ] React and SDK tests cover all new store migration requirements.
+- [ ] No regression on thread pagination, unread/read, watchers, typing, mute, and autoscroll behavior.
+
+## Execution order update
+
+Phase 15 (After Task 17):
+
+- Task 18: Remove Thread Pagination Fields from ChannelStateContextValue
+
+Phase 16 (Sequential, same-file SDK `channel_state.ts` work):
+
+- Task 19: Add `members` StateStore to ChannelState (SDK)
+- Task 20: Add `read` StateStore to ChannelState (SDK)
+- Task 21: Add `watcherCount` StateStore to ChannelState (SDK)
+- Task 22: Add `watchers` StateStore to ChannelState (SDK)
+- Task 23: Convert `mutedUsers` to Dedicated StateStore (SDK)
+
+Phase 17 (After Task 18, parallelizable with Phases 16 where files do not overlap):
+
+- Task 24: Move `typing` Reactive State to TextComposer StateStore (SDK)
+- Task 25: Remove `suppressAutoscroll` from ChannelStateContext and Make It MessageList Props
+
+Phase 18 (After Tasks 19-25):
+
+- Task 26: Integration Layer for Backward Compatibility of New Stores
+
+Phase 19 (After Task 26):
+
+- Task 27: Tests for ChannelStateContext Decomposition and Store Migration
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 18   | `src/context/ChannelStateContext.tsx`, `src/components/Channel/channelState.ts`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`                                                                                                                                                                                                                          |
+| 19   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                |
+| 20   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                |
+| 21   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                |
+| 22   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                |
+| 23   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                |
+| 24   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `src/context/TypingContext.tsx`, `src/components/Channel/hooks/useCreateTypingContext.ts`             |
+| 25   | `src/context/ChannelStateContext.tsx`, `src/components/MessageList/MessageList.tsx`, `src/components/MessageList/VirtualizedMessageList.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/components/Channel/Channel.tsx`                                                                                                                       |
+| 26   | `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts` |
+| 27   | `src/components/MessageList/__tests__/MessageList.test.js`, `src/components/MessageInput/__tests__/*`, `src/components/TypingIndicator/__tests__/*`, `src/components/Channel/__tests__/Channel.test.js`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                 |

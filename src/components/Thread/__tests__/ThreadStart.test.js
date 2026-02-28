@@ -4,22 +4,12 @@ import { cleanup, render, screen } from '@testing-library/react';
 
 import { ThreadStart } from '../ThreadStart';
 
-import {
-  ChannelStateProvider,
-  ChatProvider,
-  TranslationProvider,
-} from '../../../context';
+import { ChatProvider, TranslationProvider } from '../../../context';
+import { ThreadProvider } from '../../Threads/ThreadContext';
 
 import { generateMessage, getTestClientWithUser } from '../../../mock-builders';
 
 let client;
-
-const mockedChannel = {
-  off: jest.fn(),
-  state: {
-    members: {},
-  },
-};
 
 const i18nMock = {
   t: jest.fn((key, props) => {
@@ -29,13 +19,20 @@ const i18nMock = {
   }),
 };
 
-const renderComponent = ({ channelState, client }) =>
+const makeThread = (parentMessage) => ({
+  state: {
+    getLatestValue: () => ({ parentMessage }),
+    subscribeWithSelector: () => () => null,
+  },
+});
+
+const renderComponent = ({ client, thread }) =>
   render(
     <ChatProvider value={{ client, latestMessageDatesByChannels: {} }}>
       <TranslationProvider value={i18nMock}>
-        <ChannelStateProvider value={channelState}>
+        <ThreadProvider thread={thread}>
           <ThreadStart />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </TranslationProvider>
     </ChatProvider>,
   );
@@ -49,20 +46,15 @@ describe('ThreadStart', () => {
 
   it('does not render if no replies', () => {
     const parentMessage = generateMessage();
-    const channelState = {
-      channel: mockedChannel,
-      thread: parentMessage,
-    };
-    const { container } = renderComponent({ channelState, client });
+    const { container } = renderComponent({
+      client,
+      thread: makeThread(parentMessage),
+    });
     expect(container.children).toHaveLength(0);
   });
   it('renders if replies exist', () => {
     const parentMessage = generateMessage({ reply_count: 1 });
-    const channelState = {
-      channel: mockedChannel,
-      thread: parentMessage,
-    };
-    renderComponent({ channelState, client });
+    renderComponent({ client, thread: makeThread(parentMessage) });
     expect(i18nMock.t).toHaveBeenCalledWith('replyCount', {
       count: parentMessage.reply_count,
     });

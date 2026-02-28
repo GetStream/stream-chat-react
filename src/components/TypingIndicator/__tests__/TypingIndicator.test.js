@@ -10,6 +10,7 @@ import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TypingProvider } from '../../../context/TypingContext';
+import { ThreadProvider } from '../../Threads/ThreadContext';
 
 import {
   generateChannel,
@@ -22,17 +23,28 @@ import {
 expect.extend(toHaveNoViolations);
 
 const me = generateUser();
+const makeThread = (parentMessageId) =>
+  parentMessageId
+    ? {
+        state: {
+          getLatestValue: () => ({ parentMessage: { id: parentMessageId } }),
+          subscribeWithSelector: () => () => null,
+        },
+      }
+    : undefined;
 
-async function renderComponent(typing = {}, threadList, value = {}) {
+async function renderComponent(typing = {}, threadList, value = {}, threadParentId) {
   const client = await getTestClientWithUser(me);
 
   return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ ...value }}>
         <ComponentProvider value={{}}>
-          <TypingProvider value={{ typing }}>
-            <TypingIndicator threadList={threadList} />
-          </TypingProvider>
+          <ThreadProvider thread={makeThread(threadParentId)}>
+            <TypingProvider value={{ typing }}>
+              <TypingIndicator threadList={threadList} />
+            </TypingProvider>
+          </ThreadProvider>
         </ComponentProvider>
       </ChannelStateProvider>
     </ChatProvider>,
@@ -176,8 +188,8 @@ describe('TypingIndicator', () => {
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
@@ -190,8 +202,8 @@ describe('TypingIndicator', () => {
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container).toBeEmptyDOMElement();
@@ -204,8 +216,8 @@ describe('TypingIndicator', () => {
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container).toBeEmptyDOMElement();
@@ -218,8 +230,8 @@ describe('TypingIndicator', () => {
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container).toBeEmptyDOMElement();

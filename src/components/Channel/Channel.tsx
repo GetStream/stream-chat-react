@@ -65,10 +65,8 @@ import {
   DEFAULT_HIGHLIGHT_DURATION,
   DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-  DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList';
 import {
   getChatContainerClass,
   useChannelContainerClasses,
@@ -340,14 +338,6 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
-    if (event.message) {
-      dispatch({
-        channel,
-        message: event.message,
-        type: 'updateThreadOnEvent',
-      });
-    }
-
     // ignore the event if it is not targeted at the current channel.
     // Event targeted at this channel or globally targeted event should lead to state refresh
     if (event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid)
@@ -518,14 +508,6 @@ const ChannelInner = (
     channelConfig?.read_events,
     initializeOnMount,
   ]);
-
-  useEffect(() => {
-    if (!state.thread) return;
-
-    const message = state.messages?.find((m) => m.id === state.thread?.id);
-
-    if (message) dispatch({ message, type: 'setThread' });
-  }, [state.messages, state.thread]);
 
   const handleHighlightedMessageChange = useCallback(
     ({
@@ -855,7 +837,6 @@ const ChannelInner = (
 
     dispatch({
       channel,
-      parentId: state.thread && updatedMessage.parent_id,
       type: 'copyMessagesFromChannel',
     });
   };
@@ -992,73 +973,8 @@ const ChannelInner = (
 
     dispatch({
       channel,
-      parentId: state.thread && message.parent_id,
       type: 'copyMessagesFromChannel',
     });
-  };
-
-  /** THREAD */
-
-  const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
-    event?.preventDefault();
-    dispatch({ channel, message, type: 'openThread' });
-  };
-
-  const closeThread = (event?: React.BaseSyntheticEvent) => {
-    event?.preventDefault();
-    dispatch({ type: 'closeThread' });
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const loadMoreThreadFinished = useCallback(
-    debounce(
-      (
-        threadHasMore: boolean,
-        threadMessages: Array<ReturnType<ChannelState['formatMessage']>>,
-      ) => {
-        dispatch({
-          threadHasMore,
-          threadMessages,
-          type: 'loadMoreThreadFinished',
-        });
-      },
-      2000,
-      { leading: true, trailing: true },
-    ),
-    [],
-  );
-
-  const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
-    // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
-
-    dispatch({ type: 'startLoadingThread' });
-    const parentId = state.thread.id;
-
-    if (!parentId) {
-      return dispatch({ type: 'closeThread' });
-    }
-
-    const oldMessages = channel.state.threads[parentId] || [];
-    const oldestMessageId = oldMessages[0]?.id;
-
-    try {
-      const queryResponse = await channel.getReplies(parentId, {
-        id_lt: oldestMessageId,
-        limit,
-      });
-
-      const threadHasMoreMessages = hasMoreMessagesProbably(
-        queryResponse.messages.length,
-        limit,
-      );
-      const newThreadMessages = channel.state.threads[parentId] || [];
-
-      // next set loadingMore to false so we can start asking for more data
-      loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
-    } catch (e) {
-      loadMoreThreadFinished(false, oldMessages);
-    }
   };
 
   const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
@@ -1087,7 +1003,6 @@ const ChannelInner = (
   const channelActionContextValue: ChannelActionContextValue = useMemo(
     () => ({
       addNotification,
-      closeThread,
       deleteMessage,
       dispatch,
       editMessage,
@@ -1096,11 +1011,9 @@ const ChannelInner = (
       jumpToMessage,
       loadMore,
       loadMoreNewer,
-      loadMoreThread,
       markRead,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
-      openThread,
       removeMessage,
       retrySendMessage,
       sendMessage,

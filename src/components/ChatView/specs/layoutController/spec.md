@@ -243,3 +243,56 @@ This de-opinionates the low-level controller API and keeps domain-specific behav
 - `LayoutController` now manages generic slot bindings (`payload`) and slot primitives only.
 - High-level domain operations (`openChannel`, `openThread`, hide/unhide channel list) remain in `ChatViewNavigationContext`.
 - ChatView no longer models a dedicated `entityListSlot`; all rendered slots flow through the same slot list in `WorkspaceLayout`.
+
+## New requirements: ChannelStateContext decomposition and reactive store migration
+
+### 1) Remove thread pagination fields from `ChannelStateContextValue`
+
+The following fields must be removed from React `ChannelStateContextValue`, because thread pagination state belongs to `Thread` instance state from `ThreadContext`:
+
+- `thread?: LocalMessage | null`
+- `threadHasMore?: boolean`
+- `threadLoadingMore?: boolean`
+- `threadMessages?: LocalMessage[]`
+- `threadSuppressAutoscroll?: boolean`
+
+### Implementation update: Task 18
+
+- `ChannelStateContextValue` no longer includes thread pagination/message fields.
+- Channel reducer state no longer stores thread pagination/message fields.
+- `ChannelActionContext` no longer exposes thread pagination controls (`closeThread`, `loadMoreThread`).
+- Thread-aware UI now derives thread state from `ThreadContext` + `Thread.state` selectors (`ThreadStart`, `TypingIndicator`, `ScrollToLatestMessageButton`).
+
+### 2) Introduce dedicated reactive stores in SDK `ChannelState`
+
+In `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, introduce dedicated `StateStore` instances with backward-compatible access paths for:
+
+- `members`
+- `read`
+- `watcherCount`
+- `watchers`
+
+Constraints:
+
+- `members` and `read` each use separate store instances.
+- `watcherCount` and `watchers` belong to the same store instance.
+- compatibility is required (getters/setters or equivalent adapter path).
+
+`pinnedMessages` migration is explicitly out of scope.
+
+### 3) Move `suppressAutoscroll` out of ChannelStateContext
+
+`suppressAutoscroll` should no longer be carried by `ChannelStateContext`; instead it should be an explicit prop for:
+
+- `MessageList`
+- `VirtualizedMessageList`
+
+### 4) Move `typing` ownership to TextComposer reactive state
+
+`typing` ownership should be aligned with the existing `TextComposer` reactive state in:
+
+- `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`
+
+### 5) Convert `mutedUsers` to dedicated store
+
+In `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, convert `mutedUsers` to a dedicated `StateStore` in a backward-compatible way.

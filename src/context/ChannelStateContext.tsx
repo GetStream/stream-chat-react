@@ -34,11 +34,6 @@ export type ChannelState = {
   messages?: LocalMessage[];
   pinnedMessages?: LocalMessage[];
   read?: StreamChannelState['read'];
-  thread?: LocalMessage | null;
-  threadHasMore?: boolean;
-  threadLoadingMore?: boolean;
-  threadMessages?: LocalMessage[];
-  threadSuppressAutoscroll?: boolean;
   typing?: StreamChannelState['typing'];
   watcherCount?: number;
   watchers?: StreamChannelState['watchers'];

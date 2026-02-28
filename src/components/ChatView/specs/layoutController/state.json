@@ -16,14 +16,24 @@
     "task-14-thread-component-layout-controller-adaptation": "done",
     "task-15-tests-for-slot-stack-unified-slots-and-navigation-dx": "done",
     "task-16-slot-self-visibility-from-slot-prop": "done",
-    "task-17-remove-entity-semantics-from-layoutcontroller-slot-only-controller": "done"
+    "task-17-remove-entity-semantics-from-layoutcontroller-slot-only-controller": "done",
+    "task-18-remove-thread-pagination-fields-from-channelstatecontextvalue": "done",
+    "task-19-add-members-statestore-to-channelstate-sdk": "pending",
+    "task-20-add-read-statestore-to-channelstate-sdk": "pending",
+    "task-21-add-watchercount-statestore-to-channelstate-sdk": "pending",
+    "task-22-add-watchers-statestore-to-channelstate-sdk": "pending",
+    "task-23-convert-mutedusers-to-dedicated-statestore-sdk": "pending",
+    "task-24-move-typing-reactive-state-to-textcomposer-statestore-sdk": "pending",
+    "task-25-remove-suppressautoscroll-from-channelstatecontext-and-make-it-messagelist-prop": "pending",
+    "task-26-integration-layer-for-backward-compatibility-of-new-stores": "pending",
+    "task-27-tests-for-channelstatecontext-decomposition-and-store-migration": "pending"
   },
   "flags": {
     "blocked": false,
     "needs-review": false
   },
   "meta": {
-    "last_updated": "2026-02-27",
+    "last_updated": "2026-02-28",
     "worktree": "../stream-chat-react-worktrees/chatview-layout-controller",
     "branch": "feat/chatview-layout-controller"
   }

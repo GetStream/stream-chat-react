@@ -530,3 +530,57 @@ This preserves a strict separation of concerns: low-level controller manages slo
 
 **Tradeoffs / Consequences:**  
 Entity typing now lives in ChatView-level helpers (`createChatViewSlotBinding` / `getChatViewEntityBinding`) rather than controller types. Typecheck passes; runtime Jest verification remains blocked in this environment by missing `@babel/runtime` from linked `stream-chat-js` artifacts.
+
+## Decision: Plan ChannelStateContext decomposition and SDK store migration as explicit sequential tasks
+
+**Date:** 2026-02-28  
+**Context:**  
+New requirements were added to decompose `ChannelStateContext` responsibilities and move multiple channel fields into dedicated reactive SDK stores, while preserving backward compatibility and keeping thread pagination state in `ThreadContext`/`Thread` state.
+
+**Decision:**  
+Update `plan.md`, `state.json`, and `spec.md` with Tasks 18-27 and explicit sequencing:
+
+- remove thread pagination fields from `ChannelStateContextValue`,
+- create dedicated SDK stores for `members`, `read`, `watcherCount`, `watchers`, and `mutedUsers`,
+- move typing ownership to `TextComposer` state,
+- move `suppressAutoscroll` to `MessageList`/`VirtualizedMessageList` props,
+- add a dedicated integration-compatibility task and a final regression test task.
+
+`members`, `read`, `watcherCount`, and `watchers` were split into separate tasks as requested, with explicit dependencies because they touch the same SDK file.
+
+**Reasoning:**  
+This preserves plan parallelism where possible while respecting make-plans same-file constraints and avoiding conflicting edits in `/src/channel_state.ts`. It also makes compatibility requirements explicit before implementation starts.
+
+**Alternatives considered:**
+
+- One large migration task spanning all fields — rejected because it violates requested granularity and makes ownership/testing unclear.
+- Parallel tasks for all SDK fields in `channel_state.ts` — rejected due same-file conflict risk and make-plans guidance.
+
+**Tradeoffs / Consequences:**  
+Execution is more sequential for SDK tasks, but coordination risk is lower and progress tracking is clearer. `pinnedMessages` stays explicitly out of scope for this iteration.
+
+## Decision: Complete Task 18 by removing thread pagination/message fields from channel state contexts and shifting consumers to Thread instance state
+
+**Date:** 2026-02-28  
+**Context:**  
+Task 18 required removing thread pagination/message fields from `ChannelState` / `ChannelStateContextValue` and keeping thread pagination source-of-truth in `ThreadContext` + `Thread.state`.
+
+**Decision:**  
+Implement Task 18 with these constraints:
+
+- remove thread pagination/message fields from `ChannelStateContextValue`,
+- remove thread pagination/message fields and actions from Channel reducer state,
+- remove thread pagination controls from `ChannelActionContext` (`closeThread`, `loadMoreThread`),
+- migrate thread-aware consumers to `Thread` instance state selectors (`ThreadStart`, `TypingIndicator`, `ScrollToLatestMessageButton`),
+- simplify `Window` by removing thread-driven class toggling.
+
+**Reasoning:**  
+This enforces a single source-of-truth for thread state (`Thread.state`) and prevents thread pagination ownership split between Channel reducer/context and Thread instance.
+
+**Alternatives considered:**
+
+- Keep thread pagination fields in Channel reducer as internal-only state — rejected to avoid maintaining duplicate thread state ownership.
+- Keep compatibility wrappers for removed `ChannelActionContext` thread actions — rejected because close/open semantics are now owned by ChatView navigation and thread instance behavior.
+
+**Tradeoffs / Consequences:**  
+Typecheck passes after migration. Local Jest runtime verification remains partially blocked in this environment by missing `@babel/runtime` from the linked `stream-chat-js` dist artifacts; `Window` test passes, and thread-related JS test syntax was corrected.

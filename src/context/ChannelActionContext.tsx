@@ -29,7 +29,6 @@ export type RetrySendMessage = (message: LocalMessage) => Promise<void>;
 
 export type ChannelActionContextValue = {
   addNotification: (text: string, type: 'success' | 'error') => void;
-  closeThread: (event?: React.BaseSyntheticEvent) => void;
   deleteMessage: (
     message: LocalMessage,
     options?: DeleteMessageOptions,
@@ -51,11 +50,9 @@ export type ChannelActionContextValue = {
   ) => Promise<void>;
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
-  loadMoreThread: () => Promise<void>;
   markRead: (options?: MarkReadWrapperOptions) => void;
   onMentionsClick: CustomMentionHandler;
   onMentionsHover: CustomMentionHandler;
-  openThread: (message: LocalMessage, event?: React.BaseSyntheticEvent) => void;
   removeMessage: (message: LocalMessage) => void;
   retrySendMessage: RetrySendMessage;
   sendMessage: (params: {

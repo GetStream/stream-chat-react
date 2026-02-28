@@ -5,11 +5,18 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useThreadContext } from '../Threads/ThreadContext';
+import { useStateStore } from '../../store';
+import type { ThreadState } from 'stream-chat';
 
 export type TypingIndicatorProps = {
   /** Whether the typing indicator is in a thread */
   threadList?: boolean;
 };
+
+const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
+  parentMessage,
+});
 
 const useJoinTypingUsers = (names: string[]) => {
   const { t } = useTranslationContext();
@@ -42,9 +49,12 @@ const useJoinTypingUsers = (names: string[]) => {
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { threadList } = props;
 
-  const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
+  const { channelConfig } = useChannelStateContext('TypingIndicator');
   const { client } = useChatContext('TypingIndicator');
   const { typing = {} } = useTypingContext('TypingIndicator');
+  const thread = useThreadContext();
+  const { parentMessage } =
+    useStateStore(thread?.state, threadParentMessageSelector) ?? {};
 
   const typingInChannel = !threadList
     ? Object.values(typing).filter(
@@ -54,7 +64,8 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
 
   const typingInThread = threadList
     ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+        ({ parent_id, user }) =>
+          user?.id !== client.user?.id && parent_id === parentMessage?.id,
       )
     : [];
 

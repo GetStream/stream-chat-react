@@ -32,10 +32,6 @@ export const useCreateChannelStateContext = (
     shouldGenerateVideoThumbnail,
     skipMessageDataMemoization,
     suppressAutoscroll,
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages = [],
     videoAttachmentSizeHandler,
     watcher_count,
     watcherCount,
@@ -54,7 +50,6 @@ export const useCreateChannelStateContext = (
     readUsersLastReadDateStrings.push(last_read?.toISOString());
   }
   const readUsersLastReads = readUsersLastReadDateStrings.join();
-  const threadMessagesLength = threadMessages?.length;
 
   const channelCapabilities: Record<string, boolean> = {};
 
@@ -88,19 +83,6 @@ export const useCreateChannelStateContext = (
         )
         .join();
 
-  const memoizedThreadMessageData = threadMessages
-    .map(
-      ({ deleted_at, latest_reactions, pinned, status, updated_at, user }) =>
-        `${deleted_at}${
-          latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
-        }${pinned}${status}${
-          updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
-            ? updated_at.toISOString()
-            : updated_at || ''
-        }${user?.updated_at}`,
-    )
-    .join();
-
   const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
       channel,
@@ -123,10 +105,6 @@ export const useCreateChannelStateContext = (
       read,
       shouldGenerateVideoThumbnail,
       suppressAutoscroll,
-      thread,
-      threadHasMore,
-      threadLoadingMore,
-      threadMessages,
       videoAttachmentSizeHandler,
       watcher_count,
       watcherCount,
@@ -146,17 +124,12 @@ export const useCreateChannelStateContext = (
       loadingMore,
       membersLength,
       memoizedMessageData,
-      memoizedThreadMessageData,
       notificationsLength,
       readUsersLength,
       readUsersLastReads,
       shouldGenerateVideoThumbnail,
       skipMessageDataMemoization,
       suppressAutoscroll,
-      thread,
-      threadHasMore,
-      threadLoadingMore,
-      threadMessagesLength,
       watcherCount,
     ],
   );

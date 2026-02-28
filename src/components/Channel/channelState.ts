@@ -1,23 +1,14 @@
-import type {
-  Channel,
-  LocalMessage,
-  MessageResponse,
-  ChannelState as StreamChannelState,
-} from 'stream-chat';
+import type { Channel, LocalMessage } from 'stream-chat';
 
 import type { ChannelState } from '../../context/ChannelStateContext';
 
 export type ChannelStateReducerAction =
-  | {
-      type: 'closeThread';
-    }
   | {
       type: 'clearHighlightedMessage';
     }
   | {
       channel: Channel;
       type: 'copyMessagesFromChannel';
-      parentId?: string | null;
     }
   | {
       channel: Channel;
@@ -44,16 +35,6 @@ export type ChannelStateReducerAction =
       type: 'loadMoreNewerFinished';
     }
   | {
-      threadHasMore: boolean;
-      threadMessages: Array<ReturnType<StreamChannelState['formatMessage']>>;
-      type: 'loadMoreThreadFinished';
-    }
-  | {
-      channel: Channel;
-      message: LocalMessage;
-      type: 'openThread';
-    }
-  | {
       error: Error;
       type: 'setError';
     }
@@ -66,20 +47,8 @@ export type ChannelStateReducerAction =
       type: 'setLoadingMoreNewer';
     }
   | {
-      message: LocalMessage;
-      type: 'setThread';
-    }
-  | {
       channel: Channel;
       type: 'setTyping';
-    }
-  | {
-      type: 'startLoadingThread';
-    }
-  | {
-      channel: Channel;
-      message: MessageResponse;
-      type: 'updateThreadOnEvent';
     }
   | {
       type: 'jumpToLatestMessage';
@@ -88,26 +57,14 @@ export type ChannelStateReducerAction =
 export const makeChannelReducer =
   () => (state: ChannelState, action: ChannelStateReducerAction) => {
     switch (action.type) {
-      case 'closeThread': {
-        return {
-          ...state,
-          thread: null,
-          threadLoadingMore: false,
-          threadMessages: [],
-        };
-      }
-
       case 'copyMessagesFromChannel': {
-        const { channel, parentId } = action;
+        const { channel } = action;
         return {
           ...state,
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
           // copying messages from channel happens with new message - this resets the suppressAutoscroll
           suppressAutoscroll: false,
-          threadMessages: parentId
-            ? { ...channel.state.threads }[parentId] || []
-            : state.threadMessages,
         };
       }
 
@@ -186,29 +143,6 @@ export const makeChannelReducer =
         };
       }
 
-      case 'loadMoreThreadFinished': {
-        const { threadHasMore, threadMessages } = action;
-        return {
-          ...state,
-          threadHasMore,
-          threadLoadingMore: false,
-          threadMessages,
-        };
-      }
-
-      case 'openThread': {
-        const { channel, message } = action;
-        return {
-          ...state,
-          thread: message,
-          threadHasMore: true,
-          threadMessages: message.id
-            ? { ...channel.state.threads }[message.id] || []
-            : [],
-          threadSuppressAutoscroll: false,
-        };
-      }
-
       case 'setError': {
         const { error } = action;
         return { ...state, error };
@@ -225,39 +159,11 @@ export const makeChannelReducer =
         return { ...state, loadingMoreNewer };
       }
 
-      case 'setThread': {
-        const { message } = action;
-        return { ...state, thread: message };
-      }
-
       case 'setTyping': {
         const { channel } = action;
         return {
           ...state,
           typing: { ...channel.state.typing },
-        };
-      }
-
-      case 'startLoadingThread': {
-        return {
-          ...state,
-          threadLoadingMore: true,
-          threadSuppressAutoscroll: true,
-        };
-      }
-
-      case 'updateThreadOnEvent': {
-        const { channel, message } = action;
-        if (!state.thread) return state;
-        return {
-          ...state,
-          thread:
-            message?.id === state.thread.id
-              ? channel.state.formatMessage(message)
-              : state.thread,
-          threadMessages: state.thread?.id
-            ? { ...channel.state.threads }[state.thread.id] || []
-            : [],
         };
       }
 
@@ -277,11 +183,6 @@ export const initialState = {
   pinnedMessages: [],
   read: {},
   suppressAutoscroll: false,
-  thread: null,
-  threadHasMore: true,
-  threadLoadingMore: false,
-  threadMessages: [],
-  threadSuppressAutoscroll: false,
   typing: {},
   watcherCount: 0,
   watchers: {},
