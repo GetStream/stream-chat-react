@@ -1,6 +1,5 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
 
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
@@ -21,7 +20,6 @@ export const useMuteHandler = (
   message?: LocalMessage,
   notifications: MuteUserNotifications = {},
 ): ReactEventHandler => {
-  const { mutes } = useChannelStateContext('useMuteHandler');
   const { client } = useChatContext('useMuteHandler');
   const { t } = useTranslationContext('useMuteHandler');
 
@@ -34,6 +32,7 @@ export const useMuteHandler = (
       console.warn(missingUseMuteHandlerParamsWarning);
       return;
     }
+    const mutes = client.mutedUsersStore.getLatestValue().mutedUsers ?? [];
 
     if (!isUserMuted(message, mutes)) {
       try {

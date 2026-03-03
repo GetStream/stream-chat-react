@@ -1,22 +1,19 @@
 import React from 'react';
 import clsx from 'clsx';
+import type { TextComposerState, ThreadState } from 'stream-chat';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
-import { useTypingContext } from '../../context/TypingContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useThreadContext } from '../Threads/ThreadContext';
 import { useStateStore } from '../../store';
-import type { ThreadState } from 'stream-chat';
-
-export type TypingIndicatorProps = {
-  /** Whether the typing indicator is in a thread */
-  threadList?: boolean;
-};
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
+import { useMessageComposer } from '../MessageInput';
 
 const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
   parentMessage,
 });
+
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 const useJoinTypingUsers = (names: string[]) => {
   const { t } = useTranslationContext();
@@ -46,37 +43,38 @@ const useJoinTypingUsers = (names: string[]) => {
 /**
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
-const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
-  const { threadList } = props;
-
-  const { channelConfig } = useChannelStateContext('TypingIndicator');
+export const TypingIndicator = () => {
+  const messageComposer = useMessageComposer();
+  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
   const { client } = useChatContext('TypingIndicator');
-  const { typing = {} } = useTypingContext('TypingIndicator');
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const thread = useThreadContext();
+  const isThreadList = !!thread;
   const { parentMessage } =
     useStateStore(thread?.state, threadParentMessageSelector) ?? {};
 
-  const typingInChannel = !threadList
+  const typingInChannel = !isThreadList
     ? Object.values(typing).filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
-  const typingInThread = threadList
+  const typingInThread = isThreadList
     ? Object.values(typing).filter(
         ({ parent_id, user }) =>
           user?.id !== client.user?.id && parent_id === parentMessage?.id,
       )
     : [];
 
-  const typingUserList = (threadList ? typingInThread : typingInChannel)
+  const typingUserList = (isThreadList ? typingInThread : typingInChannel)
     .map(({ user }) => user?.name || user?.id)
     .filter(Boolean) as string[];
 
   const joinedTypingUsers = useJoinTypingUsers(typingUserList);
 
   const isTypingActive =
-    (threadList && typingInThread.length) || (!threadList && typingInChannel.length);
+    (isThreadList && typingInThread.length) || (!isThreadList && typingInChannel.length);
 
   if (channelConfig?.typing_events === false) {
     return null;
@@ -101,7 +99,3 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     </div>
   );
 };
-
-export const TypingIndicator = React.memo(
-  UnMemoizedTypingIndicator,
-) as typeof UnMemoizedTypingIndicator;

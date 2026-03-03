@@ -2,13 +2,15 @@ import React, { useEffect, useRef } from 'react';
 
 import { IconArrowRightUp } from '../Icons';
 import {
+  useChannel,
   useChannelActionContext,
-  useChannelStateContext,
   useChatContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 import { formatMessage, type LocalMessage } from 'stream-chat';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
+import { useThreadContext } from '../Threads';
 
 /**
  * Indicator shown when the message was also sent to the main channel (show_in_channel === true).
@@ -16,9 +18,11 @@ import { formatMessage, type LocalMessage } from 'stream-chat';
 export const MessageAlsoSentInChannelIndicator = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const { channel } = useChannelStateContext();
-  const { jumpToMessage, openThread } = useChannelActionContext();
-  const { message, threadList } = useMessageContext('MessageAlsoSentInChannelIndicator');
+  const channel = useChannel();
+  const { jumpToMessage } = useChannelActionContext();
+  const { openThread } = useChatViewNavigation();
+  const threadInstance = useThreadContext();
+  const { message } = useMessageContext('MessageAlsoSentInChannelIndicator');
   const targetMessageRef = useRef<LocalMessage | null | undefined>(undefined);
 
   const queryParent = () =>
@@ -69,7 +73,7 @@ export const MessageAlsoSentInChannelIndicator = () => {
     if (!targetMessageRef.current) {
       // search query is performed here in order to prevent multiple search queries in useEffect
       // due to the message list 3x remounting its items
-      if (threadList) {
+      if (threadInstance) {
         await jumpToReplyInChannelMessages(message.id); // we are in thread, and we want to jump to this reply in the main message list
         return;
       } else await queryParent(); // we are in the main list and need to query the thread
@@ -81,8 +85,8 @@ export const MessageAlsoSentInChannelIndicator = () => {
       return;
     }
 
-    if (threadList) await jumpToReplyInChannelMessages(message.id);
-    else openThread(target);
+    if (threadInstance) await jumpToReplyInChannelMessages(message.id);
+    else openThread({ channel, message: target });
   };
 
   if (!message?.show_in_channel) return null;
@@ -90,7 +94,7 @@ export const MessageAlsoSentInChannelIndicator = () => {
   return (
     <div className='str-chat__message-also-sent-in-channel' role='status'>
       <IconArrowRightUp />
-      <span>{threadList ? t('Also sent in channel') : t('Replied to a thread')}</span>
+      <span>{threadInstance ? t('Also sent in channel') : t('Replied to a thread')}</span>
       <span> · </span>
       <button
         className='str-chat__message-also-sent-in-channel__link-button'

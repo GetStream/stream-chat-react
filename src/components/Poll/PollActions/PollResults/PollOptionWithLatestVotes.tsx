@@ -2,11 +2,8 @@ import React from 'react';
 import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 import { PollVoteListing } from '../../PollVote';
 import { useStateStore } from '../../../../store';
-import {
-  useChannelStateContext,
-  usePollContext,
-  useTranslationContext,
-} from '../../../../context';
+import { useChannel, usePollContext, useTranslationContext } from '../../../../context';
+import { useChannelCapabilities } from '../../../Channel/hooks/useChannelCapabilities';
 import type { PollOption, PollState, PollVote } from 'stream-chat';
 
 type PollStateSelectorReturnValue = {
@@ -28,10 +25,9 @@ export const PollOptionWithLatestVotes = ({
   option,
   showAllVotes,
 }: PollOptionWithVotesProps) => {
+  const channel = useChannel();
   const { t } = useTranslationContext();
-  const { channelCapabilities = {} } = useChannelStateContext(
-    'PollOptionWithLatestVotes',
-  );
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { poll } = usePollContext();
   const { latest_votes_by_option } = useStateStore(poll.state, pollStateSelector);
 
@@ -41,7 +37,7 @@ export const PollOptionWithLatestVotes = ({
     <div className='str-chat__poll-option'>
       <PollOptionWithVotesHeader option={option} />
       {votes && <PollVoteListing votes={votes.slice(0, countVotesPreview)} />}
-      {channelCapabilities['query-poll-votes'] &&
+      {channelCapabilities.has('query-poll-votes') &&
         showAllVotes &&
         votes?.length > countVotesPreview && (
           <button

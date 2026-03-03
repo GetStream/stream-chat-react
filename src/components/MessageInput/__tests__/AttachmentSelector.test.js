@@ -35,7 +35,7 @@ const translationContext = {
 };
 
 const defaultChannelData = {
-  own_capabilities: ['upload-file'],
+  own_capabilities: ['send-poll', 'upload-file'],
 };
 
 const defaultConfig = {
@@ -43,7 +43,6 @@ const defaultConfig = {
 };
 
 const defaultChannelStateContext = {
-  channelCapabilities: { 'send-poll': true, 'upload-file': true },
   notifications: [],
 };
 
@@ -63,6 +62,9 @@ const renderComponent = async ({
   messageInputProps,
 } = {}) => {
   let channel, client;
+  const { channelCapabilities, ...channelStateContextOverrides } =
+    channelStateContext ?? {};
+
   if (customChannel && customClient) {
     channel = customChannel;
     client = customClient;
@@ -74,6 +76,11 @@ const renderComponent = async ({
     });
     channel = res.channels[0];
     client = res.client;
+  }
+  if (channelCapabilities) {
+    channel.data.own_capabilities = Object.entries(channelCapabilities)
+      .filter(([, isAllowed]) => isAllowed)
+      .map(([capability]) => capability);
   }
   jest.spyOn(channel, 'getDraft').mockImplementation();
 
@@ -102,7 +109,7 @@ const renderComponent = async ({
                   value={{
                     ...defaultChannelStateContext,
                     channel,
-                    ...channelStateContext,
+                    ...channelStateContextOverrides,
                   }}
                 >
                   <div id={CHANNEL_CONTAINER_ID}>

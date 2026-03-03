@@ -2,11 +2,7 @@ import React, { useCallback } from 'react';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
-import {
-  useChannelStateContext,
-  useComponentContext,
-  useMessageInputContext,
-} from '../../context';
+import { useChannel, useComponentContext, useMessageInputContext } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
 import { useMessageComposer, useMessageCompositionIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
@@ -25,7 +21,7 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 });
 
 export const MessageComposerActions = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { hideSendButton } = useMessageInputContext();
   const messageComposer = useMessageComposer();
   const {

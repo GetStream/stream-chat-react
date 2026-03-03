@@ -303,21 +303,22 @@ describe.each([
 
     const { container } = render(
       <ChatProvider value={{ channel, client }}>
-        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
-          <div id={mainListId}>
+        <div id={mainListId}>
+          <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
             <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
             />
-          </div>
-          <div id={threadListId}>
+          </ThreadProvider>
+        </div>
+        <div id={threadListId}>
+          <ThreadProvider thread={makeThread(parentMsg)}>
             <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
-              threadList
             />
-          </div>
-        </ThreadProvider>
+          </ThreadProvider>
+        </div>
       </ChatProvider>,
     );
 

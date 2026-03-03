@@ -6,11 +6,7 @@ import { Chat } from '..';
 
 import { ChatContext, TranslationContext } from '../../../context';
 import { Streami18n } from '../../../i18n';
-import {
-  dispatchNotificationMutesUpdated,
-  getTestClient,
-  getTestClientWithUser,
-} from '../../../mock-builders';
+import { getTestClient } from '../../../mock-builders';
 
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));
@@ -57,7 +53,6 @@ describe('Chat', () => {
       expect(context).toBeInstanceOf(Object);
       expect(context.client).toBe(chatClient);
       expect(context.channel).toBeUndefined();
-      expect(context.mutes).toStrictEqual([]);
       expect(context.navOpen).toBe(true);
       expect(context.theme).toBe('messaging light');
       expect(context.setActiveChannel).toBeInstanceOf(Function);
@@ -183,62 +178,6 @@ describe('Chat', () => {
       await waitFor(() => expect(context.navOpen).toBe(true));
       await act(() => context.setActiveChannel());
       await waitFor(() => expect(context.navOpen).toBe(false));
-    });
-  });
-
-  describe('mutes', () => {
-    it('init the mute state with client data', async () => {
-      const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
-      // First load, mutes are initialized empty
-      chatClientWithUser.user.mutes = [];
-      let context;
-      const { rerender } = render(
-        <Chat client={chatClientWithUser}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-      // Chat client loads mutes information
-      const mutes = ['user_y', 'user_z'];
-      chatClientWithUser.user.mutes = mutes;
-      await act(() => {
-        rerender(
-          <Chat client={chatClientWithUser}>
-            <ChatContextConsumer
-              fn={(ctx) => {
-                context = ctx;
-              }}
-            />
-          </Chat>,
-        );
-      });
-      await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
-    });
-
-    it('chat client listens and updates the state on mute event', async () => {
-      const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
-
-      let context;
-      render(
-        <Chat client={chatClientWithUser}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-      await waitFor(() => expect(context.mutes).toStrictEqual([]));
-
-      const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes));
-      await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
-
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
-      await waitFor(() => expect(context.mutes).toStrictEqual([]));
     });
   });
 

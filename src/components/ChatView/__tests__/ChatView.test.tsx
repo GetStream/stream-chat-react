@@ -41,7 +41,6 @@ const createChatContextValue = (): ChatContextValue =>
     closeMobileNav: jest.fn(),
     getAppSettings: jest.fn(() => null),
     latestMessageDatesByChannels: {},
-    mutes: [],
     openMobileNav: jest.fn(),
     searchController: {},
     setActiveChannel: jest.fn(),

@@ -21,7 +21,6 @@ import type {
   ErrorFromResponse,
   Event,
   EventAPIResponse,
-  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -35,7 +34,7 @@ import { localMessageToNewMessagePayload } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
-import { useCreateTypingContext } from './hooks/useCreateTypingContext';
+import { useChannelConfig } from './hooks/useChannelConfig';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import type { OnMentionAction } from './hooks/useMentionsHandlers';
@@ -54,7 +53,6 @@ import type {
 import {
   ChannelActionProvider,
   ChannelStateProvider,
-  TypingProvider,
   useChatContext,
   useComponentContext,
   useTranslationContext,
@@ -75,15 +73,7 @@ import {
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
-import type {
-  ChannelUnreadUiState,
-  ImageAttachmentSizeHandler,
-  VideoAttachmentSizeHandler,
-} from '../../types/types';
-import {
-  getImageAttachmentConfiguration,
-  getVideoAttachmentConfiguration,
-} from '../Attachment/attachment-sizing';
+import type { ChannelUnreadUiState } from '../../types/types';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
@@ -125,10 +115,6 @@ export type ChannelProps = {
   ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
-  giphyVersion?: GiphyVersions;
-  /** A custom function to provide size configuration for image attachments */
-  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /**
    * Allows to prevent triggering the channel.watch() call when mounting the component.
    * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
@@ -141,12 +127,8 @@ export type ChannelProps = {
   onMentionsClick?: OnMentionAction;
   /** Custom action handler function to run on hover of an @mention in a message */
   onMentionsHover?: OnMentionAction;
-  /** You can turn on/off thumbnail generation for video attachments */
-  shouldGenerateVideoThumbnail?: boolean;
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
   skipMessageDataMemoization?: boolean;
-  /** A custom function to provide size configuration for video attachments */
-  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
 };
 
 const ChannelContainer = ({
@@ -227,14 +209,14 @@ const ChannelInner = (
     LoadingIndicator = DefaultLoadingIndicator,
   } = useComponentContext();
 
-  const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
+  const { client, customClasses, latestMessageDatesByChannels, searchController } =
     useChatContext('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   const thread = useThreadContext();
 
-  const [channelConfig, setChannelConfig] = useState(channel.getConfig());
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
@@ -264,8 +246,6 @@ const ChannelInner = (
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-
-  const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
 
   const throttledCopyStateFromChannel = throttle(
     () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
@@ -345,10 +325,6 @@ const ChannelInner = (
 
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
-
-    if (event.type === 'typing.start' || event.type === 'typing.stop') {
-      return dispatch({ channel, type: 'setTyping' });
-    }
 
     if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
       online.current = event.online;
@@ -449,8 +425,6 @@ const ChannelInner = (
             }
           }
           await getChannel({ channel, client, members, options: channelQueryOptions });
-          const config = channel.getConfig();
-          setChannelConfig(config);
         } catch (e) {
           dispatch({ error: e as Error, type: 'setError' });
           errored = true;
@@ -981,23 +955,11 @@ const ChannelInner = (
 
   const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
-  const { typing, ...restState } = state;
-
   const channelStateContextValue = useCreateChannelStateContext({
-    ...restState,
+    ...state,
     channel,
-    channelCapabilitiesArray,
-    channelConfig,
     channelUnreadUiState,
-    giphyVersion: props.giphyVersion || 'fixed_height',
-    imageAttachmentSizeHandler:
-      props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
-    mutes,
     notifications,
-    shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
-    videoAttachmentSizeHandler:
-      props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
-    watcher_count: state.watcherCount,
   });
 
   const channelActionContextValue: ChannelActionContextValue = useMemo(
@@ -1035,10 +997,6 @@ const ChannelInner = (
     ],
   );
 
-  const typingContextValue = useCreateTypingContext({
-    typing,
-  });
-
   if (state.error) {
     return (
       <ChannelContainer>
@@ -1067,11 +1025,9 @@ const ChannelInner = (
     <ChannelContainer className={windowsEmojiClass}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          <TypingProvider value={typingContextValue}>
-            <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-              <div className={clsx(chatContainerClass)}>{children}</div>
-            </WithAudioPlayback>
-          </TypingProvider>
+          <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+            <div className={clsx(chatContainerClass)}>{children}</div>
+          </WithAudioPlayback>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChannelContainer>

@@ -67,7 +67,6 @@ const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: jest.fn(),
   latestMessageDatesByChannels: {},
-  mutes: [],
   searchController: new SearchController(),
 };
 

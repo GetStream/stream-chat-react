@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { useChannelStateContext, useMessageContext } from '../../../context';
+import { useChannel, useMessageContext } from '../../../context';
+import { useChannelConfig } from '../../Channel/hooks/useChannelConfig';
 import { useUserRole } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
@@ -20,8 +21,9 @@ export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
   disable = false,
 ) => {
+  const channel = useChannel();
   const { initialMessage: isInitialMessage, message } = useMessageContext();
-  const { channelConfig } = useChannelStateContext();
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const {
     canBlockUser,
     canDelete,

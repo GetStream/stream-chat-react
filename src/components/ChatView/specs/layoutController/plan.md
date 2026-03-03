@@ -515,9 +515,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** None
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -527,8 +527,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] `members` has a dedicated reactive store in `channel_state.ts`.
-- [ ] Backward-compatible access path for `members` is preserved.
+- [x] `members` has a dedicated reactive store in `channel_state.ts`.
+- [x] Backward-compatible access path for `members` is preserved.
 
 ## Task 20: Add `read` StateStore to ChannelState (SDK)
 
@@ -536,9 +536,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 19
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -548,8 +548,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] `read` has a dedicated reactive store in `channel_state.ts`.
-- [ ] Backward-compatible access path for `read` is preserved.
+- [x] `read` has a dedicated reactive store in `channel_state.ts`.
+- [x] Backward-compatible access path for `read` is preserved.
 
 ## Task 21: Add `watcherCount` StateStore to ChannelState (SDK)
 
@@ -557,9 +557,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 20
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -569,8 +569,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] `watcherCount` is managed by dedicated reactive store infrastructure.
-- [ ] Backward-compatible access path for `watcherCount` is preserved.
+- [x] `watcherCount` is managed by dedicated reactive store infrastructure.
+- [x] Backward-compatible access path for `watcherCount` is preserved.
 
 ## Task 22: Add `watchers` StateStore to ChannelState (SDK)
 
@@ -578,9 +578,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 21
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -590,8 +590,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] `watchers` is managed by dedicated reactive store infrastructure.
-- [ ] `watchers` + `watcherCount` updates stay synchronized.
+- [x] `watchers` is managed by dedicated reactive store infrastructure.
+- [x] `watchers` + `watcherCount` updates stay synchronized.
 
 ## Task 23: Convert `mutedUsers` to Dedicated StateStore (SDK)
 
@@ -599,9 +599,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 22
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -611,8 +611,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] `mutedUsers` is backed by dedicated reactive store.
-- [ ] Existing mute access APIs continue working.
+- [x] `mutedUsers` is backed by dedicated reactive store.
+- [x] Existing mute access APIs continue working.
 
 ## Task 24: Move `typing` Reactive State to TextComposer StateStore (SDK)
 
@@ -620,20 +620,22 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 18
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
 - Relocate typing reactive source-of-truth to existing `TextComposer` state store.
 - Keep compatibility with current React TypingContext consumption.
 - Remove duplicated typing ownership from channel-context-centric paths.
+- Keep mirrored typing state on `ChannelState` side (`typingStore`) for backward compatibility, synchronized with TextComposer typing updates.
+- Remove TypingContext.tsx from stream-chat-react
 
 **Acceptance Criteria:**
 
-- [ ] `typing` source-of-truth is `TextComposer` reactive state.
-- [ ] Existing typing indicators/context consumers continue to work.
+- [x] `typing` source-of-truth is `TextComposer` reactive state.
+- [x] Existing typing indicators/context consumers continue to work.
 
 ## Task 25: Remove `suppressAutoscroll` from ChannelStateContext and Make It MessageList Props
 
@@ -641,41 +643,43 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 18
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
 - Remove `suppressAutoscroll` from `ChannelStateContextValue`.
 - Treat `suppressAutoscroll` as explicit prop input for `MessageList` and `VirtualizedMessageList`.
 - Keep channel-level behavior backward compatible through prop defaulting/migration bridge.
+- Remove `threadSuppressAutoscroll` from `ChannelStateContextValue`; thread suppression relies on explicit `suppressAutoscroll` props only.
 
 **Acceptance Criteria:**
 
-- [ ] `ChannelStateContextValue` no longer includes `suppressAutoscroll`.
-- [ ] `MessageList` and `VirtualizedMessageList` support `suppressAutoscroll` via props without regressions.
+- [x] `ChannelStateContextValue` no longer includes `suppressAutoscroll` (and `threadSuppressAutoscroll`).
+- [x] `MessageList` and `VirtualizedMessageList` support `suppressAutoscroll` via props without regressions.
 
 ## Task 26: Integration Layer for Backward Compatibility of New Stores
 
-**File(s) to create/modify:** `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`
+**File(s) to create/modify:** `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/client.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts`
 
 **Dependencies:** Task 19, Task 20, Task 21, Task 22, Task 23, Task 24, Task 25
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
 - Add compatibility bridge layer so migrated stores can be consumed through existing SDK/React interfaces during transition.
 - Ensure each moved value (`members`, `read`, `watcherCount`, `watchers`, `mutedUsers`, `typing`) has a stable fallback path.
+- Keep `mutedUsers` reactivity on `StreamChat` (`client.mutedUsersStore`) and subscribe directly in React consumers instead of `ChatContext`.
 - Keep `pinnedMessages` explicitly out of scope.
 
 **Acceptance Criteria:**
 
-- [ ] Compatibility bridge documented and implemented for all moved values.
-- [ ] No breaking public API removals outside approved scope.
+- [x] Compatibility bridge documented and implemented for all moved values.
+- [x] No breaking public API removals outside approved scope.
 
 ## Task 27: Tests for ChannelStateContext Decomposition and Store Migration
 
@@ -683,9 +687,9 @@ Phase 14 (After Task 16):
 
 **Dependencies:** Task 26
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -698,8 +702,8 @@ Phase 14 (After Task 16):
 
 **Acceptance Criteria:**
 
-- [ ] React and SDK tests cover all new store migration requirements.
-- [ ] No regression on thread pagination, unread/read, watchers, typing, mute, and autoscroll behavior.
+- [x] React and SDK tests cover all new store migration requirements.
+- [x] No regression on thread pagination, unread/read, watchers, typing, mute, and autoscroll behavior.
 
 ## Execution order update
 
@@ -742,3 +746,521 @@ Phase 19 (After Task 26):
 | 25   | `src/context/ChannelStateContext.tsx`, `src/components/MessageList/MessageList.tsx`, `src/components/MessageList/VirtualizedMessageList.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/components/Channel/Channel.tsx`                                                                                                                       |
 | 26   | `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageComposer/textComposer.ts` |
 | 27   | `src/components/MessageList/__tests__/MessageList.test.js`, `src/components/MessageInput/__tests__/*`, `src/components/TypingIndicator/__tests__/*`, `src/components/Channel/__tests__/Channel.test.js`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                 |
+
+## Task 28: Convert `StreamClient.configs` to Reactive StateStore (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/client.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 27
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Introduce a dedicated `StateStore<{ configs: Configs }>` for `StreamClient.configs` in SDK client.
+- Keep backward-compatible property access (`client.configs`) through getter/setter backed by the store.
+- Ensure all config writes route through the reactive store path.
+
+**Acceptance Criteria:**
+
+- [x] `StreamClient.configs` is backed by `StateStore<{ configs: Configs }>`.
+- [x] Legacy `client.configs` access remains backward compatible.
+
+## Task 29: Convert `channel.data.own_capabilities` to Reactive StateStore (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 28
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add reactive store for `channel.data.own_capabilities`.
+- Keep `channel.data.own_capabilities` compatibility via non-breaking accessor bridge.
+- Ensure updates from query/watch/events propagate to this store.
+
+**Acceptance Criteria:**
+
+- [x] `own_capabilities` has a dedicated reactive store path.
+- [x] Existing capability reads remain backward compatible.
+
+## Task 30: Remove `channelConfig`/`channelCapabilities` from ChannelStateContext and Subscribe React SDK Stores
+
+**File(s) to create/modify:** `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `src/components/Message/hooks/useUserRole.ts`, `src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts`, `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx`, `src/components/Poll/PollActions/PollActions.tsx`, `src/components/Poll/PollOptionSelector.tsx`
+
+**Dependencies:** Task 29
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Subscribe React SDK to new reactive stores for:
+  - client config (`channelConfig` source),
+  - own capabilities (`channelCapabilities` source).
+- Remove static assumptions so components react to live store updates.
+- Remove `channelConfig` and `channelCapabilities` from `ChannelStateContextValue` and migrate consumers to dedicated reactive hooks/selectors.
+
+**Acceptance Criteria:**
+
+- [x] `ChannelStateContextValue` no longer exposes `channelConfig` and `channelCapabilities`.
+- [x] React SDK consumers derive config/capabilities from reactive stores via dedicated hooks/selectors.
+- [x] Components relying on capabilities/config re-render on store updates.
+
+## Task 31: Compatibility and Regression Tests for Reactive Config/Capabilities
+
+**File(s) to create/modify:** `src/components/Channel/__tests__/Channel.test.js`, `src/components/MessageActions/__tests__/MessageActions.test.js`, `src/components/MessageInput/__tests__/*`, `src/components/Poll/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 30
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add SDK tests for reactive `client.config` and `own_capabilities`.
+- Add React tests for:
+  - `channelConfig`-driven behavior via reactive hooks/selectors (not `ChannelStateContext`),
+  - `channelCapabilities`-driven behavior via reactive hooks/selectors (not `ChannelStateContext`),
+  - absence of `channelConfig`/`channelCapabilities` in `ChannelStateContextValue`.
+- Verify no regression in gating logic for actions, attachments, and polls.
+
+**Acceptance Criteria:**
+
+- [x] SDK and React suites cover reactive config/capabilities migration paths.
+- [x] Backward-compatible access patterns are verified.
+- [x] No regression in config/capability feature gating.
+
+## Execution order update
+
+Phase 20 (After Task 27):
+
+- Task 28: Convert `StreamClient.config` to Reactive StateStore (SDK)
+
+Phase 21 (After Task 28):
+
+- Task 29: Convert `channel.data.own_capabilities` to Reactive StateStore (SDK)
+
+Phase 22 (After Task 29):
+
+- Task 30: Remove `channelConfig`/`channelCapabilities` from ChannelStateContext and Subscribe React SDK Stores
+
+Phase 23 (After Task 30):
+
+- Task 31: Compatibility and Regression Tests for Reactive Config/Capabilities
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 28   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/client.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                                     |
+| 29   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                              |
+| 30   | `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `src/components/Message/hooks/useUserRole.ts`, `src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts`, `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx`, `src/components/Poll/PollActions/PollActions.tsx`, `src/components/Poll/PollOptionSelector.tsx` |
+| 31   | `src/components/Channel/__tests__/Channel.test.js`, `src/components/MessageActions/__tests__/MessageActions.test.js`, `src/components/MessageInput/__tests__/*`, `src/components/Poll/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                    |
+
+## Task 32: Attachment-Scoped Media Config Surface
+
+**File(s) to create/modify:** `src/components/Attachment/Attachment.tsx`, `src/components/Attachment/AttachmentContainer.tsx`, `src/components/Attachment/Giphy.tsx`, `src/components/Attachment/LinkPreview/Card.tsx`, `src/components/Attachment/VideoAttachment.tsx`, `src/components/Attachment/*AttachmentContext*` (new)
+
+**Dependencies:** Task 31
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add `giphyVersion`, `imageAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`, and `videoAttachmentSizeHandler` to `AttachmentProps`.
+- Add attachment-local propagation (context/provider or equivalent) so attachment descendants read these values from attachment scope.
+- Remove attachment descendants' direct reliance on `useChannelStateContext()` for these four values.
+
+**Acceptance Criteria:**
+
+- [x] All four values are provided by `AttachmentProps` and consumed in attachment scope.
+- [x] Attachment subtree no longer requires `ChannelStateContext` for these values.
+- [x] Existing attachment behavior remains unchanged with default setup.
+
+## Task 33: Remove Channel Ownership for Attachment Media Config
+
+**File(s) to create/modify:** `src/components/Channel/Channel.tsx`, `src/context/ChannelStateContext.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`
+
+**Dependencies:** Task 32
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove `giphyVersion`, `imageAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`, and `videoAttachmentSizeHandler` from `ChannelProps`.
+- Remove those fields from `ChannelStateContextValue`.
+- Remove creation/plumbing of these fields in channel context factories.
+
+**Acceptance Criteria:**
+
+- [x] `ChannelProps` no longer expose the four attachment media config values.
+- [x] `ChannelStateContextValue` no longer includes these fields.
+- [x] Typecheck passes with attachment-scoped ownership.
+
+## Task 34: Regression and Compatibility Coverage for Attachment-Scoped Config
+
+**File(s) to create/modify:** `src/components/Attachment/__tests__/*`, `src/components/Message/__tests__/*`, `src/components/Channel/__tests__/Channel.test.js`
+
+**Dependencies:** Task 32, Task 33
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add/adjust tests proving attachment rendering still supports giphy version selection, image/video sizing handlers, and video thumbnail generation behavior.
+- Add regression coverage that these behaviors work without relying on `ChannelStateContext` fields.
+- Validate that `Channel` no longer accepts these props.
+
+**Acceptance Criteria:**
+
+- [x] Test coverage verifies attachment-scoped config behavior.
+- [x] Test coverage verifies removed `ChannelProps`/context fields.
+- [x] No regressions in attachment rendering behavior.
+
+## Execution order update
+
+Phase 24 (After Task 31):
+
+- Task 32: Attachment-Scoped Media Config Surface
+
+Phase 25 (After Task 32):
+
+- Task 33: Remove Channel Ownership for Attachment Media Config
+
+Phase 26 (After Task 32 and Task 33):
+
+- Task 34: Regression and Compatibility Coverage for Attachment-Scoped Config
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                           |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 32   | `src/components/Attachment/Attachment.tsx`, `src/components/Attachment/AttachmentContainer.tsx`, `src/components/Attachment/Giphy.tsx`, `src/components/Attachment/LinkPreview/Card.tsx`, `src/components/Attachment/VideoAttachment.tsx`, `src/components/Attachment/*AttachmentContext*` |
+| 33   | `src/components/Channel/Channel.tsx`, `src/context/ChannelStateContext.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`                                                                                                                                                |
+| 34   | `src/components/Attachment/__tests__/*`, `src/components/Message/__tests__/*`, `src/components/Channel/__tests__/Channel.test.js`                                                                                                                                                          |
+
+## Receipt Reactivity Ownership Contract (Tasks 35-39)
+
+Tasks 35-39 must implement and preserve this ownership model:
+
+1. Canonical store: `channel.state.readStore`
+2. Derived store: `channel.messageReceiptsTracker` reactive output
+3. Consumers only: React receipt hooks/components
+
+Allowed direction only:
+
+- event/query ingestion -> `readStore` patch -> tracker reconcile/emit -> React subscription render
+
+Conflict policy:
+
+- if tracker output diverges from `readStore`, reconciliation must prefer `readStore` and repair tracker state.
+
+## Task 35: Immutable `readStore` Patching for Receipt Updates (SDK Internals)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 34
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Replace internal in-place mutation paths for receipt state (`state.read[userId] = ...`) with immutable `readStore.next((current) => ...)` patching.
+- Keep `ChannelState.read` compatibility access intact while routing event/query update paths through direct `readStore` patching.
+- Ensure bootstrap/query `state.read` ingestion applies incremental immutable merges without unnecessary whole-map overwrite churn.
+
+**Acceptance Criteria:**
+
+- [x] Receipt updates for a single user trigger `readStore` subscriptions.
+- [x] Existing `channel.state.read` compatibility behavior is preserved.
+- [x] No new public `ChannelState` methods are introduced.
+- [x] Receipt updates are canonicalized in `readStore` before any tracker/UI projection updates.
+
+## Task 36: Unify Event-to-Receipt Reconciliation on `readStore` + Tracker (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 35
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Route `message.read`, `notification.mark_unread`, and `message.delivered` through one reconciliation pattern:
+  - patch `readStore` immutably for affected user(s),
+  - advance `messageReceiptsTracker` in lockstep.
+- Keep query/watch initialization aligned with the same reconciliation semantics.
+
+**Acceptance Criteria:**
+
+- [x] All receipt-relevant events update `readStore` and `messageReceiptsTracker` consistently.
+- [x] Event ordering does not regress delivered/read invariants.
+- [x] One-way sync is enforced: `readStore` (canonical) -> tracker (derived), not the reverse.
+
+## Task 37: Emit Reactive UI Receipt Snapshots from `MessageReceiptsTracker` (SDK)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/index.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 36
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add tracker-owned reactive state for UI consumers (for example `StateStore` with `revision` and/or cached `readersByMessageId` + `deliveredByMessageId` snapshot).
+- Emit updates only on effective receipt changes to avoid redundant React work.
+- Keep existing query methods (`readersForMessage`, `deliveredForMessage`, etc.) backward compatible.
+
+**Acceptance Criteria:**
+
+- [x] Tracker exposes a reactive surface suitable for React selectors.
+- [x] Snapshot/revision updates happen for `ingestInitial`, `onMessageRead`, `onMessageDelivered`, and `onNotificationMarkUnread` when state effectively changes.
+- [x] Tracker has a deterministic resync/rebuild path from canonical `readStore`.
+
+## Task 38: Migrate Receipt Hooks to Tracker-Emitted Reactive Data (React)
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts`, `src/components/MessageList/hooks/useLastReadData.ts`, `src/components/MessageList/hooks/useLastDeliveredData.ts`, `src/store/hooks/useStateStore.ts` (if selector-shape support adjustment is needed), `src/components/ChannelPreview/hooks/useMessageDeliveryStatus.ts`
+
+**Dependencies:** Task 37
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Route tracker reconciliation from canonical `channel.state.readStore` emissions (subscription-driven), not direct per-event tracker method calls in `Channel` event handlers.
+- Add metadata-first delta reconciliation contract for read store emissions (changed/removed user ids), with key-diff fallback when metadata is unavailable.
+- Refactor hooks to subscribe to `channel.messageReceiptsTracker` reactive state instead of relying on component tree rerenders or ad hoc event listeners.
+- Avoid recomputing full receipt maps in React when tracker can provide emitted/cached receipt snapshots.
+- Preserve current behavior for `returnAllReadData` vs last-own-message-only paths.
+
+**Acceptance Criteria:**
+
+- [x] Tracker reconciliation is driven by canonical `readStore` emissions and keeps one-way `readStore -> tracker` ownership.
+- [x] Metadata-first delta reconciliation is supported for read updates, with deterministic fallback when metadata is absent.
+- [x] `useLastReadData` and `useLastDeliveredData` update reactively on receipt events through tracker state.
+- [x] Manual `channel.on('message.delivered', ...)` hook-level synchronization is removed where superseded by tracker store.
+- [x] Hook outputs remain API-compatible.
+- [x] Hooks do not implement independent receipt truth; they only select from tracker reactive output.
+
+## Task 39: Regression Matrix for Read/Delivery Reactivity
+
+**File(s) to create/modify:** `src/components/MessageList/__tests__/*`, `src/components/Message/__tests__/*`, `src/components/ChannelPreview/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`
+
+**Dependencies:** Task 38
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add SDK tests for immutable `readStore` patch semantics and tracker reactive snapshot emission.
+- Add SDK tests for metadata-driven delta reconciliation and key-diff fallback behavior when metadata is absent.
+- Add SDK tests for tracker subscription lifecycle (single subscription, teardown, no post-teardown emissions).
+- Add React tests validating updates after `message.read`, `notification.mark_unread`, and `message.delivered`.
+- Verify no regressions in message receipt UI paths (message list + preview surfaces).
+
+**Acceptance Criteria:**
+
+- [ ] Event matrix is covered end-to-end across SDK and React layers, including metadata-driven and fallback reconciliation paths.
+- [ ] Tracker subscription lifecycle behavior is covered and stable.
+- [ ] Read/delivery receipt UI remains functionally consistent with expected behavior.
+
+## Task 40: Add `memberCount` to MembersState with `channel.data.member_count` Compatibility Bridge
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/channel_state.test.js`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/channel.test.js`
+
+**Dependencies:** Task 39
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Extend `MembersState` in `channel_state.ts` with `memberCount` so members state shape mirrors watcher state semantics.
+- Add/adjust backward-compatible members store accessors so `memberCount` is available through reactive state and legacy access paths.
+- Bridge `channel.data.member_count` compatibility in `channel.ts` using the same sync pattern used for own capabilities (`syncOwnCapabilitiesFromChannelData`-style lifecycle sync).
+- Ensure SDK-managed channel data replacement paths keep `memberCount` and `channel.data.member_count` synchronized.
+- Keep direct `channel.data.member_count` read/write behavior compatible while treating reactive `memberCount` as canonical.
+- Add SDK unit coverage for initialization, channel data replacement, direct assignment compatibility, and reactive subscriber updates.
+
+**Acceptance Criteria:**
+
+- [x] `MembersState` includes `memberCount` and exposes it through the intended reactive/compatibility paths.
+- [x] `channel.data.member_count` reads remain backward compatible after migration.
+- [x] SDK-managed `channel.data` replacement and direct `member_count` assignment both synchronize with canonical `memberCount` state.
+- [x] Focused unit tests validate synchronization and backward-compatibility behavior.
+
+## Task 41: Remove `messageIsUnread` from `MessageContextValue` and Resolve Unread via `MessageReceiptsTracker`
+
+**File(s) to create/modify:** `src/context/MessageContext.tsx`, `src/components/Message/Message.tsx`, `src/components/MessageList/utils.ts`, `src/components/Message/__tests__/*`, `src/components/MessageList/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts` (API consumption verification only; no SDK behavior changes expected)
+
+**Dependencies:** Task 39
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove `messageIsUnread` from `MessageContextValue` so message unread status is no longer carried as ad hoc derived context state.
+- Refactor message unread checks in React SDK paths to use `channel.messageReceiptsTracker` APIs from `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts`.
+- Keep unread-separator behavior and first-unread detection semantics stable in list rendering.
+- Ensure no extra receipt source-of-truth is introduced in React; unread state remains tracker-driven/canonical-store-derived.
+
+**Acceptance Criteria:**
+
+- [x] `MessageContextValue` no longer defines or provides `messageIsUnread`.
+- [x] Message unread/delivery UI paths resolve unread state via `MessageReceiptsTracker` API calls/selectors.
+- [x] Message list unread separator behavior remains unchanged for end users.
+- [x] Updated tests cover unread-state behavior after the context-field removal.
+
+## Task 42: Remove Legacy `MessageProps.openThread` Prop
+
+**File(s) to create/modify:** `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`
+
+**Dependencies:** Task 13
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove leftover `openThread` prop from `MessageProps` because thread-open behavior now belongs to `ChatViewNavigationContext`.
+- Remove type plumbing that omits `openThread` in `Message.tsx` now that the prop no longer exists.
+- Update spec/plan/state/decisions to capture this cleanup and the canonical navigation contract.
+
+**Acceptance Criteria:**
+
+- [x] `MessageProps` no longer includes `openThread`.
+- [x] `Message.tsx` no longer references `openThread` in `MessagePropsToOmit`.
+- [x] Spec/plan/state/decisions explicitly record that `useChatViewNavigation()` is the source of truth for thread opening.
+
+## Task 43: Remove `MessageProps.threadList` and Infer Thread Scope in Leaf Components
+
+**File(s) to create/modify:** `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/context/MessageContext.tsx`, `src/components/Message/MessageSimple.tsx`, `src/components/Message/MessageStatus.tsx`, `src/components/Message/MessageAlsoSentInChannelIndicator.tsx`, `src/components/Message/utils.tsx`, `src/components/Message/__tests__/*`, `src/components/MessageList/hooks/MessageList/useMessageListElements.tsx`, `src/components/MessageList/MessageList.tsx`, `src/components/MessageList/VirtualizedMessageList.tsx`, `src/components/MessageList/VirtualizedMessageListComponents.tsx`, `src/components/MessageList/ScrollToLatestMessageButton.tsx`, `src/components/TypingIndicator/TypingIndicator.tsx`, `src/components/Attachment/Audio.tsx`, `src/components/Attachment/LinkPreview/CardAudio.tsx`, `src/components/Attachment/VoiceRecording.tsx`, `src/components/Reactions/ReactionSelectorWithButton.tsx`, `src/components/Thread/Thread.tsx`, `src/components/Thread/ThreadHead.tsx`, `src/components/Attachment/__tests__/Audio.test.js`, `src/components/Attachment/__tests__/Card.test.js`, `src/components/Attachment/__tests__/VoiceRecording.test.js`, `src/components/MessageActions/__tests__/MessageActions.test.js`, `src/components/MessageList/__tests__/MessageList.test.js`, `src/components/MessageList/__tests__/ScrollToLatestMessageButton.test.js`, `src/components/MessageList/__tests__/VirtualizedMessageListComponents.test.js`, `src/components/TypingIndicator/__tests__/TypingIndicator.test.js`, `src/components/Thread/__tests__/Thread.test.js`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`
+
+**Dependencies:** Task 42
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove leftover `threadList` from `MessageProps` and related pass-through plumbing in message-level wrappers.
+- Update message leaf components that currently branch on `threadList` to infer thread scope directly via `useThreadContext()` instead of context/prop forwarding.
+- Keep behavior parity for thread-specific UX branches (reply-button visibility, status rendering, “also sent in channel” behavior/text), but sourced from local thread-instance presence.
+- Add/adjust focused tests for leaf behavior in both thread and channel scope without relying on `threadList` prop drilling.
+
+**Acceptance Criteria:**
+
+- [x] `MessageProps` no longer includes `threadList`.
+- [x] Message leaf components that require thread awareness infer it via `useThreadContext()` and do not depend on drilled `threadList` props.
+- [x] `MessageContextValue` no longer carries `threadList` only for downstream branching.
+- [x] Existing thread-vs-channel behavior remains functionally equivalent in updated tests.
+
+## Task 44: Remove `LegacyThreadContext` and Legacy Thread Context Wiring
+
+**File(s) to create/modify:** `src/components/Thread/LegacyThreadContext.ts`, `src/components/Thread/Thread.tsx`, `src/components/Thread/index.ts`, `src/components/Thread/*` consumers still using `useLegacyThreadContext`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`
+
+**Dependencies:** Task 14
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Remove `LegacyThreadContext` provider and hook usage from thread rendering/wiring.
+- Remove legacy context exports from `src/components/Thread/index.ts`.
+- Update any remaining consumers to use current thread/channel data sources (`useThreadContext`, `useChannel`, or explicit props) without re-introducing context prop drilling.
+- Keep runtime behavior equivalent for thread open/close/navigation flows after removing the legacy context layer.
+
+**Acceptance Criteria:**
+
+- [ ] `LegacyThreadContext` is no longer used in thread rendering paths.
+- [ ] Thread module no longer exports legacy thread context APIs.
+- [ ] TypeScript compiles with no references to `useLegacyThreadContext` in active code.
+- [ ] Thread behavior remains stable in updated tests.
+
+## Execution order update
+
+Phase 27 (After Task 34):
+
+- Task 35: Immutable `readStore` Patching for Receipt Updates (SDK Internals)
+
+Phase 28 (After Task 35):
+
+- Task 36: Unify Event-to-Receipt Reconciliation on `readStore` + Tracker (SDK)
+
+Phase 29 (After Task 36):
+
+- Task 37: Emit Reactive UI Receipt Snapshots from `MessageReceiptsTracker` (SDK)
+
+Phase 30 (After Task 37):
+
+- Task 38: Migrate Receipt Hooks to Tracker-Emitted Reactive Data (React)
+
+Phase 31 (After Task 38):
+
+- Task 39: Regression Matrix for Read/Delivery Reactivity
+
+Phase 32 (After Task 39):
+
+- Task 40: Add `memberCount` to MembersState with `channel.data.member_count` Compatibility Bridge
+
+Phase 33 (After Task 39):
+
+- Task 41: Remove `messageIsUnread` from `MessageContextValue` and Resolve Unread via `MessageReceiptsTracker`
+
+Phase 34 (After Task 13):
+
+- Task 42: Remove Legacy `MessageProps.openThread` Prop
+
+Phase 35 (After Task 42):
+
+- Task 43: Remove `MessageProps.threadList` and Infer Thread Scope in Leaf Components
+
+Phase 36 (After Task 14):
+
+- Task 44: Remove `LegacyThreadContext` and Legacy Thread Context Wiring
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 35   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                                                                                                                             |
+| 36   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                                                                                                                                                                                                                                                       |
+| 37   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/index.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                                                                                      |
+| 38   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts`, `src/components/MessageList/hooks/useLastReadData.ts`, `src/components/MessageList/hooks/useLastDeliveredData.ts`, `src/store/hooks/useStateStore.ts`, `src/components/ChannelPreview/hooks/useMessageDeliveryStatus.ts` |
+| 39   | `src/components/MessageList/__tests__/*`, `src/components/Message/__tests__/*`, `src/components/ChannelPreview/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/*`                                                                                                                                                                                                                                                                                                                                                                              |
+| 40   | `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel_state.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/channel.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/channel_state.test.js`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/test/unit/channel.test.js`                                                                                                          |
+| 41   | `src/context/MessageContext.tsx`, `src/components/Message/Message.tsx`, `src/components/MessageList/utils.ts`, `src/components/Message/__tests__/*`, `src/components/MessageList/__tests__/*`, `/Users/martincupela/Projects/stream/chat/stream-chat-js-worktrees/thread-constructor-minimal-init/src/messageDelivery/MessageReceiptsTracker.ts` (API consumption verification only)                                                                                                                                                                                                                                      |
+| 42   | `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`                                                                                                                                                                                                                                                                                                   |
+| 43   | `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/context/MessageContext.tsx`, `src/components/Message/MessageSimple.tsx`, `src/components/Message/MessageStatus.tsx`, `src/components/Message/MessageAlsoSentInChannelIndicator.tsx`, `src/components/Message/utils.tsx`, `src/components/Message/__tests__/*`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`                               |
+| 44   | `src/components/Thread/LegacyThreadContext.ts`, `src/components/Thread/Thread.tsx`, `src/components/Thread/index.ts`, `src/components/Thread/*` consumers still using `useLegacyThreadContext`, `src/components/ChatView/specs/layoutController/spec.md`, `src/components/ChatView/specs/layoutController/plan.md`, `src/components/ChatView/specs/layoutController/state.json`, `src/components/ChatView/specs/layoutController/decisions.md`                                                                                                                                                                            |

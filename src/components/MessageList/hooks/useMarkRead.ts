@@ -1,9 +1,5 @@
 import { useEffect } from 'react';
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-} from '../../../context';
+import { useChannel, useChannelActionContext, useChatContext } from '../../../context';
 import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
@@ -34,7 +30,7 @@ export const useMarkRead = ({
 }: UseMarkReadParams) => {
   const { client } = useChatContext('useMarkRead');
   const { markRead, setChannelUnreadUiState } = useChannelActionContext('useMarkRead');
-  const { channel } = useChannelStateContext('useMarkRead');
+  const channel = useChannel();
 
   useEffect(() => {
     if (!channel.getConfig()?.read_events) return;

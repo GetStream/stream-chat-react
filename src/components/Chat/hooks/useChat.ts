@@ -9,14 +9,7 @@ import {
   Streami18n,
 } from '../../../i18n';
 
-import type {
-  AppSettingsAPIResponse,
-  Channel,
-  Event,
-  Mute,
-  OwnUserResponse,
-  StreamChat,
-} from 'stream-chat';
+import type { AppSettingsAPIResponse, Channel, StreamChat } from 'stream-chat';
 
 export type UseChatParams = {
   client: StreamChat;
@@ -38,11 +31,8 @@ export const useChat = ({
   });
 
   const [channel, setChannel] = useState<Channel>();
-  const [mutes, setMutes] = useState<Array<Mute>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
-
-  const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
 
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
@@ -81,18 +71,6 @@ export const useChat = ({
       client.reminders.clearTimers();
     };
   }, [client]);
-
-  useEffect(() => {
-    setMutes(clientMutes);
-
-    const handleEvent = (event: Event) => {
-      setMutes(event.me?.mutes || []);
-    };
-
-    client.on('notification.mutes_updated', handleEvent);
-    return () => client.off('notification.mutes_updated', handleEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientMutes?.length]);
 
   useEffect(() => {
     let userLanguage = client.user?.language;
@@ -146,7 +124,6 @@ export const useChat = ({
     closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
-    mutes,
     navOpen,
     openMobileNav,
     setActiveChannel,

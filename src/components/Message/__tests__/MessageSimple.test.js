@@ -10,6 +10,20 @@ import { MessageSimple } from '../MessageSimple';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MESSAGE_ACTIONS } from '../utils';
 
+const mockOpenThread = jest.fn();
+
+jest.mock('../../ChatView/ChatViewNavigationContext', () => ({
+  useChatViewNavigation: () => ({
+    closeChannel: jest.fn(),
+    closeThread: jest.fn(),
+    hideChannelList: jest.fn(),
+    openChannel: jest.fn(),
+    openThread: mockOpenThread,
+    openView: jest.fn(),
+    unhideChannelList: jest.fn(),
+  }),
+}));
+
 import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
@@ -36,6 +50,7 @@ import {
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
+import { ThreadProvider } from '../../Threads';
 
 expect.extend(toHaveNoViolations);
 
@@ -54,7 +69,6 @@ jest.mock('../../Modal', () => ({
 const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
-const openThreadMock = jest.fn();
 const retrySendMessageMock = jest.fn();
 const removeMessageMock = jest.fn();
 
@@ -80,47 +94,54 @@ describe('<MessageSimple />', () => {
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },
     channelConfigOverrides = { replies: true },
     components = {},
+    inThread = false,
     message,
     props = {},
     renderer = render,
   }) {
+    const content = (
+      <Chat client={client}>
+        <ChannelStateProvider
+          value={{
+            channel,
+            channelCapabilities,
+            channelConfig: channelConfigOverrides,
+          }}
+        >
+          <ChannelActionProvider
+            value={{
+              removeMessage: removeMessageMock,
+              retrySendMessage: retrySendMessageMock,
+            }}
+          >
+            <WithComponents
+              overrides={{
+                Attachment: AttachmentMock,
+                Message: () => <MessageSimple {...props} />,
+                reactionOptions: defaultReactionOptions,
+                ...components,
+              }}
+            >
+              <Message
+                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                isMyMessage={() => true}
+                message={message}
+                {...props}
+              />
+            </WithComponents>
+          </ChannelActionProvider>
+        </ChannelStateProvider>
+      </Chat>
+    );
+
     let result;
     await act(() => {
       result = renderer(
-        <Chat client={client}>
-          <ChannelStateProvider
-            value={{
-              channel,
-              channelCapabilities,
-              channelConfig: channelConfigOverrides,
-            }}
-          >
-            <ChannelActionProvider
-              value={{
-                openThread: openThreadMock,
-                removeMessage: removeMessageMock,
-                retrySendMessage: retrySendMessageMock,
-              }}
-            >
-              <WithComponents
-                overrides={{
-                  Attachment: AttachmentMock,
-                  Message: () => <MessageSimple {...props} />,
-                  reactionOptions: defaultReactionOptions,
-                  ...components,
-                }}
-              >
-                <Message
-                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                  isMyMessage={() => true}
-                  message={message}
-                  threadList={false}
-                  {...props}
-                />
-              </WithComponents>
-            </ChannelActionProvider>
-          </ChannelStateProvider>
-        </Chat>,
+        inThread ? (
+          <ThreadProvider thread={{ id: 'test-thread' }}>{content}</ThreadProvider>
+        ) : (
+          content
+        ),
       );
     });
     return result;
@@ -132,6 +153,8 @@ describe('<MessageSimple />', () => {
   });
 
   beforeEach(async () => {
+    mockOpenThread.mockResolvedValue({ slot: 'slot1', status: 'opened' });
+
     const mockedChannel = generateChannel({
       state: { membership: {} },
     });
@@ -427,11 +450,11 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was delivered to other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           deliveredTo: [alice, bob],
           readBy: [alice],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -442,10 +465,10 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was read by other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           readBy: [alice, bob, carol],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -493,12 +516,7 @@ describe('<MessageSimple />', () => {
 
   it('should render message options', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        handleOpenThread: jest.fn(),
-      },
-    });
+    const { container, getByTestId } = await renderMessageSimple({ message });
 
     await waitFor(() => {
       expect(getByTestId('message-actions-host')).toBeInTheDocument();
@@ -606,9 +624,11 @@ describe('<MessageSimple />', () => {
     const { container, getByTestId } = await renderMessageSimple({
       message,
     });
-    expect(openThreadMock).not.toHaveBeenCalled();
+    expect(mockOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-is-thread-reply-button'));
-    expect(openThreadMock).toHaveBeenCalledWith(expect.any(Object));
+    expect(mockOpenThread).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.any(Object) }),
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -622,9 +642,9 @@ describe('<MessageSimple />', () => {
     const { container, getByTestId } = await renderMessageSimple({
       message,
     });
-    expect(openThreadMock).not.toHaveBeenCalled();
+    expect(mockOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-is-thread-reply-button'));
-    expect(openThreadMock).not.toHaveBeenCalled();
+    expect(mockOpenThread).not.toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -652,16 +672,13 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { container, getByTestId } = await renderMessageSimple({
-      message,
-      props: {
-        handleOpenThread: openThreadMock,
-      },
-    });
-    expect(openThreadMock).not.toHaveBeenCalled();
+    const { container, getByTestId } = await renderMessageSimple({ message });
+    expect(mockOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThreadMock).toHaveBeenCalledWith(
-      expect.any(Object), // The event object
+    expect(mockOpenThread).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message,
+      }),
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

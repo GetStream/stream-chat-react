@@ -7,9 +7,9 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ChatProvider, useChannelActionContext } from '../../../context';
+import { ChatProvider } from '../../../context';
 import { Channel } from '../../Channel';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { SearchController } from 'stream-chat';
 import { MessageInput } from '../MessageInput';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
@@ -48,7 +48,6 @@ const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: jest.fn(),
   latestMessageDatesByChannels: {},
-  mutes: [],
   searchController: new SearchController(),
 };
 
@@ -74,15 +73,7 @@ const setup = async ({ channelData } = {}) => {
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
 };
 
-const ThreadSetter = () => {
-  const { openThread } = useChannelActionContext();
-  const isOpenThread = useRef(false);
-  useEffect(() => {
-    if (isOpenThread.current) return;
-    isOpenThread.current = true;
-    openThread(mainListMessage);
-  }, [openThread]);
-};
+const ThreadSetter = () => null;
 
 const renderComponent = async ({
   channelData = {},

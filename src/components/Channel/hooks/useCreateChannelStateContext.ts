@@ -5,57 +5,25 @@ import { isDate, isDayOrMoment } from '../../../i18n';
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 
 export const useCreateChannelStateContext = (
-  value: Omit<ChannelStateContextValue, 'channelCapabilities'> & {
-    channelCapabilitiesArray: string[];
+  value: ChannelStateContextValue & {
     skipMessageDataMemoization?: boolean;
   },
 ) => {
   const {
     channel,
-    channelCapabilitiesArray = [],
-    channelConfig,
     channelUnreadUiState,
     error,
-    giphyVersion,
     hasMore,
     hasMoreNewer,
     highlightedMessageId,
-    imageAttachmentSizeHandler,
     loading,
     loadingMore,
-    members,
     messages = [],
-    mutes,
     notifications,
     pinnedMessages,
-    read = {},
-    shouldGenerateVideoThumbnail,
     skipMessageDataMemoization,
-    suppressAutoscroll,
-    videoAttachmentSizeHandler,
-    watcher_count,
-    watcherCount,
-    watchers,
   } = value;
-
-  const channelId = channel.cid;
-  const lastRead = channel.initialized && channel.lastRead()?.getTime();
-  const membersLength = Object.keys(members || []).length;
   const notificationsLength = notifications.length;
-  const readUsers = Object.values(read);
-  const readUsersLength = readUsers.length;
-  const readUsersLastReadDateStrings: string[] = [];
-  for (const { last_read } of readUsers) {
-    if (!lastRead) continue;
-    readUsersLastReadDateStrings.push(last_read?.toISOString());
-  }
-  const readUsersLastReads = readUsersLastReadDateStrings.join();
-
-  const channelCapabilities: Record<string, boolean> = {};
-
-  channelCapabilitiesArray.forEach((capability) => {
-    channelCapabilities[capability] = true;
-  });
 
   // FIXME: this is crazy - I could not find out why the messages were not getting updated when only message properties that are not part
   // of this serialization has been changed. A great example of memoization gone wrong.
@@ -86,51 +54,30 @@ export const useCreateChannelStateContext = (
   const channelStateContext: ChannelStateContextValue = useMemo(
     () => ({
       channel,
-      channelCapabilities,
-      channelConfig,
       channelUnreadUiState,
       error,
-      giphyVersion,
       hasMore,
       hasMoreNewer,
       highlightedMessageId,
-      imageAttachmentSizeHandler,
       loading,
       loadingMore,
-      members,
       messages,
-      mutes,
       notifications,
       pinnedMessages,
-      read,
-      shouldGenerateVideoThumbnail,
-      suppressAutoscroll,
-      videoAttachmentSizeHandler,
-      watcher_count,
-      watcherCount,
-      watchers,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      channel.data?.name, // otherwise ChannelHeader will not be updated
-      channelId,
+      channel,
       channelUnreadUiState,
       error,
       hasMore,
       hasMoreNewer,
       highlightedMessageId,
-      lastRead,
       loading,
       loadingMore,
-      membersLength,
       memoizedMessageData,
       notificationsLength,
-      readUsersLength,
-      readUsersLastReads,
-      shouldGenerateVideoThumbnail,
       skipMessageDataMemoization,
-      suppressAutoscroll,
-      watcherCount,
     ],
   );
 

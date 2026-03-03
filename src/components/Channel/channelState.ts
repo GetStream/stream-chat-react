@@ -47,10 +47,6 @@ export type ChannelStateReducerAction =
       type: 'setLoadingMoreNewer';
     }
   | {
-      channel: Channel;
-      type: 'setTyping';
-    }
-  | {
       type: 'jumpToLatestMessage';
     };
 
@@ -72,12 +68,8 @@ export const makeChannelReducer =
         const { channel } = action;
         return {
           ...state,
-          members: { ...channel.state.members },
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
-          read: { ...channel.state.read },
-          watcherCount: channel.state.watcher_count,
-          watchers: { ...channel.state.watchers },
         };
       }
 
@@ -87,12 +79,8 @@ export const makeChannelReducer =
           ...state,
           hasMore,
           loading: false,
-          members: { ...channel.state.members },
           messages: [...channel.state.messages],
           pinnedMessages: [...channel.state.pinnedMessages],
-          read: { ...channel.state.read },
-          watcherCount: channel.state.watcher_count,
-          watchers: { ...channel.state.watchers },
         };
       }
 
@@ -159,14 +147,6 @@ export const makeChannelReducer =
         return { ...state, loadingMoreNewer };
       }
 
-      case 'setTyping': {
-        const { channel } = action;
-        return {
-          ...state,
-          typing: { ...channel.state.typing },
-        };
-      }
-
       default:
         return state;
     }
@@ -178,12 +158,7 @@ export const initialState = {
   hasMoreNewer: false,
   loading: true,
   loadingMore: false,
-  members: {},
   messages: [],
   pinnedMessages: [],
-  read: {},
   suppressAutoscroll: false,
-  typing: {},
-  watcherCount: 0,
-  watchers: {},
 };

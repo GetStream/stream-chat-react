@@ -14,7 +14,6 @@ type ScrollToLatestMessageButtonProps = {
   isNotAtLatestMessageSet?: boolean;
   isMessageListScrolledToBottom?: boolean;
   onClick: React.MouseEventHandler;
-  threadList?: boolean;
 };
 
 const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
@@ -28,16 +27,16 @@ const UnMemoizedScrollToLatestMessageButton = (
     isMessageListScrolledToBottom,
     isNotAtLatestMessageSet = false,
     onClick,
-    threadList,
   } = props;
 
   const { channel: activeChannel, client } = useChatContext();
   const thread = useThreadContext();
+  const isThreadList = !!thread;
   const { parentMessage } =
     useStateStore(thread?.state, threadParentMessageSelector) ?? {};
   const [countUnread, setCountUnread] = useState(activeChannel?.countUnread() || 0);
   const [replyCount, setReplyCount] = useState(parentMessage?.reply_count || 0);
-  const observedEvent = threadList ? 'message.updated' : 'message.new';
+  const observedEvent = isThreadList ? 'message.updated' : 'message.new';
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
@@ -47,7 +46,7 @@ const UnMemoizedScrollToLatestMessageButton = (
       const isThreadOpen = !!parentMessage;
       const newMessageIsReply = !!event.message?.parent_id;
       const dontIncreaseMainListCounterOnNewReply =
-        isThreadOpen && !threadList && newMessageIsReply;
+        isThreadOpen && !isThreadList && newMessageIsReply;
 
       if (
         isMessageListScrolledToBottom ||
@@ -78,7 +77,7 @@ const UnMemoizedScrollToLatestMessageButton = (
     observedEvent,
     parentMessage,
     replyCount,
-    threadList,
+    isThreadList,
   ]);
 
   useEffect(() => {

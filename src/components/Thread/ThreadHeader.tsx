@@ -3,8 +3,7 @@ import React from 'react';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { CloseIcon } from './icons';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannel, useTranslationContext } from '../../context';
 
 import type { ChannelPreviewInfoParams } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import type { LocalMessage } from 'stream-chat';
@@ -23,7 +22,7 @@ export const ThreadHeader = (
   const { closeThread, overrideImage, overrideTitle } = props;
 
   const { t } = useTranslationContext('ThreadHeader');
-  const { channel } = useChannelStateContext('');
+  const channel = useChannel();
   const { displayTitle } = useChannelPreviewInfo({
     channel,
     overrideImage,

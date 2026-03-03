@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
+import { useChatContext } from '../../context';
 import { useStateStore } from '../../store';
 import {
   createChatViewSlotBinding,
@@ -8,7 +9,12 @@ import {
 } from './ChatView';
 
 import type { PropsWithChildren } from 'react';
-import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
+import type {
+  LocalMessage,
+  Channel as StreamChannel,
+  Thread as StreamThread,
+} from 'stream-chat';
+import { Thread as StreamThreadClass } from 'stream-chat';
 import type { ChatView, ChatViewEntityBinding } from './ChatView';
 import type {
   ChatViewLayoutState,
@@ -16,12 +22,19 @@ import type {
   OpenResult,
 } from './layoutController/layoutControllerTypes';
 
+export type OpenThreadTarget =
+  | StreamThread
+  | { channel: StreamChannel; message: LocalMessage };
+
 export type ChatViewNavigation = {
   closeChannel: (options?: { slot?: LayoutSlot }) => void;
   closeThread: (options?: { slot?: LayoutSlot }) => void;
   hideChannelList: (options?: { slot?: LayoutSlot }) => void;
   openChannel: (channel: StreamChannel, options?: { slot?: LayoutSlot }) => OpenResult;
-  openThread: (thread: StreamThread, options?: { slot?: LayoutSlot }) => OpenResult;
+  openThread: (
+    threadOrTarget: OpenThreadTarget,
+    options?: { slot?: LayoutSlot },
+  ) => OpenResult;
   openView: (view: ChatView, options?: { slot?: LayoutSlot }) => void;
   unhideChannelList: (options?: { slot?: LayoutSlot }) => void;
 };
@@ -52,6 +65,7 @@ export const useChatViewNavigation = () => useContext(ChatViewNavigationContext)
 
 export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
   const { layoutController } = useChatViewContext();
+  const { client } = useChatContext();
   const { activeSlot, activeView, slotBindings, visibleSlots } =
     useStateStore(layoutController.state, chatViewNavigationStateSelector) ??
     chatViewNavigationStateSelector(layoutController.state.getLatestValue());
@@ -88,10 +102,11 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       layoutController.close(targetSlot);
     };
 
-    const openThread: ChatViewNavigation['openThread'] = (thread, options) => {
-      openView('threads', options);
-
-      return layoutController.open(
+    const openThreadInSlot = (
+      thread: StreamThread,
+      options?: { slot?: LayoutSlot },
+    ): OpenResult =>
+      layoutController.open(
         createChatViewSlotBinding({
           key: thread.id ?? undefined,
           kind: 'thread',
@@ -101,6 +116,19 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
           targetSlot: options?.slot,
         },
       );
+
+    const openThread: ChatViewNavigation['openThread'] = (threadOrTarget, options) => {
+      if ('channel' in threadOrTarget && 'message' in threadOrTarget) {
+        const thread = new StreamThreadClass({
+          channel: threadOrTarget.channel,
+          client,
+          parentMessage: threadOrTarget.message,
+        });
+
+        return openThreadInSlot(thread, options);
+      }
+
+      return openThreadInSlot(threadOrTarget, options);
     };
 
     const closeThread: ChatViewNavigation['closeThread'] = (options) => {
@@ -148,7 +176,7 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       openView,
       unhideChannelList,
     };
-  }, [activeSlot, activeView, layoutController, slotBindings, visibleSlots]);
+  }, [activeSlot, activeView, client, layoutController, slotBindings, visibleSlots]);
 
   return (
     <ChatViewNavigationContext.Provider value={value}>

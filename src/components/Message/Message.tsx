@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 
 import {
   useActionHandler,
@@ -7,7 +7,6 @@ import {
   useMarkUnreadHandler,
   useMentionsHandler,
   useMuteHandler,
-  useOpenThreadHandler,
   usePinHandler,
   useReactionHandler,
   useReactionsFetcher,
@@ -20,22 +19,20 @@ import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './util
 import type { MessageContextValue } from '../../context';
 import {
   MessageProvider,
+  useChannel,
   useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   useComponentContext,
   useMessageTranslationViewContext,
 } from '../../context';
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 
 import { MessageSimple as DefaultMessage } from './MessageSimple';
 
 import type { MessageProps } from './types';
 
-type MessagePropsToOmit =
-  | 'onMentionsClick'
-  | 'onMentionsHover'
-  | 'openThread'
-  | 'retrySendMessage';
+type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'retrySendMessage';
 
 type MessageContextPropsToPick =
   | 'handleAction'
@@ -44,11 +41,9 @@ type MessageContextPropsToPick =
   | 'handleFlag'
   | 'handleMarkUnread'
   | 'handleMute'
-  | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
   | 'handleRetry'
-  | 'mutes'
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
   | 'reactionDetailsSort'
@@ -57,13 +52,11 @@ type MessageContextPropsToPick =
 
 type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
   Pick<MessageContextValue, MessageContextPropsToPick> & {
-    canPin: boolean;
     userRoles: ReturnType<typeof useUserRole>;
   };
 
 const MessageWithContext = (props: MessageWithContextProps) => {
   const {
-    canPin,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -72,8 +65,9 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     userRoles,
   } = props;
 
-  const { client, isMessageAIGenerated } = useChatContext('Message');
-  const { channelConfig, read } = useChannelStateContext('Message');
+  const channel = useChannel();
+  const { isMessageAIGenerated } = useChatContext('Message');
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const { Message: contextMessage } = useComponentContext('Message');
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
@@ -98,25 +92,12 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     isMyMessage,
   } = userRoles;
-
-  const messageIsUnread = useMemo(
-    () =>
-      !!(
-        !isMyMessage &&
-        client.user?.id &&
-        read &&
-        (!read[client.user.id] ||
-          (message?.created_at &&
-            new Date(message.created_at).getTime() >
-              read[client.user.id].last_read.getTime()))
-      ),
-    [client, isMyMessage, message.created_at, read],
-  );
 
   const messageActionsHandler = useCallback(
     () =>
@@ -152,7 +133,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   );
 
   const {
-    canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onlySenderCanEdit: onlySenderCanEditPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -167,7 +147,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     getMessageActions: messageActionsHandler,
     isMessageAIGenerated,
     isMyMessage: () => isMyMessage,
-    messageIsUnread,
     onUserClick,
     onUserHover,
     setTranslationView,
@@ -207,8 +186,6 @@ export const Message = (props: MessageProps) => {
     onlySenderCanEdit = false,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
-    openThread: propOpenThread,
-    pinPermissions,
     reactionDetailsSort,
     retrySendMessage: propRetrySendMessage,
     sortReactionDetails,
@@ -216,10 +193,9 @@ export const Message = (props: MessageProps) => {
   } = props;
 
   const { addNotification } = useChannelActionContext('Message');
-  const { highlightedMessageId, mutes } = useChannelStateContext('Message');
+  const { highlightedMessageId } = useChannelStateContext('Message');
 
   const handleAction = useActionHandler(message);
-  const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
@@ -257,7 +233,7 @@ export const Message = (props: MessageProps) => {
     onMentionsHover: propOnMentionsHover,
   });
 
-  const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
+  const { handlePin } = usePinHandler(message, {
     getErrorNotification: getPinMessageErrorNotification,
     notify: addNotification,
   });
@@ -268,7 +244,6 @@ export const Message = (props: MessageProps) => {
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
       autoscrollToBottom={props.autoscrollToBottom}
-      canPin={canPin}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       deliveredTo={props.deliveredTo}
       disableQuotedMessages={props.disableQuotedMessages}
@@ -280,7 +255,6 @@ export const Message = (props: MessageProps) => {
       handleFlag={handleFlag}
       handleMarkUnread={handleMarkUnread}
       handleMute={handleMute}
-      handleOpenThread={handleOpenThread}
       handlePin={handlePin}
       handleReaction={handleReaction}
       handleRetry={handleRetry}
@@ -292,19 +266,16 @@ export const Message = (props: MessageProps) => {
       Message={props.Message}
       messageActions={props.messageActions}
       messageListRect={props.messageListRect}
-      mutes={mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
       onUserClick={props.onUserClick}
       onUserHover={props.onUserHover}
-      pinPermissions={props.pinPermissions}
       reactionDetailsSort={reactionDetailsSort}
       readBy={props.readBy}
       renderText={props.renderText}
       returnAllReadData={props.returnAllReadData}
       sortReactionDetails={sortReactionDetails}
       sortReactions={sortReactions}
-      threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}
       userRoles={userRoles}
     />

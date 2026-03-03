@@ -10,6 +10,7 @@ import {
 
 import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
+import { useThreadContext } from '../Threads';
 
 type ReactionSelectorWithButtonProps = {
   /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
@@ -24,11 +25,12 @@ export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
+  const { isMyMessage, message } = useMessageContext('MessageOptions');
+  const threadInstance = useThreadContext();
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
-  const dialogIdNamespace = threadList ? '-thread-' : '';
+  const dialogIdNamespace = threadInstance ? '-thread-' : '';
   const dialogId = `reaction-selector${dialogIdNamespace}--${message.id}`;
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);

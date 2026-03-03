@@ -25,6 +25,7 @@ import {
 } from '../../../context';
 import { MessageSimple } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
+import { ThreadProvider } from '../../Threads';
 
 const prependOffset = 0;
 const user1 = generateUser();
@@ -48,8 +49,16 @@ const Wrapper = ({ children, componentContext = {} }) => (
   </ChatProvider>
 );
 
-const renderElements = (children, componentContext) =>
-  render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
+const renderElements = (children, componentContext, inThread = false) =>
+  render(
+    inThread ? (
+      <ThreadProvider thread={{ id: 'test-thread' }}>
+        <Wrapper componentContext={componentContext}>{children}</Wrapper>
+      </ThreadProvider>
+    ) : (
+      <Wrapper componentContext={componentContext}>{children}</Wrapper>
+    ),
+  );
 
 describe('VirtualizedMessageComponents', () => {
   describe('Item', function () {
@@ -199,9 +208,7 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should render empty for thread by default', () => {
-      const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
-      );
+      const { container } = renderElements(<EmptyPlaceholder />, undefined, true);
       expect(container).toBeEmptyDOMElement();
     });
     it('should render custom EmptyStateIndicator for main message list', () => {
@@ -210,10 +217,7 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should render custom EmptyStateIndicator for thread', () => {
-      const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
-        componentContext,
-      );
+      const { container } = renderElements(<EmptyPlaceholder />, componentContext, true);
       expect(container).toMatchSnapshot();
     });
 
@@ -225,10 +229,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
-      const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
-        componentContext,
-      );
+      const { container } = renderElements(<EmptyPlaceholder />, componentContext, true);
       expect(container).toBeEmptyDOMElement();
     });
   });

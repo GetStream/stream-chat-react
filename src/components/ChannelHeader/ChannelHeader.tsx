@@ -6,8 +6,7 @@ import { getChatViewEntityBinding, useChatViewContext } from '../ChatView';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannel, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { ChannelAvatarProps } from '../Avatar';
 import type { ChatViewLayoutState } from '../ChatView/layoutController/layoutControllerTypes';
@@ -56,7 +55,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     title: overrideTitle,
   } = props;
 
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { layoutController } = useChatViewContext();
   const { hideChannelList, unhideChannelList } = useChatViewNavigation();
   const { t } = useTranslationContext('ChannelHeader');

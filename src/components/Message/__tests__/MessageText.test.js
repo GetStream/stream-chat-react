@@ -41,7 +41,6 @@ const onMentionsClickMock = jest.fn();
 const defaultProps = {
   initialMessage: false,
   message: generateMessage(),
-  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {

@@ -1,11 +1,6 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
-import type {
-  AppSettingsAPIResponse,
-  Channel,
-  Mute,
-  SearchController,
-} from 'stream-chat';
+import type { AppSettingsAPIResponse, Channel, SearchController } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
@@ -34,7 +29,6 @@ export type ChatContextValue = {
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
-  mutes: Array<Mute>;
   openMobileNav: () => void;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;

@@ -12,7 +12,6 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     getAppSettings,
     isMessageAIGenerated,
     latestMessageDatesByChannels,
-    mutes,
     navOpen,
     openMobileNav,
     searchController,
@@ -28,7 +27,6 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     Object.keys(client.listeners).length
   }${client.mutedChannels.length}
   ${client.user?.id}`;
-  const mutedUsersLength = mutes.length;
 
   const chatContext: ChatContextValue = useMemo(
     () => ({
@@ -40,7 +38,6 @@ export const useCreateChatContext = (value: ChatContextValue) => {
       getAppSettings,
       isMessageAIGenerated,
       latestMessageDatesByChannels,
-      mutes,
       navOpen,
       openMobileNav,
       searchController,
@@ -56,7 +53,6 @@ export const useCreateChatContext = (value: ChatContextValue) => {
       clientValues,
       getAppSettings,
       searchController,
-      mutedUsersLength,
       navOpen,
       isMessageAIGenerated,
     ],

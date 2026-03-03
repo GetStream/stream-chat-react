@@ -122,6 +122,11 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
+    if (!threadInstance) return;
+    void threadInstance.reload();
+  }, [threadInstance]);
+
+  useEffect(() => {
     if (threadInstance && isStateStale) {
       void threadInstance.reload();
     }
@@ -177,7 +182,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           head={head}
           Message={MessageUIComponent}
           messageActions={messageActions}
-          threadList
           {...threadProps}
           {...(virtualized
             ? additionalVirtualizedMessageListProps

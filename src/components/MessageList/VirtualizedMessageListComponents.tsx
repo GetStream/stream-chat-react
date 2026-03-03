@@ -12,6 +12,7 @@ import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
+import { useThreadContext } from '../Threads';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -82,6 +83,8 @@ export const Header = ({ context }: CommonVirtuosoComponentProps) => {
   );
 };
 export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
   const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext(
     'VirtualizedMessageList',
   );
@@ -95,7 +98,7 @@ export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
   return (
     <>
       {EmptyStateIndicator && (
-        <EmptyStateIndicator listType={context?.threadList ? 'thread' : 'message'} />
+        <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
       )}
     </>
   );
@@ -108,6 +111,7 @@ export const messageRenderer = (
 ) => {
   const {
     additionalMessageInputProps,
+    channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
     DateSeparator,
@@ -122,7 +126,6 @@ export const messageRenderer = (
     messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
-    openThread,
     ownMessagesDeliveredToOthers,
     ownMessagesReadByOthers,
     processedMessages: messageList,
@@ -132,7 +135,6 @@ export const messageRenderer = (
     showAvatar,
     sortReactionDetails,
     sortReactions,
-    threadList,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
     virtuosoRef,
@@ -159,6 +161,7 @@ export const messageRenderer = (
   }
 
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
+    channel,
     firstUnreadMessageId,
     isFirstMessage: streamMessageIndex === 0,
     lastReadDate,
@@ -187,7 +190,6 @@ export const messageRenderer = (
         message={message}
         Message={MessageUIComponent}
         messageActions={messageActions}
-        openThread={openThread}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
@@ -195,7 +197,6 @@ export const messageRenderer = (
         showAvatar={showAvatar}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
-        threadList={threadList}
       />
     </>
   );

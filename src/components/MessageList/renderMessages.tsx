@@ -7,11 +7,12 @@ import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { Channel, LocalMessage, UserResponse } from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
 import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
+  channel: Channel;
   components: ComponentContextValue;
   lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
@@ -50,6 +51,7 @@ type MessagePropsToOmit =
   | 'readBy';
 
 export function defaultRenderMessages({
+  channel,
   channelUnreadUiState,
   components,
   customClasses,
@@ -111,6 +113,7 @@ export function defaultRenderMessages({
         customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
       const isFirstUnreadMessage = getIsFirstUnreadMessage({
+        channel,
         firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
         isFirstMessage: !!firstMessage?.id && firstMessage.id === message.id,
         lastReadDate: channelUnreadUiState?.last_read,

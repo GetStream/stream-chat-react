@@ -1,5 +1,5 @@
+import { useChannel } from '../../../context';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type React from 'react';
 import type { LocalMessage } from 'stream-chat';
@@ -18,7 +18,7 @@ Make sure the ChannelAction and ChannelState contexts are properly set and the h
 
 export function useActionHandler(message?: LocalMessage): ActionHandlerReturnType {
   const { removeMessage, updateMessage } = useChannelActionContext('useActionHandler');
-  const { channel } = useChannelStateContext('useActionHandler');
+  const channel = useChannel();
 
   return useStableCallback(async (dataOrName, value, event) => {
     if (event) event.preventDefault();
