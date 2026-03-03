@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react';
 import {
   useActionHandler,
   useDeleteHandler,
-  useEditHandler,
   useFlagHandler,
   useMarkUnreadHandler,
   useMentionsHandler,
@@ -24,6 +23,7 @@ import {
   useChannelStateContext,
   useChatContext,
   useComponentContext,
+  useMessageTranslationViewContext,
 } from '../../context';
 
 import { MessageSimple as DefaultMessage } from './MessageSimple';
@@ -62,7 +62,6 @@ type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
 const MessageWithContext = (props: MessageWithContextProps) => {
   const {
     canPin,
-    groupedByUser,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -74,11 +73,17 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const { client, isMessageAIGenerated } = useChatContext('Message');
   const { channel, channelConfig } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext('Message');
+  const { getTranslationView, setTranslationView: setTranslationViewInContext } =
+    useMessageTranslationViewContext();
+
+  const translationView = getTranslationView(message.id, !!message.i18n);
+  const setTranslationView = useCallback(
+    (view: 'original' | 'translated') => setTranslationViewInContext(message.id, view),
+    [message.id, setTranslationViewInContext],
+  );
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
-
-  const { clearEdit, editing, setEdit } = useEditHandler();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -157,22 +162,19 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const messageContextValue: MessageContextValue = {
     ...rest,
     actionsEnabled,
-    clearEditingState: clearEdit,
-    editing,
     getMessageActions: messageActionsHandler,
-    handleEdit: setEdit,
     isMessageAIGenerated,
     isMyMessage: () => isMyMessage,
     messageIsUnread,
     onUserClick,
     onUserHover,
-    setEditingState: setEdit,
+    setTranslationView,
+    translationView,
   };
 
   return (
     <MessageProvider value={messageContextValue}>
-      <MessageUIComponent groupedByUser={groupedByUser} />
-      {/* TODO - remove prop in next major release, maintains VML backwards compatibility */}
+      <MessageUIComponent />
     </MessageProvider>
   );
 };
@@ -264,13 +266,9 @@ export const Message = (props: MessageProps) => {
       autoscrollToBottom={props.autoscrollToBottom}
       canPin={canPin}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
-      customMessageActions={props.customMessageActions}
       deliveredTo={props.deliveredTo}
       disableQuotedMessages={props.disableQuotedMessages}
-      endOfGroup={props.endOfGroup}
-      firstOfGroup={props.firstOfGroup}
       formatDate={props.formatDate}
-      groupedByUser={props.groupedByUser}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}

@@ -1,0 +1,71 @@
+// Badge: compact pill for counts/labels. Design tokens: badge-bg-*, badge-text-*, badge-border.
+// Figma: Badge Notification (scroll-to-bottom unread count)
+
+.str-chat__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--typography-font-weight-bold);
+  border-radius: var(--radius-max);
+  line-height: 1;
+  border-style: solid;
+}
+
+// Variants: map to design tokens
+.str-chat__badge--variant-default {
+  background: var(--badge-bg-default);
+  color: var(--badge-text);
+  border-color: var(--badge-border);
+}
+
+.str-chat__badge--variant-primary {
+  background: var(--badge-bg-primary);
+  color: var(--badge-text-on-accent);
+  border-color: var(--badge-border);
+}
+
+.str-chat__badge--variant-error {
+  background: var(--badge-bg-error);
+  color: var(--badge-text-on-accent);
+  border-color: var(--badge-border);
+}
+
+.str-chat__badge--variant-neutral {
+  background: var(--badge-bg-neutral);
+  color: var(--badge-text-on-accent);
+  border-color: var(--badge-border);
+}
+
+.str-chat__badge--variant-inverse {
+  background: var(--badge-bg-inverse);
+  color: var(--badge-text-inverse);
+  border-color: var(--badge-border);
+}
+
+// Sizes: caption-numeric equivalents (sm/12px, md/14px, lg/16px)
+.str-chat__badge--size-sm {
+  font-size: var(--typography-font-size-xxs);
+  min-width: 16px;
+  min-height: 16px;
+  padding-inline: var(--spacing-xxxs);
+  border-width: 1px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+}
+
+.str-chat__badge--size-md {
+  font-size: var(--typography-font-size-xs);
+  min-width: 20px;
+  min-height: 20px;
+  padding-inline: var(--spacing-xxs);
+  border-width: 2px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+}
+
+.str-chat__badge--size-lg {
+  font-size: var(--typography-font-size-sm);
+  min-width: 24px;
+  min-height: 24px;
+  padding-inline: var(--spacing-xs);
+  border-width: 2px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+}

@@ -1,15 +1,12 @@
 import React from 'react';
 import { useTranslationContext } from '../../context';
-
 import type { RecordingPermission } from './classes/BrowserPermission';
 
 export type RecordingPermissionDeniedNotificationProps = {
-  onClose: () => void;
   permissionName: RecordingPermission;
 };
 
 export const RecordingPermissionDeniedNotification = ({
-  onClose,
   permissionName,
 }: RecordingPermissionDeniedNotificationProps) => {
   const { t } = useTranslationContext();
@@ -32,14 +29,6 @@ export const RecordingPermissionDeniedNotification = ({
       <p className='str-chat__recording-permission-denied-notification__message'>
         {permissionTranslations.body[permissionName]}
       </p>
-      <div className='str-chat__recording-permission-denied-notification__dismiss-button-container'>
-        <button
-          className='str-chat__recording-permission-denied-notification__dismiss-button'
-          onClick={onClose}
-        >
-          {t('Ok')}
-        </button>
-      </div>
     </div>
   );
 };

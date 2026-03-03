@@ -8,9 +8,9 @@ import { nanoid } from 'nanoid';
 
 import { MessageInput } from '../MessageInput';
 import { Channel } from '../../Channel/Channel';
-import { MessageActionsBox } from '../../MessageActions';
+import { MessageActions } from '../../MessageActions';
 
-import { MessageProvider } from '../../../context/MessageContext';
+import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -23,7 +23,6 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { generatePoll } from '../../../mock-builders/generator/poll';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
 expect.extend(toHaveNoViolations);
@@ -92,10 +91,10 @@ const defaultMessageContextValue = {
   handleDelete: () => {},
   handleFlag: () => {},
   handleMute: () => {},
+  handleOpenThread: () => {},
   handlePin: () => {},
   isMyMessage: () => true,
   message: mainListMessage,
-  setEditingState: () => {},
 };
 
 function dropFile(file, formElement) {
@@ -110,7 +109,14 @@ function dropFile(file, formElement) {
 const initQuotedMessagePreview = async (message) => {
   await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
 
-  const quoteButton = await screen.findByText(/^reply$/i);
+  // Open the message actions dropdown
+  const actionsButton = await screen.findByTestId('message-actions-toggle-button');
+  await act(() => {
+    fireEvent.click(actionsButton);
+  });
+
+  // Click the Quote button in the dropdown
+  const quoteButton = await screen.findByText(/^quote$/i);
   await waitFor(() => expect(quoteButton).toBeInTheDocument());
 
   act(() => {
@@ -134,10 +140,11 @@ const renderComponent = async ({
   channelData = [],
   channelProps = {},
   chatContextOverrides = {},
+  components = {},
   customChannel,
   customClient,
   customUser,
-  messageActionsBoxProps = {},
+  messageActionsProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
 } = {}) => {
@@ -155,21 +162,25 @@ const renderComponent = async ({
 
   await act(() => {
     renderResult = render(
-      <ChatProvider
-        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
-      >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-          <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
-          >
-            <MessageActionsBox
-              {...messageActionsBoxProps}
-              getMessageActions={defaultMessageContextValue.getMessageActions}
-            />
-          </MessageProvider>
-          <MessageInput {...messageInputProps} />
-        </Channel>
-      </ChatProvider>,
+      <WithComponents overrides={components}>
+        <ChatProvider
+          value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
+        >
+          <DialogManagerProvider id='message-input-test-dialog-manager'>
+            <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+              <MessageProvider
+                value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+              >
+                <MessageActions
+                  disableBaseMessageActionSetFilter
+                  {...messageActionsProps}
+                />
+              </MessageProvider>
+              <MessageInput {...messageInputProps} />
+            </Channel>
+          </DialogManagerProvider>
+        </ChatProvider>
+      </WithComponents>,
     );
   });
 
@@ -257,7 +268,7 @@ describe(`MessageInputFlat`, () => {
   it('should render custom EmojiPicker', async () => {
     const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
 
-    await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+    await renderComponent({ components: { EmojiPicker: CustomEmojiPicker } });
 
     await waitFor(() => {
       const c = screen.getByTestId('custom-emoji-picker');
@@ -319,7 +330,7 @@ describe(`MessageInputFlat`, () => {
       </svg>
     );
 
-    const { container } = await renderComponent({ channelProps: { FileUploadIcon } });
+    const { container } = await renderComponent({ components: { FileUploadIcon } });
 
     const fileUploadIcon = await screen.findByTitle('NotFileUploadIcon');
 
@@ -344,7 +355,7 @@ describe(`MessageInputFlat`, () => {
     );
 
     const { container } = await renderComponent({
-      channelProps: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      components: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
     });
 
     const fileUploadIcon = await screen.queryByTitle('NotFileUploadIcon');
@@ -368,7 +379,7 @@ describe(`MessageInputFlat`, () => {
     const customTestId = 'custom-link-preview';
     const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
     await renderComponent({
-      channelProps: { LinkPreviewList: CustomLinkPreviewList },
+      components: { LinkPreviewList: CustomLinkPreviewList },
     });
     await act(async () => {
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
@@ -1114,7 +1125,9 @@ describe(`MessageInputFlat`, () => {
     );
     const { customChannel, customClient } = await setup();
     const { container } = await renderComponent({
-      channelProps: { AutocompleteSuggestionList },
+      components: {
+        AutocompleteSuggestionList,
+      },
       customChannel,
       customClient,
     });
@@ -1163,7 +1176,7 @@ describe(`MessageInputFlat`, () => {
       });
       const fn = jest.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
       await renderComponent({
-        channelProps: {
+        components: {
           QuotedMessagePreview: (props) => (
             <QuotedMessagePreview {...props} renderText={fn} />
           ),
@@ -1193,56 +1206,6 @@ describe(`MessageInputFlat`, () => {
         dispatchMessageDeletedEvent(client, mainListMessage, channel);
       });
       quotedMessagePreviewIsNotDisplayed(mainListMessage);
-    });
-
-    it('renders quoted Poll component if message contains poll', async () => {
-      const poll = generatePoll();
-      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
-      });
-      const { container } = await renderComponent({
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
-      });
-
-      await initQuotedMessagePreview(messageWithPoll);
-      expect(
-        container.querySelector('.str-chat__quoted-poll-preview'),
-      ).toBeInTheDocument();
-    });
-
-    it('renders custom quoted Poll component if message contains poll', async () => {
-      const poll = generatePoll();
-      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
-      const {
-        channels: [channel],
-        client,
-      } = await initClientWithChannels({
-        channelsData: [{ messages: [messageWithPoll] }],
-      });
-      const pollText = 'Custom Poll component';
-      const QuotedPoll = () => <div>{pollText}</div>;
-
-      await renderComponent({
-        channelProps: { QuotedPoll },
-        customChannel: channel,
-        customClient: client,
-        messageContextOverrides: {
-          ...defaultMessageContextValue,
-          message: messageWithPoll,
-        },
-      });
-
-      await initQuotedMessagePreview(messageWithPoll);
-      expect(screen.queryByText(pollText)).toBeInTheDocument();
     });
   });
 

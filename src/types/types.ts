@@ -7,15 +7,6 @@ export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
 export type CustomMessageType = 'channel.intro' | 'message.date';
 
-export type GiphyVersions =
-  | 'original'
-  | 'fixed_height'
-  | 'fixed_height_still'
-  | 'fixed_height_downsampled'
-  | 'fixed_width'
-  | 'fixed_width_still'
-  | 'fixed_width_downsampled';
-
 export type PaginatorProps = {
   /** callback to load the next page */
   loadNextPage: () => void;

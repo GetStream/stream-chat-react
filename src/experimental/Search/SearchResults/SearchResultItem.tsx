@@ -113,9 +113,9 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
     >
       <Avatar
         className='str-chat__avatar--channel-preview'
-        image={item.image}
-        name={item.name || item.id}
-        user={item}
+        imageUrl={item.image}
+        size='md'
+        userName={item.name || item.id}
       />
       <div className='str-chat__search-result--display-name'>{item.name || item.id}</div>
     </button>

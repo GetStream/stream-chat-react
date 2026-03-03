@@ -759,6 +759,7 @@ describe('ChannelPreview', () => {
     describe('group channel', () => {
       const channelPreviewProps = {
         Avatar: ChannelAvatar,
+        watchers: { limit: 10 },
       };
       const channelName = 'channel-name';
       const channelState = getChannelState(3, { channel: { name: channelName } });

@@ -6,6 +6,7 @@ export const AIStates = {
   ExternalSources: 'AI_STATE_EXTERNAL_SOURCES',
   Generating: 'AI_STATE_GENERATING',
   Idle: 'AI_STATE_IDLE',
+  Stop: 'AI_STATE_STOP',
   Thinking: 'AI_STATE_THINKING',
 };
 
@@ -37,9 +38,17 @@ export const useAIState = (channel?: Channel): { aiState: AIState } => {
       }
     });
 
+    const indicatorStoppedListener = channel.on('ai_indicator.stop', (event) => {
+      const { cid } = event;
+      if (channel.cid === cid) {
+        setAiState(AIStates.Stop);
+      }
+    });
+
     return () => {
       indicatorChangedListener.unsubscribe();
       indicatorClearedListener.unsubscribe();
+      indicatorStoppedListener.unsubscribe();
     };
   }, [channel]);
 

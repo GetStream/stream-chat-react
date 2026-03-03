@@ -57,9 +57,10 @@ const PollVoteAuthor = ({ vote }: PollVoteProps) => {
       {vote.user && (
         <Avatar
           className='str-chat__avatar--poll-vote-author'
-          image={vote.user.image}
+          imageUrl={vote.user.image}
           key={`poll-vote-${vote.id}-avatar-${vote.user.id}`}
-          name={vote.user.name}
+          size='md'
+          userName={vote.user.name}
         />
       )}
       <div className='str-chat__poll-vote__author__name'>{displayName}</div>

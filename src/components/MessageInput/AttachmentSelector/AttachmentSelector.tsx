@@ -1,0 +1,409 @@
+import React, {
+  type ComponentType,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useAttachmentManagerState, useMessageComposer } from '../hooks';
+import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
+import {
+  ContextMenu,
+  ContextMenuButton,
+  type ContextMenuHeaderComponent,
+  type ContextMenuItemComponent,
+  type ContextMenuItemProps,
+  type ContextMenuOpenSubmenuParams,
+  type ContextMenuSubmenu,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../../Dialog';
+import { GlobalModal } from '../../Modal';
+import { ShareLocationDialog as DefaultLocationDialog } from '../../Location';
+import { PollCreationDialog as DefaultPollCreationDialog } from '../../Poll';
+import { Portal } from '../../Portal/Portal';
+import { UploadFileInput } from '../../ReactFileUtilities';
+import {
+  useChannelStateContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../context';
+import {
+  AttachmentSelectorContextProvider,
+  useAttachmentSelectorContext,
+} from '../../../context/AttachmentSelectorContext';
+import { useStableId } from '../../UtilityComponents/useStableId';
+import clsx from 'clsx';
+import { Button, type ButtonProps } from '../../Button';
+import {
+  IconChart5,
+  IconMapPin,
+  IconPaperclip,
+  IconPlusLarge,
+  IconRunShortcut,
+} from '../../Icons';
+import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
+import {
+  CommandsMenu,
+  CommandsMenuClassName,
+  CommandsSubmenuHeader,
+} from './CommandsMenu';
+
+const AttachmentSelectorMenuInitButtonIcon = () => {
+  const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
+
+  if (AttachmentSelectorInitiationButtonContents) {
+    return <AttachmentSelectorInitiationButtonContents />;
+  }
+
+  return <IconPlusLarge className='str-chat__attachment-selector__menu-button__icon' />;
+};
+
+export const AttachmentSelectorButton = forwardRef<HTMLButtonElement, ButtonProps>(
+  function AttachmentSelectorButton({ className, ...props }, ref) {
+    return (
+      <Button
+        appearance='outline'
+        circular
+        className={clsx('str-chat__attachment-selector__menu-button', className)}
+        data-testid='invoke-attachment-selector-button'
+        size='lg'
+        variant='secondary'
+        {...props}
+        ref={ref}
+      >
+        <AttachmentSelectorMenuInitButtonIcon />
+      </Button>
+    );
+  },
+);
+
+export const SimpleAttachmentSelector = () => {
+  const { channelCapabilities } = useChannelStateContext();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
+  const id = useStableId();
+  const isCooldownActive = useIsCooldownActive();
+
+  useEffect(() => {
+    if (!buttonElement) return;
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (![' ', 'Enter'].includes(event.key) || !inputRef.current) return;
+      event.preventDefault();
+      inputRef.current.click();
+    };
+    buttonElement.addEventListener('keyup', handleKeyUp);
+    return () => {
+      buttonElement.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [buttonElement]);
+
+  if (!channelCapabilities['upload-file']) return null;
+
+  return (
+    <div className='str-chat__attachment-selector'>
+      <AttachmentSelectorButton
+        disabled={isCooldownActive}
+        onClick={() => inputRef.current?.click()}
+        ref={setButtonElement}
+      />
+      <UploadFileInput id={id} ref={inputRef} />
+    </div>
+  );
+};
+
+export type AttachmentSelectorModalContentProps = {
+  close: () => void;
+};
+
+export type AttachmentSelectorAction = {
+  ActionButton: ComponentType<AttachmentSelectorActionProps>;
+  id?: string;
+  ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
+  Submenu?: ContextMenuSubmenu;
+  Header?: ContextMenuHeaderComponent;
+  type: 'uploadFile' | 'createPoll' | 'addLocation' | 'selectCommand' | (string & {});
+};
+
+export type AttachmentSelectorActionProps = {
+  closeMenu: () => void;
+  openModalForAction: (actionType: AttachmentSelectorAction['type']) => void;
+  openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
+  submenuItems?: ContextMenuSubmenu;
+  submenuHeader?: ContextMenuHeaderComponent;
+};
+
+export const DefaultAttachmentSelectorComponents = {
+  Command({ openSubmenu, submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
+    const { t } = useTranslationContext();
+    const hasSubmenu = !!submenuItems;
+    return (
+      <ContextMenuButton
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
+        hasSubMenu={hasSubmenu}
+        Icon={IconRunShortcut}
+        onClick={() => {
+          if (!hasSubmenu) return;
+          openSubmenu({
+            Header: submenuHeader,
+            menuClassName: CommandsMenuClassName,
+            Submenu: submenuItems,
+          });
+        }}
+      >
+        {t('Commands')}
+      </ContextMenuButton>
+    );
+  },
+  File({ closeMenu }: AttachmentSelectorActionProps) {
+    const { t } = useTranslationContext();
+    const { fileInput } = useAttachmentSelectorContext();
+
+    return (
+      <ContextMenuButton
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        Icon={IconPaperclip}
+        onClick={() => {
+          fileInput?.click();
+          closeMenu();
+        }}
+      >
+        {t('File')}
+      </ContextMenuButton>
+    );
+  },
+  Location({ closeMenu, openModalForAction }: AttachmentSelectorActionProps) {
+    const { t } = useTranslationContext();
+    return (
+      <ContextMenuButton
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__add-location-button'
+        Icon={IconMapPin}
+        onClick={() => {
+          openModalForAction('addLocation');
+          closeMenu();
+        }}
+      >
+        {t('Location')}
+      </ContextMenuButton>
+    );
+  },
+  Poll({ closeMenu, openModalForAction }: AttachmentSelectorActionProps) {
+    const { t } = useTranslationContext();
+    return (
+      <ContextMenuButton
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
+        Icon={IconChart5}
+        onClick={() => {
+          openModalForAction('createPoll');
+          closeMenu();
+        }}
+      >
+        {t('Poll')}
+      </ContextMenuButton>
+    );
+  },
+};
+
+/**
+ * Order of AttachmentSelectorAction objects defines the order in the context menu width index 0 being at the top.
+ */
+export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
+  {
+    ActionButton: DefaultAttachmentSelectorComponents.File,
+    type: 'uploadFile',
+  },
+  {
+    ActionButton: DefaultAttachmentSelectorComponents.Poll,
+    type: 'createPoll',
+  },
+  {
+    ActionButton: DefaultAttachmentSelectorComponents.Location,
+    type: 'addLocation',
+  },
+  {
+    ActionButton: DefaultAttachmentSelectorComponents.Command,
+    Header: CommandsSubmenuHeader,
+    Submenu: CommandsMenu,
+    type: 'selectCommand',
+  },
+];
+
+export type AttachmentSelectorProps = {
+  attachmentSelectorActionSet?: AttachmentSelectorAction[];
+  getModalPortalDestination?: () => HTMLElement | null;
+};
+
+const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction[]) => {
+  const {
+    PollCreationDialog = DefaultPollCreationDialog,
+    ShareLocationDialog = DefaultLocationDialog,
+  } = useComponentContext();
+  const { channelCapabilities } = useChannelStateContext();
+  const { isUploadEnabled } = useAttachmentManagerState();
+  const messageComposer = useMessageComposer();
+  const channelConfig = messageComposer.channel.getConfig();
+
+  return useMemo(
+    () =>
+      original
+        .filter((action) => {
+          if (action.type === 'uploadFile')
+            return (
+              channelCapabilities['upload-file'] &&
+              channelConfig?.uploads &&
+              isUploadEnabled
+            );
+
+          if (action.type === 'createPoll')
+            return (
+              channelCapabilities['send-poll'] &&
+              !messageComposer.threadId &&
+              channelConfig?.polls
+            );
+
+          if (action.type === 'addLocation') {
+            return channelConfig?.shared_locations && !messageComposer.threadId;
+          }
+
+          if (action.type === 'selectCommand') {
+            return !!channelConfig?.commands?.some((command) => !!command.name);
+          }
+
+          return true;
+        })
+        .map((action) => {
+          if (action.type === 'createPoll' && !action.ModalContent) {
+            return { ...action, ModalContent: PollCreationDialog };
+          }
+          if (action.type === 'addLocation' && !action.ModalContent) {
+            return { ...action, ModalContent: ShareLocationDialog };
+          }
+          return action;
+        }),
+    [
+      PollCreationDialog,
+      ShareLocationDialog,
+      channelCapabilities,
+      channelConfig,
+      isUploadEnabled,
+      messageComposer.threadId,
+      original,
+    ],
+  );
+};
+
+export const AttachmentSelector = ({
+  attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
+  getModalPortalDestination,
+}: AttachmentSelectorProps) => {
+  const { t } = useTranslationContext();
+  const { Modal = GlobalModal } = useComponentContext();
+  const { channelCapabilities } = useChannelStateContext();
+  const messageComposer = useMessageComposer();
+  const isCooldownActive = useIsCooldownActive();
+  const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
+
+  const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
+  const { dialog: menuDialog, dialogManager } = useDialogOnNearestManager({
+    id: menuDialogId,
+  });
+  const menuDialogIsOpen = useDialogIsOpen(menuDialogId, dialogManager?.id);
+
+  const [modalContentAction, setModalContentActionAction] =
+    useState<AttachmentSelectorAction>();
+  const openModalForAction = useCallback(
+    (actionType: AttachmentSelectorAction['type']) => {
+      const action = actions.find((a) => a.type === actionType);
+      if (!action?.ModalContent) return;
+      setModalContentActionAction(action);
+    },
+    [actions],
+  );
+
+  const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
+
+  const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const contextMenuItems = useMemo(
+    () =>
+      actions.reduce<ContextMenuItemComponent[]>((acc, action) => {
+        const submenuItems = action.Submenu;
+        const ActionItem = ({ closeMenu, openSubmenu }: ContextMenuItemProps) => (
+          <action.ActionButton
+            closeMenu={closeMenu}
+            openModalForAction={openModalForAction}
+            openSubmenu={openSubmenu}
+            submenuHeader={action.Header}
+            submenuItems={submenuItems}
+          />
+        );
+        acc.push(ActionItem);
+        return acc;
+      }, []),
+    [actions, openModalForAction],
+  );
+
+  const getDefaultPortalDestination = useCallback(
+    () => document.getElementById(CHANNEL_CONTAINER_ID),
+    [],
+  );
+
+  if (actions.length === 0) return null;
+
+  if (actions.length === 1 && actions[0].type === 'uploadFile')
+    return <SimpleAttachmentSelector />;
+
+  const ModalContent = modalContentAction?.ModalContent;
+  const modalIsOpen = !!ModalContent;
+  return (
+    <AttachmentSelectorContextProvider value={{ fileInput }}>
+      <div className='str-chat__attachment-selector'>
+        {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
+        <AttachmentSelectorButton
+          aria-expanded={menuDialogIsOpen}
+          aria-haspopup='true'
+          aria-label={t('aria/Open Attachment Selector')}
+          className={clsx('str-chat__prepare-rotate45', {
+            'str-chat__rotate45': menuDialogIsOpen,
+          })}
+          disabled={isCooldownActive}
+          onClick={() => menuDialog?.toggle()}
+          ref={menuButtonRef}
+        />
+        <ContextMenu
+          allowFlip
+          backLabel={t('Back')}
+          className='str-chat__attachment-selector-actions-menu'
+          data-testid='attachment-selector-actions-menu'
+          dialogManagerId={dialogManager?.id}
+          id={menuDialogId}
+          items={contextMenuItems}
+          onClose={menuDialog.close}
+          placement='top-start'
+          referenceElement={menuButtonRef.current}
+          tabIndex={-1}
+          trapFocus
+        />
+        <Portal
+          getPortalDestination={getModalPortalDestination ?? getDefaultPortalDestination}
+          isOpen={modalIsOpen}
+        >
+          <Modal
+            className={clsx({
+              'str-chat__create-poll-modal': modalContentAction?.type === 'createPoll',
+              'str-chat__share-location-modal':
+                modalContentAction?.type === 'addLocation',
+            })}
+            onClose={closeModal}
+            open={modalIsOpen}
+          >
+            {ModalContent && <ModalContent close={closeModal} />}
+          </Modal>
+        </Portal>
+      </div>
+    </AttachmentSelectorContextProvider>
+  );
+};

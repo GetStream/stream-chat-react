@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import '@testing-library/jest-dom';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { AudioRecordingPreview } from '../AudioRecordingPreview';
+import { AudioRecordingPlayback } from '../AudioRecordingPlayback';
 import { useAudioPlayer, WithAudioPlayback } from '../../../AudioPlayback';
 import { generateAudioAttachment } from '../../../../mock-builders';
 
@@ -82,12 +82,12 @@ const renderComponent = ({ getPlayer = () => null, ...props } = {}) => {
   return render(
     <WithAudioPlayback>
       <PlayerGetter />
-      <AudioRecordingPreview {...finalProps} />
+      <AudioRecordingPlayback {...finalProps} />
     </WithAudioPlayback>,
   );
 };
 
-describe('AudioRecordingPreview', () => {
+describe('AudioRecordingPlayback', () => {
   afterEach(() => {
     cleanup();
     jest.clearAllMocks();

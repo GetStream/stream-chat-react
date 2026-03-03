@@ -1,0 +1,45 @@
+.str-chat__form__input-fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+
+  .str-chat__form__input-fieldset__label {
+    font-size: var(--typography-font-size-sm);
+    font-weight: var(--typography-font-weight-medium);
+    line-height: var(--typography-line-height-tight);
+    color: var(--text-primary);
+  }
+
+  .str-chat__form__input-fieldset__values {
+    display: flex;
+    flex-direction: column;
+
+    .str-chat__form__input-field--draggable {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+
+      input {
+        pointer-events: auto;
+      }
+
+      .str-chat__drag-handle {
+        height: 1rem;
+        width: 1rem;
+      }
+    }
+
+    .str-chat__form__input-field {
+      width: 100%;
+
+      .str-chat__form__input-field__value {
+        width: 100%;
+
+        .str-chat__form__input-field__error {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

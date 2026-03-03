@@ -1,0 +1,13 @@
+// todo: remove if CardAudio.tsx is removed
+.str-chat__message-attachment-card--audio {
+  .str-chat__message-attachment-card--content {
+    padding: 0;
+
+    .str-chat__message-attachment-card-audio-widget {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: var(--spacing-md);
+    }
+  }
+}

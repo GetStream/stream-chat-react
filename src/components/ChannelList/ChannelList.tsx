@@ -31,7 +31,7 @@ import {
   useComponentContext,
 } from '../../context';
 import { NullComponent } from '../UtilityComponents';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
+import { moveChannelUpwards } from './utils';
 import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
 import type { ChannelListMessengerProps } from './ChannelListMessenger';
 import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
@@ -234,10 +234,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     channels: Array<Channel>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
   ) => {
-    if (
-      !channels.length ||
-      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
-    ) {
+    if (!channels.length) {
       return;
     }
 

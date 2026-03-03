@@ -1,10 +1,11 @@
-@layer stream, stream-overrides;
+@layer stream, stream-new, stream-overrides, stream-app-overrides;
 
 @import url('./stream-imports-theme.scss') layer(stream);
 @import url('./stream-imports-layout.scss') layer(stream);
 
 // v3 CSS import
-@import url('stream-chat-react/dist/css/index.css');
+@import url('stream-chat-react/dist/css/index.css') layer(stream-new);
+@import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
 
 :root {
   font-synthesis: none;
@@ -24,47 +25,106 @@ body {
 
 @layer stream-overrides {
   .str-chat {
-    --max-content-width: 800px;
-  }
-
-  .str-chat__channel-list, .str-chat__thread-list-container {
-    flex-basis: 350px;
-    flex-shrink: 0;
-  }
-
-  .str-chat__channel {
+    height: 100%;
     width: 100%;
   }
 
-  .str-chat__main-panel, .str-chat__thread-container {
-    align-items: center;
+  .str-chat__chat-view,
+  .str-chat__chat-view-channels,
+  .str-chat__channel,
+  .str-chat__window {
+    min-height: 0;
   }
+
+  .str-chat__chat-view {
+    height: 100%;
+    container-type: inline-size;
+  }
+
+  .str-chat__chat-view-channels {
+    height: 100%;
+    gap: 0;
+  }
+
+  .str-chat__channel-list {
+    flex: 0 0 300px;
+    max-width: 300px;
+    height: 100%;
+  }
+
+  .str-chat__main-panel {
+    height: 100%;
+    align-items: stretch;
+  }
+
   .str-chat__main-panel-inner {
     width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  .str-chat__window {
+    height: 100%;
+  }
+
+  .str-chat__channel-header,
+  .str-chat__thread-header {
+    width: 100%;
+    max-width: none;
   }
 
   .str-chat__message-list-scroll {
-    max-width: var(--max-content-width);
     width: 100%;
   }
-  
-  .str-chat__channel-header, .str-chat__thread-header {
-    max-width: var(--max-content-width);
-    width: 100%;
+
+  .str-chat__list,
+  .str-chat__virtual-list {
+    display: block;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
   }
 
   .str-chat__message-input {
-    max-width: var(--max-content-width);
-    // scrollbar-gutter: stable;
-    // scrollbar-width: thin;
-    // overflow-y: hidden;
-    // flex-shrink: 0;
+    width: 100%;
+    //max-width: none;
   }
 
-  .str-chat__list, .str-chat__virtual-list {
-    display: flex;
-    justify-content: center;
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
+  .str-chat__dropzone-root--thread,
+  .str-chat__thread-list-container,
+  .str-chat__thread-container {
+    //flex: 0 0 360px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .str-chat__chat-view__threads {
+    .str-chat__dropzone-root--thread,
+    .str-chat__thread-container {
+      flex: 1 1 auto;
+      //min-width: 360px;
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .str-chat__container:has(.str-chat__thread-container) > .str-chat__main-panel {
+      width: 0;
+      min-width: 0;
+      flex: 0 0 0;
+      overflow: hidden;
+    }
+
+    .str-chat__container:has(.str-chat__thread-container) > .str-chat__thread-container {
+      flex: 1 1 auto;
+      min-width: 360px;
+      max-width: none;
+    }
+  }
+
+  @container (max-width: 860px) {
+    .str-chat__channel-list,
+    .str-chat__chat-view__selector {
+      display: none;
+    }
   }
 }

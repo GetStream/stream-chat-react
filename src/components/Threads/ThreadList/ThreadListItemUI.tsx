@@ -5,7 +5,7 @@ import type { LocalMessage, ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
-import { Avatar } from '../../Avatar';
+import { Avatar, type AvatarProps } from '../../Avatar';
 import { Icon } from '../icons';
 import { UnreadCountBadge } from '../UnreadCountBadge';
 
@@ -91,7 +91,13 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
-  const avatarProps = deletedAt ? null : latestReply?.user;
+  const avatarProps: AvatarProps | undefined = deletedAt
+    ? undefined
+    : ({
+        imageUrl: latestReply?.user?.image,
+        size: 'md',
+        userName: latestReply?.user?.name || latestReply?.user?.id,
+      } as const);
 
   return (
     <button
@@ -116,7 +122,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
         {!deletedAt && <UnreadCountBadge count={ownUnreadMessageCount} />}
       </div>
       <div className='str-chat__thread-list-item__latest-reply'>
-        <Avatar {...avatarProps} />
+        <Avatar size={null} {...avatarProps} />
         <div className='str-chat__thread-list-item__latest-reply-details'>
           {!deletedAt && (
             <div className='str-chat__thread-list-item__latest-reply-created-by'>

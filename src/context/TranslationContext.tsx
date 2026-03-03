@@ -6,9 +6,7 @@ import type { PropsWithChildren } from 'react';
 import type { TFunction } from 'i18next';
 import type { TranslationLanguages } from 'stream-chat';
 
-import { getDisplayName } from './utils/getDisplayName';
 import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
-import type { UnknownType } from '../types/types';
 import type { TDateTimeParser } from '../i18n/types';
 
 Dayjs.extend(calendar);
@@ -45,22 +43,4 @@ export const useTranslationContext = (componentName?: string) => {
   }
 
   return contextValue;
-};
-
-export const withTranslationContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithTranslationContextComponent = (
-    props: Omit<P, keyof TranslationContextValue>,
-  ) => {
-    const translationContext = useTranslationContext();
-
-    return <Component {...(props as P)} {...translationContext} />;
-  };
-
-  WithTranslationContextComponent.displayName = `WithTranslationContext${getDisplayName(
-    Component,
-  )}`;
-
-  return WithTranslationContextComponent;
 };

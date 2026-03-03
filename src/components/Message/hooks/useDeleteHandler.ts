@@ -5,7 +5,7 @@ import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { DeleteMessageOptions, LocalMessage } from 'stream-chat';
-import type { ReactEventHandler } from '../types';
+import type { MessageContextValue } from '../../../context';
 
 export type DeleteMessageNotifications = {
   getErrorNotification?: (message: LocalMessage) => string;
@@ -15,15 +15,14 @@ export type DeleteMessageNotifications = {
 export const useDeleteHandler = (
   message?: LocalMessage,
   notifications: DeleteMessageNotifications = {},
-): ReactEventHandler => {
+): MessageContextValue['handleDelete'] => {
   const { getErrorNotification, notify } = notifications;
 
   const { deleteMessage, updateMessage } = useChannelActionContext('useDeleteHandler');
   const { client } = useChatContext('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
-  return async (event, options?: DeleteMessageOptions) => {
-    event.preventDefault();
+  return async (options?: DeleteMessageOptions) => {
     if (!message?.id || !client || !updateMessage) {
       return;
     }

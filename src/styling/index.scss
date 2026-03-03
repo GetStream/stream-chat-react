@@ -1,1 +1,49 @@
+// Base styles
+@use 'accessibility';
+@use 'animations';
+@use 'global-layout-variables';
+@use 'global-theme-variables';
+@use 'palette-variables';
+@use './variables.css';
+@use 'base';
+@use 'icons';
+@use 'fonts';
+
+// alias is necessary to allow sass create namespaces with different names (and not same name styling)
+@use '../components/Icons/styling' as Icons;
+@use '../components/FileIcon/styling/FileIcon';
+
+// Base components
+@use '../components/Badge/styling' as Badge;
+@use '../components/Button/styling' as Button;
+@use '../components/Form/styling' as Form;
+@use '../components/Dialog/styling' as Dialog;
+@use '../components/Modal/styling' as Modal;
+
+// Specific components
+@use '../components/Attachment/styling' as Attachment;
+@use '../components/AudioPlayback/styling' as AudioPlayback;
+@use '../components/Avatar/styling/Avatar' as Avatar;
+@use '../components/Avatar/styling/AvatarStack' as AvatarStack;
+@use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
+@use '../components/Channel/styling' as Channel;
+@use '../components/ChannelHeader/styling' as ChannelHeader;
+@use '../components/ChatView/styling' as ChatView;
+@use '../components/DateSeparator/styling' as DateSeparator;
+@use '../components/DragAndDrop/styling' as DragAndDrop;
+@use '../components/EmptyStateIndicator/styling' as EmptyStateIndicator;
+@use '../components/Gallery/styling' as Gallery;
+@use '../components/MediaRecorder/AudioRecorder/styling' as AudioRecorder;
+@use '../components/Message/styling' as Message;
+@use '../components/MessageActions/styling' as MessageActions;
+@use '../components/MessageBounce/styling' as MessageBounce;
+@use '../components/MessageInput/styling' as MessageComposer;
+@use '../components/MessageList/styling' as MessageList;
+@use '../components/Poll/styling' as Poll;
+@use '../components/Reactions/styling' as Reactions;
+@use '../components/TextareaComposer/styling' as TextareaComposer;
+@use '../components/Thread/styling' as Thread;
+@use '../components/VideoPlayer/styling' as VideoPlayer;
+
+// Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

@@ -8,6 +8,7 @@ export * from './MessageContext';
 export * from './MessageBounceContext';
 export * from './MessageInputContext';
 export * from './MessageListContext';
+export * from './MessageTranslationViewContext';
 export * from './PollContext';
 export * from './TranslationContext';
 export * from './TypingContext';

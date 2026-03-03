@@ -1,6 +1,9 @@
 import React from 'react';
 import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
-import { useTranslationContext } from '../../../context';
+import { useMessageInputContext, useTranslationContext } from '../../../context';
+import clsx from 'clsx';
+import { IconPaperPlane } from '../../Icons';
+import { Prompt } from '../../Dialog';
 import { useSendMessageFn } from '../../MessageInput/hooks/useSendMessageFn';
 
 export type PollCreationDialogControlsProps = {
@@ -16,34 +19,37 @@ export const PollCreationDialogControls = ({
   const canCreatePoll = useCanCreatePoll();
 
   return (
-    <div className='str-chat__dialog__controls'>
-      <button
-        className='str-chat__dialog__controls-button str-chat__dialog__controls-button--cancel'
-        onClick={() => {
-          messageComposer.pollComposer.initState();
-          close();
-        }}
-        type='button'
-      >
-        {t('Cancel')}
-      </button>
-      <button
-        className='str-chat__dialog__controls-button str-chat__dialog__controls-button--submit'
-        disabled={!canCreatePoll}
-        onClick={() => {
-          messageComposer
-            .createPoll()
-            .then(sendMessage)
-            .then(() => {
-              messageComposer.pollComposer.initState();
-              close();
-            })
-            .catch(console.error);
-        }}
-        type='submit'
-      >
-        {t('Create')}
-      </button>
-    </div>
+    <Prompt.Footer>
+      <Prompt.FooterControls>
+        <Prompt.FooterControlsButtonSecondary
+          className={clsx('str-chat__prompt__footer__controls-button--cancel')}
+          onClick={() => {
+            messageComposer.pollComposer.initState();
+            close();
+          }}
+          type='button'
+        >
+          {t('Cancel')}
+        </Prompt.FooterControlsButtonSecondary>
+        <Prompt.FooterControlsButtonPrimary
+          className={clsx('str-chat__prompt__footer__controls-button--submit')}
+          disabled={!canCreatePoll}
+          onClick={() => {
+            messageComposer
+              .createPoll()
+              .then(sendMessage)
+              .then(() => {
+                messageComposer.pollComposer.initState();
+                close();
+              })
+              .catch(console.error);
+          }}
+          type='submit'
+        >
+          <IconPaperPlane />
+          {t('Send poll')}
+        </Prompt.FooterControlsButtonPrimary>
+      </Prompt.FooterControls>
+    </Prompt.Footer>
   );
 };

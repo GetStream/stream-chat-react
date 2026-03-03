@@ -1,0 +1,13 @@
+.str-chat__callout {
+  position: relative;
+  max-width: 320px;
+  border-radius: var(--radius-lg);
+  background-color: var(--background-elevation-elevation-2);
+  box-shadow: var(--light-elevation-3);
+
+  .str-chat__callout__close-button {
+    position: absolute;
+    right: var(--spacing-xs);
+    top: var(--spacing-xs);
+  }
+}

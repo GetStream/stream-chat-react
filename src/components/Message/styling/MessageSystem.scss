@@ -1,0 +1,23 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__system-message-border-radius: 0;
+  --str-chat__system-message-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__system-message-background-color: transparent;
+  --str-chat__system-message-border-block-start: none;
+  --str-chat__system-message-border-block-end: none;
+  --str-chat__system-message-border-inline-start: none;
+  --str-chat__system-message-border-inline-end: none;
+  --str-chat__system-message-box-shadow: none;
+}
+
+.str-chat__message--system {
+  width: 100%;
+  text-align: center;
+  @include utils.component-layer-overrides('system-message');
+  font: var(--str-chat__caption-text);
+
+  p {
+    margin: 0;
+  }
+}

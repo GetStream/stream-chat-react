@@ -1,4 +1,5 @@
 import { useChatContext, useTranslationContext } from '../../../context';
+import { useStableCallback } from '../../../utils/useStableCallback';
 import type {
   LocalMessage,
   ReactionResponse,
@@ -22,7 +23,7 @@ export function useReactionsFetcher(
   const { t } = useTranslationContext('useReactionFetcher');
   const { getErrorNotification, notify } = notifications;
 
-  return async (reactionType?: ReactionType, sort?: ReactionSort) => {
+  return useStableCallback(async (reactionType?: ReactionType, sort?: ReactionSort) => {
     try {
       return await fetchMessageReactions(client, message.id, reactionType, sort);
     } catch (e) {
@@ -30,7 +31,7 @@ export function useReactionsFetcher(
       notify?.(errorMessage || t('Error fetching reactions'), 'error');
       throw e;
     }
-  };
+  });
 }
 
 async function fetchMessageReactions(

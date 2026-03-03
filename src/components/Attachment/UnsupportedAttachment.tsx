@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileIcon } from '../ReactFileUtilities';
+import { FileIcon } from '../FileIcon';
 import { useTranslationContext } from '../../context';
 
 export type UnsupportedAttachmentProps = {

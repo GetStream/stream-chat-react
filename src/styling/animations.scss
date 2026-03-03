@@ -1,0 +1,31 @@
+.str-chat__prepare-rotate45 {
+  transition: transform 200ms ease;
+  transform: rotate(0);
+  transform-origin: center center;
+}
+
+.str-chat__rotate45 {
+  transform: rotate(45deg);
+}
+
+@mixin loading-animation {
+  animation: pulsate 1s linear 0s infinite alternate;
+
+  &:nth-of-type(2) {
+    animation: pulsate 1s linear 0.3334s infinite alternate;
+  }
+
+  &:last-of-type {
+    animation: pulsate 1s linear 0.6667s infinite alternate;
+  }
+
+  @keyframes pulsate {
+    from {
+      opacity: 0.5;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}

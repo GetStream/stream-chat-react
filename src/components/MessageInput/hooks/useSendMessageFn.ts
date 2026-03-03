@@ -50,23 +50,15 @@ export const useSendMessageFn = () => {
             id: MessageComposer.generateId(),
             pollId: null,
           });
-        } else {
-          messageComposer.clear();
         }
 
-        if (thread) {
-          await thread.sendMessageWithLocalUpdate({
-            localMessage,
-            message,
-            options: sendOptions,
-          });
-        } else {
-          await channel.sendMessageWithLocalUpdate({
-            localMessage,
-            message,
-            options: sendOptions,
-          });
-        }
+        await (thread ?? channel).sendMessageWithLocalUpdate({
+          localMessage,
+          message,
+          options: sendOptions,
+        });
+
+        if (!sendingPollMessage) messageComposer.clear();
       } catch (error) {
         restoreComposerStateSnapshot();
         // todo: Register notification translator

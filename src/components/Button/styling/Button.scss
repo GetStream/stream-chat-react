@@ -1,0 +1,152 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  .str-chat__button {
+    @include utils.button-reset;
+    position: relative; /* creates positioning context for pseudo ::after overlay */
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+
+    font: var(--str-chat__body-emphasis-text);
+    text-transform: capitalize;
+
+    &.str-chat__button--solid {
+      &.str-chat__button--primary {
+        background-color: var(--button-primary-bg);
+        color: var(--button-primary-text-on-accent);
+      }
+
+      &.str-chat__button--secondary {
+        background-color: var(--button-secondary-bg);
+        color: var(--button-secondary-text-on-accent);
+      }
+
+      &.str-chat__button--destructive {
+        background-color: var(--button-destructive-bg);
+        color: var(--button-destructive-text-on-accent);
+      }
+
+      &:disabled {
+        background-color: var(--background-core-disabled);
+      }
+    }
+
+    &.str-chat__button--ghost {
+      &.str-chat__button--primary {
+        color: var(--button-primary-text);
+      }
+
+      &.str-chat__button--secondary {
+        color: var(--button-secondary-text);
+      }
+
+      &.str-chat__button--destructive {
+        color: var(--button-destructive-text);
+      }
+    }
+
+    // todo: shouldn't we specify also background color?
+    &.str-chat__button--outline {
+      &.str-chat__button--primary {
+        color: var(--button-primary-text);
+        border-color: var(--button-primary-border);
+      }
+
+      &.str-chat__button--secondary {
+        color: var(--button-secondary-text);
+        border-color: var(--button-secondary-border);
+      }
+
+      &.str-chat__button--destructive {
+        color: var(--button-destructive-text);
+        border-color: var(--button-destructive-border);
+      }
+    }
+
+    &.str-chat__button--outline {
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    &.str-chat__button--solid,
+    &.str-chat__button--outline,
+    &.str-chat__button--ghost {
+      &:not(:disabled):hover {
+        @include utils.overlay-after(var(--background-core-hover));
+      }
+
+      &[aria-expanded='true'],
+      &:not(:disabled):active {
+        // pressed
+        @include utils.overlay-after(var(--background-core-pressed));
+      }
+
+      &:not(:disabled):focus-visible {
+        // focused
+        @include utils.focusable;
+      }
+
+      &:not(:disabled)[aria-pressed='true'] {
+        // toggled
+        @include utils.overlay-after(0.1);
+      }
+
+      &:disabled {
+        color: var(--text-disabled);
+        cursor: default;
+      }
+    }
+
+    &.str-chat__button--outline:disabled {
+      border-color: var(--border-utility-disabled);
+    }
+
+    &.str-chat__button--floating {
+      box-shadow: var(--light-elevation-2);
+    }
+
+    &::after {
+      border-radius: inherit;
+    }
+
+    &.str-chat__button--size-lg {
+      padding-block: var(--button-padding-y-lg);
+      padding-inline: var(--button-padding-x-with-label-lg);
+      border-radius: var(--button-radius-lg);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-lg);
+      }
+    }
+
+    &.str-chat__button--size-md {
+      padding-block: var(--button-padding-y-md);
+      padding-inline: var(--button-padding-x-with-label-md);
+      border-radius: var(--button-radius-md);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-md);
+      }
+    }
+
+    &.str-chat__button--size-sm {
+      padding-block: var(--button-padding-y-sm);
+      padding-inline: var(--button-padding-x-with-label-sm);
+      border-radius: var(--button-radius-md);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-sm);
+      }
+    }
+
+    &.str-chat__button--circular {
+      border-radius: var(--button-radius-full);
+    }
+  }
+}

@@ -5,8 +5,8 @@ import { MultipleAnswersField } from './MultipleAnswersField';
 import { NameField } from './NameField';
 import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
-import { ModalHeader } from '../../Modal/ModalHeader';
-import { SimpleSwitchField } from '../../Form/SwitchField';
+import { Prompt } from '../../Dialog';
+import { SwitchField } from '../../Form/SwitchField';
 import { useMessageComposer } from '../../MessageInput';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
@@ -33,49 +33,54 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   }, [pollComposer, close]);
 
   return (
-    <div
-      className='str-chat__dialog str-chat__poll-creation-dialog'
+    <Prompt.Root
+      className='str-chat__poll-creation-dialog'
       data-testid='poll-creation-dialog'
     >
-      <ModalHeader close={onClose} title={t('Create poll')} />
-      <div className='str-chat__dialog__body'>
+      <Prompt.Header close={onClose} title={t('Create poll')} />
+      <Prompt.Body>
         <form autoComplete='off'>
           <NameField />
           <OptionFieldSet />
-          <MultipleAnswersField />
-          <SimpleSwitchField
-            checked={voting_visibility === 'anonymous'}
-            id='voting_visibility'
-            labelText={t('Anonymous poll')}
-            onChange={(e) =>
-              pollComposer.updateFields({
-                voting_visibility: e.target.checked
-                  ? VotingVisibility.anonymous
-                  : VotingVisibility.public,
-              })
-            }
-          />
-          <SimpleSwitchField
-            checked={allow_user_suggested_options}
-            id='allow_user_suggested_options'
-            labelText={t('Allow option suggestion')}
-            onChange={(e) =>
-              pollComposer.updateFields({
-                allow_user_suggested_options: e.target.checked,
-              })
-            }
-          />
-          <SimpleSwitchField
-            checked={allow_answers}
-            id='allow_answers'
-            labelText={t('Allow comments')}
-            onChange={(e) =>
-              pollComposer.updateFields({ allow_answers: e.target.checked })
-            }
-          />
+          <div className='str-chat__poll-creation-dialog__features-selectors'>
+            <MultipleAnswersField />
+            <SwitchField
+              checked={voting_visibility === 'anonymous'}
+              description={t('Hide who voted')}
+              id='voting_visibility'
+              onChange={(e) =>
+                pollComposer.updateFields({
+                  voting_visibility: e.target.checked
+                    ? VotingVisibility.anonymous
+                    : VotingVisibility.public,
+                })
+              }
+              title={t('Anonymous poll')}
+            />
+            <SwitchField
+              checked={allow_user_suggested_options}
+              description={t('Let others add options')}
+              id='allow_user_suggested_options'
+              onChange={(e) =>
+                pollComposer.updateFields({
+                  allow_user_suggested_options: e.target.checked,
+                })
+              }
+              title={t('Suggest an option')}
+            />
+            <SwitchField
+              checked={allow_answers}
+              description={t('Allow others to add comments')}
+              id='allow_answers'
+              onChange={(e) =>
+                pollComposer.updateFields({ allow_answers: e.target.checked })
+              }
+              title={t('Add a comment')}
+            />
+          </div>
         </form>
-      </div>
+      </Prompt.Body>
       <PollCreationDialogControls close={close} />
-    </div>
+    </Prompt.Root>
   );
 };

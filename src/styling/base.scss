@@ -1,0 +1,27 @@
+.str-chat {
+  font-family: var(--str-chat__font-family);
+  font-size: var(--typography-font-size-md);
+  font-weight: var(--typography-font-weight-regular);
+  line-height: var(--typography-line-height-normal);
+  letter-spacing: var(--typography-letter-spacing-default);
+  color: var(--text-primary);
+
+  *:not(:disabled):focus-visible {
+    outline: 2px solid var(--border-utility-focus);
+    outline-offset: 2px;
+  }
+
+  // hide spin buttons form input of type number
+  /* Chrome, Safari, Edge, Opera */
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}

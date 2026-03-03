@@ -1,7 +1,6 @@
 import type { ComponentType, PropsWithChildren } from 'react';
 import React from 'react';
-import type { ModalProps } from '../Modal';
-import { Modal as DefaultModal } from '../Modal';
+import { GlobalModal, type ModalProps } from '../Modal';
 import { MessageBounceProvider, useComponentContext } from '../../context';
 import type { MessageBouncePromptProps } from './MessageBouncePrompt';
 
@@ -15,7 +14,7 @@ export function MessageBounceModal({
   MessageBouncePrompt,
   ...modalProps
 }: MessageBounceModalProps) {
-  const { Modal = DefaultModal } = useComponentContext();
+  const { Modal = GlobalModal } = useComponentContext();
   return (
     <Modal className='str-chat__message-bounce-modal' {...modalProps}>
       <MessageBounceProvider>

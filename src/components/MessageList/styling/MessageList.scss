@@ -1,0 +1,103 @@
+@use '../../../styling/utils';
+
+// Layout
+.str-chat__main-panel-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  align-items: center;
+}
+
+.str-chat__message-list-main-panel {
+  --str-chat__message-list-scroll-max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
+}
+
+.str-chat__message-list {
+  @include utils.scrollable;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overscroll-behavior: none;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  @include utils.component-layer-overrides('message-list');
+
+  .str-chat__message-list-scroll {
+    @include utils.message-list-spacing;
+    /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
+    max-width: var(--str-chat__message-list-scroll-max-width);
+    .str-chat__ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  .str-chat__parent-message-li {
+    $spacing: var(--str-chat__spacing-4);
+    padding-block-end: $spacing;
+    margin-block-end: $spacing;
+    border-block-end: 1px solid var(--str-chat__thread-head-start-border-block-end-color);
+
+    .str-chat__thread-start {
+      color: var(--str-chat__thread-head-start-color);
+      font: var(--str-chat__subtitle-text);
+    }
+
+    .str-chat__thread-start {
+      text-align: start;
+      padding-top: var(--str-chat__spacing-3);
+    }
+  }
+}
+
+.str-chat__main-panel {
+  .str-chat__ul {
+    .str-chat__li:first-of-type {
+      padding-top: 4.5rem;
+    }
+
+    .str-chat__date-separator + .str-chat__li:first-of-type {
+      padding-top: inherit;
+    }
+  }
+}
+
+// Theme
+.str-chat {
+  /* The border radius used for the borders of the component */
+  --str-chat__message-list-border-radius: 0;
+
+  /* The text/icon color of the component */
+  --str-chat__message-list-color: var(--str-chat__text-color);
+
+  /* The background color of the component */
+  --str-chat__message-list-background-color: var(--str-chat__background-color);
+
+  /* Box shadow applied to the component */
+  --str-chat__message-list-box-shadow: none;
+
+  /* Top border of the component */
+  --str-chat__message-list-border-block-start: none;
+
+  /* Bottom border of the component */
+  --str-chat__message-list-border-block-end: none;
+
+  /* Left (right in RTL layout) border of the component */
+  --str-chat__message-list-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the component */
+  --str-chat__message-list-border-inline-end: none;
+
+  /* The color used for displaying thread replies and thread separator at the start of a thread */
+  --str-chat__thread-head-start-color: var(--str-chat__text-low-emphasis-color);
+
+  /* The color used for the separator below the first message in a thread */
+  --str-chat__thread-head-start-border-block-end-color: var(--str-chat__surface-color);
+}

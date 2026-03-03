@@ -315,6 +315,8 @@ export class MediaRecorderController {
       this.startTime = undefined;
     }
     this.mediaRecorder?.pause();
+    // Flush current chunk so preview is available while paused.
+    this.mediaRecorder?.requestData();
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.PAUSED);
   };
@@ -329,7 +331,8 @@ export class MediaRecorderController {
 
   stop = () => {
     const recording = this.recording.value;
-    if (recording) return Promise.resolve(recording);
+    if (recording && this.mediaRecorder?.state === 'inactive')
+      return Promise.resolve(recording);
 
     if (
       ![MediaRecordingState.PAUSED, MediaRecordingState.RECORDING].includes(

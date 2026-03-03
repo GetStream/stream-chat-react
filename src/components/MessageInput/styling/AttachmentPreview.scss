@@ -1,0 +1,331 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /*
+   * AttachmentPreviewList theme variables (ported from stream-chat-css v2),
+   * set to match the current React SDK styling values in this file.
+   */
+  --str-chat__attachment-preview-list-border-radius: 0;
+  --str-chat__attachment-preview-list-color: var(--text-primary);
+  --str-chat__attachment-preview-list-background-color: transparent;
+  --str-chat__attachment-preview-list-border-block-start: none;
+  --str-chat__attachment-preview-list-border-block-end: none;
+  --str-chat__attachment-preview-list-border-inline-start: none;
+  --str-chat__attachment-preview-list-border-inline-end: none;
+  --str-chat__attachment-preview-list-box-shadow: none;
+
+  --str-chat__attachment-preview-close-icon-background: var(--base-black);
+  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-border);
+  --str-chat__attachment-preview-retry-icon-color: var(--str-chat__primary-color);
+  --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
+  --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
+
+  --str-chat__attachment-preview-image-border-radius: var(
+    --message-bubble-radius-attachment
+  );
+  --str-chat__attachment-preview-image-color: var(--text-primary);
+  --str-chat__attachment-preview-image-background-color: transparent;
+  --str-chat__attachment-preview-image-border-block-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-block-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-inline-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-border-inline-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-image-box-shadow: none;
+
+  --str-chat__attachment-preview-file-border-radius: var(--radius-lg);
+  --str-chat__attachment-preview-file-color: var(--text-primary);
+  --str-chat__attachment-preview-file-background-color: transparent;
+  --str-chat__attachment-preview-file-border-block-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-block-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-inline-start: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-border-inline-end: 1px solid
+    var(--border-core-default);
+  --str-chat__attachment-preview-file-box-shadow: none;
+
+  /* React-specific preview variants (classes diverged from v2 theme) */
+  --str-chat__attachment-preview-media-video-indicator-background-color: var(
+    --chat-bg-typing-indicator
+  );
+  --str-chat__attachment-preview-media-video-indicator-color: var(--badge-text);
+  --str-chat__attachment-preview-media-video-indicator-border-radius: var(--radius-max);
+
+  --str-chat__attachment-preview-media-overlay-hover-background-color: var(
+    --background-core-hover
+  );
+  --str-chat__attachment-preview-media-overlay-pressed-background-color: var(
+    --background-core-pressed
+  );
+
+  --str-chat__attachment-preview-media-uploading-overlay-background: linear-gradient(
+    180deg,
+    var(--base-white) 0%,
+    var(--slate-100) 100%
+  );
+  --str-chat__attachment-preview-media-upload-error-overlay-background-color: var(
+    --background-core-overlay
+  );
+
+  --str-chat__attachment-preview-file-fatal-error-color: var(--color-accent-error);
+
+  .str-chat__message-composer-voice-preview-slot {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-xxs);
+    min-width: 0;
+
+    .str-chat__attachment-preview-audio {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+
+      .str-chat__attachment-preview-file__data {
+        width: 100%;
+      }
+    }
+  }
+
+  .str-chat__attachment-preview-list {
+    @include utils.component-layer-overrides('attachment-preview-list');
+    padding: var(--spacing-xxs);
+    display: flex;
+    align-items: center;
+    //justify-content: center;
+    justify-content: flex-start;
+    width: 100%;
+
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    flex: 1 1 auto;
+    overflow-y: hidden;
+    gap: var(--spacing-md);
+  }
+
+  .str-chat__attachment-preview-audio,
+  .str-chat__attachment-preview-file,
+  .str-chat__attachment-preview-voice-recording,
+  .str-chat__attachment-preview-unsupported {
+    @include utils.component-layer-overrides('attachment-preview-file');
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    padding-right: var(--spacing-sm);
+    min-width: 224px;
+    max-width: 280px;
+  }
+
+  .str-chat__attachment-preview-audio {
+    .str-chat__attachment-preview-file__data {
+      padding-right: var(--spacing-xs);
+    }
+
+    .str-chat__message_attachment__playback-rate-button {
+      @include utils.button-reset;
+      text-transform: none;
+      display: flex;
+      min-width: 40px;
+      min-height: 24px;
+      max-height: 24px;
+      padding: var(--button-padding-y-sm, 6px) var(--spacing-xs, 8px);
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-xs, 8px);
+      color: var(--control-playback-toggle-text, var(--text-primary));
+      background-color: transparent;
+      border-radius: var(--button-radius-lg, 9999px);
+      border: 1px solid var(--control-playback-toggle-border, #d5dbe1);
+      font-size: var(--typography-font-size-xs, 12px);
+      font-weight: var(--typography-font-weight-semi-bold, 600);
+      line-height: var(--typography-line-height-tight, 16px);
+    }
+  }
+
+  .str-chat__attachment-preview-audio,
+  .str-chat__attachment-preview-file,
+  .str-chat__attachment-preview-voice-recording,
+  .str-chat__attachment-preview-unsupported,
+  .str-chat__attachment-preview-media {
+    position: relative;
+    &:focus-visible {
+      @include utils.focusable;
+    }
+  }
+
+  .str-chat__attachment-preview-media {
+    @include utils.component-layer-overrides('attachment-preview-image');
+    width: 72px;
+    height: 72px;
+    cursor: pointer;
+
+    .str-chat__attachment-preview-media__thumbnail-wrapper {
+      border-radius: inherit;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+
+      img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+      }
+    }
+
+    .str-chat__attachment-preview-media__video-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xxs);
+      position: absolute;
+      bottom: var(--spacing-xxs);
+      left: var(--spacing-xxs);
+      padding-inline: var(--button-padding-x-icon-only-sm);
+      padding-block: var(--button-padding-y-sm);
+      border-radius: var(
+        --str-chat__attachment-preview-media-video-indicator-border-radius
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-video-indicator-background-color
+      );
+      color: var(--str-chat__attachment-preview-media-video-indicator-color);
+      font-size: var(--typography-font-size-xxs);
+      font-weight: var(--typography-font-weight-bold);
+      line-height: var(--line-height-line-height-10);
+
+      .str-chat__icon--video-camera {
+        width: 10px;
+        height: 8px;
+        fill: currentColor;
+      }
+    }
+  }
+
+  .str-chat__attachment-preview-media__overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    inset: 0;
+    border-radius: var(--message-bubble-radius-attachment);
+
+    &:hover {
+      @include utils.overlay-after(
+        var(--str-chat__attachment-preview-media-overlay-hover-background-color)
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-overlay-hover-background-color
+      );
+    }
+
+    &:active {
+      @include utils.overlay-after(
+        var(--str-chat__attachment-preview-media-overlay-pressed-background-color)
+      );
+      background-color: var(
+        --str-chat__attachment-preview-media-overlay-pressed-background-color
+      );
+    }
+
+    .str-chat__loading-indicator,
+    .str-chat__icon--exclamation-circle {
+      width: 14px;
+      height: 14px;
+      position: absolute;
+      left: var(--spacing-xxs);
+      bottom: var(--spacing-xxs);
+      border: 2px solid var(--control-remove-control-border);
+      border-radius: var(--radius-max);
+    }
+  }
+
+  .str-chat__attachment-preview-media--upload-error {
+    .str-chat__attachment-preview-media__overlay {
+      background-color: var(
+        --str-chat__attachment-preview-media-upload-error-overlay-background-color
+      );
+    }
+  }
+
+  .str-chat__attachment-preview-media--uploading {
+    .str-chat__attachment-preview-media__overlay {
+      background: var(--str-chat__attachment-preview-media-uploading-overlay-background);
+    }
+  }
+
+  .str-chat__attachment-preview-file__icon {
+    display: flex;
+    align-items: center;
+  }
+
+  .str-chat__attachment-preview-file__info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--spacing-xxs);
+
+    .str-chat__attachment-preview-file-name {
+      @include utils.ellipsis-text;
+      max-width: 100%;
+      font-weight: var(--typography-font-weight-semi-bold);
+      font-size: var(--typography-font-size-sm);
+      line-height: var(--typography-line-height-tight);
+    }
+
+    .str-chat__attachment-preview-file__data {
+      display: flex;
+      align-items: center;
+      width: 160px;
+      gap: var(--spacing-xxs);
+      color: var(--text-secondary);
+      font-weight: var(--typography-font-weight-regular);
+      font-size: var(--typography-font-size-xs);
+      line-height: var(--typography-line-height-tight);
+
+      .str-chat__loading-indicator {
+        width: var(--size-12);
+        height: var(--size-12);
+      }
+
+      .str-chat__attachment-preview-file__fatal-error {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xxs);
+        color: var(--str-chat__attachment-preview-file-fatal-error-color);
+      }
+
+      .str-chat__attachment-preview-file__retriable-error {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xxs);
+        white-space: nowrap;
+
+        .str-chat__icon--exclamation-triangle path {
+          fill: var(--accent-error);
+        }
+
+        .str-chat__attachment-preview-file__retry-upload-button {
+          @include utils.button-reset;
+          padding: 0;
+          color: var(--text-link);
+          cursor: pointer;
+          line-height: var(--typography-line-height-tight, 16px);
+        }
+      }
+    }
+  }
+
+  .str-chat__button-play {
+    height: var(--button-visual-height-md);
+    width: var(--button-visual-height-md);
+    border: 1px solid var(--control-play-control-border);
+  }
+}

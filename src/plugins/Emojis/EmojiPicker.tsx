@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Picker from '@emoji-mart/react';
 
-import { EmojiPickerIcon } from './icons';
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useMessageComposer } from '../../components';
-import type { PopperLikePlacement } from '../../components';
+import {
+  Button,
+  IconEmojiSmile,
+  type PopperLikePlacement,
+  useMessageComposer,
+} from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
+import { useIsCooldownActive } from '../../components/MessageInput/hooks/useIsCooldownActive';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -30,8 +34,12 @@ export type EmojiPickerProps = {
   popperOptions?: Partial<{ placement: PopperLikePlacement }>;
 };
 
-const classNames: EmojiPickerProps = {
-  buttonClassName: 'str-chat__emoji-picker-button',
+const defaultButtonClassName = 'str-chat__emoji-picker-button';
+
+const classNames: Pick<
+  EmojiPickerProps,
+  'pickerContainerClassName' | 'wrapperClassName'
+> = {
   pickerContainerClassName: 'str-chat__message-textarea-emoji-picker-container',
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
@@ -40,6 +48,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { textareaRef } = useMessageInputContext('EmojiPicker');
   const { textComposer } = useMessageComposer();
+  const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -56,9 +65,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     refs.setFloating(popperElement);
   }, [popperElement, refs]);
 
-  const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
+  const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = EmojiPickerIcon } = props;
+  const { ButtonIconComponent = IconEmojiSmile } = props;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -105,16 +114,21 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           />
         </div>
       )}
-      <button
+      <Button
+        appearance='ghost'
         aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
-        className={props.buttonClassName ?? buttonClassName}
+        circular
+        className={props.buttonClassName ?? defaultButtonClassName}
+        disabled={isCooldownActive}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
+        size='sm'
         type='button'
+        variant='secondary'
       >
         {ButtonIconComponent && <ButtonIconComponent />}
-      </button>
+      </Button>
     </div>
   );
 };

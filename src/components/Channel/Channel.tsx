@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
-import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
 import type {
   APIErrorResponse,
@@ -22,6 +21,7 @@ import type {
   ErrorFromResponse,
   Event,
   EventAPIResponse,
+  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -41,7 +41,6 @@ import { useIsMounted } from './hooks/useIsMounted';
 import type { OnMentionAction } from './hooks/useMentionsHandlers';
 import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import type { LoadingErrorIndicatorProps } from '../Loading';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingChannel as DefaultLoadingIndicator,
@@ -50,7 +49,6 @@ import {
 import type {
   ChannelActionContextValue,
   ChannelNotifications,
-  ComponentContextValue,
   MarkReadWrapperOptions,
 } from '../../context';
 import {
@@ -58,14 +56,13 @@ import {
   ChannelStateProvider,
   TypingProvider,
   useChatContext,
+  useComponentContext,
   useTranslationContext,
-  WithComponents,
 } from '../../context';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
-  DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
   DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
   DEFAULT_THREAD_PAGE_SIZE,
@@ -82,7 +79,6 @@ import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import type {
   // ChannelUnreadUiState,
-  GiphyVersions,
   ImageAttachmentSizeHandler,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
@@ -93,79 +89,7 @@ import {
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
-type ChannelPropsForwardedToComponentContext = Pick<
-  ComponentContextValue,
-  | 'Attachment'
-  | 'AttachmentPreviewList'
-  | 'AttachmentSelector'
-  | 'AttachmentSelectorInitiationButtonContents'
-  | 'AudioRecorder'
-  | 'AutocompleteSuggestionItem'
-  | 'AutocompleteSuggestionList'
-  | 'Avatar'
-  | 'BaseImage'
-  | 'CooldownTimer'
-  | 'CustomMessageActionsList'
-  | 'DateSeparator'
-  | 'EditMessageInput'
-  | 'EditMessageModal'
-  | 'EmojiPicker'
-  | 'emojiSearchIndex'
-  | 'EmptyStateIndicator'
-  | 'FileUploadIcon'
-  | 'GiphyPreviewMessage'
-  | 'HeaderComponent'
-  | 'Input'
-  | 'LinkPreviewList'
-  | 'LoadingIndicator'
-  | 'ShareLocationDialog'
-  | 'Message'
-  | 'MessageActions'
-  | 'MessageBouncePrompt'
-  | 'MessageBlocked'
-  | 'MessageDeleted'
-  | 'MessageIsThreadReplyInChannelButtonIndicator'
-  | 'MessageListNotifications'
-  | 'MessageListMainPanel'
-  | 'MessageNotification'
-  | 'MessageOptions'
-  | 'MessageRepliesCountButton'
-  | 'MessageStatus'
-  | 'MessageSystem'
-  | 'MessageTimestamp'
-  | 'Modal'
-  | 'ModalGallery'
-  | 'PinIndicator'
-  | 'PollActions'
-  | 'PollContent'
-  | 'PollCreationDialog'
-  | 'PollHeader'
-  | 'PollOptionSelector'
-  | 'QuotedMessage'
-  | 'QuotedMessagePreview'
-  | 'QuotedPoll'
-  | 'reactionOptions'
-  | 'ReactionSelector'
-  | 'ReactionsList'
-  | 'ReactionsListModal'
-  | 'ReminderNotification'
-  | 'SendButton'
-  | 'SendToChannelCheckbox'
-  | 'StartRecordingAudioButton'
-  | 'TextareaComposer'
-  | 'ThreadHead'
-  | 'ThreadHeader'
-  | 'ThreadStart'
-  | 'Timestamp'
-  | 'TypingIndicator'
-  | 'UnreadMessagesNotification'
-  | 'UnreadMessagesSeparator'
-  | 'VirtualMessage'
-  | 'StopAIGenerationButton'
-  | 'StreamedMessageText'
->;
-
-export type ChannelProps = ChannelPropsForwardedToComponentContext & {
+export type ChannelProps = {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
@@ -213,8 +137,6 @@ export type ChannelProps = ChannelPropsForwardedToComponentContext & {
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
-  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
-  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
@@ -247,12 +169,9 @@ const ChannelContainer = ({
 };
 
 const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
-  const {
-    channel: propsChannel,
-    EmptyPlaceholder = null,
-    LoadingErrorIndicator,
-    LoadingIndicator = DefaultLoadingIndicator,
-  } = props;
+  const { channel: propsChannel, EmptyPlaceholder = null } = props;
+  const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
+    useComponentContext();
 
   const { channel: contextChannel, channelsQueryState } = useChatContext('Channel');
 
@@ -293,37 +212,29 @@ const ChannelInner = (
     activeUnreadHandler,
     allowConcurrentAudioPlayback,
     channel,
-    channelQueryOptions: propChannelQueryOptions,
+    channelQueryOptions,
     children,
     doDeleteMessageRequest,
     doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
+    // doSendMessageRequest,
+    // doUpdateMessageRequest,
     initializeOnMount = true,
-    LoadingErrorIndicator = DefaultLoadingErrorIndicator,
-    LoadingIndicator = DefaultLoadingIndicator,
     markReadOnMount = true,
     onMentionsClick,
     onMentionsHover,
     skipMessageDataMemoization,
   } = props;
-
-  const channelQueryOptions: ChannelQueryOptions & {
-    messages: { limit: number };
-  } = useMemo(
-    () =>
-      defaultsDeep(propChannelQueryOptions, {
-        messages: { limit: DEFAULT_INITIAL_CHANNEL_PAGE_SIZE },
-      }),
-    [propChannelQueryOptions],
-  );
+  const {
+    // LoadingErrorIndicator = DefaultLoadingErrorIndicator,
+    // LoadingIndicator = DefaultLoadingIndicator,
+  } = useComponentContext();
 
   const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
     useChatContext('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
-  const thread = useThreadContext();
+  // const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
@@ -346,7 +257,7 @@ const ChannelInner = (
   //   },
   // );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
-  const isMounted = useIsMounted();
+  // const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
   const lastRead = useRef<Date | undefined>(undefined);
@@ -620,7 +531,7 @@ const ChannelInner = (
   const handleHighlightedMessageChange = useCallback(
     ({
       highlightDuration,
-      highlightedMessageId,
+      // highlightedMessageId,
     }: {
       highlightedMessageId: string;
       highlightDuration?: number;
@@ -1202,149 +1113,6 @@ const ChannelInner = (
     ],
   );
 
-  const componentContextValue: Partial<ComponentContextValue> = useMemo(
-    () => ({
-      Attachment: props.Attachment,
-      AttachmentPreviewList: props.AttachmentPreviewList,
-      AttachmentSelector: props.AttachmentSelector,
-      AttachmentSelectorInitiationButtonContents:
-        props.AttachmentSelectorInitiationButtonContents,
-      AudioRecorder: props.AudioRecorder,
-      AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
-      AutocompleteSuggestionList: props.AutocompleteSuggestionList,
-      Avatar: props.Avatar,
-      BaseImage: props.BaseImage,
-      CooldownTimer: props.CooldownTimer,
-      CustomMessageActionsList: props.CustomMessageActionsList,
-      DateSeparator: props.DateSeparator,
-      EditMessageInput: props.EditMessageInput,
-      EditMessageModal: props.EditMessageModal,
-      EmojiPicker: props.EmojiPicker,
-      emojiSearchIndex: props.emojiSearchIndex,
-      EmptyStateIndicator: props.EmptyStateIndicator,
-      FileUploadIcon: props.FileUploadIcon,
-      GiphyPreviewMessage: props.GiphyPreviewMessage,
-      HeaderComponent: props.HeaderComponent,
-      Input: props.Input,
-      LinkPreviewList: props.LinkPreviewList,
-      LoadingIndicator: props.LoadingIndicator,
-      Message: props.Message,
-      MessageActions: props.MessageActions,
-      MessageBlocked: props.MessageBlocked,
-      MessageBouncePrompt: props.MessageBouncePrompt,
-      MessageDeleted: props.MessageDeleted,
-      MessageIsThreadReplyInChannelButtonIndicator:
-        props.MessageIsThreadReplyInChannelButtonIndicator,
-      MessageListNotifications: props.MessageListNotifications,
-      MessageNotification: props.MessageNotification,
-      MessageOptions: props.MessageOptions,
-      MessageRepliesCountButton: props.MessageRepliesCountButton,
-      MessageStatus: props.MessageStatus,
-      MessageSystem: props.MessageSystem,
-      MessageTimestamp: props.MessageTimestamp,
-      Modal: props.Modal,
-      ModalGallery: props.ModalGallery,
-      PinIndicator: props.PinIndicator,
-      PollActions: props.PollActions,
-      PollContent: props.PollContent,
-      PollCreationDialog: props.PollCreationDialog,
-      PollHeader: props.PollHeader,
-      PollOptionSelector: props.PollOptionSelector,
-      QuotedMessage: props.QuotedMessage,
-      QuotedMessagePreview: props.QuotedMessagePreview,
-      QuotedPoll: props.QuotedPoll,
-      reactionOptions: props.reactionOptions,
-      ReactionSelector: props.ReactionSelector,
-      ReactionsList: props.ReactionsList,
-      ReactionsListModal: props.ReactionsListModal,
-      ReminderNotification: props.ReminderNotification,
-      SendButton: props.SendButton,
-      SendToChannelCheckbox: props.SendToChannelCheckbox,
-      ShareLocationDialog: props.ShareLocationDialog,
-      StartRecordingAudioButton: props.StartRecordingAudioButton,
-      StopAIGenerationButton: props.StopAIGenerationButton,
-      StreamedMessageText: props.StreamedMessageText,
-      TextareaComposer: props.TextareaComposer,
-      ThreadHead: props.ThreadHead,
-      ThreadHeader: props.ThreadHeader,
-      ThreadStart: props.ThreadStart,
-      Timestamp: props.Timestamp,
-      TypingIndicator: props.TypingIndicator,
-      UnreadMessagesNotification: props.UnreadMessagesNotification,
-      UnreadMessagesSeparator: props.UnreadMessagesSeparator,
-      VirtualMessage: props.VirtualMessage,
-    }),
-    [
-      props.Attachment,
-      props.AttachmentPreviewList,
-      props.AttachmentSelector,
-      props.AttachmentSelectorInitiationButtonContents,
-      props.AudioRecorder,
-      props.AutocompleteSuggestionItem,
-      props.AutocompleteSuggestionList,
-      props.Avatar,
-      props.BaseImage,
-      props.CooldownTimer,
-      props.CustomMessageActionsList,
-      props.DateSeparator,
-      props.EditMessageInput,
-      props.EditMessageModal,
-      props.EmojiPicker,
-      props.emojiSearchIndex,
-      props.EmptyStateIndicator,
-      props.FileUploadIcon,
-      props.GiphyPreviewMessage,
-      props.HeaderComponent,
-      props.Input,
-      props.LinkPreviewList,
-      props.LoadingIndicator,
-      props.Message,
-      props.MessageActions,
-      props.MessageBlocked,
-      props.MessageBouncePrompt,
-      props.MessageDeleted,
-      props.MessageIsThreadReplyInChannelButtonIndicator,
-      props.MessageListNotifications,
-      props.MessageNotification,
-      props.MessageOptions,
-      props.MessageRepliesCountButton,
-      props.MessageStatus,
-      props.MessageSystem,
-      props.MessageTimestamp,
-      props.Modal,
-      props.ModalGallery,
-      props.PinIndicator,
-      props.PollActions,
-      props.PollContent,
-      props.PollCreationDialog,
-      props.PollHeader,
-      props.PollOptionSelector,
-      props.QuotedMessage,
-      props.QuotedMessagePreview,
-      props.QuotedPoll,
-      props.reactionOptions,
-      props.ReactionSelector,
-      props.ReactionsList,
-      props.ReactionsListModal,
-      props.ReminderNotification,
-      props.SendButton,
-      props.SendToChannelCheckbox,
-      props.ShareLocationDialog,
-      props.StartRecordingAudioButton,
-      props.StopAIGenerationButton,
-      props.StreamedMessageText,
-      props.TextareaComposer,
-      props.ThreadHead,
-      props.ThreadHeader,
-      props.ThreadStart,
-      props.Timestamp,
-      props.TypingIndicator,
-      props.UnreadMessagesNotification,
-      props.UnreadMessagesSeparator,
-      props.VirtualMessage,
-    ],
-  );
-
   // const typingContextValue = useCreateTypingContext({
   //   typing,
   // });
@@ -1377,13 +1145,11 @@ const ChannelInner = (
     <ChannelContainer className={windowsEmojiClass}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          <WithComponents overrides={componentContextValue}>
-            {/*<TypingProvider value={typingContextValue}>*/}
-            <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-              <div className={clsx(chatContainerClass)}>{children}</div>
-            </WithAudioPlayback>
-            {/*</TypingProvider>*/}
-          </WithComponents>
+          {/*<TypingProvider value={typingContextValue}>*/}
+          <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+            <div className={clsx(chatContainerClass)}>{children}</div>
+          </WithAudioPlayback>
+          {/*</TypingProvider>*/}
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChannelContainer>

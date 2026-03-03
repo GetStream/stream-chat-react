@@ -91,7 +91,6 @@
     "i18next": "^25.2.1",
     "linkifyjs": "^4.3.2",
     "lodash.debounce": "^4.0.8",
-    "lodash.defaultsdeep": "^4.6.1",
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
@@ -99,7 +98,6 @@
     "nanoid": "^3.3.4",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
-    "react-image-gallery": "1.2.12",
     "react-markdown": "^9.0.3",
     "react-player": "2.10.1",
     "react-textarea-autosize": "^8.3.0",
@@ -120,7 +118,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.27.2"
+    "stream-chat": "^9.35.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -140,7 +138,7 @@
     "dist",
     "package.json",
     "README.md",
-    "INTEGRATION_GUIDE.md"
+    "AI.md"
   ],
   "devDependencies": {
     "@axe-core/react": "^4.3.2",
@@ -180,7 +178,6 @@
     "@types/moment": "^2.13.0",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
-    "@types/react-image-gallery": "^1.2.4",
     "@types/textarea-caret": "3.0.0",
     "@types/use-sync-external-store": "^0.0.6",
     "@types/uuid": "^8.3.0",
@@ -215,7 +212,7 @@
     "react-dom": "^19.0.0",
     "sass": "^1.97.2",
     "semantic-release": "^25.0.2",
-    "stream-chat": "^9.27.2",
+    "stream-chat": "^9.35.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0",
@@ -231,10 +228,11 @@
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
     "eslint": "eslint --max-warnings 0",
     "eslint-fix": "eslint --fix",
-    "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml}'",
+    "prettier": "prettier '**/*.{js,mjs,ts,mts,jsx,tsx,md,json,yml,scss}'",
     "prettier-fix": "yarn prettier --write",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
-    "start": "tsc --watch --sourceMap --declarationMap",
+    "start": "tsc -p tsconfig.lib.json -w",
+    "start:css": "sass --watch src/styling:dist/css",
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",

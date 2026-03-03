@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { ChannelState as StreamChannelState } from 'stream-chat';
-import type { UnknownType } from '../types/types';
 
 export type TypingContextValue = {
   typing?: StreamChannelState['typing'];
@@ -35,27 +34,4 @@ export const useTypingContext = (componentName?: string) => {
   }
 
   return contextValue as TypingContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference, so if TypingContext
- * typing is desired while using the HOC withTypingContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withTypingContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithTypingContextComponent = (props: Omit<P, keyof TypingContextValue>) => {
-    const typingContext = useTypingContext();
-
-    return <Component {...(props as P)} {...typingContext} />;
-  };
-
-  WithTypingContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithTypingContextComponent;
 };

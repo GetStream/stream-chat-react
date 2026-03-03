@@ -5,8 +5,6 @@ import '@testing-library/jest-dom';
 
 import { Modal } from '../Modal';
 
-const CLOSE_BUTTON_SELECTOR = '.str-chat__modal__close-button';
-
 describe('Modal', () => {
   afterEach(cleanup);
 

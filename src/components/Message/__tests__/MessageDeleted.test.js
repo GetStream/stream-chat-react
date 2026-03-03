@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { MessageDeleted } from '../MessageDeleted';
+import { MessageDeleted } from '../MessageDeletedBubble';
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
@@ -40,7 +40,7 @@ const ownMessageCssClass = 'str-chat__message--me';
 describe('MessageDeleted component', () => {
   it('should inform that the message was deleted', async () => {
     const { queryByText } = await renderComponent();
-    expect(queryByText('This message was deleted...')).toBeInTheDocument();
+    expect(queryByText('Message deleted')).toBeInTheDocument();
   });
 
   it('should set specific css class when message is from current user', async () => {

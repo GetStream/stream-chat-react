@@ -42,7 +42,7 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render for main me
       class="str-chat__empty-channel-text"
       role="listitem"
     >
-      No chats here yet…
+      Send a message to start the conversation
     </p>
   </div>
 </div>

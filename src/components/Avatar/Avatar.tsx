@@ -1,79 +1,105 @@
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
-import type { UserResponse } from 'stream-chat';
-
-import { Icon } from '../Threads/icons';
-import { getWholeChar } from '../../utils';
+import React, {
+  type ComponentPropsWithoutRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { IconPeople } from '../Icons';
 
 export type AvatarProps = {
-  /** Custom root element class that will be merged with the default class */
-  className?: string;
-  /** Image URL or default is an image of the first initial of the name if there is one  */
-  image?: string | null;
-  /** Name of the image, used for title tag fallback */
-  name?: string;
-  /** click event handler attached to the component root element */
-  onClick?: (event: React.BaseSyntheticEvent) => void;
-  /** mouseOver event handler attached to the component root element */
-  onMouseOver?: (event: React.BaseSyntheticEvent) => void;
-  /** The entire user object for the chat user displayed in the component */
-  user?: UserResponse;
+  /** URL of the avatar image */
+  imageUrl?: string;
+  /** Name of the user, used for title tag fallback */
+  userName?: string;
+  /** Online status indicator, not rendered if not of type boolean */
+  isOnline?: boolean;
+
+  size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | null;
+} & ComponentPropsWithoutRef<'div'>;
+
+const getInitials = (name?: string) => {
+  const regex = /(\p{L}{1})\p{L}+/gu;
+
+  if (!name || name.trim().length === 0) {
+    return '';
+  }
+
+  const initials = Array.from(name?.matchAll(regex) || []);
+
+  if (!initials.length) {
+    return '';
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const startInitial = initials.at(0)![1];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const endInitial = initials.length > 1 ? initials.at(-1)![1] : '';
+
+  return `${startInitial}${endInitial}`;
 };
 
 /**
  * A round avatar image with fallback to username's first letter
  */
-export const Avatar = (props: AvatarProps) => {
-  const {
-    className,
-    image,
-    name,
-    onClick = () => undefined,
-    onMouseOver = () => undefined,
-  } = props;
-
+export const Avatar = ({
+  className,
+  imageUrl,
+  isOnline,
+  size,
+  userName,
+  ...rest
+}: AvatarProps) => {
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    setError(false);
-  }, [image]);
+  useEffect(() => () => setError(false), [imageUrl]);
 
-  const nameStr = name?.toString() || '';
-  const initials = getWholeChar(nameStr, 0);
-  const showImage = image && !error;
+  const nameString = userName?.toString() || '';
+
+  const sizeAwareInitials = useMemo(() => {
+    const initials = getInitials(nameString);
+
+    if (size === 'sm' || size === 'xs') {
+      return initials.charAt(0);
+    }
+
+    return initials;
+  }, [nameString, size]);
+
+  const showImage = typeof imageUrl === 'string' && !error;
 
   return (
     <div
-      className={clsx(`str-chat__avatar str-chat__message-sender-avatar`, className, {
-        ['str-chat__avatar--multiple-letters']: initials.length > 1,
-        ['str-chat__avatar--no-letters']: !initials.length,
-        ['str-chat__avatar--one-letter']: initials.length === 1,
+      className={clsx(`str-chat__avatar`, className, {
+        'str-chat__avatar--multiple-letters': sizeAwareInitials.length > 1,
+        'str-chat__avatar--no-letters': !sizeAwareInitials.length,
+        'str-chat__avatar--one-letter': sizeAwareInitials.length === 1,
+        'str-chat__avatar--online': typeof isOnline === 'boolean' && isOnline,
+        // eslint-disable-next-line sort-keys
+        'str-chat__avatar--offline': typeof isOnline === 'boolean' && !isOnline,
+        [`str-chat__avatar--size-${size}`]: typeof size === 'string',
       })}
       data-testid='avatar'
-      onClick={onClick}
-      onMouseOver={onMouseOver}
       role='button'
-      title={name}
+      title={userName}
+      {...rest}
     >
       {showImage ? (
         <img
-          alt={initials}
+          alt={sizeAwareInitials}
           className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}
-          src={image}
+          src={imageUrl}
         />
       ) : (
         <>
-          {!!initials.length && (
-            <div
-              className={clsx('str-chat__avatar-fallback')}
-              data-testid='avatar-fallback'
-            >
-              {initials}
+          {!!sizeAwareInitials.length && (
+            <div className='str-chat__avatar-initials' data-testid='avatar-fallback'>
+              {sizeAwareInitials}
             </div>
           )}
-          {!initials.length && <Icon.User />}
+          {!sizeAwareInitials.length && <IconPeople />}
         </>
       )}
     </div>

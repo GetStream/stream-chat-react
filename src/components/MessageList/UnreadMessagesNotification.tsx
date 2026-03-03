@@ -1,10 +1,12 @@
 import React from 'react';
-import { CloseIcon } from './icons';
 import {
   useChannelActionContext,
   useChannelStateContext,
   useTranslationContext,
 } from '../../context';
+import { Button } from '../Button';
+import { IconArrowUp, IconCrossMedium } from '../Icons';
+import clsx from 'clsx';
 import { useThreadContext } from '../Threads';
 import type { UnreadSnapshotState } from 'stream-chat';
 import { useStateStore } from '../../store';
@@ -15,9 +17,11 @@ export type UnreadMessagesNotificationProps = {
    */
   queryMessageLimit?: number;
   /**
-   * Configuration parameter to determine, whether the unread count is to be shown on the component. Disabled by default.
+   * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
    */
   showCount?: boolean;
+  // todo: maybe remove?
+  unreadCount?: number;
 };
 
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
@@ -26,7 +30,7 @@ const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
 
 export const UnreadMessagesNotification = ({
   queryMessageLimit,
-  showCount,
+  showCount = true,
 }: UnreadMessagesNotificationProps) => {
   // todo: move into a hook dedicated to unread count from the snapshot
   const { channel } = useChannelStateContext();
@@ -42,23 +46,28 @@ export const UnreadMessagesNotification = ({
 
   return (
     <div
-      className='str-chat__unread-messages-notification'
+      className={clsx('str-chat__unread-messages-notification', {
+        'str-chat__unread-messages-notification--with-count': unreadCount && showCount,
+      })}
       data-testid='unread-messages-notification'
     >
-      <button
+      <Button
+        appearance='outline'
         onClick={() =>
           channel.messagePaginator.jumpToTheFirstUnreadMessage({
             pageSize: queryMessageLimit,
           })
         }
+        variant='secondary'
       >
+        <IconArrowUp />
         {unreadCount && showCount
-          ? t('{{count}} unread', { count: unreadCount ?? 0 })
+          ? t('{{count}} unread', { count: unreadCount })
           : t('Unread messages')}
-      </button>
-      <button onClick={() => markRead()}>
-        <CloseIcon />
-      </button>
+      </Button>
+      <Button appearance='outline' onClick={() => markRead()} variant='secondary'>
+        <IconCrossMedium />
+      </Button>
     </div>
   );
 };

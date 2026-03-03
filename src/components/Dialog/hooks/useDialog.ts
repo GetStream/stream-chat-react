@@ -6,7 +6,10 @@ import {
 } from '../../../context';
 import { useStateStore } from '../../../store';
 
-import type { DialogManagerState, GetOrCreateDialogParams } from '../DialogManager';
+import type {
+  DialogManagerState,
+  GetOrCreateDialogParams,
+} from '../service/DialogManager';
 
 export type UseDialogParams = GetOrCreateDialogParams & {
   dialogManagerId?: string;

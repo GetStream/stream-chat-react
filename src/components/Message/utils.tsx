@@ -13,11 +13,7 @@ import type {
 } from 'stream-chat';
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
-import type {
-  ComponentContextValue,
-  CustomMessageActions,
-  MessageContextValue,
-} from '../../context';
+import type { MessageContextValue } from '../../context';
 
 /**
  * Following function validates a function which returns notification message.
@@ -235,60 +231,6 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.markUnread,
 ];
 
-/**
- * @deprecated use `shouldRenderMessageActions` instead
- */
-export const showMessageActionsBox = (
-  actions: MessageActionsArray,
-  inThread?: boolean | undefined,
-) => shouldRenderMessageActions({ inThread, messageActions: actions });
-
-export const shouldRenderMessageActions = ({
-  customMessageActions,
-  CustomMessageActionsList,
-  inThread,
-  messageActions,
-}: {
-  messageActions: MessageActionsArray;
-  customMessageActions?: CustomMessageActions;
-  CustomMessageActionsList?: ComponentContextValue['CustomMessageActionsList'];
-  inThread?: boolean;
-}) => {
-  if (
-    typeof CustomMessageActionsList !== 'undefined' ||
-    typeof customMessageActions !== 'undefined'
-  )
-    return true;
-
-  if (!messageActions.length) return false;
-
-  if (
-    inThread &&
-    messageActions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action))
-      .length === 0
-  ) {
-    return false;
-  }
-
-  if (
-    messageActions.length === 1 &&
-    (messageActions.includes(MESSAGE_ACTIONS.react) ||
-      messageActions.includes(MESSAGE_ACTIONS.reply))
-  ) {
-    return false;
-  }
-
-  if (
-    messageActions.length === 2 &&
-    messageActions.includes(MESSAGE_ACTIONS.react) &&
-    messageActions.includes(MESSAGE_ACTIONS.reply)
-  ) {
-    return false;
-  }
-
-  return true;
-};
-
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
   const areBaseMessagesEqual = (
     prevMessage: LocalMessageBase,
@@ -299,6 +241,7 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
+    prevMessage.show_in_channel === nextMessage.show_in_channel &&
     prevMessage.status === nextMessage.status &&
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
@@ -330,7 +273,6 @@ export const areMessagePropsEqual = (
   const { message: nextMessage, Message: nextMessageUI } = nextProps;
 
   if (prevMessageUI !== nextMessageUI) return false;
-  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
 
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
     return false;
@@ -370,8 +312,8 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: prevLastReceivedId, message: prevMessage } = prevProps;
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
-  if (prevProps.editing !== nextProps.editing) return false;
   if (prevProps.highlighted !== nextProps.highlighted) return false;
+  if (prevProps.threadList !== nextProps.threadList) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
@@ -397,6 +339,12 @@ export const messageHasReactions = (message?: LocalMessage) =>
 
 export const messageHasAttachments = (message?: LocalMessage) =>
   !!message?.attachments && !!message.attachments.length;
+
+export const messageHasSingleAttachment = (message?: LocalMessage) =>
+  message?.attachments?.length === 1;
+
+export const messageHasGiphyAttachment = (message?: LocalMessage) =>
+  !!message?.attachments?.some((att) => att.type === 'giphy');
 
 export const getImages = (message?: MessageResponse) => {
   if (!message?.attachments) {
@@ -480,14 +428,22 @@ export const getReadByTooltipText = (
   return outStr;
 };
 
-export const isOnlyEmojis = (text?: string) => {
-  if (!text) return false;
+export const countEmojis = (text?: string) => {
+  const matches = text?.match(emojiRegex());
+  return matches ? matches.length : 0;
+};
 
-  const noEmojis = text.replace(emojiRegex(), '');
+export const messageTextHasEmojisOnly = (message: LocalMessage) => {
+  if (!message.text) return false;
+
+  const noEmojis = message.text.replace(emojiRegex(), '');
   const noSpace = noEmojis.replace(/[\s\n]/gm, '');
 
   return !noSpace;
 };
+
+export const isMessageErrorRetryable = (message: LocalMessage) =>
+  message.status === 'failed' && message.error?.status !== 403;
 
 export const isMessageBounced = (
   message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,

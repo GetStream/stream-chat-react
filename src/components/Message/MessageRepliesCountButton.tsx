@@ -1,7 +1,10 @@
 import type { MouseEventHandler } from 'react';
-import React from 'react';
+import type { UserResponse } from 'stream-chat';
+import React, { useMemo } from 'react';
+
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelStateContext } from '../../context';
+import { useChannelStateContext, useComponentContext } from '../../context';
+import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
 export type MessageRepliesCountButtonProps = {
   /* If supplied, adds custom text to the end of a multiple replies message */
@@ -12,20 +15,39 @@ export type MessageRepliesCountButtonProps = {
   onClick?: MouseEventHandler;
   /* The amount of replies (i.e., threaded messages) on a message */
   reply_count?: number;
+  thread_participants?: UserResponse[];
 };
 
-const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonProps) => {
-  const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
+function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonProps) {
+  const { AvatarStack = DefaultAvatarStack } = useComponentContext(
+    MessageRepliesCountButton.name,
+  );
+  const {
+    labelPlural,
+    labelSingle,
+    onClick,
+    reply_count: replyCount = 0,
+    thread_participants: threadParticipants = [],
+  } = props;
   const { channelCapabilities } = useChannelStateContext();
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
-  if (!reply_count) return null;
+  const avatarStackDisplayInfo = useMemo(
+    () =>
+      threadParticipants.slice(0, 3).map((participant) => ({
+        imageUrl: participant.image,
+        userName: participant.name || participant.id,
+      })),
+    [threadParticipants],
+  );
 
-  let replyCountText = t('replyCount', { count: reply_count });
+  if (!replyCount) return null;
 
-  if (labelPlural && reply_count > 1) {
-    replyCountText = `${reply_count} ${labelPlural}`;
+  let replyCountText = t('replyCount', { count: replyCount });
+
+  if (labelPlural && replyCount > 1) {
+    replyCountText = `${replyCount} ${labelPlural}`;
   } else if (labelSingle) {
     replyCountText = `1 ${labelSingle}`;
   }
@@ -39,10 +61,12 @@ const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonPro
         onClick={onClick}
       >
         {replyCountText}
+
+        <AvatarStack displayInfo={avatarStackDisplayInfo} size='xs' />
       </button>
     </div>
   );
-};
+}
 
 export const MessageRepliesCountButton = React.memo(
   UnMemoizedMessageRepliesCountButton,

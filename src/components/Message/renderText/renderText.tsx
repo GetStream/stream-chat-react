@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import remarkGfm from 'remark-gfm';
-import type { ComponentType } from 'react';
+import type { ComponentType, JSX } from 'react';
 import type { Options } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
 import type { PluggableList } from 'unified'; // A sub-dependency of react-markdown. The type is not declared or re-exported from anywhere else
@@ -23,8 +23,10 @@ export type RenderTextPluginConfigurator = (
   defaultPlugins: PluggableList,
 ) => PluggableList;
 
+type IntrinsicElementTagName = keyof JSX.IntrinsicElements & string;
+
 export const defaultAllowedTagNames: Array<
-  keyof JSX.IntrinsicElements | 'emoji' | 'mention'
+  IntrinsicElementTagName | 'emoji' | 'mention'
 > = [
   'html',
   'text',
@@ -88,9 +90,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 };
 
 export type RenderTextOptions = {
-  allowedTagNames?: Array<
-    keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})
-  >;
+  allowedTagNames?: Array<IntrinsicElementTagName | 'emoji' | 'mention' | (string & {})>;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
       emoji: ComponentType;

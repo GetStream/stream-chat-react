@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
-import { SimpleSwitchField } from '../../Form/SwitchField';
-import { FieldError } from '../../Form/FieldError';
+import React, { useMemo, useState } from 'react';
+import { NumericInput } from '../../Form/NumericInput';
+import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposer } from '../../MessageInput';
 import { useStateStore } from '../../../store';
@@ -20,6 +20,7 @@ export const MultipleAnswersField = () => {
     pollComposer.state,
     pollComposerStateSelector,
   );
+  const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
@@ -29,58 +30,65 @@ export const MultipleAnswersField = () => {
     [t],
   );
 
+  const multipleVotesEnabled = !enforce_unique_vote;
+  const errorText = error && knownValidationErrors[error];
+
   return (
-    <div
-      className={clsx('str-chat__form__expandable-field', {
-        'str-chat__form__expandable-field--expanded': !enforce_unique_vote,
-      })}
-    >
-      <SimpleSwitchField
-        checked={!enforce_unique_vote}
+    <div className={clsx('str-chat__form__switch-fieldset', {})}>
+      <SwitchField
+        checked={multipleVotesEnabled}
+        description={t('Select more than one option')}
         id='enforce_unique_vote'
-        labelText={t('Multiple answers')}
         onChange={(e) => {
+          setVoteLimitEnabled(false);
           pollComposer.updateFields({ enforce_unique_vote: !e.target.checked });
         }}
+        title={t('Multiple votes')}
       />
-      {!enforce_unique_vote && (
-        <div
-          className={clsx('str-chat__form__input-field', {
-            'str-chat__form__input-field--has-error': error,
-          })}
+      {multipleVotesEnabled && (
+        <SwitchField
+          checked={voteLimitEnabled}
+          fieldClassName='str-chat__multiple-answers-field__votes-limit-field'
+          onChange={() => {
+            setVoteLimitEnabled((prev) => !prev);
+            pollComposer.updateFields({ max_votes_allowed: '2' });
+          }}
         >
-          <div className={clsx('str-chat__form__input-field__value')}>
-            <FieldError
-              className='str-chat__form__input-field__error'
-              data-testid={'poll-max-votes-allowed-input-field-error'}
-              text={error && (knownValidationErrors[error] ?? t('Error'))}
+          <div className='str-chat__multiple-answers-field__votes-limit-field__numeric-field'>
+            <SwitchFieldLabel
+              asError={!!errorText}
+              description={t('Choose between 2 to 10 options')}
+              htmlFor={'max_votes_allowed'}
+              title={t('Limit votes per person')}
             />
-            <input
-              id='max_votes_allowed'
-              onBlur={() => {
-                pollComposer.handleFieldBlur('max_votes_allowed');
-              }}
-              onChange={(e) => {
-                const nativeFieldValidation = !e.target.validity.valid
-                  ? {
-                      max_votes_allowed: t('Only numbers are allowed'),
-                    }
-                  : undefined;
-                pollComposer.updateFields(
-                  {
-                    max_votes_allowed: !nativeFieldValidation
-                      ? e.target.value
-                      : pollComposer.max_votes_allowed,
-                  },
-                  nativeFieldValidation,
-                );
-              }}
-              placeholder={t('Maximum number of votes (from 2 to 10)')}
-              type='text'
-              value={max_votes_allowed}
-            />
+            {voteLimitEnabled && (
+              <NumericInput
+                id='max_votes_allowed'
+                max={10}
+                min={2}
+                onBlur={() => {
+                  pollComposer.handleFieldBlur('max_votes_allowed');
+                }}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  const nativeFieldValidation =
+                    raw !== '' && !/^\d+$/.test(raw)
+                      ? { max_votes_allowed: t('Only numbers are allowed') }
+                      : undefined;
+                  pollComposer.updateFields(
+                    {
+                      max_votes_allowed: nativeFieldValidation
+                        ? pollComposer.max_votes_allowed
+                        : raw,
+                    },
+                    nativeFieldValidation,
+                  );
+                }}
+                value={max_votes_allowed ?? ''}
+              />
+            )}
           </div>
-        </div>
+        </SwitchField>
       )}
     </div>
   );

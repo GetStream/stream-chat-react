@@ -14,7 +14,6 @@ import type { ActionHandlerReturnType } from '../components/Message/hooks/useAct
 import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
 import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
-import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
 import type {
   ReactionDetailsComparator,
@@ -23,22 +22,10 @@ import type {
 } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
-import type { UnknownType } from '../types/types';
-
-export type CustomMessageActions = {
-  [key: string]: (
-    message: LocalMessage,
-    event: React.BaseSyntheticEvent,
-  ) => Promise<void> | void;
-};
 
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
-  /** Function to exit edit state */
-  clearEditingState: (event?: React.BaseSyntheticEvent) => void;
-  /** If the Message is in edit state */
-  editing: boolean;
   /**
    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'].
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
@@ -47,12 +34,7 @@ export type MessageContextValue = {
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
-  handleDelete: (
-    event: BaseSyntheticEvent,
-    options?: DeleteMessageOptions,
-  ) => Promise<void> | void;
-  /** Function to edit a message in a Channel */
-  handleEdit: ReactEventHandler;
+  handleDelete: (options?: DeleteMessageOptions) => Promise<void> | void;
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,
@@ -73,8 +55,6 @@ export type MessageContextValue = {
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  // /** Function to retry sending a Message */
-  // handleRetry: RetrySendMessage;
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
@@ -89,16 +69,10 @@ export type MessageContextValue = {
   onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
   onUserHover: ReactEventHandler;
-  /** Function to toggle the edit state on a Message */
-  setEditingState: ReactEventHandler;
-  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
   /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
-  /** Object containing custom message actions and function handlers */
-  customMessageActions?: CustomMessageActions;
   /** An array of user IDs that have confirmed the message delivery to their device */
   deliveredTo?: UserResponse[];
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
@@ -133,6 +107,8 @@ export type MessageContextValue = {
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */
   readBy?: UserResponse[];
+  /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
+  showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
   renderText?: (
     text?: string,
@@ -151,6 +127,16 @@ export type MessageContextValue = {
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
+  /**
+   * User-specific view for translated messages: which text to show.
+   * - `'original'`: show `message.text` (source language).
+   * - `'translated'`: show the translation for the **current user language** (from
+   *   `useTranslationContext().userLanguage`), i.e. `message.i18n[userLanguage + '_text']`
+   *   or fallback to `message.text` when missing. Resolved via `getTranslatedMessageText`.
+   */
+  translationView?: 'original' | 'translated';
+  /** Set whether this message shows original or translated text (user-specific, does not change message data). */
+  setTranslationView?: (view: 'original' | 'translated') => void;
 };
 
 export const MessageContext = React.createContext<MessageContextValue | undefined>(
@@ -179,27 +165,4 @@ export const useMessageContext = (
   }
 
   return contextValue as unknown as MessageContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference, so if MessageContext
- * typing is desired while using the HOC withMessageContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withMessageContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithMessageContextComponent = (props: Omit<P, keyof MessageContextValue>) => {
-    const messageContext = useMessageContext();
-
-    return <Component {...(props as P)} {...messageContext} />;
-  };
-
-  WithMessageContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithMessageContextComponent;
 };

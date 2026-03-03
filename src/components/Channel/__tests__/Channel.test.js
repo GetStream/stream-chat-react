@@ -29,8 +29,7 @@ import {
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
-import { MessageProvider } from '../../../context';
-import { MessageActionsBox } from '../../MessageActions';
+import { WithComponents } from '../../../context';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
@@ -94,18 +93,22 @@ const renderComponent = async (props = {}, callback = () => {}) => {
   const {
     channel: channelFromProps,
     chatClient: chatClientFromProps,
+    children,
+    components,
     ...channelProps
   } = props;
   let result;
   await act(() => {
     result = render(
-      <Chat client={chatClientFromProps}>
-        <ActiveChannelSetter activeChannel={channelFromProps} />
-        <Channel {...channelProps}>
-          {channelProps.children}
-          <CallbackEffectWithChannelContexts callback={callback} />
-        </Channel>
-      </Chat>,
+      <WithComponents overrides={components}>
+        <Chat client={chatClientFromProps}>
+          <ActiveChannelSetter activeChannel={channelFromProps} />
+          <Channel {...channelProps}>
+            {children}
+            <CallbackEffectWithChannelContexts callback={callback} />
+          </Channel>
+        </Chat>
+      </WithComponents>,
     );
   });
   return result;
@@ -301,9 +304,13 @@ describe('Channel', () => {
           },
         }}
       >
-        <Channel LoadingIndicator={() => <div>{loadingText}</div>}>
-          {childrenContent}
-        </Channel>
+        <WithComponents
+          overrides={{
+            LoadingIndicator: () => <div>{loadingText}</div>,
+          }}
+        >
+          <Channel>{childrenContent}</Channel>
+        </WithComponents>
       </ChatProvider>,
     );
     await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
@@ -323,9 +330,13 @@ describe('Channel', () => {
           },
         }}
       >
-        <Channel LoadingErrorIndicator={({ error }) => <div>{error.message}</div>}>
-          {childrenContent}
-        </Channel>
+        <WithComponents
+          overrides={{
+            LoadingErrorIndicator: ({ error }) => <div>{error.message}</div>,
+          }}
+        >
+          <Channel>{childrenContent}</Channel>
+        </WithComponents>
       </ChatProvider>,
     );
     await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
@@ -334,7 +345,11 @@ describe('Channel', () => {
   it('should watch the current channel on mount', async () => {
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    await renderComponent({ channel, chatClient });
+    await renderComponent({
+      channel,
+      channelQueryOptions: { messages: { limit: 25 } },
+      chatClient,
+    });
 
     await waitFor(() => {
       expect(watchSpy).toHaveBeenCalledTimes(1);
@@ -380,9 +395,12 @@ describe('Channel', () => {
     ]);
     let hasMore;
     await act(() => {
-      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      });
+      renderComponent(
+        { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+        ({ hasMore: contextHasMore }) => {
+          hasMore = contextHasMore;
+        },
+      );
     });
 
     await waitFor(() => {
@@ -395,9 +413,12 @@ describe('Channel', () => {
       queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
     ]);
     let hasMore;
-    await renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
-      hasMore = contextHasMore;
-    });
+    await renderComponent(
+      { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+      ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      },
+    );
 
     await waitFor(() => {
       expect(hasMore).toBe(true);
@@ -761,15 +782,21 @@ describe('Channel', () => {
       const limit = 10;
       it("should initiate the hasMore flag with the current message set's pagination hasPrev value", async () => {
         let hasMore;
-        await renderComponent({ channel, chatClient }, ({ hasMore: hasMoreCtx }) => {
-          hasMore = hasMoreCtx;
-        });
+        await renderComponent(
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+          ({ hasMore: hasMoreCtx }) => {
+            hasMore = hasMoreCtx;
+          },
+        );
         expect(hasMore).toBe(true);
 
         channel.state.messageSets[0].pagination.hasPrev = false;
-        await renderComponent({ channel, chatClient }, ({ hasMore: hasMoreCtx }) => {
-          hasMore = hasMoreCtx;
-        });
+        await renderComponent(
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+          ({ hasMore: hasMoreCtx }) => {
+            hasMore = hasMoreCtx;
+          },
+        );
         expect(hasMore).toBe(false);
       });
       it('should be able to load more messages', async () => {
@@ -779,7 +806,7 @@ describe('Channel', () => {
         const newMessages = [generateMessage()];
 
         await renderComponent(
-          { channel, chatClient },
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ loadMore, messages: contextMessages }) => {
             if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
               // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
@@ -837,7 +864,7 @@ describe('Channel', () => {
           .fill(null)
           .map(() => generateMessage());
         await renderComponent(
-          { channel, chatClient },
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ hasMore, loadMore, messages: contextMessages }) => {
             if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
               // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
@@ -859,12 +886,15 @@ describe('Channel', () => {
         const queryPromise = new Promise(() => {});
         let isLoadingMore = false;
 
-        await renderComponent({ channel, chatClient }, ({ loadingMore, loadMore }) => {
-          // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
-          jest.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
-          loadMore();
-          isLoadingMore = loadingMore;
-        });
+        await renderComponent(
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+          ({ loadingMore, loadMore }) => {
+            // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
+            jest.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
+            loadMore();
+            isLoadingMore = loadingMore;
+          },
+        );
         await waitFor(() => expect(isLoadingMore).toBe(true));
       });
 
@@ -912,7 +942,7 @@ describe('Channel', () => {
         let queryNextPageSpy;
         let contextMessageCount;
         await renderComponent(
-          { channel, chatClient },
+          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ loadMore, messages: contextMessages }) => {
             queryNextPageSpy = jest.spyOn(channel, 'query');
             contextMessageCount = contextMessages.length;
@@ -935,9 +965,9 @@ describe('Channel', () => {
           expect(chatClient.axiosInstance.post.mock.calls[1][1]).toMatchObject(
             expect.objectContaining({
               data: {},
-              messages: { id_lt: firstPageMessages[0].id, limit: 100 },
+              messages: { id_lt: firstPageMessages[0].id, limit: 25 },
               state: true,
-              watchers: { limit: 100 },
+              watchers: { limit: 25 },
             }),
           );
           expect(contextMessageCount).toBe(
@@ -2141,10 +2171,12 @@ describe('Channel', () => {
           );
           await renderComponent(
             {
-              Avatar: MockAvatar,
               channel,
               chatClient,
               children: <Component />,
+              components: {
+                Avatar: MockAvatar,
+              },
             },
             callback?.(threadMessage),
           );
@@ -2176,10 +2208,12 @@ describe('Channel', () => {
           );
           await renderComponent(
             {
-              Avatar: MockAvatar,
               channel,
               chatClient,
               children: <Component />,
+              components: {
+                Avatar: MockAvatar,
+              },
             },
             callback?.(threadMessage),
           );
@@ -2271,34 +2305,6 @@ describe('Channel', () => {
           }
         },
       );
-    });
-  });
-
-  describe('Custom Components', () => {
-    it('should render CustomMessageActionsList if provided', async () => {
-      const CustomMessageActionsList = jest
-        .fn()
-        .mockImplementation(() => 'CustomMessageActionsList');
-
-      const messageContextValue = {
-        message: generateMessage(),
-        messageListRect: {},
-      };
-
-      await renderComponent({
-        channel,
-        chatClient,
-        children: (
-          <MessageProvider value={{ ...messageContextValue }}>
-            <MessageActionsBox getMessageActions={jest.fn(() => [])} />
-          </MessageProvider>
-        ),
-        CustomMessageActionsList,
-      });
-
-      await waitFor(() => {
-        expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
-      });
     });
   });
 });

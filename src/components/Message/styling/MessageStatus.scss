@@ -1,0 +1,18 @@
+.str-chat {
+  .str-chat__message-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: var(--str-chat__spacing-0_5);
+    position: relative;
+    color: var(--accent-neutral);
+    svg {
+      height: 16px;
+      width: 16px;
+
+      &.str-chat__message-status-read {
+        color: var(--accent-primary);
+      }
+    }
+  }
+}

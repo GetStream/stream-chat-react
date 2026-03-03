@@ -1,0 +1,51 @@
+@use '../../../styling/utils' as utils;
+@use './common' as common;
+
+.str-chat__message-reactions {
+  display: flex;
+
+  .str-chat__message-reactions__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxs);
+
+    .str-chat__message-reactions__list-item {
+      display: flex;
+    }
+  }
+
+  .str-chat__message-reactions__list-item-button {
+    // temporary hacky fix
+    min-height: 26px;
+  }
+
+  .str-chat__message-reactions__list-button,
+  .str-chat__message-reactions__list-item-button {
+    @include common.reaction-button;
+
+    .str-chat__message-reactions__list-item-icon {
+      // FIXME: ridiculous hack so that the emoji block is in a square container (1/1 ratio)
+      font-size: 13px;
+      line-height: 16px;
+      font-family: system-ui;
+      font-style: normal;
+      letter-spacing: 0;
+      display: flex;
+    }
+
+    .str-chat__message-reactions__total-count,
+    .str-chat__message-reactions__overflow-count,
+    .str-chat__message-reactions__list-item-count {
+      display: flex;
+      align-items: center;
+      color: var(--reaction-text);
+      font-family: var(--typography-font-family-sans);
+      font-size: var(--typography-font-size-xxs);
+      font-weight: var(--typography-font-weight-bold);
+      line-height: 1;
+    }
+  }
+}

@@ -1,51 +1,58 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 
 import { useRetryHandler } from '../useRetryHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { generateMessage } from '../../../../mock-builders';
+const mockUseThreadContext = jest.fn();
+const mockUseChannelStateContext = jest.fn();
 
-const retrySendMessage = jest.fn();
+jest.mock('../../../Threads', () => ({
+  useThreadContext: () => mockUseThreadContext(),
+}));
 
-function renderUseRetryHandlerHook(customRetrySendMessage) {
-  const wrapper = ({ children }) => (
-    <ChannelActionProvider value={{ retrySendMessage }}>{children}</ChannelActionProvider>
-  );
+jest.mock('../../../../context', () => ({
+  useChannelStateContext: () => mockUseChannelStateContext(),
+}));
 
-  const { result } = renderHook(() => useRetryHandler(customRetrySendMessage), {
-    wrapper,
+const channelRetrySendMessageWithLocalUpdate = jest.fn();
+const threadRetrySendMessageWithLocalUpdate = jest.fn();
+
+describe('useRetryHandler custom hook', () => {
+  beforeEach(() => {
+    mockUseThreadContext.mockReturnValue(undefined);
+    mockUseChannelStateContext.mockReturnValue({
+      channel: {
+        retrySendMessageWithLocalUpdate: channelRetrySendMessageWithLocalUpdate,
+      },
+    });
   });
 
-  return result.current;
-}
-
-describe('useReactionHandler custom hook', () => {
   afterEach(jest.clearAllMocks);
+
   it('should generate a function that handles retrying a failed message', () => {
-    const handleRetry = renderUseRetryHandlerHook();
-    expect(typeof handleRetry).toBe('function');
+    const { result } = renderHook(() => useRetryHandler());
+    expect(typeof result.current).toBe('function');
   });
 
-  it('should retry send message when called', () => {
-    const handleRetry = renderUseRetryHandlerHook();
-    const message = generateMessage();
-    handleRetry(message);
-    expect(retrySendMessage).toHaveBeenCalledWith(message);
+  it('should call channel retry when thread context is absent', async () => {
+    const { result } = renderHook(() => useRetryHandler());
+    const params = { localMessage: { id: 'm1' } };
+
+    await result.current(params);
+
+    expect(channelRetrySendMessageWithLocalUpdate).toHaveBeenCalledWith(params);
+    expect(threadRetrySendMessageWithLocalUpdate).not.toHaveBeenCalled();
   });
 
-  it('should retry send message with custom retry send message handler when one is set', () => {
-    const customRetrySendMessage = jest.fn();
-    const handleRetry = renderUseRetryHandlerHook(customRetrySendMessage);
-    const message = generateMessage();
-    handleRetry(message);
-    expect(retrySendMessage).not.toHaveBeenCalled();
-    expect(customRetrySendMessage).toHaveBeenCalledWith(message);
-  });
+  it('should call thread retry when thread context is present', async () => {
+    mockUseThreadContext.mockReturnValue({
+      retrySendMessageWithLocalUpdate: threadRetrySendMessageWithLocalUpdate,
+    });
+    const { result } = renderHook(() => useRetryHandler());
+    const params = { localMessage: { id: 'm1' } };
 
-  it('should do nothing if message is not defined', () => {
-    const handleRetry = renderUseRetryHandlerHook();
-    handleRetry(undefined);
-    expect(retrySendMessage).not.toHaveBeenCalled();
+    await result.current(params);
+
+    expect(threadRetrySendMessageWithLocalUpdate).toHaveBeenCalledWith(params);
+    expect(channelRetrySendMessageWithLocalUpdate).not.toHaveBeenCalled();
   });
 });

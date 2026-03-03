@@ -59,6 +59,7 @@ const readLastMessageChannelData = () => {
     generateMessage({ created_at: new Date(2) }),
   ];
   return {
+    channel: { config: { read_events: true } },
     messages,
     read: [
       {
@@ -387,6 +388,35 @@ describe('useMarkRead', () => {
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
       const channelUnreadUiState = channelUnreadUiStateCb();
       expect(channelUnreadUiState.unread_messages).toBe(1);
+      expect(markRead).not.toHaveBeenCalled();
+    });
+
+    it('should not increase unread count if the read events are disabled', async () => {
+      const channelData = {
+        ...readLastMessageChannelData(),
+        channel: { config: { read_events: false } },
+      };
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isMessageListScrolledToBottom: false,
+        },
+      });
+
+      await act(() => {
+        dispatchMessageNewEvent(client, generateMessage(), channel);
+      });
+      expect(setChannelUnreadUiState).toHaveBeenCalledTimes(0);
       expect(markRead).not.toHaveBeenCalled();
     });
 

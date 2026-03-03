@@ -71,10 +71,12 @@ yarn lint-fix
 
 #### Commit / PR conventions
 
+- Never commit directly to main, always create a feature branch.
 - Keep PRs small and focused; include tests.
 - Follow the project’s “zero warnings” policy—fix new warnings and avoid introducing any.
 - For UI changes, attach comparison screenshots (before/after) where feasible.
 - Ensure public API changes include docs.
+- Follow the @.github/pull_request_template.md when opening PRs.
 
 #### Testing policy
 

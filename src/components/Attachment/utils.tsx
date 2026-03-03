@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Attachment, SharedLocationResponse } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
+import * as linkify from 'linkifyjs';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
@@ -9,12 +10,24 @@ export const SUPPORTED_VIDEO_FORMATS = [
   'video/quicktime',
 ];
 
-export type AttachmentComponentType = (typeof ATTACHMENT_GROUPS_ORDER)[number];
+export type AttachmentComponentType =
+  | 'card'
+  | 'gallery'
+  | 'giphy'
+  | 'image'
+  | 'media'
+  | 'audio'
+  | 'voiceRecording'
+  | 'file'
+  | 'geolocation'
+  | 'unsupported';
 
-export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
+export type AttachmentContainerType = (typeof ATTACHMENT_GROUPS_ORDER)[number];
+
+export type GroupedRenderedAttachment = Record<AttachmentContainerType, ReactNode[]>;
 
 export type GalleryAttachment = {
-  images: Attachment[];
+  items: Attachment[];
   type: 'gallery';
 };
 
@@ -26,6 +39,10 @@ export type RenderGalleryProps = Omit<AttachmentProps, 'attachments'> & {
   attachment: GalleryAttachment;
 };
 
+export type RenderMediaProps = Omit<AttachmentProps, 'attachments'> & {
+  attachments: Attachment[];
+};
+
 export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
   location: SharedLocationResponse;
 };
@@ -35,7 +52,7 @@ export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
 export const isGalleryAttachmentType = (
   attachment: Attachment | GalleryAttachment,
 ): attachment is GalleryAttachment =>
-  Array.isArray((attachment as GalleryAttachment).images);
+  Array.isArray((attachment as GalleryAttachment).items);
 
 export const isSvgAttachment = (attachment: Attachment) => {
   const filename = attachment.fallback || '';
@@ -53,11 +70,28 @@ export const displayDuration = (totalSeconds?: number) => {
   const [hours, hoursLeftover] = divMod(totalSeconds, 3600);
   const [minutes, seconds] = divMod(hoursLeftover, 60);
   const roundedSeconds = Math.ceil(seconds);
+  const prependHrsZero = String(hours).padStart(2, '0');
+  const prependMinZero = String(minutes).padStart(2, '0');
+  const prependSecZero = String(roundedSeconds).padStart(2, '0');
+  const minSec = `${prependMinZero}:${prependSecZero}`;
 
-  const prependHrsZero = hours.toString().length === 1 ? '0' : '';
-  const prependMinZero = minutes.toString().length === 1 ? '0' : '';
-  const prependSecZero = roundedSeconds.toString().length === 1 ? '0' : '';
-  const minSec = `${prependMinZero}${minutes}:${prependSecZero}${roundedSeconds}`;
-
-  return hours ? `${prependHrsZero}${hours}:` + minSec : minSec;
+  return hours ? `${prependHrsZero}:` + minSec : minSec;
 };
+export function getCssDimensionsVariables(url: string) {
+  const cssVars = {
+    '--original-height': 1000000,
+    '--original-width': 1000000,
+  } as Record<string, number>;
+
+  if (linkify.test(url, 'url')) {
+    const urlParams = new URL(url).searchParams;
+    const oh = Number(urlParams.get('oh'));
+    const ow = Number(urlParams.get('ow'));
+    const originalHeight = oh > 1 ? oh : 1000000;
+    const originalWidth = ow > 1 ? ow : 1000000;
+    cssVars['--original-width'] = originalWidth;
+    cssVars['--original-height'] = originalHeight;
+  }
+
+  return cssVars;
+}

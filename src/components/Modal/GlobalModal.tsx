@@ -1,12 +1,9 @@
 import clsx from 'clsx';
 import type { PropsWithChildren } from 'react';
-import { useCallback } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
-import { CloseIconRound } from './icons';
-
-import { modalDialogManagerId, useTranslationContext } from '../../context';
+import { modalDialogManagerId } from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
@@ -18,16 +15,16 @@ import type { ModalCloseEvent, ModalCloseSource, ModalProps } from './Modal';
 export const GlobalModal = ({
   children,
   className,
+  CloseButtonOnOverlay,
   onClose,
   onCloseAttempt,
   open,
 }: PropsWithChildren<ModalProps>) => {
-  const { t } = useTranslationContext('Modal');
-
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
   const innerRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closingRef = useRef(false);
 
   const maybeClose = useCallback(
     (source: ModalCloseSource, event: ModalCloseEvent) => {
@@ -35,25 +32,29 @@ export const GlobalModal = ({
       if (allow !== false) {
         onClose?.(event);
         dialog.close();
+        closingRef.current = true;
       }
     },
     [dialog, onClose, onCloseAttempt],
   );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
+    // Prevent DialogPortalDestination overlay from handling any click (closeAll).
+    // Ensures overlay/button close is fully controlled by onCloseAttempt/onClose.
+    event.stopPropagation();
+
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (!innerRef.current || !closeButtonRef.current) return;
     if (innerRef.current?.contains(target)) return;
 
-    if (closeButtonRef.current.contains(target)) {
+    if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current.contains(target)) {
+    } else if (!innerRef.current?.contains(target)) {
       maybeClose('overlay', event);
     }
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!open || !isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') maybeClose('escape', event);
@@ -61,13 +62,18 @@ export const GlobalModal = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, maybeClose]);
+  }, [isOpen, maybeClose, open]);
 
+  // Sync open prop → dialog open. Don't close here (dialog ref changes after close → effect loop).
+  // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
   useEffect(() => {
-    if (open && !dialog.isOpen) {
+    if (!open) {
+      closingRef.current = false;
+    }
+    if (open && !isOpen && !closingRef.current) {
       dialog.open();
     }
-  }, [dialog, open]);
+  }, [dialog, isOpen, open]);
 
   if (!open || !isOpen) return null;
 
@@ -81,14 +87,6 @@ export const GlobalModal = ({
         onClick={handleClick}
       >
         <FocusScope autoFocus contain>
-          <button
-            className='str-chat__modal__close-button'
-            ref={closeButtonRef}
-            title={t('Close')}
-            type='button'
-          >
-            <CloseIconRound />
-          </button>
           <div
             className='str-chat__modal__inner str-chat-react__modal__inner'
             ref={innerRef}
@@ -96,6 +94,9 @@ export const GlobalModal = ({
             {children}
           </div>
         </FocusScope>
+        {CloseButtonOnOverlay && (
+          <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+        )}
       </div>
     </DialogPortalEntry>
   );

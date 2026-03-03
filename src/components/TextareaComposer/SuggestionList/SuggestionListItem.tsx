@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import type { Ref } from 'react';
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import { type ComponentProps, useRef } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import { useMessageComposer } from '../../MessageInput';
 import type { TextComposerSuggestion } from 'stream-chat';
 import type { UserItemProps } from './UserItem';
@@ -16,26 +16,27 @@ export type DefaultSuggestionListItemEntity =
 export type SuggestionListItemComponentProps = {
   entity: DefaultSuggestionListItemEntity | unknown;
   focused: boolean;
-};
+} & ComponentProps<'button'>;
 
-export type SuggestionItemProps = {
+export type SuggestionItemProps = ComponentProps<'button'> & {
   component: React.ComponentType<SuggestionListItemComponentProps>;
   item: TextComposerSuggestion;
   focused: boolean;
-  className?: string;
-  onMouseEnter?: () => void;
 };
 
-export const SuggestionListItem = React.forwardRef<
-  HTMLButtonElement,
-  SuggestionItemProps
->(function SuggestionListItem(
-  { className, component: Component, focused, item, onMouseEnter }: SuggestionItemProps,
-  innerRef: Ref<HTMLButtonElement>,
-) {
+export const SuggestionListItem = ({
+  className,
+  component: Component,
+  focused,
+  item,
+  onClick,
+  onKeyDown,
+  onMouseEnter,
+  ...restProps
+}: SuggestionItemProps) => {
   const { textComposer } = useMessageComposer();
   const { textareaRef } = useMessageInputContext();
-  const containerRef = useRef<HTMLLIElement>(null);
+  const componentRef = useRef<HTMLButtonElement | null>(null);
 
   const handleSelect = useCallback(() => {
     textComposer.handleSelect(item);
@@ -44,28 +45,27 @@ export const SuggestionListItem = React.forwardRef<
 
   useLayoutEffect(() => {
     if (!focused) return;
-    containerRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
-  }, [focused, containerRef]);
+    componentRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+  }, [focused]);
 
   return (
-    <li
+    <Component
+      {...restProps}
       className={clsx('str-chat__suggestion-list-item', className, {
-        'str-chat__suggestion-item--selected': focused,
+        'str-chat__suggestion-list-item--selected': focused,
       })}
+      entity={item}
+      focused={focused}
+      onClick={(e) => {
+        handleSelect();
+        onClick?.(e);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') handleSelect();
+        onKeyDown?.(event);
+      }}
       onMouseEnter={onMouseEnter}
-      ref={containerRef}
-    >
-      <button
-        onClick={handleSelect}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            handleSelect();
-          }
-        }}
-        ref={innerRef}
-      >
-        <Component entity={item} focused={focused} />
-      </button>
-    </li>
+      ref={componentRef}
+    />
   );
-});
+};

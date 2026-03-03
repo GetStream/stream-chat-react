@@ -43,7 +43,10 @@ const renderComponent = async ({ channel, client, props } = {}) => {
   await act(() => {
     result = render(
       <Chat client={client ?? defaultClient}>
-        <Channel channel={channel ?? defaultChannel}>
+        <Channel
+          channel={channel ?? defaultChannel}
+          channelQueryOptions={{ messages: { limit: 25 } }}
+        >
           <ShareLocationDialog close={close} {...props} />
         </Channel>
       </Chat>,
@@ -52,7 +55,10 @@ const renderComponent = async ({ channel, client, props } = {}) => {
   const justRerender = () =>
     result.rerender(
       <Chat client={client ?? defaultClient}>
-        <Channel channel={channel ?? defaultChannel}>
+        <Channel
+          channel={channel ?? defaultChannel}
+          channelQueryOptions={{ messages: { limit: 25 } }}
+        >
           <ShareLocationDialog close={close} {...props} />
         </Channel>
       </Chat>,

@@ -11,7 +11,6 @@ export const useUpdateMessageFn = () => {
   const { channel } = useChannelStateContext();
   const thread = useThreadContext();
   const messageComposer = useMessageComposer();
-  const { clearEditingState } = useMessageContext();
   const { t } = useTranslationContext('useUpdateMessageFn');
 
   return useCallback(async () => {
@@ -28,8 +27,7 @@ export const useUpdateMessageFn = () => {
           options: sendOptions,
         });
       }
-      // todo: find way to avoid having control of editing state in MessageContext and MessageInputContext
-      clearEditingState();
+      messageComposer.clear();
     } catch (error) {
       channel.getClient().notifications.addError({
         message: t('Edit message request failed'),
@@ -47,5 +45,5 @@ export const useUpdateMessageFn = () => {
         },
       });
     }
-  }, [channel, clearEditingState, messageComposer, t, thread]);
+  }, [channel, messageComposer, t, thread]);
 };

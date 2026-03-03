@@ -1,11 +1,12 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { DownloadButton, FileSizeIndicator, PlayButton, ProgressBar } from './components';
+import { DownloadButton, FileSizeIndicator, ProgressBar } from './components';
 import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
 import { useStateStore } from '../../store';
 import { useMessageContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
+import { PlayButton } from '../Button/PlayButton';
 
 type AudioAttachmentUIProps = {
   audioPlayer: AudioPlayer;
@@ -41,8 +42,7 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
 };
 
 export type AudioProps = {
-  // fixme: rename og to attachment
-  og: Attachment;
+  attachment: Attachment;
 };
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
@@ -52,7 +52,7 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 
 const UnMemoizedAudio = (props: AudioProps) => {
   const {
-    og: { asset_url, file_size, mime_type, title },
+    attachment: { asset_url, file_size, mime_type, title },
   } = props;
 
   /**
@@ -74,7 +74,7 @@ const UnMemoizedAudio = (props: AudioProps) => {
       `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
-    waveformData: props.og.waveform_data,
+    waveformData: props.attachment.waveform_data,
   });
 
   return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;

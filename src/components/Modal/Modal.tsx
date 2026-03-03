@@ -1,11 +1,13 @@
 import clsx from 'clsx';
-import { type PropsWithChildren, useCallback } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, {
+  type ComponentProps,
+  type ComponentType,
+  type PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { FocusScope } from '@react-aria/focus';
-
-import { CloseIconRound } from './icons';
-
-import { useTranslationContext } from '../../context';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -19,6 +21,8 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** If provided, the close button is rendered on overlay */
+  CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
   onClose?: (event: ModalCloseEvent) => void;
   /** Optional handler to intercept closing logic. Return false to prevent onClose. */
@@ -28,12 +32,11 @@ export type ModalProps = {
 export const Modal = ({
   children,
   className,
+  CloseButtonOnOverlay,
   onClose,
   onCloseAttempt,
   open,
 }: PropsWithChildren<ModalProps>) => {
-  const { t } = useTranslationContext('Modal');
-
   const innerRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -49,11 +52,11 @@ export const Modal = ({
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (!innerRef.current || !closeButtonRef.current) return;
+    if (innerRef.current?.contains(target)) return;
 
-    if (closeButtonRef.current.contains(target)) {
+    if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current.contains(target)) {
+    } else if (!innerRef.current?.contains(target)) {
       maybeClose('overlay', event);
     }
   };
@@ -77,13 +80,6 @@ export const Modal = ({
       onClick={handleClick}
     >
       <FocusScope autoFocus contain>
-        <button
-          className='str-chat__modal__close-button'
-          ref={closeButtonRef}
-          title={t('Close')}
-        >
-          <CloseIconRound />
-        </button>
         <div
           className='str-chat__modal__inner str-chat-react__modal__inner'
           ref={innerRef}
@@ -91,6 +87,9 @@ export const Modal = ({
           {children}
         </div>
       </FocusScope>
+      {CloseButtonOnOverlay && (
+        <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+      )}
     </div>
   );
 };

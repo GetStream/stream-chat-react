@@ -7,7 +7,7 @@ import type {
 } from 'react';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
-import { useMessageComposer } from '../MessageInput';
+import { useCooldownRemaining, useMessageComposer } from '../MessageInput';
 import type {
   AttachmentManagerState,
   MessageComposerConfig,
@@ -15,13 +15,10 @@ import type {
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
-import {
-  useComponentContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
+import { useComponentContext, useMessageInputContext } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
+import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useSendMessageFn } from '../MessageInput/hooks/useSendMessageFn';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
@@ -84,11 +81,9 @@ export const TextareaComposer = ({
   shouldSubmit: shouldSubmitProp,
   ...restTextareaProps
 }: TextareaComposerProps) => {
-  const { t } = useTranslationContext();
   const { AutocompleteSuggestionList = DefaultSuggestionList } = useComponentContext();
   const {
     additionalTextareaProps,
-    cooldownRemaining,
     focus,
     maxRows: maxRowsContext,
     minRows: minRowsContext,
@@ -96,9 +91,13 @@ export const TextareaComposer = ({
     shouldSubmit: shouldSubmitContext,
     textareaRef,
   } = useMessageInputContext();
+  const cooldownRemaining = useCooldownRemaining();
+
+  const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
+
   const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
   const minRows = minRowsProp ?? minRowsContext;
-  const placeholder = placeholderProp ?? additionalTextareaProps?.placeholder;
+
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
   const messageComposer = useMessageComposer();
@@ -283,19 +282,14 @@ export const TextareaComposer = ({
 
   return (
     <div
-      className={clsx(
-        'rta',
-        'str-chat__textarea str-chat__message-textarea-react-host',
-        containerClassName,
-        {
-          ['rta--loading']: isLoadingItems,
-        },
-      )}
+      className={clsx('rta', 'str-chat__textarea', containerClassName, {
+        ['rta--loading']: isLoadingItems,
+      })}
       ref={containerRef}
     >
       <Textarea
         {...{ ...additionalTextareaProps, ...restTextareaProps }}
-        aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
+        aria-label={placeholder}
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',
@@ -313,7 +307,7 @@ export const TextareaComposer = ({
         onPaste={onPaste}
         onScroll={scrollHandler}
         onSelect={setSelection}
-        placeholder={placeholder || t('Type your message')}
+        placeholder={placeholder}
         ref={(ref) => {
           textareaRef.current = ref;
         }}

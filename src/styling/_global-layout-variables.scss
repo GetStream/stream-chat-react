@@ -1,0 +1,58 @@
+.str-chat {
+  /* Used for elements where sizing is necessary (such as icons, avatar), you can use this variable to scale those elements */
+  --str-chat__spacing-px: 1px;
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-0_5: var(--space-2);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-1: var(--space-4);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-1_5: calc(var(--space-4) + var(--space-2));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-2: var(--space-8);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-2_5: calc(var(--space-8) + var(--space-2));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-3: calc(var(--space-8) + var(--space-4));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-3_5: calc(var(--space-12) + var(--space-2));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-4: var(--space-16); // 16px by default
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-5: var(--space-20);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-6: var(--space-24);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-7: calc(var(--space-24) + var(--space-4));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-8: var(--space-32);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-9: calc(var(--space-32) + var(--space-4));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-10: var(--space-40);
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-11: calc(var(--space-40) + var(--space-4));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-12: calc(var(--space-48));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-14: calc(var(--space-48) + var(--space-8));
+
+  /* Used for margins and paddings */
+  --str-chat__spacing-16: var(--space-64);
+}

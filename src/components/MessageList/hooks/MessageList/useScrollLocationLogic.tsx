@@ -8,7 +8,7 @@ export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
   listElement: HTMLElement | null;
   loadMoreScrollThreshold: number;
-  suppressAutoscroll: boolean;
+  // suppressAutoscroll: boolean;
   messages?: LocalMessage[];
   scrolledUpThreshold?: number;
 };
@@ -20,7 +20,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     loadMoreScrollThreshold,
     messages = [],
     scrolledUpThreshold = 200,
-    suppressAutoscroll,
+    // suppressAutoscroll,
   } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
@@ -32,7 +32,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const closeToTop = useRef(false);
 
   const scrollToBottom = useCallback(() => {
-    if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
+    // if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
+    if (!listElement?.scrollTo || hasMoreNewer) {
       return;
     }
 
@@ -40,7 +41,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
       top: listElement.scrollHeight,
     });
     setHasNewMessages(false);
-  }, [listElement, hasMoreNewer, suppressAutoscroll]);
+  }, [listElement, hasMoreNewer]);
+  // }, [listElement, hasMoreNewer, suppressAutoscroll]);
 
   useLayoutEffect(() => {
     if (listElement) {

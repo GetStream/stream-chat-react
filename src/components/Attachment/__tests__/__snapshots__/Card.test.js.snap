@@ -799,7 +799,7 @@ exports[`Card (15) should render image without title and with caption using og_s
 </div>
 `;
 
-exports[`Card (16) should render audio widget with title & text in Card content and without Card header if attachment type is audio and og image URLs are not available 1`] = `
+exports[`Card (16) should render audio widget with title & text in Card content and without Card header if attachment type is audio and attachment image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -881,7 +881,7 @@ exports[`Card (16) should render audio widget with title & text in Card content 
 </div>
 `;
 
-exports[`Card (17) should render video widget in header and title & text in Card content if attachment type is video and og image URLs are not available 1`] = `
+exports[`Card (17) should render video widget in header and title & text in Card content if attachment type is video and attachment image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -938,7 +938,7 @@ exports[`Card (17) should render video widget in header and title & text in Card
 </div>
 `;
 
-exports[`Card (18) should render card with title and text only and without the image in the header part of the Card if attachment type is image and og image URLs are not available 1`] = `
+exports[`Card (18) should render card with title and text only and without the image in the header part of the Card if attachment type is image and attachment image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -1465,7 +1465,7 @@ exports[`Card (26) should render video widget in header and title & text in Card
 </div>
 `;
 
-exports[`Card (27) should render content part with title and text only and without the header part of the Card if attachment type is audio and asset and neither og image URL is available 1`] = `
+exports[`Card (27) should render content part with title and text only and without the header part of the Card if attachment type is audio and asset and neither attachment image URL is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"

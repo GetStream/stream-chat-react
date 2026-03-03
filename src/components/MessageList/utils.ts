@@ -268,7 +268,6 @@ export const getGroupStyles = (
     previousMessage.type === 'error' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
-    previousMessage.deleted_at ||
     (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
     isMessageEdited(previousMessage) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
@@ -286,7 +285,6 @@ export const getGroupStyles = (
     nextMessage.type === 'error' ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
-    nextMessage.deleted_at ||
     (nextMessage.reaction_groups &&
       Object.keys(nextMessage.reaction_groups).length > 0) ||
     isMessageEdited(message) ||
@@ -298,12 +296,12 @@ export const getGroupStyles = (
         maxTimeBetweenGroupedMessages);
 
   if (!isTopMessage && !isBottomMessage) {
-    if (message.deleted_at || message.type === 'error') return 'single';
+    if (message.type === 'error') return 'single';
     return 'middle';
   }
 
   if (isBottomMessage) {
-    if (isTopMessage || message.deleted_at || message.type === 'error') return 'single';
+    if (isTopMessage || message.type === 'error') return 'single';
     return 'bottom';
   }
 

@@ -4,8 +4,6 @@ import React, { useContext } from 'react';
 import type { DeleteMessageOptions, LocalMessage, MessageResponse } from 'stream-chat';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type { UnknownType } from '../types/types';
-
 export type MarkReadWrapperOptions = {
   /**
    * Signal, whether the `channelUnreadUiState` should be updated.
@@ -89,29 +87,4 @@ export const useChannelActionContext = (componentName?: string) => {
   }
 
   return contextValue as unknown as ChannelActionContextValue;
-};
-
-/**
- * Typescript currently does not support partial inference, so if ChannelActionContext
- * typing is desired while using the HOC withChannelActionContext, the Props for the
- * wrapped component must be provided as the first generic.
- */
-export const withChannelActionContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-) => {
-  const WithChannelActionContextComponent = (
-    props: Omit<P, keyof ChannelActionContextValue>,
-  ) => {
-    const channelActionContext = useChannelActionContext();
-
-    return <Component {...(props as P)} {...channelActionContext} />;
-  };
-
-  WithChannelActionContextComponent.displayName = (
-    Component.displayName ||
-    Component.name ||
-    'Component'
-  ).replace('Base', '');
-
-  return WithChannelActionContextComponent;
 };

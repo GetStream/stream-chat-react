@@ -1,5 +1,5 @@
-import { PromptDialog } from '../../Dialog/PromptDialog';
 import React from 'react';
+import { Prompt } from '../../Dialog';
 import { usePollContext, useTranslationContext } from '../../../context';
 
 export type EndPollDialogProps = {
@@ -11,23 +11,32 @@ export const EndPollDialog = ({ close }: EndPollDialogProps) => {
   const { poll } = usePollContext();
 
   return (
-    <PromptDialog
-      actions={[
-        {
-          children: t('Cancel'),
-          className: 'str-chat__dialog__controls-button--cancel',
-          onClick: close,
-        },
-        {
-          children: t('End'),
-          className:
-            '.str-chat__dialog__controls-button--submit str-chat__dialog__controls-button--end-poll',
-          onClick: poll.close,
-        },
-      ]}
-      className='str-chat__modal__end-vote'
-      prompt={t('Nobody will be able to vote in this poll anymore.')}
-      title={t('End vote')}
-    />
+    <Prompt.Root className={'str-chat__modal__end-vote'}>
+      <Prompt.Header close={close} title={t('End vote')}></Prompt.Header>
+      <Prompt.Body>
+        <div className='str-chat__prompt__prompt'>
+          {t('Nobody will be able to vote in this poll anymore.')}
+        </div>
+      </Prompt.Body>
+      <Prompt.Footer>
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonSecondary
+            className='str-chat__dialog__controls-button--cancel'
+            onClick={close}
+          >
+            {t('Cancel')}
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
+            className='str-chat__dialog__controls-button--end-poll'
+            onClick={() => {
+              poll.close();
+              close();
+            }}
+          >
+            {t('End')}
+          </Prompt.FooterControlsButtonPrimary>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
+    </Prompt.Root>
   );
 };

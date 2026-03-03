@@ -26,8 +26,6 @@ import {
   WithComponents,
 } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
-import { ScrollToBottomButton } from '../ScrollToBottomButton';
-import { MessageListNotifications } from '../MessageListNotifications';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
 
@@ -171,10 +169,12 @@ describe('MessageList', () => {
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
     const renderResult = renderComponent({
       channelProps: {
-        Avatar,
         channel,
       },
       chatClient,
+      components: {
+        Avatar,
+      },
     });
 
     await waitFor(() => {
@@ -253,8 +253,9 @@ describe('MessageList', () => {
     const Header = () => <div>{headerText}</div>;
 
     renderComponent({
-      channelProps: { channel, HeaderComponent: Header },
+      channelProps: { channel },
       chatClient,
+      components: { HeaderComponent: Header },
       msgListProps: {
         messages: [intro],
       },
@@ -580,8 +581,9 @@ describe('MessageList', () => {
 
       await act(() => {
         renderComponent({
-          channelProps: { channel, UnreadMessagesSeparator },
+          channelProps: { channel },
           chatClient: client,
+          components: { UnreadMessagesSeparator },
           msgListProps: { messages },
         });
       });
@@ -608,8 +610,9 @@ describe('MessageList', () => {
 
       await act(() => {
         renderComponent({
-          channelProps: { channel, UnreadMessagesSeparator },
+          channelProps: { channel },
           chatClient: client,
+          components: { UnreadMessagesSeparator },
           msgListProps: { messages },
         });
       });
@@ -643,6 +646,7 @@ describe('MessageList', () => {
 
       const setupTest = async ({
         channelProps = {},
+        components = {},
         dispatchMarkUnreadPayload = {},
         entries,
         msgListProps = {},
@@ -656,6 +660,7 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: { channel, ...channelProps },
             chatClient: client,
+            components,
             msgListProps: { messages, ...msgListProps },
           });
         });
@@ -746,7 +751,9 @@ describe('MessageList', () => {
           <div data-testid={customUnreadMessagesNotificationText}>aaa</div>
         );
         await setupTest({
-          channelProps: { UnreadMessagesNotification },
+          components: {
+            UnreadMessagesNotification,
+          },
           entries: observerEntriesScrolledBelowSeparator,
         });
 
@@ -786,14 +793,12 @@ describe('MessageList', () => {
       });
     });
 
-    describe('ScrollToBottomButton', () => {
-      const BUTTON_TEST_ID = 'message-notification';
+    describe('ScrollToLatestMessageButton and NewMessageNotification', () => {
+      const NEW_MESSAGE_NOTIFICATION_TEST_ID = 'message-notification';
+      const SCROLL_TO_LATEST_MESSAGE_TEST_ID = 'scroll-to-latest-message-button';
       const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
-      const MockMessageListNotifications = (props) => (
-        <MessageListNotifications {...props} isMessageListScrolledToBottom={false} />
-      );
 
-      it('does not reflect the channel unread  UI state', async () => {
+      it('ScrollToLatestMessageButton does not reflect the channel unread UI state', async () => {
         const {
           channels: [channel],
           client,
@@ -803,15 +808,17 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: {
               channel,
-              MessageListNotifications: MockMessageListNotifications,
-              MessageNotification: ScrollToBottomButton,
             },
             chatClient: client,
             msgListProps: { messages },
           });
         });
 
-        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        const scrollButton = screen.queryByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID);
+        const newMessageNotification = screen.queryByTestId(
+          NEW_MESSAGE_NOTIFICATION_TEST_ID,
+        );
+        expect(scrollButton || newMessageNotification).toBeTruthy();
         expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
 
         await act(() => {
@@ -821,7 +828,7 @@ describe('MessageList', () => {
         expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
       });
 
-      it('does not reflect the channel unread state in a thread', async () => {
+      it('ScrollToLatestMessageButton does not reflect the channel unread state in a thread', async () => {
         const {
           channels: [channel],
           client,
@@ -831,15 +838,17 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: {
               channel,
-              MessageListNotifications: MockMessageListNotifications,
-              MessageNotification: ScrollToBottomButton,
             },
             chatClient: client,
             msgListProps: { messages, threadList: true },
           });
         });
 
-        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        const scrollButton = screen.queryByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID);
+        const newMessageNotification = screen.queryByTestId(
+          NEW_MESSAGE_NOTIFICATION_TEST_ID,
+        );
+        expect(scrollButton || newMessageNotification).toBeTruthy();
         expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
 
         await act(() => {

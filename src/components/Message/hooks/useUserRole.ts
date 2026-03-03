@@ -46,13 +46,16 @@ export const useUserRole = (
     (isMyMessage && channelCapabilities['delete-own-message']);
 
   const canFlag = !isMyMessage && channelCapabilities['flag-message'];
-  const canMarkUnread = channelCapabilities['read-events'];
   const canMute = !isMyMessage && channelCapabilities['mute-channel'];
+  const canBlockUser = !isMyMessage;
+  const canMarkUnread = channelCapabilities['read-events'];
   const canQuote = !disableQuotedMessages && channelCapabilities['quote-message'];
   const canReact = channelCapabilities['send-reaction'];
   const canReply = channelCapabilities['send-reply'];
+  const canSendMessage = channelCapabilities['send-message'];
 
   return {
+    canBlockUser,
     canDelete,
     canEdit,
     canFlag,
@@ -61,6 +64,7 @@ export const useUserRole = (
     canQuote,
     canReact,
     canReply,
+    canSendMessage,
     isAdmin,
     isModerator,
     isMyMessage,

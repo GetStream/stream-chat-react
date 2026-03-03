@@ -1,29 +1,30 @@
 import React from 'react';
-import { SendIcon } from './icons';
 import { useMessageComposerHasSendableData } from './hooks';
-import type { UpdatedMessage } from 'stream-chat';
 import { useTranslationContext } from '../../context';
+import { IconPaperPlane } from '../Icons';
+import { Button } from '../Button';
 
 export type SendButtonProps = {
-  sendMessage: (
-    event: React.BaseSyntheticEvent,
-    customMessageData?: Omit<UpdatedMessage, 'mentioned_users'>,
-  ) => void;
+  sendMessage: (event: React.BaseSyntheticEvent) => void;
 } & React.ComponentProps<'button'>;
-export const SendButton = ({ sendMessage, ...rest }: SendButtonProps) => {
+
+export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) => {
   const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();
   return (
-    <button
+    <Button
+      appearance='solid'
       aria-label={t('aria/Send')}
+      circular
       className='str-chat__send-button'
       data-testid='send-button'
       disabled={!hasSendableData}
       onClick={sendMessage}
-      type='button'
+      size='sm'
+      variant='primary'
       {...rest}
     >
-      <SendIcon />
-    </button>
+      {children ?? <IconPaperPlane />}
+    </Button>
   );
 };

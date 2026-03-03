@@ -5,45 +5,14 @@ exports[`MessageStatus renders default sending UI 1`] = `
   class="str-chat__message-simple-status str-chat__message-status str-chat__message-status-sending"
   data-testid="message-status-sending"
 >
-  <div
-    class="str-chat__loading-indicator"
-    data-testid="loading-indicator-wrapper"
-    style="height: 15px; width: 15px;"
+  <svg
+    class="str-chat__icon str-chat__icon--clock str-chat__message-status-sending"
+    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
   >
-    <svg
-      height="15"
-      viewBox="0 0 30 30"
-      width="15"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <lineargradient
-          id="a"
-          x1="50%"
-          x2="50%"
-          y1="0%"
-          y2="100%"
-        >
-          <stop
-            offset="0%"
-            stop-color="#FFF"
-            stop-opacity="0"
-          />
-          <stop
-            data-testid="loading-indicator-circle"
-            offset="100%"
-            stop-color="#006CFF"
-            stop-opacity="1"
-            style="stop-color: rgb(0, 108, 255);"
-          />
-        </lineargradient>
-      </defs>
-      <path
-        d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-        fill="url(#a)"
-        fill-rule="evenodd"
-      />
-    </svg>
-  </div>
+    <path
+      d="M13.5667 8.00031C13.5667 4.92603 11.0745 2.4331 8.00034 2.43292C4.92595 2.43292 2.43295 4.92592 2.43295 8.00031C2.43313 11.0745 4.92606 13.5667 8.00034 13.5667C11.0744 13.5665 13.5666 11.0744 13.5667 8.00031ZM7.39975 5.16632C7.39993 4.8351 7.66907 4.56671 8.00034 4.56671C8.33145 4.56689 8.59977 4.83521 8.59995 5.16632V7.75128L10.2572 9.40948C10.4915 9.6438 10.4915 10.0228 10.2572 10.2571C10.0229 10.4915 9.64383 10.4915 9.40952 10.2571L7.57553 8.42413C7.46319 8.3117 7.39984 8.15924 7.39975 8.00031V5.16632ZM14.7669 8.00031C14.7668 11.7372 11.7372 14.7667 8.00034 14.7669C4.26332 14.7669 1.23391 11.7373 1.23373 8.00031C1.23373 4.26318 4.26321 1.2337 8.00034 1.2337C11.7373 1.23388 14.7669 4.26329 14.7669 8.00031Z"
+    />
+  </svg>
 </span>
 `;

@@ -39,6 +39,7 @@ export const useMarkRead = ({
   const { messagePaginator } = thread ?? channel;
 
   useEffect(() => {
+    if (!channel.getConfig()?.read_events) return;
     const shouldMarkRead = () => {
       const wasMarkedUnread =
         !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;

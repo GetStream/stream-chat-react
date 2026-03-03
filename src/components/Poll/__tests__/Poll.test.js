@@ -19,7 +19,6 @@ import {
 const POLL_ACTIONS__CLASS = '.str-chat__poll-actions';
 const POLL_OPTION_LIST__CLASS = '.str-chat__poll-option-list';
 const POLL_HEADER__CLASS = '.str-chat__poll-header';
-const QUOTED_POLL__CLASS = '.str-chat__quoted-poll-preview';
 
 const t = (v) => v;
 
@@ -79,34 +78,6 @@ describe('Poll', () => {
     expect(screen.getByTestId(testId)).toBeInTheDocument();
     expect(container.querySelector(POLL_HEADER__CLASS)).toBeInTheDocument();
     expect(container.querySelector(POLL_OPTION_LIST__CLASS)).toBeInTheDocument();
-    expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
-  });
-
-  it('renders quoted version', async () => {
-    const pollData = generatePoll();
-    const poll = new PollClass({ client: {}, poll: pollData });
-    const { container } = await renderComponent({
-      props: { isQuoted: true, poll },
-    });
-    expect(container.querySelector(QUOTED_POLL__CLASS)).toBeInTheDocument();
-    expect(container.querySelector(POLL_HEADER__CLASS)).not.toBeInTheDocument();
-    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).not.toBeInTheDocument();
-    expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
-  });
-
-  it('allows to override the quoted version', async () => {
-    const testId = 'custom-quoted-poll';
-    const QuotedPoll = () => <div data-testid={testId} />;
-    const pollData = generatePoll();
-    const poll = new PollClass({ client: {}, poll: pollData });
-    const { container } = await renderComponent({
-      componentContext: { QuotedPoll },
-      props: { isQuoted: true, poll },
-    });
-    expect(screen.getByTestId(testId)).toBeInTheDocument();
-    expect(container.querySelector(QUOTED_POLL__CLASS)).not.toBeInTheDocument();
-    expect(container.querySelector(POLL_HEADER__CLASS)).not.toBeInTheDocument();
-    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).not.toBeInTheDocument();
     expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
   });
 

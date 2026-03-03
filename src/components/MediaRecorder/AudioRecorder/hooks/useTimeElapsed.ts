@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type UseTimeElapsedParams = {
+  initialSeconds?: number;
   startOnMount?: boolean;
 };
 
 // todo: provide start timestamp
-export const useTimeElapsed = ({ startOnMount }: UseTimeElapsedParams = {}) => {
-  const [secondsElapsed, setSecondsElapsed] = useState<number>(0);
+export const useTimeElapsed = ({
+  initialSeconds = 0,
+  startOnMount,
+}: UseTimeElapsedParams = {}) => {
+  const [secondsElapsed, setSecondsElapsed] = useState<number>(initialSeconds);
   const updateInterval = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const startCounter = useCallback(() => {
@@ -20,6 +24,11 @@ export const useTimeElapsed = ({ startOnMount }: UseTimeElapsedParams = {}) => {
     clearInterval(updateInterval.current);
     updateInterval.current = undefined;
   }, []);
+
+  useEffect(() => {
+    if (updateInterval.current) return;
+    setSecondsElapsed(initialSeconds);
+  }, [initialSeconds]);
 
   useEffect(() => {
     if (!startOnMount) return;

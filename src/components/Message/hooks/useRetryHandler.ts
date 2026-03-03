@@ -7,6 +7,7 @@ export type RetryHandler = (
   params: RetrySendMessageWithLocalUpdateParams,
 ) => Promise<void>;
 
+// todo: rename the hook to follow the pattern useSendMessageFn
 export const useRetryHandler = (): RetryHandler => {
   const { channel } = useChannelStateContext();
   const thread = useThreadContext();

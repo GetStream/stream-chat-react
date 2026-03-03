@@ -40,15 +40,6 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>LoadingIndicator</div>),
 }));
 
-jest.mock('../../Message', () => ({
-  FixedHeightMessage: jest.fn(({ groupedByUser }) => (
-    <div data-testid='msg'>
-      FixedHeightMessage groupedByUser:
-      {groupedByUser ? 'true' : 'false'}
-    </div>
-  )),
-}));
-
 async function createChannel(empty = false) {
   const user1 = generateUser();
   const user2 = generateUser();

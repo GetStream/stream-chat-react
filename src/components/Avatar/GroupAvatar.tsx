@@ -1,43 +1,82 @@
 import clsx from 'clsx';
-import React from 'react';
-import type { AvatarProps } from './Avatar';
-import { Avatar } from './Avatar';
+import React, { type ComponentPropsWithoutRef } from 'react';
+import { Avatar, type AvatarProps } from './Avatar';
 import type { GroupChannelDisplayInfo } from '../ChannelPreview';
 
-export type GroupAvatarProps = Pick<
-  AvatarProps,
-  'className' | 'onClick' | 'onMouseOver'
-> & {
+export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
   /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
   groupChannelDisplayInfo: GroupChannelDisplayInfo;
+  size: '2xl' | 'xl' | 'lg' | null;
+  isOnline?: boolean;
+  overflowCount?: number;
 };
 
+/**
+ * Avatar component to display multiple users' avatars in a group channel, with a maximum of 4 avatars shown.
+ * Renders a single Avatar if only one user is provided.
+ */
+// TODO: rename to AvatarGroup
 export const GroupAvatar = ({
   className,
   groupChannelDisplayInfo,
-  onClick,
-  onMouseOver,
-}: GroupAvatarProps) => (
-  <div
-    className={clsx(
-      `str-chat__avatar-group`,
-      { 'str-chat__avatar-group--three-part': groupChannelDisplayInfo.length === 3 },
-      className,
-    )}
-    data-testid='group-avatar'
-    onClick={onClick}
-    onMouseOver={onMouseOver}
-    role='button'
-  >
-    {groupChannelDisplayInfo.slice(0, 4).map(({ image, name }, i) => (
+  isOnline,
+  overflowCount,
+  size,
+  ...rest
+}: GroupAvatarProps) => {
+  const displayCountBadge = typeof overflowCount === 'number' && overflowCount > 0;
+
+  if (!groupChannelDisplayInfo || groupChannelDisplayInfo.length < 2) {
+    const [firstUser] = groupChannelDisplayInfo || [];
+
+    return (
       <Avatar
-        className={clsx({
-          'str-chat__avatar--single': groupChannelDisplayInfo.length === 3 && i === 0,
-        })}
-        image={image}
-        key={`${name}-${image}-${i}`}
-        name={name}
+        imageUrl={firstUser?.imageUrl}
+        isOnline={isOnline}
+        size={size}
+        userName={firstUser?.userName}
+        {...rest}
       />
-    ))}
-  </div>
-);
+    );
+  }
+
+  let avatarSize: AvatarProps['size'] = null;
+  if (size === '2xl') {
+    avatarSize = 'lg';
+  } else if (size === 'xl') {
+    avatarSize = 'md';
+  } else if (size === 'lg') {
+    avatarSize = 'sm';
+  }
+
+  return (
+    <div
+      className={clsx(
+        'str-chat__avatar-group',
+        {
+          'str-chat__avatar-group--offline': typeof isOnline === 'boolean' && !isOnline,
+          'str-chat__avatar-group--online': typeof isOnline === 'boolean' && isOnline,
+          [`str-chat__avatar-group--size-${size}`]: typeof size === 'string',
+        },
+        className,
+      )}
+      data-testid='group-avatar'
+      role='button'
+      {...rest}
+    >
+      {groupChannelDisplayInfo
+        .slice(0, displayCountBadge ? 2 : 4)
+        .map(({ imageUrl, userName }, index) => (
+          <Avatar
+            imageUrl={imageUrl}
+            key={`${userName}-${imageUrl}-${index}`}
+            size={avatarSize}
+            userName={userName}
+          />
+        ))}
+      {displayCountBadge && (
+        <div className='str-chat__avatar-group__count-badge'>+{overflowCount}</div>
+      )}
+    </div>
+  );
+};

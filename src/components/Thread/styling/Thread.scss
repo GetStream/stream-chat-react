@@ -1,0 +1,149 @@
+@use '../../../styling/utils';
+
+// FIXME: figure out why does this "container" exist when __thread is completely valid
+.str-chat__thread-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .str-chat__thread-header {
+    @include utils.header-layout;
+
+    .str-chat__thread-header-details {
+      @include utils.header-text-layout;
+
+      .str-chat__thread-header-name,
+      .str-chat__thread-header-reply-count,
+      .str-chat__thread-header-channel-name,
+      .str-chat__thread-header-subtitle,
+      .str-chat__thread-header-title {
+        @include utils.ellipsis-text;
+      }
+
+      .str-chat__thread-header-subtitle {
+        @include utils.prevent-glitch-text-overflow;
+      }
+    }
+
+    .str-chat__close-thread-button {
+      $icon-size: calc(var(--str-chat__spacing-px) * 21);
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      width: calc(var(--str-chat__spacing-px) * 40);
+      height: calc(var(--str-chat__spacing-px) * 40);
+      cursor: pointer;
+      line-height: $icon-size;
+      font-size: $icon-size;
+
+      svg {
+        height: $icon-size;
+        width: $icon-size;
+      }
+    }
+  }
+}
+
+.str-chat__thread {
+  .str-chat__main-panel-inner {
+    height: auto;
+  }
+}
+
+.str-chat__thread--virtualized {
+  .str-chat__main-panel-inner {
+    height: 100%;
+
+    // the first message in virtualized thread has to be separated from the top by padding, not margin
+    .str-chat__virtual-list-message-wrapper:first-of-type {
+      padding-block-start: var(--str-chat__spacing-4);
+    }
+  }
+}
+
+.str-chat__parent-message-li {
+  padding: var(--str-chat__spacing-2);
+}
+
+.str-chat {
+  /* The border radius used for the borders of the component */
+  --str-chat__thread-border-radius: 0;
+
+  /* The text/icon color of the component */
+  --str-chat__thread-color: var(--str-chat__text-color);
+
+  /* The background color of the component */
+  --str-chat__thread-background-color: var(--str-chat__secondary-background-color);
+
+  /* Top border of the component */
+  --str-chat__thread-border-block-start: none;
+
+  /* Bottom border of the component */
+  --str-chat__thread-border-block-end: none;
+
+  /* Left (right in RTL layout) border of the component */
+  --str-chat__thread-border-inline-start: 1px solid var(--str-chat__surface-color);
+
+  /* Right (left in RTL layout) border of the component */
+  --str-chat__thread-border-inline-end: none;
+
+  /* Box shadow applied to the component */
+  --str-chat__thread-box-shadow: none;
+
+  /* The border radius used for the borders of the thread header */
+  --str-chat__thread-header-border-radius: 0;
+
+  /* The text/icon color of the thread header */
+  --str-chat__thread-header-color: var(--str-chat__text-color);
+
+  /* The background color of the thread header */
+  --str-chat__thread-header-background-color: var(--str-chat__secondary-background-color);
+
+  /* Top border of the thread header */
+  --str-chat__thread-header-border-block-start: none;
+
+  /* Bottom border of the thread header */
+  --str-chat__thread-header-border-block-end: none;
+
+  /* Left (right in RTL layout) border of the thread header */
+  --str-chat__thread-header-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the thread header */
+  --str-chat__thread-header-border-inline-end: none;
+
+  /* Box shadow applied to the thread header */
+  --str-chat__thread-header-box-shadow: none;
+
+  /* The text/icon color used to display less emphasized text in the channel header */
+  --str-chat__thread-header-info-color: var(--str-chat__text-low-emphasis-color);
+}
+
+.str-chat__thread-container {
+  @include utils.component-layer-overrides('thread');
+
+  .str-chat__thread-header {
+    @include utils.component-layer-overrides('thread-header');
+
+    .str-chat__thread-header-name,
+    .str-chat__thread-header-title {
+      font: var(--str-chat__subtitle-medium-text);
+    }
+
+    .str-chat__thread-header-channel-name,
+    .str-chat__thread-header-subtitle {
+      font: var(--str-chat__body-text);
+      color: var(--str-chat__thread-header-info-color);
+    }
+
+    .str-chat__close-thread-button {
+      background-color: transparent;
+      border: none;
+
+      svg path {
+        fill: var(--str-chat__thread-color);
+      }
+    }
+  }
+}
