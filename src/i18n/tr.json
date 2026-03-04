@@ -348,6 +348,7 @@
   "Thread reply": "Konu yanıtı",
   "Thread Reply": "Konu yanıtı",
   "Threads": "İleti dizileri",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Dün]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Bugün]\", \"nextDay\": \"[Yarın]\", \"lastDay\": \"[Dün]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Geçen] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

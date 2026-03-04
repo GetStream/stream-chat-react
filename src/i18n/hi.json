@@ -349,6 +349,7 @@
   "Thread reply": "थ्रेड में उत्तर",
   "Thread Reply": "थ्रेड में उत्तर",
   "Threads": "थ्रेड्स",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[बीता कल]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[आज]\", \"nextDay\": \"[कल]\", \"lastDay\": \"[बीता कल]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[पिछला] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

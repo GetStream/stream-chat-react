@@ -359,6 +359,7 @@
   "Thread reply": "Resposta no fio",
   "Thread Reply": "Resposta no fio",
   "Threads": "Tópicos",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Ontem]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoje]\", \"nextDay\": \"[Amanhã]\", \"lastDay\": \"[Ontem]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Último] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

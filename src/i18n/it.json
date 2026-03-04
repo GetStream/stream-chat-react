@@ -359,6 +359,7 @@
   "Thread reply": "Risposta nella discussione",
   "Thread Reply": "Risposta nella discussione",
   "Threads": "Thread",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Ieri]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Oggi]\", \"nextDay\": \"[Domani]\", \"lastDay\": \"[Ieri]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Scorsa] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

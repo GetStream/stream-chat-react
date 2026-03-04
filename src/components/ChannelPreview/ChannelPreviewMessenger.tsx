@@ -2,20 +2,25 @@ import React, { useRef } from 'react';
 import clsx from 'clsx';
 
 import { ChannelPreviewActionButtons as DefaultChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { ChannelPreviewTimestamp } from './ChannelPreviewTimestamp';
+import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
+import { Badge } from '../Badge';
+import { IconMute } from '../Icons';
 import { useComponentContext } from '../../context';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps) => {
   const {
     active,
-    Avatar = DefaultAvatar,
+    Avatar = DefaultChannelAvatar,
     channel,
     className: customClassName = '',
     displayImage,
     displayTitle,
     groupChannelDisplayInfo,
+    lastMessage,
     latestMessagePreview,
+    muted,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
@@ -46,11 +51,11 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
       <ChannelPreviewActionButtons channel={channel} />
       <button
         aria-label={`Select Channel: ${displayTitle || ''}`}
-        aria-selected={active}
+        aria-pressed={active}
         className={clsx(
-          `str-chat__channel-preview-messenger str-chat__channel-preview`,
-          active && 'str-chat__channel-preview-messenger--active',
-          unread && unread >= 1 && 'str-chat__channel-preview-messenger--unread',
+          'str-chat__channel-preview',
+          typeof unread === 'number' && unread > 0 && 'str-chat__channel-preview--unread',
+          muted && 'str-chat__channel-preview--muted',
           customClassName,
         )}
         data-testid='channel-preview-button'
@@ -58,30 +63,28 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
         ref={channelPreviewButton}
         role='option'
       >
-        <div className='str-chat__channel-preview-messenger--left'>
-          <Avatar
-            className='str-chat__avatar--channel-preview'
-            groupChannelDisplayInfo={groupChannelDisplayInfo}
-            imageUrl={displayImage}
-            size='lg'
-            userName={avatarName}
-          />
-        </div>
-        <div className='str-chat__channel-preview-end'>
-          <div className='str-chat__channel-preview-end-first-row'>
-            <div className='str-chat__channel-preview-messenger--name'>
-              <span>{displayTitle}</span>
+        <Avatar
+          groupChannelDisplayInfo={groupChannelDisplayInfo}
+          imageUrl={displayImage}
+          size='xl'
+          userName={avatarName}
+        />
+        <div className='str-chat__channel-preview-data'>
+          <div className='str-chat__channel-preview-data__first-row'>
+            <div className='str-chat__channel-preview-data__title'>
+              <span>{displayTitle || 'N/A'}</span>
+              {muted && <IconMute />}
             </div>
-            {!!unread && (
-              <div
-                className='str-chat__channel-preview-unread-badge'
-                data-testid='unread-badge'
-              >
-                {unread}
-              </div>
-            )}
+            <div className='str-chat__channel-preview-data__timestamp-and-badge'>
+              <ChannelPreviewTimestamp lastMessage={lastMessage} />
+              {typeof unread === 'number' && unread > 0 && (
+                <Badge data-testid='unread-badge' size='md' variant='primary'>
+                  {unread}
+                </Badge>
+              )}
+            </div>
           </div>
-          <div className='str-chat__channel-preview-messenger--last-message'>
+          <div className='str-chat__channel-preview-data__latest-message'>
             {latestMessagePreview}
           </div>
         </div>

@@ -347,6 +347,7 @@
   "Thread reply": "スレッドの返信",
   "Thread Reply": "スレッドの返信",
   "Threads": "スレッド",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[昨日]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日]\", \"nextDay\": \"[明日]\", \"lastDay\": \"[昨日]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[先週の] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

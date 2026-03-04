@@ -359,6 +359,7 @@
   "Thread reply": "Respuesta en hilo",
   "Thread Reply": "Respuesta en hilo",
   "Threads": "Hilos",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Ayer]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoy]\", \"nextDay\": \"[Mañana]\", \"lastDay\": \"[Ayer]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Último] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",

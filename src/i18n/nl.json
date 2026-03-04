@@ -350,6 +350,7 @@
   "Thread reply": "Draadje antwoord",
   "Thread Reply": "Draadje antwoord",
   "Threads": "Discussies",
+  "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Gisteren]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Vandaag]\", \"nextDay\": \"[Morgen]\", \"lastDay\": \"[Gisteren]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Laatste] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
