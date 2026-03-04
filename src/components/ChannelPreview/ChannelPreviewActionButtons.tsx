@@ -4,9 +4,10 @@ import type { Channel } from 'stream-chat';
 import { useChannelMembershipState } from '../ChannelList';
 import { useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import { IconArchive, IconPin } from '../Icons';
+import { IconArchive, IconMute, IconPin } from '../Icons';
 
 import clsx from 'clsx';
+import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 
 export type ChannelPreviewActionButtonsProps = {
   channel: Channel;
@@ -17,6 +18,12 @@ export function ChannelPreviewActionButtons({
 }: ChannelPreviewActionButtonsProps) {
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
+  const { muted: isMuted } = useIsChannelMuted(channel);
+
+  const isDirectMessageChannel =
+    channel.type === 'messaging' &&
+    channel.data?.member_count === 2 &&
+    channel.id?.startsWith('!members-');
 
   // const buttonRef = useRef<ComponentRef<'button'>>(null);
   // const dialogId = `channel-action-buttons-${channel.id}`;
@@ -33,7 +40,6 @@ export function ChannelPreviewActionButtons({
         appearance='ghost'
         aria-label={membership.pinned_at ? t('Unpin') : t('Pin')}
         aria-pressed={typeof membership.pinned_at === 'string'}
-
         // aria-expanded={dialogIsOpen}
         // aria-pressed={dialogIsOpen}
         circular
@@ -54,25 +60,47 @@ export function ChannelPreviewActionButtons({
         {/* <IconDotGrid1x3Horizontal /> */}
         <IconPin />
       </Button>
-      <Button
-        appearance='ghost'
-        aria-label={membership.archived_at ? t('Unarchive') : t('Archive')}
-        aria-pressed={typeof membership.archived_at === 'string'}
-        circular
-        onClick={(e) => {
-          e.stopPropagation();
-          if (membership.archived_at) {
-            channel.unarchive();
-          } else {
-            channel.archive();
-          }
-        }}
-        size='sm'
-        title={membership.archived_at ? t('Unarchive') : t('Archive')}
-        variant='secondary'
-      >
-        <IconArchive />
-      </Button>
+      {isDirectMessageChannel ? (
+        <Button
+          appearance='ghost'
+          aria-label={membership.archived_at ? t('Unarchive') : t('Archive')}
+          aria-pressed={typeof membership.archived_at === 'string'}
+          circular
+          onClick={(e) => {
+            e.stopPropagation();
+            if (membership.archived_at) {
+              channel.unarchive();
+            } else {
+              channel.archive();
+            }
+          }}
+          size='sm'
+          title={membership.archived_at ? t('Unarchive') : t('Archive')}
+          variant='secondary'
+        >
+          <IconArchive />
+        </Button>
+      ) : (
+        <Button
+          appearance='ghost'
+          aria-label={isMuted ? t('Unmute') : t('Mute')}
+          aria-pressed={isMuted}
+          circular
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isMuted) {
+              channel.unmute();
+            } else {
+              channel.mute();
+            }
+          }}
+          size='sm'
+          title={isMuted ? t('Unmute') : t('Mute')}
+          variant='secondary'
+        >
+          <IconMute />
+        </Button>
+      )}
 
       {/* <ContextMenu
         dialogManagerId={dialogManager?.id}
