@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 import { useTranslationContext } from '../../context';
+import { Button } from '../Button';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
@@ -34,15 +35,17 @@ const UnMemoizedLoadMoreButton = ({
 
   return (
     <div className='str-chat__load-more-button'>
-      <button
+      <Button
+        appearance='outline'
         aria-label={t('aria/Load More Channels')}
-        className='str-chat__load-more-button__button str-chat__cta-button'
         data-testid='load-more-button'
         disabled={loading}
         onClick={onClick}
+        size='sm'
+        variant='secondary'
       >
         {loading ? <LoadingIndicator /> : childrenOrDefaultString}
-      </button>
+      </Button>
     </div>
   );
 };
