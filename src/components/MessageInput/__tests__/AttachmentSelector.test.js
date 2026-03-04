@@ -4,7 +4,6 @@ import '@testing-library/jest-dom';
 import { MessageInput } from '../MessageInput';
 import { Chat } from '../../Chat';
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ComponentProvider,
   MessageProvider,
@@ -104,25 +103,23 @@ const renderComponent = async ({
         <ComponentProvider value={{ ...componentContext }}>
           <TranslationProvider value={translationContext}>
             <TypingProvider value={{}}>
-              <ChannelActionProvider value={{ addNotification: jest.fn() }}>
-                <ChannelStateProvider
-                  value={{
-                    ...defaultChannelStateContext,
-                    channel,
-                    ...channelStateContextOverrides,
-                  }}
-                >
-                  <div id={CHANNEL_CONTAINER_ID}>
-                    {message ? (
-                      <MessageProvider value={{ message }}>
-                        <ThreadOrChannel />
-                      </MessageProvider>
-                    ) : (
+              <ChannelStateProvider
+                value={{
+                  ...defaultChannelStateContext,
+                  channel,
+                  ...channelStateContextOverrides,
+                }}
+              >
+                <div id={CHANNEL_CONTAINER_ID}>
+                  {message ? (
+                    <MessageProvider value={{ message }}>
                       <ThreadOrChannel />
-                    )}
-                  </div>
-                </ChannelStateProvider>
-              </ChannelActionProvider>
+                    </MessageProvider>
+                  ) : (
+                    <ThreadOrChannel />
+                  )}
+                </div>
+              </ChannelStateProvider>
             </TypingProvider>
           </TranslationProvider>
         </ComponentProvider>

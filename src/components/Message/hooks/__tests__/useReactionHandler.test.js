@@ -3,7 +3,6 @@ import { renderHook } from '@testing-library/react';
 
 import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
@@ -18,7 +17,7 @@ const getConfig = jest.fn();
 const sendAction = jest.fn();
 const sendReaction = jest.fn();
 const deleteReaction = jest.fn();
-const updateMessage = jest.fn();
+const ingestItem = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
@@ -37,6 +36,7 @@ async function renderUseReactionHandlerHook(params = {}) {
     sendReaction,
     ...channelContextProps,
   });
+  channel.messagePaginator = { ingestItem };
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
@@ -47,9 +47,7 @@ async function renderUseReactionHandlerHook(params = {}) {
           ...channelStateContextOverrides,
         }}
       >
-        <ChannelActionProvider value={{ updateMessage }}>
-          {children}
-        </ChannelActionProvider>
+        {children}
       </ChannelStateProvider>
     </ChatProvider>
   );
@@ -118,6 +116,6 @@ describe('useReactionHandler custom hook', () => {
     const handleReaction = await renderUseReactionHandlerHook({ message });
     sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
-    expect(updateMessage).toHaveBeenCalledWith(message);
+    expect(ingestItem).toHaveBeenCalledWith(message);
   });
 });

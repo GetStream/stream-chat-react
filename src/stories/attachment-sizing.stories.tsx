@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect } from 'react';
 import type { ChannelSort } from 'stream-chat';
 
@@ -8,9 +7,9 @@ import {
   ChannelList,
   MessageList,
   Thread,
-  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
+  useChatViewNavigation,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
@@ -104,16 +103,15 @@ const Controls = () => {
 };
 
 const SetThreadOpen = () => {
-  const { openThread } = useChannelActionContext();
-  const { messages } = useChannelStateContext();
+  const { channel, messages } = useChannelStateContext();
+  const { openThread } = useChatViewNavigation();
 
   useEffect(() => {
     if (!messages) return;
     const [lastMsg] = messages.slice(-1);
 
-    if (lastMsg) openThread(lastMsg, { preventDefault: () => null } as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
+    if (lastMsg) void openThread({ channel, message: lastMsg });
+  }, [channel, messages, openThread]);
 
   return null;
 };

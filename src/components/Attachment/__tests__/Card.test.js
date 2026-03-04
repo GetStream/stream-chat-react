@@ -4,11 +4,7 @@ import '@testing-library/jest-dom';
 
 import { Card } from '../LinkPreview/Card';
 
-import {
-  ChannelActionProvider,
-  MessageProvider,
-  TranslationContext,
-} from '../../../context';
+import { MessageProvider, TranslationContext } from '../../../context';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
@@ -34,8 +30,6 @@ const user = generateUser({ id: 'userId', name: 'username' });
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
-const addNotificationSpy = jest.fn();
-const channelActionContext = { addNotification: addNotificationSpy };
 
 const mockedChannel = generateChannel({
   members: [generateMember({ user })],
@@ -47,15 +41,13 @@ const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
   theRenderer(
     <ChatProvider value={chatContext}>
       <TranslationContext.Provider value={mockTranslationContext}>
-        <ChannelActionProvider value={channelActionContext}>
-          <ChannelStateProvider value={{}}>
-            <ComponentProvider value={{}}>
-              <WithAudioPlayback>
-                <Card {...cardProps} />
-              </WithAudioPlayback>
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChannelActionProvider>
+        <ChannelStateProvider value={{}}>
+          <ComponentProvider value={{}}>
+            <WithAudioPlayback>
+              <Card {...cardProps} />
+            </WithAudioPlayback>
+          </ComponentProvider>
+        </ChannelStateProvider>
       </TranslationContext.Provider>
     </ChatProvider>,
   );

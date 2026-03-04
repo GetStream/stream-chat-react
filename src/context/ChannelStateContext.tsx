@@ -2,9 +2,6 @@ import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 import type { Channel, LocalMessage } from 'stream-chat';
 
-import type {} from // ChannelUnreadUiState
-'../types/types';
-
 export type ChannelNotifications = Array<{
   id: string;
   text: string;
@@ -26,7 +23,6 @@ export type ChannelState = {
 export type ChannelStateContextValue = {
   channel: Channel;
   notifications: ChannelNotifications;
-  // channelUnreadUiState?: ChannelUnreadUiState;
 };
 
 export const ChannelStateContext = React.createContext<

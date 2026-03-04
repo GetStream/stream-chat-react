@@ -33,12 +33,12 @@ import {
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import {
   useChannel,
-  useChannelActionContext,
   useChatContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
+import { useMessagePaginator } from '../../hooks';
 import {
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
@@ -309,7 +309,7 @@ const DefaultMessageActionComponents = {
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
       const { Modal = GlobalModal } = useComponentContext();
-      const { removeMessage } = useChannelActionContext();
+      const messagePaginator = useMessagePaginator();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
@@ -335,8 +335,11 @@ const DefaultMessageActionComponents = {
                 setOpenModal(false);
               }}
               onDelete={() => {
-                if (message.type === 'error') removeMessage(message);
-                else handleDelete();
+                if (message.type === 'error') {
+                  messagePaginator.removeItem({ item: message });
+                } else {
+                  handleDelete();
+                }
                 setOpenModal(false);
                 closeMenu();
               }}

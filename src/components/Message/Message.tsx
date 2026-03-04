@@ -19,7 +19,6 @@ import type { MessageContextValue } from '../../context';
 import {
   MessageProvider,
   useChannel,
-  useChannelActionContext,
   useChatContext,
   useComponentContext,
   useMessageTranslationViewContext,
@@ -188,7 +187,23 @@ export const Message = (props: MessageProps) => {
     sortReactions,
   } = props;
 
-  const { addNotification } = useChannelActionContext('Message');
+  const channel = useChannel();
+  const notify = useCallback(
+    (text: string, type: 'success' | 'error') => {
+      if (type === 'error') {
+        channel.getClient().notifications.addError({
+          message: text,
+          origin: { emitter: 'Message' },
+        });
+      } else {
+        channel.getClient().notifications.addSuccess({
+          message: text,
+          origin: { emitter: 'Message' },
+        });
+      }
+    },
+    [channel],
+  );
   // const { highlightedMessageId } = useChannelStateContext('Message');
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
@@ -196,30 +211,30 @@ export const Message = (props: MessageProps) => {
 
   const handleFetchReactions = useReactionsFetcher(message, {
     getErrorNotification: getFetchReactionsErrorNotification,
-    notify: addNotification,
+    notify,
   });
 
   const handleDelete = useDeleteHandler(message, {
     getErrorNotification: getDeleteMessageErrorNotification,
-    notify: addNotification,
+    notify,
   });
 
   const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,
     getSuccessNotification: getFlagMessageSuccessNotification,
-    notify: addNotification,
+    notify,
   });
 
   const handleMarkUnread = useMarkUnreadHandler(message, {
     getErrorNotification: getMarkMessageUnreadErrorNotification,
     getSuccessNotification: getMarkMessageUnreadSuccessNotification,
-    notify: addNotification,
+    notify,
   });
 
   const handleMute = useMuteHandler(message, {
     getErrorNotification: getMuteUserErrorNotification,
     getSuccessNotification: getMuteUserSuccessNotification,
-    notify: addNotification,
+    notify,
   });
 
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
@@ -229,7 +244,7 @@ export const Message = (props: MessageProps) => {
 
   const { handlePin } = usePinHandler(message, {
     getErrorNotification: getPinMessageErrorNotification,
-    notify: addNotification,
+    notify,
   });
 
   // const highlighted = highlightedMessageId === message.id;

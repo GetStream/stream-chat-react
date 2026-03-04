@@ -14,10 +14,24 @@ import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 import { useChatContext, useComponentContext } from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
+import { useThreadRequestHandlers } from './hooks/useThreadRequestHandlers';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
-import type { ThreadState } from 'stream-chat';
+import type {
+  DeleteMessageOptions,
+  EventAPIResponse,
+  LocalMessage,
+  MarkReadOptions,
+  Message,
+  MessageResponse,
+  SendMessageOptions,
+  Channel as StreamChannel,
+  StreamChat,
+  Thread as StreamThread,
+  ThreadState,
+  UpdateMessageOptions,
+} from 'stream-chat';
 
 export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -38,6 +52,29 @@ export type ThreadProps = {
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function in thread flows */
+  doDeleteMessageRequest?: (
+    thread: StreamThread,
+    message: LocalMessage,
+    options?: DeleteMessageOptions,
+  ) => Promise<MessageResponse>;
+  /** Custom action handler to override the default `thread.markAsRead` request function (advanced usage only) */
+  doMarkReadRequest?: (params: {
+    thread: StreamThread;
+    options?: MarkReadOptions;
+  }) => Promise<EventAPIResponse | null> | void;
+  /** Custom action handler to override the default `channel.sendMessage` request function in thread flows */
+  doSendMessageRequest?: (
+    thread: StreamThread,
+    message: Message,
+    options?: SendMessageOptions,
+  ) => ReturnType<StreamChannel['sendMessage']> | void;
+  /** Custom action handler to override the default `client.updateMessage` request function in thread flows */
+  doUpdateMessageRequest?: (
+    thread: StreamThread,
+    updatedMessage: LocalMessage | MessageResponse,
+    options?: UpdateMessageOptions,
+  ) => ReturnType<StreamChat['updateMessage']>;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -74,6 +111,10 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
     autoFocus = true,
+    doDeleteMessageRequest,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
     enableDateSeparator = false,
     Input: PropInput,
     Message: PropMessage,
@@ -110,6 +151,13 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const MessageUIComponent = ThreadMessage || FallbackMessage;
 
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
+  useThreadRequestHandlers({
+    doDeleteMessageRequest,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
+    threadInstance,
+  });
 
   useEffect(() => {
     if (!threadInstance) return;

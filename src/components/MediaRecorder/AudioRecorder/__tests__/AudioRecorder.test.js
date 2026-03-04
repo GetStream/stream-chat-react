@@ -5,7 +5,6 @@ import * as transcoder from '../../transcode';
 
 import { MessageInput, MessageInputFlat } from '../../../MessageInput';
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -46,9 +45,6 @@ const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
 const DEFAULT_RENDER_PARAMS = {
-  channelActionCtx: {
-    addNotification: jest.fn(),
-  },
   channelStateCtx: {
     channelCapabilities: [],
   },
@@ -66,7 +62,6 @@ jest
   .mockReturnValue({ width: 120 });
 
 const renderComponent = async ({
-  channelActionCtx,
   channelStateCtx,
   chatCtx,
   componentCtx,
@@ -89,19 +84,15 @@ const renderComponent = async ({
         <ComponentProvider
           value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
         >
-          <ChannelActionProvider
-            value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
+          <ChannelStateProvider
+            value={{
+              channel,
+              ...DEFAULT_RENDER_PARAMS.channelStateCtx,
+              ...channelStateCtx,
+            }}
           >
-            <ChannelStateProvider
-              value={{
-                channel,
-                ...DEFAULT_RENDER_PARAMS.channelStateCtx,
-                ...channelStateCtx,
-              }}
-            >
-              <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
-            </ChannelStateProvider>
-          </ChannelActionProvider>
+            <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
+          </ChannelStateProvider>
         </ComponentProvider>
       </ChatProvider>,
     );
@@ -424,17 +415,15 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <ChannelActionProvider value={{}}>
-      <WithAudioPlayback>
-        <MessageInputContextProvider
-          value={{
-            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-          }}
-        >
-          <AudioRecorder />
-        </MessageInputContextProvider>
-      </WithAudioPlayback>
-    </ChannelActionProvider>,
+    <WithAudioPlayback>
+      <MessageInputContextProvider
+        value={{
+          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+        }}
+      >
+        <AudioRecorder />
+      </MessageInputContextProvider>
+    </WithAudioPlayback>,
   );
 
 describe('AudioRecorder', () => {

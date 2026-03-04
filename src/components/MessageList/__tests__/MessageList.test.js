@@ -21,7 +21,7 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 import {
-  useChannelActionContext,
+  useChannelStateContext,
   useMessageContext,
   WithComponents,
 } from '../../../context';
@@ -392,9 +392,14 @@ describe('MessageList', () => {
       jest.useFakeTimers();
       const markReadBtnTestId = 'test-mark-read';
       const MarkReadButton = () => {
-        const { markRead } = useChannelActionContext();
+        const { channel } = useChannelStateContext();
         return (
-          <button data-testid={markReadBtnTestId} onClick={markRead}>
+          <button
+            data-testid={markReadBtnTestId}
+            onClick={() => {
+              void channel.markRead();
+            }}
+          >
             MarkRead
           </button>
         );

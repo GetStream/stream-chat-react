@@ -1,7 +1,7 @@
 import { validateAndGetMessage } from '../utils';
 
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { useChatContext } from '../../../context';
+import { useMessagePaginator } from '../../../hooks';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { LocalMessage } from 'stream-chat';
@@ -45,7 +45,7 @@ export const usePinHandler = (
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext('usePinHandler');
+  const messagePaginator = useMessagePaginator();
   const { client } = useChatContext('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
 
@@ -63,7 +63,7 @@ export const usePinHandler = (
           pinned_by: client.user,
         };
 
-        updateMessage(optimisticMessage);
+        messagePaginator.ingestItem(optimisticMessage);
 
         await client.pinMessage(message);
       } catch (e) {
@@ -71,11 +71,11 @@ export const usePinHandler = (
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error pinning message'), 'error');
-        updateMessage(message);
+        messagePaginator.ingestItem(message);
       }
     } else {
       try {
-        const optimisticMessage = {
+        const optimisticMessage: LocalMessage = {
           ...message,
           pin_expires: null,
           pinned: false,
@@ -83,7 +83,7 @@ export const usePinHandler = (
           pinned_by: null,
         };
 
-        updateMessage(optimisticMessage);
+        messagePaginator.ingestItem(optimisticMessage);
 
         await client.unpinMessage(message);
       } catch (e) {
@@ -91,7 +91,7 @@ export const usePinHandler = (
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
-        updateMessage(message);
+        messagePaginator.ingestItem(message);
       }
     }
   };

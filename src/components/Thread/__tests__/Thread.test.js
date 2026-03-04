@@ -3,7 +3,6 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -58,11 +57,6 @@ const channelStateContextMock = {
   threadMessages: [reply1, reply2],
 };
 
-const channelActionContextMock = {
-  closeThread: jest.fn(),
-  loadMoreThread: jest.fn(() => Promise.resolve()),
-};
-
 const i18nMock = jest.fn((key, props) => {
   if (key === 'replyCount' && props.count === 1) return '1 reply';
   else if (key === 'replyCount' && props.count > 1) return '2 replies';
@@ -70,7 +64,6 @@ const i18nMock = jest.fn((key, props) => {
 });
 
 const renderComponent = ({
-  channelActionOverrides = {},
   channelStateOverrides = {},
   chatClient,
   componentOverrides = {},
@@ -81,15 +74,11 @@ const renderComponent = ({
       <ChannelStateProvider
         value={{ ...channelStateContextMock, ...channelStateOverrides }}
       >
-        <ChannelActionProvider
-          value={{ ...channelActionContextMock, ...channelActionOverrides }}
-        >
-          <ComponentProvider value={{ ...componentOverrides }}>
-            <TranslationProvider value={{ t: i18nMock }}>
-              <Thread {...threadProps} />
-            </TranslationProvider>
-          </ComponentProvider>
-        </ChannelActionProvider>
+        <ComponentProvider value={{ ...componentOverrides }}>
+          <TranslationProvider value={{ t: i18nMock }}>
+            <Thread {...threadProps} />
+          </TranslationProvider>
+        </ComponentProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );

@@ -29,11 +29,7 @@ import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { defaultReactionOptions } from '../../Reactions';
 
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  WithComponents,
-} from '../../../context';
+import { ChannelStateProvider, WithComponents } from '../../../context';
 import {
   countReactions,
   generateChannel,
@@ -108,28 +104,21 @@ describe('<MessageSimple />', () => {
             channelConfig: channelConfigOverrides,
           }}
         >
-          <ChannelActionProvider
-            value={{
-              removeMessage: removeMessageMock,
-              retrySendMessage: retrySendMessageMock,
+          <WithComponents
+            overrides={{
+              Attachment: AttachmentMock,
+              Message: () => <MessageSimple {...props} />,
+              reactionOptions: defaultReactionOptions,
+              ...components,
             }}
           >
-            <WithComponents
-              overrides={{
-                Attachment: AttachmentMock,
-                Message: () => <MessageSimple {...props} />,
-                reactionOptions: defaultReactionOptions,
-                ...components,
-              }}
-            >
-              <Message
-                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                isMyMessage={() => true}
-                message={message}
-                {...props}
-              />
-            </WithComponents>
-          </ChannelActionProvider>
+            <Message
+              getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+              isMyMessage={() => true}
+              message={message}
+              {...props}
+            />
+          </WithComponents>
         </ChannelStateProvider>
       </Chat>
     );

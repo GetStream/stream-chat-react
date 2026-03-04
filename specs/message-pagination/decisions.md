@@ -205,3 +205,297 @@ Pane visibility belongs to layout/navigation state (`entityListPaneOpen` + slot 
 
 **Tradeoffs / Consequences:**  
 Auto-hide now follows layout-capacity outcomes directly; behavior is independent of device/user-agent heuristics.
+
+## Decision: Thread-subtree message handlers use optional channel-context with direct instance fallback
+
+**Date:** 2026-03-04  
+**Context:**  
+Several message/message-input/message-list hooks still assumed `ChannelActionContext` / `ChannelStateContext` presence, which is not guaranteed when rendering `Thread` as a sibling without Channel providers.
+
+**Decision:**  
+Introduce optional channel-action context access for these paths and fallback to direct `channel`/`thread` instance operations when context is absent.
+
+Applied in:
+
+- `MessageBounceContext`
+- `useSendMessageFn`, `useUpdateMessageFn`, `useRetryHandler`
+- `useMarkRead`
+- `Message` and message action hooks (`useActionHandler`, `useDeleteHandler`, `useMentionsHandler`, `usePinHandler`, `useReactionHandler`)
+
+**Reasoning:**  
+This removes hard runtime coupling to Channel providers for thread flows while preserving existing context-driven behavior where providers are present.
+
+**Alternatives considered:**
+
+- Keep hard Channel context requirement and enforce wrapper nesting: rejected because it conflicts with sibling `Channel`/`Thread` architecture.
+- Rebuild a separate React-only action context for threads: rejected due duplication with available channel/thread instance APIs.
+
+**Tradeoffs / Consequences:**  
+When outside Channel providers, custom Channel-level action overrides (for example custom delete/update wrappers) are bypassed in favor of direct SDK instance behavior.
+
+## Decision: Retarget Task 5 to complete ChannelActionContext removal in message flows
+
+**Date:** 2026-03-04  
+**Context:**  
+Task 5 was marked complete under a partial decoupling approach (optional context + direct fallback), but migration intent is stricter: remove `ChannelActionContext` dependency entirely from message interaction flows.
+
+**Decision:**  
+Re-open Task 5 and enforce the following final contract:
+
+- notifications via `client.notifications` (`StreamChat.notifications` / `NotificationManager`);
+- optimistic message reconciliation via `messagePaginator` APIs (`ingestItem`, `removeItem`);
+- no runtime dependence on `ChannelActionContext` for message interaction handlers.
+
+**Reasoning:**  
+Optional-context fallback still preserves dual interaction models and leaves migration ambiguous. A single, instance-driven contract is required for predictable sibling Channel/Thread composition.
+
+**Alternatives considered:**
+
+- Keep optional `ChannelActionContext` fallback as end-state: rejected because it preserves legacy coupling and override pathways.
+- Defer message optimistic-state migration to cleanup task only: rejected because this is a core runtime contract, not cosmetic cleanup.
+
+**Tradeoffs / Consequences:**  
+Some existing Channel-level custom action override hooks will require replacement or new extension points aligned with paginator/client-instance APIs.
+
+## Decision: Use commented `Channel.tsx` legacy actions as parity checklist
+
+**Date:** 2026-03-04  
+**Context:**  
+Large commented legacy blocks in `Channel.tsx` encode previous interaction behavior and can be missed when migration tasks are loosely defined.
+
+**Decision:**  
+Treat those commented action blocks as explicit parity checklist in spec coverage:
+
+- `loadMore*`, `jumpTo*`, unread UI state handling,
+- notification routing,
+- optimistic update/remove/send/retry/edit paths.
+
+**Reasoning:**  
+This prevents partial migration claims and forces concrete behavior-by-behavior replacement tracking.
+
+**Alternatives considered:**
+
+- Keep only high-level task wording: rejected because it leaves too much interpretation room and misses edge behavior.
+
+**Tradeoffs / Consequences:**  
+Migration progress must be tracked at finer granularity; task completion criteria are stricter.
+
+## Decision: Message interaction optimistic reconcile is paginator-first and MessageOperations-backed
+
+**Date:** 2026-03-04  
+**Context:**  
+To finish Task 5, message interaction handlers in React needed a concrete contract that matches `stream-chat-js` optimistic operation semantics (`src/messageOperations/MessageOperations.ts`) and avoids Channel action-context coupling.
+
+**Decision:**  
+Standardize message interaction behavior on:
+
+- notifications via `client.notifications` (`addSuccess`/`addError`);
+- optimistic local reconcile via `messagePaginator.ingestItem` / `messagePaginator.removeItem`;
+- send/retry/update via instance APIs that delegate to `messageOperations` (`sendMessageWithLocalUpdate`, `retrySendMessageWithLocalUpdate`, `updateMessageWithLocalUpdate`).
+
+Applied in current pass:
+
+- migrated `Message` notification dispatch away from `ChannelActionContext` wrappers;
+- migrated `useActionHandler`, `useDeleteHandler`, `usePinHandler`, `useReactionHandler`, and error-delete action in `MessageActions` to paginator reconcile;
+- switched `UnreadMessagesNotification` / `UnreadMessagesSeparator` read actions to instance methods (`thread.markAsRead` / `channel.markRead`);
+- switched deprecated `useAudioController` notifications to `client.notifications`;
+- updated `Channel.tsx` action-context wrapper implementations (`updateMessage` / `removeMessage`) to call paginator APIs.
+
+**Reasoning:**  
+This removes dual state mutation paths (`channel.state.*` vs context wrappers) and aligns React behavior with SDK instance ownership.
+
+**Alternatives considered:**
+
+- Keep optional ChannelActionContext fallback for update/remove operations: rejected because it keeps dual semantics and context coupling.
+- Continue writing to `channel.state` directly in handlers: rejected because optimistic lifecycle should be centralized on `MessagePaginator` and MessageOperations.
+
+**Tradeoffs / Consequences:**  
+`ChannelActionContext` still exists for remaining legacy customization surfaces (for example mention handlers), so Task 5 remains in progress until those surfaces are addressed/explicitly deprecated.
+
+## Decision: `stream-chat-react` must not call `Thread.upsertReplyLocally` / `deleteReplyLocally`
+
+**Date:** 2026-03-04  
+**Context:**  
+`Thread` in `stream-chat-js` still exposes `upsertReplyLocally` and `deleteReplyLocally` for backward compatibility. During migration, several `stream-chat-react` hooks still invoked these methods after paginator updates.
+
+**Decision:**  
+For `stream-chat-react`, message reconcile in thread flows must be done only via `thread.messagePaginator` APIs (`ingestItem`, `removeItem`, and paginator-driven state subscriptions).  
+`Thread.upsertReplyLocally` / `Thread.deleteReplyLocally` remain in `stream-chat-js` as compatibility APIs, but are treated as legacy and not used by React SDK runtime paths.
+
+**Reasoning:**  
+Using both paginator reconcile and thread local-reply mutators creates dual state mutation paths and reintroduces coupling to `Thread.state.replies`, which conflicts with the instance-era paginator-first architecture.
+
+**Alternatives considered:**
+
+- Continue using `upsertReplyLocally` in React as a bridge: rejected because it keeps dual state ownership and makes migration completion ambiguous.
+- Remove methods from `stream-chat-js`: rejected for backward compatibility.
+
+**Tradeoffs / Consequences:**  
+Consumers still using `Thread.state.replies`-based derived UI in React internals must be migrated to paginator state where message data is needed. Compatibility methods remain available for external integrations on `stream-chat-js`.
+
+## Decision: Mention handlers are Message-level API, not Channel-level/context API
+
+**Date:** 2026-03-04  
+**Context:**  
+`onMentionsClick` / `onMentionsHover` were historically accepted on `Channel` and propagated through `ChannelActionContext`. In the paginator/layout migration this keeps unnecessary cross-context coupling for behavior that belongs to message rendering.
+
+**Decision:**  
+Move mention handlers to `Message` props as the primary contract and remove mention handler fields from `ChannelActionContext` and `Channel` props.
+
+**Reasoning:**  
+Mention interactions are tied to message text rendering and should be configured where message components are configured. This also reduces remaining reliance on `ChannelActionContext`.
+
+**Alternatives considered:**
+
+- Keep Channel-level mention props and forward into Message handlers: rejected because it preserves legacy context coupling and ambiguous ownership.
+- Keep both Channel-level and Message-level APIs long term: rejected because duplicate config paths create precedence ambiguity.
+
+**Tradeoffs / Consequences:**  
+Integrations passing mention handlers on `<Channel />` must migrate to message-level configuration (`Message` props / message list integration points). Mention-related tests move from Channel-context assertions to Message-level assertions.
+
+## Decision: Add instance-level delete wrappers in JS SDK and migrate React delete flow to them
+
+**Date:** 2026-03-04  
+**Context:**  
+`stream-chat-js` currently provides instance-owned optimistic wrappers for `send/retry/update` (`*WithLocalUpdate`) but delete flow is still handled ad-hoc in React (currently direct `client.deleteMessage(...)` + paginator ingest). Also, custom delete request injection is available in React `Channel` props (`doDeleteMessageRequest`) but not in JS instance config handlers.
+
+**Decision:**  
+Introduce `deleteMessageWithLocalUpdate` wrappers on `Channel` and `Thread` in `stream-chat-js`, and add handler injection support (`deleteMessageRequest`) in instance config/per-call APIs.  
+Then migrate `stream-chat-react` delete flow to call these instance wrappers instead of direct `client.deleteMessage(...)` and context-era delete wrappers.
+
+Naming convention requirement:
+
+- keep operation method naming parallel to existing patterns (`send/retry/update/delete` in `MessageOperations`);
+- keep instance wrapper naming parallel (`*WithLocalUpdate`).
+
+**Reasoning:**  
+Delete behavior should follow the same ownership model as send/retry/update:
+
+- one instance-level API surface for optimistic/state reconcile semantics;
+- one extension point for integrator request customization;
+- no React-only fallback logic divergence.
+
+**Alternatives considered:**
+
+- Keep React-level delete wrapper only (`doDeleteMessageRequest` in `Channel.tsx`): rejected because it keeps logic split across layers and blocks consistent instance contract.
+- Add delete only on `Channel` and not `Thread`: rejected because thread/message operations should remain symmetric where possible.
+
+**Tradeoffs / Consequences:**  
+`MessageOperations` contract likely needs an additional operation kind (`delete`) or a dedicated small operation path with equivalent state policy.  
+Migration needs coordinated JS+React updates and tests, but keeps backward compatibility by adding APIs rather than removing existing ones.
+
+## Decision: Mark-read migration scope includes both Channel and Thread flows
+
+**Date:** 2026-03-04  
+**Context:**  
+Initial Task 12 framing scoped mark-read migration to channel message lists only, while `stream-chat-js` already supports thread read reporting through `Thread.markAsRead()` delegated to `MessageDeliveryReporter`.
+
+**Decision:**  
+Expand mark-read migration scope to cover both channel and thread message-list flows:
+
+- channel flows use `channel.markRead(...)`;
+- thread flows use `thread.markAsRead(...)`;
+- both delegate to `client.messageDeliveryReporter.markRead(...)`.
+
+`ChannelActionContext.markRead` is no longer the target runtime contract for either flow.
+
+**Reasoning:**  
+Keeping thread out of scope would leave an unnecessary split contract even though the instance API is already available and aligned (`MessageDeliveryReporter` handles channel vs thread request shape, including `thread_id`).
+
+**Alternatives considered:**
+
+- Keep thread mark-read deferred to a follow-up task: rejected because it preserves dual behavior without technical need.
+- Call `channel.markRead` from thread UI paths: rejected because `thread.markAsRead` is the explicit thread-level API and preserves intent.
+
+**Tradeoffs / Consequences:**  
+Tests must cover both channel and thread mark-read trigger paths (auto-mark + explicit unread UI actions) and ensure unread snapshot/UI parity during migration away from context-markRead wiring.
+
+## Decision: Custom mark-read overrides are instance-scoped via request handlers
+
+**Date:** 2026-03-04  
+**Context:**  
+Mark-read customization is needed for both channel and thread surfaces. A proposal to mutate `client.messageDeliveryReporter` from React component lifecycle (`useEffect`) would introduce client-global side effects across slots/channels/threads.
+
+**Decision:**  
+Do not mutate `client.messageDeliveryReporter` from React runtime.  
+Instead:
+
+- keep `ChannelProps.doMarkReadRequest(channel, options?)`;
+- add `ThreadProps.doMarkReadRequest({ thread, options? })`;
+- wire both to `channel.configState.requestHandlers.markReadRequest`;
+- resolve that handler from `MessageDeliveryReporter.markRead(...)` for both channel and thread calls.
+
+**Reasoning:**  
+`messageDeliveryReporter` is client-global state. Per-instance request handlers preserve isolation and avoid race/collision risks in multi-slot layouts while still supporting custom request behavior.
+
+**Alternatives considered:**
+
+- Configure/override reporter methods in React `useEffect`: rejected because it is global mutable state and can leak across unrelated collections.
+- Keep channel-only handler signature and infer thread from `options.thread_id`: rejected because thread-level customization should receive explicit thread context.
+
+**Tradeoffs / Consequences:**  
+Thread-level customization requires small adapter wiring in `Thread.tsx` to attach/detach scoped handler behavior and preserve previous handler chain on cleanup.
+
+## Decision: Remove `ChannelActionContext` from runtime/public API surface
+
+**Date:** 2026-03-04  
+**Context:**  
+After migrating message actions, notifications, navigation, and mark-read flows to instance APIs, `ChannelActionContext` no longer provides required runtime behavior.
+
+**Decision:**  
+Delete `src/context/ChannelActionContext.tsx`, remove it from context barrel exports, and stop wrapping `Channel` children with `ChannelActionProvider`.
+
+**Reasoning:**  
+Keeping an empty/legacy action context invites accidental coupling and stale integrations. Instance APIs (`channel`/`thread` + `messagePaginator`, `useChatViewNavigation`, `client.notifications`) are now the authoritative contract.
+
+**Alternatives considered:**
+
+- Keep an empty compatibility provider indefinitely: rejected because it preserves dead API surface.
+- Keep context only for tests/examples: rejected because tests/examples should validate shipped runtime contracts.
+
+**Tradeoffs / Consequences:**  
+Legacy tests/stories that imported `ChannelActionProvider`/`useChannelActionContext` must be migrated to current APIs.
+
+## Decision: `suppressAutoscroll` is message-list behavior, not Channel reducer state
+
+**Date:** 2026-03-04  
+**Context:**  
+`suppressAutoscroll` was historically toggled in `channelState.ts` during legacy load-more flows. That reducer is no longer the runtime source of truth in the paginator-first architecture.
+
+**Decision:**  
+Treat `suppressAutoscroll` as list-local behavior driven by paginator/list lifecycle (`toTail`/loading transitions), and remove dependency on `channelState.ts` semantics.
+
+**Reasoning:**  
+Autoscroll suppression is a scroll policy concern in message-list rendering, not channel-global state. Keeping it in legacy reducer logic blocks final Channel-state-context cleanup and creates hidden coupling.
+
+**Alternatives considered:**
+
+- Keep reducer-driven suppression and pass it through Channel context: rejected because it preserves legacy ownership and context coupling.
+- Drop suppression behavior entirely: rejected because it risks regressions while paginating older messages.
+
+**Tradeoffs / Consequences:**  
+`MessageList` and `VirtualizedMessageList` must implement/verify equivalent suppression behavior from modern state paths, with regression tests for pagination while scrolled up.
+
+## Decision: Decompose `ChannelStateContext` into instance provider + list-local data inputs
+
+**Date:** 2026-03-04  
+**Context:**  
+`ChannelStateContext` currently mixes channel instance access and list-level data transport (`notifications`), while paginator-first flows now derive message/read state from instance stores.
+
+**Decision:**  
+Remove `ChannelStateContext` in staged steps:
+
+- keep channel instance access through a dedicated minimal channel-instance provider (or equivalent source),
+- move list-specific inputs (`notifications`) to explicit list contracts,
+- migrate list/message runtime consumers and test/story wrappers accordingly.
+
+**Reasoning:**  
+This avoids replacing one oversized context with another while keeping `useChannel()` and list components operational during migration.
+
+**Alternatives considered:**
+
+- Keep `ChannelStateContext` permanently as a thin wrapper: rejected because it preserves legacy API surface and naming mismatch.
+- Remove context in one shot without replacement provider: rejected because `useChannel()` and many consumers need a stable channel source.
+
+**Tradeoffs / Consequences:**  
+Migration requires coordinated runtime + test/story updates, but yields clearer ownership boundaries (instance source vs list rendering state).

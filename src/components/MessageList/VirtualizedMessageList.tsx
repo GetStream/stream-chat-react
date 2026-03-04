@@ -656,10 +656,10 @@ export type VirtualizedMessageListProps = Partial<
   // loadingMore?: boolean;
   // /** Whether or not the list is currently loading newer items */
   // loadingMoreNewer?: boolean;
-  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  // loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** Function called when new messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  // loadMoreNewer?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
+  /** Function called when more messages are to be loaded. */
+  // loadMore?: () => Promise<void>;
+  /** Function called when new messages are to be loaded. */
+  // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
   /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */

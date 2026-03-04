@@ -4,7 +4,6 @@ import { renderHook } from '@testing-library/react';
 import { handleActionWarning, useActionHandler } from '../useActionHandler';
 
 import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import {
   generateChannel,
@@ -15,8 +14,8 @@ import {
 
 const alice = generateUser({ name: 'alice' });
 const sendAction = jest.fn();
-const removeMessage = jest.fn();
-const updateMessage = jest.fn();
+const ingestItem = jest.fn();
+const removeItem = jest.fn();
 const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
@@ -26,13 +25,10 @@ async function renderUseHandleActionHook(message = generateMessage()) {
   const channel = generateChannel({
     sendAction,
   });
+  channel.messagePaginator = { ingestItem, removeItem };
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
-        <ChannelActionProvider value={{ removeMessage, updateMessage }}>
-          {children}
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+      <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
     </ChatProvider>
   );
   const { result } = renderHook(() => useActionHandler(message), { wrapper });
@@ -66,7 +62,7 @@ describe('useHandleAction custom hook', () => {
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(updateMessage).toHaveBeenCalledWith(updatedMessage);
+    expect(ingestItem).toHaveBeenCalledWith(updatedMessage);
   });
 
   it('should fallback to original message after an action fails', async () => {
@@ -81,6 +77,6 @@ describe('useHandleAction custom hook', () => {
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(removeMessage).toHaveBeenCalledWith(currentMessage);
+    expect(removeItem).toHaveBeenCalledWith({ item: currentMessage });
   });
 });

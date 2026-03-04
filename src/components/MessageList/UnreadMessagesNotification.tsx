@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannelStateContext, useTranslationContext } from '../../context';
+import { useMessagePaginator } from '../../hooks';
 import { Button } from '../Button';
 import { IconArrowUp, IconCrossMedium } from '../Icons';
 import clsx from 'clsx';
@@ -35,13 +32,12 @@ export const UnreadMessagesNotification = ({
   // todo: move into a hook dedicated to unread count from the snapshot
   const { channel } = useChannelStateContext();
   const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
   const { unreadCount } = useStateStore(
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
 
-  const { markRead } = useChannelActionContext('UnreadMessagesNotification');
   const { t } = useTranslationContext('UnreadMessagesNotification');
 
   return (
@@ -54,7 +50,7 @@ export const UnreadMessagesNotification = ({
       <Button
         appearance='outline'
         onClick={() =>
-          channel.messagePaginator.jumpToTheFirstUnreadMessage({
+          messagePaginator.jumpToTheFirstUnreadMessage({
             pageSize: queryMessageLimit,
           })
         }
@@ -65,7 +61,17 @@ export const UnreadMessagesNotification = ({
           ? t('{{count}} unread', { count: unreadCount })
           : t('Unread messages')}
       </Button>
-      <Button appearance='outline' onClick={() => markRead()} variant='secondary'>
+      <Button
+        appearance='outline'
+        onClick={() => {
+          if (thread) {
+            void thread.markAsRead();
+            return;
+          }
+          channel.markRead();
+        }}
+        variant='secondary'
+      >
         <IconCrossMedium />
       </Button>
     </div>

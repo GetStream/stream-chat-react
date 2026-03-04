@@ -6,7 +6,6 @@ import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -37,7 +36,6 @@ const deletedMessageText = 'Message deleted';
 const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
 
 const alice = generateUser({ name: 'alice' });
-const jumpToMessageMock = jest.fn();
 
 async function renderQuotedMessage({
   componentContext,
@@ -55,31 +53,29 @@ async function renderQuotedMessage({
   return render(
     <ChatProvider value={{ client: customClient ?? client }}>
       <ChannelStateProvider value={{ channel: customChannel ?? channel, channelConfig }}>
-        <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock }}>
-          <TranslationProvider
+        <TranslationProvider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <ComponentProvider
             value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
+              Attachment,
+              Message() {
+                return <MessageSimple channelConfig={channelConfig} />;
+              },
+              ...componentContext,
             }}
           >
-            <ComponentProvider
-              value={{
-                Attachment,
-                Message() {
-                  return <MessageSimple channelConfig={channelConfig} />;
-                },
-                ...componentContext,
-              }}
-            >
-              <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
-                <Message {...customProps}>
-                  <QuotedMessage {...customProps} />
-                </Message>
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
+            <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
+              <Message {...customProps}>
+                <QuotedMessage {...customProps} />
+              </Message>
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );

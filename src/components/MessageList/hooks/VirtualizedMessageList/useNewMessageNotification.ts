@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LocalMessage, MessagePaginatorState } from 'stream-chat';
 import type { RenderedMessage } from '../../utils';
-import { useChannelStateContext } from '../../../../context';
-import { useThreadContext } from '../../../Threads';
+import { useMessagePaginator } from '../../../../hooks';
 import { useStateStore } from '../../../../store';
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
@@ -17,9 +16,7 @@ export function useNewMessageNotification(
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
   const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
     useState(true);
-  const { channel } = useChannelStateContext();
-  const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
   const { hasMoreNewer } = useStateStore(
     messagePaginator.state,
     messagePaginatorStateSelector,

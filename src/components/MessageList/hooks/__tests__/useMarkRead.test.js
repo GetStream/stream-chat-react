@@ -1,11 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useMarkRead } from '../useMarkRead';
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
-} from '../../../../context';
+import { ChannelStateProvider, ChatProvider } from '../../../../context';
 import {
   dispatchMessageNewEvent,
   generateChannel,
@@ -16,19 +12,18 @@ import {
 import { act } from 'react';
 
 const visibilityChangeScenario = 'visibilitychange event';
-const markRead = jest.fn();
+let markReadSpy;
 const setChannelUnreadUiState = jest.fn();
 
 const render = ({ channel, client, params }) => {
+  markReadSpy = jest.spyOn(channel, 'markRead').mockResolvedValue(undefined);
+
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
-        <ChannelActionProvider value={{ markRead, setChannelUnreadUiState }}>
-          {children}
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+      <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
     </ChatProvider>
   );
+
   const { result } = renderHook(() => useMarkRead(params), { wrapper });
   return result.current;
 };
@@ -117,9 +112,9 @@ describe('useMarkRead', () => {
         await act(() => {
           document.dispatchEvent(new Event('visibilitychange'));
         });
-        expect(markRead).toHaveBeenCalledTimes(2);
+        expect(markReadSpy).toHaveBeenCalledTimes(2);
       } else {
-        expect(markRead).toHaveBeenCalledTimes(1);
+        expect(markReadSpy).toHaveBeenCalledTimes(1);
       }
     });
 
@@ -138,7 +133,7 @@ describe('useMarkRead', () => {
         client,
         params: { ...shouldMarkReadParams, wasMarkedUnread: true },
       });
-      expect(markRead).toHaveBeenCalledTimes(0);
+      expect(markReadSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should not mark channel read from non-thread message list scrolled to the bottom not previously marked unread with 0 unread messages', async () => {
@@ -161,7 +156,7 @@ describe('useMarkRead', () => {
           document.dispatchEvent(new Event('visibilitychange'));
         });
       }
-      expect(markRead).toHaveBeenCalledTimes(0);
+      expect(markReadSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should not mark empty channel read', async () => {
@@ -184,7 +179,7 @@ describe('useMarkRead', () => {
           document.dispatchEvent(new Event('visibilitychange'));
         });
       }
-      expect(markRead).toHaveBeenCalledTimes(0);
+      expect(markReadSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should not mark channel read from message list not scrolled to the bottom', async () => {
@@ -205,7 +200,7 @@ describe('useMarkRead', () => {
       if (scenario === visibilityChangeScenario) {
         document.dispatchEvent(new Event('visibilitychange'));
       }
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
 
     it('should not mark channel read from thread message list', async () => {
@@ -225,7 +220,7 @@ describe('useMarkRead', () => {
       if (scenario === visibilityChangeScenario) {
         document.dispatchEvent(new Event('visibilitychange'));
       }
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -249,7 +244,7 @@ describe('useMarkRead', () => {
       await act(() => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
-      expect(markRead).toHaveBeenCalledTimes(2);
+      expect(markReadSpy).toHaveBeenCalledTimes(2);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -277,7 +272,7 @@ describe('useMarkRead', () => {
         );
       });
 
-      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(markReadSpy).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -300,7 +295,7 @@ describe('useMarkRead', () => {
       await act(() => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
-      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(markReadSpy).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -323,7 +318,7 @@ describe('useMarkRead', () => {
       await act(() => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
-      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(markReadSpy).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -356,7 +351,7 @@ describe('useMarkRead', () => {
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
       const channelUnreadUiState = channelUnreadUiStateCb();
       expect(channelUnreadUiState.unread_messages).toBe(1);
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
 
     it('should mark channel read from message list not scrolled to the bottom', async () => {
@@ -388,7 +383,7 @@ describe('useMarkRead', () => {
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
       const channelUnreadUiState = channelUnreadUiStateCb();
       expect(channelUnreadUiState.unread_messages).toBe(1);
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
 
     it('should not increase unread count if the read events are disabled', async () => {
@@ -417,7 +412,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(0);
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
 
     it('should not mark channel read from thread message list', async () => {
@@ -442,7 +437,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
     });
 
     it('should not mark channel read for messages incoming to other channels', async () => {
@@ -465,7 +460,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(client, generateMessage(), otherChannel);
       });
 
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -485,7 +480,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(client, generateMessage({ parent_id: 'X' }), channel);
       });
 
-      expect(markRead).not.toHaveBeenCalled();
+      expect(markReadSpy).not.toHaveBeenCalled();
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 
@@ -509,7 +504,7 @@ describe('useMarkRead', () => {
         );
       });
 
-      expect(markRead).toHaveBeenCalledTimes(1);
+      expect(markReadSpy).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
     });
 

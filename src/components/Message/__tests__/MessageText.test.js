@@ -5,7 +5,6 @@ import React from 'react';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -67,35 +66,28 @@ async function renderMessageText({
   return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
-        <ChannelActionProvider
+        <TranslationProvider
           value={{
-            onMentionsClick: onMentionsClickMock,
-            onMentionsHover: onMentionsHoverMock,
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
           }}
         >
-          <TranslationProvider
+          <ComponentProvider
             value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
+              Attachment,
+
+              Message: () => <MessageSimple channelConfig={channelConfig} />,
+              reactionOptions: defaultReactionOptions,
             }}
           >
-            <ComponentProvider
-              value={{
-                Attachment,
-
-                Message: () => <MessageSimple channelConfig={channelConfig} />,
-                reactionOptions: defaultReactionOptions,
-              }}
-            >
-              <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...defaultProps} {...customProps}>
-                  <MessageText {...defaultProps} {...customProps} />
-                </Message>
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
+            <DialogManagerProvider id='message-dialog-manager-provider'>
+              <Message {...defaultProps} {...customProps}>
+                <MessageText {...defaultProps} {...customProps} />
+              </Message>
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );

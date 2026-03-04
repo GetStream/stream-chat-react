@@ -1,16 +1,15 @@
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { SearchController } from 'stream-chat';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
 import { LoadingErrorIndicator } from '../../Loading';
 
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { ChatProvider, useChatContext } from '../../../context/ChatContext';
+import { ChatProvider } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
   dispatchChannelTruncatedEvent,
@@ -60,13 +59,11 @@ const MockAvatar = ({ name }) => (
 // the effect is called every time channelContext changes
 const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelStateContext = useChannelStateContext();
-  const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const channelContext = {
     ...channelStateContext,
-    ...channelActionContext,
     ...componentContext,
   };
 
@@ -74,15 +71,6 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
     callback(channelContext);
   }, [callback, channelContext]);
 
-  return null;
-};
-
-// In order for ChannelInner to be rendered, we need to set the active channel first.
-const ActiveChannelSetter = ({ activeChannel }) => {
-  const { setActiveChannel } = useChatContext();
-  useEffect(() => {
-    setActiveChannel(activeChannel);
-  }, [activeChannel]); // eslint-disable-line
   return null;
 };
 
@@ -99,8 +87,7 @@ const renderComponent = async (props = {}, callback = () => {}) => {
     result = render(
       <WithComponents overrides={components}>
         <Chat client={chatClientFromProps}>
-          <ActiveChannelSetter activeChannel={channelFromProps} />
-          <Channel {...channelProps}>
+          <Channel {...channelProps} channel={channelFromProps}>
             {children}
             <CallbackEffectWithChannelContexts callback={callback} />
           </Channel>
@@ -642,55 +629,6 @@ describe('Channel', () => {
         expect(latestContext.thread).toBeUndefined();
         expect(latestContext.threadMessages).toBeUndefined();
       });
-    });
-
-    it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
-      const onMentionsHoverMock = jest.fn();
-      const onMentionsClickMock = jest.fn();
-      const username = 'Mentioned User';
-      const mentionedUserMock = {
-        name: username,
-      };
-
-      const MentionedUserComponent = () => {
-        const { onMentionsHover } = useChannelActionContext();
-        return (
-          <span
-            onClick={(e) => onMentionsHover(e, [mentionedUserMock])}
-            onMouseOver={(e) => onMentionsHover(e, [mentionedUserMock])}
-          >
-            <strong>@{username}</strong> this is a message
-          </span>
-        );
-      };
-
-      const { findByText } = await renderComponent({
-        channel,
-        chatClient,
-        children: <MentionedUserComponent />,
-        onMentionsClick: onMentionsClickMock,
-        onMentionsHover: onMentionsHoverMock,
-      });
-
-      const usernameText = await findByText(`@${username}`);
-
-      act(() => {
-        fireEvent.mouseOver(usernameText);
-        fireEvent.click(usernameText);
-      });
-
-      await waitFor(() =>
-        expect(onMentionsHoverMock).toHaveBeenCalledWith(
-          expect.any(Object), // event
-          mentionedUserMock,
-        ),
-      );
-      await waitFor(() =>
-        expect(onMentionsClickMock).toHaveBeenCalledWith(
-          expect.any(Object), // event
-          mentionedUserMock,
-        ),
-      );
     });
 
     describe('loading more messages', () => {
@@ -1503,7 +1441,7 @@ describe('Channel', () => {
         );
       });
 
-      it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
+      it('should eventually pass the result of the sendMessage API through Channel state', async () => {
         const responseText = nanoid();
 
         jest

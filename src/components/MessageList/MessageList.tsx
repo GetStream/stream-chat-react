@@ -400,10 +400,10 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   loadingMore?: boolean;
   /** Whether or not the list is currently loading newer items */
   loadingMoreNewer?: boolean;
-  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  // loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  // loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
+  /** Function called when more messages are to be loaded. */
+  // loadMore?: () => Promise<void>;
+  /** Function called when newer messages are to be loaded. */
+  // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
   /** The limit to use when paginating messages */
@@ -442,23 +442,11 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  * The MessageList component renders a list of Messages.
  * It is a consumer of the following contexts:
  * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
- * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = (props: MessageListProps) => {
-  // const { jumpToLatestMessage, loadMore, loadMoreNewer } =
-  //   useChannelActionContext();
-
   const channelStateContext = useChannelStateContext('MessageList');
 
-  return (
-    <MessageListWithContext
-      // jumpToLatestMessage={jumpToLatestMessage}
-      // loadMore={loadMore}
-      // loadMoreNewer={loadMoreNewer}
-      {...channelStateContext}
-      {...props}
-    />
-  );
+  return <MessageListWithContext {...channelStateContext} {...props} />;
 };

@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { useChannel, useChannelActionContext, useChatContext } from '../../../context';
-import type { Channel, Event } from 'stream-chat';
+import { useCallback, useEffect } from 'react';
+import { useChannel, useChatContext } from '../../../context';
+import { useMessagePaginator } from '../../../hooks';
 import { useThreadContext } from '../../Threads';
+import type { Channel, Event } from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
@@ -16,23 +17,29 @@ type UseMarkReadParams = {
 };
 
 /**
- * Takes care of marking a channel read. The channel is read only if all the following applies:
- * 1. the message list is not rendered in a thread
- * 2. the message list is scrolled to the bottom
- * 3. the channel was not marked unread by the user
- * @param isMessageListScrolledToBottom
- * @param messageListIsThread
- * @param wasChannelMarkedUnread
+ * Takes care of marking the active message collection read (channel or thread).
+ * The collection is marked read only if:
+ * 1. the list is scrolled to the bottom
+ * 2. it was not explicitly marked unread by the user
  */
 export const useMarkRead = ({
   isMessageListScrolledToBottom,
   messageListIsThread,
 }: UseMarkReadParams) => {
   const { client } = useChatContext();
-  const { markRead } = useChannelActionContext();
   const channel = useChannel();
   const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
+
+  const isThreadList = !!thread || messageListIsThread;
+
+  const markRead = useCallback(() => {
+    if (thread) {
+      void thread.markAsRead();
+      return;
+    }
+    void channel.markRead();
+  }, [channel, thread]);
 
   useEffect(() => {
     if (!channel.getConfig()?.read_events) return;
@@ -42,10 +49,10 @@ export const useMarkRead = ({
       return (
         !document.hidden &&
         !wasMarkedUnread &&
-        !messageListIsThread &&
         isMessageListScrolledToBottom &&
-        client.user?.id &&
-        !hasReadLastMessage(channel, client.user.id)
+        (isThreadList
+          ? (thread?.ownUnreadCount ?? 0) > 0
+          : !!client.user?.id && !hasReadLastMessage(channel, client.user.id))
       );
     };
 
@@ -54,20 +61,13 @@ export const useMarkRead = ({
     };
 
     const handleMessageNew = (event: Event) => {
+      const threadUpdated = !!thread && event.message?.parent_id === thread.id;
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
+      const activeCollectionUpdated = isThreadList ? threadUpdated : mainChannelUpdated;
+      if (!activeCollectionUpdated) return;
 
-      const wasMarkedUnread =
-        !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;
-
-      // increase unread count in this case
-      if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
-        const currentUnreadSnapshot =
-          messagePaginator.unreadStateSnapshot.getLatestValue();
-        messagePaginator.unreadStateSnapshot.partialNext({
-          unreadCount: currentUnreadSnapshot.unreadCount + 1,
-        });
-      } else if (mainChannelUpdated && shouldMarkRead()) {
+      if (shouldMarkRead()) {
         markRead();
       }
     };
@@ -88,8 +88,9 @@ export const useMarkRead = ({
     client,
     isMessageListScrolledToBottom,
     markRead,
-    messageListIsThread,
+    isThreadList,
     messagePaginator,
+    thread,
   ]);
 };
 

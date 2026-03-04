@@ -7,6 +7,7 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
+import { useMessagePaginator } from '../../hooks';
 import { formatMessage, type LocalMessage } from 'stream-chat';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useThreadContext } from '../Threads';
@@ -20,7 +21,7 @@ export const MessageAlsoSentInChannelIndicator = () => {
   const channel = useChannel();
   const { openThread } = useChatViewNavigation();
   const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
   const { message } = useMessageContext('MessageAlsoSentInChannelIndicator');
   const targetMessageRef = useRef<LocalMessage | null | undefined>(undefined);
 

@@ -1,9 +1,7 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 
 import { useMentionsHandler } from '../useMentionsHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { generateMessage, generateUser } from '../../../../mock-builders';
 
 const onMentionsClickMock = jest.fn();
@@ -13,20 +11,8 @@ const mouseEventMock = {
 };
 
 function generateHookHandler(hook) {
-  return (
-    message,
-    hookOptions,
-    onMentionsClick = onMentionsClickMock,
-    onMentionsHover = onMentionsHoverMock,
-  ) => {
-    const wrapper = ({ children }) => (
-      <ChannelActionProvider value={{ onMentionsClick, onMentionsHover }}>
-        {children}
-      </ChannelActionProvider>
-    );
-    const { result } = renderHook(() => hook(message, hookOptions), {
-      wrapper,
-    });
+  return (message, hookOptions) => {
+    const { result } = renderHook(() => hook(message, hookOptions));
     return result.current;
   };
 }
@@ -48,7 +34,9 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
-    const { onMentionsClick } = renderUseMentionsHandlerHook(message);
+    const { onMentionsClick } = renderUseMentionsHandlerHook(message, {
+      onMentionsClick: onMentionsClickMock,
+    });
     onMentionsClick(mouseEventMock);
     expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
@@ -58,14 +46,16 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
-    const { onMentionsClick } = renderUseMentionsHandlerHook(message, {}, null);
+    const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
     expect(onMentionsClickMock).not.toHaveBeenCalled();
   });
 
   it('should not call onMentionsClick when it message has no mentioned users set', () => {
     const message = generateMessage({ mentioned_users: null });
-    const { onMentionsClick } = renderUseMentionsHandlerHook(message);
+    const { onMentionsClick } = renderUseMentionsHandlerHook(message, {
+      onMentionsClick: onMentionsClickMock,
+    });
     onMentionsClick(mouseEventMock);
     expect(onMentionsClickMock).not.toHaveBeenCalled();
   });
@@ -75,7 +65,9 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
-    const { onMentionsHover } = renderUseMentionsHandlerHook(message);
+    const { onMentionsHover } = renderUseMentionsHandlerHook(message, {
+      onMentionsHover: onMentionsHoverMock,
+    });
     onMentionsHover(mouseEventMock);
     expect(onMentionsHoverMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
@@ -85,19 +77,16 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
-    const { onMentionsHover } = renderUseMentionsHandlerHook(
-      message,
-      {},
-      onMentionsClickMock,
-      null,
-    );
+    const { onMentionsHover } = renderUseMentionsHandlerHook(message);
     onMentionsHover(mouseEventMock);
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
   });
 
   it('should not call onMentionsHover when message has no mentioned users set', () => {
     const message = generateMessage({ mentioned_users: null });
-    const { onMentionsHover } = renderUseMentionsHandlerHook(message);
+    const { onMentionsHover } = renderUseMentionsHandlerHook(message, {
+      onMentionsHover: onMentionsHoverMock,
+    });
     onMentionsHover(mouseEventMock);
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
   });

@@ -22,7 +22,6 @@ jest.mock('../../ChatView/ChatViewNavigationContext', () => ({
 }));
 
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -115,22 +114,15 @@ async function renderMessageActions({
     <ChatProvider value={{ client, ...customChatContext }}>
       <DialogManagerProvider id='message-actions-dialog-provider'>
         <ChannelStateProvider value={{ channel, ...channelStateContextOpts }}>
-          <ChannelActionProvider
-            value={{
-              removeMessage: jest.fn(),
-              updateMessage: jest.fn(),
-            }}
-          >
-            <TranslationProvider value={mockTranslationContext}>
-              <ComponentProvider value={{}}>
-                <MessageProvider
-                  value={{ ...defaultMessageContextValue, ...customMessageContext }}
-                >
-                  <MessageActions {...messageActionsProps} />
-                </MessageProvider>
-              </ComponentProvider>
-            </TranslationProvider>
-          </ChannelActionProvider>
+          <TranslationProvider value={mockTranslationContext}>
+            <ComponentProvider value={{}}>
+              <MessageProvider
+                value={{ ...defaultMessageContextValue, ...customMessageContext }}
+              >
+                <MessageActions {...messageActionsProps} />
+              </MessageProvider>
+            </ComponentProvider>
+          </TranslationProvider>
         </ChannelStateProvider>
       </DialogManagerProvider>
     </ChatProvider>,
@@ -400,25 +392,18 @@ describe('<MessageActions />', () => {
                   channelCapabilities: { 'quote-message': true },
                 }}
               >
-                <ChannelActionProvider
-                  value={{
-                    removeMessage: jest.fn(),
-                    updateMessage: jest.fn(),
-                  }}
-                >
-                  <TranslationProvider value={mockTranslationContext}>
-                    <ComponentProvider value={{}}>
-                      <MessageProvider
-                        value={{
-                          ...defaultMessageContextValue,
-                          message,
-                        }}
-                      >
-                        <MessageActions />
-                      </MessageProvider>
-                    </ComponentProvider>
-                  </TranslationProvider>
-                </ChannelActionProvider>
+                <TranslationProvider value={mockTranslationContext}>
+                  <ComponentProvider value={{}}>
+                    <MessageProvider
+                      value={{
+                        ...defaultMessageContextValue,
+                        message,
+                      }}
+                    >
+                      <MessageActions />
+                    </MessageProvider>
+                  </ComponentProvider>
+                </TranslationProvider>
               </ChannelStateProvider>
             </DialogManagerProvider>
           </ChatProvider>,

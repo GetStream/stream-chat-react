@@ -1,14 +1,6 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import throttle from 'lodash.throttle';
 import type {
   ChannelMemberResponse,
   ChannelQueryOptions,
@@ -16,6 +8,7 @@ import type {
   Event,
   EventAPIResponse,
   LocalMessage,
+  MarkReadOptions,
   Message,
   MessageResponse,
   SendMessageOptions,
@@ -25,18 +18,11 @@ import type {
 } from 'stream-chat';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useChannelConfig } from './hooks/useChannelConfig';
-import type { OnMentionAction } from './hooks/useMentionsHandlers';
-import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
 import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
 
-import type {
-  ChannelActionContextValue,
-  ChannelNotifications,
-  MarkReadWrapperOptions,
-} from '../../context';
+import type { ChannelNotifications } from '../../context';
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   useChatContext,
   useComponentContext,
@@ -54,7 +40,7 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { makeAddNotifications } from './utils';
+import { useChannelRequestHandlers } from './hooks/useChannelRequestHandlers';
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -81,8 +67,8 @@ export type ChannelProps = {
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel,
-    // setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-  ) => Promise<EventAPIResponse> | void;
+    options?: MarkReadOptions,
+  ) => Promise<EventAPIResponse | null> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel,
@@ -105,12 +91,6 @@ export type ChannelProps = {
   initializeOnMount?: boolean;
   /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
-  /** Custom action handler function to run on click of an @mention in a message */
-  onMentionsClick?: OnMentionAction;
-  /** Custom action handler function to run on hover of an @mention in a message */
-  onMentionsHover?: OnMentionAction;
-  /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
-  skipMessageDataMemoization?: boolean;
 };
 
 const ChannelContainer = ({
@@ -177,13 +157,10 @@ const ChannelInner = (
     children,
     doDeleteMessageRequest,
     doMarkReadRequest,
-    // doSendMessageRequest,
-    // doUpdateMessageRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
     initializeOnMount = true,
     markReadOnMount = true,
-    onMentionsClick,
-    onMentionsHover,
-    skipMessageDataMemoization,
   } = props;
   // const {
   // LoadingErrorIndicator = DefaultLoadingErrorIndicator,
@@ -198,8 +175,14 @@ const ChannelInner = (
   // const thread = useThreadContext();
 
   const channelConfig = useChannelConfig({ cid: channel.cid });
-  const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
+  const [notifications] = useState<ChannelNotifications>([]);
+  useChannelRequestHandlers({
+    channel,
+    doDeleteMessageRequest,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
+  });
 
   // const [channelUnreadUiState, _setChannelUnreadUiState] =
   //   useState<ChannelUnreadUiState>();
@@ -246,57 +229,38 @@ const ChannelInner = (
   //   [],
   // );
 
-  const markRead = useMemo(
-    () =>
-      throttle(
-        async (options?: MarkReadWrapperOptions) => {
-          const { updateChannelUiUnreadState = true } = options ?? {};
-          if (channel.disconnected || !channelConfig?.read_events) {
-            return;
-          }
+  const markChannelRead = useCallback(
+    async ({
+      updateChannelUiUnreadState = true,
+    }: { updateChannelUiUnreadState?: boolean } = {}) => {
+      if (channel.disconnected || !channelConfig?.read_events) {
+        return;
+      }
 
-          lastRead.current = new Date();
+      lastRead.current = new Date();
 
-          try {
-            if (doMarkReadRequest) {
-              doMarkReadRequest(
-                channel,
-                // updateChannelUiUnreadState ? setChannelUnreadUiState : undefined,
-              );
-            } else {
-              const markReadResponse = await channel.markRead();
-              //  markReadResponse.event can be null in case of a user that is not a member of a channel being marked read
-              // in that case event is null and we should not set unread UI
-              if (updateChannelUiUnreadState && markReadResponse?.event) {
-                channel.messagePaginator.unreadStateSnapshot.next({
-                  firstUnreadMessageId: null,
-                  lastReadAt: lastRead.current,
-                  lastReadMessageId: markReadResponse.event.last_read_message_id ?? null,
-                  unreadCount: 0,
-                });
-              }
-            }
+      try {
+        const markReadResponse = await channel.markRead();
+        // markReadResponse.event can be null for users not members of the channel
+        if (updateChannelUiUnreadState && markReadResponse?.event) {
+          channel.messagePaginator.unreadStateSnapshot.next({
+            firstUnreadMessageId: null,
+            lastReadAt: lastRead.current,
+            lastReadMessageId: markReadResponse.event.last_read_message_id ?? null,
+            unreadCount: 0,
+          });
+        }
 
-            if (activeUnreadHandler) {
-              activeUnreadHandler(0, originalTitle.current);
-            } else if (originalTitle.current) {
-              document.title = originalTitle.current;
-            }
-          } catch (e) {
-            console.error(t('Failed to mark channel as read'));
-          }
-        },
-        500,
-        { leading: true, trailing: false },
-      ),
-    [
-      activeUnreadHandler,
-      channel,
-      channelConfig,
-      doMarkReadRequest,
-      // setChannelUnreadUiState,
-      t,
-    ],
+        if (activeUnreadHandler) {
+          activeUnreadHandler(0, originalTitle.current);
+        } else if (originalTitle.current) {
+          document.title = originalTitle.current;
+        }
+      } catch (e) {
+        console.error(t('Failed to mark channel as read'));
+      }
+    },
+    [activeUnreadHandler, channel, channelConfig?.read_events, t],
   );
 
   const handleEvent = async (event: Event) => {
@@ -436,7 +400,7 @@ const ChannelInner = (
          * const lastRead = channel.state.read[client.userID as string].last_read;
          */
         if (channel.countUnread() > 0 && markReadOnMount)
-          markRead({ updateChannelUiUnreadState: false });
+          void markChannelRead({ updateChannelUiUnreadState: false });
         // The more complex sync logic is done in Chat
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
@@ -446,23 +410,20 @@ const ChannelInner = (
         channel.on(handleEvent);
       }
     })();
-    const notificationTimeoutsRef = notificationTimeouts.current;
-
     return () => {
       if (errored || !done) return;
       channel?.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
-      notificationTimeoutsRef.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     channel.cid,
     channelQueryOptions,
-    doMarkReadRequest,
     channelConfig?.read_events,
     initializeOnMount,
+    markChannelRead,
   ]);
 
   const handleHighlightedMessageChange = useCallback(
@@ -498,12 +459,6 @@ const ChannelInner = (
   }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
 
   /** MESSAGE */
-
-  // Adds a temporary notification to message list, will be removed after 5 seconds
-  const addNotification = useMemo(
-    () => makeAddNotifications(setNotifications, notificationTimeouts.current),
-    [],
-  );
 
   // const loadMoreFinished = useCallback(
   //   debounce(
@@ -594,7 +549,7 @@ const ChannelInner = (
   //   return queryResponse.messages.length;
   // };
 
-  // const jumpToMessage: ChannelActionContextValue['jumpToMessage'] = useCallback(
+  // const jumpToMessage = useCallback(
   //   async (
   //     messageId,
   //     messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
@@ -612,7 +567,7 @@ const ChannelInner = (
   //   [channel, handleHighlightedMessageChange, loadMoreFinished],
   // );
 
-  // const jumpToLatestMessage: ChannelActionContextValue['jumpToLatestMessage'] =
+  // const jumpToLatestMessage =
   //   useCallback(async () => {
   //     await channel.state.loadMessageIntoState('latest');
   //     loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
@@ -621,7 +576,7 @@ const ChannelInner = (
   //     });
   //   }, [channel, loadMoreFinished]);
   //
-  // const jumpToFirstUnreadMessage: ChannelActionContextValue['jumpToFirstUnreadMessage'] =
+  // const jumpToFirstUnreadMessage =
   //   useCallback(
   //     async (
   //       queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
@@ -765,38 +720,6 @@ const ChannelInner = (
   //     ],
   //   );
 
-  const deleteMessage = useCallback(
-    async (
-      message: LocalMessage,
-      options?: DeleteMessageOptions,
-    ): Promise<MessageResponse> => {
-      if (!message?.id) {
-        throw new Error('Cannot delete a message - missing message ID.');
-      }
-      let deletedMessage;
-      if (doDeleteMessageRequest) {
-        deletedMessage = await doDeleteMessageRequest(message, options);
-      } else {
-        const result = await client.deleteMessage(message.id, options);
-        deletedMessage = result.message;
-      }
-
-      return deletedMessage;
-    },
-    [client, doDeleteMessageRequest],
-  );
-
-  const updateMessage = (updatedMessage: MessageResponse | LocalMessage) => {
-    // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage, true);
-
-    // dispatch({
-    //   channel,
-    //   parentId: state.thread && updatedMessage.parent_id,
-    //   type: 'copyMessagesFromChannel',
-    // });
-  };
-
   // const doSendMessage = async ({
   //   localMessage,
   //   message,
@@ -916,18 +839,6 @@ const ChannelInner = (
   //   });
   // };
 
-  const removeMessage = (message: LocalMessage) => {
-    channel.state.removeMessage(message);
-
-    // dispatch({
-    //   channel,
-    //   parentId: state.thread && message.parent_id,
-    //   type: 'copyMessagesFromChannel',
-    // });
-  };
-
-  const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
-
   // const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
   const channelStateContextValue = useCreateChannelStateContext({
@@ -936,42 +847,6 @@ const ChannelInner = (
     // channelUnreadUiState,
     notifications,
   });
-
-  const channelActionContextValue: ChannelActionContextValue = useMemo(
-    () => ({
-      addNotification,
-      deleteMessage,
-      // dispatch,
-      // editMessage,
-      // jumpToFirstUnreadMessage,
-      // jumpToLatestMessage,
-      // jumpToMessage,
-      // loadMore,
-      // loadMoreNewer,
-      // loadMoreThread,
-      markRead,
-      onMentionsClick: onMentionsHoverOrClick,
-      onMentionsHover: onMentionsHoverOrClick,
-      removeMessage,
-      // retrySendMessage,
-      // sendMessage,
-      // setChannelUnreadUiState,
-      skipMessageDataMemoization,
-      updateMessage,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      channel.cid,
-      deleteMessage,
-      // loadMore,
-      // loadMoreNewer,
-      markRead,
-      // jumpToFirstUnreadMessage,
-      // jumpToMessage,
-      // jumpToLatestMessage,
-      // setChannelUnreadUiState,
-    ],
-  );
 
   // if (state.error) {
   //   return (
@@ -1000,11 +875,9 @@ const ChannelInner = (
   return (
     <ChannelContainer className={windowsEmojiClass}>
       <ChannelStateProvider value={channelStateContextValue}>
-        <ChannelActionProvider value={channelActionContextValue}>
-          <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-            <div className={clsx(chatContainerClass)}>{children}</div>
-          </WithAudioPlayback>
-        </ChannelActionProvider>
+        <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+          <div className={clsx(chatContainerClass)}>{children}</div>
+        </WithAudioPlayback>
       </ChannelStateProvider>
     </ChannelContainer>
   );
@@ -1014,7 +887,6 @@ const ChannelInner = (
  * A wrapper component that provides channel data and renders children.
  * The Channel component provides the following contexts:
  * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
- * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */

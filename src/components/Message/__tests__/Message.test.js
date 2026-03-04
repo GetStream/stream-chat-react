@@ -6,7 +6,6 @@ import '@testing-library/jest-dom';
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
 
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { useMessageContext } from '../../../context/MessageContext';
@@ -42,7 +41,6 @@ const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
 });
 
 async function renderComponent({
-  channelActionOpts,
   channelConfig = { replies: true },
   channelStateOpts,
   clientOpts,
@@ -71,26 +69,16 @@ async function renderComponent({
           ...channelStateOpts,
         }}
       >
-        <ChannelActionProvider
+        <ComponentProvider
           value={{
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-            ...channelActionOpts,
+            Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+            ...components,
           }}
         >
-          <ComponentProvider
-            value={{
-              Message: () => (
-                <CustomMessageUIComponent contextCallback={contextCallback} />
-              ),
-              ...components,
-            }}
-          >
-            <TranslationProvider value={{ t: (key) => key }}>
-              <Message message={message} {...props} />
-            </TranslationProvider>
-          </ComponentProvider>
-        </ChannelActionProvider>
+          <TranslationProvider value={{ t: (key) => key }}>
+            <Message message={message} {...props} />
+          </TranslationProvider>
+        </ComponentProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );
@@ -309,11 +297,11 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { onMentionsClick },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
+      props: { onMentionsClick },
     });
 
     context.onMentionsClickMessage(mouseEventMock);
@@ -326,11 +314,11 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { onMentionsHover },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
+      props: { onMentionsHover },
     });
 
     context.onMentionsHoverMessage(mouseEventMock);

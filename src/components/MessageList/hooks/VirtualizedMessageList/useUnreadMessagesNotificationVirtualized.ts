@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RenderedMessage } from '../../utils';
 import type { LocalMessage, UnreadSnapshotState } from 'stream-chat';
-import { useChannelStateContext } from '../../../../context';
-import { useThreadContext } from '../../../Threads';
+import { useMessagePaginator } from '../../../../hooks';
 import { useStateStore } from '../../../../store';
 
 export type UseUnreadMessagesNotificationParams = {
@@ -30,9 +29,7 @@ export const useUnreadMessagesNotificationVirtualized = ({
   showAlways,
 }: UseUnreadMessagesNotificationParams) => {
   const [show, setShow] = useState(false);
-  const { channel } = useChannelStateContext();
-  const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
   const { lastReadAt, unreadCount } = useStateStore(
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,

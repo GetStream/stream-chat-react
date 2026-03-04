@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
 import type { UserEventHandler } from './hooks';
+import type { CustomMentionHandler } from './hooks/useMentionsHandler';
 import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
-import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import type { RenderTextOptions } from './renderText';
@@ -66,10 +66,10 @@ export type MessageProps = {
   messageListRect?: DOMRect;
   /** If true, only the sender of the message has editing privileges */
   onlySenderCanEdit?: boolean;
-  /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsClick?: ChannelActionContextValue['onMentionsClick'];
-  /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsHover?: ChannelActionContextValue['onMentionsHover'];
+  /** Custom mention click handler for mentions rendered in message text. */
+  onMentionsClick?: CustomMentionHandler;
+  /** Custom mention hover handler for mentions rendered in message text. */
+  onMentionsHover?: CustomMentionHandler;
   /** Custom function to run on user avatar click */
   onUserClick?: UserEventHandler;
   /** Custom function to run on user avatar hover */
@@ -93,7 +93,7 @@ export type MessageProps = {
     options?: RenderTextOptions,
   ) => ReactNode;
   // todo: document how to register custom CustomSendMessageRequestFn with Channel and Thread through StreamChat
-  // /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
+  // /** Custom retry send message handler to override the default stream-chat-js instance request flow. */
   // retrySendMessage?: CustomSendMessageRequestFn;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;

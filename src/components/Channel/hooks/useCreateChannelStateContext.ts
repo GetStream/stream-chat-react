@@ -2,11 +2,7 @@ import { useMemo } from 'react';
 
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 
-export const useCreateChannelStateContext = (
-  value: ChannelStateContextValue & {
-    skipMessageDataMemoization?: boolean;
-  },
-) => {
+export const useCreateChannelStateContext = (value: ChannelStateContextValue) => {
   const {
     channel,
     // channelUnreadUiState,
@@ -19,7 +15,6 @@ export const useCreateChannelStateContext = (
     // messages = [],
     notifications,
     // pinnedMessages,
-    skipMessageDataMemoization,
   } = value;
   const notificationsLength = notifications.length;
 
@@ -75,7 +70,6 @@ export const useCreateChannelStateContext = (
       // loadingMore,
       // memoizedMessageData,
       notificationsLength,
-      skipMessageDataMemoization,
     ],
   );
 

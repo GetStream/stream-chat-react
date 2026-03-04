@@ -1,6 +1,6 @@
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useMessageComposer } from '..';
-import { useChannelStateContext, useThreadContext } from '../../..';
+import { useChannel, useThreadContext } from '../../..';
 import { MessageComposer } from 'stream-chat';
 import { useStableCallback } from '../../../utils/useStableCallback';
 
@@ -26,7 +26,7 @@ const takeStateSnapshot = (messageComposer: MessageComposer) => {
 };
 
 export const useSendMessageFn = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const thread = useThreadContext();
   const messageComposer = useMessageComposer();
   const { t } = useTranslationContext('useSendMessageFn');

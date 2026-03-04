@@ -1,10 +1,9 @@
-import { useChannelStateContext } from '../../../../context';
 import { useEffect, useRef, useState } from 'react';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageListMainPanel';
 import { UNREAD_MESSAGE_SEPARATOR_CLASS } from '../../UnreadMessagesSeparator';
 import type { MessagePaginatorState, UnreadSnapshotState } from 'stream-chat';
 import { useStateStore } from '../../../../store';
-import { useThreadContext } from '../../../Threads';
+import { useMessagePaginator } from '../../../../hooks';
 
 const targetScrolledAboveVisibleContainerArea = (
   element: Element,
@@ -45,9 +44,7 @@ export const useUnreadMessagesNotification = ({
   listElement,
   showAlways,
 }: UseUnreadMessagesNotificationParams) => {
-  const { channel } = useChannelStateContext();
-  const thread = useThreadContext();
-  const { messagePaginator } = thread ?? channel;
+  const messagePaginator = useMessagePaginator();
 
   const { messages } = useStateStore(
     messagePaginator.state,

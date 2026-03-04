@@ -15,7 +15,6 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import {
-  ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
@@ -38,13 +37,11 @@ const PREPEND_OFFSET = 10 ** 7;
 const Wrapper = ({ children, componentContext = {} }) => (
   <ChatProvider value={{ client }}>
     <ChannelStateProvider value={{ channel }}>
-      <ChannelActionProvider value={{ addNotification: jest.fn() }}>
-        <ComponentProvider value={componentContext}>
-          <DialogManagerProvider id='vml-components-dialog-manager'>
-            {children}
-          </DialogManagerProvider>
-        </ComponentProvider>
-      </ChannelActionProvider>
+      <ComponentProvider value={componentContext}>
+        <DialogManagerProvider id='vml-components-dialog-manager'>
+          {children}
+        </DialogManagerProvider>
+      </ComponentProvider>
     </ChannelStateProvider>
   </ChatProvider>
 );
@@ -384,15 +381,13 @@ describe('VirtualizedMessageComponents', () => {
             <ChatProvider value={{ client }}>
               <TranslationProvider value={{ t: (v) => v }}>
                 <ComponentProvider value={{}}>
-                  <ChannelActionProvider value={{}}>
-                    <ChannelStateProvider value={{ channel }}>
-                      {messageRenderer(
-                        virtuosoIndex ?? PREPEND_OFFSET,
-                        undefined,
-                        virtuosoContext,
-                      )}
-                    </ChannelStateProvider>
-                  </ChannelActionProvider>
+                  <ChannelStateProvider value={{ channel }}>
+                    {messageRenderer(
+                      virtuosoIndex ?? PREPEND_OFFSET,
+                      undefined,
+                      virtuosoContext,
+                    )}
+                  </ChannelStateProvider>
                 </ComponentProvider>
               </TranslationProvider>
             </ChatProvider>,

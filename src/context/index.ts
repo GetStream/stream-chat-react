@@ -1,4 +1,3 @@
-export * from './ChannelActionContext';
 export * from './ChannelListContext';
 export * from './ChannelStateContext';
 export * from './ChatContext';
