@@ -3,11 +3,49 @@ import clsx from 'clsx';
 
 import { ChannelPreviewActionButtons as DefaultChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
 import { ChannelPreviewTimestamp } from './ChannelPreviewTimestamp';
+import {
+  type ChannelPreviewDeliveryStatus,
+  type ChannelPreviewMessageType,
+  useLatestMessagePreview,
+} from './hooks/useLatestMessagePreview';
+
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
-import { IconMute } from '../Icons';
+import {
+  IconCamera1,
+  IconChainLink,
+  IconCheckmark1Small,
+  IconCircleBanSign,
+  IconClock,
+  IconDoubleCheckmark1Small,
+  IconExclamationCircle1,
+  IconFileBend,
+  IconMapPin,
+  IconMicrophone,
+  IconMute,
+  IconVideo,
+} from '../Icons';
 import { useComponentContext } from '../../context';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
+
+const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> = {
+  delivered: IconDoubleCheckmark1Small,
+  read: IconDoubleCheckmark1Small,
+  sending: IconClock,
+  sent: IconCheckmark1Small,
+};
+
+const contentTypeIconMap: Partial<
+  Record<ChannelPreviewMessageType, React.ComponentType>
+> = {
+  deleted: IconCircleBanSign,
+  file: IconFileBend,
+  link: IconChainLink,
+  location: IconMapPin,
+  photo: IconCamera1,
+  video: IconVideo,
+  voice: IconMicrophone,
+};
 
 const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps) => {
   const {
@@ -19,7 +57,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
     displayTitle,
     groupChannelDisplayInfo,
     lastMessage,
-    latestMessagePreview,
+    messageDeliveryStatus,
     muted,
     onSelect: customOnSelectChannel,
     setActiveChannel,
@@ -31,6 +69,17 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
     useComponentContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
+
+  const { deliveryStatus, senderName, text, type } = useLatestMessagePreview({
+    channel,
+    lastMessage,
+    messageDeliveryStatus,
+  });
+
+  const DeliveryStatusIcon = deliveryStatus
+    ? deliveryStatusIconMap[deliveryStatus]
+    : undefined;
+  const ContentTypeIcon = contentTypeIconMap[type];
 
   const avatarName =
     displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
@@ -84,8 +133,40 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
               )}
             </div>
           </div>
-          <div className='str-chat__channel-preview-data__latest-message'>
-            {latestMessagePreview}
+          <div
+            className={clsx('str-chat__channel-preview-data__latest-message', {
+              [`str-chat__channel-preview-data__latest-message--${type}`]: type,
+            })}
+          >
+            {type === 'error' ? (
+              <>
+                <IconExclamationCircle1 />
+                <p>{text}</p>
+              </>
+            ) : (
+              <>
+                {DeliveryStatusIcon && (
+                  <span
+                    className={clsx(
+                      'str-chat__channel-preview-data__latest-message-delivery-status',
+                      {
+                        [`str-chat__channel-preview-data__latest-message-delivery-status--${deliveryStatus}`]:
+                          deliveryStatus,
+                      },
+                    )}
+                  >
+                    <DeliveryStatusIcon />
+                  </span>
+                )}
+                {senderName && (
+                  <span className='str-chat__channel-preview-data__latest-message-sender'>
+                    {senderName}:
+                  </span>
+                )}
+                {ContentTypeIcon && <ContentTypeIcon />}
+                <p>{text}</p>
+              </>
+            )}
           </div>
         </div>
       </button>
