@@ -55,9 +55,7 @@ describe('Chat', () => {
       expect(context.channel).toBeUndefined();
       expect(context.navOpen).toBe(true);
       expect(context.theme).toBe('messaging light');
-      expect(context.setActiveChannel).toBeInstanceOf(Function);
       expect(context.openMobileNav).toBeInstanceOf(Function);
-      expect(context.closeMobileNav).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toBe(
         `stream-chat-react-undefined-${originalUserAgent}`,
       );
@@ -141,7 +139,7 @@ describe('Chat', () => {
       await waitFor(() => expect(context.navOpen).toBe(false));
     });
 
-    it('open/close fn updates the nav state', async () => {
+    it('open fn keeps nav state open', async () => {
       let context;
       render(
         <Chat client={chatClient}>
@@ -154,74 +152,11 @@ describe('Chat', () => {
       );
 
       await waitFor(() => expect(context.navOpen).toBe(true));
-      act(() => context.closeMobileNav());
-      await waitFor(() => expect(context.navOpen).toBe(false));
       act(() => {
         context.openMobileNav();
       });
 
       await waitFor(() => expect(context.navOpen).toBe(true));
-    });
-
-    it('setActiveChannel closes the nav', async () => {
-      let context;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.navOpen).toBe(true));
-      await act(() => context.setActiveChannel());
-      await waitFor(() => expect(context.navOpen).toBe(false));
-    });
-  });
-
-  describe('active channel', () => {
-    it('setActiveChannel query if there is a watcher', async () => {
-      let context;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      const channel = { cid: 'cid', query: jest.fn() };
-      const watchers = { user_y: {} };
-      await waitFor(() => expect(context.channel).toBeUndefined());
-      await act(() => context.setActiveChannel(channel, watchers));
-      await waitFor(() => {
-        expect(context.channel).toStrictEqual(channel);
-        expect(channel.query).toHaveBeenCalledTimes(1);
-        expect(channel.query).toHaveBeenCalledWith({ watch: true, watchers });
-      });
-    });
-
-    it('setActiveChannel prevent event default', async () => {
-      let context;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.setActiveChannel).not.toBeUndefined());
-
-      const e = { preventDefault: jest.fn() };
-      await act(() => context.setActiveChannel(undefined, {}, e));
-      await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
     });
   });
 

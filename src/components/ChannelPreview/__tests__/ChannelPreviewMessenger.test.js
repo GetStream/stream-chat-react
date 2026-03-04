@@ -32,7 +32,6 @@ describe('ChannelPreviewMessenger', () => {
             displayImage='https://randomimage.com/src.jpg'
             displayTitle='Channel name'
             latestMessagePreview='Latest message!'
-            setActiveChannel={jest.fn()}
             unread={10}
             {...props}
           />
@@ -60,12 +59,11 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should call setActiveChannel on click', async () => {
-    const setActiveChannel = jest.fn();
+  it('should call onSelect on click', async () => {
+    const onSelect = jest.fn();
     const { container, getByTestId } = render(
       renderComponent({
-        setActiveChannel,
-        watchers: {},
+        onSelect,
       }),
     );
 
@@ -76,8 +74,7 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
-      expect(setActiveChannel).toHaveBeenCalledTimes(1);
-      expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
+      expect(onSelect).toHaveBeenCalledTimes(1);
     });
 
     const results = await axe(container.firstChild.firstChild);

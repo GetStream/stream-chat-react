@@ -60,8 +60,6 @@ export type ChannelPreviewProps = {
   onSelect?: (event: React.MouseEvent) => void;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps>;
-  /** Setter for selected Channel */
-  setActiveChannel?: ChatContextValue['setActiveChannel'];
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
@@ -74,12 +72,7 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
     getLatestMessagePreview = defaultGetLatestMessagePreview,
     Preview = ChannelPreviewMessenger,
   } = props;
-  const {
-    channel: activeChannel,
-    client,
-    isMessageAIGenerated,
-    setActiveChannel,
-  } = useChatContext('ChannelPreview');
+  const { client, isMessageAIGenerated } = useChatContext('ChannelPreview');
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -99,7 +92,7 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
   });
 
   const isActive =
-    typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
+    typeof active === 'undefined' ? props.activeChannel?.cid === channel.cid : active;
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
@@ -196,7 +189,6 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
       latestMessage={latestMessagePreview}
       latestMessagePreview={latestMessagePreview}
       messageDeliveryStatus={messageDeliveryStatus}
-      setActiveChannel={setActiveChannel}
       unread={unread}
     />
   );

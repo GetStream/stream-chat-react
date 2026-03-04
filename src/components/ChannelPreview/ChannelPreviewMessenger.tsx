@@ -17,9 +17,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
     groupChannelDisplayInfo,
     latestMessagePreview,
     onSelect: customOnSelectChannel,
-    setActiveChannel,
     unread,
-    watchers,
   } = props;
 
   const { ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons } =
@@ -33,8 +31,6 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
-    } else if (setActiveChannel) {
-      setActiveChannel(channel, watchers);
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();

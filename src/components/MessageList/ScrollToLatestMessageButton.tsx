@@ -29,18 +29,18 @@ const UnMemoizedScrollToLatestMessageButton = (
     onClick,
   } = props;
 
-  const { channel: activeChannel, client } = useChatContext();
+  const { client } = useChatContext();
   const channel = useChannel();
   const thread = useThreadContext();
   const isThreadList = !!thread;
   const { parentMessage } = useStateStore(thread?.state, threadStateSelector) ?? {};
-  const [countUnread, setCountUnread] = useState(activeChannel?.countUnread() || 0);
+  const [countUnread, setCountUnread] = useState(channel.countUnread() || 0);
   const [replyCount, setReplyCount] = useState(parentMessage?.reply_count || 0);
   const observedEvent = isThreadList ? 'message.updated' : 'message.new';
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
-      const newMessageInAnotherChannel = event.cid !== activeChannel?.cid;
+      const newMessageInAnotherChannel = event.cid !== channel?.cid;
       const newMessageIsMine = event.user?.id === client.user?.id;
 
       const newMessageIsReply = !!event.message?.parent_id;
@@ -70,7 +70,6 @@ const UnMemoizedScrollToLatestMessageButton = (
       client.off(observedEvent, handleEvent);
     };
   }, [
-    activeChannel,
     channel,
     client,
     isMessageListScrolledToBottom,

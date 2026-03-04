@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { SupportedTranslations } from '../../../i18n';
@@ -9,7 +9,7 @@ import {
   Streami18n,
 } from '../../../i18n';
 
-import type { AppSettingsAPIResponse, Channel, StreamChat } from 'stream-chat';
+import type { AppSettingsAPIResponse, StreamChat } from 'stream-chat';
 
 export type UseChatParams = {
   client: StreamChat;
@@ -30,11 +30,9 @@ export const useChat = ({
     userLanguage: 'en',
   });
 
-  const [channel, setChannel] = useState<Channel>();
   const [navOpen, setNavOpen] = useState(initialNavOpen);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
-  const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
   const appSettings = useRef<Promise<AppSettingsAPIResponse> | null>(null);
@@ -97,36 +95,15 @@ export const useChat = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18nInstance]);
 
-  const setActiveChannel = useCallback(
-    async (
-      activeChannel?: Channel,
-      watchers: { limit?: number; offset?: number } = {},
-      event?: React.BaseSyntheticEvent,
-    ) => {
-      if (event && event.preventDefault) event.preventDefault();
-
-      if (activeChannel && Object.keys(watchers).length) {
-        await activeChannel.query({ watch: true, watchers });
-      }
-
-      setChannel(activeChannel);
-      closeMobileNav();
-    },
-    [],
-  );
-
   useEffect(() => {
     setLatestMessageDatesByChannels({});
   }, [client.user?.id]);
 
   return {
-    channel,
-    closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
     navOpen,
     openMobileNav,
-    setActiveChannel,
     translators,
   };
 };

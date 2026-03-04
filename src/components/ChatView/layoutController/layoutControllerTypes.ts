@@ -16,6 +16,25 @@ export type LayoutSlotMeta = {
 };
 
 export type ChatViewLayoutState = {
+  /**
+   * Currently focused slot in the layout.
+   *
+   * Purpose:
+   * - Acts as the default slot target when navigation calls don't provide `slot`.
+   * - Acts as the first candidate for implicit entity resolution
+   *   (for example helpers that scan `[activeSlot, ...visibleSlots]`).
+   *
+   * Ownership/updates:
+   * - It is updated by controller operations that "activate" a slot
+   *   (`open(...)`, `openView(...)`) when activation is enabled.
+   * - It can become `undefined` when the active slot is cleared/closed.
+   *
+   * Important:
+   * - `activeSlot` is only a pointer; it does not store entity data.
+   * - Entity ownership remains in `slotBindings[slot]`.
+   * - Different layouts may keep multiple visible slots while still having a
+   *   single `activeSlot` used for default behavior.
+   */
   activeSlot?: LayoutSlot;
   activeView: ChatView;
   entityListPaneOpen: boolean;
@@ -30,6 +49,12 @@ export type ChatViewLayoutState = {
 };
 
 export type ResolveTargetSlotArgs = {
+  /**
+   * The currently focused slot at the time of slot-target resolution.
+   *
+   * Resolvers can use this as a default/fallback target when no explicit
+   * `requestedSlot` is provided.
+   */
   activeSlot?: LayoutSlot;
   binding: LayoutSlotBinding;
   requestedSlot?: LayoutSlot;

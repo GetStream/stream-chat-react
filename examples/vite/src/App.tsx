@@ -12,7 +12,7 @@ import {
 } from 'stream-chat';
 import {
   AIStateIndicator,
-  Channel,
+  ChannelSlot,
   ChannelAvatar,
   ChannelHeader,
   ChannelList,
@@ -20,6 +20,7 @@ import {
   ChatView,
   MessageInput,
   Thread,
+  ThreadSlot,
   ThreadList,
   useCreateChatClient,
   // VirtualizedMessageList as MessageList,
@@ -28,6 +29,7 @@ import {
   WithComponents,
   ReactionsList,
   WithDragAndDropUpload,
+  useChannel,
   useChatContext,
   defaultReactionOptions,
   ReactionOptions,
@@ -35,7 +37,7 @@ import {
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data/sets/14/native.json';
+import data from '@emoji-mart/data';
 import { humanId } from 'human-id';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
@@ -207,7 +209,7 @@ const App = () => {
               showChannelSearch
               additionalChannelSearchProps={{ searchForChannels: true }}
             />
-            <Channel>
+            <ChannelSlot>
               <WithDragAndDropUpload>
                 <Window>
                   <ChannelHeader Avatar={ChannelAvatar} />
@@ -222,15 +224,21 @@ const App = () => {
                   <ChannelExposer />
                 </Window>
               </WithDragAndDropUpload>
+            </ChannelSlot>
+            <ThreadSlot>
               <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-                <Thread virtualized />
+                <Thread />
               </WithDragAndDropUpload>
-            </Channel>
+            </ThreadSlot>
           </ChatView.Channels>
           <ChatView.Threads>
             <ThreadList />
             <ChatView.ThreadAdapter>
-              <Thread virtualized />
+              <ThreadSlot>
+                <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+                  <Thread />
+                </WithDragAndDropUpload>
+              </ThreadSlot>
             </ChatView.ThreadAdapter>
           </ChatView.Threads>
         </ChatView>
@@ -240,7 +248,8 @@ const App = () => {
 };
 
 const ChannelExposer = () => {
-  const { channel, client } = useChatContext();
+  const channel = useChannel();
+  const { client } = useChatContext();
   // @ts-expect-error expose client and channel for debugging purposes
   window.client = client;
   // @ts-expect-error expose client and channel for debugging purposes

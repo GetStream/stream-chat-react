@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import type {
@@ -11,7 +11,6 @@ import type {
 } from 'stream-chat';
 
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
-import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
 import {
   useChannelListShape,
@@ -22,6 +21,12 @@ import { ChannelListMessenger } from './ChannelListMessenger';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview } from '../ChannelPreview/ChannelPreview';
 import { ChannelSearch as DefaultChannelSearch } from '../ChannelSearch/ChannelSearch';
+import {
+  type ChatViewLayoutState,
+  getChatViewEntityBinding,
+  useChatViewContext,
+} from '../ChatView';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
@@ -50,6 +55,12 @@ const DEFAULT_SORT = {};
 
 const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   searchIsActive: nextValue.isActive,
+});
+const layoutStateSelector = (nextValue: ChatViewLayoutState) => ({
+  activeSlot: nextValue.activeSlot,
+  entityListPaneOpen: nextValue.entityListPaneOpen,
+  slotBindings: nextValue.slotBindings,
+  visibleSlots: nextValue.visibleSlots,
 });
 
 export type ChannelListProps = {
@@ -205,19 +216,23 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   } = props;
 
   const {
-    channel,
     channelsQueryState,
     client,
-    closeMobileNav,
     customClasses,
-    navOpen = false,
     searchController,
-    setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
+  const { layoutController } = useChatViewContext();
+  const {
+    closeChannel,
+    hideChannelList,
+    openChannel: openChannelFromNavigation,
+  } = useChatViewNavigation();
+  const { activeSlot, entityListPaneOpen, slotBindings, visibleSlots } =
+    useStateStore(layoutController.state, layoutStateSelector) ??
+    layoutStateSelector(layoutController.state.getLatestValue());
   const { Search } = useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
-  const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
 
@@ -226,6 +241,30 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     searchController.state,
     searchControllerStateSelector,
   );
+  const activeChannel = [activeSlot, ...visibleSlots]
+    .filter(Boolean)
+    .map((slot) => getChatViewEntityBinding(slotBindings[slot as string]))
+    .find((binding) => binding?.kind === 'channel')?.source as Channel | undefined;
+
+  const openChannel = useCallback(
+    async (nextChannel?: Channel) => {
+      if (!nextChannel) return;
+      if (Object.keys(watchers).length) {
+        await nextChannel.query({ watch: true, watchers });
+      }
+      const openResult = openChannelFromNavigation(nextChannel);
+      // Auto-hide only when channel open consumed the channel-list slot,
+      // meaning layout had no spare visible slot capacity for both panes.
+      if (
+        openResult.status === 'replaced' &&
+        getChatViewEntityBinding(openResult.replaced)?.kind === 'channelList'
+      ) {
+        hideChannelList({ slot: openResult.slot });
+      }
+    },
+    [hideChannelList, openChannelFromNavigation, watchers],
+  );
+
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
@@ -251,7 +290,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       }
 
       if (customActiveChannelObject) {
-        setActiveChannel(customActiveChannelObject, watchers);
+        await openChannel(customActiveChannelObject);
 
         const newChannels = moveChannelUpwards({
           channels,
@@ -266,7 +305,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     }
 
     if (setActiveChannelOnMount) {
-      setActiveChannel(channels[0], watchers);
+      await openChannel(channels[0]);
     }
   };
 
@@ -304,8 +343,6 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     ? channelRenderFilterFn(channels)
     : channels;
 
-  useMobileNavigation(channelListRef, navOpen, closeMobileNav);
-
   const { customHandler, defaultHandler } = usePrepareShapeHandlers({
     allowNewMessagesFromUnfilteredChannels,
     filters,
@@ -332,8 +369,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
-      if (event.cid === channel?.cid) {
-        setActiveChannel();
+      if (event.cid === activeChannel?.cid) {
+        closeChannel();
       }
     };
 
@@ -345,18 +382,20 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       client.off('channel.hidden', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel?.cid]);
+  }, [activeChannel?.cid, closeChannel]);
 
   const renderChannel = (item: Channel) => {
     const previewProps = {
-      activeChannel: channel,
+      activeChannel,
       Avatar,
       channel: item,
       // forces the update of preview component on channel update
       channelUpdateCount,
       getLatestMessagePreview,
+      onSelect: () => {
+        void openChannel(item);
+      },
       Preview,
-      setActiveChannel,
       watchers,
     };
 
@@ -371,7 +410,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     {
       'str-chat--windows-flags':
         useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
-      [`${baseClass}--open`]: navOpen,
+      [`${baseClass}--open`]: entityListPaneOpen,
     },
   );
 
@@ -381,7 +420,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     <ChannelListContextProvider
       value={{ channels, hasNextPage, loadNextPage, setChannels }}
     >
-      <div className={className} ref={channelListRef}>
+      <div className={className}>
         {showChannelSearch &&
           (Search ? (
             <Search

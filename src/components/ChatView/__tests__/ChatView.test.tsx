@@ -38,12 +38,10 @@ const createChatContextValue = (): ChatContextValue =>
         }),
       },
     },
-    closeMobileNav: jest.fn(),
     getAppSettings: jest.fn(() => null),
     latestMessageDatesByChannels: {},
     openMobileNav: jest.fn(),
     searchController: {},
-    setActiveChannel: jest.fn(),
     theme: 'str-chat__theme-light',
     useImageFlagEmojisOnWindows: false,
   }) as unknown as ChatContextValue;

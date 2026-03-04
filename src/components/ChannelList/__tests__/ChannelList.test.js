@@ -32,6 +32,8 @@ import {
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
+import { ChatView } from '../../ChatView';
+import { createLayoutController } from '../../ChatView/layoutController/LayoutController';
 import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
@@ -87,6 +89,12 @@ const ChannelListComponent = (props) => {
 
   return <div role='list'>{props.children}</div>;
 };
+
+const SelectableChannelPreviewComponent = ({ channel, onSelect }) => (
+  <button data-testid={`select-channel-${channel.id}`} onClick={onSelect} type='button'>
+    {channel.data.name || channel.id}
+  </button>
+);
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
 const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
 const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
@@ -106,77 +114,71 @@ describe('ChannelList', () => {
 
   afterEach(cleanup);
 
-  describe('mobile navigation', () => {
-    let closeMobileNav;
-    let props;
-    beforeEach(() => {
-      closeMobileNav = jest.fn();
-      props = {
-        closeMobileNav,
-        filters: {},
-        List: ChannelListComponent,
-        Preview: ChannelPreviewComponent,
-      };
-      useMockedApis(chatClient, [queryChannelsApi([])]);
-    });
-    it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { container, getByRole, getByTestId } = await render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: true,
-            searchController: new SearchController(),
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
+  describe('channel list visibility on channel select', () => {
+    it('hides channel list when opening a channel replaces the channel-list slot', async () => {
+      useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+      const layoutController = createLayoutController({
+        initialState: { visibleSlots: ['slot1'] },
+      });
+
+      const { container, getByRole, getByTestId } = render(
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              filters={{}}
+              List={ChannelListComponent}
+              Preview={SelectableChannelPreviewComponent}
+              setActiveChannelOnMount={false}
+            />
+          </ChatView>
+        </Chat>,
       );
-      // Wait for list of channels to load in DOM.
+
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      await act(() => {
-        fireEvent.click(getByTestId('outside-channellist'));
-      });
+      fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
 
       await waitFor(() => {
-        expect(closeMobileNav).toHaveBeenCalledTimes(1);
+        expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(false);
       });
+
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
-    it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      const { container, getByRole, getByTestId } = await render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: false,
-            searchController: new SearchController(),
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
+    it('keeps channel list visible when layout has spare slot capacity', async () => {
+      useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+      const layoutController = createLayoutController({
+        initialState: { visibleSlots: ['slot1', 'slot2'] },
+      });
+
+      const { container, getByRole, getByTestId } = render(
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              filters={{}}
+              List={ChannelListComponent}
+              Preview={SelectableChannelPreviewComponent}
+              setActiveChannelOnMount={false}
+            />
+          </ChatView>
+        </Chat>,
       );
 
-      // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      await act(() => {
-        fireEvent.click(getByTestId('outside-channellist'));
-      });
+      fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
+
       await waitFor(() => {
-        expect(closeMobileNav).toHaveBeenCalledTimes(0);
+        expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(true);
       });
+
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });

@@ -1,0 +1,22 @@
+{
+  "tasks": {
+    "task-1-audit-current-migration-state-across-both-repos": "done",
+    "task-2-make-thread-messagepaginator-thread-replies-aware-js-sdk": "pending",
+    "task-3-remove-setactivechannel-routing-from-chat-context-chat-wrapper": "done",
+    "task-4-remove-hardcoded-channel-messagepaginator-usage-from-react-lists": "pending",
+    "task-5-remove-remaining-thread-flow-dependence-on-channel-context-actions-state": "pending",
+    "task-6-update-and-rebase-tests-to-instance-driven-contract": "pending",
+    "task-7-final-cleanup-and-deprecation-notes": "pending",
+    "task-8-introduce-shared-slot-entity-resolution-hooks": "done",
+    "task-9-move-channellist-mobile-hide-flow-to-chatview-navigation": "done"
+  },
+  "flags": {
+    "blocked": false,
+    "needs-review": false
+  },
+  "meta": {
+    "last_updated": "2026-03-04",
+    "worktree": "/Users/martincupela/Projects/stream/chat/stream-chat-react",
+    "branch": "feat/message-paginator"
+  }
+}

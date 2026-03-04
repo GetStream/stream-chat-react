@@ -135,9 +135,8 @@ const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
   const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
     useComponentContext();
 
-  const { channel: contextChannel, channelsQueryState } = useChatContext('Channel');
-
-  const channel = propsChannel || contextChannel;
+  const { channelsQueryState } = useChatContext('Channel');
+  const channel = propsChannel;
 
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
     return (
