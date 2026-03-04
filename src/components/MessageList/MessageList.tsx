@@ -285,8 +285,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   className='str-chat__message-list-scroll'
                   data-testid='reverse-infinite-scroll'
                   element={internalListElement}
-                  loadNextOnScrollToBottom={channel.messagePaginator.toHead}
-                  loadNextOnScrollToTop={channel.messagePaginator.toTail}
+                  loadNextOnScrollToBottom={messagePaginator.toHead}
+                  loadNextOnScrollToTop={messagePaginator.toTail}
                   onScroll={onScroll}
                   ref={setListElement}
                   threshold={loadMoreScrollThreshold}

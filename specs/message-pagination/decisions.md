@@ -58,6 +58,32 @@ React-side migrations (`MessageList`, hooks, actions) cannot be validated safely
 **Tradeoffs / Consequences:**  
 Cross-repo sequencing is required; React branch depends on upstream JS behavior finalization.
 
+## Decision: Keep `MessagePaginator` as shared paginator type by making it thread-aware via optional parent id
+
+**Date:** 2026-03-04  
+**Context:**  
+`Thread` still instantiated `MessagePaginator` with channel-only query behavior, causing thread pagination to read channel message dataset instead of thread replies.
+
+**Decision:**  
+Extend `MessagePaginator` with optional `parentMessageId`:
+
+- when absent, query channel messages (`channel.query({ messages: ... })`) as before;
+- when present, query thread replies (`channel.getReplies(parentMessageId, ...)`);
+- include `parent_id` in client-side filters only for thread mode.
+
+`Thread` now constructs `MessagePaginator` with `parentMessageId: thread.id`.
+
+**Reasoning:**  
+This preserves the target architecture (single paginator abstraction for channel and thread) while fixing dataset correctness for thread pagination.
+
+**Alternatives considered:**
+
+- Use `MessageReplyPaginator` in `Thread`: rejected for this migration because it introduces dual paginator abstractions instead of converging on one.
+- Keep channel-only query path and adapt in React layer: rejected because data ownership/correctness must be fixed at SDK source.
+
+**Tradeoffs / Consequences:**  
+`MessagePaginator` now has a mode switch (channel vs thread replies), so tests must cover both query paths. Added coverage in `MessagePaginator.test.ts`.
+
 ## Decision: Active display routing is owned by ChatView layout, not ChatContext
 
 **Date:** 2026-03-04  

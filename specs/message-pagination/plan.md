@@ -37,9 +37,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 1
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -48,8 +48,8 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] Thread pagination never queries channel main-message dataset by mistake.
-- [ ] Thread paginator state (`items`, `hasMore*`, cursor) reflects replies.
+- [x] Thread pagination never queries channel main-message dataset by mistake.
+- [x] Thread paginator state (`items`, `hasMore*`, cursor) reflects replies.
 
 ## Task 3: Remove `setActiveChannel` Routing from Chat Context/Chat Wrapper
 
@@ -89,9 +89,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 2, Task 3
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -100,8 +100,8 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] No direct paginator direction calls (`toHead`/`toTail`) use `channel.messagePaginator` inside shared list components.
-- [ ] Thread list pagination behavior matches thread dataset.
+- [x] No direct paginator direction calls (`toHead`/`toTail`) use `channel.messagePaginator` inside shared list components.
+- [x] Thread list pagination behavior matches thread dataset.
 
 ## Task 5: Remove Remaining Thread-Flow Dependence on Channel Context Actions/State
 
