@@ -25,6 +25,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
+import { ThreadProvider } from '../../Threads';
 
 let chatClient;
 let channel;
@@ -329,9 +330,11 @@ describe('Card', () => {
             <MessageProvider value={{ message }}>
               <Card {...audioAttachment} />
             </MessageProvider>
-            <MessageProvider value={{ message, threadList: true }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
+            <ThreadProvider thread={{ id: 'test-thread' }}>
+              <MessageProvider value={{ message }}>
+                <Card {...audioAttachment} />
+              </MessageProvider>
+            </ThreadProvider>
           </WithAudioPlayback>
         </ChannelStateProvider>
       </ChatProvider>,

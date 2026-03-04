@@ -1,7 +1,6 @@
-import { defaultPinPermissions, validateAndGetMessage } from '../utils';
+import { validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
@@ -42,18 +41,13 @@ export type PinMessageNotifications = {
 
 export const usePinHandler = (
   message: LocalMessage,
-  // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-  _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
   notifications: PinMessageNotifications = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 
   const { updateMessage } = useChannelActionContext('usePinHandler');
-  const { channelCapabilities = {} } = useChannelStateContext('usePinHandler');
   const { client } = useChatContext('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
-
-  const canPin = !!channelCapabilities['pin-message'];
 
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();
@@ -102,5 +96,5 @@ export const usePinHandler = (
     }
   };
 
-  return { canPin, handlePin };
+  return { handlePin };
 };

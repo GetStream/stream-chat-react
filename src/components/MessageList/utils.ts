@@ -4,7 +4,12 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type { LocalMessage, MessageLabel, UnreadSnapshotState } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  MessageLabel,
+  UnreadSnapshotState,
+} from 'stream-chat';
 
 type IntroMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.intro;
@@ -341,27 +346,40 @@ export function isLocalMessage(message: unknown): message is LocalMessage {
   return !isDateSeparatorMessage(message) && !isIntroMessage(message);
 }
 
+// todo: simplify the logic
 export const getIsFirstUnreadMessage = ({
+  channel,
   firstUnreadMessageId,
   isFirstMessage,
   lastReadAt,
   lastReadMessageId,
   message,
   previousMessage,
-  unreadCount,
+  unreadCount = 0,
 }: UnreadSnapshotState & {
+  channel?: Channel;
   isFirstMessage: boolean;
   message: LocalMessage;
   previousMessage?: RenderedMessage;
 }) => {
   // prevent showing unread indicator in threads
-  if (message.parent_id) return false;
+  if (message.parent_id || !channel) return false;
 
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
   const lastReadTimestamp = lastReadAt?.getTime();
 
+  const currentUserId = channel?.getClient().user?.id;
+  const timestampMs = message.created_at ? new Date(message.created_at).getTime() : NaN;
+
   const messageIsUnread =
-    !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
+    currentUserId && message.id && Number.isFinite(timestampMs)
+      ? !channel.messageReceiptsTracker.hasUserRead(
+          { msgId: message.id, timestampMs },
+          currentUserId,
+        )
+      : !!createdAtTimestamp &&
+        !!lastReadTimestamp &&
+        createdAtTimestamp > lastReadTimestamp;
 
   const previousMessageIsLastRead =
     !!lastReadMessageId && lastReadMessageId === previousMessage?.id;

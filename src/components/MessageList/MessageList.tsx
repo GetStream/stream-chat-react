@@ -14,27 +14,26 @@ import { NewMessageNotification as DefaultNewMessageNotification } from './NewMe
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
-import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { DialogManagerProvider } from '../../context';
+import { DialogManagerProvider, useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
+import { MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
+import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { useThreadContext } from '../Threads';
 
 import type { UnreadSnapshotState } from 'stream-chat';
 import { type LocalMessage, type MessagePaginatorState } from 'stream-chat';
-import type { MessageRenderer } from './renderMessages';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message/types';
 
@@ -46,11 +45,7 @@ import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScro
 import { useMessagePaginator } from '../../hooks';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 
-type MessageListWithContextProps = Omit<
-  ChannelStateContextValue,
-  'members' | 'mutes' | 'watchers'
-> &
-  MessageListProps;
+type MessageListWithContextProps = ChannelStateContextValue & MessageListProps;
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
   // hasMore: state.hasMoreTail,
@@ -62,8 +57,8 @@ const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
+  const channel = useChannel();
   const {
-    channel,
     // channelUnreadUiState,
     disableDateSeparator = false,
     groupStyles,
@@ -78,13 +73,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     } = {},
     // jumpToLatestMessage = () => Promise.resolve(),
     // loadMore: loadMoreCallback,
-    // loadMoreNewer: loadMoreNewerCallback, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+    // loadMoreNewer: loadMoreNewerCallback,
     maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
     notifications,
-    pinPermissions = defaultPinPermissions,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -92,10 +86,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
-    // suppressAutoscroll,
-    threadList = false,
+    // suppressAutoscroll = false,
     unsafeHTML = false,
   } = props;
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
@@ -146,7 +141,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   useMarkRead({
     isMessageListScrolledToBottom,
-    messageListIsThread: threadList,
+    messageListIsThread: isThreadList,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -192,8 +187,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       onMentionsHover: props.onMentionsHover,
       onUserClick: props.onUserClick,
       onUserHover: props.onUserHover,
-      openThread: props.openThread,
-      pinPermissions,
       reactionDetailsSort,
       renderText: props.renderText,
       // retrySendMessage: props.retrySendMessage,
@@ -207,7 +200,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messages,
     renderMessages,
     returnAllReadData,
-    threadList,
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
@@ -245,8 +237,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const id = useStableId();
 
-  const showEmptyStateIndicator = elements.length === 0 && !threadList;
-  const dialogManagerId = threadList
+  const showEmptyStateIndicator = elements.length === 0 && !isThreadList;
+  const dialogManagerId = isThreadList
     ? `message-list-dialog-manager-thread-${id}`
     : `message-list-dialog-manager-${id}`;
 
@@ -261,7 +253,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       <MessageTranslationViewProvider>
         <MessageListMainPanel>
           <DialogManagerProvider id={dialogManagerId}>
-            {!threadList && showUnreadMessagesNotification && (
+            {!isThreadList && showUnreadMessagesNotification && (
               <UnreadMessagesNotification
                 unreadCount={channelUnreadUiState?.unreadCount}
               />
@@ -287,7 +279,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               tabIndex={0}
             >
               {showEmptyStateIndicator ? (
-                <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
+                <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
               ) : (
                 <InfiniteScrollPaginator
                   className='str-chat__message-list-scroll'
@@ -309,7 +301,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <MessageListWrapper className='str-chat__ul'>
                     {elements}
                   </MessageListWrapper>
-                  <TypingIndicator threadList={threadList} />
+                  <TypingIndicator />
 
                   <div key='bottom' />
                 </InfiniteScrollPaginator>
@@ -322,7 +314,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
                 isNotAtLatestMessageSet={hasMoreNewer}
                 onClick={scrollToBottomFromNotification}
-                threadList={threadList}
               />
             </div>
             <NewMessageNotification
@@ -333,7 +324,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               isMessageListScrolledToBottom={isMessageListScrolledToBottom}
               isNotAtLatestMessageSet={hasMoreNewer}
               onClick={scrollToBottomFromNotification}
-              threadList={threadList}
             />
           </DialogManagerProvider>
         </MessageListMainPanel>
@@ -363,8 +353,6 @@ type PropsDrilledToMessage =
   | 'onMentionsHover'
   | 'onUserClick'
   | 'onUserHover'
-  | 'openThread'
-  | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'reactionDetailsSort'
   | 'renderText'
   // | 'retrySendMessage'
@@ -446,8 +434,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
    * is shown only when viewing unread messages.
    */
   showUnreadNotificationAlways?: boolean;
-  /** If true, indicates the message list is a thread  */
-  threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
+  /** If true, prevents autoscroll-to-bottom behavior on new messages. */
+  suppressAutoscroll?: boolean;
 };
 
 /**
@@ -460,21 +448,16 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  */
 export const MessageList = (props: MessageListProps) => {
   // const { jumpToLatestMessage, loadMore, loadMoreNewer } =
-  //   useChannelActionContext('MessageList');
+  //   useChannelActionContext();
 
-  const {
-    // members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    // mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    // watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    ...restChannelStateContext
-  } = useChannelStateContext('MessageList');
+  const channelStateContext = useChannelStateContext('MessageList');
 
   return (
     <MessageListWithContext
       // jumpToLatestMessage={jumpToLatestMessage}
       // loadMore={loadMore}
       // loadMoreNewer={loadMoreNewer}
-      {...restChannelStateContext}
+      {...channelStateContext}
       {...props}
     />
   );

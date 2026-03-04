@@ -7,6 +7,7 @@ import { generateAudioAttachment, generateMessage } from '../../../mock-builders
 import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
+import { ThreadProvider } from '../../Threads';
 
 jest.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({ client: mockClient }),
@@ -250,9 +251,11 @@ describe('Audio', () => {
         <MessageProvider value={{ message }}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true }}>
-          <Audio attachment={audioAttachment} />
-        </MessageProvider>
+        <ThreadProvider thread={{ id: 'test-thread' }}>
+          <MessageProvider value={{ message }}>
+            <Audio attachment={audioAttachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Poll } from 'stream-chat';
+import { Poll, StreamChat } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollOptionList } from '../PollOptionList';
 import {
   ChannelStateProvider,
+  ComponentProvider,
   MessageProvider,
   PollProvider,
   TranslationProvider,
@@ -36,27 +37,55 @@ const pollWithNoVotes = generatePoll({
 const t = (v) => v;
 
 const defaultChannelStateContext = {
-  channelCapabilities: { 'cast-poll-vote': true },
+  notifications: [],
 };
 
 const defaultMessageContext = {
   message: generateMessage(),
 };
 
-const renderComponent = ({ channelStateContext, messageContext, poll }) =>
-  render(
+const renderComponent = ({ channelStateContext, messageContext, poll }) => {
+  const { channelCapabilities, ...channelStateContextOverrides } =
+    channelStateContext ?? {};
+  const own_capabilities = channelCapabilities
+    ? Object.entries(channelCapabilities)
+        .filter(([, isAllowed]) => isAllowed)
+        .map(([capability]) => capability)
+    : ['cast-poll-vote'];
+  const client = new StreamChat('api-key');
+  client.user = { id: 'test-user' };
+  client.userID = 'test-user';
+  const channel = client.channel('messaging', 'poll-option-list', {
+    own_capabilities,
+  });
+  const AvatarStack = ({ displayInfo = [] }) => (
+    <div>
+      {displayInfo.map((item) => (
+        <div data-testid='avatar' key={item.id} />
+      ))}
+    </div>
+  );
+
+  return render(
     <TranslationProvider value={{ t }}>
-      <ChannelStateProvider
-        value={{ ...defaultChannelStateContext, ...channelStateContext }}
-      >
-        <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-          <PollProvider poll={poll}>
-            <PollOptionList />
-          </PollProvider>
-        </MessageProvider>
-      </ChannelStateProvider>
+      <ComponentProvider value={{ AvatarStack }}>
+        <ChannelStateProvider
+          value={{
+            ...defaultChannelStateContext,
+            ...channelStateContextOverrides,
+            channel,
+          }}
+        >
+          <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+            <PollProvider poll={poll}>
+              <PollOptionList />
+            </PollProvider>
+          </MessageProvider>
+        </ChannelStateProvider>
+      </ComponentProvider>
     </TranslationProvider>,
   );
+};
 
 describe('PollOptionList', () => {
   beforeEach(() => {

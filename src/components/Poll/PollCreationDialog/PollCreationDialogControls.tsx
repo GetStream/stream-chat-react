@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
-import { useMessageInputContext, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
 import clsx from 'clsx';
 import { IconPaperPlane } from '../../Icons';
 import { Prompt } from '../../Dialog';

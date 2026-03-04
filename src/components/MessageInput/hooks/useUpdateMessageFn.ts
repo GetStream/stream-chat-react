@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import {
   useChannelStateContext,
   useMessageComposer,
-  useMessageContext,
   useThreadContext,
   useTranslationContext,
 } from '../../..';

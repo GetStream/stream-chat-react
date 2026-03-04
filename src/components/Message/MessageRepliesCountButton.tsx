@@ -1,9 +1,10 @@
 import type { MouseEventHandler } from 'react';
-import type { UserResponse } from 'stream-chat';
 import React, { useMemo } from 'react';
+import type { UserResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelStateContext, useComponentContext } from '../../context';
+import { useChannel, useComponentContext } from '../../context';
+import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
 export type MessageRepliesCountButtonProps = {
@@ -29,7 +30,8 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     reply_count: replyCount = 0,
     thread_participants: threadParticipants = [],
   } = props;
-  const { channelCapabilities } = useChannelStateContext();
+  const channel = useChannel();
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
@@ -57,7 +59,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       <button
         className='str-chat__message-replies-count-button'
         data-testid='replies-count-button'
-        disabled={!channelCapabilities['send-reply']}
+        disabled={!channelCapabilities.has('send-reply')}
         onClick={onClick}
       >
         {replyCountText}

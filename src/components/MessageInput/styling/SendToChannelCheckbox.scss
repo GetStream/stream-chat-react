@@ -36,16 +36,19 @@
     .str-chat__send-to-channel-checkbox__visual {
       width: 20px;
       height: 20px;
-      border: 1px solid var(--control-checkbox-border, #D5DBE1);
+      border: 1px solid var(--control-checkbox-border, #d5dbe1);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       background: transparent;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
+      transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
     }
 
-    .str-chat__send-to-channel-checkbox__input:checked + .str-chat__send-to-channel-checkbox__visual {
+    .str-chat__send-to-channel-checkbox__input:checked
+      + .str-chat__send-to-channel-checkbox__visual {
       background-color: var(--control-radiocheck-bg-selected, var(--accent-primary));
       border-color: var(--control-radiocheck-bg-selected, var(--accent-primary));
     }
@@ -64,14 +67,17 @@
       }
     }
 
-    .str-chat__send-to-channel-checkbox__input:checked + .str-chat__send-to-channel-checkbox__visual .str-chat__send-to-channel-checkbox__checkmark {
+    .str-chat__send-to-channel-checkbox__input:checked
+      + .str-chat__send-to-channel-checkbox__visual
+      .str-chat__send-to-channel-checkbox__checkmark {
       opacity: 1;
     }
 
     .str-chat__send-to-channel-checkbox__label {
       font: var(--str-chat__metadata-default-text);
-      transition: color 0.15s ease, border-color 0.15s ease;
+      transition:
+        color 0.15s ease,
+        border-color 0.15s ease;
     }
-
   }
 }

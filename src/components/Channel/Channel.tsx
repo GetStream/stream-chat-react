@@ -4,47 +4,31 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from 'react';
 import clsx from 'clsx';
-import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import type {
-  APIErrorResponse,
-  ChannelAPIResponse,
   ChannelMemberResponse,
   ChannelQueryOptions,
-  ChannelState,
   DeleteMessageOptions,
-  ErrorFromResponse,
   Event,
   EventAPIResponse,
-  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
-  SendMessageAPIResponse,
   SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
   UpdateMessageOptions,
 } from 'stream-chat';
-import { localMessageToNewMessagePayload } from 'stream-chat';
-
-import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
-import { useCreateTypingContext } from './hooks/useCreateTypingContext';
-import { useEditMessageHandler } from './hooks/useEditMessageHandler';
-import { useIsMounted } from './hooks/useIsMounted';
+import { useChannelConfig } from './hooks/useChannelConfig';
 import type { OnMentionAction } from './hooks/useMentionsHandlers';
 import { useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import {
-  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
-  LoadingChannel as DefaultLoadingIndicator,
-} from '../Loading';
+import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
 
 import type {
   ChannelActionContextValue,
@@ -54,7 +38,6 @@ import type {
 import {
   ChannelActionProvider,
   ChannelStateProvider,
-  TypingProvider,
   useChatContext,
   useComponentContext,
   useTranslationContext,
@@ -63,29 +46,16 @@ import {
 import { CHANNEL_CONTAINER_ID } from './constants';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
-  DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-  DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList';
 import {
   getChatContainerClass,
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
-import { useThreadContext } from '../Threads';
+import { makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
-import type {
-  // ChannelUnreadUiState,
-  ImageAttachmentSizeHandler,
-  VideoAttachmentSizeHandler,
-} from '../../types/types';
-import {
-  getImageAttachmentConfiguration,
-  getVideoAttachmentConfiguration,
-} from '../Attachment/attachment-sizing';
 import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
@@ -127,10 +97,6 @@ export type ChannelProps = {
   ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
-  giphyVersion?: GiphyVersions;
-  /** A custom function to provide size configuration for image attachments */
-  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /**
    * Allows to prevent triggering the channel.watch() call when mounting the component.
    * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
@@ -143,12 +109,8 @@ export type ChannelProps = {
   onMentionsClick?: OnMentionAction;
   /** Custom action handler function to run on hover of an @mention in a message */
   onMentionsHover?: OnMentionAction;
-  /** You can turn on/off thumbnail generation for video attachments */
-  shouldGenerateVideoThumbnail?: boolean;
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
   skipMessageDataMemoization?: boolean;
-  /** A custom function to provide size configuration for video attachments */
-  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
 };
 
 const ChannelContainer = ({
@@ -224,19 +186,19 @@ const ChannelInner = (
     onMentionsHover,
     skipMessageDataMemoization,
   } = props;
-  const {
-    // LoadingErrorIndicator = DefaultLoadingErrorIndicator,
-    // LoadingIndicator = DefaultLoadingIndicator,
-  } = useComponentContext();
+  // const {
+  // LoadingErrorIndicator = DefaultLoadingErrorIndicator,
+  // LoadingIndicator = DefaultLoadingIndicator,
+  // } = useComponentContext();
 
-  const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
+  const { client, customClasses, latestMessageDatesByChannels, searchController } =
     useChatContext('Channel');
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   // const thread = useThreadContext();
 
-  const [channelConfig, setChannelConfig] = useState(channel.getConfig());
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
@@ -266,8 +228,6 @@ const ChannelInner = (
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-
-  const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
 
   // const throttledCopyStateFromChannel = throttle(
   //   () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
@@ -341,14 +301,6 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
-    if (event.message) {
-      // dispatch({
-      //   channel,
-      //   message: event.message,
-      //   type: 'updateThreadOnEvent',
-      // });
-    }
-
     // ignore the event if it is not targeted at the current channel.
     // Event targeted at this channel or globally targeted event should lead to state refresh
     if (event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid)
@@ -356,10 +308,6 @@ const ChannelInner = (
 
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
-
-    // if (event.type === 'typing.start' || event.type === 'typing.stop') {
-    //   return dispatch({ channel, type: 'setTyping' });
-    // }
 
     if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
       online.current = event.online;
@@ -460,8 +408,6 @@ const ChannelInner = (
             }
           }
           await getChannel({ channel, client, members, options: channelQueryOptions });
-          const config = channel.getConfig();
-          setChannelConfig(config);
         } catch (e) {
           // dispatch({ error: e as Error, type: 'setError' });
           errored = true;
@@ -519,14 +465,6 @@ const ChannelInner = (
     channelConfig?.read_events,
     initializeOnMount,
   ]);
-
-  // useEffect(() => {
-  // if (!state.thread) return;
-  //
-  // const message = state.messages?.find((m) => m.id === state.thread?.id);
-  //
-  // if (message) dispatch({ message, type: 'setThread' });
-  // }, [state.messages, state.thread]);
 
   const handleHighlightedMessageChange = useCallback(
     ({
@@ -989,96 +927,20 @@ const ChannelInner = (
     // });
   };
 
-  /** THREAD */
-
-  const openThread = (message: LocalMessage, event?: React.BaseSyntheticEvent) => {
-    event?.preventDefault();
-    // dispatch({ channel, message, type: 'openThread' });
-  };
-
-  const closeThread = (event?: React.BaseSyntheticEvent) => {
-    event?.preventDefault();
-    // dispatch({ type: 'closeThread' });
-  };
-
-  // const loadMoreThreadFinished = useCallback(
-  //   debounce(
-  //     (
-  //       threadHasMore: boolean,
-  //       threadMessages: Array<ReturnType<ChannelState['formatMessage']>>,
-  //     ) => {
-  //       dispatch({
-  //         threadHasMore,
-  //         threadMessages,
-  //         type: 'loadMoreThreadFinished',
-  //       });
-  //     },
-  //     2000,
-  //     { leading: true, trailing: true },
-  //   ),
-  //   [],
-  // );
-
-  // const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
-  //   // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-  //   if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
-  //
-  //   dispatch({ type: 'startLoadingThread' });
-  //   const parentId = state.thread.id;
-  //
-  //   if (!parentId) {
-  //     return dispatch({ type: 'closeThread' });
-  //   }
-  //
-  //   const oldMessages = channel.state.threads[parentId] || [];
-  //   const oldestMessageId = oldMessages[0]?.id;
-  //
-  //   try {
-  //     const queryResponse = await channel.getReplies(parentId, {
-  //       id_lt: oldestMessageId,
-  //       limit,
-  //     });
-  //
-  //     const threadHasMoreMessages = hasMoreMessagesProbably(
-  //       queryResponse.messages.length,
-  //       limit,
-  //     );
-  //     const newThreadMessages = channel.state.threads[parentId] || [];
-  //
-  //     // next set loadingMore to false so we can start asking for more data
-  //     loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
-  //   } catch (e) {
-  //     loadMoreThreadFinished(false, oldMessages);
-  //   }
-  // };
-
   const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
 
   // const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
-  // const { typing, ...restState } = state;
-
   const channelStateContextValue = useCreateChannelStateContext({
-    // ...restState,
+    // ...state,
     channel,
-    channelCapabilitiesArray,
-    channelConfig,
     // channelUnreadUiState,
-    giphyVersion: props.giphyVersion || 'fixed_height',
-    imageAttachmentSizeHandler:
-      props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
-    mutes,
     notifications,
-    shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
-    videoAttachmentSizeHandler:
-      props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
-    // watcher_count: state.watcherCount,
   });
 
   const channelActionContextValue: ChannelActionContextValue = useMemo(
     () => ({
       addNotification,
-      closeThread,
       deleteMessage,
       // dispatch,
       // editMessage,
@@ -1091,7 +953,6 @@ const ChannelInner = (
       markRead,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
-      openThread,
       removeMessage,
       // retrySendMessage,
       // sendMessage,
@@ -1112,10 +973,6 @@ const ChannelInner = (
       // setChannelUnreadUiState,
     ],
   );
-
-  // const typingContextValue = useCreateTypingContext({
-  //   typing,
-  // });
 
   // if (state.error) {
   //   return (
@@ -1145,11 +1002,9 @@ const ChannelInner = (
     <ChannelContainer className={windowsEmojiClass}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          {/*<TypingProvider value={typingContextValue}>*/}
           <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
             <div className={clsx(chatContainerClass)}>{children}</div>
           </WithAudioPlayback>
-          {/*</TypingProvider>*/}
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChannelContainer>

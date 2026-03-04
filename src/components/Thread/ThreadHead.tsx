@@ -10,7 +10,7 @@ export const ThreadHead = (props: MessageProps) => {
   const { ThreadStart = DefaultThreadStart } = useComponentContext('ThreadHead');
   return (
     <div className='str-chat__parent-message-li'>
-      <Message initialMessage threadList {...props} />
+      <Message initialMessage {...props} />
       <ThreadStart />
     </div>
   );

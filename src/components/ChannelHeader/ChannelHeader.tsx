@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { IconLayoutAlignLeft } from '../Icons/icons';
+import { IconChevronLeft, IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { getChatViewEntityBinding, useChatViewContext } from '../ChatView';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannel, useTranslationContext } from '../../context';
+import { useStateStore } from '../../store';
 import type { ChannelAvatarProps } from '../Avatar';
+import type { ChatViewLayoutState } from '../ChatView/layoutController/layoutControllerTypes';
 import { Button } from '../Button';
 import clsx from 'clsx';
 
@@ -18,11 +20,27 @@ export type ChannelHeaderProps = {
   image?: string;
   /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
   MenuIcon?: React.ComponentType;
+  /** Optional external toggle override for sidebar/entity list pane behavior */
+  onSidebarToggle?: () => void;
   /** When true, shows IconLayoutAlignLeft instead of MenuIcon for sidebar expansion */
   sidebarCollapsed?: boolean;
   /** Set title manually */
   title?: string;
 };
+
+const channelHeaderLayoutSelector = ({
+  activeSlot,
+  entityListPaneOpen,
+  slotBindings,
+  slotHistory,
+  visibleSlots,
+}: ChatViewLayoutState) => ({
+  activeSlot,
+  entityListPaneOpen,
+  slotBindings,
+  slotHistory,
+  visibleSlots,
+});
 
 /**
  * The ChannelHeader component renders some basic information about a Channel.
@@ -32,12 +50,14 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     Avatar = DefaultAvatar,
     image: overrideImage,
     MenuIcon = IconLayoutAlignLeft,
-    sidebarCollapsed = true,
+    onSidebarToggle,
+    sidebarCollapsed: sidebarCollapsedProp,
     title: overrideTitle,
   } = props;
 
-  const { channel } = useChannelStateContext();
-  const { openMobileNav } = useChatContext('ChannelHeader');
+  const channel = useChannel();
+  const { layoutController } = useChatViewContext();
+  const { hideChannelList, unhideChannelList } = useChatViewNavigation();
   const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -45,6 +65,35 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
+  const { activeSlot, entityListPaneOpen, slotBindings, slotHistory, visibleSlots } =
+    useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
+    channelHeaderLayoutSelector(layoutController.state.getLatestValue());
+  const channelListSlot = visibleSlots.find(
+    (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
+  );
+  const hasParentHistory = !!(activeSlot && slotHistory?.[activeSlot]?.length);
+  const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;
+  const handleSidebarToggle =
+    onSidebarToggle ??
+    (() => {
+      if (entityListPaneOpen) {
+        hideChannelList({ slot: channelListSlot });
+        return;
+      }
+
+      unhideChannelList({ slot: channelListSlot ?? activeSlot });
+    });
+  const handleHeaderAction = hasParentHistory
+    ? () => {
+        if (!activeSlot) return;
+        layoutController.close(activeSlot);
+      }
+    : handleSidebarToggle;
+  const actionAriaLabel = hasParentHistory
+    ? t('aria/Go back')
+    : sidebarCollapsed
+      ? t('aria/Expand sidebar')
+      : t('aria/Menu');
 
   return (
     <div
@@ -54,14 +103,14 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     >
       <Button
         appearance='ghost'
-        aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}
+        aria-label={actionAriaLabel}
         circular
         className='str-chat__header-sidebar-toggle'
-        onClick={openMobileNav}
+        onClick={handleHeaderAction}
         size='md'
         variant='secondary'
       >
-        {sidebarCollapsed && <MenuIcon />}
+        {hasParentHistory ? <IconChevronLeft /> : sidebarCollapsed && <MenuIcon />}
       </Button>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>

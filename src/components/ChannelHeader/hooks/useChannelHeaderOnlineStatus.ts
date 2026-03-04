@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
-import type { ChannelState } from 'stream-chat';
+import type { ChannelMemberResponse, MembersState, WatcherState } from 'stream-chat';
 
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
-import { useTranslationContext } from '../../../context/TranslationContext';
+import { useChannel, useChatContext, useTranslationContext } from '../../../context';
+import { useStateStore } from '../../../store';
+
+const membersSelector = (nextValue: MembersState) => ({
+  memberCount: nextValue.memberCount,
+  members: nextValue.members,
+});
+
+const watchersSelector = (nextValue: WatcherState) => ({
+  watcherCount: nextValue.watcherCount,
+  watchers: nextValue.watchers,
+});
 
 /**
  * Returns the channel header online status text (e.g. "Online", "Offline", or "X members, Y online").
@@ -12,35 +20,23 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 export function useChannelHeaderOnlineStatus(): string | null {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
-  // todo: remove
-  const watcherCount = 0;
-  const { member_count: memberCount = 0 } = channel?.data || {};
-
-  // todo: we need reactive state for watchers in LLC
-  const [watchers, setWatchers] = useState<ChannelState['watchers']>(() =>
-    Object.assign({}, channel?.state?.watchers ?? {}),
+  const channel = useChannel();
+  const { memberCount, members } = useStateStore(
+    channel.state.membersStore,
+    membersSelector,
   );
-
-  useEffect(() => {
-    if (!channel) return;
-    const subscription = channel.on('user.watching.start', (event) => {
-      setWatchers((prev) => {
-        if (!event.user?.id) return prev;
-        if (prev[event.user.id]) return prev;
-        return Object.assign({ [event.user.id]: event.user }, prev);
-      });
-    });
-    return () => subscription.unsubscribe();
-  }, [channel]);
+  const { watcherCount, watchers } = useStateStore(
+    channel.state.watcherStore,
+    watchersSelector,
+  );
 
   if (!memberCount) return null;
 
   const isDmChannel =
     memberCount === 1 ||
     (memberCount === 2 &&
-      Object.values(channel?.state?.members ?? {}).some(
-        ({ user }) => user?.id === client.user?.id,
+      Object.values(members).some(
+        (member: ChannelMemberResponse) => member.user?.id === client.user?.id,
       ));
 
   if (isDmChannel) {

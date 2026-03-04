@@ -1,17 +1,17 @@
 import type { Attachment } from 'stream-chat';
 import { toGalleryItemDescriptors } from '../Gallery';
 import clsx from 'clsx';
-import { useChannelStateContext } from '../../context';
 import { IconGiphy } from '../Icons';
 import { useMemo } from 'react';
 import { ImageComponent } from './Image';
+import { useAttachmentContext } from './AttachmentContext';
 
 export type GiphyAttachmentProps = {
   attachment: Attachment;
 };
 
 export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
-  const { giphyVersion: giphyVersionName } = useChannelStateContext();
+  const { giphyVersion: giphyVersionName } = useAttachmentContext();
 
   const imageDescriptors = useMemo(
     () => toGalleryItemDescriptors(attachment, { giphyVersionName }),

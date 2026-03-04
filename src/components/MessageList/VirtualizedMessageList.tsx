@@ -49,7 +49,7 @@ import {
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
-import { DialogManagerProvider } from '../../context';
+import { DialogManagerProvider, useChannel } from '../../context';
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ChatContextValue } from '../../context/ChatContext';
@@ -58,6 +58,9 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
+import { useStateStore } from '../../store';
+import { useThreadContext } from '../Threads';
+import { useMessagePaginator } from '../../hooks';
 
 import type {
   Channel,
@@ -71,14 +74,11 @@ import type { UnknownType } from '../../types/types';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
-import { useStateStore } from '../../store';
-import { useMessagePaginator } from '../../hooks';
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'formatDate'
   | 'messageActions'
-  | 'openThread'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
@@ -93,8 +93,7 @@ type VirtualizedMessageListPropsForContext =
   // | 'loadingMore'
   | 'Message'
   | 'returnAllReadData'
-  | 'shouldGroupByUser'
-  | 'threadList';
+  | 'shouldGroupByUser';
 
 /**
  * Context object provided to some Virtuoso props that are functions (components rendered by Virtuoso and other functions)
@@ -107,6 +106,7 @@ export type VirtuosoContext = Required<
 > &
   Pick<VirtualizedMessageListProps, VirtualizedMessageListPropsForContext> &
   Pick<ChatContextValue, 'customClasses'> & {
+    channel: Channel;
     /** Latest received message id in the current channel */
     lastReceivedMessageId: string | null | undefined;
     loadingMore: boolean;
@@ -146,6 +146,10 @@ type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
   notifications: ChannelNotifications;
   read?: StreamChannelState['read'];
 };
+
+const channelReadSelector = (nextValue: { read: StreamChannelState['read'] }) => ({
+  read: nextValue.read,
+});
 
 function captureResizeObserverExceededError(e: ErrorEvent) {
   if (
@@ -223,7 +227,6 @@ const VirtualizedMessageListWithContext = (
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
     notifications,
-    openThread,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
     reactionDetailsSort,
@@ -240,8 +243,9 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     // suppressAutoscroll,
-    threadList,
   } = props;
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
 
   const { components: virtuosoComponentsFromProps, ...overridingVirtuosoProps } =
     additionalVirtuosoProps;
@@ -390,7 +394,7 @@ const VirtualizedMessageListWithContext = (
 
   useMarkRead({
     isMessageListScrolledToBottom,
-    messageListIsThread: !!threadList,
+    messageListIsThread: isThreadList,
   });
 
   const scrollToBottom = useCallback(async () => {
@@ -496,7 +500,7 @@ const VirtualizedMessageListWithContext = (
 
   if (!processedMessages) return null;
 
-  const dialogManagerId = threadList
+  const dialogManagerId = isThreadList
     ? `virtualized-message-list-dialog-manager-thread-${id}`
     : `virtualized-message-list-dialog-manager-${id}`;
 
@@ -505,7 +509,7 @@ const VirtualizedMessageListWithContext = (
       <MessageTranslationViewProvider>
         <MessageListMainPanel>
           <DialogManagerProvider id={dialogManagerId}>
-            {!threadList && showUnreadMessagesNotification && (
+            {!isThreadList && showUnreadMessagesNotification && (
               <UnreadMessagesNotification
                 unreadCount={channelUnreadUiState?.unreadCount}
               />
@@ -535,6 +539,7 @@ const VirtualizedMessageListWithContext = (
                 computeItemKey={computeItemKey}
                 context={{
                   additionalMessageInputProps,
+                  channel,
                   closeReactionSelectorOnClick,
                   customClasses,
                   customMessageRenderer,
@@ -552,7 +557,6 @@ const VirtualizedMessageListWithContext = (
                   messageGroupStyles,
                   MessageSystem,
                   numItemsPrepended,
-                  openThread,
                   ownMessagesDeliveredToOthers,
                   ownMessagesReadByOthers,
                   processedMessages,
@@ -563,7 +567,6 @@ const VirtualizedMessageListWithContext = (
                   showAvatar,
                   sortReactionDetails,
                   sortReactions,
-                  threadList,
                   unreadMessageCount: channelUnreadUiState?.unreadCount,
                   UnreadMessagesSeparator,
                   virtuosoRef: virtuoso,
@@ -595,7 +598,6 @@ const VirtualizedMessageListWithContext = (
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
                 isNotAtLatestMessageSet={hasMoreNewer}
                 onClick={scrollToBottom}
-                threadList={threadList}
               />
             </div>
           </DialogManagerProvider>
@@ -710,8 +712,6 @@ export type VirtualizedMessageListProps = Partial<
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   // /** stops the list from autoscrolling when new messages are loaded */
   // suppressAutoscroll?: boolean;
-  /** If true, indicates the message list is a thread  */
-  threadList?: boolean;
 };
 
 /**
@@ -719,11 +719,13 @@ export type VirtualizedMessageListProps = Partial<
  * It is a consumer of the React contexts set in [Channel](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/Channel.tsx).
  */
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
+  const channel = useChannel();
+
   const {
-    channel,
     notifications,
     // suppressAutoscroll
   } = useChannelStateContext('VirtualizedMessageList');
+  const { read } = useStateStore(channel?.state.readStore, channelReadSelector) ?? {};
 
   const messages = props.messages; // || contextMessages;
 
@@ -741,7 +743,7 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
       // loadMoreNewer={loadMoreNewer}
       messages={messages}
       notifications={notifications}
-      // read={read}
+      read={read}
       // suppressAutoscroll={suppressAutoscroll}
       {...props}
     />

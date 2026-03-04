@@ -7,11 +7,17 @@ import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { LocalMessage, UnreadSnapshotState, UserResponse } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  UnreadSnapshotState,
+  UserResponse,
+} from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
 // import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
+  channel: Channel;
   /**
    * Current user's channel read state used to render components reflecting unread state.
    * It does not reflect the back-end state if a channel is marked read on mount.
@@ -50,6 +56,7 @@ type MessagePropsToOmit =
   | 'readBy';
 
 export function defaultRenderMessages({
+  channel,
   channelUnreadUiState,
   components,
   customClasses,
@@ -112,6 +119,8 @@ export function defaultRenderMessages({
 
       const isFirstUnreadMessage = getIsFirstUnreadMessage({
         ...channelUnreadUiState,
+        channel,
+        firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
         isFirstMessage: !!firstMessage?.id && firstMessage.id === message.id,
         message,
         previousMessage,

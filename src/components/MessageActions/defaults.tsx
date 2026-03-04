@@ -32,6 +32,7 @@ import {
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import {
+  useChannel,
   useChannelActionContext,
   useChatContext,
   useComponentContext,
@@ -48,16 +49,26 @@ import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
+import { useStateStore } from '../../store';
+import type { StreamChat } from 'stream-chat';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 const msgActionsBoxButtonClassNameDestructive =
   'str-chat__message-actions-list-item-button--destructive' as const;
+const mutedUsersSelector = (
+  nextValue: ReturnType<StreamChat['mutedUsersStore']['getLatestValue']>,
+) => ({
+  mutes: nextValue.mutedUsers,
+});
 
 const DefaultMessageActionComponents = {
   dropdown: {
     ThreadReply({ closeMenu }: ContextMenuItemProps) {
-      const { handleOpenThread } = useMessageContext();
+      const { openThread } = useChatViewNavigation();
+      const channel = useChannel();
+      const { message } = useMessageContext('MessageActions');
       const { t } = useTranslationContext();
 
       return (
@@ -66,8 +77,8 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
           Icon={IconBubbleText6ChatMessage}
-          onClick={(e) => {
-            handleOpenThread(e);
+          onClick={() => {
+            void openThread({ channel, message });
             closeMenu();
           }}
         >
@@ -275,8 +286,10 @@ const DefaultMessageActionComponents = {
       );
     },
     Mute({ closeMenu }: ContextMenuItemProps) {
+      const { client } = useChatContext();
       const { handleMute, message } = useMessageContext();
-      const { mutes } = useChatContext();
+      const { mutes = [] } =
+        useStateStore(client?.mutedUsersStore, mutedUsersSelector) ?? {};
       const { t } = useTranslationContext();
 
       const isMuted = isUserMuted(message, mutes);
@@ -364,7 +377,9 @@ const DefaultMessageActionComponents = {
       return <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />;
     },
     Reply() {
-      const { handleOpenThread } = useMessageContext();
+      const { openThread } = useChatViewNavigation();
+      const channel = useChannel();
+      const { message } = useMessageContext('MessageActions');
       const { t } = useTranslationContext();
 
       return (
@@ -372,7 +387,9 @@ const DefaultMessageActionComponents = {
           aria-label={t('aria/Open Thread')}
           className='str-chat__message-reply-in-thread-button'
           data-testid='thread-action'
-          onClick={handleOpenThread}
+          onClick={() => {
+            void openThread({ channel, message });
+          }}
         >
           <ThreadIcon className='str-chat__message-action-icon' />
         </QuickMessageActionsButton>

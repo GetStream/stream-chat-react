@@ -63,3 +63,44 @@
     flex-grow: 1;
   }
 }
+
+.str-chat__chat-view__workspace-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.str-chat__chat-view__workspace-layout-nav-rail {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.str-chat__chat-view__workspace-layout-entity-list-pane {
+  display: flex;
+  min-width: 0;
+}
+
+.str-chat__chat-view__workspace-layout-slots {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.str-chat__chat-view__workspace-layout-slots--empty {
+  justify-content: center;
+}
+
+.str-chat__chat-view__workspace-layout-slot {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.str-chat__chat-view__slot {
+  min-width: 0;
+}
+
+.str-chat__chat-view__slot--hidden {
+  display: none;
+}

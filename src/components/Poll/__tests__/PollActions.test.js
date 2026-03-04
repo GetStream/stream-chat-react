@@ -6,6 +6,7 @@ import { PollActions } from '../PollActions';
 import {
   ChannelStateProvider,
   ChatProvider,
+  DialogManagerProvider,
   MessageProvider,
   PollProvider,
   TranslationProvider,
@@ -28,7 +29,7 @@ const END_VOTE_ACTION_TEXT = 'End vote';
 const t = (v) => v;
 
 const defaultChannelStateContext = {
-  channelCapabilities: { 'cast-poll-vote': true, 'query-poll-votes': true },
+  notifications: [],
 };
 
 const defaultMessageContext = {
@@ -43,19 +44,35 @@ const renderComponent = async ({
   props,
 }) => {
   const client = customClient ?? (await getTestClientWithUser());
+  const { channelCapabilities, ...channelStateContextOverrides } =
+    channelStateContext ?? {};
+  const own_capabilities = channelCapabilities
+    ? Object.entries(channelCapabilities)
+        .filter(([, isAllowed]) => isAllowed)
+        .map(([capability]) => capability)
+    : ['cast-poll-vote', 'query-poll-votes'];
+  const channel = client.channel('messaging', `poll-actions-${client.userID ?? 'user'}`, {
+    own_capabilities,
+  });
   return render(
     <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
-        <ChannelStateProvider
-          value={{ ...defaultChannelStateContext, ...channelStateContext }}
-        >
-          <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-            <PollProvider poll={poll}>
-              <PollActions {...props} />
-            </PollProvider>
-          </MessageProvider>
-        </ChannelStateProvider>
-      </TranslationProvider>
+      <DialogManagerProvider id='modal-dialog-manager'>
+        <TranslationProvider value={{ t }}>
+          <ChannelStateProvider
+            value={{
+              ...defaultChannelStateContext,
+              ...channelStateContextOverrides,
+              channel,
+            }}
+          >
+            <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+              <PollProvider poll={poll}>
+                <PollActions {...props} />
+              </PollProvider>
+            </MessageProvider>
+          </ChannelStateProvider>
+        </TranslationProvider>
+      </DialogManagerProvider>
     </ChatProvider>,
   );
 };

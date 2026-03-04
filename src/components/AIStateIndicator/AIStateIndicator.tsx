@@ -3,7 +3,7 @@ import type { Channel } from 'stream-chat';
 
 import { AIStates, useAIState } from './hooks/useAIState';
 
-import { useChannelStateContext, useTranslationContext } from '../../context';
+import { useChannel, useTranslationContext } from '../../context';
 
 export type AIStateIndicatorProps = {
   channel?: Channel;
@@ -13,7 +13,7 @@ export const AIStateIndicator = ({
   channel: channelFromProps,
 }: AIStateIndicatorProps) => {
   const { t } = useTranslationContext();
-  const { channel: channelFromContext } = useChannelStateContext('AIStateIndicator');
+  const channelFromContext = useChannel();
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
   const allowedStates = {

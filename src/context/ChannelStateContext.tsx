@@ -1,19 +1,9 @@
 import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
-import type {
-  Channel,
-  ChannelConfigWithInfo,
-  GiphyVersions,
-  LocalMessage,
-  Mute,
-  ChannelState as StreamChannelState,
-} from 'stream-chat';
+import type { Channel, LocalMessage } from 'stream-chat';
 
-import type {
-  // ChannelUnreadUiState,
-  ImageAttachmentSizeHandler,
-  VideoAttachmentSizeHandler,
-} from '../types/types';
+import type {} from // ChannelUnreadUiState
+'../types/types';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -22,7 +12,6 @@ export type ChannelNotifications = Array<{
 }>;
 
 export type ChannelState = {
-  suppressAutoscroll: boolean;
   error?: Error | null;
   hasMore?: boolean;
   hasMoreNewer?: boolean;
@@ -30,32 +19,14 @@ export type ChannelState = {
   loading?: boolean;
   loadingMore?: boolean;
   loadingMoreNewer?: boolean;
-  members?: StreamChannelState['members'];
   messages?: LocalMessage[];
   pinnedMessages?: LocalMessage[];
-  read?: StreamChannelState['read'];
-  thread?: LocalMessage | null;
-  threadHasMore?: boolean;
-  threadLoadingMore?: boolean;
-  threadMessages?: LocalMessage[];
-  threadSuppressAutoscroll?: boolean;
-  typing?: StreamChannelState['typing'];
-  watcherCount?: number;
-  watchers?: StreamChannelState['watchers'];
 };
 
 export type ChannelStateContextValue = {
   channel: Channel;
-  channelCapabilities: Record<string, boolean>;
-  channelConfig: ChannelConfigWithInfo | undefined;
-  imageAttachmentSizeHandler: ImageAttachmentSizeHandler;
   notifications: ChannelNotifications;
-  shouldGenerateVideoThumbnail: boolean;
-  videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   // channelUnreadUiState?: ChannelUnreadUiState;
-  giphyVersion?: GiphyVersions;
-  mutes?: Array<Mute>;
-  // watcher_count?: number;
 };
 
 export const ChannelStateContext = React.createContext<

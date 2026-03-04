@@ -24,13 +24,10 @@ import {
   getTestClientWithUser,
   initClientWithChannels,
   sendMessageApi,
-  threadRepliesApi,
   useMockedApis,
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
-import { Thread } from '../../Thread';
 import { WithComponents } from '../../../context';
-import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
 jest.mock('../../Loading', () => ({
@@ -185,6 +182,34 @@ describe('Channel', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('does not expose channelConfig and channelCapabilities in ChannelStateContext', async () => {
+    const callback = jest.fn();
+    await renderComponent({ channel, chatClient }, callback);
+
+    await waitFor(() => {
+      expect(callback).toHaveBeenCalled();
+    });
+
+    const contextValue = callback.mock.calls[callback.mock.calls.length - 1]?.[0];
+    expect(contextValue).not.toHaveProperty('channelConfig');
+    expect(contextValue).not.toHaveProperty('channelCapabilities');
+  });
+
+  it('does not expose attachment media config fields in ChannelStateContext', async () => {
+    const callback = jest.fn();
+    await renderComponent({ channel, chatClient }, callback);
+
+    await waitFor(() => {
+      expect(callback).toHaveBeenCalled();
+    });
+
+    const contextValue = callback.mock.calls[callback.mock.calls.length - 1]?.[0];
+    expect(contextValue).not.toHaveProperty('giphyVersion');
+    expect(contextValue).not.toHaveProperty('imageAttachmentSizeHandler');
+    expect(contextValue).not.toHaveProperty('shouldGenerateVideoThumbnail');
+    expect(contextValue).not.toHaveProperty('videoAttachmentSizeHandler');
   });
 
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
@@ -600,133 +625,23 @@ describe('Channel', () => {
   });
 
   describe('Children that consume the contexts set in Channel', () => {
-    it('should be able to open threads', async () => {
-      const threadMessage = messages[0];
-      const hasThread = jest.fn();
-      const hasThreadInstance = jest.fn();
-      const mockThreadInstance = {
-        registerSubscriptions: jest.fn(),
-        threadInstanceMock: true,
-      };
-      const getThreadSpy = jest
-        .spyOn(chatClient, 'getThread')
-        .mockResolvedValueOnce(mockThreadInstance);
+    it('should not expose legacy thread pagination controls in Channel contexts', async () => {
+      const contextSnapshot = jest.fn();
 
-      // this renders Channel, calls openThread from a child context consumer with a message,
-      // and then calls hasThread with the thread id if it was set.
-      await renderComponent(
-        { channel, chatClient },
-        ({ openThread, thread, threadInstance }) => {
-          if (!thread) {
-            openThread(threadMessage, { preventDefault: () => null });
-          } else {
-            hasThread(thread.id);
-            hasThreadInstance(threadInstance);
-          }
-        },
-      );
+      await renderComponent({ channel, chatClient }, (context) => {
+        contextSnapshot(context);
+      });
 
       await waitFor(() => {
-        expect(hasThread).toHaveBeenCalledWith(threadMessage.id);
-        expect(getThreadSpy).not.toHaveBeenCalled();
-        expect(hasThreadInstance).toHaveBeenCalledWith(undefined);
+        const latestContext =
+          contextSnapshot.mock.calls[contextSnapshot.mock.calls.length - 1]?.[0] ?? {};
+
+        expect(latestContext.openThread).toBeUndefined();
+        expect(latestContext.closeThread).toBeUndefined();
+        expect(latestContext.loadMoreThread).toBeUndefined();
+        expect(latestContext.thread).toBeUndefined();
+        expect(latestContext.threadMessages).toBeUndefined();
       });
-      getThreadSpy.mockRestore();
-    });
-
-    it('should be able to load more messages in a thread until reaching the end', async () => {
-      const getRepliesSpy = jest.spyOn(channel, 'getReplies');
-      const threadMessage = messages[0];
-      const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
-      const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, (_, index) =>
-        generateMessage({
-          created_at: new Date(timestamp + index * 1000),
-          parent_id: threadMessage.id,
-        }),
-      );
-
-      useMockedApis(chatClient, [threadRepliesApi(replies)]);
-
-      const hasThreadMessages = jest.fn();
-
-      let callback = ({ loadMoreThread, openThread, thread, threadMessages }) => {
-        if (!thread) {
-          // first, open a thread
-          openThread(threadMessage, { preventDefault: () => null });
-        } else if (!threadMessages.length) {
-          // then, load more messages in the thread
-          loadMoreThread();
-        } else {
-          // then, call our mock fn so we can verify what was passed as threadMessages
-          hasThreadMessages(threadMessages);
-        }
-      };
-      const { rerender } = await render(
-        <Chat client={chatClient}>
-          <Channel channel={channel}>
-            <CallbackEffectWithChannelContexts callback={callback} />
-          </Channel>
-        </Chat>,
-      );
-
-      await waitFor(() => {
-        expect(getRepliesSpy).toHaveBeenCalledTimes(1);
-        expect(getRepliesSpy).toHaveBeenCalledWith(threadMessage.id, expect.any(Object));
-        expect(hasThreadMessages).toHaveBeenCalledWith(replies);
-      });
-
-      useMockedApis(chatClient, [threadRepliesApi([])]);
-      callback = ({ loadMoreThread }) => {
-        loadMoreThread();
-      };
-      await act(() => {
-        rerender(
-          <Chat client={chatClient}>
-            <Channel channel={channel}>
-              <CallbackEffectWithChannelContexts callback={callback} />
-            </Channel>
-          </Chat>,
-        );
-      });
-      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
-      await act(() => {
-        rerender(
-          <Chat client={chatClient}>
-            <Channel channel={channel}>
-              <CallbackEffectWithChannelContexts callback={callback} />
-            </Channel>
-          </Chat>,
-        );
-      });
-      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('should allow closing a thread after it has been opened', async () => {
-      let threadHasClosed = false;
-      const threadMessage = messages[0];
-
-      let threadHasAlreadyBeenOpened = false;
-      await renderComponent(
-        { channel, chatClient },
-        ({ closeThread, openThread, thread }) => {
-          if (!thread) {
-            // if there is no open thread
-            if (!threadHasAlreadyBeenOpened) {
-              // and we haven't opened one before, open a thread
-              openThread(threadMessage, { preventDefault: () => null });
-              threadHasAlreadyBeenOpened = true;
-            } else {
-              // if we opened it ourselves before, it means the thread was successfully closed
-              threadHasClosed = true;
-            }
-          } else {
-            // if a thread is open, close it.
-            closeThread({ preventDefault: () => null });
-          }
-        },
-      );
-
-      await waitFor(() => expect(threadHasClosed).toBe(true));
     });
 
     it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
@@ -2071,64 +1986,6 @@ describe('Channel', () => {
         await waitFor(() => expect(document.title).toContain(`${unreadAmount}`));
       });
 
-      it('should update the `thread` parent message if an event comes in that modifies it', async () => {
-        const threadMessage = messages[0];
-        const newText = 'new text';
-        const updatedThreadMessage = { ...threadMessage, text: newText };
-        const dispatchUpdateMessageEvent = createChannelEventDispatcher(
-          { message: updatedThreadMessage, type: 'message.updated' },
-          chatClient,
-          channel,
-        );
-        let threadStarterHasUpdatedText = false;
-        await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
-          if (!thread) {
-            // first, open thread
-            openThread(threadMessage, { preventDefault: () => null });
-          } else if (thread.text !== newText) {
-            // then, update the thread message
-            // FIXME: dispatch event needs to be queued on event loop now
-            setTimeout(() => dispatchUpdateMessageEvent(), 0);
-          } else {
-            threadStarterHasUpdatedText = true;
-          }
-        });
-
-        await waitFor(() => expect(threadStarterHasUpdatedText).toBe(true));
-      });
-
-      it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
-        const threadMessage = messages[0];
-        const newThreadMessage = generateMessage({
-          parent_id: threadMessage.id,
-        });
-        const dispatchNewThreadMessageEvent = createChannelEventDispatcher(
-          {
-            message: newThreadMessage,
-          },
-          chatClient,
-          channel,
-        );
-        let newThreadMessageWasAdded = false;
-        await renderComponent(
-          { channel, chatClient },
-          ({ openThread, thread, threadMessages }) => {
-            if (!thread) {
-              // first, open thread
-              openThread(threadMessage, { preventDefault: () => null });
-            } else if (!threadMessages.some(({ id }) => id === newThreadMessage.id)) {
-              // then, add new thread message
-              // FIXME: dispatch event needs to be queued on event loop now
-              setTimeout(() => dispatchNewThreadMessageEvent(), 0);
-            } else {
-              newThreadMessageWasAdded = true;
-            }
-          },
-        );
-
-        await waitFor(() => expect(newThreadMessageWasAdded).toBe(true));
-      });
-
       [
         {
           component: MessageList,
@@ -2137,20 +1994,6 @@ describe('Channel', () => {
             return avatar;
           },
           name: 'MessageList',
-        },
-        {
-          callback:
-            (message) =>
-            ({ openThread, thread }) => {
-              if (!thread) openThread(message, { preventDefault: () => null });
-            },
-          component: Thread,
-          getFirstMessageAvatar: () => {
-            // the first avatar is that of the ThreadHeader
-            const avatars = screen.queryAllByTestId('custom-avatar') || [];
-            return avatars[0];
-          },
-          name: 'Thread',
         },
       ].forEach(({ callback, component: Component, getFirstMessageAvatar, name }) => {
         it(`should update user data in ${name} based on updated_at`, async () => {

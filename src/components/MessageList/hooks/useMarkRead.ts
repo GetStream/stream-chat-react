@@ -1,10 +1,6 @@
 import { useEffect } from 'react';
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-} from '../../../context';
-import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
+import { useChannel, useChannelActionContext, useChatContext } from '../../../context';
+import type { Channel, Event } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
@@ -34,7 +30,7 @@ export const useMarkRead = ({
 }: UseMarkReadParams) => {
   const { client } = useChatContext();
   const { markRead } = useChannelActionContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const thread = useThreadContext();
   const { messagePaginator } = thread ?? channel;
 
@@ -97,16 +93,17 @@ export const useMarkRead = ({
   ]);
 };
 
-function getPreviousLastMessage(messages: LocalMessage[], newMessage?: MessageResponse) {
-  if (!newMessage) return;
-  let previousLastMessage;
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const msg = messages[i];
-    if (!msg?.id) break;
-    if (msg.id !== newMessage.id) {
-      previousLastMessage = msg;
-      break;
-    }
-  }
-  return previousLastMessage;
-}
+// todo: remove?
+// function getPreviousLastMessage(messages: LocalMessage[], newMessage?: MessageResponse) {
+//   if (!newMessage) return;
+//   let previousLastMessage;
+//   for (let i = messages.length - 1; i >= 0; i--) {
+//     const msg = messages[i];
+//     if (!msg?.id) break;
+//     if (msg.id !== newMessage.id) {
+//       previousLastMessage = msg;
+//       break;
+//     }
+//   }
+//   return previousLastMessage;
+// }

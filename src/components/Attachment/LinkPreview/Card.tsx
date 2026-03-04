@@ -1,7 +1,7 @@
 import React from 'react';
 import { BaseImage } from '../../Gallery';
 import { SafeAnchor } from '../../SafeAnchor';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useAttachmentContext } from '../AttachmentContext';
 
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from '../utils';
@@ -88,7 +88,7 @@ export type CardProps = RenderAttachmentProps['attachment'] & {
 
 const UnMemoizedCard = (props: CardProps) => {
   const { giphy, image_url, og_scrape_url, thumb_url, title, title_link, type } = props;
-  const { giphyVersion: giphyVersionName } = useChannelStateContext('');
+  const { giphyVersion: giphyVersionName } = useAttachmentContext();
   const cardUrl = title_link || og_scrape_url;
 
   let image = thumb_url || image_url;

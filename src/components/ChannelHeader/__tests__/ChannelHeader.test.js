@@ -21,6 +21,7 @@ import {
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+import { ChatView, createLayoutController } from '../../ChatView';
 
 expect.extend(toHaveNoViolations);
 
@@ -38,18 +39,29 @@ const defaultChannelState = {
 
 const t = jest.fn((key) => key);
 
-const renderComponentBase = ({ channel, client, props }) =>
+const renderComponentBase = ({ channel, chatViewProps, client, props }) =>
   render(
     <ChatProvider value={{ channel, client }}>
       <ChannelStateProvider value={{ channel }}>
         <TranslationProvider value={{ t }}>
-          <ChannelHeader {...props} />
+          {chatViewProps ? (
+            <ChatView {...chatViewProps}>
+              <ChannelHeader {...props} />
+            </ChatView>
+          ) : (
+            <ChannelHeader {...props} />
+          )}
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );
 
-async function renderComponent({ channelData, channelType = 'messaging', props } = {}) {
+async function renderComponent({
+  channelData,
+  channelType = 'messaging',
+  chatViewProps,
+  props,
+} = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
@@ -57,7 +69,7 @@ async function renderComponent({ channelData, channelType = 'messaging', props }
   const channel = client.channel(channelType, testChannel1.id, channelData);
   await channel.query();
 
-  return renderComponentBase({ channel, client, props });
+  return renderComponentBase({ channel, chatViewProps, client, props });
 }
 
 afterEach(cleanup);
@@ -428,5 +440,105 @@ describe('ChannelHeader', () => {
         });
       });
     });
+  });
+
+  it('should toggle entity list pane via ChatView controller when sidebarCollapsed is uncontrolled', async () => {
+    const layoutController = createLayoutController({
+      initialState: {
+        entityListPaneOpen: true,
+        visibleSlots: ['slot1'],
+      },
+    });
+
+    await renderComponent({
+      chatViewProps: {
+        layoutController,
+      },
+    });
+
+    expect(screen.getByRole('button', { name: 'aria/Menu' })).toBeInTheDocument();
+    act(() => {
+      screen.getByRole('button', { name: 'aria/Menu' }).click();
+    });
+
+    await waitFor(() =>
+      expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(false),
+    );
+    expect(
+      screen.getByRole('button', { name: 'aria/Expand sidebar' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should prioritize onSidebarToggle over ChatView controller toggle', async () => {
+    const onSidebarToggle = jest.fn();
+    const layoutController = createLayoutController({
+      initialState: {
+        entityListPaneOpen: true,
+        visibleSlots: ['slot1'],
+      },
+    });
+
+    await renderComponent({
+      chatViewProps: {
+        layoutController,
+      },
+      props: {
+        onSidebarToggle,
+      },
+    });
+
+    act(() => {
+      screen.getByRole('button', { name: 'aria/Menu' }).click();
+    });
+
+    expect(onSidebarToggle).toHaveBeenCalledTimes(1);
+    expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(true);
+  });
+
+  it('should use back action when active slot has parent history', async () => {
+    const onSidebarToggle = jest.fn();
+    const layoutController = createLayoutController({
+      initialState: {
+        activeSlot: 'slot1',
+        entityListPaneOpen: true,
+        slotBindings: {
+          slot1: {
+            key: 'channel:active',
+            kind: 'channel',
+            source: { cid: 'messaging:active' },
+          },
+        },
+        slotHistory: {
+          slot1: [
+            {
+              key: 'channel-list',
+              kind: 'channelList',
+              source: { view: 'channels' },
+            },
+          ],
+        },
+        visibleSlots: ['slot1'],
+      },
+    });
+
+    await renderComponent({
+      chatViewProps: {
+        layoutController,
+      },
+      props: {
+        onSidebarToggle,
+      },
+    });
+
+    act(() => {
+      screen.getByRole('button', { name: 'aria/Go back' }).click();
+    });
+
+    await waitFor(() =>
+      expect(layoutController.state.getLatestValue().slotBindings.slot1?.kind).toBe(
+        'channelList',
+      ),
+    );
+    expect(onSidebarToggle).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
-import type { SharedLocationResponse, Attachment as StreamAttachment } from 'stream-chat';
+import type {
+  GiphyVersions,
+  SharedLocationResponse,
+  Attachment as StreamAttachment,
+} from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
@@ -37,6 +41,12 @@ import type { GiphyAttachmentProps } from './Giphy';
 import type { VideoPlayerProps } from '../VideoPlayer';
 import type { ModalGalleryProps } from './ModalGallery';
 import type { ImageProps } from './Image';
+import {
+  AttachmentContextProvider,
+  defaultAttachmentContextValue,
+  type ImageAttachmentConfiguration,
+  type VideoAttachmentConfiguration,
+} from './AttachmentContext';
 
 export const ATTACHMENT_GROUPS_ORDER = [
   'media',
@@ -46,6 +56,17 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'file',
   'unsupported',
 ] as const;
+
+export type ImageAttachmentSizeHandler = (
+  attachment: StreamAttachment,
+  element: HTMLElement,
+) => ImageAttachmentConfiguration;
+
+export type VideoAttachmentSizeHandler = (
+  attachment: StreamAttachment,
+  element: HTMLElement,
+  shouldGenerateVideoThumbnail: boolean,
+) => VideoAttachmentConfiguration;
 
 export type AttachmentProps = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
@@ -75,12 +96,20 @@ export type AttachmentProps = {
   Giphy?: React.ComponentType<GiphyAttachmentProps>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
+  /** Giphy rendition to use when rendering giphy attachments */
+  giphyVersion?: GiphyVersions;
+  /** Handler used to size image attachments responsively */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
   isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<VideoPlayerProps>;
+  /** Whether a video thumbnail should be rendered before playback starts */
+  shouldGenerateVideoThumbnail?: boolean;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
+  /** Handler used to size video attachments responsively */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
   /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [VoiceRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/VoiceRecording.tsx) */
   VoiceRecording?: React.ComponentType<VoiceRecordingProps>;
 };
@@ -92,8 +121,32 @@ export const Attachment = (props: AttachmentProps) => {
   const {
     attachmentActionsDefaultFocus = defaultAttachmentActionsDefaultFocus,
     attachments,
+    giphyVersion,
+    imageAttachmentSizeHandler,
+    shouldGenerateVideoThumbnail,
+    videoAttachmentSizeHandler,
     ...rest
   } = props;
+  const attachmentContextValue = useMemo(
+    () => ({
+      giphyVersion: giphyVersion ?? defaultAttachmentContextValue.giphyVersion,
+      imageAttachmentSizeHandler:
+        imageAttachmentSizeHandler ??
+        defaultAttachmentContextValue.imageAttachmentSizeHandler,
+      shouldGenerateVideoThumbnail:
+        shouldGenerateVideoThumbnail ??
+        defaultAttachmentContextValue.shouldGenerateVideoThumbnail,
+      videoAttachmentSizeHandler:
+        videoAttachmentSizeHandler ??
+        defaultAttachmentContextValue.videoAttachmentSizeHandler,
+    }),
+    [
+      giphyVersion,
+      imageAttachmentSizeHandler,
+      shouldGenerateVideoThumbnail,
+      videoAttachmentSizeHandler,
+    ],
+  );
 
   const groupedAttachments = useMemo(
     () =>
@@ -107,12 +160,14 @@ export const Attachment = (props: AttachmentProps) => {
   );
 
   return (
-    <div className='str-chat__attachment-list'>
-      {ATTACHMENT_GROUPS_ORDER.reduce(
-        (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
-        [] as React.ReactNode[],
-      )}
-    </div>
+    <AttachmentContextProvider value={attachmentContextValue}>
+      <div className='str-chat__attachment-list'>
+        {ATTACHMENT_GROUPS_ORDER.reduce(
+          (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
+          [] as React.ReactNode[],
+        )}
+      </div>
+    </AttachmentContextProvider>
   );
 };
 

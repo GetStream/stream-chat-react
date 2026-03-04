@@ -11,7 +11,7 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 import type { LocalMessage, UnreadSnapshotState } from 'stream-chat';
 // import type { ChannelUnreadUiState } from '../../../../types/types';
 import type { MessageRenderer, SharedMessageProps } from '../../renderMessages';
-import { useChannelStateContext } from '../../../../context';
+import { useChannel } from '../../../../context';
 import { useLastDeliveredData } from '../useLastDeliveredData';
 import { useStateStore } from '../../../../store';
 
@@ -22,7 +22,6 @@ type UseMessageListElementsProps = {
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer;
   returnAllReadData: boolean;
-  threadList: boolean;
   // channelUnreadUiState?: ChannelUnreadUiState;
   lastOwnMessage?: LocalMessage;
 };
@@ -38,11 +37,10 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
     messages,
     renderMessages,
     returnAllReadData,
-    threadList,
   } = props;
 
   const { customClasses } = useChatContext('useMessageListElements');
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const components = useComponentContext('useMessageListElements');
   const channelUnreadUiState = useStateStore(
     channel.messagePaginator.unreadStateSnapshot,
@@ -71,6 +69,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
   const elements: React.ReactNode[] = useMemo(
     () =>
       renderMessages({
+        channel,
         channelUnreadUiState,
         components,
         customClasses,
@@ -80,7 +79,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
         messages: enrichedMessages,
         ownMessagesDeliveredToOthers,
         readData,
-        sharedMessageProps: { ...internalMessageProps, returnAllReadData, threadList },
+        sharedMessageProps: { ...internalMessageProps, returnAllReadData },
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -93,7 +92,6 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
       readData,
       renderMessages,
       returnAllReadData,
-      threadList,
     ],
   );
 

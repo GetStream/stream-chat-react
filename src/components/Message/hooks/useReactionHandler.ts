@@ -3,8 +3,8 @@ import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
 import { useThreadContext } from '../../Threads';
+import { useChannel } from '../../../context';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
@@ -15,7 +15,7 @@ Make sure the ChannelAction and ChannelState contexts are properly set and the h
 export const useReactionHandler = (message?: LocalMessage) => {
   const thread = useThreadContext();
   const { updateMessage } = useChannelActionContext('useReactionHandler');
-  const { channel, channelCapabilities } = useChannelStateContext('useReactionHandler');
+  const channel = useChannel();
   const { client } = useChatContext('useReactionHandler');
 
   const createMessagePreview = useCallback(
@@ -78,7 +78,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message || !channelCapabilities['send-reaction']) return;
+    if (!message) return;
 
     const newReaction = createReactionPreview(type) as ReactionResponse;
     const tempMessage = createMessagePreview(add, newReaction, message);
