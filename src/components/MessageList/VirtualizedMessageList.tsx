@@ -242,10 +242,15 @@ const VirtualizedMessageListWithContext = (
     sortReactionDetails,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
-    // suppressAutoscroll,
+    suppressAutoscroll: suppressAutoscrollFromProps = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
+  const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
+    React.useState(false);
+  const suppressAutoscroll =
+    suppressAutoscrollFromProps || suppressAutoscrollWhileLoadingOlder;
+  const loadingOlderRef = useRef(false);
 
   const { components: virtuosoComponentsFromProps, ...overridingVirtuosoProps } =
     additionalVirtuosoProps;
@@ -446,8 +451,7 @@ const VirtualizedMessageListWithContext = (
     [processedMessages, toggleShowUnreadMessagesNotification],
   );
   const followOutput = (isAtBottom: boolean) => {
-    if (messagePaginator.hasMoreHead) {
-      // || suppressAutoscroll) {
+    if (messagePaginator.hasMoreHead || suppressAutoscroll) {
       return false;
     }
 
@@ -476,8 +480,13 @@ const VirtualizedMessageListWithContext = (
   };
   const atTopStateChange = (isAtTop: boolean) => {
     if (isAtTop) {
-      messagePaginator.toTail();
-      // loadMore?.(messageLimit);
+      if (loadingOlderRef.current) return;
+      loadingOlderRef.current = true;
+      setSuppressAutoscrollWhileLoadingOlder(true);
+      void messagePaginator.toTail().finally(() => {
+        loadingOlderRef.current = false;
+        setSuppressAutoscrollWhileLoadingOlder(false);
+      });
     }
   };
 
@@ -710,8 +719,8 @@ export type VirtualizedMessageListProps = Partial<
   showUnreadNotificationAlways?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
-  // /** stops the list from autoscrolling when new messages are loaded */
-  // suppressAutoscroll?: boolean;
+  /** If true, prevents autoscroll-to-bottom behavior on new messages. */
+  suppressAutoscroll?: boolean;
 };
 
 /**
@@ -721,10 +730,7 @@ export type VirtualizedMessageListProps = Partial<
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
 
-  const {
-    notifications,
-    // suppressAutoscroll
-  } = useChannelStateContext('VirtualizedMessageList');
+  const { notifications } = useChannelStateContext('VirtualizedMessageList');
   const { read } = useStateStore(channel?.state.readStore, channelReadSelector) ?? {};
 
   const messages = props.messages; // || contextMessages;
@@ -744,7 +750,6 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
       messages={messages}
       notifications={notifications}
       read={read}
-      // suppressAutoscroll={suppressAutoscroll}
       {...props}
     />
   );

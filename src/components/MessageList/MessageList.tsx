@@ -86,11 +86,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
-    // suppressAutoscroll = false,
+    suppressAutoscroll: suppressAutoscrollFromProps = false,
     unsafeHTML = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
+  const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
+    React.useState(false);
+  const suppressAutoscroll =
+    suppressAutoscrollFromProps || suppressAutoscrollWhileLoadingOlder;
+  const loadingOlderRef = React.useRef(false);
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
@@ -130,7 +135,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     loadMoreScrollThreshold,
     messages, // todo: is it correct to base the scroll logic on an array that does not contain date separators or intro?
     scrolledUpThreshold: props.scrolledUpThreshold,
-    // suppressAutoscroll,
+    suppressAutoscroll,
   });
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
@@ -203,6 +208,18 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
+
+  const loadOlderMessages = React.useCallback(async () => {
+    if (loadingOlderRef.current) return;
+    loadingOlderRef.current = true;
+    setSuppressAutoscrollWhileLoadingOlder(true);
+    try {
+      await messagePaginator.toTail();
+    } finally {
+      loadingOlderRef.current = false;
+      setSuppressAutoscrollWhileLoadingOlder(false);
+    }
+  }, [messagePaginator]);
 
   // const loadMore = React.useCallback(() => {
   //   if (loadMoreCallback) {
@@ -286,7 +303,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   data-testid='reverse-infinite-scroll'
                   element={internalListElement}
                   loadNextOnScrollToBottom={messagePaginator.toHead}
-                  loadNextOnScrollToTop={messagePaginator.toTail}
+                  loadNextOnScrollToTop={loadOlderMessages}
                   onScroll={onScroll}
                   ref={setListElement}
                   threshold={loadMoreScrollThreshold}

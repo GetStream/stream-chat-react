@@ -16,6 +16,7 @@ export type UseMessageListScrollManagerParams = {
   scrolledUpThreshold: number;
   scrollToBottom: () => void;
   showNewMessages: () => void;
+  suppressAutoscroll?: boolean;
 };
 
 // FIXME: change this generic name to something like useAdjustScrollPositionToListSize
@@ -27,6 +28,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     scrolledUpThreshold,
     scrollToBottom,
     showNewMessages,
+    suppressAutoscroll = false,
   } = params;
 
   const { client } = useChatContext('useMessageListScrollManager');
@@ -63,7 +65,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
         else {
           const lastMessageIsFromCurrentUser = lastNewMessage.user?.id === client.userID;
 
-          if (lastMessageIsFromCurrentUser || wasAtBottom) {
+          if (!suppressAutoscroll && (lastMessageIsFromCurrentUser || wasAtBottom)) {
             scrollToBottom();
           } else {
             showNewMessages();
@@ -86,7 +88,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     messages.current = newMessages;
     measures.current = newMeasures;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [measures, messages, params.messages]);
+  }, [measures, messages, params.messages, suppressAutoscroll]);
 
   return (scrollTopValue: number) => {
     scrollTop.current = scrollTopValue;
