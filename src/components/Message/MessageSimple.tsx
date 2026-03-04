@@ -215,6 +215,13 @@ const MessageSimpleWithContext = ({
           onKeyUp={handleClick}
         >
           {!isDeleted && <MessageActions />}
+          {showReplyCountButton && (
+            <MessageRepliesCountButton
+              onClick={handleOpenThread}
+              reply_count={message.reply_count}
+              thread_participants={message.thread_participants}
+            />
+          )}
           {message.deleted_at ? (
             <MessageDeletedBubble />
           ) : (
@@ -239,13 +246,6 @@ const MessageSimpleWithContext = ({
               </div>
               <MessageErrorIcon />
             </>
-          )}
-          {showReplyCountButton && (
-            <MessageRepliesCountButton
-              onClick={handleOpenThread}
-              reply_count={message.reply_count}
-              thread_participants={message.thread_participants}
-            />
           )}
         </div>
         {showMetadata && (
