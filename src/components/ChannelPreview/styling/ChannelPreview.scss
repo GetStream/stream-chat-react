@@ -118,6 +118,7 @@
       }
     }
   }
+
   .str-chat__channel-preview-data__latest-message {
     display: flex;
     align-items: center;
@@ -147,7 +148,7 @@
       color: var(--text-tertiary);
     }
 
-    p {
+    .channel-preview-data__latest-message-text {
       flex: 1;
       min-width: 0;
 

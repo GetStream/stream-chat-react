@@ -1,70 +1,45 @@
-import React, { useCallback } from 'react';
-import clsx from 'clsx';
+import React, { useCallback, useMemo } from 'react';
 
-import type { LocalMessage, ThreadState } from 'stream-chat';
+import type { ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
-import { Avatar, type AvatarProps } from '../../Avatar';
-import { Icon } from '../icons';
-import { UnreadCountBadge } from '../UnreadCountBadge';
-
+import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
 import { useChannelPreviewInfo } from '../../ChannelPreview';
-import { useChatContext } from '../../../context';
+import { useChatContext, useTranslationContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
+import { Badge } from '../../Badge';
+import {
+  type ChannelPreviewMessageType,
+  useLatestMessagePreview,
+} from '../../ChannelPreview/hooks/useLatestMessagePreview';
+import {
+  IconCamera1,
+  IconChainLink,
+  IconCircleBanSign,
+  IconExclamationCircle1,
+  IconFileBend,
+  IconMapPin,
+  IconMicrophone,
+  IconVideo,
+} from '../../Icons';
+import clsx from 'clsx';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 
-/**
- * TODO:
- * - maybe hover state? ask design
- */
-
-export const attachmentTypeIconMap = {
-  audio: '🔈',
-  file: '📄',
-  image: '📷',
-  video: '🎥',
-  voiceRecording: '🎙️',
-} as const;
-
-// TODO: translations
-const getTitleFromMessage = ({
-  currentUserId,
-  message,
-}: {
-  currentUserId?: string;
-  message?: LocalMessage;
-}) => {
-  const attachment = message?.attachments?.at(0);
-
-  let attachmentIcon = '';
-
-  if (attachment) {
-    attachmentIcon +=
-      attachmentTypeIconMap[
-        (attachment.type as keyof typeof attachmentTypeIconMap) ?? 'file'
-      ] ?? attachmentTypeIconMap.file;
-  }
-
-  const messageBelongsToCurrentUser = message?.user?.id === currentUserId;
-
-  if (message?.deleted_at && message.parent_id)
-    return clsx(messageBelongsToCurrentUser && 'You:', 'This reply was deleted.');
-
-  if (message?.deleted_at && !message.parent_id)
-    return clsx(messageBelongsToCurrentUser && 'You:', 'The source message was deleted.');
-
-  if (attachment?.type === 'voiceRecording')
-    return clsx(attachmentIcon, messageBelongsToCurrentUser && 'You:', 'Voice message');
-
-  return clsx(
-    attachmentIcon,
-    messageBelongsToCurrentUser && 'You:',
-    message?.text || attachment?.fallback || 'N/A',
-  );
+const contentTypeIconMap: Partial<
+  Record<ChannelPreviewMessageType, React.ComponentType>
+> = {
+  deleted: IconCircleBanSign,
+  error: IconExclamationCircle1,
+  file: IconFileBend,
+  image: IconCamera1,
+  link: IconChainLink,
+  location: IconMapPin,
+  video: IconVideo,
+  voice: IconMicrophone,
 };
 
 export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
@@ -80,70 +55,101 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
       ownUnreadMessageCount:
         (client.userID && nextValue.read[client.userID]?.unreadMessageCount) || 0,
       parentMessage: nextValue.parentMessage,
+      participants: nextValue.participants,
+      replyCount: nextValue.replyCount,
     }),
     [client],
   );
 
-  const { channel, deletedAt, latestReply, ownUnreadMessageCount, parentMessage } =
-    useStateStore(thread.state, selector);
+  const {
+    channel,
+    deletedAt,
+    latestReply,
+    ownUnreadMessageCount,
+    parentMessage,
+    participants,
+    replyCount,
+  } = useStateStore(thread.state, selector);
+
+  const { senderName, text, type } = useLatestMessagePreview({
+    latestMessage: parentMessage,
+    participantCount: participants?.length,
+  });
+
+  const ContentTypeIcon = contentTypeIconMap[type];
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
+  const { t } = useTranslationContext('ThreadListItemUI');
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
-  const avatarProps: AvatarProps | undefined = deletedAt
+  const avatarProps: Partial<AvatarProps> | undefined = deletedAt
     ? undefined
     : ({
         imageUrl: latestReply?.user?.image,
-        size: 'md',
         userName: latestReply?.user?.name || latestReply?.user?.id,
       } as const);
 
+  const displayInfo = useMemo(() => {
+    if (!participants) return [];
+
+    return participants.slice(0, 3).map((participant) => ({
+      id: participant.user?.id ?? undefined,
+      imageUrl: participant.user?.image,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      userName: participant.user?.name || participant.user!.id,
+    }));
+  }, [participants]);
+
   return (
-    <button
-      aria-selected={activeThread === thread}
-      className='str-chat__thread-list-item'
-      data-thread-id={thread.id}
-      onClick={() => setActiveThread(thread)}
-      role='option'
-      {...props}
-    >
-      <div className='str-chat__thread-list-item__channel'>
-        <Icon.MessageBubble />
-        <div className='str-chat__thread-list-item__channel-text'>
-          {channelDisplayTitle}
-        </div>
-      </div>
-      <div className='str-chat__thread-list-item__parent-message'>
-        <div className='str-chat__thread-list-item__parent-message-text'>
-          {/* TODO: use thread.title instead? */}
-          replied to: {getTitleFromMessage({ message: parentMessage })}
-        </div>
-        {!deletedAt && <UnreadCountBadge count={ownUnreadMessageCount} />}
-      </div>
-      <div className='str-chat__thread-list-item__latest-reply'>
-        <Avatar size={null} {...avatarProps} />
-        <div className='str-chat__thread-list-item__latest-reply-details'>
-          {!deletedAt && (
-            <div className='str-chat__thread-list-item__latest-reply-created-by'>
-              {latestReply?.user?.name || latestReply?.user?.id || 'Unknown sender'}
-            </div>
-          )}
-          <div className='str-chat__thread-list-item__latest-reply-text-and-timestamp'>
-            <div className='str-chat__thread-list-item__latest-reply-text'>
-              {deletedAt
-                ? 'This thread was deleted'
-                : getTitleFromMessage({
-                    currentUserId: client.user?.id,
-                    message: latestReply,
-                  })}
-            </div>
-            <div className='str-chat__thread-list-item__latest-reply-timestamp'>
-              <Timestamp timestamp={deletedAt ?? latestReply?.created_at} />
+    <div className='str-chat__thread-list-item-container'>
+      <button
+        aria-pressed={activeThread === thread}
+        className='str-chat__thread-list-item'
+        data-thread-id={thread.id}
+        onClick={() => setActiveThread(thread)}
+        role='option'
+        {...props}
+      >
+        <Avatar size='xl' {...avatarProps} />
+        <div className='str-chat__thread-list-item__content'>
+          <div className='str-chat__thread-list-item__content-leading'>
+            <span className='str-chat__thread-list-item__title'>
+              {channelDisplayTitle}
+            </span>
+            <div
+              className={clsx('str-chat__thread-list-item__message-preview', {
+                [`str-chat__thread-list-item__message-preview--${type}`]: type,
+              })}
+            >
+              {type !== 'error' && !!senderName && (
+                <span className='str-chat__thread-list-item__message-preview-sender'>
+                  {senderName}:
+                </span>
+              )}
+              {ContentTypeIcon && <ContentTypeIcon />}
+              <span className='str-chat__thread-list-item__message-preview-text'>{text}</span>
             </div>
           </div>
+          <div className='str-chat__thread-list-item__content-trailing'>
+            <div className='str-chat__thread-list-item__reply-information'>
+              <AvatarStack displayInfo={displayInfo} size='sm' />
+              <span className='str-chat__thread-list-item__reply-count'>
+                {t('replyCount', { count: replyCount })}
+              </span>
+            </div>
+            <Timestamp
+              customClass='str-chat__thread-list-item__timestamp'
+              timestamp={latestReply?.created_at}
+            />
+          </div>
         </div>
-      </div>
-    </button>
+        {ownUnreadMessageCount > 0 && (
+          <Badge size='md' variant='primary'>
+            {ownUnreadMessageCount}
+          </Badge>
+        )}
+      </button>
+    </div>
   );
 };

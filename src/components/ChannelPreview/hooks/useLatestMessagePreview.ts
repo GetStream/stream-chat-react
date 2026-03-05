@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import type { Attachment, Channel, LocalMessage, PollVote } from 'stream-chat';
+import type { Attachment, LocalMessage } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { getTranslatedMessageText } from '../../../context/MessageTranslationViewContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import { MessageDeliveryStatus } from './useMessageDeliveryStatus';
+import type { MessageDeliveryStatus } from './useMessageDeliveryStatus';
 
 /**
  * The type of content being previewed in the channel list item.
@@ -15,7 +15,7 @@ import { MessageDeliveryStatus } from './useMessageDeliveryStatus';
  * - `deleted` — Deleted message, renders ban/circle icon
  * - `error` — Failed message, renders exclamation circle icon
  * - `empty` — No messages yet, no icon
- * - `photo` — Photo attachment, renders camera icon
+ * - `image` — Image attachment, renders camera icon
  * - `video` — Video attachment, renders video icon
  * - `voice` — Voice message, renders microphone icon
  * - `file` — File attachment, renders file icon
@@ -28,7 +28,7 @@ export type ChannelPreviewMessageType =
   | 'deleted'
   | 'error'
   | 'empty'
-  | 'photo'
+  | 'image'
   | 'video'
   | 'voice'
   | 'file'
@@ -76,25 +76,13 @@ export type LatestMessagePreviewData = {
   senderName?: string;
 };
 
-const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
-  let latestVote: PollVote | undefined;
-  for (const optionVotes of Object.values(latestVotesByOption)) {
-    optionVotes.forEach((vote) => {
-      if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
-        return;
-      latestVote = vote;
-    });
-  }
-  return latestVote;
-};
-
 function getAttachmentContentType(attachments: Attachment[]): ChannelPreviewMessageType {
   const [first] = attachments;
   if (!first) return 'text';
 
-  if (first.type === 'image' || first.type === 'giphy') return 'photo';
+  if (first.type === 'image' || first.type === 'giphy') return 'image';
   if (first.type === 'video') return 'video';
-  if (first.type === 'voicenote' || first.type === 'audio') return 'voice';
+  if (first.type === 'voiceRecording') return 'voice';
   if (first.type === 'file') return 'file';
   if (first.og_scrape_url || first.title_link) return 'link';
 
@@ -106,28 +94,25 @@ function getAttachmentFallbackText(
   t: TranslationContextValue['t'],
 ): string {
   switch (type) {
-    case 'photo':
-      return t('Photo');
+    case 'image':
+      return t('Image');
     case 'video':
       return t('Video');
     case 'voice':
       return t('Voice message');
-    case 'file':
-      return t('File');
     case 'link':
       return t('Link');
-    case 'location':
-      return t('Shared location');
+    case 'file':
     default:
-      return t('Attachment');
+      return t('File');
   }
 }
 
 export type UseLatestMessagePreviewParams = {
   /** The channel to generate preview for */
-  channel: Channel;
-  /** The last message in the channel */
-  lastMessage?: LocalMessage;
+  participantCount?: number;
+  /** The latest message in the channel */
+  latestMessage?: LocalMessage;
   /**
    * Delivery status from the `useMessageDeliveryStatus` hook.
    * When provided, used to determine the delivery status icon.
@@ -136,71 +121,38 @@ export type UseLatestMessagePreviewParams = {
   messageDeliveryStatus?: MessageDeliveryStatus;
 };
 
-/**
- * Hook that produces structured preview data for the channel list item's message row.
- *
- * Given a channel and its last message, returns the preview type, text, delivery status,
- * and sender name that can be used to render appropriate icons and formatted text.
- *
- * @example
- * ```tsx
- * const { type, text, deliveryStatus, senderName } = useLatestMessagePreview({
- *   channel,
- *   lastMessage,
- *   messageDeliveryStatus,
- * });
- * ```
- */
 export const useLatestMessagePreview = ({
-  channel,
-  lastMessage,
+  latestMessage,
   messageDeliveryStatus,
+  participantCount = Infinity,
 }: UseLatestMessagePreviewParams): LatestMessagePreviewData => {
   const { client } = useChatContext('useLatestMessagePreview');
   const { t, userLanguage } = useTranslationContext('useLatestMessagePreview');
 
   return useMemo(() => {
-    // Empty channel — no messages yet
-    if (!lastMessage) {
+    if (!latestMessage) {
       return { text: t('Nothing yet...'), type: 'empty' as const };
     }
 
-    // Failed message — error state overrides everything
-    if (lastMessage.status === 'failed' || lastMessage.type === 'error') {
+    if (latestMessage.status === 'failed' || latestMessage.type === 'error') {
       return { text: t('Message failed to send'), type: 'error' as const };
     }
 
-    // Determine ownership
-    const isOwnMessage = lastMessage.user?.id === client.user?.id;
+    const isOwnMessage = latestMessage.user?.id === client.user?.id;
 
-    // Compute delivery status for own messages
     let deliveryStatus: ChannelPreviewDeliveryStatus | undefined;
     if (isOwnMessage) {
-      if (lastMessage.status === 'sending') {
-        deliveryStatus = 'sending';
-      } else if (messageDeliveryStatus === MessageDeliveryStatus.READ) {
-        deliveryStatus = 'read';
-      } else if (messageDeliveryStatus === MessageDeliveryStatus.DELIVERED) {
-        deliveryStatus = 'delivered';
-      } else if (messageDeliveryStatus === MessageDeliveryStatus.SENT) {
-        deliveryStatus = 'sent';
-      }
+      deliveryStatus = messageDeliveryStatus ?? (latestMessage.status as 'sending');
     }
 
-    // Compute sender name prefix
     let senderName: string | undefined;
     if (isOwnMessage) {
       senderName = t('You');
-    } else {
-      console.log(lastMessage, channel);
-      const memberCount = channel.data?.member_count ?? Infinity;
-      if (memberCount > 2) {
-        senderName = lastMessage.user?.name || lastMessage.user?.id;
-      }
+    } else if (!isOwnMessage && participantCount > 2) {
+      senderName = latestMessage.user?.name || latestMessage.user?.id;
     }
 
-    // Deleted message
-    if (lastMessage.deleted_at) {
+    if (latestMessage.deleted_at) {
       return {
         deliveryStatus,
         senderName,
@@ -209,92 +161,66 @@ export const useLatestMessagePreview = ({
       };
     }
 
-    // Poll message
-    if (lastMessage.poll) {
-      const poll = lastMessage.poll;
-      let text: string;
-
-      if (!poll.vote_count) {
-        const createdBy =
-          poll.created_by?.id === client.user?.id
-            ? t('You')
-            : (poll.created_by?.name ?? t('Poll'));
-        text = t('📊 {{createdBy}} created: {{ pollName}}', {
-          createdBy,
-          pollName: poll.name,
-        });
-      } else {
-        const latestVote = getLatestPollVote(
-          poll.latest_votes_by_option as Record<string, PollVote[]>,
-        );
-        const option =
-          latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);
-
-        if (option && latestVote) {
-          text = t('📊 {{votedBy}} voted: {{pollOptionText}}', {
-            pollOptionText: option.text,
-            votedBy:
-              latestVote?.user?.id === client.user?.id
-                ? t('You')
-                : (latestVote.user?.name ?? t('Poll')),
-          });
-        } else {
-          text = `📊 ${poll.name}`;
-        }
-      }
-
-      return { deliveryStatus, senderName, text, type: 'poll' as const };
-    }
-
-    // Get text content (with translation support)
-    const textContent =
-      getTranslatedMessageText({ language: userLanguage, message: lastMessage }) ||
-      lastMessage.text;
-
-    const attachments = lastMessage.attachments;
-    const hasAttachments = !!attachments?.length;
-    const hasLocation = !!lastMessage.shared_location;
-
-    // Message with text content (may also have attachments — attachment icon + text)
-    if (textContent) {
-      const type =
-        hasAttachments && attachments
-          ? getAttachmentContentType(attachments)
-          : hasLocation
-            ? ('location' as const)
-            : ('text' as const);
-
-      return { deliveryStatus, senderName, text: textContent, type };
-    }
-
-    // Command
-    if (lastMessage.command) {
+    if (latestMessage.poll) {
       return {
         deliveryStatus,
         senderName,
-        text: `/${lastMessage.command}`,
-        type: 'text' as const,
+        text: t('Poll'),
+        type: 'poll' as const,
       };
     }
 
-    // Attachment-only message (no text content)
-    if (hasAttachments && attachments) {
-      const contentType = getAttachmentContentType(attachments);
-      const text = getAttachmentFallbackText(contentType, t);
-      return { deliveryStatus, senderName, text, type: contentType };
-    }
+    const textContent =
+      getTranslatedMessageText({ language: userLanguage, message: latestMessage }) ||
+      latestMessage.text;
 
-    // Location-only message
-    if (hasLocation) {
+    if (latestMessage.shared_location) {
       return {
         deliveryStatus,
         senderName,
-        text: t('Shared location'),
+        text: textContent || t('Location'),
         type: 'location' as const,
       };
     }
 
-    // Fallback
+    if (latestMessage.attachments && latestMessage.attachments.length) {
+      const attachments = latestMessage.attachments;
+
+      let contentType: ChannelPreviewMessageType;
+      let text: string;
+
+      if (attachments.length === 1) {
+        contentType = getAttachmentContentType(attachments);
+        text = textContent || getAttachmentFallbackText(contentType, t);
+      } else {
+        contentType = 'file';
+        text = textContent || t('fileCount', { count: attachments.length });
+      }
+
+      return {
+        deliveryStatus,
+        senderName,
+        text,
+        type: contentType,
+      };
+    }
+
+    if (textContent) {
+      return {
+        deliveryStatus,
+        senderName,
+        text: textContent,
+        type: 'text' as const,
+      };
+    }
+
     return { text: t('Empty message...'), type: 'empty' as const };
-  }, [channel, client, lastMessage, messageDeliveryStatus, t, userLanguage]);
+  }, [
+    client.user?.id,
+    latestMessage,
+    messageDeliveryStatus,
+    participantCount,
+    t,
+    userLanguage,
+  ]);
 };

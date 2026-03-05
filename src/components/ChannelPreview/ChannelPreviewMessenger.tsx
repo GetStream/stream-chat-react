@@ -40,9 +40,9 @@ const contentTypeIconMap: Partial<
 > = {
   deleted: IconCircleBanSign,
   file: IconFileBend,
+  image: IconCamera1,
   link: IconChainLink,
   location: IconMapPin,
-  photo: IconCamera1,
   video: IconVideo,
   voice: IconMicrophone,
 };
@@ -71,9 +71,9 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
   const { deliveryStatus, senderName, text, type } = useLatestMessagePreview({
-    channel,
-    lastMessage,
+    latestMessage: lastMessage,
     messageDeliveryStatus,
+    participantCount: channel.data?.member_count,
   });
 
   const DeliveryStatusIcon = deliveryStatus
@@ -164,7 +164,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
                   </span>
                 )}
                 {ContentTypeIcon && <ContentTypeIcon />}
-                <span>{text}</span>
+                <span className='channel-preview-data__latest-message-text'>{text}</span>
               </>
             )}
           </div>
