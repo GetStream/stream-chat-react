@@ -1,8 +1,9 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { StateStore } from 'stream-chat';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { ChannelStateProvider, TranslationProvider } from '../../../context';
+import { ChannelInstanceProvider, TranslationProvider } from '../../../context';
 
 const onClickMock = jest.fn();
 const defaultSingularText = '1 reply';
@@ -11,14 +12,29 @@ const defaultPluralText = '2 replies';
 const i18nMock = (key, { count }) =>
   count > 1 ? defaultPluralText : defaultSingularText;
 
+const getChannel = (channelCapabilities = { 'send-reply': true }) => {
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
+
+  return {
+    cid: 'messaging:test-channel',
+    state: {
+      ownCapabilitiesStore: new StateStore({ ownCapabilities }),
+    },
+  };
+};
+
 const renderComponent = (props, channelStateCtx) =>
   render(
     <TranslationProvider value={{ t: i18nMock }}>
-      <ChannelStateProvider
-        value={{ channelCapabilities: { 'send-reply': true }, ...channelStateCtx }}
+      <ChannelInstanceProvider
+        value={{
+          channel: getChannel(channelStateCtx?.channelCapabilities),
+        }}
       >
         <MessageRepliesCountButton {...props} onClick={onClickMock} />
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </TranslationProvider>,
   );
 

@@ -4,7 +4,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollOptionList } from '../PollOptionList';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ComponentProvider,
   MessageProvider,
   PollProvider,
@@ -36,17 +36,12 @@ const pollWithNoVotes = generatePoll({
 
 const t = (v) => v;
 
-const defaultChannelStateContext = {
-  notifications: [],
-};
-
 const defaultMessageContext = {
   message: generateMessage(),
 };
 
 const renderComponent = ({ channelStateContext, messageContext, poll }) => {
-  const { channelCapabilities, ...channelStateContextOverrides } =
-    channelStateContext ?? {};
+  const { channelCapabilities } = channelStateContext ?? {};
   const own_capabilities = channelCapabilities
     ? Object.entries(channelCapabilities)
         .filter(([, isAllowed]) => isAllowed)
@@ -69,19 +64,13 @@ const renderComponent = ({ channelStateContext, messageContext, poll }) => {
   return render(
     <TranslationProvider value={{ t }}>
       <ComponentProvider value={{ AvatarStack }}>
-        <ChannelStateProvider
-          value={{
-            ...defaultChannelStateContext,
-            ...channelStateContextOverrides,
-            channel,
-          }}
-        >
+        <ChannelInstanceProvider value={{ channel }}>
           <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
             <PollProvider poll={poll}>
               <PollOptionList />
             </PollProvider>
           </MessageProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </ComponentProvider>
     </TranslationProvider>,
   );

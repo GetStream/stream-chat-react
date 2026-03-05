@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { handleActionWarning, useActionHandler } from '../useActionHandler';
 
 import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import {
   generateChannel,
   generateMessage,
@@ -28,7 +28,7 @@ async function renderUseHandleActionHook(message = generateMessage()) {
   channel.messagePaginator = { ingestItem, removeItem };
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
   const { result } = renderHook(() => useActionHandler(message), { wrapper });

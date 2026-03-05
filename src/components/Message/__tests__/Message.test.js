@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { useMessageContext } from '../../../context/MessageContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
@@ -42,7 +42,7 @@ const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
 
 async function renderComponent({
   channelConfig = { replies: true },
-  channelStateOpts,
+  channelStateOpts = {},
   clientOpts,
   components,
   contextCallback = () => {},
@@ -50,25 +50,36 @@ async function renderComponent({
   props = {},
   renderer = render,
 }) {
+  const {
+    channelCapabilities: channelCapabilitiesOverrides,
+    state: channelStateOverrides,
+    ...channelStateRest
+  } = channelStateOpts;
+  const channelCapabilities = {
+    'send-reaction': true,
+    ...(channelCapabilitiesOverrides ?? {}),
+  };
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
-    state: { membership: {} },
-    ...channelStateOpts,
+    state: {
+      membership: {},
+      ...(channelStateOverrides ?? {}),
+      ownCapabilitiesStore: new StateStore({ ownCapabilities }),
+    },
+    ...channelStateRest,
   });
   const client = await getTestClientWithUser(alice);
+  client.configsStore.partialNext({ configs: { [channel.cid]: channelConfig } });
 
   return renderer(
     <ChatProvider value={{ client, ...clientOpts }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateOpts,
-        }}
-      >
+      <ChannelInstanceProvider value={{ channel }}>
         <ComponentProvider
           value={{
             Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
@@ -79,7 +90,7 @@ async function renderComponent({
             <Message message={message} {...props} />
           </TranslationProvider>
         </ComponentProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

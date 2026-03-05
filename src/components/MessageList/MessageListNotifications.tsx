@@ -5,7 +5,12 @@ import { CustomNotification } from './CustomNotification';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useNotifications } from '../Notifications/hooks/useNotifications';
-import type { ChannelNotifications } from '../../context/ChannelStateContext';
+
+export type MessageListNotification = {
+  id: string;
+  text: string;
+  type: 'success' | 'error';
+};
 
 const ClientNotifications = () => {
   const clientNotifications = useNotifications();
@@ -27,21 +32,12 @@ const ClientNotifications = () => {
 };
 
 export type MessageListNotificationsProps = {
-  notifications: ChannelNotifications;
+  notifications?: MessageListNotification[];
 };
 
-export const MessageListNotifications = (props: MessageListNotificationsProps) => {
-  const { notifications } = props;
-
-  return (
-    <div className='str-chat__list-notifications'>
-      {notifications.map((notification) => (
-        <CustomNotification active={true} key={notification.id} type={notification.type}>
-          {notification.text}
-        </CustomNotification>
-      ))}
-      <ClientNotifications />
-      <ConnectionStatus />
-    </div>
-  );
-};
+export const MessageListNotifications = () => (
+  <div className='str-chat__list-notifications'>
+    <ClientNotifications />
+    <ConnectionStatus />
+  </div>
+);

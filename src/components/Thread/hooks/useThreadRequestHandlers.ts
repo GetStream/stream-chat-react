@@ -47,7 +47,14 @@ export const useThreadRequestHandlers = ({
     if (!threadInstance) return;
 
     const channel = threadInstance.channel;
-    const currentRequestHandlers = channel.configState.getLatestValue()
+    const threadConfigState = threadInstance.configState;
+    const channelConfigState = channel.configState;
+    const currentThreadRequestHandlers = threadConfigState?.getLatestValue()
+      .requestHandlers as Record<string, unknown> | undefined;
+    const nextThreadRequestHandlers = {
+      ...(currentThreadRequestHandlers ?? {}),
+    } as Record<string, unknown>;
+    const currentRequestHandlers = channelConfigState?.getLatestValue()
       .requestHandlers as Record<string, unknown> | undefined;
     const nextRequestHandlers = { ...(currentRequestHandlers ?? {}) } as Record<
       string,
@@ -63,10 +70,10 @@ export const useThreadRequestHandlers = ({
 
     // Reset managed operation handlers and register only currently provided custom handlers.
     delete nextRequestHandlers.deleteMessageRequest;
-    delete nextRequestHandlers.markReadRequest;
     delete nextRequestHandlers.retrySendMessageRequest;
     delete nextRequestHandlers.sendMessageRequest;
     delete nextRequestHandlers.updateMessageRequest;
+    delete nextThreadRequestHandlers.markReadRequest;
 
     if (doDeleteMessageRequest) {
       nextRequestHandlers.deleteMessageRequest = async (params: {
@@ -143,26 +150,31 @@ export const useThreadRequestHandlers = ({
     }
 
     if (doMarkReadRequest) {
-      nextRequestHandlers.markReadRequest = async (params: {
-        channel: typeof channel;
-        thread?: StreamThread;
+      nextThreadRequestHandlers.markReadRequest = async (params: {
+        thread: StreamThread;
         options?: MarkReadOptions;
       }) => {
-        if (params.thread?.id === threadInstance.id) {
-          const response = await doMarkReadRequest({
-            options: params.options,
-            thread: threadInstance,
-          });
-          if (response !== undefined) return response;
-        }
-
-        return await params.channel.markAsReadRequest(params.options);
+        const response = await doMarkReadRequest({
+          options: params.options,
+          thread: params.thread,
+        });
+        if (response !== undefined) return response;
+        return await params.thread.channel.markAsReadRequest({
+          ...params.options,
+          thread_id: params.thread.id,
+        });
       };
     }
 
-    channel.configState.partialNext({
+    channelConfigState?.partialNext({
       requestHandlers:
         Object.keys(nextRequestHandlers).length > 0 ? nextRequestHandlers : undefined,
+    });
+    threadConfigState?.partialNext({
+      requestHandlers:
+        Object.keys(nextThreadRequestHandlers).length > 0
+          ? nextThreadRequestHandlers
+          : undefined,
     });
   }, [
     doDeleteMessageRequest,

@@ -4,7 +4,7 @@ import { StateStore } from 'stream-chat';
 
 import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
 
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
@@ -35,13 +35,7 @@ async function renderUseHandleMuteHook(
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-        }}
-      >
-        {children}
-      </ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
 

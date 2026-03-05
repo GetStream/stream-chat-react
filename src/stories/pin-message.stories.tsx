@@ -6,14 +6,19 @@ import {
   ChannelList,
   MessageList,
   Thread,
-  useChannelStateContext,
+  useChannel,
+  useMessagePaginator,
+  useStateStore,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
 import type { ConnectedUserProps } from './utils';
 
 const PinnedMessagesList = () => {
-  const { pinnedMessages } = useChannelStateContext();
+  const channel = useChannel();
+  const messagePaginator = useMessagePaginator();
+  useStateStore(messagePaginator.state, (state) => state.items?.length ?? 0);
+  const pinnedMessages = channel.state.pinnedMessages;
 
   if (!pinnedMessages?.length) return null;
 
@@ -25,7 +30,7 @@ const PinnedMessagesList = () => {
 };
 
 const Controls = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
 
   return (
     <div>

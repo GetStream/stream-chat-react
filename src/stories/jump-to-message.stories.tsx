@@ -3,7 +3,7 @@ import {
   Channel,
   ChannelList,
   MessageList,
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   VirtualizedMessageList,
   Window,
@@ -19,7 +19,7 @@ const channelId = import.meta.env.E2E_JUMP_TO_MESSAGE_CHANNEL;
 
 const JumpToMessage = () => {
   const { client: chatClient } = useChatContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
 
   return (
     <button

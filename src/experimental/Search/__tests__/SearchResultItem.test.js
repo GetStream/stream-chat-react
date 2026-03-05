@@ -8,7 +8,7 @@ import {
   MessageSearchResultItem,
   UserSearchResultItem,
 } from '../SearchResults';
-import { ChatView } from '../../../components/ChatView';
+import { ChatView, createChatViewSlotBinding } from '../../../components/ChatView';
 import { createLayoutController } from '../../../components/ChatView/layoutController/LayoutController';
 import { SearchContextProvider } from '../SearchContext';
 import { ChannelListContextProvider, ChatProvider } from '../../../context';
@@ -168,7 +168,13 @@ describe('SearchResultItem Components', () => {
       const layoutController = createLayoutController({
         initialState: { visibleSlots: ['slot1'] },
       });
-      layoutController.openChannel(activeChannel);
+      layoutController.open(
+        createChatViewSlotBinding({
+          key: activeChannel.cid,
+          kind: 'channel',
+          source: activeChannel,
+        }),
+      );
       searchController._internalState.partialNext({
         focusedMessage: messageResponseData,
       });

@@ -22,7 +22,7 @@ jest.mock('../../ChatView/ChatViewNavigationContext', () => ({
 }));
 
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -91,7 +91,11 @@ async function renderMessageActions({
   messageActionsProps = {},
 } = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
-  const { channelCapabilities, ...channelStateContextOpts } = channelStateOpts;
+  const {
+    channelCapabilities,
+    state: channelStateOverrides,
+    ...channelStateContextOpts
+  } = channelStateOpts;
   const own_capabilities = Object.entries(channelCapabilities ?? {})
     .filter(([, isAllowed]) => isAllowed)
     .map(([capability]) => capability);
@@ -99,7 +103,11 @@ async function renderMessageActions({
     data: {
       own_capabilities,
     },
-    state: { membership: {} },
+    state: {
+      membership: {},
+      ...(channelStateOverrides ?? {}),
+      ownCapabilitiesStore: new StateStore({ ownCapabilities: own_capabilities }),
+    },
     ...channelStateContextOpts,
   });
   channel.type = channel.type ?? 'messaging';
@@ -113,7 +121,7 @@ async function renderMessageActions({
   return render(
     <ChatProvider value={{ client, ...customChatContext }}>
       <DialogManagerProvider id='message-actions-dialog-provider'>
-        <ChannelStateProvider value={{ channel, ...channelStateContextOpts }}>
+        <ChannelInstanceProvider value={{ channel }}>
           <TranslationProvider value={mockTranslationContext}>
             <ComponentProvider value={{}}>
               <MessageProvider
@@ -123,7 +131,7 @@ async function renderMessageActions({
               </MessageProvider>
             </ComponentProvider>
           </TranslationProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </DialogManagerProvider>
     </ChatProvider>,
   );
@@ -381,17 +389,13 @@ describe('<MessageActions />', () => {
       } = await initClientWithChannels();
       const message = generateMessage({ user: client.user });
       const setQuotedMessageSpy = jest.spyOn(channel.messageComposer, 'setQuotedMessage');
+      channel.state.ownCapabilitiesStore.next({ ownCapabilities: ['quote-message'] });
 
       await act(async () => {
         await render(
           <ChatProvider value={{ client }}>
             <DialogManagerProvider id='message-actions-dialog-provider'>
-              <ChannelStateProvider
-                value={{
-                  channel,
-                  channelCapabilities: { 'quote-message': true },
-                }}
-              >
+              <ChannelInstanceProvider value={{ channel }}>
                 <TranslationProvider value={mockTranslationContext}>
                   <ComponentProvider value={{}}>
                     <MessageProvider
@@ -404,7 +408,7 @@ describe('<MessageActions />', () => {
                     </MessageProvider>
                   </ComponentProvider>
                 </TranslationProvider>
-              </ChannelStateProvider>
+              </ChannelInstanceProvider>
             </DialogManagerProvider>
           </ChatProvider>,
         );

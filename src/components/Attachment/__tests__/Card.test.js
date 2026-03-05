@@ -5,7 +5,6 @@ import '@testing-library/jest-dom';
 import { Card } from '../LinkPreview/Card';
 
 import { MessageProvider, TranslationContext } from '../../../context';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
@@ -41,13 +40,11 @@ const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
   theRenderer(
     <ChatProvider value={chatContext}>
       <TranslationContext.Provider value={mockTranslationContext}>
-        <ChannelStateProvider value={{}}>
-          <ComponentProvider value={{}}>
-            <WithAudioPlayback>
-              <Card {...cardProps} />
-            </WithAudioPlayback>
-          </ComponentProvider>
-        </ChannelStateProvider>
+        <ComponentProvider value={{}}>
+          <WithAudioPlayback>
+            <Card {...cardProps} />
+          </WithAudioPlayback>
+        </ComponentProvider>
       </TranslationContext.Provider>
     </ChatProvider>,
   );
@@ -317,18 +314,16 @@ describe('Card', () => {
 
     render(
       <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
+        <WithAudioPlayback allowConcurrentPlayback>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+          <ThreadProvider thread={{ id: 'test-thread' }}>
             <MessageProvider value={{ message }}>
               <Card {...audioAttachment} />
             </MessageProvider>
-            <ThreadProvider thread={{ id: 'test-thread' }}>
-              <MessageProvider value={{ message }}>
-                <Card {...audioAttachment} />
-              </MessageProvider>
-            </ThreadProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
+          </ThreadProvider>
+        </WithAudioPlayback>
       </ChatProvider>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');
@@ -366,16 +361,14 @@ describe('Card', () => {
     const message = generateMessage();
     render(
       <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
+        <WithAudioPlayback allowConcurrentPlayback>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+        </WithAudioPlayback>
       </ChatProvider>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');

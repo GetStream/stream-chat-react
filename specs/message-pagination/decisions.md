@@ -259,6 +259,27 @@ Some existing Channel-level custom action override hooks will require replacemen
 
 ## Decision: Use commented `Channel.tsx` legacy actions as parity checklist
 
+## Decision: Resolve mark-read custom handlers in `MessageDeliveryReporter` by collection type
+
+**Date:** 2026-03-04  
+**Context:**  
+Mark-read customization previously routed through `Channel.markReadRequest`, which mixed channel/thread concerns and kept an unnecessary channel-level indirection for thread reads.
+
+**Decision:**  
+Resolve mark-read custom handlers directly in `MessageDeliveryReporter.markRead(...)`:
+
+- channel collections use `channel.configState.requestHandlers.markReadRequest`;
+- thread collections use `thread.configState.requestHandlers.markReadRequest`;
+- default fallback for both uses `channel.markAsReadRequest(...)`, with `thread_id` enrichment for thread collections.
+
+Also expose `Thread.markRead(...)` as the primary API and keep `Thread.markAsRead(...)` as deprecated alias.
+
+**Reasoning:**  
+This keeps handler ownership instance-scoped, avoids cross-collection routing, and keeps read transport semantics centralized in one place.
+
+**Tradeoffs / Consequences:**  
+Thread-specific custom mark-read handlers must now be registered on thread instance config (React `useThreadRequestHandlers` updated accordingly).
+
 **Date:** 2026-03-04  
 **Context:**  
 Large commented legacy blocks in `Channel.tsx` encode previous interaction behavior and can be missed when migration tasks are loosely defined.
@@ -310,7 +331,7 @@ This removes dual state mutation paths (`channel.state.*` vs context wrappers) a
 - Continue writing to `channel.state` directly in handlers: rejected because optimistic lifecycle should be centralized on `MessagePaginator` and MessageOperations.
 
 **Tradeoffs / Consequences:**  
-`ChannelActionContext` still exists for remaining legacy customization surfaces (for example mention handlers), so Task 5 remains in progress until those surfaces are addressed/explicitly deprecated.
+At the time of this decision, `ChannelActionContext` still had remaining legacy customization surfaces (for example mention handlers). Those mention surfaces were removed later when Task 10 was completed.
 
 ## Decision: `stream-chat-react` must not call `Thread.upsertReplyLocally` / `deleteReplyLocally`
 
@@ -499,3 +520,72 @@ This avoids replacing one oversized context with another while keeping `useChann
 
 **Tradeoffs / Consequences:**  
 Migration requires coordinated runtime + test/story updates, but yields clearer ownership boundaries (instance source vs list rendering state).
+
+## Decision: `channelConfig` and `channelCapabilities` are channel-owned, not ChannelStateContext-owned
+
+**Date:** 2026-03-04  
+**Context:**  
+Some tests were still injecting `channelConfig` / `channelCapabilities` through `ChannelStateProvider`, while runtime behavior already resolves these values from channel-owned stores/hooks.
+
+**Decision:**  
+Do not expose or consume `channelConfig` / `channelCapabilities` through `ChannelStateContext`.
+
+- Capabilities are resolved from `channel.state.ownCapabilitiesStore` (via `useChannelCapabilities`).
+- Config is resolved from channel config state (`useChannelConfig` / client config store).
+
+**Reasoning:**  
+This keeps one source of truth aligned with instance-driven architecture and avoids preserving deprecated context shape.
+
+**Alternatives considered:**
+
+- Keep context copies for test convenience: rejected because it encourages runtime drift and blocks full context removal.
+
+**Tradeoffs / Consequences:**  
+Tests must configure capabilities/config on channel instances (or client config store) instead of passing them via `ChannelStateProvider`.
+
+## Decision: Complete Task 18 by deleting `ChannelStateContext` and `channelState.ts`
+
+**Date:** 2026-03-04  
+**Context:**  
+After runtime migration and test/story migration to instance-based channel sourcing, `ChannelStateContext.tsx` and `src/components/Channel/channelState.ts` had no remaining runtime ownership role.
+
+**Decision:**  
+Delete `ChannelStateContext.tsx` and `src/components/Channel/channelState.ts`, remove context export from `src/context/index.ts`, and migrate remaining tests/examples to `ChannelInstanceProvider` / `useChannel`.
+
+**Reasoning:**  
+Keeping dead legacy state/context files increases API ambiguity and invites accidental coupling back to pre-paginator architecture.
+
+**Alternatives considered:**
+
+- Keep a deprecated no-op `ChannelStateContext` shim: rejected because it preserves obsolete surface area without providing functional value.
+
+**Tradeoffs / Consequences:**  
+Any external code importing `ChannelStateProvider`/`useChannelStateContext` must migrate to instance-based APIs (`useChannel`, `ChannelInstanceProvider`).
+
+## Decision: Close remaining JS SDK parity gaps from commented `Channel.tsx` logic
+
+**Date:** 2026-03-05  
+**Context:**  
+The commented legacy blocks in `src/components/Channel/Channel.tsx` were re-audited against `stream-chat-js` ownership (`MessagePaginator`, `MessageOperations`, `MessageDeliveryReporter`).
+
+Most behavior is already covered, but two concrete SDK-level gaps remain:
+
+- `jumpToTheFirstUnreadMessage` lacks the legacy timestamp fallback when unread ids are unavailable.
+- send pipeline no longer applies legacy pre-send failed-message cleanup (`filterErrorMessages` equivalent).
+
+**Decision:**  
+Track these as a dedicated follow-up (`Task 19`) scoped to `stream-chat-js`:
+
+- implement timestamp-based unread jump fallback + inferred snapshot hydration;
+- define explicit failed-send cleanup policy in `MessageOperations.send` (or equivalent policy layer).
+
+**Reasoning:**  
+Both gaps are data/operation ownership concerns and should be solved in the JS SDK rather than reintroduced in React adapters.
+
+**Alternatives considered:**
+
+- Accept current behavior as intentional deprecation: rejected because parity/deprecation decision was not explicitly approved.
+- Re-implement both in React only: rejected because it duplicates SDK responsibilities and risks divergence across SDK consumers.
+
+**Tradeoffs / Consequences:**  
+Unread fallback logic becomes more complex and requires explicit tests for edge cases (unknown ids, partially loaded windows, whole-channel-unread scenarios). Failed-send cleanup needs guardrails to avoid deleting user-actionable failed items unexpectedly.

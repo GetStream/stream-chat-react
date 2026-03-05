@@ -50,8 +50,6 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
 import { DialogManagerProvider, useChannel } from '../../context';
-import type { ChannelNotifications } from '../../context/ChannelStateContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { ChatContextValue } from '../../context/ChatContext';
 import { useChatContext } from '../../context/ChatContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
@@ -65,6 +63,7 @@ import { useMessagePaginator } from '../../hooks';
 import type {
   Channel,
   LocalMessage,
+  MessageFocusSignalState,
   MessagePaginatorState,
   ChannelState as StreamChannelState,
   UnreadSnapshotState,
@@ -134,6 +133,8 @@ export type VirtuosoContext = Required<
     lastReadMessageId: string | null;
     /** The number of unread messages in the current channel. */
     unreadMessageCount: number;
+    /** Message id currently targeted by paginator focus signal. */
+    focusedMessageId?: string | null;
   };
 
 type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
@@ -143,7 +144,6 @@ type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
   // jumpToLatestMessage: () => Promise<void>;
   // loadingMore: boolean;
   // loadingMoreNewer: boolean;
-  notifications: ChannelNotifications;
   read?: StreamChannelState['read'];
 };
 
@@ -179,10 +179,10 @@ function findMessageIndex(messages: RenderedMessage[], id: string) {
 
 function calculateInitialTopMostItemIndex(
   messages: RenderedMessage[],
-  highlightedMessageId: string | undefined,
+  focusedMessageId: string | undefined,
 ) {
-  if (highlightedMessageId) {
-    const index = findMessageIndex(messages, highlightedMessageId);
+  if (focusedMessageId) {
+    const index = findMessageIndex(messages, focusedMessageId);
     if (index !== -1) {
       return { align: 'center', index } as const;
     }
@@ -191,6 +191,9 @@ function calculateInitialTopMostItemIndex(
 }
 
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
+const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
+  messageFocusSignal: state.signal,
+});
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
   hasMoreNewer: state.hasMoreHead,
@@ -216,7 +219,6 @@ const VirtualizedMessageListWithContext = (
     head,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
-    highlightedMessageId,
     // jumpToLatestMessage,
     // loadingMore,
     // loadMore,
@@ -226,7 +228,6 @@ const VirtualizedMessageListWithContext = (
     messageActions,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
-    notifications,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
     reactionDetailsSort,
@@ -280,11 +281,16 @@ const VirtualizedMessageListWithContext = (
     messagePaginator.state,
     messagePaginatorStateSelector,
   );
+  const { messageFocusSignal } = useStateStore(
+    messagePaginator.messageFocusSignal,
+    messageFocusSignalSelector,
+  );
 
   const channelUnreadUiState = useStateStore(
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
+  const focusedMessageId = messageFocusSignal?.messageId;
 
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -492,8 +498,8 @@ const VirtualizedMessageListWithContext = (
 
   useEffect(() => {
     let scrollTimeout: ReturnType<typeof setTimeout>;
-    if (highlightedMessageId) {
-      const index = findMessageIndex(processedMessages, highlightedMessageId);
+    if (focusedMessageId) {
+      const index = findMessageIndex(processedMessages, focusedMessageId);
       if (index !== -1) {
         scrollTimeout = setTimeout(() => {
           virtuoso.current?.scrollToIndex({ align: 'center', index });
@@ -503,7 +509,7 @@ const VirtualizedMessageListWithContext = (
     return () => {
       clearTimeout(scrollTimeout);
     };
-  }, [highlightedMessageId, processedMessages]);
+  }, [focusedMessageId, processedMessages]);
 
   const id = useStableId();
 
@@ -554,6 +560,7 @@ const VirtualizedMessageListWithContext = (
                   customMessageRenderer,
                   DateSeparator,
                   firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
+                  focusedMessageId,
                   formatDate,
                   head,
                   lastOwnMessage,
@@ -585,7 +592,7 @@ const VirtualizedMessageListWithContext = (
                 increaseViewportBy={{ bottom: 200, top: 0 }}
                 initialTopMostItemIndex={calculateInitialTopMostItemIndex(
                   processedMessages,
-                  highlightedMessageId,
+                  focusedMessageId,
                 )}
                 itemContent={messageRenderer}
                 itemSize={fractionalItemSize}
@@ -612,7 +619,7 @@ const VirtualizedMessageListWithContext = (
           </DialogManagerProvider>
           {TypingIndicator && <TypingIndicator />}
         </MessageListMainPanel>
-        <MessageListNotifications notifications={notifications} />
+        <MessageListNotifications />
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
@@ -624,7 +631,6 @@ export type VirtualizedMessageListProps = Partial<
 > & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
   additionalVirtuosoProps?: VirtuosoProps<UnknownType, VirtuosoContext>;
-  // channelUnreadUiState?: ChannelStateContextValue['channelUnreadUiState'];
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
@@ -659,8 +665,6 @@ export type VirtualizedMessageListProps = Partial<
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
-  /** The id of the message to highlight and center */
-  highlightedMessageId?: string;
   // /** Whether or not the list is currently loading more items */
   // loadingMore?: boolean;
   // /** Whether or not the list is currently loading newer items */
@@ -675,7 +679,7 @@ export type VirtualizedMessageListProps = Partial<
   Message?: React.ComponentType<MessageUIComponentProps>;
   // /** The limit to use when paginating messages */
   // messageLimit?: number;
-  /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
+  /** Optional prop to override the messages available from the active message paginator. */
   messages?: LocalMessage[];
   /**
    * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
@@ -730,7 +734,6 @@ export type VirtualizedMessageListProps = Partial<
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
 
-  const { notifications } = useChannelStateContext('VirtualizedMessageList');
   const { read } = useStateStore(channel?.state.readStore, channelReadSelector) ?? {};
 
   const messages = props.messages; // || contextMessages;
@@ -741,14 +744,12 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
       // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
       // hasMore={!!hasMore}
       // hasMoreNewer={!!hasMoreNewer}
-      // highlightedMessageId={highlightedMessageId}
       // jumpToLatestMessage={jumpToLatestMessage}
       // loadingMore={!!loadingMore}
       // loadingMoreNewer={!!loadingMoreNewer}
       // loadMore={loadMore}
       // loadMoreNewer={loadMoreNewer}
       messages={messages}
-      notifications={notifications}
       read={read}
       {...props}
     />

@@ -72,9 +72,7 @@ describe('ChannelPreview', () => {
     renderer(
       <ChatContext.Provider
         value={{
-          channel: props.activeChannel,
           client,
-          setActiveChannel: () => jest.fn(),
         }}
       >
         <ChannelPreview Preview={PreviewUIComponent} {...props} />
@@ -399,9 +397,7 @@ describe('ChannelPreview', () => {
       const { container } = render(
         <ChatContext.Provider
           value={{
-            channel: c0,
             client,
-            setActiveChannel: () => jest.fn(),
           }}
         >
           <ChannelPreview channel={c0} />
@@ -458,9 +454,7 @@ describe('ChannelPreview', () => {
       const { container } = render(
         <ChatContext.Provider
           value={{
-            channel: c0,
             client,
-            setActiveChannel: () => jest.fn(),
           }}
         >
           <ChannelPreview channel={c0} />
@@ -607,7 +601,6 @@ describe('ChannelPreview', () => {
       );
       expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: activeChannel,
@@ -616,7 +609,7 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it("should set unread count from client's unread count state for non-active channel", async () => {
@@ -633,7 +626,6 @@ describe('ChannelPreview', () => {
       );
       expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: channelInPreview,
@@ -642,7 +634,7 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
   });
 
@@ -669,7 +661,8 @@ describe('ChannelPreview', () => {
       });
     };
 
-    const channelState = getChannelState(2);
+    const getDirectMessageChannelState = () =>
+      getChannelState(2, { channel: { name: undefined, type: 'messaging' } });
 
     const MockAvatar = ({ image, name }) => (
       <>
@@ -683,6 +676,7 @@ describe('ChannelPreview', () => {
     };
 
     it("should update the direct messaging channel's preview if other user's name has changed", async () => {
+      const channelState = getDirectMessageChannelState();
       const ownUser = channelState.members[0].user;
       const otherUser = channelState.members[1].user;
       const {
@@ -708,7 +702,8 @@ describe('ChannelPreview', () => {
       });
     });
 
-    it("should update the direct messaging channel's preview if other user's image has changed", async () => {
+    it("keeps custom avatar rendering when other user's image changes", async () => {
+      const channelState = getDirectMessageChannelState();
       const ownUser = channelState.members[0].user;
       const otherUser = channelState.members[1].user;
       const {
@@ -721,18 +716,19 @@ describe('ChannelPreview', () => {
       const updatedAttribute = { image: 'new-image' };
       await renderComponent({ channel, channelPreviewProps, client });
 
-      await waitFor(() =>
-        expect(screen.queryByText(updatedAttribute.image)).not.toBeInTheDocument(),
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('option')).toBeInTheDocument();
+      });
       act(() => {
         dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
       });
-      await waitFor(() =>
-        expect(screen.queryAllByText(updatedAttribute.image).length).toBeGreaterThan(0),
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('option')).toBeInTheDocument();
+      });
     });
 
     it("should not update the direct messaging channel's preview if other user attribute than name or image has changed", async () => {
+      const channelState = getDirectMessageChannelState();
       const ownUser = channelState.members[0].user;
       const otherUser = channelState.members[1].user;
       const {

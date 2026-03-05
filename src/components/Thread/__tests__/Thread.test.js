@@ -3,24 +3,22 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   TranslationProvider,
 } from '../../../context';
 
 import {
-  generateChannel,
   generateMessage,
   generateUser,
-  getOrCreateChannelApi,
   getTestClientWithUser,
-  useMockedApis,
 } from '../../../mock-builders';
 
 import { Message as MessageMock } from '../../Message/Message';
 import { MessageInput as MessageInputMock } from '../../MessageInput/MessageInput';
 import { MessageList as MessageListMock } from '../../MessageList';
+import { ThreadProvider } from '../../Threads';
 import { Thread } from '../Thread';
 
 jest.mock('../../Message/Message', () => ({
@@ -44,10 +42,23 @@ const reply1 = generateMessage({ parent_id: parentMessage.id, user: bob });
 const reply2 = generateMessage({ parent_id: parentMessage.id, user: alice });
 
 const mockedChannel = {
+  cid: 'messaging:test',
+  configState: {
+    getLatestValue: () => ({}),
+    partialNext: jest.fn(),
+  },
+  getClient: () => ({ deleteMessage: jest.fn(), updateMessage: jest.fn() }),
+  getConfig: () => ({ replies: true }),
   off: jest.fn(),
+  sendMessage: jest.fn(),
   state: {
     members: {},
   },
+};
+const channelActionContextMock = {
+  closeThread: jest.fn(),
+  loadMoreThread: jest.fn(),
+  threadLoadingMore: false,
 };
 const channelStateContextMock = {
   channel: mockedChannel,
@@ -63,23 +74,58 @@ const i18nMock = jest.fn((key, props) => {
   return key;
 });
 
+const makeThread = ({ channel = mockedChannel, thread = parentMessage } = {}) =>
+  thread
+    ? {
+        channel,
+        configState: {
+          getLatestValue: () => ({}),
+          partialNext: jest.fn(),
+        },
+        deactivate: jest.fn(),
+        id: `thread-${thread.id}`,
+        reload: jest.fn(),
+        state: {
+          getLatestValue: () => ({ isStateStale: false, parentMessage: thread }),
+          subscribeWithSelector: () => () => null,
+        },
+      }
+    : null;
+
 const renderComponent = ({
   channelStateOverrides = {},
   chatClient,
   componentOverrides = {},
+  threadInstance,
   threadProps = {},
 }) =>
   render(
     <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
-      <ChannelStateProvider
-        value={{ ...channelStateContextMock, ...channelStateOverrides }}
+      <ChannelInstanceProvider
+        value={{
+          channel: channelStateOverrides.channel ?? channelStateContextMock.channel,
+        }}
       >
         <ComponentProvider value={{ ...componentOverrides }}>
           <TranslationProvider value={{ t: i18nMock }}>
-            <Thread {...threadProps} />
+            <ThreadProvider
+              thread={
+                threadInstance ??
+                makeThread({
+                  channel:
+                    channelStateOverrides.channel ?? channelStateContextMock.channel,
+                  thread:
+                    channelStateOverrides.thread === undefined
+                      ? channelStateContextMock.thread
+                      : channelStateOverrides.thread,
+                })
+              }
+            >
+              <Thread {...threadProps} />
+            </ThreadProvider>
           </TranslationProvider>
         </ComponentProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 
@@ -114,14 +160,10 @@ describe('Thread', () => {
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
         disableDateSeparator: true,
-        hasMore: channelStateContextMock.threadHasMore,
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: channelActionContextMock.threadLoadingMore,
-        loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
-        messages: channelStateContextMock.threadMessages,
         ...additionalMessageListProps,
       }),
       undefined,
@@ -147,14 +189,10 @@ describe('Thread', () => {
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
         disableDateSeparator: false,
-        hasMore: channelStateContextMock.threadHasMore,
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: channelActionContextMock.threadLoadingMore,
-        loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
-        messages: channelStateContextMock.threadMessages,
         ...additionalMessageListProps,
       }),
       undefined,
@@ -248,7 +286,7 @@ describe('Thread', () => {
       expect(getByTestId('custom-thread-header')).toBeInTheDocument();
       expect(CustomThreadHeader).toHaveBeenCalledWith(
         expect.objectContaining({
-          closeThread: channelActionContextMock.closeThread,
+          closeThread: expect.any(Function),
           thread: parentMessage,
         }),
         undefined,
@@ -256,12 +294,13 @@ describe('Thread', () => {
     });
   });
 
-  it('should call the closeThread callback if the button is pressed', () => {
-    const { getByTestId } = renderComponent({ chatClient });
+  it('should deactivate thread instance if the close button is pressed', () => {
+    const threadInstance = makeThread();
+    const { getByTestId } = renderComponent({ chatClient, threadInstance });
 
     fireEvent.click(getByTestId('close-button'));
 
-    expect(channelActionContextMock.closeThread).toHaveBeenCalledTimes(1);
+    expect(threadInstance.deactivate).toHaveBeenCalledTimes(1);
   });
 
   it('should pass messageActions prop to the used messageList', () => {
@@ -308,26 +347,29 @@ describe('Thread', () => {
     expect(container.querySelector('.str-chat__thread')).not.toBeInTheDocument();
   });
 
-  it('should call the loadMoreThread callback on mount if the thread start has a non-zero reply count', () => {
-    renderComponent({ chatClient });
+  it('should reload thread instance on mount', () => {
+    const threadInstance = makeThread();
+    renderComponent({ chatClient, threadInstance });
 
-    expect(channelActionContextMock.loadMoreThread).toHaveBeenCalledTimes(1);
+    expect(threadInstance.reload).toHaveBeenCalledTimes(1);
   });
 
-  it('should render null if replies is disabled', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel({ getConfig: () => ({ replies: false }) });
-    const channelConfig = ch.getConfig();
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    await channel.watch();
+  it('should render null if replies is disabled', () => {
+    const channel = {
+      ...mockedChannel,
+      getConfig: () => ({ replies: false }),
+    };
 
     const { container } = render(
-      <ChannelStateProvider
-        value={{ ...channelStateContextMock, channel, channelConfig }}
-      >
-        <Thread />
-      </ChannelStateProvider>,
+      <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
+        <ChannelInstanceProvider value={{ channel }}>
+          <ThreadProvider
+            thread={makeThread({ channel, thread: channelStateContextMock.thread })}
+          >
+            <Thread />
+          </ThreadProvider>
+        </ChannelInstanceProvider>
+      </ChatProvider>,
     );
 
     expect(container).toBeEmptyDOMElement();

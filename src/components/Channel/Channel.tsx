@@ -1,5 +1,5 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import clsx from 'clsx';
 import type {
   ChannelMemberResponse,
@@ -16,14 +16,12 @@ import type {
   StreamChat,
   UpdateMessageOptions,
 } from 'stream-chat';
-import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useChannelConfig } from './hooks/useChannelConfig';
 
 import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
 
-import type { ChannelNotifications } from '../../context';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   useChatContext,
   useComponentContext,
   useTranslationContext,
@@ -175,7 +173,6 @@ const ChannelInner = (
   // const thread = useThreadContext();
 
   const channelConfig = useChannelConfig({ cid: channel.cid });
-  const [notifications] = useState<ChannelNotifications>([]);
   useChannelRequestHandlers({
     channel,
     doDeleteMessageRequest,
@@ -207,7 +204,7 @@ const ChannelInner = (
   const lastRead = useRef<Date | undefined>(undefined);
   const online = useRef(true);
 
-  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
+  const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
 
@@ -426,37 +423,27 @@ const ChannelInner = (
     markChannelRead,
   ]);
 
-  const handleHighlightedMessageChange = useCallback(
-    ({
-      highlightDuration,
-      // highlightedMessageId,
-    }: {
-      highlightedMessageId: string;
-      highlightDuration?: number;
-    }) => {
-      // dispatch({
-      //   channel,
-      //   highlightedMessageId,
-      //   type: 'jumpToMessageFinished',
-      // });
-      if (clearHighlightedMessageTimeoutId.current) {
-        clearTimeout(clearHighlightedMessageTimeoutId.current);
-      }
-      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-        if (searchController._internalState.getLatestValue().focusedMessage) {
-          searchController._internalState.partialNext({ focusedMessage: undefined });
-        }
-        clearHighlightedMessageTimeoutId.current = null;
-        // dispatch({ type: 'clearHighlightedMessage' });
-      }, highlightDuration ?? DEFAULT_HIGHLIGHT_DURATION);
-    },
-    [searchController._internalState],
-  );
-
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;
-    handleHighlightedMessageChange({ highlightedMessageId: jumpToMessageFromSearch.id });
-  }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
+    void channel.messagePaginator.jumpToMessage(jumpToMessageFromSearch.id, {
+      focusReason: 'jump-to-message',
+      focusSignalTtlMs: DEFAULT_HIGHLIGHT_DURATION,
+    });
+
+    if (clearSearchFocusedMessageTimeoutId.current) {
+      clearTimeout(clearSearchFocusedMessageTimeoutId.current);
+    }
+    clearSearchFocusedMessageTimeoutId.current = setTimeout(() => {
+      if (searchController._internalState.getLatestValue().focusedMessage) {
+        searchController._internalState.partialNext({ focusedMessage: undefined });
+      }
+      clearSearchFocusedMessageTimeoutId.current = null;
+    }, DEFAULT_HIGHLIGHT_DURATION);
+  }, [
+    channel.messagePaginator,
+    jumpToMessageFromSearch,
+    searchController._internalState,
+  ]);
 
   /** MESSAGE */
 
@@ -841,13 +828,6 @@ const ChannelInner = (
 
   // const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
-  const channelStateContextValue = useCreateChannelStateContext({
-    // ...state,
-    channel,
-    // channelUnreadUiState,
-    notifications,
-  });
-
   // if (state.error) {
   //   return (
   //     <ChannelContainer>
@@ -874,11 +854,11 @@ const ChannelInner = (
 
   return (
     <ChannelContainer className={windowsEmojiClass}>
-      <ChannelStateProvider value={channelStateContextValue}>
+      <ChannelInstanceProvider value={{ channel }}>
         <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
           <div className={clsx(chatContainerClass)}>{children}</div>
         </WithAudioPlayback>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChannelContainer>
   );
 };
@@ -886,7 +866,6 @@ const ChannelInner = (
 /**
  * A wrapper component that provides channel data and renders children.
  * The Channel component provides the following contexts:
- * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */

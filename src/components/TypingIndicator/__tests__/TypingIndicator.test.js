@@ -6,7 +6,7 @@ import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { TypingIndicator } from '../TypingIndicator';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { ThreadProvider } from '../../Threads/ThreadContext';
@@ -39,16 +39,21 @@ async function renderComponent(typing = {}, value = {}, threadParentId) {
   } = await initClientWithChannels();
   const channel = value.channel || defaultChannel;
   channel.messageComposer.textComposer.typing = typing;
+  const channelConfig = value.channelConfig ?? channel.getConfig();
+
+  client.configsStore.partialNext({
+    configs: { [channel.cid]: channelConfig },
+  });
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, ...value }}>
+      <ChannelInstanceProvider value={{ channel }}>
         <ComponentProvider value={{}}>
           <ThreadProvider thread={makeThread(threadParentId)}>
             <TypingIndicator />
           </ThreadProvider>
         </ComponentProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }
@@ -56,18 +61,16 @@ async function renderComponent(typing = {}, value = {}, threadParentId) {
 describe('TypingIndicator', () => {
   afterEach(cleanup);
 
-  it('should render null without proper context values', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const { container } = render(
-      <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
+  it('should throw without proper context values', () => {
+    expect(() =>
+      render(
+        <ChatProvider value={{}}>
           <ComponentProvider value={{}}>
             <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
-      </ChatProvider>,
-    );
-    expect(container).toBeEmptyDOMElement();
+        </ChatProvider>,
+      ),
+    ).toThrow('The useChannel hook could not resolve a channel.');
   });
 
   it('should render hidden indicator with empty typing', async () => {
@@ -78,11 +81,11 @@ describe('TypingIndicator', () => {
     channel.messageComposer.textComposer.typing = {};
     const { container } = render(
       <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{ channel }}>
+        <ChannelInstanceProvider value={{ channel }}>
           <ComponentProvider value={{}}>
             <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
 
@@ -156,14 +159,17 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     const channelConfig = { typing_events: false };
     await channel.watch();
+    client.configsStore.partialNext({
+      configs: { [channel.cid]: channelConfig },
+    });
 
     const { container } = render(
       <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{ channel, channelConfig }}>
+        <ChannelInstanceProvider value={{ channel }}>
           <ComponentProvider value={{}}>
             <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
 

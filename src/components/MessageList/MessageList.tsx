@@ -13,8 +13,6 @@ import { MessageListNotifications as DefaultMessageListNotifications } from './M
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
-import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { DialogManagerProvider, useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -32,8 +30,12 @@ import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useThreadContext } from '../Threads';
 
-import type { UnreadSnapshotState } from 'stream-chat';
-import { type LocalMessage, type MessagePaginatorState } from 'stream-chat';
+import type {
+  LocalMessage,
+  MessageFocusSignalState,
+  MessagePaginatorState,
+  UnreadSnapshotState,
+} from 'stream-chat';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message/types';
 
@@ -45,7 +47,7 @@ import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScro
 import { useMessagePaginator } from '../../hooks';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 
-type MessageListWithContextProps = ChannelStateContextValue & MessageListProps;
+type MessageListWithContextProps = MessageListProps;
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
   // hasMore: state.hasMoreTail,
@@ -55,30 +57,27 @@ const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
 });
 
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
+const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
+  messageFocusSignal: state.signal,
+});
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
   const {
-    // channelUnreadUiState,
     disableDateSeparator = false,
     groupStyles,
     headerPosition,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
-    // highlightedMessageId,
     internalInfiniteScrollProps: {
       element: internalListElement = 'div',
       threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
       ...restInternalInfiniteScrollProps
     } = {},
-    // jumpToLatestMessage = () => Promise.resolve(),
-    // loadMore: loadMoreCallback,
-    // loadMoreNewer: loadMoreNewerCallback,
     maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
-    notifications,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -122,6 +121,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
+  const { messageFocusSignal } = useStateStore(
+    messagePaginator.messageFocusSignal,
+    messageFocusSignalSelector,
+  );
+  const focusedMessageId = messageFocusSignal?.messageId;
 
   const {
     hasNewMessages,
@@ -170,6 +174,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const elements = useMessageListElements({
     // channelUnreadUiState,
     enrichedMessages,
+    focusedMessageId,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
@@ -234,7 +239,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   // }, [loadMoreNewerCallback, messageLimit]);
 
   const scrollToBottomFromNotification = React.useCallback(() => {
-    console.log('scrollToBottomFromNotification');
     if (messagePaginator.hasMoreHead) {
       messagePaginator.jumpToTheLatestMessage();
     } else {
@@ -242,15 +246,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     }
   }, [messagePaginator, scrollToBottom]);
 
-  // React.useLayoutEffect(() => {
-  //   if (highlightedMessageId) {
-  //     const element = listElement?.querySelector(
-  //       `[data-message-id='${highlightedMessageId}']`,
-  //     );
-  //     element?.scrollIntoView({ block: 'center' });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [highlightedMessageId]);
+  React.useLayoutEffect(() => {
+    if (!focusedMessageId) return;
+    const element = listElement?.querySelector(`[data-message-id='${focusedMessageId}']`);
+    element?.scrollIntoView({ block: 'center' });
+  }, [focusedMessageId, listElement]);
 
   const id = useStableId();
 
@@ -344,7 +344,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
             />
           </DialogManagerProvider>
         </MessageListMainPanel>
-        <MessageListNotifications notifications={notifications} />
+        <MessageListNotifications />
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );
@@ -425,7 +425,7 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   maxTimeBetweenGroupedMessages?: number;
   /** The limit to use when paginating messages */
   messageLimit?: number;
-  /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
+  /** The messages to render in the list; defaults to the active message-paginator items. */
   messages?: LocalMessage[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
@@ -458,12 +458,10 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
 /**
  * The MessageList component renders a list of Messages.
  * It is a consumer of the following contexts:
- * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
+ * - `ChannelInstanceContext`
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
-export const MessageList = (props: MessageListProps) => {
-  const channelStateContext = useChannelStateContext('MessageList');
-
-  return <MessageListWithContext {...channelStateContext} {...props} />;
-};
+export const MessageList = (props: MessageListProps) => (
+  <MessageListWithContext {...props} />
+);

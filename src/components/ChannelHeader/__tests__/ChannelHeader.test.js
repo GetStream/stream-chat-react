@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 
 import { ChannelHeader } from '../ChannelHeader';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
@@ -42,7 +42,7 @@ const t = jest.fn((key) => key);
 const renderComponentBase = ({ channel, chatViewProps, client, props }) =>
   render(
     <ChatProvider value={{ channel, client }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelInstanceProvider value={{ channel }}>
         <TranslationProvider value={{ t }}>
           {chatViewProps ? (
             <ChatView {...chatViewProps}>
@@ -52,7 +52,7 @@ const renderComponentBase = ({ channel, chatViewProps, client, props }) =>
             <ChannelHeader {...props} />
           )}
         </TranslationProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 

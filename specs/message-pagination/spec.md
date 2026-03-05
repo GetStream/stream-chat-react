@@ -47,23 +47,26 @@ Explicitly for message interactions:
 - Message mutation handlers (`action/delete/pin/reaction`, error-message delete action, and Channel wrappers) reconcile optimistic updates/removals through `messagePaginator`.
 - Message notification writes in migrated paths use `client.notifications`.
 - `stream-chat-react` message runtime handlers no longer call `thread.upsertReplyLocally` / `thread.deleteReplyLocally`.
-- Mention handling migration has started: `Channel`/`ChannelActionContext` mention-handler bridging is being removed in favor of `Message` props.
-- Channel message-list read actions already call instance APIs directly (`channel.markRead()` / `thread.markAsRead()` in notification/separator components).
+- Mention handling migration is complete: mention handlers are configured at `Message` level and no longer exposed via `Channel`/`ChannelActionContext`.
+- Channel message-list read actions already call instance APIs directly (`channel.markRead()` / `thread.markRead()` in notification/separator components).
 
 ### Missing
 
 - Test suites still contain strong assumptions about legacy Channel context pagination/thread fields (not aligned with the new runtime contract).
 - Mention-handler migration is in progress; remaining docs/tests need full Message-level contract alignment.
 - `suppressAutoscroll` behavior is still effectively specified by legacy `channelState.ts` reducer semantics and is not yet expressed as an instance-owned list contract.
-- `ChannelStateContext` is still used as a channel-instance and list-notifications carrier in runtime list components.
-- `useChannel()` still resolves channel through `ChannelStateContext`, so removing the context requires introducing a replacement channel-instance provider contract.
-- `MessageList` / `VirtualizedMessageList` still read `channel` and `notifications` via `useChannelStateContext`.
-- `UnreadMessagesNotification` still reads `channel` via `useChannelStateContext`.
-- Story/test scaffolding still depends on `ChannelStateProvider` wrappers.
 - `stream-chat-js` does not yet expose `deleteMessageWithLocalUpdate` wrappers on `Channel` / `Thread` equivalent to existing `send/retry/update` local-update APIs.
 - `stream-chat-js` `ChannelInstanceConfig.requestHandlers` does not include `deleteMessageRequest`, so integrators cannot inject custom delete logic through instance configuration.
 - `stream-chat-react` still carries `doDeleteMessageRequest` in `Channel` prop/context-era flow; this should migrate to instance-level delete wrapper usage.
 - Story and docs references still need full pass to remove legacy context terminology from comments/examples where not yet migrated.
+
+### Completed ChannelStateContext Removal
+
+- `ChannelStateContext.tsx` is deleted.
+- `channelState.ts` is deleted.
+- `useChannel()` resolves via `Thread` or `ChannelInstanceContext`.
+- `MessageList` and `VirtualizedMessageList` consume notification/unread state from paginator/client stores, not channel-state context.
+- stories/tests were migrated off `ChannelStateProvider`.
 
 ## Instance Ownership Contract (Layout First)
 
@@ -136,17 +139,51 @@ Explicitly for message interactions:
 - In `stream-chat-react`, do not call `thread.upsertReplyLocally` / `thread.deleteReplyLocally`; keep thread message-state reconcile strictly paginator-driven.
 - Add and consume `deleteMessageWithLocalUpdate` on `Channel` / `Thread` so delete flow follows the same instance contract and supports custom request handler injection.
 
+## Message Focus Signal Contract
+
+`MessagePaginator` publishes a reactive `messageFocusSignal` state for jump/navigation intents.
+
+- `messageId: string`
+  : target message that became the focus target.
+- `reason: 'jump-to-message' | 'jump-to-first-unread' | 'jump-to-latest'`
+  : semantic cause of focus, so UI can differentiate behaviors.
+- `token: number`
+  : monotonically increasing unique signal id; consumers can distinguish repeated focus events for the same `messageId` and ignore stale clears.
+- `createdAt: number`
+  : timestamp (`Date.now()`) when signal was emitted.
+- `ttlMs: number`
+  : advisory signal lifetime; signal auto-clears after TTL.
+
+State semantics:
+
+- store shape is `{ signal: MessageFocusSignal | null }`;
+- signal is emitted by paginator jump APIs unless explicitly suppressed;
+- clear operation supports token-aware stale-timer protection.
+
+UI consumption semantics:
+
+- selectors should return object-shaped values for stable store subscription patterns (for example `{ messageFocusSignal: state.signal }`);
+- message focus in list UIs is single-source and paginator-owned; `VirtualizedMessageList` must not accept a parallel `highlightedMessageId` prop source;
+- lists may map focus signal to visual highlight, scroll-to-center, animation, or any other focus affordance;
+- naming stays generic (`messageFocusSignal`) to describe the event, not a specific visual outcome.
+
 ## Mark Read Contract (Channel + Thread)
 
 - Primary contract for channel lists is `channel.markRead(options?)`; `Channel.markRead` delegates to `client.messageDeliveryReporter.markRead(channel, options?)`.
-- Primary contract for thread lists is `thread.markAsRead(options?)`; `Thread.markAsRead` delegates to `client.messageDeliveryReporter.markRead(thread, options?)`.
+- Primary contract for thread lists is `thread.markRead(options?)`; `Thread.markRead` delegates to `client.messageDeliveryReporter.markRead(thread, options?)`.
+- `thread.markAsRead(options?)` remains as a deprecated alias for backward compatibility.
 - `MessageDeliveryReporter.markRead` clears tracked delivery candidates for the collection after the request path and centralizes Channel/Thread read reporting semantics.
-- For thread collections, reporter sends `channel.markAsReadRequest({ thread_id: thread.id, ...options })`.
+- `MessageDeliveryReporter` resolves custom mark-read handlers per collection type:
+- channel collections use channel `configState.requestHandlers.markReadRequest`;
+- thread collections use thread `configState.requestHandlers.markReadRequest`.
+- Default fallback for both is `channel.markAsReadRequest(...)`, with `thread_id` enrichment when collection is thread.
 - React unread UI flows should call these instance methods directly and not depend on `ChannelActionContext.markRead`.
 - Custom mark-read override contract is instance-scoped (not client-global):
 - `Channel` may accept `doMarkReadRequest(channel, options?)`.
 - `Thread` may accept `doMarkReadRequest({ thread, options? })`.
-- both are wired into `channel.configState.requestHandlers.markReadRequest` and resolved by `MessageDeliveryReporter.markRead(...)`.
+- channel handler is channel-only (no `thread` argument); thread-specific customization belongs to thread handler.
+- channel override is wired into `channel.configState.requestHandlers.markReadRequest`;
+- thread override is wired into `thread.configState.requestHandlers.markReadRequest`.
 - `MessageDeliveryReporter` remains immutable at runtime; customization happens through per-instance request handlers to avoid cross-slot/channel interference.
 - Thread keeps custom-request parity with Channel for message operations:
 - `doDeleteMessageRequest`, `doSendMessageRequest`, `doUpdateMessageRequest`, `doMarkReadRequest`.
@@ -165,19 +202,11 @@ Explicitly for message interactions:
 
 ## ChannelStateContext Removal Contract
 
-- `ChannelStateContext` should not be required by runtime Channel/Thread message flows after migration.
-- Required migrations before removal:
-- channel instance sourcing:
-- replace `useChannel()` dependency on `ChannelStateContext` with a dedicated channel-instance provider (or equivalent instance source) compatible with `Channel` and `ChannelSlot`.
-- list wiring:
-- migrate `MessageList`, `VirtualizedMessageList`, and `UnreadMessagesNotification` off `useChannelStateContext`.
-- replace `notifications` transport currently provided through ChannelStateContext (prefer explicit list props or client notifications store-backed path).
-- provider cleanup:
-- remove `ChannelStateProvider` usage from `Channel.tsx` and delete `useCreateChannelStateContext`.
-- cleanup legacy reducer/types:
-- fully decouple and remove `src/components/Channel/channelState.ts` once `suppressAutoscroll` and related legacy semantics are migrated.
-- compatibility/tests:
-- migrate stories and tests away from `ChannelStateProvider` wrappers to the new instance-provider/runtime path.
+- Completed in this branch:
+- channel instance sourcing now uses `ChannelInstanceContext` (`useChannel()` thread-first fallback preserved);
+- list/runtime consumers no longer use `useChannelStateContext`;
+- `ChannelStateProvider` was removed from runtime and test/story scaffolding;
+- legacy reducer file `src/components/Channel/channelState.ts` was removed.
 
 ## Coverage Matrix: `Channel.tsx` Commented Legacy Actions
 
@@ -198,6 +227,37 @@ The following legacy commented flows in `src/components/Channel/Channel.tsx` mus
 | `sendMessage(...)` optimistic reconciliation           | `sendMessageWithLocalUpdate` + paginator-driven optimistic state                                  | partial         |
 | `retrySendMessage(...)` optimistic reconciliation      | `retrySendMessageWithLocalUpdate` + paginator-driven optimistic state                             | partial         |
 | `editMessage(...)` optimistic reconciliation           | `updateMessageWithLocalUpdate` + paginator-driven optimistic state                                | partial         |
+
+## Channel.tsx Commented Logic: JS SDK Parity Audit (2026-03-05)
+
+### Already Covered in `stream-chat-js`
+
+- `loadMore` / `loadMoreNewer` semantics are covered by `MessagePaginator.toTail()` / `toHead()`.
+- `jumpToMessage` and `jumpToLatestMessage` are covered by:
+  - `MessagePaginator.jumpToMessage(...)`
+  - `MessagePaginator.jumpToTheLatestMessage(...)`
+- highlight signal behavior is covered by `MessagePaginator.messageFocusSignal`.
+- unread snapshot ownership is covered by `MessagePaginator.unreadStateSnapshot`.
+- `notification.mark_unread` and `channel.truncated` unread-snapshot synchronization is already implemented in `Channel._handleChannelEvent`.
+- send/retry/update optimistic reconciliation (including duplicate message handling and newer-vs-stale response protection) is covered by `MessageOperations` + `MessageOperationStatePolicy`.
+- delete optimistic reconciliation is covered by `deleteMessageWithLocalUpdate` wrappers on both `Channel` and `Thread`.
+- mark-read ownership is covered by `MessageDeliveryReporter.markRead` for both channel and thread, with collection-specific custom handlers.
+
+### Remaining JS SDK Gaps (Not Yet at Legacy Parity)
+
+- `jumpToTheFirstUnreadMessage` does not yet implement the legacy fallback when both unread ids are missing:
+  - legacy behavior queried around `last_read_at` (`created_at_around`) and inferred first unread from time boundaries;
+  - current behavior returns `false` when both `first_unread_message_id` and `last_read_message_id` are absent.
+- `jumpToTheFirstUnreadMessage` currently does not enrich `unreadStateSnapshot` with inferred ids after successful fallback resolution (because the fallback path is missing).
+- pre-send cleanup parity is missing:
+  - legacy flow called `channel.state.filterErrorMessages()` before optimistic send;
+  - current `MessageOperations.send` does not clear stale failed sends before enqueueing a new optimistic send.
+
+### Explicitly Out of JS SDK Scope (React/UI Ownership)
+
+- document title updates (`activeUnreadHandler` / `document.title`) stay in React.
+- loading/error spinner state previously in local reducer (`state.loading`, `state.error`) stays in React rendering concerns.
+- reducer-specific throttling/debouncing knobs (`loadMoreFinished`, `throttledCopyStateFromChannel`) are replaced by paginator/store semantics and are not 1:1 JS SDK responsibilities.
 
 ## Acceptance Criteria
 

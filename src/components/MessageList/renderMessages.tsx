@@ -29,6 +29,8 @@ export interface RenderMessagesOptions {
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<RenderedMessage>;
   ownMessagesDeliveredToOthers: Record<string, UserResponse[]>;
+  /** The message id currently signaled for focus by the paginator. */
+  focusedMessageId?: string | null;
   /**
    * Object mapping message IDs of own messages to the users who read those messages.
    */
@@ -60,6 +62,7 @@ export function defaultRenderMessages({
   channelUnreadUiState,
   components,
   customClasses,
+  focusedMessageId,
   lastOwnMessage,
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
@@ -142,6 +145,7 @@ export function defaultRenderMessages({
             <Message
               deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              highlighted={focusedMessageId === message.id}
               lastOwnMessage={lastOwnMessage}
               lastReceivedId={lastReceivedId}
               message={message}

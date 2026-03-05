@@ -35,11 +35,11 @@ export const useMarkRead = ({
 
   const markRead = useCallback(() => {
     if (thread) {
-      void thread.markAsRead();
+      client.messageDeliveryReporter.throttledMarkRead(thread);
       return;
     }
-    void channel.markRead();
-  }, [channel, thread]);
+    client.messageDeliveryReporter.throttledMarkRead(channel);
+  }, [channel, client.messageDeliveryReporter, thread]);
 
   useEffect(() => {
     if (!channel.getConfig()?.read_events) return;

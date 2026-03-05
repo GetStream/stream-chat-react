@@ -3,14 +3,14 @@ import { renderHook } from '@testing-library/react';
 import { useRetryHandler } from '../useRetryHandler';
 
 const mockUseThreadContext = jest.fn();
-const mockUseChannelStateContext = jest.fn();
+const mockUseChannel = jest.fn();
 
 jest.mock('../../../Threads', () => ({
   useThreadContext: () => mockUseThreadContext(),
 }));
 
 jest.mock('../../../../context', () => ({
-  useChannelStateContext: () => mockUseChannelStateContext(),
+  useChannel: () => mockUseChannel(),
 }));
 
 const channelRetrySendMessageWithLocalUpdate = jest.fn();
@@ -19,10 +19,8 @@ const threadRetrySendMessageWithLocalUpdate = jest.fn();
 describe('useRetryHandler custom hook', () => {
   beforeEach(() => {
     mockUseThreadContext.mockReturnValue(undefined);
-    mockUseChannelStateContext.mockReturnValue({
-      channel: {
-        retrySendMessageWithLocalUpdate: channelRetrySendMessageWithLocalUpdate,
-      },
+    mockUseChannel.mockReturnValue({
+      retrySendMessageWithLocalUpdate: channelRetrySendMessageWithLocalUpdate,
     });
   });
 

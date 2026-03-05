@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react';
+import React, { type ComponentProps } from 'react';
 import clsx from 'clsx';
 
 export const BaseIcon = ({ className, ...props }: ComponentProps<'svg'>) => (

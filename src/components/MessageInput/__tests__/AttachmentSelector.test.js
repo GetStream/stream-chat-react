@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { MessageInput } from '../MessageInput';
 import { Chat } from '../../Chat';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ComponentProvider,
   MessageProvider,
   TranslationProvider,
@@ -41,10 +41,6 @@ const defaultConfig = {
   config: { shared_locations: true },
 };
 
-const defaultChannelStateContext = {
-  notifications: [],
-};
-
 const invokeMenu = async () => {
   await act(async () => {
     await fireEvent.click(screen.getByTestId('invoke-attachment-selector-button'));
@@ -61,8 +57,7 @@ const renderComponent = async ({
   messageInputProps,
 } = {}) => {
   let channel, client;
-  const { channelCapabilities, ...channelStateContextOverrides } =
-    channelStateContext ?? {};
+  const { channelCapabilities } = channelStateContext ?? {};
 
   if (customChannel && customClient) {
     channel = customChannel;
@@ -103,13 +98,7 @@ const renderComponent = async ({
         <ComponentProvider value={{ ...componentContext }}>
           <TranslationProvider value={translationContext}>
             <TypingProvider value={{}}>
-              <ChannelStateProvider
-                value={{
-                  ...defaultChannelStateContext,
-                  channel,
-                  ...channelStateContextOverrides,
-                }}
-              >
+              <ChannelInstanceProvider value={{ channel }}>
                 <div id={CHANNEL_CONTAINER_ID}>
                   {message ? (
                     <MessageProvider value={{ message }}>
@@ -119,7 +108,7 @@ const renderComponent = async ({
                     <ThreadOrChannel />
                   )}
                 </div>
-              </ChannelStateProvider>
+              </ChannelInstanceProvider>
             </TypingProvider>
           </TranslationProvider>
         </ComponentProvider>

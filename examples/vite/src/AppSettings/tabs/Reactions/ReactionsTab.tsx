@@ -1,6 +1,6 @@
 import {
   Button,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ComponentProvider,
   Message,
   useComponentContext,
@@ -106,7 +106,9 @@ export const ReactionsTab = () => {
       <div className='app__settings-modal__field'>
         <div className='app__settings-modal__field-label'>Preview</div>
         <div className='app__settings-modal__preview'>
-          <ChannelStateProvider value={reactionsPreviewChannelState as never}>
+          <ChannelInstanceProvider
+            value={{ channel: reactionsPreviewChannelState.channel as never }}
+          >
             <ComponentProvider
               value={{
                 ...componentContext,
@@ -121,7 +123,7 @@ export const ReactionsTab = () => {
                 />
               </li>
             </ComponentProvider>
-          </ChannelStateProvider>
+          </ChannelInstanceProvider>
         </div>
       </div>
     </div>

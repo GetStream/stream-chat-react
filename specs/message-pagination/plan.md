@@ -109,7 +109,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 4
 
-**Status:** in_progress
+**Status:** done
 
 **Owner:** codex
 
@@ -138,7 +138,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 5
 
-**Status:** in_progress
+**Status:** done
 
 **Owner:** codex
 
@@ -228,7 +228,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 5
 
-**Status:** in_progress
+**Status:** done
 
 **Owner:** codex
 
@@ -241,11 +241,11 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] `ChannelProps` no longer define mention handler props.
-- [ ] `ChannelActionContextValue` no longer carries mention handlers.
-- [ ] `MessageProps` mention handlers are typed independently of `ChannelActionContext`.
-- [ ] Mention handling works from `Message` props only.
-- [ ] Tests covering mention behavior are migrated to Message-level contract.
+- [x] `ChannelProps` no longer define mention handler props.
+- [x] `ChannelActionContextValue` no longer carries mention handlers.
+- [x] `MessageProps` mention handlers are typed independently of `ChannelActionContext`.
+- [x] Mention handling works from `Message` props only.
+- [x] Tests covering mention behavior are migrated to Message-level contract.
 
 ## Task 11: Add JS Instance-Level Delete Wrappers and Migrate React Delete Flow
 
@@ -253,9 +253,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 5
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -270,8 +270,8 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 - [x] `Channel` and `Thread` expose `deleteMessageWithLocalUpdate`.
 - [x] Integrators can inject custom delete logic through channel config handler (`deleteMessageRequest`) and per-call override.
 - [x] React message delete flow uses `(thread ?? channel).deleteMessageWithLocalUpdate(...)`.
-- [ ] Delete reconciliation is paginator-based and consistent with existing send/retry/update ownership model.
-- [ ] JS + React tests cover default delete path and custom request handler path.
+- [x] Delete reconciliation is paginator-based and consistent with existing send/retry/update ownership model.
+- [x] JS + React tests cover default delete path and custom request handler path.
 
 ## Task 12: Port `markRead` out of `ChannelActionContext` (Channel + Thread Lists)
 
@@ -279,7 +279,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 5
 
-**Status:** in_progress
+**Status:** done
 
 **Owner:** codex
 
@@ -296,12 +296,12 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] Runtime Channel list mark-read flow no longer relies on `useChannelActionContext().markRead`.
-- [ ] Runtime Thread list mark-read flow no longer relies on `useChannelActionContext().markRead`.
-- [ ] `ChannelActionContextValue` does not require `markRead` for core message-list/read behavior.
-- [ ] Read reporting in migrated paths goes through `channel.markRead` / `thread.markAsRead` via `client.messageDeliveryReporter`.
-- [ ] Existing mark-read behavior parity is preserved (`markReadOnMount`, visibility/bottom-scroll conditions, unread count/UI updates).
-- [ ] Specs document channel/thread mark-read contract and thread request shape (`thread_id`) through reporter.
+- [x] Runtime Channel list mark-read flow no longer relies on `useChannelActionContext().markRead`.
+- [x] Runtime Thread list mark-read flow no longer relies on `useChannelActionContext().markRead`.
+- [x] `ChannelActionContextValue` does not require `markRead` for core message-list/read behavior.
+- [x] Read reporting in migrated paths goes through `channel.markRead` / `thread.markRead` via `client.messageDeliveryReporter`.
+- [x] Existing mark-read behavior parity is preserved (`markReadOnMount`, visibility/bottom-scroll conditions, unread count/UI updates).
+- [x] Specs document channel/thread mark-read contract and thread request shape (`thread_id`) through reporter.
 - [x] Custom mark-read overrides (`ChannelProps` + `ThreadProps`) are routed through instance `requestHandlers.markReadRequest`, not client-global reporter mutation.
 - [x] `ThreadProps` offers custom request overrides matching Channel parity (`doDeleteMessageRequest`, `doSendMessageRequest`, `doUpdateMessageRequest`, `doMarkReadRequest`) and they are instance-scoped.
 
@@ -326,10 +326,10 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] `suppressAutoscroll` behavior is implemented from list/paginator lifecycle, not Channel reducer state.
-- [ ] MessageList and VirtualizedMessageList have parity for suppression behavior.
-- [ ] No runtime behavior depends on `channelState.ts` for autoscroll suppression.
-- [ ] Tests verify suppression and normal follow behavior in both list variants.
+- [x] `suppressAutoscroll` behavior is implemented from list/paginator lifecycle, not Channel reducer state.
+- [x] MessageList and VirtualizedMessageList have parity for suppression behavior.
+- [x] No runtime behavior depends on `channelState.ts` for autoscroll suppression.
+- [x] Tests verify suppression and normal follow behavior in both list variants.
 
 ## Task 14: Replace `useChannel()` Dependency on `ChannelStateContext`
 
@@ -337,9 +337,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 7
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -349,9 +349,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] `useChannel()` no longer reads from `ChannelStateContext`.
-- [ ] Channel runtime still resolves channel instance correctly in Channel and Thread compositions.
-- [ ] Transitional compatibility is documented.
+- [x] `useChannel()` no longer reads from `ChannelStateContext`.
+- [x] Channel runtime still resolves channel instance correctly in Channel and Thread compositions.
+- [x] Transitional compatibility is documented.
 
 ## Task 15: Migrate Message Lists Off `ChannelStateContext`
 
@@ -359,9 +359,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 14
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -371,9 +371,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] No runtime list component imports/uses `useChannelStateContext`.
-- [ ] Channel/unread actions still work in channel and thread list contexts.
-- [ ] MessageList notifications rendering has a non-ChannelStateContext source.
+- [x] No runtime list component imports/uses `useChannelStateContext`.
+- [x] Channel/unread actions still work in channel and thread list contexts.
+- [x] MessageList notifications rendering has a non-ChannelStateContext source.
 
 ## Task 16: Remove `ChannelStateProvider` Wiring From Channel Runtime
 
@@ -381,9 +381,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 15
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -393,9 +393,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] `Channel.tsx` no longer renders `ChannelStateProvider`.
-- [ ] `useCreateChannelStateContext` is removed.
-- [ ] Runtime build/typecheck pass without `ChannelStateContext` in normal render path.
+- [x] `Channel.tsx` no longer renders `ChannelStateProvider`.
+- [x] `useCreateChannelStateContext` is removed.
+- [x] Runtime build/typecheck pass without `ChannelStateContext` in normal render path.
 
 ## Task 17: Migrate Stories and Tests Off `ChannelStateProvider`
 
@@ -403,9 +403,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 16
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -414,8 +414,8 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] No active story/test scaffolding depends on `ChannelStateProvider`.
-- [ ] Updated tests verify instance-driven behavior.
+- [x] No active story/test scaffolding depends on `ChannelStateProvider`.
+- [x] Updated tests verify instance-driven behavior.
 
 ## Task 18: Delete `ChannelStateContext` and Legacy Channel Reducer
 
@@ -423,9 +423,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 13, Task 17
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -435,9 +435,40 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Acceptance Criteria:**
 
-- [ ] `ChannelStateContext.tsx` is deleted.
-- [ ] `channelState.ts` is deleted.
-- [ ] Specs reflect final ChannelStateContext-free architecture.
+- [x] `ChannelStateContext.tsx` is deleted.
+- [x] `channelState.ts` is deleted.
+- [x] Specs reflect final ChannelStateContext-free architecture.
+
+## Task 19: Port Remaining Commented `Channel.tsx` Legacy Semantics to JS SDK
+
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperations.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperationStatePolicy.ts` (if needed), `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/*messageOperations*.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`
+
+**Dependencies:** Task 11, Task 12
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Add legacy-equivalent fallback logic to `MessagePaginator.jumpToTheFirstUnreadMessage(...)` when unread ids are unavailable:
+  - query around `lastReadAt`/read-state timestamp (`created_at_around` descriptor);
+  - derive first unread candidate from returned page boundaries;
+  - persist inferred ids back into `unreadStateSnapshot`.
+- Define failure behavior for unresolved unread target:
+  - keep return type boolean;
+  - add explicit error notification semantics only where parity requires it.
+- Add pre-send failed-message cleanup policy parity:
+  - evaluate where to invoke `channel.state.filterErrorMessages()` equivalent before optimistic `send`;
+  - keep thread behavior coherent and non-destructive.
+- Add tests that pin legacy parity outcomes for the above.
+
+**Acceptance Criteria:**
+
+- [ ] `jumpToTheFirstUnreadMessage` works even when both unread ids are missing but `last_read` timestamp exists.
+- [ ] Successful fallback jump hydrates `unreadStateSnapshot` inferred ids when previously unknown.
+- [ ] Send pipeline defines and tests failed-message cleanup parity with legacy behavior.
+- [ ] JS SDK unit tests cover new fallback and cleanup semantics.
 
 ## Execution Order
 
@@ -457,6 +488,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 14. Phase 14: Task 16
 15. Phase 15: Task 17
 16. Phase 16: Task 18
+17. Phase 17: Task 19
 
 ## File ownership summary
 
@@ -480,3 +512,4 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 | Task 16 | `src/components/Channel/Channel.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `src/context/index.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Task 17 | `src/stories/*.stories.tsx` (affected), `src/components/**/__tests__/*` (affected wrappers), `specs/message-pagination/plan.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Task 18 | `src/context/ChannelStateContext.tsx`, `src/components/Channel/channelState.ts`, `src/context/index.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Task 19 | `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperations.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperationStatePolicy.ts` (if needed), `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/*messageOperations*.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                      |

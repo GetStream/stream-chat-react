@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChatView, useChatViewContext } from '../ChatView';
+import { getChatViewEntityBinding } from '../ChatView';
 import { useChatViewNavigation } from '../ChatViewNavigationContext';
 
 import { ChatProvider } from '../../../context/ChatContext';
@@ -81,32 +82,29 @@ describe('useChatViewNavigation', () => {
     );
 
     fireEvent.click(screen.getByText('open-channel'));
-    expect(capturedController?.state.getLatestValue()).toMatchObject({
-      activeView: 'channels',
-      slotBindings: {
-        slot1: { kind: 'channel' },
-      },
-    });
+    const openChannelState = capturedController?.state.getLatestValue();
+    expect(openChannelState?.activeView).toBe('channels');
+    expect(getChatViewEntityBinding(openChannelState?.slotBindings.slot1)?.kind).toBe(
+      'channel',
+    );
 
     fireEvent.click(screen.getByText('open-thread'));
-    expect(capturedController?.state.getLatestValue()).toMatchObject({
-      activeView: 'threads',
-      slotBindings: {
-        slot1: { kind: 'thread' },
-      },
-      slotHistory: {
-        slot1: [{ kind: 'channel' }],
-      },
-    });
+    const openThreadState = capturedController?.state.getLatestValue();
+    expect(openThreadState?.activeView).toBe('channels');
+    expect(getChatViewEntityBinding(openThreadState?.slotBindings.slot1)?.kind).toBe(
+      'thread',
+    );
+    expect(getChatViewEntityBinding(openThreadState?.slotHistory.slot1?.[0])?.kind).toBe(
+      'channel',
+    );
 
     fireEvent.click(screen.getByText('close-thread'));
-    expect(capturedController?.state.getLatestValue()).toMatchObject({
-      activeView: 'threads',
-      slotBindings: {
-        slot1: { kind: 'channel' },
-      },
-      slotHistory: {},
-    });
+    const closeThreadState = capturedController?.state.getLatestValue();
+    expect(closeThreadState?.activeView).toBe('channels');
+    expect(getChatViewEntityBinding(closeThreadState?.slotBindings.slot1)?.kind).toBe(
+      'channel',
+    );
+    expect(closeThreadState?.slotHistory).toEqual({});
   });
 
   it('hides and unhides channelList slot without requiring existing binding', () => {
@@ -150,18 +148,13 @@ describe('useChatViewNavigation', () => {
     });
 
     fireEvent.click(screen.getByText('unhide-list'));
-    expect(capturedController?.state.getLatestValue()).toMatchObject({
-      entityListPaneOpen: true,
-      hiddenSlots: {
-        slot1: false,
-      },
-      slotBindings: {
-        slot1: {
-          key: 'channel-list',
-          kind: 'channelList',
-          source: { view: 'channels' },
-        },
-      },
+    const unhiddenState = capturedController?.state.getLatestValue();
+    expect(unhiddenState?.entityListPaneOpen).toBe(true);
+    expect(unhiddenState?.hiddenSlots.slot1).toBe(false);
+    expect(getChatViewEntityBinding(unhiddenState?.slotBindings.slot1)).toMatchObject({
+      key: 'channel-list',
+      kind: 'channelList',
+      source: { view: 'channels' },
     });
   });
 

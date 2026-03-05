@@ -15,7 +15,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -36,13 +36,13 @@ const PREPEND_OFFSET = 10 ** 7;
 
 const Wrapper = ({ children, componentContext = {} }) => (
   <ChatProvider value={{ client }}>
-    <ChannelStateProvider value={{ channel }}>
+    <ChannelInstanceProvider value={{ channel }}>
       <ComponentProvider value={componentContext}>
         <DialogManagerProvider id='vml-components-dialog-manager'>
           {children}
         </DialogManagerProvider>
       </ComponentProvider>
-    </ChannelStateProvider>
+    </ChannelInstanceProvider>
   </ChatProvider>
 );
 
@@ -381,13 +381,13 @@ describe('VirtualizedMessageComponents', () => {
             <ChatProvider value={{ client }}>
               <TranslationProvider value={{ t: (v) => v }}>
                 <ComponentProvider value={{}}>
-                  <ChannelStateProvider value={{ channel }}>
+                  <ChannelInstanceProvider value={{ channel }}>
                     {messageRenderer(
                       virtuosoIndex ?? PREPEND_OFFSET,
                       undefined,
                       virtuosoContext,
                     )}
-                  </ChannelStateProvider>
+                  </ChannelInstanceProvider>
                 </ComponentProvider>
               </TranslationProvider>
             </ChatProvider>,

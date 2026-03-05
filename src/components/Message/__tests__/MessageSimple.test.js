@@ -29,7 +29,7 @@ import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { defaultReactionOptions } from '../../Reactions';
 
-import { ChannelStateProvider, WithComponents } from '../../../context';
+import { ChannelInstanceProvider, WithComponents } from '../../../context';
 import {
   countReactions,
   generateChannel,
@@ -95,15 +95,16 @@ describe('<MessageSimple />', () => {
     props = {},
     renderer = render,
   }) {
+    const ownCapabilities = Object.entries(channelCapabilities)
+      .filter(([, value]) => value)
+      .map(([capability]) => capability);
+    channel.state.ownCapabilitiesStore.next({ ownCapabilities });
+    const channelConfig = { ...channel.getConfig(), ...channelConfigOverrides };
+    client.configsStore.partialNext({ configs: { [channel.cid]: channelConfig } });
+
     const content = (
       <Chat client={client}>
-        <ChannelStateProvider
-          value={{
-            channel,
-            channelCapabilities,
-            channelConfig: channelConfigOverrides,
-          }}
-        >
+        <ChannelInstanceProvider value={{ channel }}>
           <WithComponents
             overrides={{
               Attachment: AttachmentMock,
@@ -119,7 +120,7 @@ describe('<MessageSimple />', () => {
               {...props}
             />
           </WithComponents>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </Chat>
     );
 

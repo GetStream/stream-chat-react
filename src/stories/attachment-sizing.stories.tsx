@@ -7,9 +7,12 @@ import {
   ChannelList,
   MessageList,
   Thread,
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   useChatViewNavigation,
+  useMessagePaginator,
+  useStateStore,
+  useThreadContext,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
@@ -27,7 +30,12 @@ if (!channelId || typeof channelId !== 'string') {
 
 const OtherUserControlButtons = () => {
   const { client } = useChatContext();
-  const { channel, messages, threadMessages } = useChannelStateContext();
+  const channel = useChannel();
+  const thread = useThreadContext();
+  const messagePaginator = useMessagePaginator();
+  const { messages } = useStateStore(messagePaginator.state, (state) => ({
+    messages: state.items ?? [],
+  }));
   const lastMessage = channel.state.messages.slice(-1)[0];
   return (
     <>
@@ -45,7 +53,7 @@ const OtherUserControlButtons = () => {
       <button
         data-testid='delete-other-last-reply'
         onClick={async () => {
-          const lastReply = threadMessages?.slice(-1)[0];
+          const lastReply = thread?.state.getLatestValue().replies.at(-1);
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -83,14 +91,14 @@ const sort: ChannelSort = { last_updated: 1 };
 
 const Controls = () => {
   const { client } = useChatContext();
-  const { threadMessages } = useChannelStateContext();
+  const thread = useThreadContext();
 
   return (
     <div>
       <button
         data-testid='delete-last-reply'
         onClick={async () => {
-          const lastReply = threadMessages?.slice(-1)[0];
+          const lastReply = thread?.state.getLatestValue().replies.at(-1);
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -103,8 +111,12 @@ const Controls = () => {
 };
 
 const SetThreadOpen = () => {
-  const { channel, messages } = useChannelStateContext();
+  const channel = useChannel();
   const { openThread } = useChatViewNavigation();
+  const messagePaginator = useMessagePaginator();
+  const { messages } = useStateStore(messagePaginator.state, (state) => ({
+    messages: state.items ?? [],
+  }));
 
   useEffect(() => {
     if (!messages) return;

@@ -20,11 +20,7 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-import {
-  useChannelStateContext,
-  useMessageContext,
-  WithComponents,
-} from '../../../context';
+import { useChannel, useMessageContext, WithComponents } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
@@ -392,7 +388,7 @@ describe('MessageList', () => {
       jest.useFakeTimers();
       const markReadBtnTestId = 'test-mark-read';
       const MarkReadButton = () => {
-        const { channel } = useChannelStateContext();
+        const channel = useChannel();
         return (
           <button
             data-testid={markReadBtnTestId}

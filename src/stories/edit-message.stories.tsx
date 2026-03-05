@@ -7,14 +7,14 @@ import {
   ChannelList,
   MessageList,
   Thread,
-  useChannelStateContext,
+  useChannel,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
 import type { ConnectedUserProps } from './utils';
 
 const Controls = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
 
   return (
     <div>

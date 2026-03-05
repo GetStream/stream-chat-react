@@ -2,10 +2,11 @@ import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
+import { StateStore } from 'stream-chat';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -57,15 +58,25 @@ async function renderMessageText({
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig: () => channelConfigOverrides,
-    state: { membership: {} },
+    state: {
+      membership: {},
+      ownCapabilitiesStore: new StateStore({ ownCapabilities: [] }),
+    },
   });
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
+  channel.state.ownCapabilitiesStore.next({ ownCapabilities });
   const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  client.configsStore.partialNext({
+    configs: { [channel.cid]: channelConfig },
+  });
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
+      <ChannelInstanceProvider value={{ channel }}>
         <TranslationProvider
           value={{
             t: (key) => key,
@@ -88,7 +99,7 @@ async function renderMessageText({
             </DialogManagerProvider>
           </ComponentProvider>
         </TranslationProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

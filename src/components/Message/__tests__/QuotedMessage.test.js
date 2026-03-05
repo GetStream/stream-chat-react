@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -47,12 +47,19 @@ async function renderQuotedMessage({
     channels: [channel],
     client,
   } = await initClientWithChannels({ customUser: alice });
-  const channelConfig = (customChannel ?? channel).getConfig();
+  const activeChannel = customChannel ?? channel;
+  const channelConfig = activeChannel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const activeClient = customClient ?? client;
+  if (activeChannel.cid) {
+    activeClient.configsStore.partialNext({
+      configs: { [activeChannel.cid]: channelConfig },
+    });
+  }
 
   return render(
-    <ChatProvider value={{ client: customClient ?? client }}>
-      <ChannelStateProvider value={{ channel: customChannel ?? channel, channelConfig }}>
+    <ChatProvider value={{ client: activeClient }}>
+      <ChannelInstanceProvider value={{ channel: activeChannel }}>
         <TranslationProvider
           value={{
             t: (key) => key,
@@ -76,7 +83,7 @@ async function renderQuotedMessage({
             </DialogManagerProvider>
           </ComponentProvider>
         </TranslationProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

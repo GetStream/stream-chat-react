@@ -1,5 +1,5 @@
 export * from './ChannelListContext';
-export * from './ChannelStateContext';
+export * from './ChannelInstanceContext';
 export * from './ChatContext';
 export * from './ComponentContext';
 export * from './DialogManagerContext';

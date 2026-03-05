@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Poll } from '../Poll';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -22,10 +22,6 @@ const POLL_OPTION_LIST__CLASS = '.str-chat__poll-option-list';
 const POLL_HEADER__CLASS = '.str-chat__poll-header';
 
 const t = (v) => v;
-
-const defaultChannelStateContext = {
-  notifications: [],
-};
 
 const defaultMessageContext = {
   message: generateMessage(),
@@ -47,8 +43,7 @@ const renderComponent = async ({
   props,
 }) => {
   const client = customClient ?? (await getTestClientWithUser());
-  const { channelCapabilities, ...channelStateContextOverrides } =
-    channelStateContext ?? {};
+  const { channelCapabilities } = channelStateContext ?? {};
   const own_capabilities = channelCapabilities
     ? Object.entries(channelCapabilities)
         .filter(([, isAllowed]) => isAllowed)
@@ -63,17 +58,11 @@ const renderComponent = async ({
       <DialogManagerProvider id='modal-dialog-manager'>
         <TranslationProvider value={{ t }}>
           <ComponentProvider value={{ AvatarStack, ...(componentContext ?? {}) }}>
-            <ChannelStateProvider
-              value={{
-                ...defaultChannelStateContext,
-                ...channelStateContextOverrides,
-                channel,
-              }}
-            >
+            <ChannelInstanceProvider value={{ channel }}>
               <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
                 <Poll {...props} />
               </MessageProvider>
-            </ChannelStateProvider>
+            </ChannelInstanceProvider>
           </ComponentProvider>
         </TranslationProvider>
       </DialogManagerProvider>

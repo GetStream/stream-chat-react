@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
-import { ChannelStateProvider, TranslationProvider } from '../../../../context';
+import { ChannelInstanceProvider, TranslationProvider } from '../../../../context';
 import { generateMessage } from '../../../../mock-builders';
 
 jest.spyOn(console, 'warn').mockImplementation(() => null);
@@ -21,13 +21,7 @@ const channel = { markUnread: jest.fn() };
 function renderUseMarkUnreadHandlerHook({ message, notifications } = {}) {
   const wrapper = ({ children }) => (
     <TranslationProvider value={{ t }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-        }}
-      >
-        {children}
-      </ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </TranslationProvider>
   );
   const { result } = renderHook(() => useMarkUnreadHandler(message, notifications), {

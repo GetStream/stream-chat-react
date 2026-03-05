@@ -116,6 +116,7 @@ export const messageRenderer = (
     customMessageRenderer,
     DateSeparator,
     firstUnreadMessageId,
+    focusedMessageId,
     formatDate,
     lastOwnMessage,
     lastReadDate,
@@ -185,6 +186,7 @@ export const messageRenderer = (
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
         formatDate={formatDate}
         groupStyles={[messageGroupStyles[message.id] ?? '']}
+        highlighted={focusedMessageId === message.id}
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}

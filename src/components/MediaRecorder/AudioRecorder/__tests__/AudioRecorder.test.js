@@ -5,7 +5,7 @@ import * as transcoder from '../../transcode';
 
 import { MessageInput, MessageInputFlat } from '../../../MessageInput';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   MessageInputContextProvider,
@@ -67,10 +67,26 @@ const renderComponent = async ({
   componentCtx,
   props,
 } = {}) => {
-  const {
-    channels: [channel],
-    client,
-  } = await initClientWithChannels();
+  const { channel: providedChannel, channelCapabilities } = channelStateCtx ?? {};
+  let channel;
+  let client;
+  if (providedChannel && chatCtx?.client) {
+    channel = providedChannel;
+    client = chatCtx.client;
+  } else {
+    const initResult = await initClientWithChannels();
+    channel = providedChannel ?? initResult.channels[0];
+    client = chatCtx?.client ?? initResult.client;
+  }
+  const ownCapabilities = Array.isArray(channelCapabilities)
+    ? channelCapabilities
+    : Object.entries(channelCapabilities ?? {})
+        .filter(([, isAllowed]) => isAllowed)
+        .map(([capability]) => capability);
+  if (ownCapabilities) {
+    channel.data.own_capabilities = ownCapabilities;
+    channel.state.ownCapabilitiesStore?.next?.({ ownCapabilities });
+  }
   let result;
   await act(async () => {
     result = await render(
@@ -84,15 +100,9 @@ const renderComponent = async ({
         <ComponentProvider
           value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
         >
-          <ChannelStateProvider
-            value={{
-              channel,
-              ...DEFAULT_RENDER_PARAMS.channelStateCtx,
-              ...channelStateCtx,
-            }}
-          >
+          <ChannelInstanceProvider value={{ channel }}>
             <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
-          </ChannelStateProvider>
+          </ChannelInstanceProvider>
         </ComponentProvider>
       </ChatProvider>,
     );

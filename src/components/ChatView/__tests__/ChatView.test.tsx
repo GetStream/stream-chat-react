@@ -11,7 +11,12 @@ jest.mock('../../Threads/ThreadList', () => ({
   ThreadList: () => <div data-testid='thread-list'>ThreadList</div>,
 }));
 
-import { ChatView, useChatViewContext } from '../ChatView';
+import {
+  ChatView,
+  createChatViewSlotBinding,
+  getChatViewEntityBinding,
+  useChatViewContext,
+} from '../ChatView';
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
@@ -73,7 +78,14 @@ describe('ChatView', () => {
           <button
             onClick={() => {
               layoutController.setActiveView('channels');
-              layoutController.openChannel(channel, { activate: true });
+              layoutController.open(
+                createChatViewSlotBinding({
+                  key: channel.cid ?? undefined,
+                  kind: 'channel',
+                  source: channel,
+                }),
+                { activate: true },
+              );
             }}
             type='button'
           >
@@ -94,19 +106,27 @@ describe('ChatView', () => {
 
     fireEvent.click(screen.getByText('view-in-channel'));
     expect(screen.getByTestId('active-view')).toHaveTextContent('channels');
-    expect(capturedController?.state.getLatestValue().slotBindings.slot1?.kind).toBe(
-      'channel',
-    );
+    expect(
+      getChatViewEntityBinding(
+        capturedController?.state.getLatestValue().slotBindings.slot1,
+      )?.kind,
+    ).toBe('channel');
   });
 
   it('renders built-in workspace layout with slotRenderers', () => {
     const channel = makeChannel('messaging:workspace');
     const layoutController = createLayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        visibleSlots: ['slot1', 'slot2'],
       },
     });
-    layoutController.openChannel(channel);
+    layoutController.open(
+      createChatViewSlotBinding({
+        key: channel.cid ?? undefined,
+        kind: 'channel',
+        source: channel,
+      }),
+    );
 
     renderWithProviders(
       <ChatView
@@ -171,9 +191,7 @@ describe('ChatView', () => {
       layoutController.setEntityListPaneOpen(false);
     });
     expect(
-      container.querySelector(
-        '.str-chat__chat-view__workspace-layout-entity-list-pane.str-chat__chat-view__slot--hidden',
-      ),
+      container.querySelector('[data-slot="slot1"].str-chat__chat-view__slot--hidden'),
     ).toBeInTheDocument();
 
     act(() => {
@@ -187,7 +205,14 @@ describe('ChatView', () => {
       const { layoutController } = useChatViewContext();
 
       useEffect(() => {
-        layoutController.openChannel(makeChannel('messaging:custom'));
+        const channel = makeChannel('messaging:custom');
+        layoutController.open(
+          createChatViewSlotBinding({
+            key: channel.cid ?? undefined,
+            kind: 'channel',
+            source: channel,
+          }),
+        );
       }, [layoutController]);
 
       return <div data-testid='custom-layout'>custom-layout</div>;

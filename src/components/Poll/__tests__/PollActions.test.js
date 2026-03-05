@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import { PollActions } from '../PollActions';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   DialogManagerProvider,
   MessageProvider,
@@ -28,10 +28,6 @@ const END_VOTE_ACTION_TEXT = 'End vote';
 
 const t = (v) => v;
 
-const defaultChannelStateContext = {
-  notifications: [],
-};
-
 const defaultMessageContext = {
   message: generateMessage(),
 };
@@ -44,8 +40,7 @@ const renderComponent = async ({
   props,
 }) => {
   const client = customClient ?? (await getTestClientWithUser());
-  const { channelCapabilities, ...channelStateContextOverrides } =
-    channelStateContext ?? {};
+  const { channelCapabilities } = channelStateContext ?? {};
   const own_capabilities = channelCapabilities
     ? Object.entries(channelCapabilities)
         .filter(([, isAllowed]) => isAllowed)
@@ -58,19 +53,13 @@ const renderComponent = async ({
     <ChatProvider value={{ client }}>
       <DialogManagerProvider id='modal-dialog-manager'>
         <TranslationProvider value={{ t }}>
-          <ChannelStateProvider
-            value={{
-              ...defaultChannelStateContext,
-              ...channelStateContextOverrides,
-              channel,
-            }}
-          >
+          <ChannelInstanceProvider value={{ channel }}>
             <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
               <PollProvider poll={poll}>
                 <PollActions {...props} />
               </PollProvider>
             </MessageProvider>
-          </ChannelStateProvider>
+          </ChannelInstanceProvider>
         </TranslationProvider>
       </DialogManagerProvider>
     </ChatProvider>,

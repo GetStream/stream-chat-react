@@ -20,7 +20,6 @@ import {
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
 import { generateScrapedVideoAttachment } from '../../../mock-builders';
-import { ChannelStateProvider } from '../../../context';
 
 const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
 
@@ -56,19 +55,17 @@ const ATTACHMENTS = {
 
 const renderComponent = (props) =>
   render(
-    <ChannelStateProvider value={{}}>
-      <Attachment
-        AttachmentActions={AttachmentActions}
-        Audio={Audio}
-        Card={Card}
-        File={File}
-        Gallery={Gallery}
-        Geolocation={Geolocation}
-        Image={Image}
-        Media={Media}
-        {...props}
-      />
-    </ChannelStateProvider>,
+    <Attachment
+      AttachmentActions={AttachmentActions}
+      Audio={Audio}
+      Card={Card}
+      File={File}
+      Gallery={Gallery}
+      Geolocation={Geolocation}
+      Image={Image}
+      Media={Media}
+      {...props}
+    />,
   );
 
 describe('attachment', () => {

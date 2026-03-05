@@ -204,7 +204,6 @@ export const Message = (props: MessageProps) => {
     },
     [channel],
   );
-  // const { highlightedMessageId } = useChannelStateContext('Message');
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
@@ -247,8 +246,6 @@ export const Message = (props: MessageProps) => {
     notify,
   });
 
-  // const highlighted = highlightedMessageId === message.id;
-
   return (
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
@@ -266,7 +263,7 @@ export const Message = (props: MessageProps) => {
       handleMute={handleMute}
       handlePin={handlePin}
       handleReaction={handleReaction}
-      // highlighted={highlighted}
+      highlighted={props.highlighted}
       initialMessage={props.initialMessage}
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}

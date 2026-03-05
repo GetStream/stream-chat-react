@@ -1,5 +1,5 @@
 import React from 'react';
-import { useChannel, useTranslationContext } from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
 import { IconCrossMedium } from '../Icons';
 
@@ -22,6 +22,7 @@ export const UnreadMessagesSeparator = ({
 }: UnreadMessagesSeparatorProps) => {
   const { t } = useTranslationContext('UnreadMessagesSeparator');
   const channel = useChannel();
+  const { client } = useChatContext('UnreadMessagesSeparator');
   return (
     <div
       className={UNREAD_MESSAGE_SEPARATOR_CLASS}
@@ -35,7 +36,7 @@ export const UnreadMessagesSeparator = ({
       <Button
         appearance='ghost'
         circular
-        onClick={() => channel.markRead()}
+        onClick={() => client.messageDeliveryReporter.throttledMarkRead(channel)}
         size='sm'
         variant='secondary'
       >

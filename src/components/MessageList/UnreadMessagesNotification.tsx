@@ -1,5 +1,5 @@
 import React from 'react';
-import { useChannelStateContext, useTranslationContext } from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
 import { useMessagePaginator } from '../../hooks';
 import { Button } from '../Button';
 import { IconArrowUp, IconCrossMedium } from '../Icons';
@@ -30,7 +30,8 @@ export const UnreadMessagesNotification = ({
   showCount = true,
 }: UnreadMessagesNotificationProps) => {
   // todo: move into a hook dedicated to unread count from the snapshot
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
+  const { client } = useChatContext('UnreadMessagesNotification');
   const thread = useThreadContext();
   const messagePaginator = useMessagePaginator();
   const { unreadCount } = useStateStore(
@@ -65,10 +66,10 @@ export const UnreadMessagesNotification = ({
         appearance='outline'
         onClick={() => {
           if (thread) {
-            void thread.markAsRead();
+            client.messageDeliveryReporter.throttledMarkRead(thread);
             return;
           }
-          channel.markRead();
+          client.messageDeliveryReporter.throttledMarkRead(channel);
         }}
         variant='secondary'
       >

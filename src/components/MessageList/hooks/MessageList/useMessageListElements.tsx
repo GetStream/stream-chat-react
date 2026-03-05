@@ -18,6 +18,7 @@ import { useStateStore } from '../../../../store';
 type UseMessageListElementsProps = {
   messages: LocalMessage[];
   enrichedMessages: RenderedMessage[];
+  focusedMessageId?: string | null;
   internalMessageProps: SharedMessageProps;
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer;
@@ -31,6 +32,7 @@ const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
 export const useMessageListElements = (props: UseMessageListElementsProps) => {
   const {
     enrichedMessages,
+    focusedMessageId,
     internalMessageProps,
     lastOwnMessage,
     messageGroupStyles,
@@ -73,6 +75,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
         channelUnreadUiState,
         components,
         customClasses,
+        focusedMessageId,
         lastOwnMessage,
         lastReceivedMessageId,
         messageGroupStyles,
@@ -84,6 +87,7 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       enrichedMessages,
+      focusedMessageId,
       internalMessageProps,
       lastOwnMessage,
       lastReceivedMessageId,
