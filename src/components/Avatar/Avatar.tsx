@@ -74,9 +74,6 @@ export const Avatar = ({
         'str-chat__avatar--multiple-letters': sizeAwareInitials.length > 1,
         'str-chat__avatar--no-letters': !sizeAwareInitials.length,
         'str-chat__avatar--one-letter': sizeAwareInitials.length === 1,
-        'str-chat__avatar--online': typeof isOnline === 'boolean' && isOnline,
-        // eslint-disable-next-line sort-keys
-        'str-chat__avatar--offline': typeof isOnline === 'boolean' && !isOnline,
         [`str-chat__avatar--size-${size}`]: typeof size === 'string',
       })}
       data-testid='avatar'
@@ -84,6 +81,14 @@ export const Avatar = ({
       title={userName}
       {...rest}
     >
+      {typeof isOnline === 'boolean' && (
+        <div
+          className={clsx('str-chat__avatar-status-badge', {
+            'str-chat__avatar-status-badge--offline': !isOnline,
+            'str-chat__avatar-status-badge--online': isOnline,
+          })}
+        />
+      )}
       {showImage ? (
         <img
           alt={sizeAwareInitials}

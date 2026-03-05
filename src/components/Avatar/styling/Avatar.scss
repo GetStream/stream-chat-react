@@ -15,7 +15,7 @@
   text-transform: uppercase;
   width: var(--avatar-size);
   height: var(--avatar-size);
-  --avatar-online-badge-angle: -45deg;
+  --avatar-status-badge-angle: -45deg;
 
   // FIXME: temporary thing, should be removed when we get rid of the old CSS
   grid-area: avatar;
@@ -43,39 +43,47 @@
     border-radius: inherit;
   }
 
-  &.str-chat__avatar--online::after,
-  &.str-chat__avatar--offline::after {
-    aspect-ratio: 1/1;
+  &:after {
     content: '';
     position: absolute;
-    width: var(--avatar-online-badge-size);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border: 2px solid var(--border-core-on-dark);
+    border-radius: inherit;
+  }
+
+  .str-chat__avatar-status-badge {
+    content: '';
+    position: absolute;
+    width: var(--avatar-status-badge-size);
+    height: var(--avatar-status-badge-size);
 
     left: calc(
       var(--avatar-size) / 2 + var(--avatar-size) / 2 *
-        cos(var(--avatar-online-badge-angle)) - var(--avatar-online-badge-size) / 2
+        cos(var(--avatar-status-badge-angle)) - var(--avatar-status-badge-size) / 2
     );
     top: calc(
       var(--avatar-size) / 2 + var(--avatar-size) / 2 *
-        sin(var(--avatar-online-badge-angle)) - var(--avatar-online-badge-size) / 2
+        sin(var(--avatar-status-badge-angle)) - var(--avatar-status-badge-size) / 2
     );
 
     border-radius: var(--radius-max, 9999px);
     border-style: solid;
     border-color: var(--presence-border);
     border-width: 2px;
-  }
 
-  &.str-chat__avatar--online::after {
-    background: var(--presence-bg-online);
-  }
+    &.str-chat__avatar-status-badge--online {
+      background: var(--presence-bg-online);
+    }
 
-  &.str-chat__avatar--offline::after {
-    background: var(--presence-bg-offline);
+    &.str-chat__avatar-status-badge--offline {
+      background: var(--presence-bg-offline);
+    }
   }
 
   &.str-chat__avatar--size-2xl {
     --avatar-size: 64px;
-    --avatar-online-badge-size: 16px;
+    --avatar-status-badge-size: 16px;
     --avatar-icon-size: var(--icon-size-lg);
     --avatar-icon-stroke-width: 1.5px;
 
@@ -84,7 +92,7 @@
 
   &.str-chat__avatar--size-xl {
     --avatar-size: 48px;
-    --avatar-online-badge-size: 16px;
+    --avatar-status-badge-size: 16px;
     --avatar-icon-size: var(--size-24); // TODO: missing icon size
     --avatar-icon-stroke-width: 1.5px;
 
@@ -93,7 +101,7 @@
 
   &.str-chat__avatar--size-lg {
     --avatar-size: 40px;
-    --avatar-online-badge-size: 14px;
+    --avatar-status-badge-size: 14px;
     --avatar-icon-size: var(--icon-size-md);
     --avatar-icon-stroke-width: 1.5px;
 
@@ -102,7 +110,7 @@
 
   &.str-chat__avatar--size-md {
     --avatar-size: 32px;
-    --avatar-online-badge-size: 12px;
+    --avatar-status-badge-size: 12px;
     --avatar-icon-size: var(--icon-size-md);
     --avatar-icon-stroke-width: 1.5px;
 
@@ -111,28 +119,26 @@
 
   &.str-chat__avatar--size-sm {
     --avatar-size: 24px;
-    --avatar-online-badge-size: 8px;
+    --avatar-status-badge-size: 8px;
     --avatar-icon-size: var(--icon-size-sm);
     --avatar-icon-stroke-width: 1.2px;
 
     font-size: var(--typography-font-size-sm);
 
-    &.str-chat__avatar--offline::after,
-    &.str-chat__avatar--online::after {
+    .str-chat__avatar-status-badge {
       border-width: 1px;
     }
   }
 
   &.str-chat__avatar--size-xs {
     --avatar-size: 20px;
-    --avatar-online-badge-size: 8px;
+    --avatar-status-badge-size: 8px;
     --avatar-icon-size: 10px;
     --avatar-icon-stroke-width: 1.2px;
 
     font-size: var(--typography-font-size-xs);
 
-    &.str-chat__avatar--offline::after,
-    &.str-chat__avatar--online::after {
+    .str-chat__avatar-status-badge {
       border-width: 1px;
     }
   }

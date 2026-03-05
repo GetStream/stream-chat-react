@@ -31,6 +31,8 @@ export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
   latestMessagePreview?: ReactNode;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
+  /** Whether the channel is muted by the current user */
+  muted?: boolean;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -196,6 +198,7 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
       latestMessage={latestMessagePreview}
       latestMessagePreview={latestMessagePreview}
       messageDeliveryStatus={messageDeliveryStatus}
+      muted={muted}
       setActiveChannel={setActiveChannel}
       unread={unread}
     />
