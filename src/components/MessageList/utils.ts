@@ -346,6 +346,12 @@ export function isLocalMessage(message: unknown): message is LocalMessage {
   return !isDateSeparatorMessage(message) && !isIntroMessage(message);
 }
 
+export function isDeletedMessage(
+  message: unknown,
+): message is LocalMessage & { type: 'deleted' } {
+  return !!message && (message as LocalMessage).type === 'deleted';
+}
+
 // todo: simplify the logic
 export const getIsFirstUnreadMessage = ({
   channel,

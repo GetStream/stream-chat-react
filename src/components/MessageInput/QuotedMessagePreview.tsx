@@ -33,6 +33,7 @@ import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
   IconChainLink,
   IconChart5,
+  IconCircleBanSign,
   IconFileBend,
   IconMapPin,
   IconMicrophone,
@@ -44,6 +45,7 @@ import clsx from 'clsx';
 import { BaseImage } from '../Gallery';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
+import { isDeletedMessage } from '../MessageList';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
@@ -163,7 +165,10 @@ const getAttachmentIconWithType = (
     PreviewImage: null,
     previewType: null,
   };
-  if (!groupedAttachments.total) return result;
+  if (isDeletedMessage(quotedMessage)) {
+    return { ...result, Icon: IconCircleBanSign };
+  }
+  if (!groupedAttachments.total || isDeletedMessage(quotedMessage)) return result;
   if (groupedAttachments.polls.length > 0)
     return { ...result, Icon: IconChart5, previewType: 'poll' };
   if (groupedAttachments.locations.length > 0)
@@ -299,7 +304,9 @@ export const QuotedMessagePreviewUI = ({
 
     let renderedText: ReactNode | undefined;
 
-    if (!quotedMessageText) {
+    if (isDeletedMessage(quotedMessage)) {
+      renderedText = t('Message deleted');
+    } else if (!quotedMessageText) {
       if (previewType === 'poll') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderedText = quotedMessage.poll!.name;
