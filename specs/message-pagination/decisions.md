@@ -257,6 +257,32 @@ Optional-context fallback still preserves dual interaction models and leaves mig
 **Tradeoffs / Consequences:**  
 Some existing Channel-level custom action override hooks will require replacement or new extension points aligned with paginator/client-instance APIs.
 
+## Decision: Keep `Channel.test.js` focused on React integration, not paginator algorithms
+
+**Date:** 2026-03-05  
+**Context:**  
+During migration, `Channel.test.js` accumulated compatibility/emulation logic for paginator internals (pagination query choreography, unread jump resolution) that belongs to SDK entity behavior.
+
+**Decision:**  
+Constrain `stream-chat-react` `Channel.test.js` to integration ownership:
+
+- context/render wiring;
+- registration/delegation of request handlers;
+- component-level event bridging and UI-facing behavior.
+
+Skip or remove legacy tests that re-assert `MessagePaginator` and entity algorithms already covered in `stream-chat-js`.
+
+**Reasoning:**  
+This avoids duplicate logic in React tests, reduces brittle migration shims, and keeps ownership boundaries clear between UI integration and SDK data/algorithm behavior.
+
+**Alternatives considered:**
+
+- Keep full parity assertions in `Channel.test.js`: rejected because it duplicates `stream-chat-js` coverage and encourages test-only emulation code.
+- Port all deep algorithm assertions to React layer with heavy mocks: rejected due high maintenance cost and weak signal.
+
+**Tradeoffs / Consequences:**  
+React suite has fewer deep unread/pagination algorithm assertions; those invariants must remain strong in `stream-chat-js` unit tests.
+
 ## Decision: Use commented `Channel.tsx` legacy actions as parity checklist
 
 ## Decision: Resolve mark-read custom handlers in `MessageDeliveryReporter` by collection type
@@ -568,24 +594,114 @@ Any external code importing `ChannelStateProvider`/`useChannelStateContext` must
 **Context:**  
 The commented legacy blocks in `src/components/Channel/Channel.tsx` were re-audited against `stream-chat-js` ownership (`MessagePaginator`, `MessageOperations`, `MessageDeliveryReporter`).
 
-Most behavior is already covered, but two concrete SDK-level gaps remain:
+Most behavior is already covered. One concrete SDK-level parity gap was identified:
 
 - `jumpToTheFirstUnreadMessage` lacks the legacy timestamp fallback when unread ids are unavailable.
-- send pipeline no longer applies legacy pre-send failed-message cleanup (`filterErrorMessages` equivalent).
 
 **Decision:**  
-Track these as a dedicated follow-up (`Task 19`) scoped to `stream-chat-js`:
+Track a dedicated follow-up (`Task 19`) scoped to `stream-chat-js` for unread jump parity only:
 
 - implement timestamp-based unread jump fallback + inferred snapshot hydration;
-- define explicit failed-send cleanup policy in `MessageOperations.send` (or equivalent policy layer).
+- keep pre-send failed-message cleanup (`filterErrorMessages` legacy behavior) out of scope by default.
+- do not reintroduce `beforeSend` or equivalent hook only for this parity task.
 
 **Reasoning:**  
-Both gaps are data/operation ownership concerns and should be solved in the JS SDK rather than reintroduced in React adapters.
+Unread jump fallback is a paginator data-ownership concern and should be solved in JS SDK, not React adapters.  
+Failed-message cleanup is a product-policy concern and can delete actionable retry items; without explicit product requirements, preserving retry visibility is safer.
 
 **Alternatives considered:**
 
-- Accept current behavior as intentional deprecation: rejected because parity/deprecation decision was not explicitly approved.
-- Re-implement both in React only: rejected because it duplicates SDK responsibilities and risks divergence across SDK consumers.
+- Also port `filterErrorMessages`-style cleanup into MessageOperations: rejected as unnecessary and risky without explicit product requirement.
+- Re-implement unread fallback in React only: rejected because it duplicates SDK responsibilities and risks divergence across SDK consumers.
 
 **Tradeoffs / Consequences:**  
-Unread fallback logic becomes more complex and requires explicit tests for edge cases (unknown ids, partially loaded windows, whole-channel-unread scenarios). Failed-send cleanup needs guardrails to avoid deleting user-actionable failed items unexpectedly.
+Unread fallback logic becomes more complex and requires explicit tests for edge cases (unknown ids, partially loaded windows, whole-channel-unread scenarios).  
+Pre-send cleanup remains intentionally unported; any future cleanup behavior must be introduced as an explicit, configurable policy.
+
+**Implementation Update (2026-03-05):**  
+Task 19 was implemented in `stream-chat-js`:
+
+- `MessagePaginator.jumpToTheFirstUnreadMessage` now performs `created_at_around` fallback when unread ids are missing but last-read timestamp exists;
+- inferred unread boundaries hydrate `unreadStateSnapshot` after successful fallback jump;
+- targeted tests were added in:
+  - `test/unit/pagination/paginators/MessagePaginator.test.ts`
+  - `test/unit/channel.test.js` (snapshot sync assertions for `channel.truncated` and `notification.mark_unread`).
+
+## Decision: Separate Channel bootstrap loading/error from message-list pagination errors
+
+**Date:** 2026-03-05  
+**Context:**  
+`Channel.tsx` still needs to handle the initial bootstrap request for externally provided/slot-provided channel instances (`initializeOnMount` path when `channel.initialized === false`).  
+At the same time, pagination loading and failures after bootstrap belong to `MessageList` / `VirtualizedMessageList` runtime.
+
+**Decision:**  
+Define `Channel.tsx` loading/error UI ownership as initial bootstrap only:
+
+- show `LoadingIndicator` for first-page bootstrap request;
+- show `LoadingErrorIndicator` for bootstrap failure;
+- do not reuse this state for subsequent paginator/page loading failures.
+
+**Reasoning:**  
+This preserves clear ownership boundaries:
+
+- `Channel.tsx` handles channel instance readiness;
+- list components handle pagination lifecycle and errors.
+
+It also avoids ambiguous behavior in slot-based layouts where global query flags may not map to the actively rendered instance.
+
+**Alternatives considered:**
+
+- Keep only `channelsQueryState` global loading/error for all channel readiness and pagination: rejected because instance-scoped bootstrap and list-level pagination can diverge.
+- Put all loading/error behavior into lists: rejected because channel bootstrap may fail before list runtime is ready.
+
+**Tradeoffs / Consequences:**  
+`Channel.tsx` will carry a small local bootstrap request state. Tests must verify bootstrap-only rendering and ensure no regression where list pagination failures incorrectly render channel-level bootstrap indicators.
+
+**Implementation Update (2026-03-05):**  
+Task 20 implementation is complete:
+
+- `Channel.tsx` now tracks instance-scoped bootstrap state (`isBootstrapping`, `bootstrapError`) for initial `initializeOnMount` query only.
+- bootstrap indicators are rendered from component context (`LoadingIndicator` / `LoadingErrorIndicator`) and are not reused for paginator/page failures.
+- targeted regression tests were validated in `src/components/Channel/__tests__/Channel.test.js`:
+  - loading indicator during unresolved bootstrap;
+  - error indicator on bootstrap watch failure;
+  - no channel-bootstrap error UI for post-bootstrap pagination failure.
+
+## Decision: Rebase Channel message-mutation tests to instance APIs
+
+**Date:** 2026-03-05  
+**Context:**  
+`Channel` message mutation tests still depended on context-era callback timing and legacy `channel.state` assumptions, which produced flaky failures after the instance/bootstrap migration.
+
+**Decision:**  
+Rebase the `Sending/removing/updating messages` test block in `Channel.test.js` to test instance-owned contracts directly via:
+
+- `channel.sendMessageWithLocalUpdate(...)`
+- `channel.retrySendMessageWithLocalUpdate(...)`
+- `channel.updateMessageWithLocalUpdate(...)`
+- `channel.deleteMessageWithLocalUpdate(...)`
+- `channel.messagePaginator.removeItem(...)`
+
+with assertions focused on paginator ingestion and request-handler invocation.
+
+**Reasoning:**  
+The migration goal is instance ownership. Test coverage should validate those APIs directly instead of preserving brittle context-wiring behavior.
+
+**Alternatives considered:**
+
+- Keep callback-context driven tests and add more waits: rejected because it keeps testing a deprecated integration path.
+
+**Tradeoffs / Consequences:**  
+Some assertions now validate `messagePaginator.ingestItem` calls (optimistic/received/failed transitions) rather than only DOM text outcomes, which better matches mutation ownership in `stream-chat-js`.
+
+## Decision: Temporarily skip legacy Channel integration jump/mark-read cases
+
+**Date:** 2026-03-05  
+**Context:**  
+`Channel.test.js` still contained integration tests asserting reducer-era `jumpToFirstUnread` and mount-time mark-read internals that no longer map 1:1 to the instance-driven paginator/message-delivery runtime.
+
+**Decision:**  
+Keep migrated instance-contract assertions active, and temporarily skip legacy integration cases whose detailed behavior is now owned and unit-tested in `stream-chat-js` (`MessagePaginator` / `MessageDeliveryReporter`).
+
+**Reasoning:**  
+This avoids brittle React-level coupling to internal SDK flow while preserving coverage at the correct ownership layer.

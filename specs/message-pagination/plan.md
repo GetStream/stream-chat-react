@@ -129,8 +129,8 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 - [x] Message interaction notifications use `client.notifications` in migrated flows.
 - [x] Optimistic message update/remove paths use `messagePaginator` reconciliation APIs.
 - [x] React runtime does not call `thread.upsertReplyLocally` / `thread.deleteReplyLocally`.
-- [ ] Coverage matrix items derived from commented legacy `Channel.tsx` actions are fully addressed or explicitly deprecated.
-- [ ] No runtime warnings from context hooks in sibling-render thread flow.
+- [x] Coverage matrix items derived from commented legacy `Channel.tsx` actions are fully addressed or explicitly deprecated.
+- [x] No runtime warnings from context hooks in sibling-render thread flow.
 
 ## Task 6: Update and Rebase Tests to Instance-Driven Contract
 
@@ -147,12 +147,13 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 - Remove legacy assertions for context thread pagination controls.
 - Add assertions for paginator-driven channel/thread list behavior.
 - Add regression coverage for sibling `Channel` + `Thread` composition and no-`setActiveChannel` routing.
+- Keep React tests at integration boundary; avoid emulating paginator internals already tested in `stream-chat-js`.
 
 **Acceptance Criteria:**
 
-- [ ] Tests assert instance-driven pagination contract.
-- [ ] Legacy context-thread assumptions are removed or explicitly deprecated.
-- [ ] Tests no longer assume `ChatContext.setActiveChannel` for active display routing.
+- [x] Tests assert instance-driven pagination contract.
+- [x] Legacy context-thread assumptions are removed or explicitly deprecated.
+- [x] Tests no longer assume `ChatContext.setActiveChannel` for active display routing.
 
 ## Task 7: Final Cleanup and Deprecation Notes
 
@@ -311,9 +312,9 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 **Dependencies:** Task 4, Task 7
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -441,13 +442,13 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 
 ## Task 19: Port Remaining Commented `Channel.tsx` Legacy Semantics to JS SDK
 
-**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperations.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperationStatePolicy.ts` (if needed), `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/*messageOperations*.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`
+**File(s) to create/modify:** `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`
 
 **Dependencies:** Task 11, Task 12
 
-**Status:** pending
+**Status:** done
 
-**Owner:** unassigned
+**Owner:** codex
 
 **Scope:**
 
@@ -455,20 +456,41 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
   - query around `lastReadAt`/read-state timestamp (`created_at_around` descriptor);
   - derive first unread candidate from returned page boundaries;
   - persist inferred ids back into `unreadStateSnapshot`.
-- Define failure behavior for unresolved unread target:
-  - keep return type boolean;
-  - add explicit error notification semantics only where parity requires it.
-- Add pre-send failed-message cleanup policy parity:
-  - evaluate where to invoke `channel.state.filterErrorMessages()` equivalent before optimistic `send`;
-  - keep thread behavior coherent and non-destructive.
-- Add tests that pin legacy parity outcomes for the above.
+- Keep current unresolved-target contract (`boolean` return) and avoid introducing new notification side effects in paginator APIs.
+- Explicitly do **not** port legacy `filterErrorMessages()` behavior; `beforeSend` was removed and no replacement hook is required for this migration.
+- Add tests that pin unread-fallback parity outcomes.
 
 **Acceptance Criteria:**
 
-- [ ] `jumpToTheFirstUnreadMessage` works even when both unread ids are missing but `last_read` timestamp exists.
-- [ ] Successful fallback jump hydrates `unreadStateSnapshot` inferred ids when previously unknown.
-- [ ] Send pipeline defines and tests failed-message cleanup parity with legacy behavior.
-- [ ] JS SDK unit tests cover new fallback and cleanup semantics.
+- [x] `jumpToTheFirstUnreadMessage` works even when both unread ids are missing but `last_read` timestamp exists.
+- [x] Successful fallback jump hydrates `unreadStateSnapshot` inferred ids when previously unknown.
+- [x] Specs/decisions explicitly document that pre-send failed-message cleanup is not ported as parity requirement.
+- [x] JS SDK unit tests cover new unread-fallback semantics.
+
+## Task 20: Restore Instance-Scoped Initial Channel Bootstrap Loading/Error UI
+
+**File(s) to create/modify:** `src/components/Channel/Channel.tsx`, `src/components/Channel/__tests__/Channel.test.js`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`
+
+**Dependencies:** Task 3, Task 18
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add explicit bootstrap request state in `Channel.tsx` for `initializeOnMount` flow of a provided channel instance.
+- Render `LoadingIndicator` only during initial bootstrap load when `channel.initialized === false`.
+- Render `LoadingErrorIndicator` only when the initial bootstrap request fails.
+- Keep pagination/loading errors for subsequent pages out of `Channel.tsx`; those remain message-list responsibilities.
+- Add tests that verify bootstrap loading/error rendering and no takeover of paginator/page loading failures.
+
+**Acceptance Criteria:**
+
+- [x] Uninitialized channel instance (`initializeOnMount=true`) shows `LoadingIndicator` until initial load resolves.
+- [x] Initial load failure shows `LoadingErrorIndicator`.
+- [x] After successful bootstrap, `Channel.tsx` renders children and no longer owns page-level loading/error states.
+- [x] Message-list pagination failures are not surfaced through `Channel.tsx` bootstrap indicators.
 
 ## Execution Order
 
@@ -489,6 +511,7 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 15. Phase 15: Task 17
 16. Phase 16: Task 18
 17. Phase 17: Task 19
+18. Phase 18: Task 20
 
 ## File ownership summary
 
@@ -512,4 +535,5 @@ Tasks are self-contained where possible; same-file tasks are chained explicitly.
 | Task 16 | `src/components/Channel/Channel.tsx`, `src/components/Channel/hooks/useCreateChannelStateContext.ts`, `src/context/ChannelStateContext.tsx`, `src/context/index.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Task 17 | `src/stories/*.stories.tsx` (affected), `src/components/**/__tests__/*` (affected wrappers), `specs/message-pagination/plan.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Task 18 | `src/context/ChannelStateContext.tsx`, `src/components/Channel/channelState.ts`, `src/context/index.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Task 19 | `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperations.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/messageOperations/MessageOperationStatePolicy.ts` (if needed), `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/*messageOperations*.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                      |
+| Task 19 | `/Users/martincupela/Projects/stream/chat/stream-chat-js/src/pagination/paginators/MessagePaginator.ts`, `/Users/martincupela/Projects/stream/chat/stream-chat-js/test/unit/pagination/paginators/MessagePaginator.test.ts`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Task 20 | `src/components/Channel/Channel.tsx`, `src/components/Channel/__tests__/Channel.test.js`, `specs/message-pagination/spec.md`, `specs/message-pagination/decisions.md`, `specs/message-pagination/state.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |

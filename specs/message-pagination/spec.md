@@ -49,12 +49,15 @@ Explicitly for message interactions:
 - `stream-chat-react` message runtime handlers no longer call `thread.upsertReplyLocally` / `thread.deleteReplyLocally`.
 - Mention handling migration is complete: mention handlers are configured at `Message` level and no longer exposed via `Channel`/`ChannelActionContext`.
 - Channel message-list read actions already call instance APIs directly (`channel.markRead()` / `thread.markRead()` in notification/separator components).
+- Channel message-mutation tests (`send/retry/update/delete/remove` block) were migrated to call instance APIs (`*WithLocalUpdate`, `messagePaginator.removeItem`) instead of legacy Channel action-context callbacks.
+- `Channel.test.js` coverage is intentionally scoped to React integration concerns; legacy deep pagination/unread algorithm scenarios are skipped there and owned by `stream-chat-js` paginator/message-delivery unit tests.
 
 ### Missing
 
-- Test suites still contain strong assumptions about legacy Channel context pagination/thread fields (not aligned with the new runtime contract).
+- Channel test coverage was re-scoped to current component ownership (bootstrap/render/event wiring), while paginator/unread algorithms remain covered in `stream-chat-js` unit tests.
 - Mention-handler migration is in progress; remaining docs/tests need full Message-level contract alignment.
 - `suppressAutoscroll` behavior is still effectively specified by legacy `channelState.ts` reducer semantics and is not yet expressed as an instance-owned list contract.
+- Channel bootstrap UI contract is implemented and covered by targeted Channel bootstrap tests (Task 20).
 - `stream-chat-js` does not yet expose `deleteMessageWithLocalUpdate` wrappers on `Channel` / `Thread` equivalent to existing `send/retry/update` local-update APIs.
 - `stream-chat-js` `ChannelInstanceConfig.requestHandlers` does not include `deleteMessageRequest`, so integrators cannot inject custom delete logic through instance configuration.
 - `stream-chat-react` still carries `doDeleteMessageRequest` in `Channel` prop/context-era flow; this should migrate to instance-level delete wrapper usage.
@@ -200,6 +203,16 @@ UI consumption semantics:
 - The suppression signal should come from paginator/list runtime state (or dedicated list-local state), not `ChannelStateContext`.
 - Migration should remove any remaining dependency on `channelState.ts` semantics for this behavior and document the replacement explicitly.
 
+## Channel Bootstrap Contract (Initial Page Only)
+
+- `Channel.tsx` must own bootstrap loading/error UI only for initial channel initialization/watch query:
+  - apply when `initializeOnMount === true` and `channel.initialized === false`;
+  - render `LoadingIndicator` while initial request is in progress;
+  - render `LoadingErrorIndicator` when initial request fails.
+- This contract is scoped to the first-page bootstrap only.
+- Pagination/loading failures after initial load are message-list concerns and must stay handled in `MessageList` / `VirtualizedMessageList`.
+- Bootstrap UI must be instance-scoped (the concrete rendered channel), not only global `channelsQueryState`, to avoid ambiguity with slot-driven multi-entity layouts.
+
 ## ChannelStateContext Removal Contract
 
 - Completed in this branch:
@@ -245,13 +258,25 @@ The following legacy commented flows in `src/components/Channel/Channel.tsx` mus
 
 ### Remaining JS SDK Gaps (Not Yet at Legacy Parity)
 
-- `jumpToTheFirstUnreadMessage` does not yet implement the legacy fallback when both unread ids are missing:
-  - legacy behavior queried around `last_read_at` (`created_at_around`) and inferred first unread from time boundaries;
-  - current behavior returns `false` when both `first_unread_message_id` and `last_read_message_id` are absent.
-- `jumpToTheFirstUnreadMessage` currently does not enrich `unreadStateSnapshot` with inferred ids after successful fallback resolution (because the fallback path is missing).
-- pre-send cleanup parity is missing:
-  - legacy flow called `channel.state.filterErrorMessages()` before optimistic send;
-  - current `MessageOperations.send` does not clear stale failed sends before enqueueing a new optimistic send.
+- No open JS SDK gaps remain from the commented `Channel.tsx` parity audit.
+- `jumpToTheFirstUnreadMessage` now supports timestamp fallback (`created_at_around`) when unread ids are missing and hydrates `unreadStateSnapshot` with inferred unread boundaries.
+
+### Explicitly Not Ported Blindly
+
+- Legacy `channel.state.filterErrorMessages()` pre-send cleanup is **not** treated as required parity by default.
+- Reason: modern paginator/message-operations flow keeps failed messages as actionable retry items; blind cleanup can be destructive UX.
+- Any reintroduction must be driven by explicit product behavior requirements (for example configurable retry-queue pruning), not legacy-code carryover.
+- `beforeSend` is removed from `stream-chat-js`; this migration does **not** reintroduce an equivalent hook only to preserve legacy cleanup behavior.
+
+### Necessity Filter for Remaining Porting
+
+- Required parity that was ported in JS SDK:
+  - `jumpToTheFirstUnreadMessage` timestamp fallback (`created_at_around`) when unread ids are unknown.
+  - unread snapshot hydration after fallback (populate inferred first/last unread ids).
+- Not required parity to port (documented deprecations/non-goals):
+  - pre-send failed-message cleanup (`filterErrorMessages`-style behavior);
+  - reducer-era loading/error flags and throttled reducer copy semantics;
+  - document-title side effects (`activeUnreadHandler` ownership remains React/UI layer).
 
 ### Explicitly Out of JS SDK Scope (React/UI Ownership)
 
