@@ -44,6 +44,7 @@
 @use '../components/Reactions/styling' as Reactions;
 @use '../components/TextareaComposer/styling' as TextareaComposer;
 @use '../components/Thread/styling' as Thread;
+@use '../components/Threads/ThreadList/styling' as ThreadList;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
 
 // Layers have to be kept the last

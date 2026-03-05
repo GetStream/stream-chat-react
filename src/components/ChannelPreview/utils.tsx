@@ -135,7 +135,9 @@ const getChannelDisplayInfo = (
   const members = Object.values(channel.state.members);
   if (members.length !== 2) return;
   const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
-  return otherMember?.user?.[info];
+  return (
+    otherMember?.user?.[info] || (info === 'name' ? otherMember?.user?.id : undefined)
+  );
 };
 
 export const getDisplayTitle = (channel: Channel, currentUser?: UserResponse) =>
