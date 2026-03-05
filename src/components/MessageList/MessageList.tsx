@@ -172,7 +172,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   const elements = useMessageListElements({
-    // channelUnreadUiState,
     enrichedMessages,
     focusedMessageId,
     internalMessageProps: {

@@ -9,7 +9,6 @@ import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
 import type { LocalMessage, UnreadSnapshotState } from 'stream-chat';
-// import type { ChannelUnreadUiState } from '../../../../types/types';
 import type { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 import { useChannel } from '../../../../context';
 import { useLastDeliveredData } from '../useLastDeliveredData';
@@ -23,7 +22,6 @@ type UseMessageListElementsProps = {
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer;
   returnAllReadData: boolean;
-  // channelUnreadUiState?: ChannelUnreadUiState;
   lastOwnMessage?: LocalMessage;
 };
 
@@ -84,15 +82,18 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
         readData,
         sharedMessageProps: { ...internalMessageProps, returnAllReadData },
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      channel,
+      channelUnreadUiState,
+      components,
+      customClasses,
       enrichedMessages,
       focusedMessageId,
       internalMessageProps,
       lastOwnMessage,
       lastReceivedMessageId,
       messageGroupStyles,
-      channelUnreadUiState,
+      ownMessagesDeliveredToOthers,
       readData,
       renderMessages,
       returnAllReadData,
