@@ -141,7 +141,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
             {type === 'error' ? (
               <>
                 <IconExclamationCircle1 />
-                <p>{text}</p>
+                <span>{text}</span>
               </>
             ) : (
               <>
@@ -164,7 +164,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
                   </span>
                 )}
                 {ContentTypeIcon && <ContentTypeIcon />}
-                <p>{text}</p>
+                <span>{text}</span>
               </>
             )}
           </div>
