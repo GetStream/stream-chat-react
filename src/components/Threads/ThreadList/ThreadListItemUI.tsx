@@ -25,6 +25,7 @@ import {
   IconMicrophone,
   IconVideo,
 } from '../../Icons';
+import clsx from 'clsx';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 
@@ -103,7 +104,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
-        aria-selected={activeThread === thread}
+        aria-pressed={activeThread === thread}
         className='str-chat__thread-list-item'
         data-thread-id={thread.id}
         onClick={() => setActiveThread(thread)}
@@ -116,14 +117,18 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
             <span className='str-chat__thread-list-item__title'>
               {channelDisplayTitle}
             </span>
-            <div className='str-chat__thread-list-item__message-preview'>
+            <div
+              className={clsx('str-chat__thread-list-item__message-preview', {
+                [`str-chat__thread-list-item__message-preview--${type}`]: type,
+              })}
+            >
               {type !== 'error' && !!senderName && (
                 <span className='str-chat__thread-list-item__message-preview-sender'>
                   {senderName}:
                 </span>
               )}
               {ContentTypeIcon && <ContentTypeIcon />}
-              <span>{text}</span>
+              <span className='str-chat__thread-list-item__message-preview-text'>{text}</span>
             </div>
           </div>
           <div className='str-chat__thread-list-item__content-trailing'>

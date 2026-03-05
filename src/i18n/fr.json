@@ -172,6 +172,7 @@
   "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Le fichier est trop volumineux : {{ size }}, la taille maximale de téléchargement est de {{ limit }}",
   "File too large": "Fichier trop volumineux",
   "fileCount_one": "1 fichier",
+  "fileCount_many": "{{ count }} fichiers",
   "fileCount_other": "{{ count }} fichiers",
   "Flag": "Signaler",
   "Generating...": "Génération...",

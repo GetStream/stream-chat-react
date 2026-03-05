@@ -11,7 +11,6 @@
   padding-block: var(--spacing-sm);
   padding-block-start: calc(var(--spacing-sm) - 1px);
   border: none;
-  background: none;
   cursor: pointer;
   text-align: start;
   font-family: var(--typography-font-family-sans);
@@ -19,15 +18,14 @@
   border-radius: var(--radius-lg);
   width: 100%;
 
+  background: var(--background-elevation-elevation-1);
   &:not(:disabled):hover {
     background: var(--background-core-hover);
   }
-
   &:not(:disabled):active {
     background: var(--background-core-pressed);
   }
-
-  &[aria-selected='true'] {
+  &:not(:disabled)[aria-pressed='true'] {
     background: var(--background-core-selected);
   }
 
@@ -53,7 +51,7 @@
 
 .str-chat__thread-list-item__title {
   font-size: var(--typography-font-size-sm);
-  font-weight: var(--typography-font-weight-regular);
+  font-weight: var(--typography-font-weight-semi-bold);
   line-height: var(--typography-line-height-normal);
   color: var(--text-tertiary);
   overflow: hidden;
@@ -99,4 +97,52 @@
   line-height: var(--typography-line-height-normal);
   color: var(--text-tertiary);
   white-space: nowrap;
+}
+
+.str-chat__thread-list-item__message-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 0;
+
+  color: var(--text-secondary);
+  font-size: var(--typography-font-size-sm);
+  font-style: normal;
+  font-weight: var(--typography-font-weight-regular);
+  line-height: var(--typography-line-height-normal);
+
+  .str-chat__icon {
+    flex-shrink: 0;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+  }
+
+  &--error {
+    color: var(--text-error);
+  }
+
+  &--deleted {
+    color: var(--text-tertiary);
+  }
+
+  .str-chat__thread-list-item__message-preview-text {
+    flex: 1;
+    min-width: 0;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .str-chat__thread-list-item__message-preview-sender {
+    color: var(--text-tertiary);
+    font-weight: var(--typography-font-weight-semi-bold);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
