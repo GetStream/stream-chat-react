@@ -246,8 +246,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     ? `message-list-dialog-manager-thread-${id}`
     : `message-list-dialog-manager-${id}`;
 
-  console.log('hasNewMessages', hasNewMessages);
-  console.log("hasMoreNewer'", hasMoreNewer);
   return (
     <MessageListContextProvider
       value={{

@@ -30,6 +30,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
+  const initialDataAutoscrollDoneRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
@@ -49,6 +50,23 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listElement, hasMoreNewer]);
+
+  useLayoutEffect(() => {
+    if (messages.length === 0) {
+      initialDataAutoscrollDoneRef.current = false;
+      return;
+    }
+
+    if (
+      listElement?.scrollTo &&
+      !initialDataAutoscrollDoneRef.current &&
+      !suppressAutoscroll
+    ) {
+      listElement.scrollTo({ top: listElement.scrollHeight });
+      setHasNewMessages(false);
+      initialDataAutoscrollDoneRef.current = true;
+    }
+  }, [listElement, messages.length, suppressAutoscroll]);
 
   const updateScrollTop = useMessageListScrollManager({
     loadMoreScrollThreshold,
