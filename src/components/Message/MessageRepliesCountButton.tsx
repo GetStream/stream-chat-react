@@ -3,7 +3,8 @@ import React, { useMemo } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannel, useComponentContext } from '../../context';
+import { useChannel, useComponentContext, useMessageContext } from '../../context';
+import { useStateStore } from '../../store';
 import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
@@ -27,11 +28,30 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     labelPlural,
     labelSingle,
     onClick,
-    reply_count: replyCount = 0,
-    thread_participants: threadParticipants = [],
+    reply_count: replyCountFromProps = 0,
+    thread_participants: threadParticipantsFromProps = [],
   } = props;
+  const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
   const channel = useChannel();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const replyMetadataSelector = useMemo(
+    () => () => {
+      const targetMessage = contextMessage?.id
+        ? channel.messagePaginator.getItem(contextMessage.id)
+        : undefined;
+
+      return {
+        replyCountFromPaginator: targetMessage?.reply_count,
+        threadParticipantsFromPaginator: targetMessage?.thread_participants,
+      };
+    },
+    [channel.messagePaginator, contextMessage?.id],
+  );
+  const { replyCountFromPaginator, threadParticipantsFromPaginator } =
+    useStateStore(channel.messagePaginator.state, replyMetadataSelector) ?? {};
+  const replyCount = replyCountFromPaginator ?? replyCountFromProps;
+  const threadParticipants =
+    threadParticipantsFromPaginator ?? threadParticipantsFromProps;
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 

@@ -3,7 +3,11 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { StateStore } from 'stream-chat';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { ChannelInstanceProvider, TranslationProvider } from '../../../context';
+import {
+  ChannelInstanceProvider,
+  MessageProvider,
+  TranslationProvider,
+} from '../../../context';
 
 const onClickMock = jest.fn();
 const defaultSingularText = '1 reply';
@@ -19,6 +23,9 @@ const getChannel = (channelCapabilities = { 'send-reply': true }) => {
 
   return {
     cid: 'messaging:test-channel',
+    messagePaginator: {
+      state: new StateStore({ items: [] }),
+    },
     state: {
       ownCapabilitiesStore: new StateStore({ ownCapabilities }),
     },
@@ -107,5 +114,25 @@ describe('MessageRepliesCountButton', () => {
     );
 
     expect(getByText(defaultSingularText)).toBeDisabled();
+  });
+
+  it('prefers live reply_count from messagePaginator for the current message', () => {
+    const channel = getChannel();
+    const messageId = 'message-id';
+    channel.messagePaginator.state.next({
+      items: [{ id: messageId, reply_count: 3, thread_participants: [] }],
+    });
+
+    const { getByText } = render(
+      <TranslationProvider value={{ t: i18nMock }}>
+        <ChannelInstanceProvider value={{ channel }}>
+          <MessageProvider value={{ message: { id: messageId } }}>
+            <MessageRepliesCountButton onClick={onClickMock} reply_count={1} />
+          </MessageProvider>
+        </ChannelInstanceProvider>
+      </TranslationProvider>,
+    );
+
+    expect(getByText('3 replies')).toBeInTheDocument();
   });
 });
