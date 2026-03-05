@@ -608,11 +608,14 @@ const VirtualizedMessageListWithContext = (
               />
               <NewMessageNotification
                 newMessageCount={channelUnreadUiState?.unreadCount}
-                showNotification={newMessagesNotification || hasMoreNewer}
+                showNotification={
+                  (newMessagesNotification || hasMoreNewer) &&
+                  !isMessageListScrolledToBottom
+                }
               />
               <ScrollToLatestMessageButton
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer}
+                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
                 onClick={scrollToBottom}
               />
             </div>

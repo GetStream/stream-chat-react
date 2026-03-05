@@ -225,18 +225,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     }
   }, [messagePaginator]);
 
-  // const loadMore = React.useCallback(() => {
-  //   if (loadMoreCallback) {
-  //     loadMoreCallback(messageLimit);
-  //   }
-  // }, [loadMoreCallback, messageLimit]);
-
-  // const loadMoreNewer = React.useCallback(() => {
-  //   if (loadMoreNewerCallback) {
-  //     loadMoreNewerCallback(messageLimit);
-  //   }
-  // }, [loadMoreNewerCallback, messageLimit]);
-
   const scrollToBottomFromNotification = React.useCallback(() => {
     if (messagePaginator.hasMoreHead) {
       messagePaginator.jumpToTheLatestMessage();
@@ -258,6 +246,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     ? `message-list-dialog-manager-thread-${id}`
     : `message-list-dialog-manager-${id}`;
 
+  console.log('hasNewMessages', hasNewMessages);
+  console.log("hasMoreNewer'", hasMoreNewer);
   return (
     <MessageListContextProvider
       value={{
@@ -324,23 +314,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               )}
               <NewMessageNotification
                 newMessageCount={channelUnreadUiState?.unreadCount}
-                showNotification={hasNewMessages || hasMoreNewer}
+                showNotification={
+                  (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
+                }
               />
               <ScrollToLatestMessageButton
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer}
+                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
                 onClick={scrollToBottomFromNotification}
               />
             </div>
-            <NewMessageNotification
-              newMessageCount={channelUnreadUiState?.unreadCount}
-              showNotification={hasNewMessages || hasMoreNewer}
-            />
-            <ScrollToLatestMessageButton
-              isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-              isNotAtLatestMessageSet={hasMoreNewer}
-              onClick={scrollToBottomFromNotification}
-            />
           </DialogManagerProvider>
         </MessageListMainPanel>
         <MessageListNotifications />
