@@ -22,6 +22,18 @@
     border-right: 1px solid var(--str-chat-selector-border-color);
     background-color: var(--str-chat-selector-background-color);
 
+    .str-chat__chat-view__selector-button-container {
+      display: flex;
+      position: relative;
+
+      &:focus-within .str-chat__chat-view__selector-button-tooltip,
+      &:hover .str-chat__chat-view__selector-button-tooltip {
+        opacity: 1;
+        transform: translate3d(0, -50%, 0);
+        visibility: visible;
+      }
+    }
+
     .str-chat__chat-view__selector-button {
       --str-chat-icon-height: 20px;
       --str-chat-icon-width: 20px;
@@ -50,6 +62,22 @@
         height: var(--str-chat-icon-height);
         width: var(--str-chat-icon-height);
       }
+    }
+
+    .str-chat__chat-view__selector-button-tooltip {
+      left: calc(100% + 8px);
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 50%;
+      transform: translate3d(4px, -50%, 0);
+      transition:
+        opacity 150ms ease,
+        transform 150ms ease,
+        visibility 150ms ease;
+      visibility: hidden;
+      white-space: nowrap;
+      z-index: 1;
     }
   }
 
