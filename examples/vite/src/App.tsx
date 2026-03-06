@@ -124,6 +124,7 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
 
 const App = () => {
   const { userId, tokenProvider } = useUser();
+  const { chatView } = useAppSettingsState();
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -197,7 +198,10 @@ const App = () => {
     >
       <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
         <ChatView>
-          <ChatView.Selector itemSet={chatViewSelectorItemSet} />
+          <ChatView.Selector
+            itemSet={chatViewSelectorItemSet}
+            iconOnly={chatView.iconOnly}
+          />
           <ChatView.Channels>
             <ChannelList
               Avatar={ChannelAvatar}

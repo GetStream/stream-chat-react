@@ -170,34 +170,44 @@ export const ChatViewSelectorButton = ({
   children,
   className,
   Icon,
+  iconOnly = true,
   isActive,
   text,
   ...props
 }: ButtonProps & {
   ActiveIcon?: ComponentType;
+  iconOnly?: boolean;
   Icon?: ComponentType;
   isActive?: boolean;
   text?: string;
 }) => {
   const SelectorIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
+  const shouldShowTooltip = !!text && iconOnly;
 
   return (
-    <Button
-      appearance='ghost'
-      className={clsx('str-chat__chat-view__selector-button', className)}
-      role='tab'
-      variant='secondary'
-      {...props}
-    >
-      {text ? (
-        <>
-          {SelectorIcon && <SelectorIcon />}
+    <div className='str-chat__chat-view__selector-button-container'>
+      <Button
+        appearance='ghost'
+        aria-label={props['aria-label'] ?? (shouldShowTooltip ? text : undefined)}
+        className={clsx('str-chat__chat-view__selector-button', className)}
+        role='tab'
+        variant='secondary'
+        {...props}
+      >
+        {children ?? (SelectorIcon && <SelectorIcon />)}
+        {!iconOnly && text && (
           <div className='str-chat__chat-view__selector-button-text'>{text}</div>
-        </>
-      ) : (
-        children
+        )}
+      </Button>
+      {shouldShowTooltip && (
+        <div
+          aria-hidden='true'
+          className='str-chat__chat-view__selector-button-tooltip str-chat__tooltip'
+        >
+          {text}
+        </div>
       )}
-    </Button>
+    </div>
   );
 };
 
@@ -210,7 +220,13 @@ const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) =>
   unreadThreadCount,
 });
 
-export const ChatViewChannelsSelectorButton = () => {
+export type ChatViewSelectorItemProps = {
+  iconOnly?: boolean;
+};
+
+export const ChatViewChannelsSelectorButton = ({
+  iconOnly = true,
+}: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { openMobileNav } = useChatContext('ChatViewChannelsSelectorButton');
   const { t } = useTranslationContext();
@@ -220,6 +236,7 @@ export const ChatViewChannelsSelectorButton = () => {
       ActiveIcon={IconBubble3Solid}
       aria-selected={activeChatView === 'channels'}
       Icon={IconBubble3ChatMessage}
+      iconOnly={iconOnly}
       isActive={activeChatView === 'channels'}
       onPointerDown={() => {
         openMobileNav();
@@ -230,7 +247,9 @@ export const ChatViewChannelsSelectorButton = () => {
   );
 };
 
-export const ChatViewThreadsSelectorButton = () => {
+export const ChatViewThreadsSelectorButton = ({
+  iconOnly = true,
+}: ChatViewSelectorItemProps) => {
   const { client, openMobileNav } = useChatContext();
   const { unreadThreadCount } = useStateStore(
     client.threads.state,
@@ -244,27 +263,29 @@ export const ChatViewThreadsSelectorButton = () => {
   return (
     <ChatViewSelectorButton
       aria-selected={activeChatView === 'threads'}
+      iconOnly={iconOnly}
       onPointerDown={() => {
         openMobileNav();
         setActiveChatView('threads');
       }}
+      text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         <IconBubbleText6ChatMessage />
       </UnreadCountBadge>
-      <div className='str-chat__chat-view__selector-button-text'>{t('Threads')}</div>
     </ChatViewSelectorButton>
   );
 };
 
 export type ChatViewSelectorItem = {
-  Component: React.ComponentType;
+  Component: React.ComponentType<ChatViewSelectorItemProps>;
   type: string & {};
 };
 
 export type ChatViewSelectorEntry = ChatViewSelectorItem;
 
 export type ChatViewSelectorProps = {
+  iconOnly?: boolean;
   itemSet?: ChatViewSelectorEntry[];
 };
 
@@ -280,6 +301,7 @@ export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
 ];
 
 const ChatViewSelector = ({
+  iconOnly = true,
   itemSet = defaultChatViewSelectorItemSet,
 }: ChatViewSelectorProps) => {
   const { navOpen } = useChatContext('ChatView.Selector');
@@ -291,7 +313,7 @@ const ChatViewSelector = ({
       })}
     >
       {itemSet.map(({ Component, type }) => (
-        <Component key={type} />
+        <Component iconOnly={iconOnly} key={type} />
       ))}
     </div>
   );

@@ -74,6 +74,40 @@ const renderComponent = async (threadManagerState) => {
   );
 };
 
+const renderSelector = async (selectorProps) => {
+  const client = await getTestClientWithUser();
+
+  return render(
+    <ChatProvider
+      value={{
+        channelsQueryState: {},
+        client,
+        closeMobileNav: jest.fn(),
+        getAppSettings: jest.fn(),
+        latestMessageDatesByChannels: {},
+        mutes: [],
+        openMobileNav: jest.fn(),
+        searchController: {},
+        setActiveChannel: jest.fn(),
+        theme: 'messaging light',
+        useImageFlagEmojisOnWindows: false,
+      }}
+    >
+      <TranslationProvider
+        value={{
+          t: (key) => key,
+          tDateTimeParser: jest.fn(),
+          userLanguage: 'en',
+        }}
+      >
+        <ChatView>
+          <ChatView.Selector {...selectorProps} />
+        </ChatView>
+      </TranslationProvider>
+    </ChatProvider>,
+  );
+};
+
 describe('ChatView.ThreadAdapter', () => {
   afterEach(() => {
     cleanup();
@@ -82,9 +116,9 @@ describe('ChatView.ThreadAdapter', () => {
 
   it('renders the empty message state when no thread is selected after loading completes', async () => {
     await renderComponent({
+      pagination: { isLoading: false },
       ready: true,
       threads: [{ id: 'thread-1' }],
-      pagination: { isLoading: false },
     });
 
     expect(
@@ -95,9 +129,9 @@ describe('ChatView.ThreadAdapter', () => {
 
   it('renders the empty message state when the thread list is empty after loading completes', async () => {
     await renderComponent({
+      pagination: { isLoading: false },
       ready: true,
       threads: [],
-      pagination: { isLoading: false },
     });
 
     expect(
@@ -108,9 +142,9 @@ describe('ChatView.ThreadAdapter', () => {
 
   it('does not render the empty message state while threads are still loading', async () => {
     await renderComponent({
+      pagination: { isLoading: true },
       ready: false,
       threads: [],
-      pagination: { isLoading: true },
     });
 
     await waitFor(() => {
@@ -119,5 +153,45 @@ describe('ChatView.ThreadAdapter', () => {
       ).not.toBeInTheDocument();
     });
     expect(screen.getByTestId('thread-provider')).toBeInTheDocument();
+  });
+});
+
+describe('ChatView.Selector', () => {
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
+
+  it('renders tooltips instead of inline labels by default', async () => {
+    const { container } = await renderSelector();
+
+    expect(screen.getByRole('tab', { name: 'Channels' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Threads' })).toBeInTheDocument();
+    expect(
+      container.querySelectorAll('.str-chat__chat-view__selector-button-text'),
+    ).toHaveLength(0);
+
+    const tooltips = Array.from(
+      container.querySelectorAll('.str-chat__chat-view__selector-button-tooltip'),
+    );
+
+    expect(tooltips).toHaveLength(2);
+    expect(tooltips.map((element) => element.textContent)).toEqual([
+      'Channels',
+      'Threads',
+    ]);
+  });
+
+  it('renders labels inline when iconOnly is disabled', async () => {
+    const { container } = await renderSelector({ iconOnly: false });
+
+    expect(
+      container.querySelectorAll('.str-chat__chat-view__selector-button-tooltip'),
+    ).toHaveLength(0);
+    expect(
+      Array.from(
+        container.querySelectorAll('.str-chat__chat-view__selector-button-text'),
+      ).map((element) => element.textContent),
+    ).toEqual(['Channels', 'Threads']);
   });
 });

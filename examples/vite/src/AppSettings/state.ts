@@ -7,11 +7,19 @@ export type ReactionsSettingsState = {
   visualStyle: 'clustered' | 'segmented';
 };
 
+export type ChatViewSettingsState = {
+  iconOnly: boolean;
+};
+
 export type AppSettingsState = {
+  chatView: ChatViewSettingsState;
   reactions: ReactionsSettingsState;
 };
 
 const defaultAppSettingsState: AppSettingsState = {
+  chatView: {
+    iconOnly: true,
+  },
   reactions: {
     flipHorizontalPosition: false,
     verticalPosition: 'top',
