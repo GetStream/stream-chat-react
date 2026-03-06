@@ -370,28 +370,21 @@ export const getIsFirstUnreadMessage = ({
 }) => {
   // prevent showing unread indicator in threads
   if (message.parent_id || !channel) return false;
+  // unread separator is snapshot-driven; if snapshot says there are no unread messages,
+  // the separator should not be rendered.
+  if (!unreadCount) return false;
 
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
   const lastReadTimestamp = lastReadAt?.getTime();
 
-  const currentUserId = channel?.getClient().user?.id;
-  const timestampMs = message.created_at ? new Date(message.created_at).getTime() : NaN;
-
   const messageIsUnread =
-    currentUserId && message.id && Number.isFinite(timestampMs)
-      ? !channel.messageReceiptsTracker.hasUserRead(
-          { msgId: message.id, timestampMs },
-          currentUserId,
-        )
-      : !!createdAtTimestamp &&
-        !!lastReadTimestamp &&
-        createdAtTimestamp > lastReadTimestamp;
+    !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
 
   const previousMessageIsLastRead =
     !!lastReadMessageId && lastReadMessageId === previousMessage?.id;
 
   return (
     firstUnreadMessageId === message.id ||
-    (!!unreadCount && messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
+    (messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
   );
 };

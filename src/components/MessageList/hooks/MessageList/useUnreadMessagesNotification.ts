@@ -75,7 +75,7 @@ export const useUnreadMessagesNotification = ({
         UNREAD_MESSAGE_SEPARATOR_CLASS,
       );
       if (!observedTarget) {
-        setShow(true);
+        setShow(unreadCount > 0);
       }
       return;
     }
@@ -84,7 +84,7 @@ export const useUnreadMessagesNotification = ({
       UNREAD_MESSAGE_SEPARATOR_CLASS,
     );
     if (!observedTarget) {
-      setShow(true);
+      setShow(unreadCount > 0);
       return;
     }
 
