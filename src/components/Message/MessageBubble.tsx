@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react';
+import React, { type ComponentProps } from 'react';
 import clsx from 'clsx';
 
 export const MessageBubble = ({ className, ...props }: ComponentProps<'div'>) => (

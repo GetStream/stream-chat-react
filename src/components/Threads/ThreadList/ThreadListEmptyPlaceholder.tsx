@@ -1,10 +1,15 @@
 import React from 'react';
-import { Icon } from '../icons';
 
-export const ThreadListEmptyPlaceholder = () => (
-  <div className='str-chat__thread-list-empty-placeholder'>
-    <Icon.MessageBubble />
-    {/* TODO: translate */}
-    No threads here yet...
-  </div>
-);
+import { useTranslationContext } from '../../../context';
+import { IconBubbles } from '../../Icons';
+
+export const ThreadListEmptyPlaceholder = () => {
+  const { t } = useTranslationContext('ThreadListEmptyPlaceholder');
+
+  return (
+    <div className='str-chat__thread-list-empty-placeholder'>
+      <IconBubbles />
+      <p>{t('Reply to a message to start a thread')}</p>
+    </div>
+  );
+};

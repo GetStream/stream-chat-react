@@ -27,9 +27,21 @@ describe('EmptyStateIndicator', () => {
     ).toBeInTheDocument();
   });
 
+  it('should display custom message text when provided', () => {
+    render(
+      <EmptyStateIndicator
+        listType='message'
+        messageText='Select a thread to continue the conversation'
+      />,
+    );
+    expect(
+      screen.queryByText('Select a thread to continue the conversation'),
+    ).toBeInTheDocument();
+  });
+
   it('should display correct text when listType is channel', () => {
     render(<EmptyStateIndicator listType='channel' />);
-    expect(screen.queryByText('You have no channels currently')).toBeInTheDocument();
+    expect(screen.queryByText('No conversations yet')).toBeInTheDocument();
   });
 
   it('should return null if listType is thread', () => {

@@ -1,5 +1,4 @@
-import type { ComponentProps } from 'react';
-import { forwardRef } from 'react';
+import React, { type ComponentProps, forwardRef } from 'react';
 import clsx from 'clsx';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger';

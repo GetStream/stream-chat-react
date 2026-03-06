@@ -261,6 +261,8 @@
   "New Messages!": "Nieuwe Berichten!",
   "Next image": "Volgende afbeelding",
   "No chats here yet…": "Nog geen chats hier...",
+  "No conversations yet": "Nog geen gesprekken",
+  "No items exist": "Er zijn geen items",
   "No results found": "Geen resultaten gevonden",
   "Nobody will be able to vote in this poll anymore.": "Niemand kan meer stemmen in deze peiling.",
   "Nothing yet...": "Nog niets ...",
@@ -300,6 +302,7 @@
   "Replied to a thread": "Heeft gereageerd in een thread",
   "Reply": "Antwoord",
   "Reply to {{ authorName }}": "Antwoord aan {{ authorName }}",
+  "Reply to a message to start a thread": "Beantwoord een bericht om een thread te starten",
   "Reply to Message": "Antwoord op bericht",
   "replyCount_one": "1 antwoord",
   "replyCount_other": "{{ count }} antwoorden",
@@ -318,6 +321,7 @@
   "searchResultsCount_other": "{{ count }} resultaten",
   "See all options ({{count}})_one": "Bekijk alle opties ({{count}})",
   "See all options ({{count}})_other": "Bekijk alle opties ({{count}})",
+  "Select a thread to continue the conversation": "Selecteer een thread om het gesprek voort te zetten",
   "Select more than one option": "Selecteer meer dan één optie",
   "Select one": "Selecteer er een",
   "Select one or more": "Selecteer een of meer",
@@ -402,6 +406,5 @@
   "Vote ended": "Stemmen beëindigd",
   "Wait until all attachments have uploaded": "Wacht tot alle bijlagen zijn geüpload",
   "You": "Jij",
-  "You have no channels currently": "Er zijn geen chats beschikbaar",
   "You've reached the maximum number of files": "Je hebt het maximale aantal bestanden bereikt"
 }

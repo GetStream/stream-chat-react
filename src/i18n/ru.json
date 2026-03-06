@@ -280,6 +280,8 @@
   "New Messages!": "Новые сообщения!",
   "Next image": "Следующее изображение",
   "No chats here yet…": "Здесь еще нет чатов...",
+  "No conversations yet": "Пока нет бесед",
+  "No items exist": "Элементов нет",
   "No results found": "Результаты не найдены",
   "Nobody will be able to vote in this poll anymore.": "Никто больше не сможет голосовать в этом опросе.",
   "Nothing yet...": "Пока ничего нет...",
@@ -319,6 +321,7 @@
   "Replied to a thread": "Ответил в ветке",
   "Reply": "Ответить",
   "Reply to {{ authorName }}": "Ответить {{ authorName }}",
+  "Reply to a message to start a thread": "Ответьте на сообщение, чтобы начать тред",
   "Reply to Message": "Ответить на сообщение",
   "replyCount_one": "1 ответ",
   "replyCount_few": "{{ count }} ответов",
@@ -343,6 +346,7 @@
   "See all options ({{count}})_few": "Посмотреть все варианты ({{count}})",
   "See all options ({{count}})_many": "Посмотреть все варианты ({{count}})",
   "See all options ({{count}})_other": "Посмотреть все варианты ({{count}})",
+  "Select a thread to continue the conversation": "Выберите тред, чтобы продолжить беседу",
   "Select more than one option": "Выберите более одного варианта",
   "Select one": "Выберите один",
   "Select one or more": "Выберите один или несколько",
@@ -429,6 +433,5 @@
   "Vote ended": "Голосование завершено",
   "Wait until all attachments have uploaded": "Подождите, пока все вложения загрузятся",
   "You": "Вы",
-  "You have no channels currently": "У вас нет каналов в данный момент",
   "You've reached the maximum number of files": "Вы достигли максимального количества файлов"
 }

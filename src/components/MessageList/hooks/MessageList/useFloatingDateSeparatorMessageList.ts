@@ -82,6 +82,14 @@ export const useFloatingDateSeparatorMessageList = ({
 
     throttled();
     listElement.addEventListener('scroll', throttled);
+
+    if (typeof ResizeObserver === 'undefined') {
+      return () => {
+        listElement.removeEventListener('scroll', throttled);
+        throttled.cancel();
+      };
+    }
+
     const resizeObserver = new ResizeObserver(throttled);
     resizeObserver.observe(listElement);
 

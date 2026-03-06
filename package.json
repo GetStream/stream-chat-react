@@ -232,7 +232,7 @@
     "prettier-fix": "yarn prettier --write",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc -p tsconfig.lib.json -w",
-    "start:css": "sass --watch src/styling:dist/css",
+    "start:css": "node scripts/watch-styling.mjs",
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",

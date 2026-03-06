@@ -261,6 +261,8 @@
   "New Messages!": "New Messages!",
   "Next image": "Next image",
   "No chats here yet…": "No chats here yet…",
+  "No conversations yet": "No conversations yet",
+  "No items exist": "No items exist",
   "No results found": "No results found",
   "Nobody will be able to vote in this poll anymore.": "Nobody will be able to vote in this poll anymore.",
   "Nothing yet...": "Nothing yet...",
@@ -300,6 +302,7 @@
   "Replied to a thread": "Replied to a thread",
   "Reply": "Reply",
   "Reply to {{ authorName }}": "Reply to {{ authorName }}",
+  "Reply to a message to start a thread": "Reply to a message to start a thread",
   "Reply to Message": "Reply to Message",
   "replyCount_one": "1 reply",
   "replyCount_other": "{{ count }} replies",
@@ -318,6 +321,7 @@
   "searchResultsCount_other": "{{ count }} results",
   "See all options ({{count}})_one": "See all options ({{count}})",
   "See all options ({{count}})_other": "See all options ({{count}})",
+  "Select a thread to continue the conversation": "Select a thread to continue the conversation",
   "Select more than one option": "Select more than one option",
   "Select one": "Select one",
   "Select one or more": "Select one or more",
@@ -400,6 +404,5 @@
   "Vote ended": "Vote ended",
   "Wait until all attachments have uploaded": "Wait until all attachments have uploaded",
   "You": "You",
-  "You have no channels currently": "You have no channels currently",
   "You've reached the maximum number of files": "You've reached the maximum number of files"
 }

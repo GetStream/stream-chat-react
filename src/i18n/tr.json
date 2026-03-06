@@ -261,6 +261,8 @@
   "New Messages!": "Yeni Mesajlar!",
   "Next image": "Sonraki görsel",
   "No chats here yet…": "Henüz burada sohbet yok...",
+  "No conversations yet": "Henüz konuşma yok",
+  "No items exist": "Hiç öğe yok",
   "No results found": "Sonuç bulunamadı",
   "Nobody will be able to vote in this poll anymore.": "Artık bu ankette kimse oy kullanamayacak.",
   "Nothing yet...": "Şimdilik hiçbir şey...",
@@ -300,6 +302,7 @@
   "Replied to a thread": "Bir iş parçacığına yanıt verdi",
   "Reply": "Cevapla",
   "Reply to {{ authorName }}": "{{ authorName }} kişisine yanıt ver",
+  "Reply to a message to start a thread": "Bir thread başlatmak için bir mesaja yanıt verin",
   "Reply to Message": "Mesaja Cevapla",
   "replyCount_one": "1 cevap",
   "replyCount_other": "{{ count }} cevap",
@@ -318,6 +321,7 @@
   "searchResultsCount_other": "{{ count }} sonuç",
   "See all options ({{count}})_one": "Tüm seçenekleri göster ({{count}})",
   "See all options ({{count}})_other": "Tüm seçenekleri göster ({{count}})",
+  "Select a thread to continue the conversation": "Sohbeti sürdürmek için bir ileti dizisi seçin",
   "Select more than one option": "Birden fazla seçenek seçin",
   "Select one": "Birini seçin",
   "Select one or more": "Bir veya daha fazlasını seçin",
@@ -400,6 +404,5 @@
   "Vote ended": "Oylama sona erdi",
   "Wait until all attachments have uploaded": "Tüm ekler yüklenene kadar bekleyin",
   "You": "Sen",
-  "You have no channels currently": "Henüz kanalınız yok",
   "You've reached the maximum number of files": "Maksimum dosya sayısına ulaştınız"
 }
