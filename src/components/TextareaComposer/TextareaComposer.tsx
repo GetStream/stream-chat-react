@@ -95,7 +95,7 @@ export const TextareaComposer = ({
 
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
 
-  const maxRows = maxRowsProp ?? maxRowsContext ?? 1;
+  const maxRows = maxRowsProp ?? maxRowsContext ?? 10;
   const minRows = minRowsProp ?? minRowsContext;
 
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
