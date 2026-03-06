@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+const MOBILE_NAV_BREAKPOINT = 768;
+
 export const useMobileNavigation = (
   channelListRef: React.RefObject<HTMLDivElement | null>,
   navOpen: boolean,
@@ -7,6 +9,9 @@ export const useMobileNavigation = (
 ) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (typeof window !== 'undefined' && window.innerWidth >= MOBILE_NAV_BREAKPOINT) {
+        return;
+      }
       if (
         closeMobileNav &&
         channelListRef.current &&

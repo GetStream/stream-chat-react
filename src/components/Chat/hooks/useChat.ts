@@ -18,11 +18,20 @@ import type {
   StreamChat,
 } from 'stream-chat';
 
+/** Viewport width (px) above which the sidebar is open by default when using responsive initial nav state. */
+export const NAV_SIDEBAR_DESKTOP_BREAKPOINT = 768;
+
+/** With responsive nav: sidebar is open on load (so ChannelList/ThreadList + selector visible); close on channel/thread selection. */
+const getDefaultNavOpenFromViewport = (): boolean => true;
+
 export type UseChatParams = {
   client: StreamChat;
   defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
+  /** Initial open state of the sidebar. Ignored when initialNavOpenResponsive is true. */
   initialNavOpen?: boolean;
+  /** When true, initial nav state is open so sidebar (ChannelList/ThreadList + selector) is visible; close on channel/thread selection. */
+  initialNavOpenResponsive?: boolean;
 };
 
 export const useChat = ({
@@ -30,6 +39,7 @@ export const useChat = ({
   defaultLanguage = 'en',
   i18nInstance,
   initialNavOpen,
+  initialNavOpenResponsive = false,
 }: UseChatParams) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
     t: defaultTranslatorFunction,
@@ -39,7 +49,10 @@ export const useChat = ({
 
   const [channel, setChannel] = useState<Channel>();
   const [mutes, setMutes] = useState<Array<Mute>>([]);
-  const [navOpen, setNavOpen] = useState(initialNavOpen);
+  const [navOpen, setNavOpen] = useState(() => {
+    if (initialNavOpenResponsive) return getDefaultNavOpenFromViewport() ?? true;
+    return initialNavOpen === false ? false : true;
+  });
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
   const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
@@ -132,7 +145,10 @@ export const useChat = ({
       }
 
       setChannel(activeChannel);
-      closeMobileNav();
+      const isMobileViewport =
+        typeof window !== 'undefined' &&
+        window.innerWidth < NAV_SIDEBAR_DESKTOP_BREAKPOINT;
+      if (isMobileViewport) closeMobileNav();
     },
     [],
   );

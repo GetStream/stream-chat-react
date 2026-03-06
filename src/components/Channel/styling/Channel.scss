@@ -18,6 +18,27 @@
       width: 100%;
       min-width: 0;
     }
+
+    /* Mobile (<768px): when thread is open, show only thread (channel panel collapsed). */
+    @media (max-width: 767px) {
+      &:has(.str-chat__thread-container) {
+        > .str-chat__main-panel,
+        > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
+          flex: 0 0 0;
+          width: 0;
+          min-width: 0;
+          max-width: 0;
+          overflow: hidden;
+        }
+
+        > .str-chat__thread-container,
+        > .str-chat__dropzone-root--thread {
+          flex: 1 1 auto;
+          min-width: 0;
+          width: 100%;
+        }
+      }
+    }
   }
 }
 

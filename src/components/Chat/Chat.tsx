@@ -27,8 +27,10 @@ export type ChatProps = {
   defaultLanguage?: SupportedTranslations;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
-  /** Initial status of mobile navigation */
+  /** Initial status of mobile navigation. Ignored when initialNavOpenResponsive is true. */
   initialNavOpen?: boolean;
+  /** When true, sidebar (ChannelList/ThreadList + selector) is open on load; it closes when a channel or thread is selected. */
+  initialNavOpenResponsive?: boolean;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController?: SearchController;
   /** Used for injecting className/s to the Channel and ChannelList components */
@@ -55,6 +57,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     defaultLanguage,
     i18nInstance,
     initialNavOpen = true,
+    initialNavOpenResponsive = true,
     isMessageAIGenerated,
     searchController: customChannelSearchController,
     theme = 'messaging light',
@@ -71,7 +74,13 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     openMobileNav,
     setActiveChannel,
     translators,
-  } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
+  } = useChat({
+    client,
+    defaultLanguage,
+    i18nInstance,
+    initialNavOpen,
+    initialNavOpenResponsive,
+  });
 
   const channelsQueryState = useChannelsQueryState();
 

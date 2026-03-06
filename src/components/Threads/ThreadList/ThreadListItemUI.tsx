@@ -26,6 +26,7 @@ import {
   IconVideo,
 } from '../../Icons';
 import clsx from 'clsx';
+import { NAV_SIDEBAR_DESKTOP_BREAKPOINT } from '../../Chat';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 
@@ -81,6 +82,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
 
+  const { closeMobileNav } = useChatContext('ThreadListItemUI');
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
@@ -107,7 +109,15 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
         aria-pressed={activeThread === thread}
         className='str-chat__thread-list-item'
         data-thread-id={thread.id}
-        onClick={() => setActiveThread(thread)}
+        onClick={() => {
+          if (
+            typeof window !== 'undefined' &&
+            window.innerWidth < NAV_SIDEBAR_DESKTOP_BREAKPOINT
+          ) {
+            closeMobileNav();
+          }
+          setActiveThread(thread);
+        }}
         role='option'
         {...props}
       >
@@ -128,7 +138,9 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
                 </span>
               )}
               {ContentTypeIcon && <ContentTypeIcon />}
-              <span className='str-chat__thread-list-item__message-preview-text'>{text}</span>
+              <span className='str-chat__thread-list-item__message-preview-text'>
+                {text}
+              </span>
             </div>
           </div>
           <div className='str-chat__thread-list-item__content-trailing'>

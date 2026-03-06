@@ -47,9 +47,12 @@ body {
   }
 
   .str-chat__channel-list {
-    flex: 0 0 300px;
-    max-width: 300px;
     height: 100%;
+
+    &.str-chat__channel-list--open {
+      flex: 0 0 300px;
+      max-width: 300px;
+    }
   }
 
   .str-chat__main-panel {
@@ -89,14 +92,6 @@ body {
     //max-width: none;
   }
 
-  .str-chat__dropzone-root--thread,
-  .str-chat__thread-list-container,
-  .str-chat__thread-container {
-    //flex: 0 0 360px;
-    width: 100%;
-    max-width: 360px;
-  }
-
   .str-chat__chat-view__threads {
     .str-chat__dropzone-root--thread,
     .str-chat__thread-container {
@@ -106,25 +101,45 @@ body {
     }
   }
 
-  @media (max-width: 1100px) {
-    .str-chat__container:has(.str-chat__thread-container) > .str-chat__main-panel {
-      width: 0;
-      min-width: 0;
-      flex: 0 0 0;
-      overflow: hidden;
+  @media (min-width: 768px) {
+    .str-chat__dropzone-root--thread,
+    .str-chat__thread-container {
+      //flex: 0 0 360px;
+      width: 100%;
+      max-width: 360px;
     }
 
-    .str-chat__container:has(.str-chat__thread-container) > .str-chat__thread-container {
-      flex: 1 1 auto;
-      min-width: 360px;
-      max-width: none;
+    .str-chat__thread-list-container.str-chat__thread-list-container--open {
+      width: 100%;
+      max-width: 360px;
+    }
+  }
+
+  /* Tablet/narrow (768px–1100px): when thread open, collapse channel so thread has space. */
+  @media (min-width: 768px) and (max-width: 1100px) {
+    .str-chat__container:has(.str-chat__thread-container) {
+      > .str-chat__main-panel,
+      > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
+        flex: 0 0 0;
+        width: 0;
+        min-width: 0;
+        max-width: 0;
+        overflow: hidden;
+      }
+
+      > .str-chat__thread-container,
+      > .str-chat__dropzone-root--thread {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+      }
     }
   }
 
   @container (max-width: 860px) {
-    .str-chat__channel-list,
-    .str-chat__chat-view__selector {
-      display: none;
+    .str-chat__thread-container {
+      width: 100%;
+      max-width: initial;
     }
   }
 }

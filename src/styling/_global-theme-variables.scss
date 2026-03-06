@@ -65,6 +65,11 @@
     var(--typography-font-size-md) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
+  --str-chat__heading-lg-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-xl) / var(--typography-line-height-relaxed)
+    var(--str-chat__font-family);
+  color: var(--text-primary, #1a1b25);
+
   // todo: adapt the old text variables to so that they use the new semantic text variables
   /* The font used for caption texts */
   --str-chat__caption-text: 0.75rem/1.3 var(--str-chat__font-family);

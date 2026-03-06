@@ -43,6 +43,7 @@ import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
 import type { LoadingErrorIndicatorProps } from '../Loading';
+import { ChannelListHeader } from './ChannelListHeader';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -210,7 +211,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     client,
     closeMobileNav,
     customClasses,
-    navOpen = false,
+    navOpen = true,
     searchController,
     setActiveChannel,
     theme,
@@ -382,6 +383,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       value={{ channels, hasNextPage, loadNextPage, setChannels }}
     >
       <div className={className} ref={channelListRef}>
+        <ChannelListHeader />
         {showChannelSearch &&
           (Search ? (
             <Search

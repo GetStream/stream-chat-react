@@ -1,6 +1,9 @@
+@use '../../../../styling/utils';
+
 .str-chat__thread-list-item-container {
   border-bottom: 1px solid var(--border-core-subtle);
   padding: var(--spacing-xxs);
+  max-width: 100%;
 }
 
 .str-chat__thread-list-item {
@@ -13,10 +16,10 @@
   border: none;
   cursor: pointer;
   text-align: start;
-  font-family: var(--typography-font-family-sans);
   background: var(--background-elevation-elevation-1);
   border-radius: var(--radius-lg);
   width: 100%;
+  max-width: 100%;
 
   background: var(--background-elevation-elevation-1);
   &:not(:disabled):hover {
@@ -97,6 +100,8 @@
   line-height: var(--typography-line-height-normal);
   color: var(--text-tertiary);
   white-space: nowrap;
+  min-width: 0;
+  @include utils.ellipsis-text;
 }
 
 .str-chat__thread-list-item__message-preview {

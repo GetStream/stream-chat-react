@@ -1,25 +1,22 @@
 import React from 'react';
 
-// import { IconLayoutAlignLeft } from '../Icons/icons';
+import { IconLayoutAlignLeft } from '../Icons/icons';
+import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-// import { useChatContext } from '../../context/ChatContext';
-// import { useTranslationContext } from '../../context/TranslationContext';
-import type { ChannelAvatarProps } from '../Avatar';
-// import { Button } from '../Button';
+import { useChatContext } from '../../context/ChatContext';
 import clsx from 'clsx';
+import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
 
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
-  /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
+  /** UI component to display menu icon, defaults to IconLayoutAlignLeft*/
   MenuIcon?: React.ComponentType;
-  /** When true, shows IconLayoutAlignLeft instead of MenuIcon for sidebar expansion */
-  sidebarCollapsed?: boolean;
   /** Set title manually */
   title?: string;
 };
@@ -31,14 +28,12 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
     image: overrideImage,
-    // MenuIcon = IconLayoutAlignLeft,
-    sidebarCollapsed = true,
+    MenuIcon = IconLayoutAlignLeft,
     title: overrideTitle,
   } = props;
 
   const { channel } = useChannelStateContext();
-  // const { openMobileNav } = useChatContext('ChannelHeader');
-  // const { t } = useTranslationContext('ChannelHeader');
+  const { navOpen } = useChatContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -49,20 +44,12 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   return (
     <div
       className={clsx('str-chat__channel-header', {
-        'str-chat__channel-header--sidebar-collapsed': sidebarCollapsed,
+        'str-chat__channel-header--sidebar-collapsed': !navOpen,
       })}
     >
-      {/*<Button*/}
-      {/*  appearance='ghost'*/}
-      {/*  aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}*/}
-      {/*  circular*/}
-      {/*  className='str-chat__header-sidebar-toggle'*/}
-      {/*  onClick={openMobileNav}*/}
-      {/*  size='md'*/}
-      {/*  variant='secondary'*/}
-      {/*>*/}
-      {/*  {sidebarCollapsed && <MenuIcon />}*/}
-      {/*</Button>*/}
+      <ToggleSidebarButton mode='expand'>
+        <MenuIcon />
+      </ToggleSidebarButton>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
         {onlineStatusText != null && (

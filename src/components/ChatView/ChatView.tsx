@@ -212,6 +212,7 @@ const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) =>
 
 export const ChatViewChannelsSelectorButton = () => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { openMobileNav } = useChatContext('ChatViewChannelsSelectorButton');
   const { t } = useTranslationContext();
 
   return (
@@ -220,14 +221,17 @@ export const ChatViewChannelsSelectorButton = () => {
       aria-selected={activeChatView === 'channels'}
       Icon={IconBubble3ChatMessage}
       isActive={activeChatView === 'channels'}
-      onPointerDown={() => setActiveChatView('channels')}
+      onPointerDown={() => {
+        openMobileNav();
+        setActiveChatView('channels');
+      }}
       text={t('Channels')}
     />
   );
 };
 
 export const ChatViewThreadsSelectorButton = () => {
-  const { client } = useChatContext();
+  const { client, openMobileNav } = useChatContext();
   const { unreadThreadCount } = useStateStore(
     client.threads.state,
     unreadThreadCountSelector,
@@ -240,7 +244,10 @@ export const ChatViewThreadsSelectorButton = () => {
   return (
     <ChatViewSelectorButton
       aria-selected={activeChatView === 'threads'}
-      onPointerDown={() => setActiveChatView('threads')}
+      onPointerDown={() => {
+        openMobileNav();
+        setActiveChatView('threads');
+      }}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         <IconBubbleText6ChatMessage />
@@ -274,13 +281,21 @@ export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
 
 const ChatViewSelector = ({
   itemSet = defaultChatViewSelectorItemSet,
-}: ChatViewSelectorProps) => (
-  <div className='str-chat__chat-view__selector'>
-    {itemSet.map(({ Component, type }) => (
-      <Component key={type} />
-    ))}
-  </div>
-);
+}: ChatViewSelectorProps) => {
+  const { navOpen } = useChatContext('ChatView.Selector');
+  return (
+    <div
+      className={clsx('str-chat__chat-view__selector', {
+        'str-chat__chat-view__selector--nav-closed': navOpen === false,
+        'str-chat__chat-view__selector--nav-open': navOpen === true,
+      })}
+    >
+      {itemSet.map(({ Component, type }) => (
+        <Component key={type} />
+      ))}
+    </div>
+  );
+};
 
 ChatView.Channels = ChannelsView;
 ChatView.Threads = ThreadsView;
