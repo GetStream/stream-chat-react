@@ -17,16 +17,16 @@ const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
 
-export const AppSettings = ({ showLabels = false }: { showLabels?: boolean }) => {
+export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [activeTab, setActiveTab] = useState<TabId>('sidebar');
   const [open, setOpen] = useState(false);
 
   return (
     <div className='app__settings-group'>
       <ChatViewSelectorButton
+        iconOnly={iconOnly}
         Icon={IconSettingsGear2}
         onClick={() => setOpen(true)}
-        showLabel={showLabels}
         text='Settings'
       />
       <GlobalModal open={open} onClose={() => setOpen(false)}>

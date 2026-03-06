@@ -200,7 +200,7 @@ const App = () => {
         <ChatView>
           <ChatView.Selector
             itemSet={chatViewSelectorItemSet}
-            showLabels={chatView.showLabels}
+            iconOnly={chatView.iconOnly}
           />
           <ChatView.Channels>
             <ChannelList
