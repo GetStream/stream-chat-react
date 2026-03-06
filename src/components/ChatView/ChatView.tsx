@@ -9,10 +9,15 @@ import React, {
 } from 'react';
 
 import { Button, type ButtonProps } from '../Button';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { ThreadProvider } from '../Threads';
 import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { useStateStore } from '../../store';
 
 import type { PropsWithChildren } from 'react';
@@ -127,9 +132,27 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
  *
  */
 const ThreadAdapter = ({ children }: PropsWithChildren) => {
+  const { client } = useChatContext('ThreadAdapter');
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
+    useComponentContext('ThreadAdapter');
   const { activeThread } = useThreadsViewContext();
+  const { isLoading, ready } = useStateStore(
+    client.threads.state,
+    threadAdapterSelector,
+  ) ?? {
+    isLoading: false,
+    ready: false,
+  };
 
   useActiveThread({ activeThread });
+
+  if (!activeThread && ready && !isLoading && EmptyStateIndicator) {
+    return (
+      <div className='str-chat__thread-container str-chat__thread'>
+        <EmptyStateIndicator listType='message' />
+      </div>
+    );
+  }
 
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
@@ -159,7 +182,12 @@ export const ChatViewSelectorButton = ({
   </Button>
 );
 
-const selector = ({ unreadThreadCount }: ThreadManagerState) => ({
+const threadAdapterSelector = ({ pagination, ready }: ThreadManagerState) => ({
+  isLoading: pagination.isLoading,
+  ready,
+});
+
+const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) => ({
   unreadThreadCount,
 });
 
@@ -179,7 +207,10 @@ export const ChatViewChannelsSelectorButton = () => {
 
 export const ChatViewThreadsSelectorButton = () => {
   const { client } = useChatContext();
-  const { unreadThreadCount } = useStateStore(client.threads.state, selector) ?? {
+  const { unreadThreadCount } = useStateStore(
+    client.threads.state,
+    unreadThreadCountSelector,
+  ) ?? {
     unreadThreadCount: 0,
   };
   const { activeChatView, setActiveChatView } = useChatViewContext();

@@ -269,6 +269,8 @@
   "New Messages!": "¡Nuevos mensajes!",
   "Next image": "Siguiente imagen",
   "No chats here yet…": "Aún no hay mensajes aquí...",
+  "No conversations yet": "Aún no hay conversaciones",
+  "No items exist": "No existen elementos",
   "No results found": "No se han encontrado resultados",
   "Nobody will be able to vote in this poll anymore.": "Nadie podrá votar en esta encuesta.",
   "Nothing yet...": "Nada aún...",
@@ -308,6 +310,7 @@
   "Replied to a thread": "Respondió en un hilo",
   "Reply": "Responder",
   "Reply to {{ authorName }}": "Responder a {{ authorName }}",
+  "Reply to a message to start a thread": "Responde a un mensaje para iniciar un hilo",
   "Reply to Message": "Responder al mensaje",
   "replyCount_one": "1 respuesta",
   "replyCount_many": "{{ count }} respuestas",
@@ -413,6 +416,5 @@
   "Vote ended": "Votación finalizada",
   "Wait until all attachments have uploaded": "Espere hasta que se hayan cargado todos los archivos adjuntos",
   "You": "Tú",
-  "You have no channels currently": "Actualmente no tienes canales",
   "You've reached the maximum number of files": "Has alcanzado el número máximo de archivos"
 }

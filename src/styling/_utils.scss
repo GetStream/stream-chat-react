@@ -106,26 +106,12 @@
   row-gap: var(--str-chat__spacing-1_5);
 }
 
-@mixin empty-layout {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--str-chat__spacing-4);
-
-  svg {
-    width: calc(var(--str-chat__spacing-px) * 136);
-    height: calc(var(--str-chat__spacing-px) * 136);
-  }
-}
-
 @mixin empty-theme($component-name) {
-  font: var(--str-chat__headline-text);
   text-align: center;
 
-  svg path {
-    fill: var(--str-chat__#{$component-name}-empty-indicator-color);
+  svg {
+    width: 32px;
+    height: 32px;
   }
 }
 

@@ -188,24 +188,58 @@ describe('Channel', () => {
   });
 
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
+    const DefaultEmptyStateIndicator = () => <div>default empty state</div>;
+
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     render(
-      <ChatProvider
-        value={{
-          channelsQueryState: {
-            error: null,
-            queryInProgress: null,
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
-          },
-        }}
-      >
-        <Channel EmptyPlaceholder={<div>empty</div>} />
-      </ChatProvider>,
+      <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
+        <ChatProvider
+          value={{
+            channelsQueryState: {
+              error: null,
+              queryInProgress: null,
+              setError: jest.fn(),
+              setQueryInProgress: jest.fn(),
+            },
+          }}
+        >
+          <Channel EmptyPlaceholder={<div>empty</div>} />
+        </ChatProvider>
+      </WithComponents>,
     );
 
     await waitFor(() => expect(screen.getByText('empty')).toBeInTheDocument());
+    expect(screen.queryByText('default empty state')).not.toBeInTheDocument();
+  });
+
+  it('should render the message empty state if the channel is not provided by the ChatContext', async () => {
+    const DefaultEmptyStateIndicator = ({ listType }) => (
+      <div>{`${listType} empty state`}</div>
+    );
+
+    // get rid of console warnings as they are expected - Channel reaches to ChatContext
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    render(
+      <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
+        <ChatProvider
+          value={{
+            channelsQueryState: {
+              error: null,
+              queryInProgress: null,
+              setError: jest.fn(),
+              setQueryInProgress: jest.fn(),
+            },
+          }}
+        >
+          <Channel />
+        </ChatProvider>
+      </WithComponents>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('message empty state')).toBeInTheDocument(),
+    );
   });
 
   it('should render channel content if channels query loads more channels', async () => {
@@ -249,7 +283,7 @@ describe('Channel', () => {
     await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
-  it('should render empty channel container if channel does not have cid', async () => {
+  it('should render empty channel container if channel does not have cid and EmptyPlaceholder is null', async () => {
     const childrenContent = 'Channel children';
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { cid, ...channelWithoutCID } = channel;
@@ -265,7 +299,7 @@ describe('Channel', () => {
           },
         }}
       >
-        <Channel>{childrenContent}</Channel>
+        <Channel EmptyPlaceholder={null}>{childrenContent}</Channel>
       </ChatProvider>,
     );
     await waitFor(() => expect(asFragment()).toMatchSnapshot());

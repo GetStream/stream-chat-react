@@ -259,6 +259,8 @@
   "New Messages!": "新しいメッセージ!",
   "Next image": "次の画像",
   "No chats here yet…": "ここにはまだチャットはありません…",
+  "No conversations yet": "まだ会話はありません",
+  "No items exist": "項目がありません",
   "No results found": "結果が見つかりません",
   "Nobody will be able to vote in this poll anymore.": "この投票では、誰も投票できなくなります。",
   "Nothing yet...": "まだ何もありません...",
@@ -298,6 +300,7 @@
   "Replied to a thread": "スレッドに返信しました",
   "Reply": "返事",
   "Reply to {{ authorName }}": "{{ authorName }} に返信",
+  "Reply to a message to start a thread": "メッセージに返信してスレッドを開始してください",
   "Reply to Message": "メッセージに返信",
   "replyCount_one": "1件の返信",
   "replyCount_other": "{{ count }} 返信",
@@ -398,6 +401,5 @@
   "Vote ended": "投票が終了しました",
   "Wait until all attachments have uploaded": "すべての添付ファイルがアップロードされるまでお待ちください",
   "You": "あなた",
-  "You have no channels currently": "現在チャンネルはありません",
   "You've reached the maximum number of files": "ファイルの最大数に達しました"
 }

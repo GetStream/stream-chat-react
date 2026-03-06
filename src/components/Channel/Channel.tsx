@@ -45,6 +45,7 @@ import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingChannel as DefaultLoadingIndicator,
 } from '../Loading';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 
 import type {
   ChannelActionContextValue,
@@ -125,8 +126,8 @@ export type ChannelProps = {
     updatedMessage: LocalMessage | MessageResponse,
     options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat['updateMessage']>;
-  /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-  EmptyPlaceholder?: React.ReactElement;
+  /** Custom UI component to be shown if no active channel is set, defaults to the message empty state indicator. Pass `null` to suppress rendering. */
+  EmptyPlaceholder?: React.ReactElement | null;
   /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
   giphyVersion?: GiphyVersions;
   /** A custom function to provide size configuration for image attachments */
@@ -169,13 +170,20 @@ const ChannelContainer = ({
 };
 
 const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
-  const { channel: propsChannel, EmptyPlaceholder = null } = props;
-  const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext();
+  const { channel: propsChannel, EmptyPlaceholder } = props;
+  const {
+    EmptyStateIndicator = DefaultEmptyStateIndicator,
+    LoadingErrorIndicator,
+    LoadingIndicator = DefaultLoadingIndicator,
+  } = useComponentContext('Channel');
 
   const { channel: contextChannel, channelsQueryState } = useChatContext('Channel');
 
   const channel = propsChannel || contextChannel;
+  const emptyPlaceholder =
+    'EmptyPlaceholder' in props
+      ? EmptyPlaceholder
+      : EmptyStateIndicator && <EmptyStateIndicator listType='message' />;
 
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
     return (
@@ -193,8 +201,12 @@ const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
     );
   }
 
+  if (channelsQueryState.error) {
+    return <ChannelContainer />;
+  }
+
   if (!channel?.cid) {
-    return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;
+    return <ChannelContainer>{emptyPlaceholder}</ChannelContainer>;
   }
 
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;

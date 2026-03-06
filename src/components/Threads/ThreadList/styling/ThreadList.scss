@@ -1,0 +1,53 @@
+@use '../../../../styling/utils';
+
+.str-chat {
+  --str-chat__thread-list-border-radius: 0;
+  --str-chat__thread-list-color: var(--str-chat__text-color);
+  --str-chat__thread-list-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__thread-list-border-block-start: none;
+  --str-chat__thread-list-border-block-end: none;
+  --str-chat__thread-list-border-inline-start: none;
+  --str-chat__thread-list-border-inline-end: 1px solid var(--str-chat__surface-color);
+  --str-chat__thread-list-box-shadow: none;
+}
+
+.str-chat__thread-list-container {
+  @include utils.component-layer-overrides('thread-list');
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.str-chat__thread-list {
+  flex: 1;
+
+  [data-virtuoso-scroller='true'] {
+    height: 100% !important;
+  }
+
+  [data-viewport-type='element'] {
+    height: 100% !important;
+  }
+}
+
+.str-chat__thread-list-empty-placeholder {
+  --str-chat-icon-color: var(--text-secondary);
+  @include utils.empty-theme('thread-list');
+
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--typography-font-size-sm);
+    font-weight: var(--typography-font-weight-regular);
+    line-height: var(--typography-line-height-normal);
+  }
+}

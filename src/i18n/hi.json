@@ -262,6 +262,8 @@
   "New Messages!": "नए मैसेज!",
   "Next image": "अगली छवि",
   "No chats here yet…": "यहां अभी तक कोई चैट नहीं...",
+  "No conversations yet": "अभी तक कोई बातचीत नहीं है",
+  "No items exist": "कोई आइटम मौजूद नहीं है",
   "No results found": "कोई परिणाम नहीं मिला",
   "Nobody will be able to vote in this poll anymore.": "अब कोई भी इस मतदान में मतदान नहीं कर सकेगा।",
   "Nothing yet...": "कोई मैसेज नहीं है",
@@ -301,6 +303,7 @@
   "Replied to a thread": "थ्रेड में जवाब दिया",
   "Reply": "जवाब दे दो",
   "Reply to {{ authorName }}": "{{ authorName }} को जवाब दें",
+  "Reply to a message to start a thread": "थ्रेड शुरू करने के लिए किसी संदेश का जवाब दें",
   "Reply to Message": "संदेश का जवाब दें",
   "replyCount_one": "1 रिप्लाई",
   "replyCount_other": "{{ count }} रिप्लाई",
@@ -401,6 +404,5 @@
   "Vote ended": "मतदान समाप्त",
   "Wait until all attachments have uploaded": "सभी अटैचमेंट अपलोड होने तक प्रतीक्षा करें",
   "You": "आप",
-  "You have no channels currently": "आपके पास कोई चैनल नहीं है",
   "You've reached the maximum number of files": "आप अधिकतम फ़ाइलों तक पहुँच गए हैं"
 }

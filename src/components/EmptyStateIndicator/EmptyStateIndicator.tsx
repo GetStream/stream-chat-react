@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { ChatBubble } from './icons';
-import { IconBubble3ChatMessage } from '../Icons';
+import { IconBubble2ChatMessage, IconBubbles } from '../Icons';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
@@ -17,14 +16,12 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   if (listType === 'thread') return null;
 
   if (listType === 'channel') {
-    const text = t('You have no channels currently');
+    const text = t('No conversations yet');
     return (
-      <>
-        <div className='str-chat__channel-list-empty'>
-          <ChatBubble />
-          <p role='listitem'>{text}</p>
-        </div>
-      </>
+      <div className='str-chat__channel-list-empty'>
+        <IconBubbles />
+        <p role='listitem'>{text}</p>
+      </div>
     );
   }
 
@@ -32,7 +29,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     const text = t('Send a message to start the conversation');
     return (
       <div className='str-chat__empty-channel'>
-        <IconBubble3ChatMessage />
+        <IconBubble2ChatMessage />
         <p className='str-chat__empty-channel-text' role='listitem'>
           {text}
         </p>
@@ -40,7 +37,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     );
   }
 
-  return <p>No items exist</p>;
+  return <p>{t('No items exist')}</p>;
 };
 
 export const EmptyStateIndicator = React.memo(

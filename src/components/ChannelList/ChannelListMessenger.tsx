@@ -46,10 +46,10 @@ export const ChannelListMessenger = (
   }
 
   return (
-    <div className='str-chat__channel-list-messenger str-chat__channel-list-messenger-react'>
+    <div className='str-chat__channel-list-messenger'>
       <div
         aria-label={t('aria/Channel list')}
-        className='str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main'
+        className='str-chat__channel-list-messenger__main'
         role='listbox'
       >
         {children}

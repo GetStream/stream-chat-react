@@ -1,4 +1,4 @@
-import { type ComponentProps, type ReactNode } from 'react';
+import React, { type ComponentProps, type ReactNode } from 'react';
 import clsx from 'clsx';
 import { BaseIcon } from './BaseIcon';
 
