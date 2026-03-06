@@ -1,0 +1,26 @@
+.str-chat__thread-list__header {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  height: var(--str-chat__channel-header-height);
+  width: 100%;
+
+  .str-chat__thread-list__header__title {
+    flex: 1;
+    font: var(--str-chat__heading-lg-text);
+    color: var(--text-primary);
+  }
+
+  &.str-chat__thread-list__header--sidebar-collapsed {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    overflow: hidden;
+    padding: 0;
+
+    .str-chat__header-sidebar-toggle {
+      // Compact styling when sidebar collapsed
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { MessageInput, MessageInputFlat } from '../MessageInput';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
+import { ThreadHeaderMain as DefaultThreadHeaderMain } from './ThreadHeaderMain';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
 import {
@@ -22,6 +23,7 @@ import { useStateStore } from '../../store';
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 import type { ThreadState } from 'stream-chat';
+import { useChatViewContext } from '../ChatView';
 
 export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -86,7 +88,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
-
+  const { activeChatView } = useChatViewContext();
   const threadInstance = useThreadContext();
 
   const {
@@ -178,7 +180,12 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
       }}
     >
       <div className={threadClass}>
-        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        {activeChatView === 'threads' ? (
+          // todo: add ThreadHeaderMain alongisde ThreadHeader property to ComponentContext?
+          <DefaultThreadHeaderMain />
+        ) : (
+          <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        )}
         <ThreadMessageList
           disableDateSeparator={!enableDateSeparator}
           head={head}

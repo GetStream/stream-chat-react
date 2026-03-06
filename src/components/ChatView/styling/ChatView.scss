@@ -1,6 +1,6 @@
 .str-chat {
   --str-chat-selector-background-color: var(--str-chat__secondary-background-color);
-  --str-chat-selector-border-color: var(--str-chat__surface-color);
+  --str-chat-selector-border-color: var(--border-core-subtle);
 
   --str-chat-selector-button-color-default: var(--str-chat__text-low-emphasis-color);
   --str-chat-selector-button-color-selected: var(--str-chat__text-color);
@@ -21,6 +21,30 @@
     gap: 20px;
     border-right: 1px solid var(--str-chat-selector-border-color);
     background-color: var(--str-chat-selector-background-color);
+
+    /* Mobile: hide when nav closed, show when nav open. */
+    @media (max-width: 767px) {
+      &.str-chat__chat-view__selector--nav-closed {
+        display: none;
+      }
+
+      &.str-chat__chat-view__selector--nav-open {
+        display: flex;
+      }
+    }
+
+    /* Desktop (≥768px): collapse when nav closed so main content uses space. */
+    @media (min-width: 768px) {
+      &.str-chat__chat-view__selector--nav-closed {
+        width: 0;
+        min-width: 0;
+        overflow: hidden;
+        padding-inline: 0;
+        padding-block: 0;
+        gap: 0;
+        border-inline-end: none;
+      }
+    }
 
     .str-chat__chat-view__selector-button-container {
       display: flex;

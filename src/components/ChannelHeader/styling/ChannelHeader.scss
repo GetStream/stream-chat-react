@@ -1,6 +1,8 @@
 @use '../../../styling/utils';
 
 .str-chat {
+  --str-chat__channel-header-height: 72px;
+
   /* The border radius used for the borders of the component */
   --str-chat__channel-header-border-radius: 0;
 
@@ -37,6 +39,7 @@
   align-items: center;
   flex: 1;
   min-width: 0;
+  height: var(--str-chat__channel-header-height);
 
   .str-chat__channel-header__data {
     @include utils.header-text-layout;

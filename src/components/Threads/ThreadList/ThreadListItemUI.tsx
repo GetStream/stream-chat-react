@@ -12,6 +12,7 @@ import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
 import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
+import { NAV_SIDEBAR_DESKTOP_BREAKPOINT } from '../../Chat';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 
@@ -47,6 +48,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
 
+  const { closeMobileNav } = useChatContext('ThreadListItemUI');
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
@@ -73,7 +75,15 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
         aria-pressed={activeThread === thread}
         className='str-chat__thread-list-item'
         data-thread-id={thread.id}
-        onClick={() => setActiveThread(thread)}
+        onClick={() => {
+          if (
+            typeof window !== 'undefined' &&
+            window.innerWidth < NAV_SIDEBAR_DESKTOP_BREAKPOINT
+          ) {
+            closeMobileNav();
+          }
+          setActiveThread(thread);
+        }}
         role='option'
         {...props}
       >

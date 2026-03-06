@@ -16,6 +16,33 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  /* Mobile: hide when nav closed; when open show as overlay. */
+  @media (max-width: 767px) {
+    display: none;
+
+    &.str-chat__thread-list-container--open {
+      display: flex;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      z-index: 1;
+      min-width: 280px;
+      max-width: 100%;
+      box-shadow: var(--str-chat__thread-list-box-shadow);
+    }
+  }
+
+  /* Desktop (≥768px): collapse when nav closed so main content uses space. */
+  @media (min-width: 768px) {
+    &:not(.str-chat__thread-list-container--open) {
+      flex: 0 0 0;
+      width: 0;
+      min-width: 0;
+      max-width: 0;
+      overflow: hidden;
+    }
+  }
 }
 
 .str-chat__thread-list {

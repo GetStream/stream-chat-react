@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
+import clsx from 'clsx';
 
 import type { Thread, ThreadManagerState } from 'stream-chat';
 
@@ -10,6 +11,7 @@ import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner }
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { useChatContext, useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { ThreadListHeader } from './ThreadListHeader';
 
 const selector = (nextValue: ThreadManagerState) => ({ threads: nextValue.threads });
 
@@ -43,7 +45,7 @@ export const useThreadList = () => {
 };
 
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
-  const { client } = useChatContext();
+  const { client, navOpen = true } = useChatContext();
   const {
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
     ThreadListItem = DefaultThreadListItem,
@@ -55,7 +57,12 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   useThreadList();
 
   return (
-    <div className='str-chat__thread-list-container'>
+    <div
+      className={clsx('str-chat__thread-list-container', {
+        'str-chat__thread-list-container--open': navOpen,
+      })}
+    >
+      <ThreadListHeader />
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
