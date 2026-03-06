@@ -101,10 +101,25 @@ body {
     }
   }
 
+  /* Desktop (≥768px): thread fixed width next to channel; channel takes remaining space. */
   @media (min-width: 768px) {
+    .str-chat__container:has(.str-chat__thread-container) {
+      > .str-chat__main-panel,
+      > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      > .str-chat__thread-container,
+      > .str-chat__dropzone-root--thread {
+        flex: 0 0 360px;
+        width: 360px;
+        max-width: 360px;
+      }
+    }
+
     .str-chat__dropzone-root--thread,
     .str-chat__thread-container {
-      //flex: 0 0 360px;
       width: 100%;
       max-width: 360px;
     }
@@ -112,27 +127,6 @@ body {
     .str-chat__thread-list-container.str-chat__thread-list-container--open {
       width: 100%;
       max-width: 360px;
-    }
-  }
-
-  /* Tablet/narrow (768px–1100px): when thread open, collapse channel so thread has space. */
-  @media (min-width: 768px) and (max-width: 1100px) {
-    .str-chat__container:has(.str-chat__thread-container) {
-      > .str-chat__main-panel,
-      > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
-        flex: 0 0 0;
-        width: 0;
-        min-width: 0;
-        max-width: 0;
-        overflow: hidden;
-      }
-
-      > .str-chat__thread-container,
-      > .str-chat__dropzone-root--thread {
-        flex: 1 1 auto;
-        min-width: 0;
-        max-width: none;
-      }
     }
   }
 
