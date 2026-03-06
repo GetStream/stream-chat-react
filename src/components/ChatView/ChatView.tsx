@@ -171,33 +171,43 @@ export const ChatViewSelectorButton = ({
   className,
   Icon,
   isActive,
+  showLabel = false,
   text,
   ...props
 }: ButtonProps & {
   ActiveIcon?: ComponentType;
   Icon?: ComponentType;
   isActive?: boolean;
+  showLabel?: boolean;
   text?: string;
 }) => {
   const SelectorIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
+  const shouldShowTooltip = !!text && !showLabel;
 
   return (
-    <Button
-      appearance='ghost'
-      className={clsx('str-chat__chat-view__selector-button', className)}
-      role='tab'
-      variant='secondary'
-      {...props}
-    >
-      {text ? (
-        <>
-          {SelectorIcon && <SelectorIcon />}
+    <div className='str-chat__chat-view__selector-button-container'>
+      <Button
+        appearance='ghost'
+        aria-label={props['aria-label'] ?? (shouldShowTooltip ? text : undefined)}
+        className={clsx('str-chat__chat-view__selector-button', className)}
+        role='tab'
+        variant='secondary'
+        {...props}
+      >
+        {children ?? (SelectorIcon && <SelectorIcon />)}
+        {showLabel && text && (
           <div className='str-chat__chat-view__selector-button-text'>{text}</div>
-        </>
-      ) : (
-        children
+        )}
+      </Button>
+      {shouldShowTooltip && (
+        <div
+          aria-hidden='true'
+          className='str-chat__chat-view__selector-button-tooltip str-chat__tooltip'
+        >
+          {text}
+        </div>
       )}
-    </Button>
+    </div>
   );
 };
 
@@ -210,7 +220,13 @@ const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) =>
   unreadThreadCount,
 });
 
-export const ChatViewChannelsSelectorButton = () => {
+export type ChatViewSelectorItemProps = {
+  showLabels?: boolean;
+};
+
+export const ChatViewChannelsSelectorButton = ({
+  showLabels = false,
+}: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { t } = useTranslationContext();
 
@@ -221,12 +237,15 @@ export const ChatViewChannelsSelectorButton = () => {
       Icon={IconBubble3ChatMessage}
       isActive={activeChatView === 'channels'}
       onPointerDown={() => setActiveChatView('channels')}
+      showLabel={showLabels}
       text={t('Channels')}
     />
   );
 };
 
-export const ChatViewThreadsSelectorButton = () => {
+export const ChatViewThreadsSelectorButton = ({
+  showLabels = false,
+}: ChatViewSelectorItemProps) => {
   const { client } = useChatContext();
   const { unreadThreadCount } = useStateStore(
     client.threads.state,
@@ -241,17 +260,18 @@ export const ChatViewThreadsSelectorButton = () => {
     <ChatViewSelectorButton
       aria-selected={activeChatView === 'threads'}
       onPointerDown={() => setActiveChatView('threads')}
+      showLabel={showLabels}
+      text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         <IconBubbleText6ChatMessage />
       </UnreadCountBadge>
-      <div className='str-chat__chat-view__selector-button-text'>{t('Threads')}</div>
     </ChatViewSelectorButton>
   );
 };
 
 export type ChatViewSelectorItem = {
-  Component: React.ComponentType;
+  Component: React.ComponentType<ChatViewSelectorItemProps>;
   type: string & {};
 };
 
@@ -259,6 +279,7 @@ export type ChatViewSelectorEntry = ChatViewSelectorItem;
 
 export type ChatViewSelectorProps = {
   itemSet?: ChatViewSelectorEntry[];
+  showLabels?: boolean;
 };
 
 export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
@@ -274,10 +295,11 @@ export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
 
 const ChatViewSelector = ({
   itemSet = defaultChatViewSelectorItemSet,
+  showLabels = false,
 }: ChatViewSelectorProps) => (
   <div className='str-chat__chat-view__selector'>
     {itemSet.map(({ Component, type }) => (
-      <Component key={type} />
+      <Component key={type} showLabels={showLabels} />
     ))}
   </div>
 );
