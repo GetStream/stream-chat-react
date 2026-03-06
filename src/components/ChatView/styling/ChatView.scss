@@ -1,6 +1,4 @@
 .str-chat {
-  /** Width reserved for ChatView.Selector so ChannelList overlay (mobile) can start after it. */
-  --str-chat__chat-view__selector-width: 94px;
   --str-chat-selector-background-color: var(--str-chat__secondary-background-color);
   --str-chat-selector-border-color: var(--border-core-subtle);
 

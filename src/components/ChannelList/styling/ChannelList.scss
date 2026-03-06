@@ -147,7 +147,6 @@
     &.str-chat__channel-list--open {
       display: flex;
       position: absolute;
-      inset-inline-start: var(--str-chat__chat-view__selector-width, 0);
       top: 0;
       bottom: 0;
       z-index: 1;
