@@ -170,19 +170,19 @@ export const ChatViewSelectorButton = ({
   children,
   className,
   Icon,
+  iconOnly = true,
   isActive,
-  showLabel = false,
   text,
   ...props
 }: ButtonProps & {
   ActiveIcon?: ComponentType;
+  iconOnly?: boolean;
   Icon?: ComponentType;
   isActive?: boolean;
-  showLabel?: boolean;
   text?: string;
 }) => {
   const SelectorIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
-  const shouldShowTooltip = !!text && !showLabel;
+  const shouldShowTooltip = !!text && iconOnly;
 
   return (
     <div className='str-chat__chat-view__selector-button-container'>
@@ -195,7 +195,7 @@ export const ChatViewSelectorButton = ({
         {...props}
       >
         {children ?? (SelectorIcon && <SelectorIcon />)}
-        {showLabel && text && (
+        {!iconOnly && text && (
           <div className='str-chat__chat-view__selector-button-text'>{text}</div>
         )}
       </Button>
@@ -221,11 +221,11 @@ const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) =>
 });
 
 export type ChatViewSelectorItemProps = {
-  showLabels?: boolean;
+  iconOnly?: boolean;
 };
 
 export const ChatViewChannelsSelectorButton = ({
-  showLabels = false,
+  iconOnly = true,
 }: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { t } = useTranslationContext();
@@ -235,16 +235,16 @@ export const ChatViewChannelsSelectorButton = ({
       ActiveIcon={IconBubble3Solid}
       aria-selected={activeChatView === 'channels'}
       Icon={IconBubble3ChatMessage}
+      iconOnly={iconOnly}
       isActive={activeChatView === 'channels'}
       onPointerDown={() => setActiveChatView('channels')}
-      showLabel={showLabels}
       text={t('Channels')}
     />
   );
 };
 
 export const ChatViewThreadsSelectorButton = ({
-  showLabels = false,
+  iconOnly = true,
 }: ChatViewSelectorItemProps) => {
   const { client } = useChatContext();
   const { unreadThreadCount } = useStateStore(
@@ -259,8 +259,8 @@ export const ChatViewThreadsSelectorButton = ({
   return (
     <ChatViewSelectorButton
       aria-selected={activeChatView === 'threads'}
+      iconOnly={iconOnly}
       onPointerDown={() => setActiveChatView('threads')}
-      showLabel={showLabels}
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
@@ -278,8 +278,8 @@ export type ChatViewSelectorItem = {
 export type ChatViewSelectorEntry = ChatViewSelectorItem;
 
 export type ChatViewSelectorProps = {
+  iconOnly?: boolean;
   itemSet?: ChatViewSelectorEntry[];
-  showLabels?: boolean;
 };
 
 export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
@@ -294,12 +294,12 @@ export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
 ];
 
 const ChatViewSelector = ({
+  iconOnly = true,
   itemSet = defaultChatViewSelectorItemSet,
-  showLabels = false,
 }: ChatViewSelectorProps) => (
   <div className='str-chat__chat-view__selector'>
     {itemSet.map(({ Component, type }) => (
-      <Component key={type} showLabels={showLabels} />
+      <Component iconOnly={iconOnly} key={type} />
     ))}
   </div>
 );

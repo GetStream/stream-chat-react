@@ -182,8 +182,8 @@ describe('ChatView.Selector', () => {
     ]);
   });
 
-  it('renders labels inline when showLabels is enabled', async () => {
-    const { container } = await renderSelector({ showLabels: true });
+  it('renders labels inline when iconOnly is disabled', async () => {
+    const { container } = await renderSelector({ iconOnly: false });
 
     expect(
       container.querySelectorAll('.str-chat__chat-view__selector-button-tooltip'),

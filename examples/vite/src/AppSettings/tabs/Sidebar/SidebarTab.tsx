@@ -4,7 +4,7 @@ import { appSettingsStore, useAppSettingsState } from '../../state';
 export const SidebarTab = () => {
   const {
     chatView,
-    chatView: { showLabels },
+    chatView: { iconOnly },
   } = useAppSettingsState();
 
   return (
@@ -13,22 +13,22 @@ export const SidebarTab = () => {
         <div className='app__settings-modal__field-label'>Label visibility</div>
         <div className='app__settings-modal__options-row'>
           <Button
-            aria-pressed={!showLabels}
+            aria-pressed={iconOnly}
             className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
             onClick={() =>
               appSettingsStore.partialNext({
-                chatView: { ...chatView, showLabels: false },
+                chatView: { ...chatView, iconOnly: true },
               })
             }
           >
             Icons only
           </Button>
           <Button
-            aria-pressed={showLabels}
+            aria-pressed={!iconOnly}
             className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
             onClick={() =>
               appSettingsStore.partialNext({
-                chatView: { ...chatView, showLabels: true },
+                chatView: { ...chatView, iconOnly: false },
               })
             }
           >

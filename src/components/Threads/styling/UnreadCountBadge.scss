@@ -1,0 +1,61 @@
+/* Only available in React SDK. */
+.str-chat {
+  --str-chat-unread-count-badge-color: var(--str-chat__on-unread-badge-color);
+  --str-chat-unread-count-badge-background-color: var(--str-chat__danger-color);
+}
+
+.str-chat__unread-count-badge {
+  background-color: var(--str-chat-unread-count-badge-background-color);
+  color: var(--str-chat-unread-count-badge-color);
+  border-radius: 9999px;
+}
+
+.str-chat {
+  --str-chat-unread-count-badge-absolute-offset-vertical: 50%;
+  --str-chat-unread-count-badge-absolute-offset-horizontal: 50%;
+}
+
+.str-chat__unread-count-badge-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.str-chat__unread-count-badge {
+  font-size: 12px;
+  min-width: 18px;
+  min-height: 18px;
+  line-height: 8px;
+  font-weight: 700;
+  padding: 5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+
+  &--top-right {
+    position: absolute;
+    translate: var(--str-chat-unread-count-badge-absolute-offset-horizontal)
+      calc(var(--str-chat-unread-count-badge-absolute-offset-vertical) * -1);
+  }
+
+  &--bottom-left {
+    position: absolute;
+    translate: calc(var(--str-chat-unread-count-badge-absolute-offset-horizontal) * -1)
+      var(--str-chat-unread-count-badge-absolute-offset-vertical);
+  }
+
+  &--bottom-right {
+    position: absolute;
+    translate: var(--str-chat-unread-count-badge-absolute-offset-horizontal)
+      var(--str-chat-unread-count-badge-absolute-offset-vertical);
+  }
+
+  &--top-left {
+    position: absolute;
+    translate: calc(var(--str-chat-unread-count-badge-absolute-offset-horizontal) * -1)
+      calc(var(--str-chat-unread-count-badge-absolute-offset-vertical) * -1);
+  }
+}

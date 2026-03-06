@@ -8,7 +8,7 @@ export type ReactionsSettingsState = {
 };
 
 export type ChatViewSettingsState = {
-  showLabels: boolean;
+  iconOnly: boolean;
 };
 
 export type AppSettingsState = {
@@ -18,7 +18,7 @@ export type AppSettingsState = {
 
 const defaultAppSettingsState: AppSettingsState = {
   chatView: {
-    showLabels: false,
+    iconOnly: true,
   },
   reactions: {
     flipHorizontalPosition: false,
