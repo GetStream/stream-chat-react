@@ -5,6 +5,7 @@ import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { Button, IconCrossSmall, IconMagnifyingGlassSearch } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -47,7 +48,7 @@ export const SearchBar = () => {
           'str-chat__search-input--wrapper-active': isActive,
         })}
       >
-        <div className='str-chat__search-input--icon' />
+        <IconMagnifyingGlassSearch />
         <input
           className='str-chat__search-input'
           data-testid='search-input'
@@ -69,7 +70,9 @@ export const SearchBar = () => {
           value={searchQuery}
         />
         {searchQuery && (
-          <button
+          <Button
+            appearance='outline'
+            circular
             className='str-chat__search-input--clear-button'
             data-testid='clear-input-button'
             disabled={queriesInProgress.length > 0} // prevent user from clearing the input while query is in progress and avoid out-of-sync UX
@@ -77,16 +80,17 @@ export const SearchBar = () => {
               searchController.clear();
               input?.focus();
             }}
+            size='sm'
+            variant='secondary'
           >
-            <div className='str-chat__search-input--clear-button-icon' />
-          </button>
+            <IconCrossSmall />
+          </Button>
         )}
       </div>
-      {isActive ? (
+      {/* TODO: return button once designs are in */}
+      {/* {isActive && (
         <button
-          className={clsx(
-            'str-chat__search-bar-button str-chat__search-bar-button--exit-search',
-          )}
+          className='str-chat__search-bar-button str-chat__search-bar-button--exit-search'
           data-testid='search-bar-button'
           onClick={() => {
             input?.blur();
@@ -95,7 +99,7 @@ export const SearchBar = () => {
         >
           {t('Cancel')}
         </button>
-      ) : null}
+      )} */}
     </div>
   );
 };

@@ -59,6 +59,10 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
 
 export const SearchResultsHeader = () => {
   const { searchController } = useSearchContext();
+
+  // render nothing if there's only one source (can't change filters)
+  if (searchController.sources.length < 2) return null;
+
   return (
     <div className='str-chat__search-results-header' data-testid='search-results-header'>
       <div
