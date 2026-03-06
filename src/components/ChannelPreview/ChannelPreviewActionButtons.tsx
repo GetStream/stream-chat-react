@@ -4,10 +4,16 @@ import type { Channel } from 'stream-chat';
 import { useChannelMembershipState } from '../ChannelList';
 import { useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import { IconArchive, IconMute, IconPin } from '../Icons';
+import { IconArchive, IconDotGrid1x3Horizontal, IconMute, IconPin } from '../Icons';
 
 import clsx from 'clsx';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
+import {
+  ContextMenu,
+  ContextMenuButton,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../Dialog';
 
 export type ChannelPreviewActionButtonsProps = {
   channel: Channel;
@@ -25,40 +31,33 @@ export function ChannelPreviewActionButtons({
     channel.data?.member_count === 2 &&
     channel.id?.startsWith('!members-');
 
-  // const buttonRef = useRef<ComponentRef<'button'>>(null);
-  // const dialogId = `channel-action-buttons-${channel.id}`;
-  // const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
-  // const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+  const [referenceElement, setReferenceElement] =
+    React.useState<HTMLButtonElement | null>(null);
+  const dialogId = `channel-action-buttons-${channel.id}`;
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
   return (
     <div
       className={clsx('str-chat__channel-preview__action-buttons', {
-        'str-chat__channel-preview__action-buttons--active': false, // dialogIsOpen,
+        'str-chat__channel-preview__action-buttons--active': dialogIsOpen,
       })}
     >
       <Button
         appearance='ghost'
-        aria-label={membership.pinned_at ? t('Unpin') : t('Pin')}
-        aria-pressed={typeof membership.pinned_at === 'string'}
-        // aria-expanded={dialogIsOpen}
-        // aria-pressed={dialogIsOpen}
+        aria-expanded={dialogIsOpen}
+        aria-pressed={dialogIsOpen}
         circular
-        // onClick={() => dialog.toggle()}
-        // ref={buttonRef}
         onClick={(e) => {
           e.stopPropagation();
-          if (membership.pinned_at) {
-            channel.unpin();
-          } else {
-            channel.pin();
-          }
+
+          dialog.toggle();
         }}
+        ref={setReferenceElement}
         size='sm'
-        title={membership.pinned_at ? t('Unpin') : t('Pin')}
         variant='secondary'
       >
-        {/* <IconDotGrid1x3Horizontal /> */}
-        <IconPin />
+        <IconDotGrid1x3Horizontal />
       </Button>
       {isDirectMessageChannel ? (
         <Button
@@ -102,13 +101,16 @@ export function ChannelPreviewActionButtons({
         </Button>
       )}
 
-      {/* <ContextMenu
+      {/* TODO: clean this mess up (make ContextMenu accept children) */}
+      <ContextMenu
+        className='str-chat__channel-preview__action-buttons-context-menu'
         dialogManagerId={dialogManager?.id}
         id={dialog.id}
         items={[
           () => (
             <ContextMenuButton
               aria-label={membership.pinned_at ? t('Unpin') : t('Pin')}
+              Icon={IconPin}
               key='pin-button'
               onClick={(e) => {
                 e.stopPropagation();
@@ -117,19 +119,56 @@ export function ChannelPreviewActionButtons({
                 } else {
                   channel.pin();
                 }
+                dialog?.close();
               }}
               title={membership.pinned_at ? t('Unpin') : t('Pin')}
             >
               {membership.pinned_at ? t('Unpin') : t('Pin')}
             </ContextMenuButton>
           ),
+          () => (
+            <ContextMenuButton
+              aria-label={isMuted ? t('Unmute') : t('Mute')}
+              Icon={IconMute}
+              key='mute-button'
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isMuted) {
+                  channel.unmute();
+                } else {
+                  channel.mute();
+                }
+              }}
+              title={isMuted ? t('Unmute') : t('Mute')}
+            >
+              {isMuted ? t('Unmute') : t('Mute')}
+            </ContextMenuButton>
+          ),
+          () => (
+            <ContextMenuButton
+              aria-label={membership.archived_at ? t('Unarchive') : t('Archive')}
+              Icon={IconArchive}
+              key='archive-button'
+              onClick={(e) => {
+                e.stopPropagation();
+                if (membership.archived_at) {
+                  channel.unarchive();
+                } else {
+                  channel.archive();
+                }
+              }}
+              title={membership.archived_at ? t('Unarchive') : t('Archive')}
+            >
+              {membership.archived_at ? t('Unarchive') : t('Archive')}
+            </ContextMenuButton>
+          ),
         ]}
         onClose={dialog?.close}
-        placement={'bottom-end'}
-        referenceElement={buttonRef.current}
+        placement='bottom-start'
+        referenceElement={referenceElement}
         tabIndex={-1}
         trapFocus
-      /> */}
+      />
     </div>
   );
 }

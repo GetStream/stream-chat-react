@@ -27,6 +27,7 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
 import {
   ChannelListContextProvider,
+  DialogManagerProvider,
   useChatContext,
   useComponentContext,
 } from '../../context';
@@ -44,6 +45,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
 import type { LoadingErrorIndicatorProps } from '../Loading';
 import { ChannelListHeader } from './ChannelListHeader';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -204,6 +206,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
+
+  const stableId = useStableId();
 
   const {
     channel,
@@ -379,58 +383,60 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   const showChannelList =
     (!searchActive && !searchIsActive) || additionalChannelSearchProps?.popupResults;
   return (
-    <ChannelListContextProvider
-      value={{ channels, hasNextPage, loadNextPage, setChannels }}
-    >
-      <div className={className} ref={channelListRef}>
-        <ChannelListHeader />
-        {showChannelSearch &&
-          (Search ? (
-            <Search
-              directMessagingChannelType={additionalChannelSearchProps?.channelType}
-              disabled={additionalChannelSearchProps?.disabled}
-              exitSearchOnInputBlur={
-                additionalChannelSearchProps?.clearSearchOnClickOutside
-              }
-              placeholder={additionalChannelSearchProps?.placeholder}
-            />
-          ) : (
-            <ChannelSearch
-              onSearch={onSearch}
-              onSearchExit={onSearchExit}
-              setChannels={setChannels}
-              {...additionalChannelSearchProps}
-            />
-          ))}
-        {showChannelList && (
-          <List
-            error={channelsQueryState.error}
-            loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-            loading={
-              !!channelsQueryState.queryInProgress &&
-              ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
-            }
-            LoadingErrorIndicator={LoadingErrorIndicator}
-            LoadingIndicator={LoadingIndicator}
-            setChannels={setChannels}
-          >
-            {!loadedChannels?.length ? (
-              <EmptyStateIndicator listType='channel' />
+    <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
+      <ChannelListContextProvider
+        value={{ channels, hasNextPage, loadNextPage, setChannels }}
+      >
+        <div className={className} ref={channelListRef}>
+          <ChannelListHeader />
+          {showChannelSearch &&
+            (Search ? (
+              <Search
+                directMessagingChannelType={additionalChannelSearchProps?.channelType}
+                disabled={additionalChannelSearchProps?.disabled}
+                exitSearchOnInputBlur={
+                  additionalChannelSearchProps?.clearSearchOnClickOutside
+                }
+                placeholder={additionalChannelSearchProps?.placeholder}
+              />
             ) : (
-              <Paginator
-                hasNextPage={hasNextPage}
-                isLoading={channelsQueryState.queryInProgress === 'load-more'}
-                loadNextPage={loadNextPage}
-              >
-                {renderChannels
-                  ? renderChannels(loadedChannels, renderChannel)
-                  : loadedChannels.map((channel) => renderChannel(channel))}
-              </Paginator>
-            )}
-          </List>
-        )}
-      </div>
-    </ChannelListContextProvider>
+              <ChannelSearch
+                onSearch={onSearch}
+                onSearchExit={onSearchExit}
+                setChannels={setChannels}
+                {...additionalChannelSearchProps}
+              />
+            ))}
+          {showChannelList && (
+            <List
+              error={channelsQueryState.error}
+              loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+              loading={
+                !!channelsQueryState.queryInProgress &&
+                ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
+              }
+              LoadingErrorIndicator={LoadingErrorIndicator}
+              LoadingIndicator={LoadingIndicator}
+              setChannels={setChannels}
+            >
+              {!loadedChannels?.length ? (
+                <EmptyStateIndicator listType='channel' />
+              ) : (
+                <Paginator
+                  hasNextPage={hasNextPage}
+                  isLoading={channelsQueryState.queryInProgress === 'load-more'}
+                  loadNextPage={loadNextPage}
+                >
+                  {renderChannels
+                    ? renderChannels(loadedChannels, renderChannel)
+                    : loadedChannels.map((channel) => renderChannel(channel))}
+                </Paginator>
+              )}
+            </List>
+          )}
+        </div>
+      </ChannelListContextProvider>
+    </DialogManagerProvider>
   );
 };
 
