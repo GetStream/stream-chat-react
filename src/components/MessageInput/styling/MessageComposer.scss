@@ -83,7 +83,7 @@
     align-items: end;
     width: 100%;
     gap: var(--spacing-xs);
-    padding: var(--spacing-sm);
+    padding: calc(var(--spacing-sm) - 1px); // compensate for the 1px border of the composer container
 
     $controls-containers-min-height: 26px;
 

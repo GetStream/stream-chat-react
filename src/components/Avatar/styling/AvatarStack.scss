@@ -7,15 +7,6 @@
     margin-left: calc(var(--spacing-xs) * -1);
   }
 
-  & > .str-chat__avatar:after {
-    content: '';
-    position: absolute;
-    width: calc(100% + 4px);
-    height: calc(100% + 4px);
-    border: 2px solid var(--border-core-on-dark);
-    border-radius: inherit;
-  }
-
   &.str-chat__avatar-stack--size-sm {
     --avatar-stack-count-badge-size: 24px;
     // FIXME?: should be sm but it looks way too big
