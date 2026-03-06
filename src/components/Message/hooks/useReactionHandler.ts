@@ -2,21 +2,33 @@ import type React from 'react';
 import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
-import { useThreadContext } from '../../Threads';
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChannel } from '../../../context';
 import { useChatContext } from '../../../context/ChatContext';
+import { useMessagePaginator } from '../../../hooks';
 
-import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
+import {
+  formatMessage,
+  type LocalMessage,
+  type MessageResponse,
+  type Reaction,
+  type ReactionResponse,
+} from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = (message?: LocalMessage) => {
-  const thread = useThreadContext();
-  const { updateMessage } = useChannelActionContext('useReactionHandler');
-  const { channel, channelCapabilities } = useChannelStateContext('useReactionHandler');
+  const channel = useChannel();
+  const messagePaginator = useMessagePaginator();
   const { client } = useChatContext('useReactionHandler');
+
+  const updateMessage = useCallback(
+    (updatedMessage: LocalMessage | MessageResponse) => {
+      const formattedMessage = formatMessage(updatedMessage);
+      messagePaginator.ingestItem(formattedMessage);
+    },
+    [messagePaginator],
+  );
 
   const createMessagePreview = useCallback(
     (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
@@ -78,15 +90,13 @@ export const useReactionHandler = (message?: LocalMessage) => {
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message || !channelCapabilities['send-reaction']) return;
+    if (!message) return;
 
     const newReaction = createReactionPreview(type) as ReactionResponse;
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
       updateMessage(tempMessage);
-      thread?.upsertReplyLocally({ message: tempMessage });
-
       const messageResponse = add
         ? await channel.sendReaction(id, { type } as Reaction)
         : await channel.deleteReaction(id, type);
@@ -96,7 +106,6 @@ export const useReactionHandler = (message?: LocalMessage) => {
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      thread?.upsertReplyLocally({ message });
     }
   }, 1000);
 

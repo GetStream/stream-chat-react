@@ -1,4 +1,5 @@
 export * from './Attachment';
+export * from './AttachmentContext';
 export * from './AttachmentActions';
 export * from './AttachmentContainer';
 export * from './Audio';

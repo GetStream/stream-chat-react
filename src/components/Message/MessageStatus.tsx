@@ -9,6 +9,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { IconCheckmark1Small, IconClock, IconDoubleCheckmark1Small } from '../Icons';
+import { useThreadContext } from '../Threads';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -39,15 +40,9 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
     useEnterLeaveHandlers<HTMLSpanElement>();
 
   const { client } = useChatContext('MessageStatus');
-  const {
-    deliveredTo,
-    isMyMessage,
-    lastOwnMessage,
-    message,
-    readBy,
-    returnAllReadData,
-    threadList,
-  } = useMessageContext('MessageStatus');
+  const threadInstance = useThreadContext();
+  const { deliveredTo, isMyMessage, lastOwnMessage, message, readBy, returnAllReadData } =
+    useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
@@ -57,14 +52,19 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const deliveredOnlyToMe =
     deliveredTo?.length === 1 && deliveredTo[0].id === client.user?.id;
   const sending = message.status === 'sending';
-  const read = !!(readBy?.length && !justReadByMe && !threadList);
-  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
+  const read = !!(readBy?.length && !justReadByMe && !threadInstance);
+  const delivered = !!(
+    deliveredTo?.length &&
+    !deliveredOnlyToMe &&
+    !read &&
+    !threadInstance
+  );
   const sent =
     (returnAllReadData || lastOwnMessage?.id === message.id) &&
     message.status === 'received' &&
     !delivered &&
     !read &&
-    !threadList;
+    !threadInstance;
 
   const readersWithoutOwnUser = read
     ? readBy.filter((item) => item.id !== client.user?.id)

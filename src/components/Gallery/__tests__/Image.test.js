@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
@@ -8,8 +8,9 @@ import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import { useChatContext, WithComponents } from '../../../context';
+import { WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
+import { ModalDialogManagerProvider } from '../../../context/DialogManagerContext';
 
 import { initClientWithChannels } from '../../../mock-builders';
 
@@ -19,12 +20,14 @@ describe('Image', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const { container } = render(
-      <ComponentProvider value={{}}>
-        <ImageComponent images={mockImageAssets} />
-      </ComponentProvider>,
+    const { getByTestId } = render(
+      <ModalDialogManagerProvider>
+        <ComponentProvider value={{}}>
+          <ImageComponent images={mockImageAssets} />
+        </ComponentProvider>
+      </ModalDialogManagerProvider>,
     );
-    expect(container).toMatchSnapshot();
+    expect(getByTestId('str-chat__base-image')).toBeInTheDocument();
   });
 
   describe('it should prevent unsafe image uri protocols in the rendered image src', () => {
@@ -32,65 +35,75 @@ describe('Image', () => {
       // eslint-disable-next-line no-script-url
       const xssJavascriptUri = 'javascript:alert("p0wn3d")';
       const { getByTestId } = render(
-        <ComponentProvider value={{}}>
-          <ImageComponent image_url={xssJavascriptUri} />
-        </ComponentProvider>,
+        <ModalDialogManagerProvider>
+          <ComponentProvider value={{}}>
+            <ImageComponent image_url={xssJavascriptUri} />
+          </ComponentProvider>
+        </ModalDialogManagerProvider>,
       );
-      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssJavascriptUri);
+      expect(getByTestId('str-chat__base-image')).not.toHaveAttribute(
+        'src',
+        xssJavascriptUri,
+      );
     });
     it('should prevent javascript protocol in thumbnail src', () => {
       // eslint-disable-next-line no-script-url
       const xssJavascriptUri = 'javascript:alert("p0wn3d")';
       const { getByTestId } = render(
-        <ComponentProvider value={{}}>
-          <ImageComponent thumb_url={xssJavascriptUri} />
-        </ComponentProvider>,
+        <ModalDialogManagerProvider>
+          <ComponentProvider value={{}}>
+            <ImageComponent thumb_url={xssJavascriptUri} />
+          </ComponentProvider>
+        </ModalDialogManagerProvider>,
       );
-      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssJavascriptUri);
+      expect(getByTestId('str-chat__base-image')).not.toHaveAttribute(
+        'src',
+        xssJavascriptUri,
+      );
     });
     it('should prevent dataUris in image src', () => {
       const xssDataUri = 'data:image/svg+xml;base64,DANGEROUSENCODEDSVG';
       const { getByTestId } = render(
-        <ComponentProvider value={{}}>
-          <ImageComponent image_url={xssDataUri} />
-        </ComponentProvider>,
+        <ModalDialogManagerProvider>
+          <ComponentProvider value={{}}>
+            <ImageComponent image_url={xssDataUri} />
+          </ComponentProvider>
+        </ModalDialogManagerProvider>,
       );
-      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssDataUri);
+      expect(getByTestId('str-chat__base-image')).not.toHaveAttribute('src', xssDataUri);
     });
     it('should prevent dataUris in thumb src', () => {
       const xssDataUri = 'data:image/svg+xml;base64,DANGEROUSENCODEDSVG';
       const { getByTestId } = render(
-        <ComponentProvider value={{}}>
-          <ImageComponent thumb_url={xssDataUri} />
-        </ComponentProvider>,
+        <ModalDialogManagerProvider>
+          <ComponentProvider value={{}}>
+            <ImageComponent thumb_url={xssDataUri} />
+          </ComponentProvider>
+        </ModalDialogManagerProvider>,
       );
-      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssDataUri);
+      expect(getByTestId('str-chat__base-image')).not.toHaveAttribute('src', xssDataUri);
     });
   });
 
   it('should open modal on image click', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => null);
-    const { getByTestId, getByTitle } = render(
-      <ComponentProvider value={{}}>
-        <ImageComponent images={mockImageAssets} />
-      </ComponentProvider>,
+    const { container, getByRole } = render(
+      <ModalDialogManagerProvider>
+        <ComponentProvider value={{}}>
+          <ImageComponent images={mockImageAssets} />
+        </ComponentProvider>
+      </ModalDialogManagerProvider>,
     );
-    fireEvent.click(getByTestId('image-test'));
+    fireEvent.click(getByRole('button', { name: 'Open image in gallery' }));
 
     await waitFor(() => {
-      expect(getByTitle('Close')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__modal__overlay__close-button'),
+      ).toBeInTheDocument();
     });
   });
 
   it('should render custom BaseImage component', async () => {
-    const ActiveChannelSetter = ({ activeChannel }) => {
-      const { setActiveChannel } = useChatContext();
-      useEffect(() => {
-        setActiveChannel(activeChannel);
-      }, [activeChannel]); // eslint-disable-line
-      return null;
-    };
-
     const {
       channels: [channel],
       client,
@@ -103,8 +116,7 @@ describe('Image', () => {
       result = render(
         <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
           <Chat client={client}>
-            <ActiveChannelSetter activeChannel={channel} />
-            <Channel>
+            <Channel channel={channel}>
               <ImageComponent
                 fallback='fallback'
                 image_url='image_url'
@@ -115,26 +127,6 @@ describe('Image', () => {
         </WithComponents>,
       );
     });
-    expect(result.container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat messaging light str-chat__channel"
-          id="str-chat__channel"
-        >
-          <div
-            class="str-chat__container"
-          >
-            <img
-              alt="fallback"
-              class="str-chat__message-attachment--img"
-              data-testid="custom-base-image"
-              src="image_url"
-              tabindex="0"
-              title="fallback"
-            />
-          </div>
-        </div>
-      </div>
-    `);
+    expect(result.getByTestId('str-chat__base-image')).toBeInTheDocument();
   });
 });

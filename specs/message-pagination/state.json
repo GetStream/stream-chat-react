@@ -1,0 +1,33 @@
+{
+  "tasks": {
+    "task-1-audit-current-migration-state-across-both-repos": "done",
+    "task-2-make-thread-messagepaginator-thread-replies-aware-js-sdk": "done",
+    "task-3-remove-setactivechannel-routing-from-chat-context-chat-wrapper": "done",
+    "task-4-remove-hardcoded-channel-messagepaginator-usage-from-react-lists": "done",
+    "task-5-remove-remaining-thread-flow-dependence-on-channel-context-actions-state": "done",
+    "task-6-update-and-rebase-tests-to-instance-driven-contract": "done",
+    "task-7-final-cleanup-and-deprecation-notes": "done",
+    "task-8-introduce-shared-slot-entity-resolution-hooks": "done",
+    "task-9-move-channellist-mobile-hide-flow-to-chatview-navigation": "done",
+    "task-10-move-mention-handlers-from-channel-level-api-to-message-props": "done",
+    "task-11-add-js-instance-level-delete-wrappers-and-migrate-react-delete-flow": "done",
+    "task-12-port-markread-out-of-channelactioncontext-channel-thread-lists": "done",
+    "task-13-migrate-suppressautoscroll-off-legacy-channel-reducer-semantics": "done",
+    "task-14-replace-usechannel-dependency-on-channelstatecontext": "done",
+    "task-15-migrate-message-lists-off-channelstatecontext": "done",
+    "task-16-remove-channelstateprovider-wiring-from-channel-runtime": "done",
+    "task-17-migrate-stories-and-tests-off-channelstateprovider": "done",
+    "task-18-delete-channelstatecontext-and-legacy-channel-reducer": "done",
+    "task-19-port-remaining-commented-channel-legacy-semantics-to-js-sdk": "done",
+    "task-20-restore-instance-scoped-initial-channel-bootstrap-loading-error-ui": "done"
+  },
+  "flags": {
+    "blocked": false,
+    "needs-review": false
+  },
+  "meta": {
+    "last_updated": "2026-03-05",
+    "worktree": "/Users/martincupela/Projects/stream/chat/stream-chat-react",
+    "branch": "feat/message-paginator"
+  }
+}

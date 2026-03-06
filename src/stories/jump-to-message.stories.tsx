@@ -3,7 +3,7 @@ import {
   Channel,
   ChannelList,
   MessageList,
-  useChannelActionContext,
+  useChannel,
   useChatContext,
   VirtualizedMessageList,
   Window,
@@ -18,8 +18,8 @@ const userToken = import.meta.env.E2E_TEST_USER_1_TOKEN;
 const channelId = import.meta.env.E2E_JUMP_TO_MESSAGE_CHANNEL;
 
 const JumpToMessage = () => {
-  const { jumpToMessage } = useChannelActionContext();
   const { client: chatClient } = useChatContext();
+  const channel = useChannel();
 
   return (
     <button
@@ -33,7 +33,7 @@ const JumpToMessage = () => {
           { limit: 1, offset: 0 },
         );
 
-        jumpToMessage(results.results[0].message.id);
+        channel.messagePaginator.jumpToMessage(results.results[0].message.id);
       }}
     >
       Jump to message &apos;29&apos;

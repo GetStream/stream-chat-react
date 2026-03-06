@@ -5,6 +5,7 @@
 
   .str-chat__message {
     .str-chat__quoted-message-preview {
+      cursor: pointer;
       background-color: var(--chat-bg-attachment-incoming);
     }
     .str-chat__quoted-message-preview--own {

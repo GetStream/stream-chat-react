@@ -10,6 +10,7 @@ import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
+import { ThreadProvider } from '../../Threads';
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
@@ -69,9 +70,11 @@ describe('VoiceRecording', () => {
         <MessageProvider value={{ message }}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true }}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
+        <ThreadProvider thread={{ id: 'test-thread' }}>
+          <MessageProvider value={{ message }}>
+            <VoiceRecording attachment={attachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     expect(createdAudios).toHaveLength(2);

@@ -49,7 +49,6 @@ import {
   type ThreadListItemUIProps,
   type TimestampProps,
   type TranslationIndicatorProps,
-  type TypingIndicatorProps,
   type UnreadMessagesNotificationProps,
   type UnreadMessagesSeparatorProps,
   type VoiceRecordingPreviewSlotProps,
@@ -240,7 +239,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display a date used in timestamps. It's used internally by the default `MessageTimestamp`, and to display a timestamp for edited messages. */
   Timestamp?: React.ComponentType<TimestampProps>;
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
-  TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  TypingIndicator?: React.ComponentType;
   /** Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to UnreadMessagesSeparator. Defaults to and accepts same props as: [UnreadMessagesNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesNotification.tsx) */
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */

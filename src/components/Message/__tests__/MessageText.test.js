@@ -2,11 +2,11 @@ import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
+import { StateStore } from 'stream-chat';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -41,7 +41,6 @@ const onMentionsClickMock = jest.fn();
 const defaultProps = {
   initialMessage: false,
   message: generateMessage(),
-  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {
@@ -59,45 +58,48 @@ async function renderMessageText({
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig: () => channelConfigOverrides,
-    state: { membership: {} },
+    state: {
+      membership: {},
+      ownCapabilitiesStore: new StateStore({ ownCapabilities: [] }),
+    },
   });
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
+  channel.state.ownCapabilitiesStore.next({ ownCapabilities });
   const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  client.configsStore.partialNext({
+    configs: { [channel.cid]: channelConfig },
+  });
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
-        <ChannelActionProvider
+      <ChannelInstanceProvider value={{ channel }}>
+        <TranslationProvider
           value={{
-            onMentionsClick: onMentionsClickMock,
-            onMentionsHover: onMentionsHoverMock,
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
           }}
         >
-          <TranslationProvider
+          <ComponentProvider
             value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
+              Attachment,
+
+              Message: () => <MessageSimple channelConfig={channelConfig} />,
+              reactionOptions: defaultReactionOptions,
             }}
           >
-            <ComponentProvider
-              value={{
-                Attachment,
-
-                Message: () => <MessageSimple channelConfig={channelConfig} />,
-                reactionOptions: defaultReactionOptions,
-              }}
-            >
-              <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...defaultProps} {...customProps}>
-                  <MessageText {...defaultProps} {...customProps} />
-                </Message>
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+            <DialogManagerProvider id='message-dialog-manager-provider'>
+              <Message {...defaultProps} {...customProps}>
+                <MessageText {...defaultProps} {...customProps} />
+              </Message>
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

@@ -6,6 +6,7 @@ import { useMessageComposer } from '../../MessageInput';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
 import type { MessageInputContextValue } from '../../../context';
+import { useSendMessageFn } from '../../MessageInput/hooks/useSendMessageFn';
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -17,7 +18,7 @@ export type RecordingController = {
 
 type UseMediaRecorderParams = Pick<
   MessageInputContextValue,
-  'asyncMessagesMultiSendEnabled' | 'handleSubmit'
+  'asyncMessagesMultiSendEnabled'
 > & {
   enabled: boolean;
   generateRecordingTitle?: (mimeType: string) => string;
@@ -28,15 +29,15 @@ export const useMediaRecorder = ({
   asyncMessagesMultiSendEnabled,
   enabled,
   generateRecordingTitle,
-  handleSubmit,
   recordingConfig,
 }: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
   const messageComposer = useMessageComposer();
+  const sendMessageFn = useSendMessageFn();
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
-  const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
+  // const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
 
   const recorder = useMemo(
     () =>
@@ -56,17 +57,18 @@ export const useMediaRecorder = ({
     if (!recording) return;
     await messageComposer.attachmentManager.uploadAttachment(recording);
     if (!asyncMessagesMultiSendEnabled) {
-      // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
-      scheduleForSubmit(true);
+      await sendMessageFn();
+      // // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
+      // scheduleForSubmit(true);
     }
     recorder.cleanUp();
-  }, [asyncMessagesMultiSendEnabled, messageComposer, recorder]);
+  }, [asyncMessagesMultiSendEnabled, messageComposer, recorder, sendMessageFn]);
 
-  useEffect(() => {
-    if (!isScheduledForSubmit) return;
-    handleSubmit();
-    scheduleForSubmit(false);
-  }, [handleSubmit, isScheduledForSubmit]);
+  // useEffect(() => {
+  //   if (!isScheduledForSubmit) return;
+  //   handleSubmit();
+  //   scheduleForSubmit(false);
+  // }, [handleSubmit, isScheduledForSubmit]);
 
   useEffect(() => {
     if (!recorder) return;

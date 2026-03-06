@@ -1,11 +1,13 @@
 import type { VideoAttachment as VideoAttachmentType } from 'stream-chat';
-import { useChannelStateContext } from '../../context';
 import React, { type ComponentType, useLayoutEffect, useRef, useState } from 'react';
-import type { VideoAttachmentConfiguration } from '../../types/types';
 import { getCssDimensionsVariables } from './utils';
 import type { VideoPlayerProps } from '../VideoPlayer';
 import { VideoPlayer as DefaultVideoPlayer } from '../VideoPlayer';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
+import {
+  useAttachmentContext,
+  type VideoAttachmentConfiguration,
+} from './AttachmentContext';
 
 export type VideoAttachmentProps = {
   attachment: VideoAttachmentType;
@@ -17,7 +19,7 @@ export const VideoAttachment = ({
   VideoPlayer = DefaultVideoPlayer,
 }: VideoAttachmentProps) => {
   const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } =
-    useChannelStateContext();
+    useAttachmentContext();
   const videoElement = useRef<HTMLDivElement>(null);
   const [attachmentConfiguration, setAttachmentConfiguration] =
     useState<VideoAttachmentConfiguration>();

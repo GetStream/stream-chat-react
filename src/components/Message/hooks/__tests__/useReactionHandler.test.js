@@ -3,8 +3,7 @@ import { renderHook } from '@testing-library/react';
 
 import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
@@ -18,39 +17,42 @@ const getConfig = jest.fn();
 const sendAction = jest.fn();
 const sendReaction = jest.fn();
 const deleteReaction = jest.fn();
-const updateMessage = jest.fn();
+const ingestItem = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
 async function renderUseReactionHandlerHook(params = {}) {
   const {
     channelContextProps = {},
-    channelStateContextOverrides = {},
     message = generateMessage(),
+    sendReactionCapability = true,
   } = params;
 
   const client = await getTestClientWithUser(alice);
+  const ownCapabilities = sendReactionCapability ? ['send-reaction'] : [];
   const channel = generateChannel({
+    data: { own_capabilities: ownCapabilities },
     deleteReaction,
     getConfig,
     sendAction,
     sendReaction,
+    state: {
+      membership: {},
+      ownCapabilitiesStore: {
+        getLatestValue: () => ({ ownCapabilities }),
+        next: jest.fn(),
+        partialNext: jest.fn(),
+        subscribe: () => () => null,
+        subscribeWithSelector: () => () => null,
+      },
+    },
     ...channelContextProps,
   });
+  channel.messagePaginator = { ingestItem };
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateContextOverrides,
-        }}
-      >
-        <ChannelActionProvider value={{ updateMessage }}>
-          {children}
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
 
@@ -105,8 +107,8 @@ describe('useReactionHandler custom hook', () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({
-      channelStateContextOverrides: { channelCapabilities: { 'send-reaction': false } },
       message,
+      sendReactionCapability: false,
     });
     await handleReaction(reaction.type);
     expect(sendReaction).not.toHaveBeenCalled();
@@ -118,6 +120,6 @@ describe('useReactionHandler custom hook', () => {
     const handleReaction = await renderUseReactionHandlerHook({ message });
     sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
-    expect(updateMessage).toHaveBeenCalledWith(message);
+    expect(ingestItem).toHaveBeenCalledWith(message);
   });
 });

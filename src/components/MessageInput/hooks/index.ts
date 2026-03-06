@@ -6,3 +6,5 @@ export * from './useMessageInputControls';
 export * from './useMessageComposer';
 export * from './useMessageComposerHasSendableData';
 export * from './useMessageCompositionIsEmpty';
+export * from './useSendMessageFn';
+export * from './useUpdateMessageFn';

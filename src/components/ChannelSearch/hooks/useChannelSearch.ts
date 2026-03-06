@@ -7,6 +7,7 @@ import type { ChannelOrUserResponse } from '../utils';
 import { isChannel } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
+import { useChatViewNavigation } from '../../ChatView/ChatViewNavigationContext';
 
 import type {
   Channel,
@@ -95,7 +96,8 @@ export const useChannelSearch = ({
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams): SearchController => {
-  const { client, setActiveChannel } = useChatContext('useChannelSearch');
+  const { client } = useChatContext('useChannelSearch');
+  const { openChannel: openChannelFromNavigation } = useChatViewNavigation();
 
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
@@ -176,7 +178,7 @@ export const useChannelSearch = ({
       }
       let selectedChannel: Channel;
       if (isChannel(result)) {
-        setActiveChannel(result);
+        openChannelFromNavigation(result);
         selectedChannel = result;
       } else {
         const newChannel = client.channel(channelType, {
@@ -184,7 +186,7 @@ export const useChannelSearch = ({
         });
         await newChannel.watch();
 
-        setActiveChannel(newChannel);
+        openChannelFromNavigation(newChannel);
         selectedChannel = newChannel;
       }
       setChannels?.((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
@@ -198,7 +200,7 @@ export const useChannelSearch = ({
       client,
       exitSearch,
       onSelectResult,
-      setActiveChannel,
+      openChannelFromNavigation,
       setChannels,
     ],
   );

@@ -7,7 +7,7 @@ import {
   ChannelHeader,
   ChannelList,
   MessageList,
-  useChannelStateContext,
+  useChannel,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
@@ -19,7 +19,7 @@ if (!channelId || typeof channelId !== 'string') {
 }
 
 const Controls = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
 
   return (
     <div>

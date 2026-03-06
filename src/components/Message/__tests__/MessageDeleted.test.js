@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { MessageDeleted } from '../MessageDeletedBubble';
 
 import { ChatProvider } from '../../../context/ChatContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   generateChannel,
@@ -25,11 +25,11 @@ async function renderComponent(message = generateMessage()) {
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelInstanceProvider value={{ channel }}>
         <TranslationProvider value={{ t }}>
           <MessageDeleted message={message} />
         </TranslationProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

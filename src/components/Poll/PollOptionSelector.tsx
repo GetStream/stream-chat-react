@@ -5,13 +5,14 @@ import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-c
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import {
-  useChannelStateContext,
+  useChannel,
   useComponentContext,
   useMessageContext,
   usePollContext,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
+import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 
 type AmountBarProps = {
   amount: number;
@@ -67,8 +68,9 @@ export const PollOptionSelector = ({
   option,
   voteCountVerbose,
 }: PollOptionSelectorProps) => {
+  const channel = useChannel();
   const { t } = useTranslationContext();
-  const { channelCapabilities = {} } = useChannelStateContext('PollOptionsShortlist');
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { message } = useMessageContext();
   const { AvatarStack = DefaultAvatarStack } = useComponentContext();
   const { poll } = usePollContext();
@@ -81,7 +83,7 @@ export const PollOptionSelector = ({
     voting_visibility,
   } = useStateStore(poll.state, pollStateSelector);
 
-  const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const canCastVote = channelCapabilities.has('cast-poll-vote') && !is_closed;
   const winningOptionCount = maxVotedOptionIds[0]
     ? vote_counts_by_option[maxVotedOptionIds[0]]
     : 0;

@@ -1,8 +1,8 @@
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChannel } from '../../../context';
+import { useMessagePaginator } from '../../../hooks';
 
 import type React from 'react';
-import type { LocalMessage } from 'stream-chat';
+import { formatMessage, type LocalMessage } from 'stream-chat';
 import { useStableCallback } from '../../../utils/useStableCallback';
 
 export type FormData = Record<string, string>;
@@ -17,13 +17,13 @@ export const handleActionWarning = `Action handler was called, but it is missing
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export function useActionHandler(message?: LocalMessage): ActionHandlerReturnType {
-  const { removeMessage, updateMessage } = useChannelActionContext('useActionHandler');
-  const { channel } = useChannelStateContext('useActionHandler');
+  const channel = useChannel();
+  const messagePaginator = useMessagePaginator();
 
   return useStableCallback(async (dataOrName, value, event) => {
     if (event) event.preventDefault();
 
-    if (!message || !updateMessage || !removeMessage || !channel) {
+    if (!message || !channel) {
       console.warn(handleActionWarning);
       return;
     }
@@ -42,9 +42,9 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
       const data = await channel.sendAction(messageId, formData);
 
       if (data?.message) {
-        updateMessage(data.message);
+        messagePaginator.ingestItem(formatMessage(data.message));
       } else {
-        removeMessage(message);
+        messagePaginator.removeItem({ item: message });
       }
     }
   });

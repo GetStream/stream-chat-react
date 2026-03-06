@@ -1,5 +1,3 @@
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-
 import type React from 'react';
 import type { LocalMessage, UserResponse } from 'stream-chat';
 
@@ -34,16 +32,8 @@ export const useMentionsHandler = (
     onMentionsHover?: CustomMentionHandler;
   },
 ) => {
-  const {
-    onMentionsClick: contextOnMentionsClick,
-    onMentionsHover: contextOnMentionsHover,
-  } = useChannelActionContext('useMentionsHandler');
-
-  const onMentionsClick =
-    customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);
-
-  const onMentionsHover =
-    customMentionHandler?.onMentionsHover || contextOnMentionsHover || (() => null);
+  const onMentionsClick = customMentionHandler?.onMentionsClick || (() => null);
+  const onMentionsHover = customMentionHandler?.onMentionsHover || (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),

@@ -20,14 +20,11 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-import {
-  useChannelActionContext,
-  useMessageContext,
-  WithComponents,
-} from '../../../context';
+import { useChannel, useMessageContext, WithComponents } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
+import { ThreadProvider } from '../../Threads';
 
 expect.extend(toHaveNoViolations);
 
@@ -49,12 +46,32 @@ const mockedChannelData = generateChannel({
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
 
-const renderComponent = ({ channelProps, chatClient, components = {}, msgListProps }) =>
+const makeThread = (parentMessage) => ({
+  state: {
+    getLatestValue: () => ({ parentMessage }),
+    subscribeWithSelector: () => () => null,
+  },
+});
+
+const renderComponent = ({
+  channelProps,
+  chatClient,
+  components = {},
+  inThread = false,
+  msgListProps,
+  threadParentMessage,
+}) =>
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
         <WithComponents overrides={components}>
-          <MessageList {...msgListProps} />
+          {inThread ? (
+            <ThreadProvider thread={makeThread(threadParentMessage)}>
+              <MessageList {...msgListProps} />
+            </ThreadProvider>
+          ) : (
+            <MessageList {...msgListProps} />
+          )}
         </WithComponents>
       </Channel>
     </Chat>,
@@ -108,11 +125,12 @@ describe('MessageList', () => {
       renderComponent({
         channelProps: { channel },
         chatClient,
+        inThread: true,
         msgListProps: {
           head: <MsgListHead key={'head'} message={message1} />,
           messages: [reply1, reply2],
-          threadList: true,
         },
+        threadParentMessage: message1,
       });
     });
 
@@ -128,7 +146,9 @@ describe('MessageList', () => {
       renderComponent({
         channelProps: { channel },
         chatClient,
-        msgListProps: { messages: [reply1, reply2], thread: message1, threadList: true },
+        inThread: true,
+        msgListProps: { messages: [reply1, reply2], thread: message1 },
+        threadParentMessage: message1,
       });
     });
 
@@ -158,7 +178,8 @@ describe('MessageList', () => {
     renderComponent({
       channelProps: { channel },
       chatClient,
-      msgListProps: { messages: [], threadList: true },
+      inThread: true,
+      msgListProps: { messages: [] },
     });
 
     await waitFor(() => {
@@ -367,9 +388,14 @@ describe('MessageList', () => {
       jest.useFakeTimers();
       const markReadBtnTestId = 'test-mark-read';
       const MarkReadButton = () => {
-        const { markRead } = useChannelActionContext();
+        const channel = useChannel();
         return (
-          <button data-testid={markReadBtnTestId} onClick={markRead}>
+          <button
+            data-testid={markReadBtnTestId}
+            onClick={() => {
+              void channel.markRead();
+            }}
+          >
             MarkRead
           </button>
         );
@@ -556,11 +582,12 @@ describe('MessageList', () => {
         renderComponent({
           channelProps: { channel },
           chatClient: client,
+          inThread: true,
           msgListProps: {
             disableDateSeparator: true,
             messages: replies,
-            threadList: true,
           },
+          threadParentMessage: parentMsg,
         });
       });
 
@@ -649,7 +676,9 @@ describe('MessageList', () => {
         components = {},
         dispatchMarkUnreadPayload = {},
         entries,
+        inThread = false,
         msgListProps = {},
+        threadParentMessage,
       }) => {
         const {
           channels: [channel],
@@ -661,7 +690,9 @@ describe('MessageList', () => {
             channelProps: { channel, ...channelProps },
             chatClient: client,
             components,
+            inThread,
             msgListProps: { messages, ...msgListProps },
+            threadParentMessage,
           });
         });
 
@@ -785,7 +816,8 @@ describe('MessageList', () => {
       it('should not display unread messages notification in thread', async () => {
         await setupTest({
           entries: observerEntriesScrolledBelowSeparator,
-          msgListProps: { threadList: true },
+          inThread: true,
+          msgListProps: {},
         });
         expect(
           screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
@@ -840,7 +872,9 @@ describe('MessageList', () => {
               channel,
             },
             chatClient: client,
-            msgListProps: { messages, threadList: true },
+            inThread: true,
+            msgListProps: { messages },
+            threadParentMessage: messages[0],
           });
         });
 

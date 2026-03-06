@@ -4,12 +4,7 @@ import '@testing-library/jest-dom';
 
 import { Card } from '../LinkPreview/Card';
 
-import {
-  ChannelActionProvider,
-  MessageProvider,
-  TranslationContext,
-} from '../../../context';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { MessageProvider, TranslationContext } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
@@ -25,6 +20,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
+import { ThreadProvider } from '../../Threads';
 
 let chatClient;
 let channel;
@@ -33,8 +29,6 @@ const user = generateUser({ id: 'userId', name: 'username' });
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
-const addNotificationSpy = jest.fn();
-const channelActionContext = { addNotification: addNotificationSpy };
 
 const mockedChannel = generateChannel({
   members: [generateMember({ user })],
@@ -46,15 +40,11 @@ const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
   theRenderer(
     <ChatProvider value={chatContext}>
       <TranslationContext.Provider value={mockTranslationContext}>
-        <ChannelActionProvider value={channelActionContext}>
-          <ChannelStateProvider value={{}}>
-            <ComponentProvider value={{}}>
-              <WithAudioPlayback>
-                <Card {...cardProps} />
-              </WithAudioPlayback>
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChannelActionProvider>
+        <ComponentProvider value={{}}>
+          <WithAudioPlayback>
+            <Card {...cardProps} />
+          </WithAudioPlayback>
+        </ComponentProvider>
       </TranslationContext.Provider>
     </ChatProvider>,
   );
@@ -324,16 +314,16 @@ describe('Card', () => {
 
     render(
       <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
+        <WithAudioPlayback allowConcurrentPlayback>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+          <ThreadProvider thread={{ id: 'test-thread' }}>
             <MessageProvider value={{ message }}>
               <Card {...audioAttachment} />
             </MessageProvider>
-            <MessageProvider value={{ message, threadList: true }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
+          </ThreadProvider>
+        </WithAudioPlayback>
       </ChatProvider>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');
@@ -371,16 +361,14 @@ describe('Card', () => {
     const message = generateMessage();
     render(
       <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
+        <WithAudioPlayback allowConcurrentPlayback>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+          <MessageProvider value={{ message }}>
+            <Card {...audioAttachment} />
+          </MessageProvider>
+        </WithAudioPlayback>
       </ChatProvider>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');

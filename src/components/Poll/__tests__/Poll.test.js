@@ -4,9 +4,10 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Poll } from '../Poll';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
+  DialogManagerProvider,
   MessageProvider,
   TranslationProvider,
 } from '../../../context';
@@ -22,13 +23,17 @@ const POLL_HEADER__CLASS = '.str-chat__poll-header';
 
 const t = (v) => v;
 
-const defaultChannelStateContext = {
-  channelCapabilities: { 'query-poll-votes': true },
-};
-
 const defaultMessageContext = {
   message: generateMessage(),
 };
+
+const AvatarStack = ({ displayInfo = [] }) => (
+  <div>
+    {displayInfo.map((item) => (
+      <div data-testid='avatar' key={item.id} />
+    ))}
+  </div>
+);
 
 const renderComponent = async ({
   channelStateContext,
@@ -38,19 +43,29 @@ const renderComponent = async ({
   props,
 }) => {
   const client = customClient ?? (await getTestClientWithUser());
+  const { channelCapabilities } = channelStateContext ?? {};
+  const own_capabilities = channelCapabilities
+    ? Object.entries(channelCapabilities)
+        .filter(([, isAllowed]) => isAllowed)
+        .map(([capability]) => capability)
+    : ['query-poll-votes'];
+  const channel = client.channel('messaging', `poll-${client.userID ?? 'user'}`, {
+    own_capabilities,
+  });
+
   return render(
     <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
-        <ComponentProvider value={componentContext ?? {}}>
-          <ChannelStateProvider
-            value={{ ...defaultChannelStateContext, ...channelStateContext }}
-          >
-            <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-              <Poll {...props} />
-            </MessageProvider>
-          </ChannelStateProvider>
-        </ComponentProvider>
-      </TranslationProvider>
+      <DialogManagerProvider id='modal-dialog-manager'>
+        <TranslationProvider value={{ t }}>
+          <ComponentProvider value={{ AvatarStack, ...(componentContext ?? {}) }}>
+            <ChannelInstanceProvider value={{ channel }}>
+              <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+                <Poll {...props} />
+              </MessageProvider>
+            </ChannelInstanceProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </DialogManagerProvider>
     </ChatProvider>,
   );
 };

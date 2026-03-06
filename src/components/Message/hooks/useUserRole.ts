@@ -1,5 +1,5 @@
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { useChannel, useChatContext } from '../../../context';
+import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 import type { LocalMessage } from 'stream-chat';
 
 export const useUserRole = (
@@ -7,8 +7,9 @@ export const useUserRole = (
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const { channel, channelCapabilities = {} } = useChannelStateContext('useUserRole');
+  const channel = useChannel();
   const { client } = useChatContext('useUserRole');
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
 
   /**
    * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
@@ -38,21 +39,21 @@ export const useUserRole = (
 
   const canEdit =
     !message.poll &&
-    ((!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
-      (isMyMessage && channelCapabilities['update-own-message']));
+    ((!onlySenderCanEdit && channelCapabilities.has('update-any-message')) ||
+      (isMyMessage && channelCapabilities.has('update-own-message')));
 
   const canDelete =
-    channelCapabilities['delete-any-message'] ||
-    (isMyMessage && channelCapabilities['delete-own-message']);
-
-  const canFlag = !isMyMessage && channelCapabilities['flag-message'];
-  const canMute = !isMyMessage && channelCapabilities['mute-channel'];
+    channelCapabilities.has('delete-any-message') ||
+    (isMyMessage && channelCapabilities.has('delete-own-message'));
+  const canPin = channelCapabilities.has('pin-message');
+  const canFlag = !isMyMessage && channelCapabilities.has('flag-message');
+  const canMute = !isMyMessage && channelCapabilities.has('mute-channel');
   const canBlockUser = !isMyMessage;
-  const canMarkUnread = channelCapabilities['read-events'];
-  const canQuote = !disableQuotedMessages && channelCapabilities['quote-message'];
-  const canReact = channelCapabilities['send-reaction'];
-  const canReply = channelCapabilities['send-reply'];
-  const canSendMessage = channelCapabilities['send-message'];
+  const canMarkUnread = channelCapabilities.has('read-events');
+  const canQuote = !disableQuotedMessages && channelCapabilities.has('quote-message');
+  const canReact = channelCapabilities.has('send-reaction');
+  const canReply = channelCapabilities.has('send-reply');
+  const canSendMessage = channelCapabilities.has('send-message');
 
   return {
     canBlockUser,
@@ -61,6 +62,7 @@ export const useUserRole = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,

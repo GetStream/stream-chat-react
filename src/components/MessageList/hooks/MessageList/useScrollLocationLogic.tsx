@@ -6,9 +6,9 @@ import type { LocalMessage } from 'stream-chat';
 
 export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
-  listElement: HTMLDivElement | null;
+  listElement: HTMLElement | null;
   loadMoreScrollThreshold: number;
-  suppressAutoscroll: boolean;
+  suppressAutoscroll?: boolean;
   messages?: LocalMessage[];
   scrolledUpThreshold?: number;
 };
@@ -20,7 +20,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     loadMoreScrollThreshold,
     messages = [],
     scrolledUpThreshold = 200,
-    suppressAutoscroll,
+    suppressAutoscroll = false,
   } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
@@ -30,6 +30,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
+  const initialDataAutoscrollDoneRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
@@ -50,6 +51,23 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listElement, hasMoreNewer]);
 
+  useLayoutEffect(() => {
+    if (messages.length === 0) {
+      initialDataAutoscrollDoneRef.current = false;
+      return;
+    }
+
+    if (
+      listElement?.scrollTo &&
+      !initialDataAutoscrollDoneRef.current &&
+      !suppressAutoscroll
+    ) {
+      listElement.scrollTo({ top: listElement.scrollHeight });
+      setHasNewMessages(false);
+      initialDataAutoscrollDoneRef.current = true;
+    }
+  }, [listElement, messages.length, suppressAutoscroll]);
+
   const updateScrollTop = useMessageListScrollManager({
     loadMoreScrollThreshold,
     messages,
@@ -64,11 +82,12 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     scrolledUpThreshold,
     scrollToBottom,
     showNewMessages: () => setHasNewMessages(true),
+    suppressAutoscroll,
   });
 
   const onScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const element = event.target as HTMLDivElement;
+    (event: React.UIEvent<HTMLElement>) => {
+      const element = event.target as HTMLElement;
       const scrollTop = element.scrollTop;
 
       updateScrollTop(scrollTop);

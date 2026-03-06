@@ -4,7 +4,12 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type { LocalMessage, MessageLabel } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  MessageLabel,
+  UnreadSnapshotState,
+} from 'stream-chat';
 
 type IntroMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.intro;
@@ -341,28 +346,36 @@ export function isLocalMessage(message: unknown): message is LocalMessage {
   return !isDateSeparatorMessage(message) && !isIntroMessage(message);
 }
 
+export function isDeletedMessage(
+  message: unknown,
+): message is LocalMessage & { type: 'deleted' } {
+  return !!message && (message as LocalMessage).type === 'deleted';
+}
+
+// todo: simplify the logic
 export const getIsFirstUnreadMessage = ({
+  channel,
   firstUnreadMessageId,
   isFirstMessage,
-  lastReadDate,
+  lastReadAt,
   lastReadMessageId,
   message,
   previousMessage,
-  unreadMessageCount = 0,
-}: {
+  unreadCount = 0,
+}: UnreadSnapshotState & {
+  channel?: Channel;
   isFirstMessage: boolean;
   message: LocalMessage;
-  firstUnreadMessageId?: string;
-  lastReadDate?: Date;
-  lastReadMessageId?: string;
   previousMessage?: RenderedMessage;
-  unreadMessageCount?: number;
 }) => {
   // prevent showing unread indicator in threads
-  if (message.parent_id) return false;
+  if (message.parent_id || !channel) return false;
+  // unread separator is snapshot-driven; if snapshot says there are no unread messages,
+  // the separator should not be rendered.
+  if (!unreadCount) return false;
 
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
-  const lastReadTimestamp = lastReadDate?.getTime();
+  const lastReadTimestamp = lastReadAt?.getTime();
 
   const messageIsUnread =
     !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
@@ -372,8 +385,6 @@ export const getIsFirstUnreadMessage = ({
 
   return (
     firstUnreadMessageId === message.id ||
-    (!!unreadMessageCount &&
-      messageIsUnread &&
-      (isFirstMessage || previousMessageIsLastRead))
+    (messageIsUnread && (isFirstMessage || previousMessageIsLastRead))
   );
 };

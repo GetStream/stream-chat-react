@@ -39,12 +39,9 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import {
-  useChannelStateContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
+import { useThreadContext } from '../Threads';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
@@ -58,7 +55,6 @@ const MessageSimpleWithContext = ({
   firstOfGroup,
   groupedByUser,
   handleAction,
-  handleOpenThread,
   highlighted,
   isMessageAIGenerated,
   isMyMessage,
@@ -67,9 +63,9 @@ const MessageSimpleWithContext = ({
   onUserHover,
   renderText,
   showAvatar = 'incoming',
-  threadList,
 }: MessageSimpleWithContextProps) => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
+  const threadInstance = useThreadContext();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
@@ -138,7 +134,7 @@ const MessageSimpleWithContext = ({
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   const showMetadata = !groupedByUser || endOfGroup;
-  const showReplyCountButton = !threadList && !!message.reply_count;
+  const showReplyCountButton = !threadInstance && !!message.reply_count;
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -217,7 +213,6 @@ const MessageSimpleWithContext = ({
           {!isDeleted && <MessageActions />}
           {showReplyCountButton && (
             <MessageRepliesCountButton
-              onClick={handleOpenThread}
               reply_count={message.reply_count}
               thread_participants={message.thread_participants}
             />

@@ -32,6 +32,12 @@ import {
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
+import {
+  ChatView,
+  createChatViewSlotBinding,
+  getChatViewEntityBinding,
+} from '../../ChatView';
+import { LayoutController } from '../../ChatView/layoutController/LayoutController';
 import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
@@ -87,6 +93,12 @@ const ChannelListComponent = (props) => {
 
   return <div role='list'>{props.children}</div>;
 };
+
+const SelectableChannelPreviewComponent = ({ channel, onSelect }) => (
+  <button data-testid={`select-channel-${channel.id}`} onClick={onSelect} type='button'>
+    {channel.data.name || channel.id}
+  </button>
+);
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
 const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
 const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
@@ -106,79 +118,84 @@ describe('ChannelList', () => {
 
   afterEach(cleanup);
 
-  describe('mobile navigation', () => {
-    let closeMobileNav;
-    let props;
-    beforeEach(() => {
-      closeMobileNav = jest.fn();
-      props = {
-        closeMobileNav,
-        filters: {},
-        List: ChannelListComponent,
-        Preview: ChannelPreviewComponent,
-      };
-      useMockedApis(chatClient, [queryChannelsApi([])]);
-    });
-    it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { container, getByRole, getByTestId } = await render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: true,
-            searchController: new SearchController(),
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
+  describe('channel list visibility on channel select', () => {
+    it('keeps channel list visibility unchanged when opening a channel replaces the channel-list slot', async () => {
+      useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
+        resolveTargetSlot: ({ state }) => state.availableSlots[0],
+      });
+      layoutController.setSlotBinding(
+        'slot1',
+        createChatViewSlotBinding({
+          key: 'channel-list',
+          kind: 'channelList',
+          source: { view: 'channels' },
+        }),
       );
-      // Wait for list of channels to load in DOM.
+
+      const { getByRole, getByTestId } = render(
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              filters={{}}
+              List={ChannelListComponent}
+              Preview={SelectableChannelPreviewComponent}
+              setActiveChannelOnMount={false}
+            />
+          </ChatView>
+        </Chat>,
+      );
+
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      await act(() => {
-        fireEvent.click(getByTestId('outside-channellist'));
-      });
+      fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
 
       await waitFor(() => {
-        expect(closeMobileNav).toHaveBeenCalledTimes(1);
+        expect(layoutController.state.getLatestValue().hiddenSlots.slot1).not.toBe(true);
       });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
     });
 
-    it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      const { container, getByRole, getByTestId } = await render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: false,
-            searchController: new SearchController(),
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
+    it('keeps channel list visible when layout has spare slot capacity', async () => {
+      useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1', 'slot2'] },
+      });
+      layoutController.setSlotBinding(
+        'slot1',
+        createChatViewSlotBinding({
+          key: 'channel-list',
+          kind: 'channelList',
+          source: { view: 'channels' },
+        }),
       );
 
-      // Wait for list of channels to load in DOM.
+      const { getByRole, getByTestId } = render(
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              filters={{}}
+              List={ChannelListComponent}
+              Preview={SelectableChannelPreviewComponent}
+              setActiveChannelOnMount={false}
+            />
+          </ChatView>
+        </Chat>,
+      );
+
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      await act(() => {
-        fireEvent.click(getByTestId('outside-channellist'));
-      });
+      fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
+
       await waitFor(() => {
-        expect(closeMobileNav).toHaveBeenCalledTimes(0);
+        expect(layoutController.state.getLatestValue().hiddenSlots.slot1).not.toBe(true);
       });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
     });
   });
 
@@ -546,92 +563,80 @@ describe('ChannelList', () => {
   });
 
   describe('Default and custom active channel', () => {
-    let setActiveChannel;
-    const watchersConfig = { limit: 20, offset: 0 };
-    const testSetActiveChannelCall = (channelInstance) =>
-      waitFor(() => {
-        expect(setActiveChannel).toHaveBeenCalledTimes(1);
-        expect(setActiveChannel).toHaveBeenCalledWith(channelInstance, watchersConfig);
-        return true;
-      });
-
     beforeEach(() => {
-      setActiveChannel = jest.fn();
       useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
     });
 
-    it('should call `setActiveChannel` prop function with first channel as param', async () => {
+    it('opens the first channel in layout controller on mount', async () => {
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
+      });
       render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
-        >
-          <ChannelList
-            filters={{}}
-            List={ChannelListComponent}
-            options={{
-              presence: true,
-              state: true,
-              watch: true,
-            }}
-            setActiveChannelOnMount
-            watchers={watchersConfig}
-          />
-        </ChatContext.Provider>,
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              filters={{}}
+              List={ChannelListComponent}
+              options={{
+                presence: true,
+                state: true,
+                watch: true,
+              }}
+              setActiveChannelOnMount
+            />
+          </ChatView>
+        </Chat>,
       );
 
-      const channelInstance = chatClient.channel(
-        testChannel1.channel.type,
-        testChannel1.channel.id,
-      );
-
-      expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+      await waitFor(() => {
+        expect(
+          getChatViewEntityBinding(
+            layoutController.state.getLatestValue().slotBindings.slot1,
+          )?.kind,
+        ).toBe('channel');
+        expect(
+          getChatViewEntityBinding(
+            layoutController.state.getLatestValue().slotBindings.slot1,
+          )?.source?.cid,
+        ).toBe(testChannel1.channel.cid);
+      });
     });
 
-    it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', async () => {
+    it('opens customActiveChannel in layout controller on mount', async () => {
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
+      });
       render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
-        >
-          <ChannelList
-            customActiveChannel={testChannel2.channel.id}
-            filters={{}}
-            List={ChannelListComponent}
-            options={{ presence: true, state: true, watch: true }}
-            setActiveChannel={setActiveChannel}
-            setActiveChannelOnMount
-            watchers={watchersConfig}
-          />
-        </ChatContext.Provider>,
+        <Chat client={chatClient}>
+          <ChatView layoutController={layoutController}>
+            <ChannelList
+              customActiveChannel={testChannel2.channel.id}
+              filters={{}}
+              List={ChannelListComponent}
+              options={{ presence: true, state: true, watch: true }}
+              setActiveChannelOnMount
+            />
+          </ChatView>
+        </Chat>,
       );
 
-      const channelInstance = chatClient.channel(
-        testChannel2.channel.type,
-        testChannel2.channel.id,
-      );
-
-      expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+      await waitFor(() => {
+        expect(
+          getChatViewEntityBinding(
+            layoutController.state.getLatestValue().slotBindings.slot1,
+          )?.kind,
+        ).toBe('channel');
+        expect(
+          getChatViewEntityBinding(
+            layoutController.state.getLatestValue().slotBindings.slot1,
+          )?.source?.cid,
+        ).toBe(testChannel2.channel.cid);
+      });
     });
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
       const { container, getAllByRole, getByRole, getByTestId } = render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
-        >
+        <Chat client={chatClient}>
           <ChannelList
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
@@ -644,11 +649,9 @@ describe('ChannelList', () => {
               watch: true,
             }}
             Preview={ChannelPreviewComponent}
-            setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
-            watchers={watchersConfig}
           />
-        </ChatContext.Provider>,
+        </Chat>,
       );
 
       // Wait for list of channels to load in DOM.
@@ -705,7 +708,6 @@ describe('ChannelList', () => {
                 value={{
                   channelsQueryState: channelsQueryStateMock,
                   searchController: new SearchController(),
-                  setActiveChannel,
                   ...chatContext,
                 }}
               >
@@ -1414,22 +1416,25 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was deleted', async () => {
-        const setActiveChannel = jest.fn();
+        const layoutController = new LayoutController({
+          initialState: { availableSlots: ['slot1'] },
+        });
+        layoutController.openInLayout(
+          createChatViewSlotBinding({
+            key: testChannel1.channel.cid,
+            kind: 'channel',
+            source: chatClient.channel(
+              testChannel1.channel.type,
+              testChannel1.channel.id,
+            ),
+          }),
+        );
         const { container, getByRole } = await render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              searchController: new SearchController(),
-              setActiveChannel,
-            }}
-          >
-            <ChannelList
-              {...channelListProps}
-              channel={{ cid: testChannel1.channel.cid }}
-              setActiveChannel={setActiveChannel}
-            />
-          </ChatContext.Provider>,
+          <Chat client={chatClient}>
+            <ChatView layoutController={layoutController}>
+              <ChannelList {...channelListProps} />
+            </ChatView>
+          </Chat>,
         );
 
         // Wait for list of channels to load in DOM.
@@ -1440,7 +1445,11 @@ describe('ChannelList', () => {
         act(() => dispatchChannelDeletedEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
-          expect(setActiveChannel).toHaveBeenCalledTimes(1);
+          expect(
+            getChatViewEntityBinding(
+              layoutController.state.getLatestValue().slotBindings.slot1,
+            ),
+          ).toBeUndefined();
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -1482,22 +1491,25 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was hidden', async () => {
-        const setActiveChannel = jest.fn();
+        const layoutController = new LayoutController({
+          initialState: { availableSlots: ['slot1'] },
+        });
+        layoutController.openInLayout(
+          createChatViewSlotBinding({
+            key: testChannel1.channel.cid,
+            kind: 'channel',
+            source: chatClient.channel(
+              testChannel1.channel.type,
+              testChannel1.channel.id,
+            ),
+          }),
+        );
         const { container, getByRole } = await render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              searchController: new SearchController(),
-              setActiveChannel,
-            }}
-          >
-            <ChannelList
-              {...channelListProps}
-              channel={{ cid: testChannel1.channel.cid }}
-              setActiveChannel={setActiveChannel}
-            />
-          </ChatContext.Provider>,
+          <Chat client={chatClient}>
+            <ChatView layoutController={layoutController}>
+              <ChannelList {...channelListProps} />
+            </ChatView>
+          </Chat>,
         );
 
         // Wait for list of channels to load in DOM.
@@ -1508,7 +1520,11 @@ describe('ChannelList', () => {
         act(() => dispatchChannelHiddenEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
-          expect(setActiveChannel).toHaveBeenCalledTimes(1);
+          expect(
+            getChatViewEntityBinding(
+              layoutController.state.getLatestValue().slotBindings.slot1,
+            ),
+          ).toBeUndefined();
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();

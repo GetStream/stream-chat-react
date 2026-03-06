@@ -24,6 +24,7 @@ import {
   isUserMuted,
   useMessageComposer,
   useMessageReminder,
+  useRetryHandler,
 } from '../../components';
 import {
   ReactionIcon as DefaultReactionIcon,
@@ -31,12 +32,13 @@ import {
 } from '../../components/Message/icons';
 import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
 import {
-  useChannelActionContext,
+  useChannel,
   useChatContext,
   useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
+import { useMessagePaginator } from '../../hooks';
 import {
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
@@ -47,16 +49,26 @@ import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
+import { useStateStore } from '../../store';
+import type { StreamChat } from 'stream-chat';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 const msgActionsBoxButtonClassNameDestructive =
   'str-chat__message-actions-list-item-button--destructive' as const;
+const mutedUsersSelector = (
+  nextValue: ReturnType<StreamChat['mutedUsersStore']['getLatestValue']>,
+) => ({
+  mutes: nextValue.mutedUsers,
+});
 
 const DefaultMessageActionComponents = {
   dropdown: {
     ThreadReply({ closeMenu }: ContextMenuItemProps) {
-      const { handleOpenThread } = useMessageContext();
+      const { openThread } = useChatViewNavigation();
+      const channel = useChannel();
+      const { message } = useMessageContext('MessageActions');
       const { t } = useTranslationContext();
 
       return (
@@ -65,8 +77,8 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
           Icon={IconBubbleText6ChatMessage}
-          onClick={(e) => {
-            handleOpenThread(e);
+          onClick={() => {
+            void openThread({ channel, message });
             closeMenu();
           }}
         >
@@ -143,7 +155,8 @@ const DefaultMessageActionComponents = {
       );
     },
     Resend({ closeMenu }: ContextMenuItemProps) {
-      const { handleRetry, message } = useMessageContext();
+      const { message } = useMessageContext();
+      const handleRetry = useRetryHandler();
       const { t } = useTranslationContext();
 
       return (
@@ -152,7 +165,7 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           Icon={IconArrowRotateClockwise}
           onClick={() => {
-            handleRetry(message);
+            void handleRetry({ localMessage: message });
             closeMenu();
           }}
         >
@@ -273,8 +286,10 @@ const DefaultMessageActionComponents = {
       );
     },
     Mute({ closeMenu }: ContextMenuItemProps) {
+      const { client } = useChatContext();
       const { handleMute, message } = useMessageContext();
-      const { mutes } = useChatContext();
+      const { mutes = [] } =
+        useStateStore(client?.mutedUsersStore, mutedUsersSelector) ?? {};
       const { t } = useTranslationContext();
 
       const isMuted = isUserMuted(message, mutes);
@@ -294,7 +309,7 @@ const DefaultMessageActionComponents = {
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
       const { Modal = GlobalModal } = useComponentContext();
-      const { removeMessage } = useChannelActionContext();
+      const messagePaginator = useMessagePaginator();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
@@ -320,8 +335,11 @@ const DefaultMessageActionComponents = {
                 setOpenModal(false);
               }}
               onDelete={() => {
-                if (message.type === 'error') removeMessage(message);
-                else handleDelete();
+                if (message.type === 'error') {
+                  messagePaginator.removeItem({ item: message });
+                } else {
+                  handleDelete();
+                }
                 setOpenModal(false);
                 closeMenu();
               }}
@@ -362,7 +380,9 @@ const DefaultMessageActionComponents = {
       return <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />;
     },
     Reply() {
-      const { handleOpenThread } = useMessageContext();
+      const { openThread } = useChatViewNavigation();
+      const channel = useChannel();
+      const { message } = useMessageContext('MessageActions');
       const { t } = useTranslationContext();
 
       return (
@@ -370,7 +390,9 @@ const DefaultMessageActionComponents = {
           aria-label={t('aria/Open Thread')}
           className='str-chat__message-reply-in-thread-button'
           data-testid='thread-action'
-          onClick={handleOpenThread}
+          onClick={() => {
+            void openThread({ channel, message });
+          }}
         >
           <ThreadIcon className='str-chat__message-action-icon' />
         </QuickMessageActionsButton>

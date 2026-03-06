@@ -1,8 +1,7 @@
-import { defaultPinPermissions, validateAndGetMessage } from '../utils';
+import { validateAndGetMessage } from '../utils';
 
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { useChatContext } from '../../../context';
+import { useMessagePaginator } from '../../../hooks';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { LocalMessage } from 'stream-chat';
@@ -42,18 +41,13 @@ export type PinMessageNotifications = {
 
 export const usePinHandler = (
   message: LocalMessage,
-  // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-  _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
   notifications: PinMessageNotifications = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext('usePinHandler');
-  const { channelCapabilities = {} } = useChannelStateContext('usePinHandler');
+  const messagePaginator = useMessagePaginator();
   const { client } = useChatContext('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
-
-  const canPin = !!channelCapabilities['pin-message'];
 
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();
@@ -69,7 +63,7 @@ export const usePinHandler = (
           pinned_by: client.user,
         };
 
-        updateMessage(optimisticMessage);
+        messagePaginator.ingestItem(optimisticMessage);
 
         await client.pinMessage(message);
       } catch (e) {
@@ -77,11 +71,11 @@ export const usePinHandler = (
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error pinning message'), 'error');
-        updateMessage(message);
+        messagePaginator.ingestItem(message);
       }
     } else {
       try {
-        const optimisticMessage = {
+        const optimisticMessage: LocalMessage = {
           ...message,
           pin_expires: null,
           pinned: false,
@@ -89,7 +83,7 @@ export const usePinHandler = (
           pinned_by: null,
         };
 
-        updateMessage(optimisticMessage);
+        messagePaginator.ingestItem(optimisticMessage);
 
         await client.unpinMessage(message);
       } catch (e) {
@@ -97,10 +91,10 @@ export const usePinHandler = (
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
-        updateMessage(message);
+        messagePaginator.ingestItem(message);
       }
     }
   };
 
-  return { canPin, handlePin };
+  return { handlePin };
 };

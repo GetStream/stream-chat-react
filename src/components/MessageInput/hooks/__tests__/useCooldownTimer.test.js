@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 
 import { useCooldownRemaining } from '../useCooldownRemaining';
 
-import { ChannelStateProvider, ChatProvider } from '../../../../context';
+import { ChannelInstanceProvider, ChatProvider } from '../../../../context';
 import { getTestClient } from '../../../../mock-builders';
 import { act } from '@testing-library/react';
 
@@ -14,7 +14,7 @@ async function renderUseCooldownTimerHook({ channel, chatContext }) {
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client, ...chatContext }}>
-      <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
   return renderHook(useCooldownRemaining, { wrapper });

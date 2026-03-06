@@ -5,8 +5,7 @@ import * as transcoder from '../../transcode';
 
 import { MessageInput, MessageInputFlat } from '../../../MessageInput';
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   MessageInputContextProvider,
@@ -46,9 +45,6 @@ const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
 const DEFAULT_RENDER_PARAMS = {
-  channelActionCtx: {
-    addNotification: jest.fn(),
-  },
   channelStateCtx: {
     channelCapabilities: [],
   },
@@ -66,16 +62,31 @@ jest
   .mockReturnValue({ width: 120 });
 
 const renderComponent = async ({
-  channelActionCtx,
   channelStateCtx,
   chatCtx,
   componentCtx,
   props,
 } = {}) => {
-  const {
-    channels: [channel],
-    client,
-  } = await initClientWithChannels();
+  const { channel: providedChannel, channelCapabilities } = channelStateCtx ?? {};
+  let channel;
+  let client;
+  if (providedChannel && chatCtx?.client) {
+    channel = providedChannel;
+    client = chatCtx.client;
+  } else {
+    const initResult = await initClientWithChannels();
+    channel = providedChannel ?? initResult.channels[0];
+    client = chatCtx?.client ?? initResult.client;
+  }
+  const ownCapabilities = Array.isArray(channelCapabilities)
+    ? channelCapabilities
+    : Object.entries(channelCapabilities ?? {})
+        .filter(([, isAllowed]) => isAllowed)
+        .map(([capability]) => capability);
+  if (ownCapabilities) {
+    channel.data.own_capabilities = ownCapabilities;
+    channel.state.ownCapabilitiesStore?.next?.({ ownCapabilities });
+  }
   let result;
   await act(async () => {
     result = await render(
@@ -89,19 +100,9 @@ const renderComponent = async ({
         <ComponentProvider
           value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
         >
-          <ChannelActionProvider
-            value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
-          >
-            <ChannelStateProvider
-              value={{
-                channel,
-                ...DEFAULT_RENDER_PARAMS.channelStateCtx,
-                ...channelStateCtx,
-              }}
-            >
-              <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
-            </ChannelStateProvider>
-          </ChannelActionProvider>
+          <ChannelInstanceProvider value={{ channel }}>
+            <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
+          </ChannelInstanceProvider>
         </ComponentProvider>
       </ChatProvider>,
     );
@@ -424,17 +425,15 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <ChannelActionProvider value={{}}>
-      <WithAudioPlayback>
-        <MessageInputContextProvider
-          value={{
-            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-          }}
-        >
-          <AudioRecorder />
-        </MessageInputContextProvider>
-      </WithAudioPlayback>
-    </ChannelActionProvider>,
+    <WithAudioPlayback>
+      <MessageInputContextProvider
+        value={{
+          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+        }}
+      >
+        <AudioRecorder />
+      </MessageInputContextProvider>
+    </WithAudioPlayback>,
   );
 
 describe('AudioRecorder', () => {

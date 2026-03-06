@@ -6,35 +6,54 @@ import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { TypingIndicator } from '../TypingIndicator';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
-import { TypingProvider } from '../../../context/TypingContext';
+import { ThreadProvider } from '../../Threads/ThreadContext';
 
 import {
   generateChannel,
   generateUser,
   getOrCreateChannelApi,
-  getTestClientWithUser,
+  initClientWithChannels,
   useMockedApis,
 } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
 const me = generateUser();
+const makeThread = (parentMessageId) =>
+  parentMessageId
+    ? {
+        state: {
+          getLatestValue: () => ({ parentMessage: { id: parentMessageId } }),
+          subscribeWithSelector: () => () => null,
+        },
+      }
+    : undefined;
 
-async function renderComponent(typing = {}, threadList, value = {}) {
-  const client = await getTestClientWithUser(me);
+async function renderComponent(typing = {}, value = {}, threadParentId) {
+  const {
+    channels: [defaultChannel],
+    client,
+  } = await initClientWithChannels();
+  const channel = value.channel || defaultChannel;
+  channel.messageComposer.textComposer.typing = typing;
+  const channelConfig = value.channelConfig ?? channel.getConfig();
+
+  client.configsStore.partialNext({
+    configs: { [channel.cid]: channelConfig },
+  });
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ ...value }}>
+      <ChannelInstanceProvider value={{ channel }}>
         <ComponentProvider value={{}}>
-          <TypingProvider value={{ typing }}>
-            <TypingIndicator threadList={threadList} />
-          </TypingProvider>
+          <ThreadProvider thread={makeThread(threadParentId)}>
+            <TypingIndicator />
+          </ThreadProvider>
         </ComponentProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }
@@ -42,31 +61,31 @@ async function renderComponent(typing = {}, threadList, value = {}) {
 describe('TypingIndicator', () => {
   afterEach(cleanup);
 
-  it('should render null without proper context values', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const { container } = render(
-      <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
+  it('should throw without proper context values', () => {
+    expect(() =>
+      render(
+        <ChatProvider value={{}}>
           <ComponentProvider value={{}}>
             <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
-      </ChatProvider>,
-    );
-    expect(container).toBeEmptyDOMElement();
+        </ChatProvider>,
+      ),
+    ).toThrow('The useChannel hook could not resolve a channel.');
   });
 
   it('should render hidden indicator with empty typing', async () => {
-    const client = await getTestClientWithUser(me);
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    channel.messageComposer.textComposer.typing = {};
     const { container } = render(
       <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{}}>
+        <ChannelInstanceProvider value={{ channel }}>
           <ComponentProvider value={{}}>
-            <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
-            </TypingProvider>
+            <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
 
@@ -130,22 +149,27 @@ describe('TypingIndicator', () => {
   });
 
   it('should render null if typing_events is disabled', async () => {
-    const client = await getTestClientWithUser();
+    const {
+      channels: [defaultChannel],
+      client,
+    } = await initClientWithChannels();
+    defaultChannel.messageComposer.textComposer.typing = {};
     const ch = generateChannel({ config: { typing_events: false } });
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch.id);
     const channelConfig = { typing_events: false };
     await channel.watch();
+    client.configsStore.partialNext({
+      configs: { [channel.cid]: channelConfig },
+    });
 
     const { container } = render(
       <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{ channel, channelConfig }}>
+        <ChannelInstanceProvider value={{ channel }}>
           <ComponentProvider value={{}}>
-            <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
-            </TypingProvider>
+            <TypingIndicator />
           </ComponentProvider>
-        </ChannelStateProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
 
@@ -160,7 +184,8 @@ describe('TypingIndicator', () => {
     const otherUserId = 'test-user';
 
     beforeEach(async () => {
-      client = await getTestClientWithUser();
+      const setup = await initClientWithChannels();
+      client = setup.client;
       ch = generateChannel({ config: { typing_events: true } });
       useMockedApis(client, [getOrCreateChannelApi(ch)]);
       channel = client.channel('messaging', ch.id);
@@ -172,12 +197,11 @@ describe('TypingIndicator', () => {
     it('should render TypingIndicator if user is typing in thread', async () => {
       const { container } = await renderComponent(
         { [otherUserId]: { parent_id, user: otherUserId } },
-        true,
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
@@ -186,11 +210,9 @@ describe('TypingIndicator', () => {
     it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
       const { container } = await renderComponent(
         { [otherUserId]: { parent_id, user: otherUserId } },
-        false,
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
       );
 
@@ -200,12 +222,11 @@ describe('TypingIndicator', () => {
     it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
       const { container } = await renderComponent(
         { [otherUserId]: { user: otherUserId } },
-        true,
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container).toBeEmptyDOMElement();
@@ -214,12 +235,11 @@ describe('TypingIndicator', () => {
     it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
       const { container } = await renderComponent(
         { example: { parent_id: 'sample-thread-2', user: otherUserId } },
-        true,
         {
           channel,
           client,
-          thread: { id: parent_id },
         },
+        parent_id,
       );
 
       expect(container).toBeEmptyDOMElement();

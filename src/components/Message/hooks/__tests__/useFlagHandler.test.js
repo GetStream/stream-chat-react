@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 
 import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import {
   generateChannel,
   generateMessage,
@@ -18,24 +18,13 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-async function renderUseHandleFlagHook(
-  message = generateMessage(),
-  notificationOpts,
-  channelStateContextValue,
-) {
+async function renderUseHandleFlagHook(message = generateMessage(), notificationOpts) {
   const client = await getTestClientWithUser(alice);
   client.flagMessage = flagMessage;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-          ...channelStateContextValue,
-        }}
-      >
-        {children}
-      </ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
   const { result } = renderHook(() => useFlagHandler(message, notificationOpts), {

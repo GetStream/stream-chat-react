@@ -2,13 +2,27 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
+import { StateStore } from 'stream-chat';
 import { axe } from '../../../../axe-helper';
 
 import { MessageActions } from '../MessageActions';
 
+const mockOpenThread = jest.fn();
+
+jest.mock('../../ChatView/ChatViewNavigationContext', () => ({
+  useChatViewNavigation: () => ({
+    closeChannel: jest.fn(),
+    closeThread: jest.fn(),
+    hideChannelList: jest.fn(),
+    openChannel: jest.fn(),
+    openThread: mockOpenThread,
+    openView: jest.fn(),
+    unhideChannelList: jest.fn(),
+  }),
+}));
+
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -28,6 +42,7 @@ import {
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ThreadProvider } from '../../Threads';
 
 expect.extend(toHaveNoViolations);
 
@@ -55,7 +70,6 @@ const defaultMessageContextValue = {
   handleFlag: jest.fn(),
   handleMarkUnread: jest.fn(),
   handleMute: jest.fn(),
-  handleOpenThread: jest.fn(),
   handlePin: jest.fn(),
   isMyMessage: () => false,
   message: generateMessage(),
@@ -77,41 +91,57 @@ async function renderMessageActions({
   messageActionsProps = {},
 } = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
+  const {
+    channelCapabilities,
+    state: channelStateOverrides,
+    ...channelStateContextOpts
+  } = channelStateOpts;
+  const own_capabilities = Object.entries(channelCapabilities ?? {})
+    .filter(([, isAllowed]) => isAllowed)
+    .map(([capability]) => capability);
   const channel = generateChannel({
-    getConfig: () => channelConfig,
-    state: { membership: {} },
-    ...channelStateOpts,
+    data: {
+      own_capabilities,
+    },
+    state: {
+      membership: {},
+      ...(channelStateOverrides ?? {}),
+      ownCapabilitiesStore: new StateStore({ ownCapabilities: own_capabilities }),
+    },
+    ...channelStateContextOpts,
   });
+  channel.type = channel.type ?? 'messaging';
+  channel.id = channel.id ?? 'test';
+  channel.cid = channel.cid ?? `${channel.type}:${channel.id}`;
+  if (!client.configsStore) {
+    client.configsStore = new StateStore({ configs: {} });
+  }
+  client.configsStore.partialNext({ configs: { [channel.cid]: channelConfig } });
 
   return render(
     <ChatProvider value={{ client, ...customChatContext }}>
       <DialogManagerProvider id='message-actions-dialog-provider'>
-        <ChannelStateProvider value={{ channel, channelConfig, ...channelStateOpts }}>
-          <ChannelActionProvider
-            value={{
-              openThread: jest.fn(),
-              removeMessage: jest.fn(),
-              updateMessage: jest.fn(),
-            }}
-          >
-            <TranslationProvider value={mockTranslationContext}>
-              <ComponentProvider value={{}}>
-                <MessageProvider
-                  value={{ ...defaultMessageContextValue, ...customMessageContext }}
-                >
-                  <MessageActions {...messageActionsProps} />
-                </MessageProvider>
-              </ComponentProvider>
-            </TranslationProvider>
-          </ChannelActionProvider>
-        </ChannelStateProvider>
+        <ChannelInstanceProvider value={{ channel }}>
+          <TranslationProvider value={mockTranslationContext}>
+            <ComponentProvider value={{}}>
+              <MessageProvider
+                value={{ ...defaultMessageContextValue, ...customMessageContext }}
+              >
+                <MessageActions {...messageActionsProps} />
+              </MessageProvider>
+            </ComponentProvider>
+          </TranslationProvider>
+        </ChannelInstanceProvider>
       </DialogManagerProvider>
     </ChatProvider>,
   );
 }
 
 describe('<MessageActions />', () => {
-  beforeEach(jest.clearAllMocks);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockOpenThread.mockResolvedValue({ slot: 'slot1', status: 'opened' });
+  });
 
   describe('Rendering and visibility', () => {
     it('should not render when there are no actions available', async () => {
@@ -359,38 +389,26 @@ describe('<MessageActions />', () => {
       } = await initClientWithChannels();
       const message = generateMessage({ user: client.user });
       const setQuotedMessageSpy = jest.spyOn(channel.messageComposer, 'setQuotedMessage');
+      channel.state.ownCapabilitiesStore.next({ ownCapabilities: ['quote-message'] });
 
       await act(async () => {
         await render(
           <ChatProvider value={{ client }}>
             <DialogManagerProvider id='message-actions-dialog-provider'>
-              <ChannelStateProvider
-                value={{
-                  channel,
-                  channelCapabilities: { 'quote-message': true },
-                }}
-              >
-                <ChannelActionProvider
-                  value={{
-                    openThread: jest.fn(),
-                    removeMessage: jest.fn(),
-                    updateMessage: jest.fn(),
-                  }}
-                >
-                  <TranslationProvider value={mockTranslationContext}>
-                    <ComponentProvider value={{}}>
-                      <MessageProvider
-                        value={{
-                          ...defaultMessageContextValue,
-                          message,
-                        }}
-                      >
-                        <MessageActions />
-                      </MessageProvider>
-                    </ComponentProvider>
-                  </TranslationProvider>
-                </ChannelActionProvider>
-              </ChannelStateProvider>
+              <ChannelInstanceProvider value={{ channel }}>
+                <TranslationProvider value={mockTranslationContext}>
+                  <ComponentProvider value={{}}>
+                    <MessageProvider
+                      value={{
+                        ...defaultMessageContextValue,
+                        message,
+                      }}
+                    >
+                      <MessageActions />
+                    </MessageProvider>
+                  </ComponentProvider>
+                </TranslationProvider>
+              </ChannelInstanceProvider>
             </DialogManagerProvider>
           </ChatProvider>,
         );
@@ -409,9 +427,9 @@ describe('<MessageActions />', () => {
   describe('Quick actions', () => {
     it('should display thread (reply) action when channel has replies enabled', async () => {
       const { getByTestId } = await renderMessageActions({
+        channelConfig: { replies: true },
         channelStateOpts: {
           channelCapabilities: { 'send-reply': true },
-          channelConfig: { replies: true },
         },
       });
 
@@ -420,9 +438,7 @@ describe('<MessageActions />', () => {
 
     it('should not display thread action when channel does not have replies enabled', async () => {
       const { queryByTestId } = await renderMessageActions({
-        channelStateOpts: {
-          channelConfig: { replies: false },
-        },
+        channelConfig: { replies: false },
       });
 
       expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
@@ -431,9 +447,9 @@ describe('<MessageActions />', () => {
     it('should not display thread action when message is in a thread', async () => {
       const message = generateMessage({ parent_id: 'parent-123' });
       const { queryByTestId } = await renderMessageActions({
+        channelConfig: { replies: true },
         channelStateOpts: {
           channelCapabilities: { 'send-reply': true },
-          channelConfig: { replies: true },
         },
         customMessageContext: {
           message,
@@ -443,15 +459,15 @@ describe('<MessageActions />', () => {
       expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
     });
 
-    it('should call handleOpenThread when Reply button is clicked', async () => {
-      const handleOpenThread = jest.fn();
+    it('should call openThread when Reply button is clicked', async () => {
+      const message = generateMessage();
       const { getByTestId } = await renderMessageActions({
+        channelConfig: { replies: true },
         channelStateOpts: {
           channelCapabilities: { 'send-reply': true },
-          channelConfig: { replies: true },
         },
         customMessageContext: {
-          handleOpenThread,
+          message,
         },
       });
 
@@ -459,7 +475,12 @@ describe('<MessageActions />', () => {
         await fireEvent.click(getByTestId(threadActionTestId));
       });
 
-      expect(handleOpenThread).toHaveBeenCalledTimes(1);
+      expect(mockOpenThread).toHaveBeenCalledTimes(1);
+      expect(mockOpenThread).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message,
+        }),
+      );
     });
 
     it('should display reaction action when channel has reactions enabled', async () => {
@@ -589,18 +610,32 @@ describe('<MessageActions />', () => {
       'update-own-message',
     ];
 
-    const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }) =>
+    const renderMarkUnreadUI = async ({
+      channelProps,
+      chatProps,
+      inThread = false,
+      messageProps,
+    }) =>
       await act(async () => {
         await render(
           <Chat {...chatProps}>
             <Channel {...channelProps}>
               <DialogManagerProvider id='message-actions-dialog-provider'>
-                <Message
-                  lastReceivedId={lastReceivedId}
-                  message={message}
-                  threadList={false}
-                  {...messageProps}
-                />
+                {inThread ? (
+                  <ThreadProvider thread={{ id: 'test-thread' }}>
+                    <Message
+                      lastReceivedId={lastReceivedId}
+                      message={message}
+                      {...messageProps}
+                    />
+                  </ThreadProvider>
+                ) : (
+                  <Message
+                    lastReceivedId={lastReceivedId}
+                    message={message}
+                    {...messageProps}
+                  />
+                )}
               </DialogManagerProvider>
             </Channel>
           </Chat>,
@@ -677,7 +712,8 @@ describe('<MessageActions />', () => {
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { message: threadMessage, threadList: true },
+        inThread: true,
+        messageProps: { message: threadMessage },
       });
       await toggleOpenMessageActions();
 

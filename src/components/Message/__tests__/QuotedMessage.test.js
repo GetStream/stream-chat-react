@@ -6,8 +6,7 @@ import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
@@ -37,7 +36,6 @@ const deletedMessageText = 'Message deleted';
 const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
 
 const alice = generateUser({ name: 'alice' });
-const jumpToMessageMock = jest.fn();
 
 async function renderQuotedMessage({
   componentContext,
@@ -49,38 +47,43 @@ async function renderQuotedMessage({
     channels: [channel],
     client,
   } = await initClientWithChannels({ customUser: alice });
-  const channelConfig = (customChannel ?? channel).getConfig();
+  const activeChannel = customChannel ?? channel;
+  const channelConfig = activeChannel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const activeClient = customClient ?? client;
+  if (activeChannel.cid) {
+    activeClient.configsStore.partialNext({
+      configs: { [activeChannel.cid]: channelConfig },
+    });
+  }
 
   return render(
-    <ChatProvider value={{ client: customClient ?? client }}>
-      <ChannelStateProvider value={{ channel: customChannel ?? channel, channelConfig }}>
-        <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock }}>
-          <TranslationProvider
+    <ChatProvider value={{ client: activeClient }}>
+      <ChannelInstanceProvider value={{ channel: activeChannel }}>
+        <TranslationProvider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <ComponentProvider
             value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
+              Attachment,
+              Message() {
+                return <MessageSimple channelConfig={channelConfig} />;
+              },
+              ...componentContext,
             }}
           >
-            <ComponentProvider
-              value={{
-                Attachment,
-                Message() {
-                  return <MessageSimple channelConfig={channelConfig} />;
-                },
-                ...componentContext,
-              }}
-            >
-              <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
-                <Message {...customProps}>
-                  <QuotedMessage {...customProps} />
-                </Message>
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+            <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
+              <Message {...customProps}>
+                <QuotedMessage {...customProps} />
+              </Message>
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }

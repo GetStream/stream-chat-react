@@ -1,17 +1,24 @@
 import React from 'react';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useThreadContext } from '../Threads/ThreadContext';
+import { useStateStore } from '../../store';
+import type { ThreadState } from 'stream-chat';
+
+const threadStartSelector = ({ parentMessage }: ThreadState) => ({
+  parentMessage,
+});
 
 export const ThreadStart = () => {
-  const { thread } = useChannelStateContext('ThreadStart');
+  const thread = useThreadContext();
   const { t } = useTranslationContext('ThreadStart');
+  const { parentMessage } = useStateStore(thread?.state, threadStartSelector) ?? {};
 
-  if (!thread?.reply_count) return null;
+  if (!parentMessage?.reply_count) return null;
 
   return (
     <div className='str-chat__thread-start'>
-      {t('replyCount', { count: thread.reply_count })}
+      {t('replyCount', { count: parentMessage.reply_count })}
     </div>
   );
 };

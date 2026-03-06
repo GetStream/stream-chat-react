@@ -13,70 +13,71 @@ import { MessageListNotifications as DefaultMessageListNotifications } from './M
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
-import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { DialogManagerProvider } from '../../context';
+import { DialogManagerProvider, useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import type { InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
-import { InfiniteScroll } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
+import { MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
+import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { useThreadContext } from '../Threads';
 
-import type { LocalMessage } from 'stream-chat';
-import type { MessageRenderer } from './renderMessages';
+import type {
+  LocalMessage,
+  MessageFocusSignalState,
+  MessagePaginatorState,
+  UnreadSnapshotState,
+} from 'stream-chat';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message/types';
-import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
 
-import {
-  DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
-  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-} from '../../constants/limits';
+import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { useStateStore } from '../../store';
+import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
+import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
+import { useMessagePaginator } from '../../hooks';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 
-type MessageListWithContextProps = Omit<
-  ChannelStateContextValue,
-  'members' | 'mutes' | 'watchers'
-> &
-  MessageListProps;
+type MessageListWithContextProps = MessageListProps;
+
+const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
+  // hasMore: state.hasMoreTail,
+  hasMoreNewer: state.hasMoreHead,
+  isLoading: state.isLoading,
+  messages: state.items ?? [],
+});
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
+const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
+  messageFocusSignal: state.signal,
+});
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
+  const channel = useChannel();
   const {
-    channel,
-    channelUnreadUiState,
     disableDateSeparator = false,
     groupStyles,
-    hasMoreNewer = false,
     headerPosition,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
-    highlightedMessageId,
     internalInfiniteScrollProps: {
+      element: internalListElement = 'div',
       threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
       ...restInternalInfiniteScrollProps
     } = {},
-    jumpToLatestMessage = () => Promise.resolve(),
-    loadMore: loadMoreCallback,
-    loadMoreNewer: loadMoreNewerCallback, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
-    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-    messages = [],
+    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
-    notifications,
-    pinPermissions = defaultPinPermissions,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -84,10 +85,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactionDetails,
     sortReactions,
-    suppressAutoscroll,
-    threadList = false,
+    suppressAutoscroll: suppressAutoscrollFromProps = false,
     unsafeHTML = false,
   } = props;
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
+  const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
+    React.useState(false);
+  const suppressAutoscroll =
+    suppressAutoscrollFromProps || suppressAutoscrollWhileLoadingOlder;
+  const loadingOlderRef = React.useRef(false);
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
@@ -103,6 +110,22 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext('MessageList');
+  const messagePaginator = useMessagePaginator();
+
+  const { hasMoreNewer, isLoading, messages } = useStateStore(
+    messagePaginator.state,
+    messagePaginatorStateSelector,
+  );
+
+  const channelUnreadUiState = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
+  const { messageFocusSignal } = useStateStore(
+    messagePaginator.messageFocusSignal,
+    messageFocusSignalSelector,
+  );
+  const focusedMessageId = messageFocusSignal?.messageId;
 
   const {
     hasNewMessages,
@@ -123,13 +146,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     isMessageListScrolledToBottom,
     listElement,
     showAlways: !!showUnreadNotificationAlways,
-    unreadCount: channelUnreadUiState?.unread_messages,
   });
 
   useMarkRead({
     isMessageListScrolledToBottom,
-    messageListIsThread: threadList,
-    wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
+    messageListIsThread: isThreadList,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -151,8 +172,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   const elements = useMessageListElements({
-    channelUnreadUiState,
     enrichedMessages,
+    focusedMessageId,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
@@ -175,11 +196,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       onMentionsHover: props.onMentionsHover,
       onUserClick: props.onUserClick,
       onUserHover: props.onUserHover,
-      openThread: props.openThread,
-      pinPermissions,
       reactionDetailsSort,
       renderText: props.renderText,
-      retrySendMessage: props.retrySendMessage,
+      // retrySendMessage: props.retrySendMessage,
       showAvatar: props.showAvatar,
       sortReactionDetails,
       sortReactions,
@@ -190,46 +209,40 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messages,
     renderMessages,
     returnAllReadData,
-    threadList,
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
 
-  const loadMore = React.useCallback(() => {
-    if (loadMoreCallback) {
-      loadMoreCallback(messageLimit);
+  const loadOlderMessages = React.useCallback(async () => {
+    if (loadingOlderRef.current) return;
+    loadingOlderRef.current = true;
+    setSuppressAutoscrollWhileLoadingOlder(true);
+    try {
+      await messagePaginator.toTail();
+    } finally {
+      loadingOlderRef.current = false;
+      setSuppressAutoscrollWhileLoadingOlder(false);
     }
-  }, [loadMoreCallback, messageLimit]);
+  }, [messagePaginator]);
 
-  const loadMoreNewer = React.useCallback(() => {
-    if (loadMoreNewerCallback) {
-      loadMoreNewerCallback(messageLimit);
-    }
-  }, [loadMoreNewerCallback, messageLimit]);
-
-  const scrollToBottomFromNotification = React.useCallback(async () => {
-    if (hasMoreNewer) {
-      await jumpToLatestMessage();
+  const scrollToBottomFromNotification = React.useCallback(() => {
+    if (messagePaginator.hasMoreHead) {
+      messagePaginator.jumpToTheLatestMessage();
     } else {
       scrollToBottom();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollToBottom, hasMoreNewer]);
+  }, [messagePaginator, scrollToBottom]);
 
   React.useLayoutEffect(() => {
-    if (highlightedMessageId) {
-      const element = listElement?.querySelector(
-        `[data-message-id='${highlightedMessageId}']`,
-      );
-      element?.scrollIntoView({ block: 'center' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlightedMessageId]);
+    if (!focusedMessageId) return;
+    const element = listElement?.querySelector(`[data-message-id='${focusedMessageId}']`);
+    element?.scrollIntoView({ block: 'center' });
+  }, [focusedMessageId, listElement]);
 
   const id = useStableId();
 
-  const showEmptyStateIndicator = elements.length === 0 && !threadList;
-  const dialogManagerId = threadList
+  const showEmptyStateIndicator = elements.length === 0 && !isThreadList;
+  const dialogManagerId = isThreadList
     ? `message-list-dialog-manager-thread-${id}`
     : `message-list-dialog-manager-${id}`;
 
@@ -244,11 +257,20 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       <MessageTranslationViewProvider>
         <MessageListMainPanel>
           <DialogManagerProvider id={dialogManagerId}>
-            {!threadList && showUnreadMessagesNotification && (
+            {!isThreadList && showUnreadMessagesNotification && (
               <UnreadMessagesNotification
-                unreadCount={channelUnreadUiState?.unread_messages}
+                unreadCount={channelUnreadUiState?.unreadCount}
               />
             )}
+            {/*todo: apply styles
+            .str-chat__list {
+              overflow-y: hidden;
+            }
+
+            .str-chat__infinite-scroll-paginator.str-chat__message-list-scroll {
+              height: 100%;
+            }
+            */}
             <FloatingDateSeparator
               disableDateSeparator={disableDateSeparator}
               listElement={listElement}
@@ -261,57 +283,48 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               tabIndex={0}
             >
               {showEmptyStateIndicator ? (
-                <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
+                <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
               ) : (
-                <InfiniteScroll
+                <InfiniteScrollPaginator
                   className='str-chat__message-list-scroll'
                   data-testid='reverse-infinite-scroll'
-                  hasNextPage={props.hasMoreNewer}
-                  hasPreviousPage={props.hasMore}
-                  head={props.head}
-                  isLoading={props.loadingMore}
-                  loader={
-                    <div className='str-chat__list__loading' key='loading-indicator'>
-                      {props.loadingMore && <LoadingIndicator size={20} />}
-                    </div>
-                  }
-                  loadNextPage={loadMoreNewer}
-                  loadPreviousPage={loadMore}
+                  element={internalListElement}
+                  loadNextOnScrollToBottom={messagePaginator.toHead}
+                  loadNextOnScrollToTop={loadOlderMessages}
+                  onScroll={onScroll}
+                  ref={setListElement}
                   threshold={loadMoreScrollThreshold}
                   {...restInternalInfiniteScrollProps}
                 >
+                  {props.head}
+                  {isLoading && (
+                    <div className='str-chat__list__loading' key='loading-indicator'>
+                      {props.loadingMore && <LoadingIndicator size={20} />}
+                    </div>
+                  )}
                   <MessageListWrapper className='str-chat__ul'>
                     {elements}
                   </MessageListWrapper>
-                  <TypingIndicator threadList={threadList} />
+                  <TypingIndicator />
 
                   <div key='bottom' />
-                </InfiniteScroll>
+                </InfiniteScrollPaginator>
               )}
               <NewMessageNotification
-                newMessageCount={channelUnreadUiState?.unread_messages}
-                showNotification={hasNewMessages || hasMoreNewer}
+                newMessageCount={channelUnreadUiState?.unreadCount}
+                showNotification={
+                  (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
+                }
               />
               <ScrollToLatestMessageButton
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer}
+                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
                 onClick={scrollToBottomFromNotification}
-                threadList={threadList}
               />
             </div>
-            <NewMessageNotification
-              newMessageCount={channelUnreadUiState?.unread_messages}
-              showNotification={hasNewMessages || hasMoreNewer}
-            />
-            <ScrollToLatestMessageButton
-              isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-              isNotAtLatestMessageSet={hasMoreNewer}
-              onClick={scrollToBottomFromNotification}
-              threadList={threadList}
-            />
           </DialogManagerProvider>
         </MessageListMainPanel>
-        <MessageListNotifications notifications={notifications} />
+        <MessageListNotifications />
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );
@@ -337,17 +350,23 @@ type PropsDrilledToMessage =
   | 'onMentionsHover'
   | 'onUserClick'
   | 'onUserHover'
-  | 'openThread'
-  | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'reactionDetailsSort'
   | 'renderText'
-  | 'retrySendMessage'
+  // | 'retrySendMessage'
   | 'showAvatar'
   | 'sortReactions'
   | 'sortReactionDetails'
   | 'unsafeHTML';
 
+// Allow intrinsic element override while keeping div-prop compatibility
+type InternalPaginatorProps = Partial<
+  Omit<InfiniteScrollPaginatorProps<'div'>, 'element'>
+> & {
+  element?: keyof React.JSX.IntrinsicElements;
+};
+
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
+  // todo: data manipulation - should live in the paginator
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
@@ -364,27 +383,29 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   head?: React.ReactElement;
   /** Position to render HeaderComponent */
   headerPosition?: number;
+  // todo: data manipulation - should live in MessagePaginator
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
+  // todo: data manipulation - should live in MessagePaginator
   /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
-  /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
-  internalInfiniteScrollProps?: Partial<InfiniteScrollProps>;
+  /** Overrides the default props passed to [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx) */
+  internalInfiniteScrollProps?: InternalPaginatorProps;
   /** Function called when latest messages should be loaded, after the list has jumped at an earlier message set */
   jumpToLatestMessage?: () => Promise<void>;
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
   /** Whether or not the list is currently loading newer items */
   loadingMoreNewer?: boolean;
-  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
+  /** Function called when more messages are to be loaded. */
+  // loadMore?: () => Promise<void>;
+  /** Function called when newer messages are to be loaded. */
+  // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
   /** The limit to use when paginating messages */
   messageLimit?: number;
-  /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
+  /** The messages to render in the list; defaults to the active message-paginator items. */
   messages?: LocalMessage[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
@@ -396,6 +417,7 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
    * Allows to review changes introduced to messages array on per message basis (e.g. date separator injection before a message).
    * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
    */
+  // todo: have state.pipe() API to allow modifying the state output / emission
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
   /**
    * The pixel threshold under which the message list is considered to be so near to the bottom,
@@ -409,36 +431,17 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
    * is shown only when viewing unread messages.
    */
   showUnreadNotificationAlways?: boolean;
-  /** If true, indicates the message list is a thread  */
-  threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
+  /** If true, prevents autoscroll-to-bottom behavior on new messages. */
+  suppressAutoscroll?: boolean;
 };
 
 /**
  * The MessageList component renders a list of Messages.
  * It is a consumer of the following contexts:
- * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
- * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
+ * - `ChannelInstanceContext`
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
-export const MessageList = (props: MessageListProps) => {
-  const { jumpToLatestMessage, loadMore, loadMoreNewer } =
-    useChannelActionContext('MessageList');
-
-  const {
-    members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    ...restChannelStateContext
-  } = useChannelStateContext('MessageList');
-
-  return (
-    <MessageListWithContext
-      jumpToLatestMessage={jumpToLatestMessage}
-      loadMore={loadMore}
-      loadMoreNewer={loadMoreNewer}
-      {...restChannelStateContext}
-      {...props}
-    />
-  );
-};
+export const MessageList = (props: MessageListProps) => (
+  <MessageListWithContext {...props} />
+);

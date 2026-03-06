@@ -11,7 +11,6 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
 import type { MessageContextValue } from '../../context';
 
@@ -44,8 +43,7 @@ export const validateAndGetMessage = <T extends unknown[]>(
 export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
   if (!mutes || !message) return false;
 
-  const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
-  return !!userMuted.length;
+  return mutes.some(({ target }) => target.id === message.user?.id);
 };
 
 export const OPTIONAL_MESSAGE_ACTIONS = {
@@ -69,65 +67,6 @@ export const MESSAGE_ACTIONS = {
 export type MessageActionsArray<T extends string = string> = Array<
   keyof typeof MESSAGE_ACTIONS | keyof typeof OPTIONAL_MESSAGE_ACTIONS | T
 >;
-
-// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-export const defaultPinPermissions: PinPermissions = {
-  commerce: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  gaming: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: false,
-    user: false,
-  },
-  livestream: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  messaging: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  team: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-};
 
 export type Capabilities = {
   canDelete?: boolean;
@@ -261,11 +200,9 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
 
 export const areMessagePropsEqual = (
   prevProps: MessageProps & {
-    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
   nextProps: MessageProps & {
-    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
 ) => {
@@ -291,7 +228,6 @@ export const areMessagePropsEqual = (
     deepequal(nextProps.deliveredTo, prevProps.deliveredTo) &&
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
     deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
-    deepequal(nextProps.mutes, prevProps.mutes) &&
     deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
 
   if (!deepEqualProps) return false;
@@ -313,9 +249,7 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.highlighted !== nextProps.highlighted) return false;
-  if (prevProps.threadList !== nextProps.threadList) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
-  if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;

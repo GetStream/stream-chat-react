@@ -4,8 +4,7 @@ import '@testing-library/jest-dom';
 import { MessageInput } from '../MessageInput';
 import { Chat } from '../../Chat';
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ComponentProvider,
   MessageProvider,
   TranslationProvider,
@@ -35,16 +34,11 @@ const translationContext = {
 };
 
 const defaultChannelData = {
-  own_capabilities: ['upload-file'],
+  own_capabilities: ['send-poll', 'upload-file'],
 };
 
 const defaultConfig = {
   config: { shared_locations: true },
-};
-
-const defaultChannelStateContext = {
-  channelCapabilities: { 'send-poll': true, 'upload-file': true },
-  notifications: [],
 };
 
 const invokeMenu = async () => {
@@ -63,6 +57,8 @@ const renderComponent = async ({
   messageInputProps,
 } = {}) => {
   let channel, client;
+  const { channelCapabilities } = channelStateContext ?? {};
+
   if (customChannel && customClient) {
     channel = customChannel;
     client = customClient;
@@ -74,6 +70,11 @@ const renderComponent = async ({
     });
     channel = res.channels[0];
     client = res.client;
+  }
+  if (channelCapabilities) {
+    channel.data.own_capabilities = Object.entries(channelCapabilities)
+      .filter(([, isAllowed]) => isAllowed)
+      .map(([capability]) => capability);
   }
   jest.spyOn(channel, 'getDraft').mockImplementation();
 
@@ -97,25 +98,17 @@ const renderComponent = async ({
         <ComponentProvider value={{ ...componentContext }}>
           <TranslationProvider value={translationContext}>
             <TypingProvider value={{}}>
-              <ChannelActionProvider value={{ addNotification: jest.fn() }}>
-                <ChannelStateProvider
-                  value={{
-                    ...defaultChannelStateContext,
-                    channel,
-                    ...channelStateContext,
-                  }}
-                >
-                  <div id={CHANNEL_CONTAINER_ID}>
-                    {message ? (
-                      <MessageProvider value={{ message }}>
-                        <ThreadOrChannel />
-                      </MessageProvider>
-                    ) : (
+              <ChannelInstanceProvider value={{ channel }}>
+                <div id={CHANNEL_CONTAINER_ID}>
+                  {message ? (
+                    <MessageProvider value={{ message }}>
                       <ThreadOrChannel />
-                    )}
-                  </div>
-                </ChannelStateProvider>
-              </ChannelActionProvider>
+                    </MessageProvider>
+                  ) : (
+                    <ThreadOrChannel />
+                  )}
+                </div>
+              </ChannelInstanceProvider>
             </TypingProvider>
           </TranslationProvider>
         </ComponentProvider>

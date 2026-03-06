@@ -1,14 +1,14 @@
 import React from 'react';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { QuotedMessagePreviewUI } from '../MessageInput';
+import { useMessagePaginator } from '../../hooks';
 
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 
 export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProps) => {
   const { message, renderText: contextRenderText } = useMessageContext('QuotedMessage');
-  const { jumpToMessage } = useChannelActionContext('QuotedMessage');
+  const messagePaginator = useMessagePaginator();
 
   const renderText = propsRenderText ?? contextRenderText;
 
@@ -20,7 +20,7 @@ export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProp
         if (!quoted_message) return;
         e.stopPropagation();
         e.preventDefault();
-        jumpToMessage(quoted_message.id);
+        messagePaginator.jumpToMessage(quoted_message.id);
       }}
       quotedMessage={quoted_message}
       renderText={renderText}

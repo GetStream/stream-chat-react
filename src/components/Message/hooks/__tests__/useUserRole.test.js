@@ -1,9 +1,10 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { StateStore } from 'stream-chat';
 
 import { useUserRole } from '../useUserRole';
 
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
@@ -17,25 +18,29 @@ const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
 async function renderUserRoleHook({
+  channelCapabilities = {},
   channelProps = {},
-  channelStateContextValue = {},
   clientContextValue = {},
   disableQuotedMessages,
   message = generateMessage(),
   onlySenderCanEdit = false,
 }) {
   const client = await getTestClientWithUser(alice);
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
   const channel = generateChannel({
     getConfig,
-    state: { membership: {} },
+    state: {
+      membership: {},
+      ownCapabilitiesStore: new StateStore({ ownCapabilities }),
+    },
     ...channelProps,
   });
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client, ...clientContextValue }}>
-      <ChannelStateProvider value={{ channel, ...channelStateContextValue }}>
-        {children}
-      </ChannelStateProvider>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
 
@@ -191,17 +196,15 @@ describe('useUserRole custom hook', () => {
     'should allow user to edit or delete message if user role is %s',
     async (role, expected) => {
       const { canDelete, canEdit } = await renderUserRoleHook({
+        channelCapabilities: {
+          'delete-any-message': expected,
+          'update-any-message': expected,
+        },
         channelProps: {
           state: {
             membership: {
               role,
             },
-          },
-        },
-        channelStateContextValue: {
-          channelCapabilities: {
-            'delete-any-message': expected,
-            'update-any-message': expected,
           },
         },
       });
@@ -239,11 +242,9 @@ describe('useUserRole custom hook', () => {
       ) => {
         const message = generateMessage({ user: messageAuthor });
         const { canEdit } = await renderUserRoleHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'update-any-message': updateAnyPermission,
-              'update-own-message': updateOwnPermission,
-            },
+          channelCapabilities: {
+            'update-any-message': updateAnyPermission,
+            'update-own-message': updateOwnPermission,
           },
           message,
           onlySenderCanEdit,
@@ -266,11 +267,9 @@ describe('useUserRole custom hook', () => {
       async (deleteAnyMessagePerm, deleteOwnMessagePerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
         const { canDelete } = await renderUserRoleHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'delete-any-message': deleteAnyMessagePerm,
-              'delete-own-message': deleteOwnMessagePerm,
-            },
+          channelCapabilities: {
+            'delete-any-message': deleteAnyMessagePerm,
+            'delete-own-message': deleteOwnMessagePerm,
           },
           message,
         });
@@ -288,10 +287,8 @@ describe('useUserRole custom hook', () => {
       async (flagMessagePerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
         const { canFlag } = await renderUserRoleHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'flag-message': flagMessagePerm,
-            },
+          channelCapabilities: {
+            'flag-message': flagMessagePerm,
           },
           message,
         });
@@ -309,10 +306,8 @@ describe('useUserRole custom hook', () => {
       async (muteChannelPerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
         const { canMute } = await renderUserRoleHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'mute-channel': muteChannelPerm,
-            },
+          channelCapabilities: {
+            'mute-channel': muteChannelPerm,
           },
           message,
         });
@@ -329,10 +324,8 @@ describe('useUserRole custom hook', () => {
       'determine quote message permission',
       async (disableQuotedMessages, quoteMessagePerm, expected) => {
         const { canQuote } = await renderUserRoleHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'quote-message': quoteMessagePerm,
-            },
+          channelCapabilities: {
+            'quote-message': quoteMessagePerm,
           },
           disableQuotedMessages,
         });
@@ -345,10 +338,8 @@ describe('useUserRole custom hook', () => {
       [false, false],
     ])('determine react to a message permission', async (sendReactionPerm, expected) => {
       const { canReact } = await renderUserRoleHook({
-        channelStateContextValue: {
-          channelCapabilities: {
-            'send-reaction': sendReactionPerm,
-          },
+        channelCapabilities: {
+          'send-reaction': sendReactionPerm,
         },
       });
       expect(canReact).toBe(expected);
@@ -359,10 +350,8 @@ describe('useUserRole custom hook', () => {
       [false, false],
     ])('determine react to a message permission', async (sendReplyPerm, expected) => {
       const { canReply } = await renderUserRoleHook({
-        channelStateContextValue: {
-          channelCapabilities: {
-            'send-reply': sendReplyPerm,
-          },
+        channelCapabilities: {
+          'send-reply': sendReplyPerm,
         },
       });
       expect(canReply).toBe(expected);

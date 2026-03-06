@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
-import type { PinPermissions, UserEventHandler } from './hooks';
+import type { UserEventHandler } from './hooks';
+import type { CustomMentionHandler } from './hooks/useMentionsHandler';
 import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
-import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import type { RenderTextOptions } from './renderText';
@@ -66,18 +66,14 @@ export type MessageProps = {
   messageListRect?: DOMRect;
   /** If true, only the sender of the message has editing privileges */
   onlySenderCanEdit?: boolean;
-  /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsClick?: ChannelActionContextValue['onMentionsClick'];
-  /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsHover?: ChannelActionContextValue['onMentionsHover'];
+  /** Custom mention click handler for mentions rendered in message text. */
+  onMentionsClick?: CustomMentionHandler;
+  /** Custom mention hover handler for mentions rendered in message text. */
+  onMentionsHover?: CustomMentionHandler;
   /** Custom function to run on user avatar click */
   onUserClick?: UserEventHandler;
   /** Custom function to run on user avatar hover */
   onUserHover?: UserEventHandler;
-  /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  openThread?: ChannelActionContextValue['openThread'];
-  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
-  pinPermissions?: PinPermissions;
   /** Sort options to provide to a reactions query */
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message if the message is the last one and was posted by my user */
@@ -96,8 +92,9 @@ export type MessageProps = {
     mentioned_users?: UserResponse[],
     options?: RenderTextOptions,
   ) => ReactNode;
-  /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  retrySendMessage?: ChannelActionContextValue['retrySendMessage'];
+  // todo: document how to register custom CustomSendMessageRequestFn with Channel and Thread through StreamChat
+  // /** Custom retry send message handler to override the default stream-chat-js instance request flow. */
+  // retrySendMessage?: CustomSendMessageRequestFn;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
   /** Comparator function to sort the list of reacted users
@@ -106,8 +103,6 @@ export type MessageProps = {
   sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
-  /** Whether the Message is in a Thread */
-  threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
 };

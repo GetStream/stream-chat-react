@@ -3,7 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom';
 
 import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
-import { ChannelStateProvider, ChatProvider } from '../../../context';
+import { ChatProvider } from '../../../context';
+import { ThreadProvider } from '../../Threads/ThreadContext';
 import {
   createClientWithChannel,
   dispatchMessageNewEvent,
@@ -22,10 +23,16 @@ let channel;
 let users;
 let containerIsThread;
 let anotherUser;
-let channelStateContext;
 let parentMsg;
 
 const onClick = jest.fn();
+
+const makeThread = (parentMessage) => ({
+  state: {
+    getLatestValue: () => ({ parentMessage }),
+    subscribeWithSelector: () => () => null,
+  },
+});
 
 const dispatchMessageEvents = ({ channel, client, newMessage, parentMsg, user }) => {
   if (containerIsThread) {
@@ -53,9 +60,6 @@ describe.each([
       (u) => u.id !== client.user.id,
     );
     parentMsg = { ...Object.values(channel.state.messages)[0], reply_count: 0 };
-    channelStateContext = {
-      thread: containerIsThread ? parentMsg : null,
-    };
   });
 
   afterEach(jest.clearAllMocks);
@@ -63,9 +67,9 @@ describe.each([
   it(`is not rendered if ${containerMsgList} scrolled to the bottom`, () => {
     const { container } = render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
     expect(container).toBeEmptyDOMElement();
@@ -74,12 +78,12 @@ describe.each([
   it('is rendered if scrolled above the threshold', () => {
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
     expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
@@ -88,12 +92,12 @@ describe.each([
   it('calls the onclick callback', async () => {
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -110,9 +114,9 @@ describe.each([
     const newMessage = generateMessage({ user: anotherUser });
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -136,12 +140,12 @@ describe.each([
     const newMessage = generateMessage({ user: anotherUser });
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -166,12 +170,12 @@ describe.each([
     const newMessage = generateMessage({ user: client.user });
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -198,12 +202,12 @@ describe.each([
     });
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -231,12 +235,12 @@ describe.each([
 
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -258,12 +262,12 @@ describe.each([
   it('increases the count unread with each new message arrival', async () => {
     render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
+        <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
             onClick={onClick}
           />
-        </ChannelStateProvider>
+        </ThreadProvider>
       </ChatProvider>,
     );
 
@@ -299,21 +303,22 @@ describe.each([
 
     const { container } = render(
       <ChatProvider value={{ channel, client }}>
-        <ChannelStateProvider value={channelStateContext}>
-          <div id={mainListId}>
+        <div id={mainListId}>
+          <ThreadProvider thread={containerIsThread ? makeThread(parentMsg) : undefined}>
             <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
             />
-          </div>
-          <div id={threadListId}>
+          </ThreadProvider>
+        </div>
+        <div id={threadListId}>
+          <ThreadProvider thread={makeThread(parentMsg)}>
             <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
               onClick={onClick}
-              threadList
             />
-          </div>
-        </ChannelStateProvider>
+          </ThreadProvider>
+        </div>
       </ChatProvider>,
     );
 

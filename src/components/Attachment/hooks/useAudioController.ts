@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useChannelActionContext, useTranslationContext } from '../../../context';
+import { useChatContext, useTranslationContext } from '../../../context';
 
 const isSeekable = (audioElement: HTMLAudioElement) =>
   !(audioElement.duration === Infinity || isNaN(audioElement.duration));
@@ -29,7 +29,7 @@ export const useAudioController = ({
   mimeType,
   playbackRates = DEFAULT_PLAYBACK_RATES,
 }: AudioControllerParams = {}) => {
-  const { addNotification } = useChannelActionContext('useAudioController');
+  const { client } = useChatContext('useAudioController');
   const { t } = useTranslationContext('useAudioController');
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackError, setPlaybackError] = useState<Error>();
@@ -43,9 +43,13 @@ export const useAudioController = ({
     (e: Error) => {
       logError(e as Error);
       setPlaybackError(e);
-      addNotification(e.message, 'error');
+      client.notifications.addError({
+        message: e.message,
+        options: { originalError: e, type: 'browser:audio:playback:error' },
+        origin: { emitter: 'useAudioController.registerError' },
+      });
     },
-    [addNotification],
+    [client],
   );
 
   const togglePlay = useCallback(async () => {
@@ -126,7 +130,11 @@ export const useAudioController = ({
     audioElement.addEventListener('ended', handleEnded);
 
     const handleError = () => {
-      addNotification(t('Error reproducing the recording'), 'error');
+      client.notifications.addError({
+        message: t('Error reproducing the recording'),
+        options: { type: 'browser:audio:playback:error' },
+        origin: { emitter: 'useAudioController.audioElement' },
+      });
       setIsPlaying(false);
     };
     audioElement.addEventListener('error', handleError);
@@ -142,7 +150,7 @@ export const useAudioController = ({
       audioElement.removeEventListener('error', handleError);
       audioElement.removeEventListener('timeupdate', handleTimeupdate);
     };
-  }, [addNotification, durationSeconds, t]);
+  }, [client, durationSeconds, t]);
 
   return {
     audioRef,

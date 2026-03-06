@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect } from 'react';
 import type { ChannelSort } from 'stream-chat';
 
@@ -8,9 +7,12 @@ import {
   ChannelList,
   MessageList,
   Thread,
-  useChannelActionContext,
-  useChannelStateContext,
+  useChannel,
   useChatContext,
+  useChatViewNavigation,
+  useMessagePaginator,
+  useStateStore,
+  useThreadContext,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
@@ -28,7 +30,12 @@ if (!channelId || typeof channelId !== 'string') {
 
 const OtherUserControlButtons = () => {
   const { client } = useChatContext();
-  const { channel, messages, threadMessages } = useChannelStateContext();
+  const channel = useChannel();
+  const thread = useThreadContext();
+  const messagePaginator = useMessagePaginator();
+  const { messages } = useStateStore(messagePaginator.state, (state) => ({
+    messages: state.items ?? [],
+  }));
   const lastMessage = channel.state.messages.slice(-1)[0];
   return (
     <>
@@ -46,7 +53,7 @@ const OtherUserControlButtons = () => {
       <button
         data-testid='delete-other-last-reply'
         onClick={async () => {
-          const lastReply = threadMessages?.slice(-1)[0];
+          const lastReply = thread?.state.getLatestValue().replies.at(-1);
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -84,14 +91,14 @@ const sort: ChannelSort = { last_updated: 1 };
 
 const Controls = () => {
   const { client } = useChatContext();
-  const { threadMessages } = useChannelStateContext();
+  const thread = useThreadContext();
 
   return (
     <div>
       <button
         data-testid='delete-last-reply'
         onClick={async () => {
-          const lastReply = threadMessages?.slice(-1)[0];
+          const lastReply = thread?.state.getLatestValue().replies.at(-1);
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -104,16 +111,19 @@ const Controls = () => {
 };
 
 const SetThreadOpen = () => {
-  const { openThread } = useChannelActionContext();
-  const { messages } = useChannelStateContext();
+  const channel = useChannel();
+  const { openThread } = useChatViewNavigation();
+  const messagePaginator = useMessagePaginator();
+  const { messages } = useStateStore(messagePaginator.state, (state) => ({
+    messages: state.items ?? [],
+  }));
 
   useEffect(() => {
     if (!messages) return;
     const [lastMsg] = messages.slice(-1);
 
-    if (lastMsg) openThread(lastMsg, { preventDefault: () => null } as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
+    if (lastMsg) void openThread({ channel, message: lastMsg });
+  }, [channel, messages, openThread]);
 
   return null;
 };

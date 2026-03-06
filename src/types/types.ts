@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
-import type { Attachment, ChannelState as StreamChannelState } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
@@ -37,26 +36,7 @@ export interface IconProps {
 
 export type Dimensions = { height?: string; width?: string };
 
-export type ImageAttachmentConfiguration = {
-  url: string;
-};
-
-export type VideoAttachmentConfiguration = ImageAttachmentConfiguration & {
-  thumbUrl?: string;
-};
-
-export type ImageAttachmentSizeHandler = (
-  attachment: Attachment,
-  element: HTMLElement,
-) => ImageAttachmentConfiguration;
-
-export type VideoAttachmentSizeHandler = (
-  attachment: Attachment,
-  element: HTMLElement,
-  shouldGenerateVideoThumbnail: boolean,
-) => VideoAttachmentConfiguration;
-
-export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
+// export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 export type Readable<T> = {
   [key in keyof T]: T[key];

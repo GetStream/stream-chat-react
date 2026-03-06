@@ -1,5 +1,6 @@
 import { Button } from '../Button';
 import { IconCrossMedium } from '../Icons';
+import React from 'react';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 

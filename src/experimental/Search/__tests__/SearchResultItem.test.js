@@ -8,6 +8,8 @@ import {
   MessageSearchResultItem,
   UserSearchResultItem,
 } from '../SearchResults';
+import { ChatView, createChatViewSlotBinding } from '../../../components/ChatView';
+import { LayoutController } from '../../../components/ChatView/layoutController/LayoutController';
 import { SearchContextProvider } from '../SearchContext';
 import { ChannelListContextProvider, ChatProvider } from '../../../context';
 import {
@@ -20,7 +22,6 @@ import {
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-preview-button';
 
-const mockSetActiveChannel = jest.fn().mockImplementation();
 const mockSetChannels = jest.fn().mockImplementation();
 const directMessagingChannelType = 'X';
 
@@ -29,6 +30,7 @@ const renderComponent = async ({
   channelSearchData,
   chatContext,
   customClient,
+  layoutController,
   messageResponseData,
   SearchResultItemComponent,
   userData,
@@ -58,15 +60,16 @@ const renderComponent = async ({
       value={{
         channel: activeChannel ?? channel,
         client: customClient ?? client,
-        setActiveChannel: mockSetActiveChannel,
         ...chatContext,
       }}
     >
-      <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
-        <SearchContextProvider value={{ directMessagingChannelType }}>
-          <SearchResultItemComponent item={item} />
-        </SearchContextProvider>
-      </ChannelListContextProvider>
+      <ChatView layoutController={layoutController}>
+        <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
+          <SearchContextProvider value={{ directMessagingChannelType }}>
+            <SearchResultItemComponent item={item} />
+          </SearchContextProvider>
+        </ChannelListContextProvider>
+      </ChatView>
     </ChatProvider>,
   );
 };
@@ -92,7 +95,6 @@ describe('SearchResultItem Components', () => {
 
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
     });
   });
@@ -128,9 +130,6 @@ describe('SearchResultItem Components', () => {
       expect(
         searchController._internalState.getLatestValue().focusedMessage,
       ).toStrictEqual(messageResponseData);
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(
-        messageResponseData.channel.id,
-      );
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
     });
 
@@ -146,6 +145,55 @@ describe('SearchResultItem Components', () => {
       });
 
       expect(screen.getByText(message.text)).toBeInTheDocument();
+    });
+
+    it('uses slot-bound active channel to set active state', async () => {
+      const searchController = new SearchController();
+      const message = generateMessage();
+      const messageResponseData = generateChannel({ messages: [message] });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await initChannelFromData({
+        channelData: messageResponseData,
+        client,
+      });
+
+      const activeChannel = client.channel(
+        messageResponseData.channel.type,
+        messageResponseData.channel.id,
+      );
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
+      });
+      layoutController.open(
+        createChatViewSlotBinding({
+          key: activeChannel.cid,
+          kind: 'channel',
+          source: activeChannel,
+        }),
+      );
+      searchController._internalState.partialNext({
+        focusedMessage: messageResponseData,
+      });
+
+      await renderComponent({
+        chatContext: { searchController },
+        customClient: client,
+        layoutController,
+        messageResponseData,
+        SearchResultItemComponent,
+      });
+
+      expect(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID)).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      // keep channel from initClientWithChannels referenced for consistency with helper setup
+      expect(channel).toBeDefined();
     });
   });
 

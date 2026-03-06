@@ -1,12 +1,12 @@
 import React from 'react';
+import { StateStore } from 'stream-chat';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
 
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { useMessageContext } from '../../../context/MessageContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
@@ -29,6 +29,11 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
+const setClientMutedUsers = (client, mutedUsers) => {
+  client.mutedUsersStore = client.mutedUsersStore || new StateStore({ mutedUsers: [] });
+  client.mutedUsersStore.next({ mutedUsers });
+};
+
 const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
   const messageContext = useMessageContext();
   contextCallback(messageContext);
@@ -36,9 +41,8 @@ const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
 });
 
 async function renderComponent({
-  channelActionOpts,
   channelConfig = { replies: true },
-  channelStateOpts,
+  channelStateOpts = {},
   clientOpts,
   components,
   contextCallback = () => {},
@@ -46,47 +50,47 @@ async function renderComponent({
   props = {},
   renderer = render,
 }) {
+  const {
+    channelCapabilities: channelCapabilitiesOverrides,
+    state: channelStateOverrides,
+    ...channelStateRest
+  } = channelStateOpts;
+  const channelCapabilities = {
+    'send-reaction': true,
+    ...(channelCapabilitiesOverrides ?? {}),
+  };
+  const ownCapabilities = Object.entries(channelCapabilities)
+    .filter(([, value]) => value)
+    .map(([capability]) => capability);
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
-    state: { membership: {} },
-    ...channelStateOpts,
+    state: {
+      membership: {},
+      ...(channelStateOverrides ?? {}),
+      ownCapabilitiesStore: new StateStore({ ownCapabilities }),
+    },
+    ...channelStateRest,
   });
   const client = await getTestClientWithUser(alice);
+  client.configsStore.partialNext({ configs: { [channel.cid]: channelConfig } });
 
   return renderer(
     <ChatProvider value={{ client, ...clientOpts }}>
-      <ChannelStateProvider
-        value={{
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateOpts,
-        }}
-      >
-        <ChannelActionProvider
+      <ChannelInstanceProvider value={{ channel }}>
+        <ComponentProvider
           value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-            ...channelActionOpts,
+            Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+            ...components,
           }}
         >
-          <ComponentProvider
-            value={{
-              Message: () => (
-                <CustomMessageUIComponent contextCallback={contextCallback} />
-              ),
-              ...components,
-            }}
-          >
-            <TranslationProvider value={{ t: (key) => key }}>
-              <Message message={message} {...props} />
-            </TranslationProvider>
-          </ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+          <TranslationProvider value={{ t: (key) => key }}>
+            <Message message={message} {...props} />
+          </TranslationProvider>
+        </ComponentProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 }
@@ -129,6 +133,20 @@ describe('<Message /> component', () => {
     });
 
     expect(context.actionsEnabled).toBe(true);
+  });
+
+  it('should not expose messageIsUnread in message context value', async () => {
+    const message = generateMessage({ status: 'received', type: 'regular' });
+    let context;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+    });
+
+    expect('messageIsUnread' in context).toBe(false);
   });
 
   it("should warn if message's own reactions contain a reaction from a different user then the currently active one", async () => {
@@ -290,11 +308,11 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { onMentionsClick },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
+      props: { onMentionsClick },
     });
 
     context.onMentionsClickMessage(mouseEventMock);
@@ -307,11 +325,11 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { onMentionsHover },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
+      props: { onMentionsHover },
     });
 
     context.onMentionsHoverMessage(mouseEventMock);
@@ -360,11 +378,11 @@ describe('<Message /> component', () => {
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
     client.muteUser = muteUser;
+    setClientMutedUsers(client, []);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -386,11 +404,11 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const muteUser = jest.fn(() => Promise.resolve());
     client.muteUser = muteUser;
+    setClientMutedUsers(client, []);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -413,11 +431,11 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.muteUser = muteUser;
+    setClientMutedUsers(client, []);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -440,11 +458,11 @@ describe('<Message /> component', () => {
     const muteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     client.muteUser = muteUser;
+    setClientMutedUsers(client, []);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -467,11 +485,11 @@ describe('<Message /> component', () => {
     const userUnmutedNotification = 'User unmuted!';
     const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
     client.unmuteUser = unmuteUser;
+    setClientMutedUsers(client, [{ target: { id: bob.id } }]);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -494,11 +512,11 @@ describe('<Message /> component', () => {
     const unmuteUser = jest.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     client.unmuteUser = unmuteUser;
+    setClientMutedUsers(client, [{ target: { id: bob.id } }]);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -521,11 +539,11 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.unmuteUser = unmuteUser;
+    setClientMutedUsers(client, [{ target: { id: bob.id } }]);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -548,11 +566,11 @@ describe('<Message /> component', () => {
     const unmuteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     client.unmuteUser = unmuteUser;
+    setClientMutedUsers(client, [{ target: { id: bob.id } }]);
     let context;
 
     await renderComponent({
       channelActionOpts: { addNotification },
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -892,23 +910,6 @@ describe('<Message /> component', () => {
 
     context.handleRetry(message);
     expect(retrySendMessage).toHaveBeenCalledWith(message);
-  });
-
-  it('should allow user to open a thread', async () => {
-    const message = generateMessage();
-    const openThread = jest.fn();
-    let context;
-
-    await renderComponent({
-      channelActionOpts: { openThread },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    context.handleOpenThread(mouseEventMock);
-    expect(openThread).toHaveBeenCalledWith(message, mouseEventMock);
   });
 
   it('should correctly tell if message belongs to currently set user', async () => {

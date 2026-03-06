@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { LegacyThreadContext } from './LegacyThreadContext';
@@ -7,21 +7,32 @@ import type { MessageInputProps } from '../MessageInput';
 import { MessageInput, MessageInputFlat } from '../MessageInput';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
+import { useThreadSlotContext } from './ThreadSlotContext';
 
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-  useComponentContext,
-} from '../../context';
+import { useChatContext, useComponentContext } from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
+import { useThreadRequestHandlers } from './hooks/useThreadRequestHandlers';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
-import type { ThreadState } from 'stream-chat';
+import type {
+  DeleteMessageOptions,
+  EventAPIResponse,
+  LocalMessage,
+  MarkReadOptions,
+  Message,
+  MessageResponse,
+  SendMessageOptions,
+  Channel as StreamChannel,
+  StreamChat,
+  Thread as StreamThread,
+  ThreadState,
+  UpdateMessageOptions,
+} from 'stream-chat';
 
 export type ThreadProps = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
@@ -42,6 +53,29 @@ export type ThreadProps = {
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function in thread flows */
+  doDeleteMessageRequest?: (
+    thread: StreamThread,
+    message: LocalMessage,
+    options?: DeleteMessageOptions,
+  ) => Promise<MessageResponse>;
+  /** Custom action handler to override the default `thread.markAsRead` request function (advanced usage only) */
+  doMarkReadRequest?: (params: {
+    thread: StreamThread;
+    options?: MarkReadOptions;
+  }) => Promise<EventAPIResponse | null> | void;
+  /** Custom action handler to override the default `channel.sendMessage` request function in thread flows */
+  doSendMessageRequest?: (
+    thread: StreamThread,
+    message: Message,
+    options?: SendMessageOptions,
+  ) => ReturnType<StreamChannel['sendMessage']> | void;
+  /** Custom action handler to override the default `client.updateMessage` request function in thread flows */
+  doUpdateMessageRequest?: (
+    thread: StreamThread,
+    updatedMessage: LocalMessage | MessageResponse,
+    options?: UpdateMessageOptions,
+  ) => ReturnType<StreamChat['updateMessage']>;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -50,28 +84,42 @@ export type ThreadProps = {
  * The Thread component renders a parent Message with a list of replies
  */
 export const Thread = (props: ThreadProps) => {
-  const { channel, channelConfig, thread } = useChannelStateContext('Thread');
   const threadInstance = useThreadContext();
 
-  if (!thread && !threadInstance) return null;
-  if (channelConfig?.replies === false) return null;
+  if (!threadInstance) return null;
+  // todo: remove the use of channel.getConfig
+  if (threadInstance.channel.getConfig()?.replies === false) return null;
 
+  // todo: maybe this extra layer with ThreadInner could be removed?
   // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
-    // FIXME: TS is having trouble here as at least one of the two would always be defined
     <ThreadInner
       {...props}
-      key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`}
+      key={`thread-${threadInstance.id}-${threadInstance.channel.cid}`}
     />
   );
 };
 
 const selector = (nextValue: ThreadState) => ({
-  isLoadingNext: nextValue.pagination.isLoadingNext,
-  isLoadingPrev: nextValue.pagination.isLoadingPrev,
+  isStateStale: nextValue.isStateStale,
   parentMessage: nextValue.parentMessage,
-  replies: nextValue.replies,
 });
+
+const messagePaginatorSelector = ({
+  isLoading,
+  items,
+  lastQueryError,
+}: {
+  isLoading: boolean;
+  items: LocalMessage[] | undefined;
+  lastQueryError?: Error;
+}) => ({
+  isLoading,
+  items,
+  lastQueryError,
+});
+
+const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ threads });
 
 const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
@@ -80,6 +128,10 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
     autoFocus = true,
+    doDeleteMessageRequest,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
     enableDateSeparator = false,
     Input: PropInput,
     Message: PropMessage,
@@ -88,16 +140,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   } = props;
 
   const threadInstance = useThreadContext();
-
-  const {
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages = [],
-    threadSuppressAutoscroll,
-  } = useChannelStateContext('Thread');
-  const { closeThread, loadMoreThread } = useChannelActionContext('Thread');
-  const { customClasses } = useChatContext('Thread');
+  const threadSlot = useThreadSlotContext();
+  const { client, customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
@@ -106,8 +150,31 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     VirtualMessage,
   } = useComponentContext('Thread');
 
-  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
+  const { isStateStale, parentMessage } =
     useStateStore(threadInstance?.state, selector) ?? {};
+  const threadPaginatorState = useStateStore(
+    threadInstance?.messagePaginator?.state,
+    messagePaginatorSelector,
+  );
+  const threadManagerState = useStateStore(
+    client.threads.state,
+    threadManagerSelector,
+  ) ?? {
+    threads: client.threads.state.getLatestValue().threads,
+  };
+  const isThreadManaged = threadInstance?.id
+    ? threadManagerState.threads.some(
+        (managedThread) => managedThread.id === threadInstance.id,
+      )
+    : false;
+
+  const { closeThread: closeThreadFromNavigation } = useChatViewNavigation();
+
+  const closeThread = useCallback(() => {
+    closeThreadFromNavigation(threadSlot ? { slot: threadSlot } : undefined);
+    // Keep legacy behavior when Thread is used outside ChatView navigation flow.
+    threadInstance?.deactivate();
+  }, [closeThreadFromNavigation, threadInstance, threadSlot]);
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
@@ -117,43 +184,58 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const MessageUIComponent = ThreadMessage || FallbackMessage;
 
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
+  useThreadRequestHandlers({
+    doDeleteMessageRequest,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
+    threadInstance,
+  });
 
   useEffect(() => {
-    if (threadInstance) return;
+    if (!threadInstance) return;
+    if (isThreadManaged) return;
+    if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
+      return;
+    void threadInstance.reload();
+  }, [
+    isThreadManaged,
+    threadInstance,
+    threadPaginatorState?.isLoading,
+    threadPaginatorState?.items,
+  ]);
 
-    if ((thread?.reply_count ?? 0) > 0) {
-      // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
-      loadMoreThread();
+  useEffect(() => {
+    if (threadInstance && isStateStale) {
+      void threadInstance.reload();
     }
-  }, [thread, loadMoreThread, threadInstance]);
+  }, [isStateStale, threadInstance]);
 
-  const threadProps: Pick<
-    VirtualizedMessageListProps,
-    | 'hasMoreNewer'
-    | 'loadMoreNewer'
-    | 'loadingMoreNewer'
-    | 'hasMore'
-    | 'loadMore'
-    | 'loadingMore'
-    | 'messages'
-  > = threadInstance
-    ? {
-        loadingMore: isLoadingPrev,
-        loadingMoreNewer: isLoadingNext,
-        loadMore: threadInstance.loadPrevPage,
-        loadMoreNewer: threadInstance.loadNextPage,
-        messages: replies,
+  useEffect(() => {
+    if (!threadInstance || isThreadManaged) return;
+    if (threadPaginatorState?.isLoading) return;
+    if (threadPaginatorState?.lastQueryError) return;
+    if (threadPaginatorState?.items === undefined) return;
+
+    client.threads.state.next((current) => {
+      if (current.threads.some((thread) => thread.id === threadInstance.id)) {
+        return current;
       }
-    : {
-        hasMore: threadHasMore,
-        loadingMore: threadLoadingMore,
-        loadMore: loadMoreThread,
-        messages: threadMessages,
+      return {
+        ...current,
+        threads: [threadInstance, ...current.threads],
       };
+    });
+  }, [
+    client.threads.state,
+    isThreadManaged,
+    threadInstance,
+    threadPaginatorState?.isLoading,
+    threadPaginatorState?.items,
+    threadPaginatorState?.lastQueryError,
+  ]);
 
-  const messageAsThread = thread ?? parentMessage;
-
-  if (!messageAsThread) return null;
+  if (!threadInstance || !parentMessage) return null;
 
   const threadClass =
     customClasses?.thread ||
@@ -163,8 +245,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
 
   const head = (
     <ThreadHead
-      key={messageAsThread.id}
-      message={messageAsThread}
+      key={parentMessage.id}
+      message={parentMessage}
       Message={MessageUIComponent}
       {...additionalParentMessageProps}
     />
@@ -174,19 +256,16 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     // Thread component needs a context which we can use for message composer
     <LegacyThreadContext.Provider
       value={{
-        legacyThread: thread ?? undefined,
+        legacyThread: parentMessage ?? undefined,
       }}
     >
       <div className={threadClass}>
-        <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+        <ThreadHeader closeThread={closeThread} thread={parentMessage} />
         <ThreadMessageList
           disableDateSeparator={!enableDateSeparator}
           head={head}
           Message={MessageUIComponent}
           messageActions={messageActions}
-          suppressAutoscroll={threadSuppressAutoscroll}
-          threadList
-          {...threadProps}
           {...(virtualized
             ? additionalVirtualizedMessageListProps
             : additionalMessageListProps)}
@@ -195,7 +274,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           focus={autoFocus}
           Input={ThreadInput}
           isThreadInput
-          parent={thread ?? parentMessage}
+          parent={parentMessage}
           {...additionalMessageInputProps}
         />
       </div>

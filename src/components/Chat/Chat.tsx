@@ -62,14 +62,10 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
   } = props;
 
   const {
-    channel,
-    closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
-    mutes,
     navOpen,
     openMobileNav,
-    setActiveChannel,
     translators,
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
@@ -89,19 +85,15 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
   );
 
   const chatContextValue = useCreateChatContext({
-    channel,
     channelsQueryState,
     client,
-    closeMobileNav,
     customClasses,
     getAppSettings,
     isMessageAIGenerated,
     latestMessageDatesByChannels,
-    mutes,
     navOpen,
     openMobileNav,
     searchController,
-    setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   });

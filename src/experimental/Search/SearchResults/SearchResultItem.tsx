@@ -5,6 +5,8 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
+import { useSlotChannel } from '../../../components/ChatView';
+import { useChatViewNavigation } from '../../../components/ChatView/ChatViewNavigationContext';
 import { ChannelPreview } from '../../../components/ChannelPreview';
 import { useChannelListContext, useChatContext } from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
@@ -14,13 +16,13 @@ export type ChannelSearchResultItemProps = {
 };
 
 export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) => {
-  const { setActiveChannel } = useChatContext();
+  const { openChannel } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
 
   const onSelect = useCallback(() => {
-    setActiveChannel(item);
+    openChannel(item);
     setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
-  }, [item, setActiveChannel, setChannels]);
+  }, [item, openChannel, setChannels]);
 
   return (
     <ChannelPreview
@@ -38,13 +40,10 @@ export type ChannelByMessageSearchResultItemProps = {
 export const MessageSearchResultItem = ({
   item,
 }: ChannelByMessageSearchResultItemProps) => {
-  const {
-    channel: activeChannel,
-    client,
-    searchController,
-    setActiveChannel,
-  } = useChatContext();
+  const { client, searchController } = useChatContext();
+  const { openChannel } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
+  const activeChannel = useSlotChannel();
 
   const channel = useMemo(() => {
     const { channel: channelData } = item;
@@ -62,9 +61,9 @@ export const MessageSearchResultItem = ({
     );
     // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
     searchController._internalState.partialNext({ focusedMessage: item });
-    setActiveChannel(channel);
+    openChannel(channel);
     setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
-  }, [channel, item, searchController, setActiveChannel, setChannels]);
+  }, [channel, item, openChannel, searchController, setChannels]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const getLatestMessagePreview = useCallback(() => item.text!, [item]);
@@ -90,7 +89,8 @@ export type UserSearchResultItemProps = {
 };
 
 export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
-  const { client, setActiveChannel } = useChatContext();
+  const { client } = useChatContext();
+  const { openChannel } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
   const { directMessagingChannelType } = useSearchContext();
 
@@ -99,9 +99,9 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
       members: [client.userID as string, item.id],
     });
     newChannel.watch();
-    setActiveChannel(newChannel);
+    openChannel(newChannel);
     setChannels?.((channels) => uniqBy([newChannel, ...channels], 'cid'));
-  }, [client, item, setActiveChannel, setChannels, directMessagingChannelType]);
+  }, [client, item, openChannel, setChannels, directMessagingChannelType]);
 
   return (
     <button

@@ -1,5 +1,5 @@
 import { validateAndGetMessage } from '../utils';
-import { useChannelStateContext, useTranslationContext } from '../../../context';
+import { useChannel, useTranslationContext } from '../../../context';
 
 import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
@@ -16,7 +16,7 @@ export const useMarkUnreadHandler = (
 ): ReactEventHandler => {
   const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-  const { channel } = useChannelStateContext('useMarkUnreadHandler');
+  const channel = useChannel();
   const { t } = useTranslationContext('useMarkUnreadHandler');
 
   return async (event) => {
