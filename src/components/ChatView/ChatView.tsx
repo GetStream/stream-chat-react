@@ -10,8 +10,12 @@ import React, {
 
 import { Button, type ButtonProps } from '../Button';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import {
+  IconBubble3ChatMessage,
+  IconBubble3Solid,
+  IconBubbleText6ChatMessage,
+} from '../Icons';
 import { ThreadProvider } from '../Threads';
-import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import {
   useChatContext,
@@ -136,6 +140,7 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
     useComponentContext('ThreadAdapter');
   const { activeThread } = useThreadsViewContext();
+  const { t } = useTranslationContext('ThreadAdapter');
   const { isLoading, ready } = useStateStore(
     client.threads.state,
     threadAdapterSelector,
@@ -149,7 +154,10 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   if (!activeThread && ready && !isLoading && EmptyStateIndicator) {
     return (
       <div className='str-chat__thread-container str-chat__thread'>
-        <EmptyStateIndicator listType='message' />
+        <EmptyStateIndicator
+          listType='message'
+          messageText={t('Select a thread to continue the conversation')}
+        />
       </div>
     );
   }
@@ -158,29 +166,40 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
 };
 
 export const ChatViewSelectorButton = ({
+  ActiveIcon,
   children,
   className,
   Icon,
+  isActive,
   text,
   ...props
-}: ButtonProps & { Icon?: ComponentType; text?: string }) => (
-  <Button
-    appearance='ghost'
-    className={clsx('str-chat__chat-view__selector-button', className)}
-    role='tab'
-    variant='secondary'
-    {...props}
-  >
-    {text ? (
-      <>
-        {Icon && <Icon />}
-        <div className='str-chat__chat-view__selector-button-text'>{text}</div>
-      </>
-    ) : (
-      children
-    )}
-  </Button>
-);
+}: ButtonProps & {
+  ActiveIcon?: ComponentType;
+  Icon?: ComponentType;
+  isActive?: boolean;
+  text?: string;
+}) => {
+  const SelectorIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
+
+  return (
+    <Button
+      appearance='ghost'
+      className={clsx('str-chat__chat-view__selector-button', className)}
+      role='tab'
+      variant='secondary'
+      {...props}
+    >
+      {text ? (
+        <>
+          {SelectorIcon && <SelectorIcon />}
+          <div className='str-chat__chat-view__selector-button-text'>{text}</div>
+        </>
+      ) : (
+        children
+      )}
+    </Button>
+  );
+};
 
 const threadAdapterSelector = ({ pagination, ready }: ThreadManagerState) => ({
   isLoading: pagination.isLoading,
@@ -197,8 +216,10 @@ export const ChatViewChannelsSelectorButton = () => {
 
   return (
     <ChatViewSelectorButton
+      ActiveIcon={IconBubble3Solid}
       aria-selected={activeChatView === 'channels'}
-      Icon={Icon.MessageBubbleEmpty}
+      Icon={IconBubble3ChatMessage}
+      isActive={activeChatView === 'channels'}
       onPointerDown={() => setActiveChatView('channels')}
       text={t('Channels')}
     />
@@ -222,7 +243,7 @@ export const ChatViewThreadsSelectorButton = () => {
       onPointerDown={() => setActiveChatView('threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
-        <Icon.MessageBubble />
+        <IconBubbleText6ChatMessage />
       </UnreadCountBadge>
       <div className='str-chat__chat-view__selector-button-text'>{t('Threads')}</div>
     </ChatViewSelectorButton>

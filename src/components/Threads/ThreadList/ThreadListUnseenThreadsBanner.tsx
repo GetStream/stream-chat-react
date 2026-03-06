@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { ThreadManagerState } from 'stream-chat';
 
-import { Icon } from '../icons';
+import { IconArrowRotateClockwise } from '../../Icons';
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -24,7 +24,7 @@ export const ThreadListUnseenThreadsBanner = () => {
         className='str-chat__unseen-threads-banner__button'
         onClick={() => client.threads.reload()}
       >
-        <Icon.Reload />
+        <IconArrowRotateClockwise />
       </button>
     </div>
   );

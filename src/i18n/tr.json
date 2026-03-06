@@ -321,6 +321,7 @@
   "searchResultsCount_other": "{{ count }} sonuç",
   "See all options ({{count}})_one": "Tüm seçenekleri göster ({{count}})",
   "See all options ({{count}})_other": "Tüm seçenekleri göster ({{count}})",
+  "Select a thread to continue the conversation": "Sohbeti sürdürmek için bir ileti dizisi seçin",
   "Select more than one option": "Birden fazla seçenek seçin",
   "Select one": "Birini seçin",
   "Select one or more": "Bir veya daha fazlasını seçin",

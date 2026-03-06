@@ -88,7 +88,7 @@ describe('ChatView.ThreadAdapter', () => {
     });
 
     expect(
-      await screen.findByText('Send a message to start the conversation'),
+      await screen.findByText('Select a thread to continue the conversation'),
     ).toBeInTheDocument();
     expect(screen.queryByTestId('thread-provider')).not.toBeInTheDocument();
   });
@@ -101,7 +101,7 @@ describe('ChatView.ThreadAdapter', () => {
     });
 
     expect(
-      await screen.findByText('Send a message to start the conversation'),
+      await screen.findByText('Select a thread to continue the conversation'),
     ).toBeInTheDocument();
     expect(screen.queryByTestId('thread-provider')).not.toBeInTheDocument();
   });
@@ -115,7 +115,7 @@ describe('ChatView.ThreadAdapter', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText('Send a message to start the conversation'),
+        screen.queryByText('Select a thread to continue the conversation'),
       ).not.toBeInTheDocument();
     });
     expect(screen.getByTestId('thread-provider')).toBeInTheDocument();

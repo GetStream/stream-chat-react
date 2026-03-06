@@ -6,10 +6,11 @@ import { IconBubble2ChatMessage, IconBubbles } from '../Icons';
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
   listType?: 'channel' | 'message' | 'thread';
+  messageText?: string;
 };
 
 const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
-  const { listType } = props;
+  const { listType, messageText } = props;
 
   const { t } = useTranslationContext('EmptyStateIndicator');
 
@@ -26,7 +27,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   }
 
   if (listType === 'message') {
-    const text = t('Send a message to start the conversation');
+    const text = t(messageText || 'Send a message to start the conversation');
     return (
       <div className='str-chat__empty-channel'>
         <IconBubble2ChatMessage />

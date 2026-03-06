@@ -321,6 +321,7 @@
   "searchResultsCount_other": "{{ count }} results",
   "See all options ({{count}})_one": "See all options ({{count}})",
   "See all options ({{count}})_other": "See all options ({{count}})",
+  "Select a thread to continue the conversation": "Select a thread to continue the conversation",
   "Select more than one option": "Select more than one option",
   "Select one": "Select one",
   "Select one or more": "Select one or more",

@@ -319,6 +319,7 @@
   "searchResultsCount_other": "{{ count }}개 결과",
   "See all options ({{count}})_one": "모든 옵션 보기 ({{count}})",
   "See all options ({{count}})_other": "모든 옵션 보기 ({{count}})",
+  "Select a thread to continue the conversation": "대화를 계속하려면 스레드를 선택하세요",
   "Select more than one option": "하나 이상의 선택지 선택",
   "Select one": "하나 선택",
   "Select one or more": "하나 이상 선택",

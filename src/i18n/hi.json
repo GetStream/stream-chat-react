@@ -322,6 +322,7 @@
   "searchResultsCount_other": "{{ count }} परिणाम",
   "See all options ({{count}})_one": "सभी विकल्प देखें ({{count}})",
   "See all options ({{count}})_other": "सभी विकल्प देखें ({{count}})",
+  "Select a thread to continue the conversation": "बातचीत जारी रखने के लिए एक थ्रेड चुनें",
   "Select more than one option": "एक से अधिक विकल्प चुनें",
   "Select one": "एक चुनें",
   "Select one or more": "एक या अधिक चुनें",
