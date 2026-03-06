@@ -2,20 +2,23 @@ import {
   Button,
   ChatViewSelectorButton,
   GlobalModal,
+  IconBubble3ChatMessage,
   IconEmojiSmile,
   IconSettingsGear2,
 } from 'stream-chat-react';
 import { type ComponentType, useState } from 'react';
 import { ReactionsTab } from './tabs/Reactions';
+import { SidebarTab } from './tabs/Sidebar';
 
-type TabId = 'reactions';
+type TabId = 'reactions' | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
+  { Icon: IconBubble3ChatMessage, id: 'sidebar', title: 'Sidebar' },
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
 
-export const AppSettings = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('reactions');
+export const AppSettings = ({ showLabels = false }: { showLabels?: boolean }) => {
+  const [activeTab, setActiveTab] = useState<TabId>('sidebar');
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,6 +26,7 @@ export const AppSettings = () => {
       <ChatViewSelectorButton
         Icon={IconSettingsGear2}
         onClick={() => setOpen(true)}
+        showLabel={showLabels}
         text='Settings'
       />
       <GlobalModal open={open} onClose={() => setOpen(false)}>
@@ -55,9 +59,10 @@ export const AppSettings = () => {
             </nav>
             <section
               className='app__settings-modal__content'
-              id='reactions-content'
+              id={`${activeTab}-content`}
               role='tabpanel'
             >
+              {activeTab === 'sidebar' && <SidebarTab />}
               {activeTab === 'reactions' && <ReactionsTab />}
             </section>
           </div>
