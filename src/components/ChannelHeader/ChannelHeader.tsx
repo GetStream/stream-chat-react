@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { IconLayoutAlignLeft } from '../Icons/icons';
+// import { IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+// import { useChatContext } from '../../context/ChatContext';
+// import { useTranslationContext } from '../../context/TranslationContext';
 import type { ChannelAvatarProps } from '../Avatar';
-import { Button } from '../Button';
+// import { Button } from '../Button';
 import clsx from 'clsx';
 
 export type ChannelHeaderProps = {
@@ -31,14 +31,14 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
     image: overrideImage,
-    MenuIcon = IconLayoutAlignLeft,
+    // MenuIcon = IconLayoutAlignLeft,
     sidebarCollapsed = true,
     title: overrideTitle,
   } = props;
 
   const { channel } = useChannelStateContext();
-  const { openMobileNav } = useChatContext('ChannelHeader');
-  const { t } = useTranslationContext('ChannelHeader');
+  // const { openMobileNav } = useChatContext('ChannelHeader');
+  // const { t } = useTranslationContext('ChannelHeader');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -52,17 +52,17 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         'str-chat__channel-header--sidebar-collapsed': sidebarCollapsed,
       })}
     >
-      <Button
-        appearance='ghost'
-        aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}
-        circular
-        className='str-chat__header-sidebar-toggle'
-        onClick={openMobileNav}
-        size='md'
-        variant='secondary'
-      >
-        {sidebarCollapsed && <MenuIcon />}
-      </Button>
+      {/*<Button*/}
+      {/*  appearance='ghost'*/}
+      {/*  aria-label={sidebarCollapsed ? t('aria/Expand sidebar') : t('aria/Menu')}*/}
+      {/*  circular*/}
+      {/*  className='str-chat__header-sidebar-toggle'*/}
+      {/*  onClick={openMobileNav}*/}
+      {/*  size='md'*/}
+      {/*  variant='secondary'*/}
+      {/*>*/}
+      {/*  {sidebarCollapsed && <MenuIcon />}*/}
+      {/*</Button>*/}
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
         {onlineStatusText != null && (
