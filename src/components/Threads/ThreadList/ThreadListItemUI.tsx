@@ -11,36 +11,9 @@ import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
-import {
-  type ChannelPreviewMessageType,
-  useLatestMessagePreview,
-} from '../../ChannelPreview/hooks/useLatestMessagePreview';
-import {
-  IconCamera1,
-  IconChainLink,
-  IconCircleBanSign,
-  IconExclamationCircle1,
-  IconFileBend,
-  IconMapPin,
-  IconMicrophone,
-  IconVideo,
-} from '../../Icons';
-import clsx from 'clsx';
+import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
-
-const contentTypeIconMap: Partial<
-  Record<ChannelPreviewMessageType, React.ComponentType>
-> = {
-  deleted: IconCircleBanSign,
-  error: IconExclamationCircle1,
-  file: IconFileBend,
-  image: IconCamera1,
-  link: IconChainLink,
-  location: IconMapPin,
-  video: IconVideo,
-  voice: IconMicrophone,
-};
 
 export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   const { client } = useChatContext();
@@ -70,13 +43,6 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
     participants,
     replyCount,
   } = useStateStore(thread.state, selector);
-
-  const { senderName, text, type } = useLatestMessagePreview({
-    latestMessage: parentMessage,
-    participantCount: participants?.length,
-  });
-
-  const ContentTypeIcon = contentTypeIconMap[type];
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
@@ -117,19 +83,10 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
             <span className='str-chat__thread-list-item__title'>
               {channelDisplayTitle}
             </span>
-            <div
-              className={clsx('str-chat__thread-list-item__message-preview', {
-                [`str-chat__thread-list-item__message-preview--${type}`]: type,
-              })}
-            >
-              {type !== 'error' && !!senderName && (
-                <span className='str-chat__thread-list-item__message-preview-sender'>
-                  {senderName}:
-                </span>
-              )}
-              {ContentTypeIcon && <ContentTypeIcon />}
-              <span className='str-chat__thread-list-item__message-preview-text'>{text}</span>
-            </div>
+            <SummarizedMessagePreview
+              latestMessage={parentMessage}
+              participantCount={participants?.length}
+            />
           </div>
           <div className='str-chat__thread-list-item__content-trailing'>
             <div className='str-chat__thread-list-item__reply-information'>

@@ -47,6 +47,7 @@
 @use '../components/Thread/styling' as Thread;
 @use '../components/Threads/ThreadList/styling' as ThreadList;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
+@use '../components/SummarizedMessagePreview/styling' as SummarizedMessagePreview;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

@@ -1,28 +1,15 @@
 import { useMemo } from 'react';
 import type { Attachment, LocalMessage } from 'stream-chat';
 
-import { useChatContext } from '../../../context/ChatContext';
-import { useTranslationContext } from '../../../context/TranslationContext';
-import { getTranslatedMessageText } from '../../../context/MessageTranslationViewContext';
-import type { TranslationContextValue } from '../../../context/TranslationContext';
-import type { MessageDeliveryStatus } from './useMessageDeliveryStatus';
+import {
+  getTranslatedMessageText,
+  type TranslationContextValue,
+  useChatContext,
+  useTranslationContext,
+} from '../../../context';
 
-/**
- * The type of content being previewed in the channel list item.
- * Determines which icon to render alongside the preview text.
- *
- * - `text` — Regular text message, no content-type icon
- * - `deleted` — Deleted message, renders ban/circle icon
- * - `error` — Failed message, renders exclamation circle icon
- * - `empty` — No messages yet, no icon
- * - `image` — Image attachment, renders camera icon
- * - `video` — Video attachment, renders video icon
- * - `voice` — Voice message, renders microphone icon
- * - `file` — File attachment, renders file icon
- * - `link` — Link preview, renders chain link icon
- * - `location` — Shared location, renders map pin icon
- * - `poll` — Poll message, emoji prefix in text
- */
+import type { MessageDeliveryStatus } from '../../ChannelPreview';
+
 export type ChannelPreviewMessageType =
   | 'text'
   | 'deleted'
@@ -47,10 +34,6 @@ export type ChannelPreviewMessageType =
  */
 export type ChannelPreviewDeliveryStatus = 'sending' | 'sent' | 'delivered' | 'read';
 
-/**
- * Structured data for rendering the channel preview message row.
- * Produced by the `useLatestMessagePreview` hook.
- */
 export type LatestMessagePreviewData = {
   /**
    * The type of content being previewed.
@@ -76,35 +59,36 @@ export type LatestMessagePreviewData = {
   senderName?: string;
 };
 
-function getAttachmentContentType(attachments: Attachment[]): ChannelPreviewMessageType {
-  const [first] = attachments;
-  if (!first) return 'text';
+function getAttachmentContentType(attachment: Attachment): ChannelPreviewMessageType {
+  if (!attachment) return 'text';
 
-  if (first.type === 'image' || first.type === 'giphy') return 'image';
-  if (first.type === 'video') return 'video';
-  if (first.type === 'voiceRecording') return 'voice';
-  if (first.type === 'file') return 'file';
-  if (first.og_scrape_url || first.title_link) return 'link';
+  // TODO: add audio (non-voice) content type when supported by the design
+  if (attachment.type === 'image' || attachment.type === 'giphy') return 'image';
+  if (attachment.type === 'video') return 'video';
+  if (attachment.type === 'voiceRecording') return 'voice';
+  if (attachment.type === 'file') return 'file';
+  if (attachment.og_scrape_url || attachment.title_link) return 'link';
 
   return 'file';
 }
 
 function getAttachmentFallbackText(
   type: ChannelPreviewMessageType,
+  count: number,
   t: TranslationContextValue['t'],
 ): string {
   switch (type) {
     case 'image':
-      return t('Image');
+      return t('imageCount', { count });
     case 'video':
-      return t('Video');
+      return t('videoCount', { count });
     case 'voice':
-      return t('Voice message');
+      return t('voiceMessageCount', { count });
     case 'link':
-      return t('Link');
+      return t('linkCount', { count });
     case 'file':
     default:
-      return t('File');
+      return t('fileCount', { count });
   }
 }
 
@@ -187,14 +171,36 @@ export const useLatestMessagePreview = ({
       const attachments = latestMessage.attachments;
 
       let contentType: ChannelPreviewMessageType;
-      let text: string;
 
-      if (attachments.length === 1) {
-        contentType = getAttachmentContentType(attachments);
-        text = textContent || getAttachmentFallbackText(contentType, t);
+      const [firstAttachment] = attachments;
+      const firstAttachmentType = getAttachmentContentType(firstAttachment);
+
+      if (
+        attachments.every(
+          (attachment) => getAttachmentContentType(attachment) === firstAttachmentType,
+        )
+      ) {
+        contentType = firstAttachmentType;
       } else {
         contentType = 'file';
-        text = textContent || t('fileCount', { count: attachments.length });
+      }
+
+      let text =
+        // prioritize message text content if available
+        textContent ||
+        // then fallback text of the single attachment if only one attachment is present and it's not a voice recording (fallback text is generic for voice recordings, so not useful in the preview)
+        (attachments.length === 1 && contentType !== 'voice'
+          ? firstAttachment.fallback || firstAttachment.title
+          : '') ||
+        // then generic fallback text based on attachment type and count
+        getAttachmentFallbackText(contentType, attachments.length, t);
+
+      // attach duration for audio/video attachments if available
+      if (attachments.length === 1 && typeof firstAttachment.duration === 'number') {
+        const minutes = Math.floor(firstAttachment.duration / 60);
+        const seconds = Math.ceil(firstAttachment.duration) % 60;
+        const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        text += ` (${durationString})`;
       }
 
       return {
