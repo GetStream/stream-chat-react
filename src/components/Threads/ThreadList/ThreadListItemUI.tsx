@@ -10,8 +10,9 @@ import { Icon } from '../icons';
 import { UnreadCountBadge } from '../UnreadCountBadge';
 
 import { useChannelPreviewInfo } from '../../ChannelPreview';
+import { getChatViewEntityBinding, useChatViewNavigation } from '../../ChatView';
+import { useLayoutViewState } from '../../ChatView/hooks/useLayoutViewState';
 import { useChatContext } from '../../../context';
-import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 
@@ -68,6 +69,7 @@ const getTitleFromMessage = ({
 };
 
 export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
+  const { onClick: onClickFromProps, ...buttonProps } = props;
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
@@ -88,8 +90,12 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
     useStateStore(thread.state, selector);
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
-
-  const { activeThread, setActiveThread } = useThreadsViewContext();
+  const { openThread } = useChatViewNavigation();
+  const { availableSlots, slotBindings } = useLayoutViewState();
+  const isSelected = availableSlots.some((slot) => {
+    const binding = getChatViewEntityBinding(slotBindings[slot]);
+    return binding?.kind === 'thread' && binding.source.id === thread.id;
+  });
 
   const avatarProps: AvatarProps | undefined = deletedAt
     ? undefined
@@ -101,12 +107,16 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
 
   return (
     <button
-      aria-selected={activeThread === thread}
+      aria-selected={isSelected}
       className='str-chat__thread-list-item'
       data-thread-id={thread.id}
-      onClick={() => setActiveThread(thread)}
+      onClick={(event) => {
+        const slot = event.ctrlKey || event.metaKey ? 'optional-thread' : 'main-thread';
+        void openThread(thread, { slot });
+        onClickFromProps?.(event);
+      }}
       role='option'
-      {...props}
+      {...buttonProps}
     >
       <div className='str-chat__thread-list-item__channel'>
         <Icon.MessageBubble />

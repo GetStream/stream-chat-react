@@ -56,11 +56,13 @@
   .str-chat__chat-view__channels {
     display: flex;
     flex-grow: 1;
+    min-height: 0;
   }
 
   .str-chat__chat-view__threads {
     display: flex;
     flex-grow: 1;
+    min-height: 0;
   }
 }
 
@@ -98,6 +100,9 @@
 }
 
 .str-chat__chat-view__slot {
+  display: flex;
+  height: 100%;
+  min-height: 0;
   min-width: 0;
 }
 

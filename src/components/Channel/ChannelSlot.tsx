@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
-import { useSlotChannel } from '../ChatView';
+import { useChatViewNavigation, useSlotChannel } from '../ChatView';
 import { Channel as ChannelComponent, type ChannelProps } from './Channel';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import type { LayoutSlot } from '../ChatView/layoutController/layoutControllerTypes';
+import type { SlotName } from '../ChatView/layoutController/layoutControllerTypes';
 
 export type ChannelSlotProps = PropsWithChildren<
   Omit<ChannelProps, 'channel'> & {
@@ -16,13 +16,13 @@ export type ChannelSlotProps = PropsWithChildren<
      * Explicit layout slot to resolve a channel from.
      *
      * - If provided: this ChannelSlot only inspects that slot.
-     * - If omitted: ChannelSlot inspects `[activeSlot, ...visibleSlots]` and
+     * - If omitted: ChannelSlot inspects `availableSlots` and
      *   renders the first slot currently bound to a `kind: 'channel'` entity.
      *
      * In multi-workspace layouts, pass `slot` for each ChannelSlot instance to
      * avoid multiple ChannelSlots resolving the same active channel.
      */
-    slot?: LayoutSlot;
+    slot?: SlotName;
   }
 >;
 
@@ -43,7 +43,20 @@ export const ChannelSlot = ({
   slot,
   ...channelProps
 }: ChannelSlotProps) => {
+  const { openChannel } = useChatViewNavigation();
   const channel = useSlotChannel({ slot });
+  const existingChannel = useSlotChannel();
+  const lastClaimKeyRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!slot || channel || !existingChannel?.cid) return;
+
+    const claimKey = `${slot}:${existingChannel.cid}`;
+    if (lastClaimKeyRef.current === claimKey) return;
+
+    lastClaimKeyRef.current = claimKey;
+    openChannel(existingChannel, { slot });
+  }, [channel, existingChannel, openChannel, slot]);
 
   if (!channel) return <>{fallback}</>;
 

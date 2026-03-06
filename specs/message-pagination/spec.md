@@ -36,6 +36,11 @@ Explicitly for message interactions:
 - `Channel.messageOperations` / `Thread.messageOperations` use `MessagePaginator` ingest/get for optimistic `send/retry/update`.
 - `Thread` supports minimal construction (`client + channel + parentMessage`) and reload/hydration flow.
 - `Thread.messagePaginator` is thread-aware (`parentMessageId`) and queries replies dataset.
+- `Thread` `message.new` subscription now ingests replies into `thread.messagePaginator` and updates thread-local `replyCount` only (channel metadata ownership stays with `Channel`).
+- `Channel` `message.updated` / `message.undeleted` now ingest into `channel.messagePaginator`, keeping parent-message metadata (`reply_count`, `thread_participants`) synchronized for channel-list UI.
+- `ChatViewNavigation.openThread({ channel, message })` reuses `client.threads.threadsById[message.id]` when available instead of always constructing a new thread instance.
+- `Thread.tsx` no longer forces `thread.reload()` on every mount; unmanaged threads reload only when their paginator has no first-page data yet.
+- `Thread.tsx` registers unmanaged thread instances into `ThreadManager` only after the first paginator page has loaded successfully (`messagePaginator.state.items !== undefined` and no `lastQueryError`).
 
 - `stream-chat-react`:
 - `ChannelActionContext` already removed legacy pagination/thread methods (`jumpTo*`, `loadMore*`, `openThread/closeThread`, `loadMoreThread`) from its public value type.
@@ -96,7 +101,7 @@ Explicitly for message interactions:
 - `useSlotThread({ slot? })`
 - Behavior contract:
 - if `slot` is provided, resolve from that slot only;
-- if `slot` is omitted, scan `[activeSlot, ...visibleSlots]` and return the first matching entity by `kind`.
+- if `slot` is omitted, scan `[activeSlot, ...availableSlots]` and return the first matching entity by `kind`.
 - Consumers such as `ChannelSlot`, `ThreadSlot`, and search result components should prefer this shared hook to avoid duplicated narrowing logic and inconsistent behavior.
 
 ### ChannelSlot Multi-Instance Expectations
@@ -104,7 +109,7 @@ Explicitly for message interactions:
 - `ChannelSlot` is a single-slot adapter, not a multi-channel distributor.
 - One rendered `<ChannelSlot slot="...">` maps to at most one channel entity bound to that slot.
 - To render multiple channel instances simultaneously, render multiple `ChannelSlot` components with different slot ids.
-- If `slot` is omitted, fallback behavior uses first match from `[activeSlot, ...visibleSlots]`; this is convenience behavior and should not be used for deterministic multi-pane layouts.
+- If `slot` is omitted, fallback behavior uses first match from `[activeSlot, ...availableSlots]`; this is convenience behavior and should not be used for deterministic multi-pane layouts.
 - Integrators that need deterministic multi-pane channel placement should always provide explicit `slot` to each `ChannelSlot`.
 
 ## Legacy to New API Contract

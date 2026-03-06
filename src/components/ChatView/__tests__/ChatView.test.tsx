@@ -5,10 +5,12 @@ import '@testing-library/jest-dom';
 
 jest.mock('../../ChannelList', () => ({
   ChannelList: () => <div data-testid='channel-list'>ChannelList</div>,
+  ChannelListSlot: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('../../Threads/ThreadList', () => ({
   ThreadList: () => <div data-testid='thread-list'>ThreadList</div>,
+  ThreadListSlot: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 }));
 
 import {
@@ -20,9 +22,11 @@ import {
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
-import { createLayoutController } from '../layoutController/LayoutController';
+import { ChannelListSlot } from '../../ChannelList';
+import { ThreadListSlot } from '../../Threads/ThreadList';
+import { LayoutController } from '../layoutController/LayoutController';
 
-import type { Channel as StreamChannel } from 'stream-chat';
+import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { LayoutController } from '../layoutController/layoutControllerTypes';
 
@@ -78,7 +82,7 @@ describe('ChatView', () => {
           <button
             onClick={() => {
               layoutController.setActiveView('channels');
-              layoutController.open(
+              layoutController.openInLayout(
                 createChatViewSlotBinding({
                   key: channel.cid ?? undefined,
                   kind: 'channel',
@@ -113,14 +117,58 @@ describe('ChatView', () => {
     ).toBe('channel');
   });
 
-  it('renders built-in workspace layout with slotRenderers', () => {
-    const channel = makeChannel('messaging:workspace');
-    const layoutController = createLayoutController({
+  it('clears channel/thread bindings in the view being left when switching view', () => {
+    const channel = makeChannel('messaging:leave-view');
+    const threadBinding = createChatViewSlotBinding({
+      key: 'thread-1',
+      kind: 'thread',
+      source: { id: 'thread-1' } as unknown as StreamThread,
+    });
+    const layoutController = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1', 'slot2'],
+        activeView: 'channels',
+        availableSlots: ['slot1', 'slot2'],
+        slotBindings: {
+          slot1: createChatViewSlotBinding({
+            key: channel.cid ?? undefined,
+            kind: 'channel',
+            source: channel,
+          }),
+          slot2: threadBinding,
+        },
       },
     });
-    layoutController.open(
+
+    const Harness = () => {
+      const { setActiveView } = useChatViewContext();
+      return (
+        <button onClick={() => setActiveView('threads')} type='button'>
+          switch-to-threads
+        </button>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('switch-to-threads'));
+
+    const state = layoutController.state.getLatestValue();
+    expect(state.slotBindingsByView?.channels?.slot1).toBeUndefined();
+    expect(state.slotBindingsByView?.channels?.slot2).toBeUndefined();
+  });
+
+  it('renders built-in workspace layout with slotRenderers', () => {
+    const channel = makeChannel('messaging:workspace');
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+    layoutController.openInLayout(
       createChatViewSlotBinding({
         key: channel.cid ?? undefined,
         kind: 'channel',
@@ -152,9 +200,9 @@ describe('ChatView', () => {
   });
 
   it('keeps channelList slot mounted when hidden/unhidden', () => {
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1', 'slot2'],
+        availableSlots: ['slot1', 'slot2'],
       },
     });
 
@@ -188,14 +236,14 @@ describe('ChatView', () => {
     expect(screen.getByTestId('channel-list-counter')).toHaveTextContent('1');
 
     act(() => {
-      layoutController.setEntityListPaneOpen(false);
+      layoutController.hide('slot1');
     });
     expect(
       container.querySelector('[data-slot="slot1"].str-chat__chat-view__slot--hidden'),
     ).toBeInTheDocument();
 
     act(() => {
-      layoutController.setEntityListPaneOpen(true);
+      layoutController.unhide('slot1');
     });
     expect(screen.getByTestId('channel-list-counter')).toHaveTextContent('1');
   });
@@ -206,7 +254,7 @@ describe('ChatView', () => {
 
       useEffect(() => {
         const channel = makeChannel('messaging:custom');
-        layoutController.open(
+        layoutController.openInLayout(
           createChatViewSlotBinding({
             key: channel.cid ?? undefined,
             kind: 'channel',
@@ -225,5 +273,221 @@ describe('ChatView', () => {
     );
 
     expect(screen.getByTestId('custom-layout')).toBeInTheDocument();
+  });
+
+  it('binds list slot in ChannelListSlot and renders content in that slot', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    const { container } = renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ChatView.Channels>
+          <ChannelListSlot>
+            <div data-testid='channels-list-pane'>list</div>
+          </ChannelListSlot>
+          <div data-testid='channels-workspace'>workspace</div>
+        </ChatView.Channels>
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot1,
+      ),
+    ).toMatchObject({
+      kind: 'channelList',
+      source: { view: 'channels' },
+    });
+    expect(
+      container.querySelector('[data-slot="slot1"] [data-testid="channels-list-pane"]'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('channels-workspace')).toBeInTheDocument();
+  });
+
+  it('initializes available slots from slotNames and minSlots', () => {
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+      return null;
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={3} minSlots={2} slotNames={['list', 'main', 'thread']}>
+        <Harness />
+      </ChatView>,
+    );
+
+    expect(capturedController?.state.getLatestValue()).toMatchObject({
+      availableSlots: ['list', 'main'],
+      maxSlots: 3,
+      minSlots: 2,
+      slotNames: ['list', 'main', 'thread'],
+    });
+  });
+
+  it('uses ChatView.Channels slots order when channels view is active', () => {
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+      return null;
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={3} minSlots={3}>
+        <Harness />
+        <ChatView.Channels slots={['slot3', 'slot1', 'slot2']}>
+          <div />
+        </ChatView.Channels>
+      </ChatView>,
+    );
+
+    expect(capturedController?.state.getLatestValue().availableSlots).toEqual([
+      'slot3',
+      'slot1',
+      'slot2',
+    ]);
+  });
+
+  it('switches availableSlots order according to active view slots props', () => {
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const { layoutController, setActiveView } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <button onClick={() => setActiveView('threads')} type='button'>
+          show-threads
+        </button>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={3} minSlots={3}>
+        <Harness />
+        <ChatView.Channels slots={['slot1', 'slot2', 'slot3']}>
+          <div />
+        </ChatView.Channels>
+        <ChatView.Threads slots={['slot3', 'slot2', 'slot1']}>
+          <div />
+        </ChatView.Threads>
+      </ChatView>,
+    );
+
+    expect(capturedController?.state.getLatestValue().availableSlots).toEqual([
+      'slot1',
+      'slot2',
+      'slot3',
+    ]);
+
+    fireEvent.click(screen.getByText('show-threads'));
+
+    expect(capturedController?.state.getLatestValue().availableSlots).toEqual([
+      'slot3',
+      'slot2',
+      'slot1',
+    ]);
+  });
+
+  it('claims requested slot when ChannelListSlot slot prop is provided', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    const { container } = renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ChatView.Channels>
+          <ChannelListSlot slot='slot2'>
+            <div data-testid='channels-list-pane'>list</div>
+          </ChannelListSlot>
+          <div data-testid='channels-workspace'>workspace</div>
+        </ChatView.Channels>
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot2,
+      ),
+    ).toMatchObject({
+      kind: 'channelList',
+      source: { view: 'channels' },
+    });
+    expect(
+      container.querySelector('[data-slot="slot2"] [data-testid="channels-list-pane"]'),
+    ).toBeInTheDocument();
+  });
+
+  it('falls back to first available slot when ChannelListSlot slot is not visible', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+      },
+    });
+
+    const { container } = renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ChatView.Channels>
+          <ChannelListSlot slot='slot2'>
+            <div data-testid='channels-list-pane'>list</div>
+          </ChannelListSlot>
+          <div data-testid='channels-workspace'>workspace</div>
+        </ChatView.Channels>
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot1,
+      ),
+    ).toMatchObject({
+      kind: 'channelList',
+      source: { view: 'channels' },
+    });
+    expect(
+      container.querySelector('[data-slot="slot1"] [data-testid="channels-list-pane"]'),
+    ).toBeInTheDocument();
+  });
+
+  it('binds list slot in ThreadListSlot inside ChatView.Threads', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        activeView: 'threads',
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    const { container } = renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ChatView.Threads>
+          <ThreadListSlot slot='slot1'>
+            <div data-testid='threads-list-pane'>list</div>
+          </ThreadListSlot>
+          <div data-testid='threads-workspace'>workspace</div>
+        </ChatView.Threads>
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot1,
+      ),
+    ).toMatchObject({
+      kind: 'threadList',
+      source: { view: 'threads' },
+    });
+    expect(
+      container.querySelector('[data-slot="slot1"] [data-testid="threads-list-pane"]'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('threads-workspace')).toBeInTheDocument();
   });
 });

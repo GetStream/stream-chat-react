@@ -1,4 +1,4 @@
-import { createLayoutController } from '../layoutController/LayoutController';
+import { LayoutController } from '../layoutController/LayoutController';
 import {
   restoreLayoutControllerState,
   serializeLayoutControllerState,
@@ -17,21 +17,21 @@ const makeBinding = (kind: string, source: unknown, key?: string) => ({
 
 describe('layoutController', () => {
   it('returns opened, replaced, and rejected outcomes from open()', () => {
-    const controller = createLayoutController({
+    const controller = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
       resolveTargetSlot: () => 'slot1',
     });
 
-    const firstOpen = controller.open(
+    const firstOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
     );
-    const secondOpen = controller.open(
+    const secondOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:two'), 'messaging:two'),
     );
     controller.clear('slot1');
-    const rejectedOpen = controller.open(
+    const rejectedOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:three'), 'messaging:three'),
     );
 
@@ -44,13 +44,13 @@ describe('layoutController', () => {
   });
 
   it('tracks occupiedAt when slot becomes occupied and clears it on clear()', () => {
-    const controller = createLayoutController({
+    const controller = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
     });
 
-    controller.open(
+    controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
     );
     const occupiedAt = controller.state.getLatestValue().slotMeta.slot1?.occupiedAt;
@@ -60,21 +60,41 @@ describe('layoutController', () => {
     expect(controller.state.getLatestValue().slotMeta.slot1).toBeUndefined();
   });
 
+  it('prefers replacing same-kind slot over binding into a free slot', () => {
+    const firstThread = makeBinding('thread', makeThread('thread-1'), 'thread-1');
+    const secondThread = makeBinding('thread', makeThread('thread-2'), 'thread-2');
+    const controller = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1', 'slot2'],
+        slotBindings: {
+          slot1: firstThread,
+        },
+      },
+    });
+
+    const result = controller.openInLayout(secondThread);
+    const state = controller.state.getLatestValue();
+
+    expect(result).toMatchObject({ slot: 'slot1', status: 'replaced' });
+    expect(state.slotBindings.slot2).toBeUndefined();
+    expect(state.slotHistory?.slot1).toEqual([firstThread]);
+  });
+
   it('supports duplicateEntityPolicy reject and move', () => {
-    const rejectController = createLayoutController({
+    const rejectController = new LayoutController({
       duplicateEntityPolicy: 'reject',
-      initialState: { visibleSlots: ['slot1', 'slot2'] },
+      initialState: { availableSlots: ['slot1', 'slot2'] },
       resolveTargetSlot: () => 'slot2',
     });
     const duplicateChannel = makeChannel('messaging:duplicate');
 
-    rejectController.open(
+    rejectController.openInLayout(
       makeBinding('channel', duplicateChannel, duplicateChannel.cid),
       {
         targetSlot: 'slot1',
       },
     );
-    const rejectResult = rejectController.open(
+    const rejectResult = rejectController.openInLayout(
       makeBinding('channel', duplicateChannel, duplicateChannel.cid),
       {
         targetSlot: 'slot2',
@@ -86,24 +106,24 @@ describe('layoutController', () => {
       status: 'rejected',
     });
 
-    const moveController = createLayoutController({
+    const moveController = new LayoutController({
       duplicateEntityPolicy: 'move',
-      initialState: { visibleSlots: ['slot1', 'slot2'] },
+      initialState: { availableSlots: ['slot1', 'slot2'] },
     });
 
-    moveController.open(
+    moveController.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
       {
         targetSlot: 'slot1',
       },
     );
-    moveController.open(
+    moveController.openInLayout(
       makeBinding('channel', makeChannel('messaging:two'), 'messaging:two'),
       {
         targetSlot: 'slot2',
       },
     );
-    moveController.open(
+    moveController.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
       {
         targetSlot: 'slot2',
@@ -123,33 +143,30 @@ describe('layoutController', () => {
     ).toBe('messaging:one');
   });
 
-  it('openView updates activeView and can activate target slot', () => {
-    const controller = createLayoutController({
+  it('openView updates activeView', () => {
+    const controller = new LayoutController({
       initialState: {
-        activeSlot: 'slot1',
         activeView: 'channels',
-        visibleSlots: ['slot1', 'slot2'],
+        availableSlots: ['slot1', 'slot2'],
       },
     });
 
     controller.openView('threads');
     expect(controller.state.getLatestValue()).toMatchObject({
-      activeSlot: 'slot1',
       activeView: 'threads',
     });
 
     controller.openView('channels', { slot: 'slot2' });
     expect(controller.state.getLatestValue()).toMatchObject({
-      activeSlot: 'slot2',
       activeView: 'channels',
     });
   });
 
   it('serializes and restores hidden slots and serializable bindings', () => {
-    const sourceController = createLayoutController({
+    const sourceController = new LayoutController({
       initialState: {
+        availableSlots: ['slot1', 'slot2'],
         hiddenSlots: { slot1: true },
-        mode: 'test-mode',
         slotBindings: {
           slot1: makeBinding('channelList', { view: 'threads' }, 'channel-list'),
           slot2: makeBinding('channel', makeChannel('messaging:one'), 'channel-1'),
@@ -160,7 +177,6 @@ describe('layoutController', () => {
             makeBinding('channel', makeChannel('messaging:fallback'), 'channel-fallback'),
           ],
         },
-        visibleSlots: ['slot1', 'slot2'],
       },
     });
 
@@ -177,14 +193,13 @@ describe('layoutController', () => {
       ),
     ).toEqual(['searchResults', 'channel']);
 
-    const restoreController = createLayoutController({
-      initialState: { visibleSlots: ['slot1', 'slot2'] },
+    const restoreController = new LayoutController({
+      initialState: { availableSlots: ['slot1', 'slot2'] },
     });
     restoreLayoutControllerState(restoreController, snapshot);
 
     expect(restoreController.state.getLatestValue()).toMatchObject({
       hiddenSlots: { slot1: true },
-      mode: 'test-mode',
       slotBindings: {
         slot1: makeBinding('channelList', { view: 'threads' }, 'channel-list'),
         slot2: makeBinding('channel', makeChannel('messaging:one'), 'channel-1'),
@@ -197,17 +212,104 @@ describe('layoutController', () => {
       },
     });
   });
+
+  it('goBack and goForward navigate independently per slot', () => {
+    const controller = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+      },
+    });
+    const first = makeBinding(
+      'channel',
+      makeChannel('messaging:first'),
+      'messaging:first',
+    );
+    const second = makeBinding(
+      'channel',
+      makeChannel('messaging:second'),
+      'messaging:second',
+    );
+
+    controller.openInLayout(first, { targetSlot: 'slot1' });
+    controller.openInLayout(second, { targetSlot: 'slot1' });
+    controller.goBack('slot1');
+
+    expect(controller.state.getLatestValue().slotBindings.slot1).toEqual(first);
+    expect(controller.state.getLatestValue().slotForwardHistory?.slot1).toEqual([second]);
+
+    controller.goForward('slot1');
+    expect(controller.state.getLatestValue().slotBindings.slot1).toEqual(second);
+  });
+
+  it('does not duplicate history when replacing slot and top history already equals current', () => {
+    const currentBinding = makeBinding(
+      'channel',
+      makeChannel('messaging:current'),
+      'messaging:current',
+    );
+
+    const controller = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+        slotBindings: {
+          slot1: currentBinding,
+        },
+        slotHistory: {
+          slot1: [currentBinding],
+        },
+      },
+      resolveTargetSlot: () => 'slot1',
+    });
+
+    controller.openInLayout(
+      makeBinding('channel', makeChannel('messaging:next'), 'messaging:next'),
+      { targetSlot: 'slot1' },
+    );
+
+    expect(controller.state.getLatestValue().slotHistory?.slot1).toEqual([
+      currentBinding,
+    ]);
+  });
+
+  it('clears forward history on write after going back', () => {
+    const controller = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+      },
+    });
+    const first = makeBinding(
+      'channel',
+      makeChannel('messaging:first'),
+      'messaging:first',
+    );
+    const second = makeBinding(
+      'channel',
+      makeChannel('messaging:second'),
+      'messaging:second',
+    );
+    const third = makeBinding(
+      'channel',
+      makeChannel('messaging:third'),
+      'messaging:third',
+    );
+
+    controller.openInLayout(first, { targetSlot: 'slot1' });
+    controller.openInLayout(second, { targetSlot: 'slot1' });
+    controller.goBack('slot1');
+    controller.openInLayout(third, { targetSlot: 'slot1' });
+
+    expect(controller.state.getLatestValue().slotForwardHistory?.slot1).toBeUndefined();
+  });
 });
 
 describe('resolveTargetSlotChannelDefault', () => {
   const makeState = (overrides: Partial<ChatViewLayoutState>): ChatViewLayoutState => ({
-    activeSlot: undefined,
     activeView: 'channels',
-    entityListPaneOpen: true,
-    mode: 'default',
+    availableSlots: ['slot1', 'slot2'],
     slotBindings: {},
+    slotForwardHistory: {},
+    slotHistory: {},
     slotMeta: {},
-    visibleSlots: ['slot1', 'slot2'],
     ...overrides,
   });
 
@@ -235,6 +337,27 @@ describe('resolveTargetSlotChannelDefault', () => {
     });
 
     expect(slot).toBe('slot2');
+  });
+
+  it('prefers existing channel slot over channelList slot for channel opens', () => {
+    const state = makeState({
+      availableSlots: ['list', 'channel'],
+      slotBindings: {
+        channel: makeBinding('channel', makeChannel('messaging:one')),
+        list: makeBinding('channelList', { view: 'channels' }),
+      },
+      slotMeta: {
+        channel: { occupiedAt: 20 },
+        list: { occupiedAt: 10 },
+      },
+    });
+
+    const slot = resolveTargetSlotChannelDefault({
+      binding: makeBinding('channel', makeChannel('messaging:two')),
+      state,
+    });
+
+    expect(slot).toBe('channel');
   });
 
   it('falls back to earliest occupied slot when only channels are present', () => {

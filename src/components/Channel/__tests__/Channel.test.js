@@ -113,10 +113,10 @@ describe('Channel', () => {
 
     renderChannel({
       channel: undefined,
-      chatContext,
       channelProps: {
         EmptyPlaceholder: <div data-testid='empty-placeholder'>No channel</div>,
       },
+      chatContext,
     });
 
     expect(screen.getByTestId('empty-placeholder')).toBeInTheDocument();

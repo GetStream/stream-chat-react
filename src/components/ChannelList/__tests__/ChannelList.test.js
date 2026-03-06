@@ -37,7 +37,7 @@ import {
   createChatViewSlotBinding,
   getChatViewEntityBinding,
 } from '../../ChatView';
-import { createLayoutController } from '../../ChatView/layoutController/LayoutController';
+import { LayoutController } from '../../ChatView/layoutController/LayoutController';
 import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
@@ -119,14 +119,14 @@ describe('ChannelList', () => {
   afterEach(cleanup);
 
   describe('channel list visibility on channel select', () => {
-    it('hides channel list when opening a channel replaces the channel-list slot', async () => {
+    it('keeps channel list visibility unchanged when opening a channel replaces the channel-list slot', async () => {
       useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
-      const layoutController = createLayoutController({
-        initialState: { visibleSlots: ['slot1'] },
-        resolveTargetSlot: ({ state }) => state.visibleSlots[0],
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
+        resolveTargetSlot: ({ state }) => state.availableSlots[0],
       });
-      layoutController.bind(
+      layoutController.setSlotBinding(
         'slot1',
         createChatViewSlotBinding({
           key: 'channel-list',
@@ -155,17 +155,17 @@ describe('ChannelList', () => {
       fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
 
       await waitFor(() => {
-        expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(false);
+        expect(layoutController.state.getLatestValue().hiddenSlots.slot1).not.toBe(true);
       });
     });
 
     it('keeps channel list visible when layout has spare slot capacity', async () => {
       useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
-      const layoutController = createLayoutController({
-        initialState: { visibleSlots: ['slot1', 'slot2'] },
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1', 'slot2'] },
       });
-      layoutController.bind(
+      layoutController.setSlotBinding(
         'slot1',
         createChatViewSlotBinding({
           key: 'channel-list',
@@ -194,7 +194,7 @@ describe('ChannelList', () => {
       fireEvent.click(getByTestId(`select-channel-${testChannel1.channel.id}`));
 
       await waitFor(() => {
-        expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(true);
+        expect(layoutController.state.getLatestValue().hiddenSlots.slot1).not.toBe(true);
       });
     });
   });
@@ -568,8 +568,8 @@ describe('ChannelList', () => {
     });
 
     it('opens the first channel in layout controller on mount', async () => {
-      const layoutController = createLayoutController({
-        initialState: { visibleSlots: ['slot1'] },
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
       });
       render(
         <Chat client={chatClient}>
@@ -603,8 +603,8 @@ describe('ChannelList', () => {
     });
 
     it('opens customActiveChannel in layout controller on mount', async () => {
-      const layoutController = createLayoutController({
-        initialState: { visibleSlots: ['slot1'] },
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
       });
       render(
         <Chat client={chatClient}>
@@ -1416,10 +1416,10 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was deleted', async () => {
-        const layoutController = createLayoutController({
-          initialState: { visibleSlots: ['slot1'] },
+        const layoutController = new LayoutController({
+          initialState: { availableSlots: ['slot1'] },
         });
-        layoutController.open(
+        layoutController.openInLayout(
           createChatViewSlotBinding({
             key: testChannel1.channel.cid,
             kind: 'channel',
@@ -1491,10 +1491,10 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was hidden', async () => {
-        const layoutController = createLayoutController({
-          initialState: { visibleSlots: ['slot1'] },
+        const layoutController = new LayoutController({
+          initialState: { availableSlots: ['slot1'] },
         });
-        layoutController.open(
+        layoutController.openInLayout(
           createChatViewSlotBinding({
             key: testChannel1.channel.cid,
             kind: 'channel',

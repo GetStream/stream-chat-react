@@ -24,7 +24,7 @@ body {
 }
 
 @layer stream-overrides {
-  .str-chat {
+  .str-chat:not(.str-chat__channel) {
     height: 100%;
     width: 100%;
   }
@@ -34,6 +34,10 @@ body {
   .str-chat__channel,
   .str-chat__window {
     min-height: 0;
+  }
+
+  .str-chat__channel {
+    flex: 1;
   }
 
   .str-chat__chat-view {
@@ -46,6 +50,7 @@ body {
     gap: 0;
   }
 
+  .str-chat__thread-list-container,
   .str-chat__channel-list {
     flex: 0 0 300px;
     max-width: 300px;
@@ -90,7 +95,7 @@ body {
   }
 
   .str-chat__dropzone-root--thread,
-  .str-chat__thread-list-container,
+  //.str-chat__thread-list-container,
   .str-chat__thread-container {
     //flex: 0 0 360px;
     width: 100%;

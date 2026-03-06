@@ -2,8 +2,7 @@ import type { StateStore } from 'stream-chat';
 
 import type { ChatView } from '../ChatView';
 
-export type LayoutSlot = string;
-export type LayoutMode = string;
+export type SlotName = string;
 export type LayoutView = ChatView;
 
 export type LayoutSlotBinding = {
@@ -16,88 +15,71 @@ export type LayoutSlotMeta = {
 };
 
 export type ChatViewLayoutState = {
-  /**
-   * Currently focused slot in the layout.
-   *
-   * Purpose:
-   * - Acts as the default slot target when navigation calls don't provide `slot`.
-   * - Acts as the first candidate for implicit entity resolution
-   *   (for example helpers that scan `[activeSlot, ...visibleSlots]`).
-   *
-   * Ownership/updates:
-   * - It is updated by controller operations that "activate" a slot
-   *   (`open(...)`, `openView(...)`) when activation is enabled.
-   * - It can become `undefined` when the active slot is cleared/closed.
-   *
-   * Important:
-   * - `activeSlot` is only a pointer; it does not store entity data.
-   * - Entity ownership remains in `slotBindings[slot]`.
-   * - Different layouts may keep multiple visible slots while still having a
-   *   single `activeSlot` used for default behavior.
-   */
-  activeSlot?: LayoutSlot;
   activeView: ChatView;
-  entityListPaneOpen: boolean;
-  hiddenSlots?: Record<LayoutSlot, boolean | undefined>;
   maxSlots?: number;
   minSlots?: number;
-  mode: LayoutMode;
-  slotBindings: Record<LayoutSlot, LayoutSlotBinding | undefined>;
-  slotHistory?: Record<LayoutSlot, LayoutSlotBinding[] | undefined>;
-  slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
-  visibleSlots: LayoutSlot[];
+  listSlotByView?: Partial<Record<ChatView, SlotName>>;
+  hiddenSlotsByView?: Partial<Record<ChatView, Record<SlotName, boolean | undefined>>>;
+  slotBindingsByView?: Partial<
+    Record<ChatView, Record<SlotName, LayoutSlotBinding | undefined>>
+  >;
+  slotHistoryByView?: Partial<
+    Record<ChatView, Record<SlotName, LayoutSlotBinding[] | undefined>>
+  >;
+  slotForwardHistoryByView?: Partial<
+    Record<ChatView, Record<SlotName, LayoutSlotBinding[] | undefined>>
+  >;
+  slotMetaByView?: Partial<
+    Record<ChatView, Record<SlotName, LayoutSlotMeta | undefined>>
+  >;
+  slotNamesByView?: Partial<Record<ChatView, SlotName[] | undefined>>;
+  availableSlotsByView?: Partial<Record<ChatView, SlotName[]>>;
+};
+
+export type ChatViewLayoutViewState = {
+  availableSlots: SlotName[];
+  hiddenSlots: Record<SlotName, boolean | undefined>;
+  slotBindings: Record<SlotName, LayoutSlotBinding | undefined>;
+  slotHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
+  slotForwardHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
+  slotMeta: Record<SlotName, LayoutSlotMeta | undefined>;
+  slotNames?: SlotName[];
 };
 
 export type ResolveTargetSlotArgs = {
-  /**
-   * The currently focused slot at the time of slot-target resolution.
-   *
-   * Resolvers can use this as a default/fallback target when no explicit
-   * `requestedSlot` is provided.
-   */
-  activeSlot?: LayoutSlot;
+  activeViewState: ChatViewLayoutViewState;
   binding: LayoutSlotBinding;
-  requestedSlot?: LayoutSlot;
+  requestedSlot?: SlotName;
   state: ChatViewLayoutState;
 };
 
-export type DuplicateSlotPolicy = 'allow' | 'move' | 'reject';
-/** @deprecated Use DuplicateSlotPolicy */
-export type DuplicateEntityPolicy = DuplicateSlotPolicy;
+export type DuplicateEntityPolicy = 'allow' | 'move' | 'reject';
 
-export type ResolveDuplicateSlotArgs = {
-  activeSlot?: LayoutSlot;
+export type ResolveDuplicateEntityArgs = {
+  activeViewState: ChatViewLayoutViewState;
   binding: LayoutSlotBinding;
-  existingSlot: LayoutSlot;
-  requestedSlot?: LayoutSlot;
+  existingSlot: SlotName;
+  requestedSlot?: SlotName;
   state: ChatViewLayoutState;
 };
 
-export type ResolveDuplicateSlot = (
-  args: ResolveDuplicateSlotArgs,
-) => DuplicateSlotPolicy;
-/** @deprecated Use ResolveDuplicateSlot */
-export type ResolveDuplicateEntity = ResolveDuplicateSlot;
+export type ResolveDuplicateEntity = (
+  args: ResolveDuplicateEntityArgs,
+) => DuplicateEntityPolicy;
 
-export type ResolveTargetSlot = (args: ResolveTargetSlotArgs) => LayoutSlot | null;
+export type ResolveTargetSlot = (args: ResolveTargetSlotArgs) => SlotName | null;
 
 export type OpenResult =
-  | { slot: LayoutSlot; status: 'opened' }
-  | { replaced: LayoutSlotBinding; slot: LayoutSlot; status: 'replaced' }
+  | { slot: SlotName; status: 'opened' }
+  | { replaced: LayoutSlotBinding; slot: SlotName; status: 'replaced' }
   | { reason: 'duplicate-binding' | 'no-available-slot'; status: 'rejected' };
 
 export type OpenOptions = {
-  activate?: boolean;
-  targetSlot?: LayoutSlot;
-};
-
-export type CloseOptions = {
-  restoreFromHistory?: boolean;
+  targetSlot?: SlotName;
 };
 
 export type OpenViewOptions = {
-  activateSlot?: boolean;
-  slot?: LayoutSlot;
+  slot?: SlotName;
 };
 
 export type SerializedLayoutSlotBinding = {
@@ -106,65 +88,58 @@ export type SerializedLayoutSlotBinding = {
 };
 
 export type ChatViewLayoutSnapshot = {
-  activeSlot?: LayoutSlot;
   activeView: LayoutView;
-  entityListPaneOpen: boolean;
-  hiddenSlots: Record<LayoutSlot, boolean | undefined>;
-  mode: LayoutMode;
-  slotBindings: Record<LayoutSlot, SerializedLayoutSlotBinding | undefined>;
-  slotHistory: Record<LayoutSlot, SerializedLayoutSlotBinding[] | undefined>;
-  slotMeta: Record<LayoutSlot, LayoutSlotMeta | undefined>;
-  visibleSlots: LayoutSlot[];
+  availableSlotsByView: Partial<Record<ChatView, SlotName[]>>;
+  hiddenSlotsByView: Partial<Record<ChatView, Record<SlotName, boolean | undefined>>>;
+  listSlotByView?: Partial<Record<ChatView, SlotName>>;
+  slotBindingsByView: Partial<
+    Record<ChatView, Record<SlotName, SerializedLayoutSlotBinding | undefined>>
+  >;
+  slotHistoryByView: Partial<
+    Record<ChatView, Record<SlotName, SerializedLayoutSlotBinding[] | undefined>>
+  >;
+  slotForwardHistoryByView: Partial<
+    Record<ChatView, Record<SlotName, SerializedLayoutSlotBinding[] | undefined>>
+  >;
+  slotMetaByView: Partial<Record<ChatView, Record<SlotName, LayoutSlotMeta | undefined>>>;
+  slotNamesByView: Partial<Record<ChatView, SlotName[] | undefined>>;
 };
 
-export type SerializeLayoutSlotBinding = (
+export type SerializeLayoutEntityBinding = (
   binding: LayoutSlotBinding,
 ) => SerializedLayoutSlotBinding | undefined;
-/** @deprecated Use SerializeLayoutSlotBinding */
-export type SerializeLayoutEntityBinding = SerializeLayoutSlotBinding;
 
-export type DeserializeLayoutSlotBinding = (
+export type DeserializeLayoutEntityBinding = (
   binding: SerializedLayoutSlotBinding,
 ) => LayoutSlotBinding | undefined;
-/** @deprecated Use DeserializeLayoutSlotBinding */
-export type DeserializeLayoutEntityBinding = DeserializeLayoutSlotBinding;
 
 export type SerializeLayoutStateOptions = {
-  serializeSlotBinding?: SerializeLayoutSlotBinding;
-  /** @deprecated Use serializeSlotBinding */
   serializeEntityBinding?: SerializeLayoutEntityBinding;
 };
 
 export type RestoreLayoutStateOptions = {
-  deserializeSlotBinding?: DeserializeLayoutSlotBinding;
-  /** @deprecated Use deserializeSlotBinding */
   deserializeEntityBinding?: DeserializeLayoutEntityBinding;
 };
 
 export type CreateLayoutControllerOptions = {
-  duplicateSlotPolicy?: DuplicateSlotPolicy;
-  /** @deprecated Use duplicateSlotPolicy */
   duplicateEntityPolicy?: DuplicateEntityPolicy;
   initialState?: Partial<ChatViewLayoutState>;
-  resolveDuplicateSlot?: ResolveDuplicateSlot;
-  /** @deprecated Use resolveDuplicateSlot */
   resolveDuplicateEntity?: ResolveDuplicateEntity;
   resolveTargetSlot?: ResolveTargetSlot;
   state?: StateStore<ChatViewLayoutState>;
 };
 
 export type LayoutController = {
-  bind: (slot: LayoutSlot, binding?: LayoutSlotBinding) => void;
-  clear: (slot: LayoutSlot) => void;
-  close: (slot: LayoutSlot, options?: CloseOptions) => void;
-  open: (binding: LayoutSlotBinding, options?: OpenOptions) => OpenResult;
+  setSlotBinding: (slot: SlotName, binding?: LayoutSlotBinding) => void;
+  setAvailableSlots: (slots: SlotName[]) => void;
+  setSlotNames: (slots?: SlotName[]) => void;
+  clear: (slot: SlotName) => void;
+  goBack: (slot: SlotName) => void;
+  goForward: (slot: SlotName) => void;
+  hide: (slot: SlotName) => void;
+  openInLayout: (binding: LayoutSlotBinding, options?: OpenOptions) => OpenResult;
   openView: (view: LayoutView, options?: OpenViewOptions) => void;
-  popParent: (slot: LayoutSlot) => LayoutSlotBinding | undefined;
-  pushParent: (slot: LayoutSlot, binding: LayoutSlotBinding) => void;
   setActiveView: (next: ChatView) => void;
-  setEntityListPaneOpen: (next: boolean) => void;
-  setMode: (next: LayoutMode) => void;
-  setSlotHidden: (slot: LayoutSlot, hidden: boolean) => void;
   state: StateStore<ChatViewLayoutState>;
-  toggleEntityListPane: () => void;
+  unhide: (slot: SlotName) => void;
 };

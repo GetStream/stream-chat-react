@@ -10,6 +10,7 @@ import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
+import { useThreadSlotContext } from './ThreadSlotContext';
 
 import { useChatContext, useComponentContext } from '../../context';
 import { useThreadContext } from '../Threads';
@@ -104,6 +105,22 @@ const selector = (nextValue: ThreadState) => ({
   parentMessage: nextValue.parentMessage,
 });
 
+const messagePaginatorSelector = ({
+  isLoading,
+  items,
+  lastQueryError,
+}: {
+  isLoading: boolean;
+  items: LocalMessage[] | undefined;
+  lastQueryError?: Error;
+}) => ({
+  isLoading,
+  items,
+  lastQueryError,
+});
+
+const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ threads });
+
 const ThreadInner = (props: ThreadProps & { key: string }) => {
   const {
     additionalMessageInputProps,
@@ -123,7 +140,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   } = props;
 
   const threadInstance = useThreadContext();
-  const { customClasses } = useChatContext('Thread');
+  const threadSlot = useThreadSlotContext();
+  const { client, customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
@@ -134,14 +152,29 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
 
   const { isStateStale, parentMessage } =
     useStateStore(threadInstance?.state, selector) ?? {};
+  const threadPaginatorState = useStateStore(
+    threadInstance?.messagePaginator?.state,
+    messagePaginatorSelector,
+  );
+  const threadManagerState = useStateStore(
+    client.threads.state,
+    threadManagerSelector,
+  ) ?? {
+    threads: client.threads.state.getLatestValue().threads,
+  };
+  const isThreadManaged = threadInstance?.id
+    ? threadManagerState.threads.some(
+        (managedThread) => managedThread.id === threadInstance.id,
+      )
+    : false;
 
   const { closeThread: closeThreadFromNavigation } = useChatViewNavigation();
 
   const closeThread = useCallback(() => {
-    closeThreadFromNavigation();
+    closeThreadFromNavigation(threadSlot ? { slot: threadSlot } : undefined);
     // Keep legacy behavior when Thread is used outside ChatView navigation flow.
     threadInstance?.deactivate();
-  }, [closeThreadFromNavigation, threadInstance]);
+  }, [closeThreadFromNavigation, threadInstance, threadSlot]);
 
   const ThreadInput =
     PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
@@ -161,14 +194,46 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
 
   useEffect(() => {
     if (!threadInstance) return;
+    if (isThreadManaged) return;
+    if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
+      return;
     void threadInstance.reload();
-  }, [threadInstance]);
+  }, [
+    isThreadManaged,
+    threadInstance,
+    threadPaginatorState?.isLoading,
+    threadPaginatorState?.items,
+  ]);
 
   useEffect(() => {
     if (threadInstance && isStateStale) {
       void threadInstance.reload();
     }
   }, [isStateStale, threadInstance]);
+
+  useEffect(() => {
+    if (!threadInstance || isThreadManaged) return;
+    if (threadPaginatorState?.isLoading) return;
+    if (threadPaginatorState?.lastQueryError) return;
+    if (threadPaginatorState?.items === undefined) return;
+
+    client.threads.state.next((current) => {
+      if (current.threads.some((thread) => thread.id === threadInstance.id)) {
+        return current;
+      }
+      return {
+        ...current,
+        threads: [threadInstance, ...current.threads],
+      };
+    });
+  }, [
+    client.threads.state,
+    isThreadManaged,
+    threadInstance,
+    threadPaginatorState?.isLoading,
+    threadPaginatorState?.items,
+    threadPaginatorState?.lastQueryError,
+  ]);
 
   if (!threadInstance || !parentMessage) return null;
 

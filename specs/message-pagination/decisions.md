@@ -191,7 +191,7 @@ A single lookup contract reduces type errors (for example channel/thread union n
 Channel selection previously relied on `ChatContext.closeMobileNav`, which is not aligned with ChatView layout ownership of visible panes/slots.
 
 **Decision:**  
-ChannelList channel selection flow should call `useChatViewNavigation().hideChannelList(...)` only when channel open replaces the existing `channelList` slot binding (that is, no spare visible slot capacity to keep list and opened channel simultaneously).
+ChannelList channel selection flow should call `useChatViewNavigation().hideChannelList(...)` only when channel open replaces the existing `channelList` slot binding (that is, no spare available slot capacity to keep list and opened channel simultaneously).
 
 Also remove `closeMobileNav` from `ChatContext` contract.
 
@@ -282,6 +282,32 @@ This avoids duplicate logic in React tests, reduces brittle migration shims, and
 
 **Tradeoffs / Consequences:**  
 React suite has fewer deep unread/pagination algorithm assertions; those invariants must remain strong in `stream-chat-js` unit tests.
+
+## Decision: Split Thread/Channel ownership for reply updates (`message.new` vs `message.updated`)
+
+**Date:** 2026-03-05  
+**Context:**  
+`Thread.subscribeNewReplies` was updating `Thread.state.replies` only (`upsertReplyLocally`) and did not guarantee `thread.messagePaginator` updates.  
+At the same time, parent-message metadata (`reply_count`, `thread_participants`) belongs to channel message items and should be synchronized by `Channel` event handling.
+
+**Decision:**  
+Use split ownership:
+
+- ingest reply into `thread.messagePaginator`;
+- keep legacy `Thread.state.replies` mirrored for backward compatibility;
+- keep thread-local `replyCount`/`parentMessage.reply_count` in `Thread.state` for thread consumers;
+- update channel message-item metadata via `Channel` handling of `message.updated` / `message.undeleted` events by ingesting updated parent messages into `channel.messagePaginator`.
+
+**Reasoning:**  
+This keeps thread reply-list state owned by thread, and channel message metadata owned by channel, while still supporting paginator-first UI consumers.
+
+**Alternatives considered:**
+
+- Keep only `Thread.state.replies` updates: rejected because paginator-driven thread consumers would miss events.
+- Update channel parent metadata from `Thread` on `message.new`: rejected because it crosses ownership boundaries and can diverge from authoritative backend counts.
+
+**Tradeoffs / Consequences:**  
+Channel metadata updates rely on authoritative server events (`message.updated`/`message.undeleted`) and `channel.messagePaginator.ingestItem(...)`; duplicate local `message.new` echoes no longer risk parent count over-increment on channel side.
 
 ## Decision: Use commented `Channel.tsx` legacy actions as parity checklist
 
@@ -705,3 +731,63 @@ Keep migrated instance-contract assertions active, and temporarily skip legacy i
 
 **Reasoning:**  
 This avoids brittle React-level coupling to internal SDK flow while preserving coverage at the correct ownership layer.
+
+## Decision: Thread mount flow must be ThreadManager-aware
+
+**Date:** 2026-03-05  
+**Context:**  
+`Thread.tsx` was calling `thread.reload()` on every mount. This caused redundant network fetches for thread instances that were already tracked by `client.threads` and/or already had first-page paginator data.  
+Also, `ChatViewNavigation.openThread({ channel, message })` always created a fresh `Thread` instance, even when `ThreadManager` already had one for the same parent message id.
+
+**Decision:**
+
+- Reuse existing thread instance from `client.threads.threadsById[message.id]` when opening a thread from `{ channel, message }`.
+- In `Thread.tsx`, call `thread.reload()` on mount only for unmanaged threads whose `messagePaginator.state.items` is still `undefined` and not loading.
+- Register unmanaged thread instances into `ThreadManager` only after first paginator page load succeeds (items loaded and no `lastQueryError`).
+
+**Reasoning:**  
+This keeps `ThreadManager` as the canonical instance registry, avoids duplicate thread instances, and removes unnecessary mount-time reloads while still bootstrapping brand-new ad-hoc thread instances.
+
+**Tradeoffs / Consequences:**
+
+- Initial ad-hoc thread registration is deferred until first successful paginator load.
+- Thread list order can include newly opened unmanaged threads once registered; this is acceptable because they now represent active thread instances with loaded data.
+
+## Decision: First loaded message batch should trigger MessageList autoscroll
+
+**Date:** 2026-03-05  
+**Context:**  
+When opening a thread, `Thread.tsx` can mount before replies are loaded. `MessageList` then transitions from empty to populated, but initial scroll behavior was tied to mount-only/layout triggers and could miss this data-availability transition.
+
+**Decision:**  
+Handle initial autoscroll in `useScrollLocationLogic` by scrolling once when messages become available (`messages.length > 0`) with a one-time guard per empty->non-empty cycle, so it still works if the scroll container ref resolves after data.
+
+**Reasoning:**  
+This keeps initial-scroll ownership in the top-level list scroll logic and avoids ad-hoc thread-specific effects. It directly models the required state transition: data becomes available for the first time.
+
+## Decision: `MessageAlsoSentInChannelIndicator` uses instance-owned paginators for both directions
+
+**Date:** 2026-03-06  
+**Context:**  
+`MessageAlsoSentInChannelIndicator` still used legacy `queryParent` search flow and used ambient paginator selection for channel jumps, which could resolve to thread paginator in thread context.
+
+**Decision:**
+
+- `jumpToReplyInChannelMessages` must use `channel.messagePaginator`.
+- For channel jumps while `activeView === 'threads'`, query the target channel before paginator jump.
+- `jumpToReplyInThread` must resolve thread instance from `client.threads.threadsById[parentId]`; if absent, fetch via `client.getThread(parentId, { watch: true })`, then call `thread.messagePaginator.jumpToMessage(replyId)`.
+
+**Notes:**  
+Add TODO in component to replace unconditional pre-query with `ChannelListOrchestrator` loaded-instance check before querying channel.
+
+## Decision: Unread separator boundary is based on unread snapshot, not live read events
+
+**Date:** 2026-03-06  
+**Context:**  
+`getIsFirstUnreadMessage` used live `channel.messageReceiptsTracker` read state, so `message.read` events could remove `UnreadMessagesSeparator` during the same mounted list session.
+
+**Decision:**  
+Use `messagePaginator.unreadStateSnapshot` fields (`unreadCount`, `firstUnreadMessageId`, `lastReadAt`, `lastReadMessageId`) as the unread boundary source for separator rendering and do not consult live read tracker state in `getIsFirstUnreadMessage`.
+
+**Reasoning:**  
+This keeps the separator stable while snapshot unread count remains > 0, showing users where the unread section starts. On remount, snapshot can start with unread count 0, so separator is not rendered.

@@ -5,10 +5,10 @@ import {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
-  createCommandInjectionMiddleware,
-  createDraftCommandInjectionMiddleware,
   createActiveCommandGuardMiddleware,
+  createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
+  createDraftCommandInjectionMiddleware,
 } from 'stream-chat';
 import {
   AIStateIndicator,
@@ -16,31 +16,32 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelList,
+  ChannelListSlot,
   Chat,
   ChatView,
   MessageInput,
+  MessageList,
+  ReactionsList,
   Thread,
+  ThreadListSlot,
   ThreadSlot,
   ThreadList,
-  useCreateChatClient,
-  // VirtualizedMessageList as MessageList,
-  MessageList,
   Window,
   WithComponents,
-  ReactionsList,
   WithDragAndDropUpload,
+  defaultReactionOptions,
+  mapEmojiMartData,
   useChannel,
   useChatContext,
-  defaultReactionOptions,
-  ReactionOptions,
-  mapEmojiMartData,
+  useCreateChatClient,
+  type ReactionOptions,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
-import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
+import { init, SearchIndex } from 'emoji-mart';
 import { humanId } from 'human-id';
-import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
+import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 
 init({ data });
 
@@ -198,18 +199,20 @@ const App = () => {
       }}
     >
       <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
-        <ChatView>
+        <ChatView maxSlots={3} minSlots={2} slotNames={['list', 'main', 'thread']}>
           <ChatView.Selector itemSet={chatViewSelectorItemSet} />
-          <ChatView.Channels>
-            <ChannelList
-              Avatar={ChannelAvatar}
-              filters={filters}
-              options={options}
-              sort={sort}
-              showChannelSearch
-              additionalChannelSearchProps={{ searchForChannels: true }}
-            />
-            <ChannelSlot>
+          <ChatView.Channels slots={['list', 'main', 'thread']}>
+            <ChannelListSlot slot='list'>
+              <ChannelList
+                Avatar={ChannelAvatar}
+                filters={filters}
+                options={options}
+                sort={sort}
+                showChannelSearch
+                additionalChannelSearchProps={{ searchForChannels: true }}
+              />
+            </ChannelListSlot>
+            <ChannelSlot slot='main'>
               <WithDragAndDropUpload>
                 <Window>
                   <ChannelHeader Avatar={ChannelAvatar} />
@@ -225,16 +228,23 @@ const App = () => {
                 </Window>
               </WithDragAndDropUpload>
             </ChannelSlot>
-            <ThreadSlot>
+            <ThreadSlot slot='thread'>
               <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
                 <Thread />
               </WithDragAndDropUpload>
             </ThreadSlot>
           </ChatView.Channels>
-          <ChatView.Threads>
-            <ThreadList />
+          <ChatView.Threads slots={['list', 'main-thread', 'optional-thread']}>
+            <ThreadListSlot slot='list'>
+              <ThreadList />
+            </ThreadListSlot>
             <ChatView.ThreadAdapter>
-              <ThreadSlot>
+              <ThreadSlot slot='main-thread'>
+                <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+                  <Thread />
+                </WithDragAndDropUpload>
+              </ThreadSlot>
+              <ThreadSlot slot='optional-thread'>
                 <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
                   <Thread />
                 </WithDragAndDropUpload>

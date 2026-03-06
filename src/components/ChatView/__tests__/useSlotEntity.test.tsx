@@ -1,16 +1,16 @@
 import React from 'react';
 import { StateStore } from 'stream-chat';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChannelSlot } from '../../Channel';
-import { ChatView } from '../ChatView';
+import { ChatView, getChatViewEntityBinding } from '../ChatView';
 import { ThreadSlot } from '../../Thread';
 import { useSlotChannel, useSlotEntity, useSlotThread } from '../hooks';
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
-import { createLayoutController } from '../layoutController/LayoutController';
+import { LayoutController } from '../layoutController/LayoutController';
 
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
@@ -76,27 +76,26 @@ const renderWithProviders = (ui: React.ReactNode) =>
   );
 
 describe('useSlotEntity hooks', () => {
-  it('resolves first matching entity from [activeSlot, ...visibleSlots] and supports explicit slot', () => {
+  it('resolves first matching entity from availableSlots and supports explicit slot', () => {
     const channelA = makeChannel('messaging:active');
     const channelB = makeChannel('messaging:secondary');
     const thread = makeThread('thread-1');
 
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        activeSlot: 'slot2',
-        visibleSlots: ['slot1', 'slot2', 'slot3'],
+        availableSlots: ['slot1', 'slot2', 'slot3'],
       },
     });
 
-    layoutController.bind('slot1', {
+    layoutController.setSlotBinding('slot1', {
       key: `channel:${channelB.cid}`,
       payload: { key: channelB.cid, kind: 'channel', source: channelB },
     });
-    layoutController.bind('slot2', {
+    layoutController.setSlotBinding('slot2', {
       key: `channel:${channelA.cid}`,
       payload: { key: channelA.cid, kind: 'channel', source: channelA },
     });
-    layoutController.bind('slot3', {
+    layoutController.setSlotBinding('slot3', {
       key: `thread:${thread.id}`,
       payload: { key: thread.id, kind: 'thread', source: thread },
     });
@@ -121,7 +120,9 @@ describe('useSlotEntity hooks', () => {
       </ChatView>,
     );
 
-    expect(screen.getByTestId('resolved-channel')).toHaveTextContent('messaging:active');
+    expect(screen.getByTestId('resolved-channel')).toHaveTextContent(
+      'messaging:secondary',
+    );
     expect(screen.getByTestId('resolved-channel-slot1')).toHaveTextContent(
       'messaging:secondary',
     );
@@ -131,9 +132,9 @@ describe('useSlotEntity hooks', () => {
 
 describe('slot adapters', () => {
   it('renders ChannelSlot fallback when no channel entity is bound', () => {
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
     });
 
@@ -148,14 +149,13 @@ describe('slot adapters', () => {
 
   it('renders ChannelSlot with the channel bound to explicit slot', () => {
     const channel = makeChannel('messaging:slot2');
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        activeSlot: 'slot1',
-        visibleSlots: ['slot1', 'slot2'],
+        availableSlots: ['slot1', 'slot2'],
       },
     });
 
-    layoutController.bind('slot2', {
+    layoutController.setSlotBinding('slot2', {
       key: `channel:${channel.cid}`,
       payload: { key: channel.cid, kind: 'channel', source: channel },
     });
@@ -172,10 +172,39 @@ describe('slot adapters', () => {
     expect(screen.getByTestId('channel-child')).toBeInTheDocument();
   });
 
-  it('renders ThreadSlot fallback when no thread entity is bound', () => {
-    const layoutController = createLayoutController({
+  it('claims explicit slot for ChannelSlot by moving an existing channel binding', () => {
+    const channel = makeChannel('messaging:move-channel');
+    const layoutController = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    layoutController.setSlotBinding('slot2', {
+      key: `channel:${channel.cid}`,
+      payload: { key: channel.cid, kind: 'channel', source: channel },
+    });
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ChannelSlot slot='slot1' />
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot1,
+      ),
+    ).toMatchObject({
+      kind: 'channel',
+      source: channel,
+    });
+  });
+
+  it('renders ThreadSlot fallback when no thread entity is bound', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
       },
     });
 
@@ -190,13 +219,13 @@ describe('slot adapters', () => {
 
   it('renders ThreadSlot with bound thread using default Thread component', () => {
     const thread = makeThread('thread-slot');
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
     });
 
-    layoutController.bind('slot1', {
+    layoutController.setSlotBinding('slot1', {
       key: `thread:${thread.id}`,
       payload: { key: thread.id, kind: 'thread', source: thread },
     });
@@ -208,5 +237,79 @@ describe('slot adapters', () => {
     );
 
     expect(screen.getByTestId('mocked-thread-component')).toBeInTheDocument();
+  });
+
+  it('claims explicit slot for ThreadSlot by moving an existing thread binding', () => {
+    const thread = makeThread('thread-move');
+    const layoutController = new LayoutController({
+      duplicateEntityPolicy: 'move',
+      initialState: {
+        availableSlots: ['slot1', 'slot2'],
+      },
+    });
+
+    layoutController.setSlotBinding('slot2', {
+      key: `thread:${thread.id}`,
+      payload: { key: thread.id, kind: 'thread', source: thread },
+    });
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ThreadSlot hideIfEmpty={false} slot='slot1' />
+      </ChatView>,
+    );
+
+    expect(
+      getChatViewEntityBinding(
+        layoutController.state.getLatestValue().slotBindings.slot1,
+      ),
+    ).toMatchObject({
+      kind: 'thread',
+      source: thread,
+    });
+  });
+
+  it('hides explicit slot when ThreadSlot has no thread', async () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+        hiddenSlots: { slot1: false },
+      },
+    });
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ThreadSlot slot='slot1' />
+      </ChatView>,
+    );
+
+    await waitFor(() => {
+      expect(layoutController.state.getLatestValue().hiddenSlots.slot1).toBe(true);
+    });
+  });
+
+  it('unhides explicit slot when ThreadSlot has a bound thread', async () => {
+    const thread = makeThread('thread-visible');
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+        hiddenSlots: { slot1: true },
+      },
+    });
+
+    layoutController.setSlotBinding('slot1', {
+      key: `thread:${thread.id}`,
+      payload: { key: thread.id, kind: 'thread', source: thread },
+    });
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <ThreadSlot slot='slot1' />
+      </ChatView>,
+    );
+
+    await waitFor(() => {
+      expect(layoutController.state.getLatestValue().hiddenSlots.slot1).toBe(false);
+    });
   });
 });

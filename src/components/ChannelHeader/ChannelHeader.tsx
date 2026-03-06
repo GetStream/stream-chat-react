@@ -3,6 +3,7 @@ import React from 'react';
 import { IconChevronLeft, IconLayoutAlignLeft } from '../Icons/icons';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { getChatViewEntityBinding, useChatViewContext } from '../ChatView';
+import { useLayoutViewState } from '../ChatView/hooks/useLayoutViewState';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
@@ -20,7 +21,7 @@ export type ChannelHeaderProps = {
   image?: string;
   /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
   MenuIcon?: React.ComponentType;
-  /** Optional external toggle override for sidebar/entity list pane behavior */
+  /** Optional external toggle override for the list-slot sidebar behavior */
   onSidebarToggle?: () => void;
   /** When true, shows IconLayoutAlignLeft instead of MenuIcon for sidebar expansion */
   sidebarCollapsed?: boolean;
@@ -28,18 +29,9 @@ export type ChannelHeaderProps = {
   title?: string;
 };
 
-const channelHeaderLayoutSelector = ({
-  activeSlot,
-  entityListPaneOpen,
-  slotBindings,
-  slotHistory,
-  visibleSlots,
-}: ChatViewLayoutState) => ({
-  activeSlot,
-  entityListPaneOpen,
-  slotBindings,
-  slotHistory,
-  visibleSlots,
+const channelHeaderLayoutSelector = (state: ChatViewLayoutState) => ({
+  activeView: state.activeView,
+  listSlotByView: state.listSlotByView,
 });
 
 /**
@@ -65,31 +57,45 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideTitle,
   });
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const { activeSlot, entityListPaneOpen, slotBindings, slotHistory, visibleSlots } =
+  const { activeView, listSlotByView } =
     useStateStore(layoutController.state, channelHeaderLayoutSelector) ??
     channelHeaderLayoutSelector(layoutController.state.getLatestValue());
-  const channelListSlot = visibleSlots.find(
-    (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
+  const { availableSlots, hiddenSlots, slotBindings, slotHistory } = useLayoutViewState();
+  const listSlotHint = listSlotByView?.[activeView];
+  const channelListSlot =
+    (listSlotHint && availableSlots.includes(listSlotHint) ? listSlotHint : undefined) ??
+    availableSlots.find(
+      (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
+    );
+  const backCandidateSlots = availableSlots.filter(
+    (slot) => !!slotHistory?.[slot]?.length,
   );
-  const hasParentHistory = !!(activeSlot && slotHistory?.[activeSlot]?.length);
-  const sidebarCollapsed = sidebarCollapsedProp ?? !entityListPaneOpen;
+  const backTargetSlot =
+    backCandidateSlots.length === 1 ? backCandidateSlots[0] : undefined;
+  const hasParentHistory = !!backTargetSlot;
+  const listVisible = channelListSlot ? !hiddenSlots?.[channelListSlot] : true;
+  const sidebarCollapsed = sidebarCollapsedProp ?? !listVisible;
   const handleSidebarToggle =
     onSidebarToggle ??
     (() => {
-      if (entityListPaneOpen) {
+      if (listVisible) {
         hideChannelList({ slot: channelListSlot });
         return;
       }
 
-      unhideChannelList({ slot: channelListSlot ?? activeSlot });
+      const deterministicFallbackSlot =
+        availableSlots.length === 1 ? availableSlots[0] : undefined;
+      unhideChannelList({ slot: channelListSlot ?? deterministicFallbackSlot });
     });
-  const handleHeaderAction = hasParentHistory
-    ? () => {
-        if (!activeSlot) return;
-        layoutController.close(activeSlot);
-      }
-    : handleSidebarToggle;
-  const actionAriaLabel = hasParentHistory
+  const handleGoBack = () => {
+    if (!backTargetSlot) return;
+    layoutController.goBack(backTargetSlot);
+  };
+
+  const shouldUseBackAction = listVisible && hasParentHistory;
+  const shouldShowToggleOrBackButton = shouldUseBackAction || !listVisible;
+  const handleHeaderAction = shouldUseBackAction ? handleGoBack : handleSidebarToggle;
+  const actionAriaLabel = shouldUseBackAction
     ? t('aria/Go back')
     : sidebarCollapsed
       ? t('aria/Expand sidebar')
@@ -101,17 +107,19 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         'str-chat__channel-header--sidebar-collapsed': sidebarCollapsed,
       })}
     >
-      <Button
-        appearance='ghost'
-        aria-label={actionAriaLabel}
-        circular
-        className='str-chat__header-sidebar-toggle'
-        onClick={handleHeaderAction}
-        size='md'
-        variant='secondary'
-      >
-        {hasParentHistory ? <IconChevronLeft /> : sidebarCollapsed && <MenuIcon />}
-      </Button>
+      {shouldShowToggleOrBackButton && (
+        <Button
+          appearance='ghost'
+          aria-label={actionAriaLabel}
+          circular
+          className='str-chat__header-sidebar-toggle'
+          onClick={handleHeaderAction}
+          size='md'
+          variant='secondary'
+        >
+          {shouldUseBackAction ? <IconChevronLeft /> : <MenuIcon />}
+        </Button>
+      )}
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
         {onlineStatusText != null && (

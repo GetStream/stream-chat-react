@@ -32,7 +32,7 @@ Primary spec for this plan:
 **Scope:**
 
 - Define `LayoutEntityBinding`, `ChatViewLayoutState`, `ResolveTargetSlotArgs`, `OpenResult`.
-- Implement `createLayoutController` with `state: StateStore<ChatViewLayoutState>`.
+- Implement `LayoutController` class with `state: StateStore<ChatViewLayoutState>`.
 - Implement commands: `setActiveView`, `setMode`, `bind`, `clear`, `open`, and initial high-level helpers.
 - Enforce `occupiedAt` invariant when occupying/clearing slots.
 - Implement duplicate entity handling (`duplicateEntityPolicy`, `resolveDuplicateEntity`) and result semantics.
@@ -1208,6 +1208,92 @@ Conflict policy:
 - [ ] TypeScript compiles with no references to `useLegacyThreadContext` in active code.
 - [ ] Thread behavior remains stable in updated tests.
 
+## Task 45: Declarative Slot Topology (`slotNames`) in ChatView
+
+**File(s) to create/modify:** `src/components/ChatView/ChatView.tsx`, `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/__tests__/ChatView.test.tsx`, `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md`
+
+**Dependencies:** Task 13
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Add `slotNames?: string[]` to `ChatView` props as the canonical ordered topology for available slots.
+- Keep backward compatibility by generating `slot1..slotN` when `slotNames` is omitted.
+- Initialize available slots from `slotNames` + `minSlots`/`maxSlots` clamping rules.
+- Add focused tests for initialization with explicit slot names and fallback generation behavior.
+
+**Acceptance Criteria:**
+
+- [ ] `ChatView` supports custom slot ids without relying on hard-coded `slot<number>` naming.
+- [ ] Default behavior remains unchanged when `slotNames` is not provided.
+- [ ] TypeScript compiles and new tests assert slot initialization semantics.
+
+## Task 46: Navigation Expansion Must Respect Configured Slot Names
+
+**File(s) to create/modify:** `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx`
+
+**Dependencies:** Task 45
+
+**Status:** in-progress
+
+**Owner:** codex
+
+**Scope:**
+
+- Replace hard-coded expansion (`slot${n}`) in navigation open flows with topology-aware expansion from configured slots.
+- Ensure `openThread` (and related expansion path(s)) uses the next available configured slot id.
+- Preserve existing duplicate-policy and resolver behavior (move/replace/reject semantics remain controller-owned).
+
+**Acceptance Criteria:**
+
+- [ ] Navigation expansion uses configured slot names when present.
+- [ ] Existing `slot<number>` behavior remains unchanged when `slotNames` is absent.
+
+## Task 47: Slot Claimer Components (`ChatView.Channels`, `ChannelSlot`, `ThreadSlot`) Contract Tightening
+
+**File(s) to create/modify:** `src/components/ChatView/ChatView.tsx`, `src/components/Channel/ChannelSlot.tsx`, `src/components/Thread/ThreadSlot.tsx`, `src/components/ChatView/__tests__/useSlotEntity.test.tsx`, `src/components/ChatView/__tests__/ChatView.test.tsx`
+
+**Dependencies:** Task 46
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Keep slot claiming declarative via slot components and `useChatViewNavigation()` APIs only.
+- Verify `ChatView.Channels` slot-claim behavior and `ChannelSlot`/`ThreadSlot` claim-request flows operate with arbitrary slot ids from topology.
+- Ensure conflict behavior remains policy-driven (controller decides replacement/move/reject).
+
+**Acceptance Criteria:**
+
+- [ ] Slot-claimers work with named slots (not only `slot<number>` ids).
+- [ ] Tests cover explicit-claim behavior and policy-driven outcomes.
+
+## Task 48: Documentation and Migration Notes for Declarative Slot Topology
+
+**File(s) to create/modify:** `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md`
+
+**Dependencies:** Task 45, Task 46, Task 47
+
+**Status:** pending
+
+**Owner:** unassigned
+
+**Scope:**
+
+- Update spec migration guidance to describe declarative slot topology and slot-claiming patterns.
+- Document compatibility defaults and examples (`slotNames`, `ChatView.Channels slot`, `hideChannelList/unhideChannelList` with named slots).
+- Sync plan/state/decision logs with implemented outcomes.
+
+**Acceptance Criteria:**
+
+- [ ] Spec and plan clearly describe the declarative slot model and migration path.
+- [ ] Ralph files reflect final implementation state consistently.
+
 ## Execution order update
 
 Phase 27 (After Task 34):
@@ -1250,6 +1336,22 @@ Phase 36 (After Task 14):
 
 - Task 44: Remove `LegacyThreadContext` and Legacy Thread Context Wiring
 
+Phase 37 (After Task 13):
+
+- Task 45: Declarative Slot Topology (`slotNames`) in ChatView
+
+Phase 38 (After Task 45):
+
+- Task 46: Navigation Expansion Must Respect Configured Slot Names
+
+Phase 39 (After Task 46):
+
+- Task 47: Slot Claimer Components Contract Tightening
+
+Phase 40 (After Tasks 45-47):
+
+- Task 48: Documentation and Migration Notes for Declarative Slot Topology
+
 ## File Ownership Summary Update
 
 | Task | Creates/Modifies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -1264,3 +1366,52 @@ Phase 36 (After Task 14):
 | 42   | `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/specs/layout-controller/spec.md`, `src/specs/layout-controller/plan.md`, `src/specs/layout-controller/state.json`, `src/specs/layout-controller/decisions.md`                                                                                                                                                                                                                                                                                                                                                                               |
 | 43   | `src/components/Message/types.ts`, `src/components/Message/Message.tsx`, `src/context/MessageContext.tsx`, `src/components/Message/MessageSimple.tsx`, `src/components/Message/MessageStatus.tsx`, `src/components/Message/MessageAlsoSentInChannelIndicator.tsx`, `src/components/Message/utils.tsx`, `src/components/Message/__tests__/*`, `src/specs/layout-controller/spec.md`, `src/specs/layout-controller/plan.md`, `src/specs/layout-controller/state.json`, `src/specs/layout-controller/decisions.md`                                                                                                           |
 | 44   | `src/components/Thread/LegacyThreadContext.ts`, `src/components/Thread/Thread.tsx`, `src/components/Thread/index.ts`, `src/components/Thread/*` consumers still using `useLegacyThreadContext`, `src/specs/layout-controller/spec.md`, `src/specs/layout-controller/plan.md`, `src/specs/layout-controller/state.json`, `src/specs/layout-controller/decisions.md`                                                                                                                                                                                                                                                        |
+| 45   | `src/components/ChatView/ChatView.tsx`, `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/__tests__/ChatView.test.tsx`, `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md`                                                                                                                                                                                                                                                                                                    |
+| 46   | `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 47   | `src/components/ChatView/ChatView.tsx`, `src/components/Channel/ChannelSlot.tsx`, `src/components/Thread/ThreadSlot.tsx`, `src/components/ChatView/__tests__/useSlotEntity.test.tsx`, `src/components/ChatView/__tests__/ChatView.test.tsx`                                                                                                                                                                                                                                                                                                                                                                               |
+| 48   | `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md`                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+
+## Task 49: Slot-Equal Navigation Refactor and Controller API Renames
+
+**File(s) to create/modify:** `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/layoutController/serialization.ts`, `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/hooks/useSlotEntity.ts`, `src/components/ChannelHeader/ChannelHeader.tsx`, `src/components/ChannelList/ChannelList.tsx`, `src/components/ChatView/__tests__/layoutController.test.ts`, `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx`, `src/components/ChannelHeader/__tests__/ChannelHeader.test.js`, `src/components/ChannelList/__tests__/ChannelList.test.js`, `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md`
+
+**Dependencies:** Task 48
+
+**Status:** done
+
+**Owner:** codex
+
+**Scope:**
+
+- Remove implicit "current/focused slot" fallback semantics; treat all slots as equal for navigation targeting.
+- Replace overloaded close semantics with explicit history/navigation lifecycle APIs:
+  - `goBack(slot)` for back navigation,
+  - `goForward(slot)` for forward navigation,
+  - `clear(slot)` for binding reset,
+  - `hide/unhide(slot)` for visibility only.
+- Add per-slot forward history tracking and enforce forward-stack invalidation after new writes post-back.
+- Rename low-level controller methods for clarity:
+  - `bind` -> `setSlotBinding`,
+  - `open` -> `openInLayout`.
+- Align `useChatViewNavigation()` targeting behavior with deterministic slot resolution (explicit slot or unambiguous candidate; ambiguous requests reject/no-op).
+- Update tests and Ralph docs to reflect the final API contract and migration path.
+
+**Acceptance Criteria:**
+
+- [x] No layout-controller API path depends on `activeSlot`/focused-slot assumptions.
+- [x] Back/forward history works independently per slot and does not leak between slots.
+- [x] `setSlotBinding` and `openInLayout` are the only low-level slot-write API names.
+- [x] Visibility (`hide/unhide`) and lifecycle (`clear`) remain independent from history navigation (`goBack/goForward`).
+- [ ] TypeScript compiles and targeted navigation/controller tests cover ambiguity, back/forward, and renamed APIs.
+
+## Execution order update
+
+Phase 41 (After Task 48):
+
+- Task 49: Slot-Equal Navigation Refactor and Controller API Renames
+
+## File Ownership Summary Update
+
+| Task | Creates/Modifies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 49   | `src/components/ChatView/layoutController/layoutControllerTypes.ts`, `src/components/ChatView/layoutController/LayoutController.ts`, `src/components/ChatView/layoutController/serialization.ts`, `src/components/ChatView/ChatViewNavigationContext.tsx`, `src/components/ChatView/hooks/useSlotEntity.ts`, `src/components/ChannelHeader/ChannelHeader.tsx`, `src/components/ChannelList/ChannelList.tsx`, `src/components/ChatView/__tests__/layoutController.test.ts`, `src/components/ChatView/__tests__/ChatViewNavigation.test.tsx`, `src/components/ChannelHeader/__tests__/ChannelHeader.test.js`, `src/components/ChannelList/__tests__/ChannelList.test.js`, `specs/layout-controller/spec.md`, `specs/layout-controller/plan.md`, `specs/layout-controller/state.json`, `specs/layout-controller/decisions.md` |

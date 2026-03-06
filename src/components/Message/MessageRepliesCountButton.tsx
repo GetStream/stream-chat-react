@@ -1,11 +1,11 @@
 import type { MouseEventHandler } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannel, useComponentContext, useMessageContext } from '../../context';
 import { useStateStore } from '../../store';
-import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
+import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
 export type MessageRepliesCountButtonProps = {
@@ -33,7 +33,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   } = props;
   const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
   const channel = useChannel();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const { openThread } = useChatViewNavigation();
   const replyMetadataSelector = useMemo(
     () => () => {
       const targetMessage = contextMessage?.id
@@ -64,6 +64,19 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     [threadParticipants],
   );
 
+  const handleClick = useCallback<MouseEventHandler>(
+    (event) => {
+      if (onClick) {
+        onClick(event);
+        return;
+      }
+
+      if (!contextMessage) return;
+      void openThread({ channel, message: contextMessage });
+    },
+    [channel, contextMessage, onClick, openThread],
+  );
+
   if (!replyCount) return null;
 
   let replyCountText = t('replyCount', { count: replyCount });
@@ -79,8 +92,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       <button
         className='str-chat__message-replies-count-button'
         data-testid='replies-count-button'
-        disabled={!channelCapabilities.has('send-reply')}
-        onClick={onClick}
+        onClick={handleClick}
       >
         {replyCountText}
 

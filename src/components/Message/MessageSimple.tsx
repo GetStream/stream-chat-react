@@ -41,7 +41,6 @@ import { useMessageContext } from '../../context/MessageContext';
 
 import { useChannel, useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
-import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { useThreadContext } from '../Threads';
 
 import type { MessageUIComponentProps } from './types';
@@ -67,7 +66,6 @@ const MessageSimpleWithContext = ({
 }: MessageSimpleWithContextProps) => {
   const channel = useChannel();
   const threadInstance = useThreadContext();
-  const { openThread } = useChatViewNavigation();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
@@ -240,9 +238,6 @@ const MessageSimpleWithContext = ({
           )}
           {showReplyCountButton && (
             <MessageRepliesCountButton
-              onClick={() => {
-                openThread({ channel, message });
-              }}
               reply_count={message.reply_count}
               thread_participants={message.thread_participants}
             />

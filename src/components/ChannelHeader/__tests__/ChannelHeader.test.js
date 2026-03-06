@@ -21,7 +21,8 @@ import {
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
-import { ChatView, createLayoutController } from '../../ChatView';
+import { ChatView, createChatViewSlotBinding } from '../../ChatView';
+import { LayoutController } from '../../ChatView/layoutController/LayoutController';
 
 expect.extend(toHaveNoViolations);
 
@@ -442,11 +443,10 @@ describe('ChannelHeader', () => {
     });
   });
 
-  it('should toggle entity list pane via ChatView controller when sidebarCollapsed is uncontrolled', async () => {
-    const layoutController = createLayoutController({
+  it('should toggle list slot visibility via ChatView controller when sidebarCollapsed is uncontrolled', async () => {
+    const layoutController = new LayoutController({
       initialState: {
-        entityListPaneOpen: true,
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
     });
 
@@ -462,7 +462,7 @@ describe('ChannelHeader', () => {
     });
 
     await waitFor(() =>
-      expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(false),
+      expect(layoutController.state.getLatestValue().hiddenSlots.slot1).toBe(true),
     );
     expect(
       screen.getByRole('button', { name: 'aria/Expand sidebar' }),
@@ -471,10 +471,9 @@ describe('ChannelHeader', () => {
 
   it('should prioritize onSidebarToggle over ChatView controller toggle', async () => {
     const onSidebarToggle = jest.fn();
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        entityListPaneOpen: true,
-        visibleSlots: ['slot1'],
+        availableSlots: ['slot1'],
       },
     });
 
@@ -492,15 +491,14 @@ describe('ChannelHeader', () => {
     });
 
     expect(onSidebarToggle).toHaveBeenCalledTimes(1);
-    expect(layoutController.state.getLatestValue().entityListPaneOpen).toBe(true);
+    expect(layoutController.state.getLatestValue().hiddenSlots.slot1).not.toBe(true);
   });
 
-  it('should use back action when active slot has parent history', async () => {
+  it('should use back action when a slot has parent history', async () => {
     const onSidebarToggle = jest.fn();
-    const layoutController = createLayoutController({
+    const layoutController = new LayoutController({
       initialState: {
-        activeSlot: 'slot1',
-        entityListPaneOpen: true,
+        availableSlots: ['slot1'],
         slotBindings: {
           slot1: {
             key: 'channel:active',
@@ -517,7 +515,6 @@ describe('ChannelHeader', () => {
             },
           ],
         },
-        visibleSlots: ['slot1'],
       },
     });
 
@@ -540,5 +537,50 @@ describe('ChannelHeader', () => {
       ),
     );
     expect(onSidebarToggle).not.toHaveBeenCalled();
+  });
+
+  it('should prioritize sidebar toggle when list slot is hidden even if a slot has history', async () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+        hiddenSlots: {
+          slot1: true,
+        },
+        slotBindings: {
+          slot1: createChatViewSlotBinding({
+            key: 'channel-list',
+            kind: 'channelList',
+            source: { view: 'channels' },
+          }),
+        },
+        slotHistory: {
+          slot1: [
+            createChatViewSlotBinding({
+              key: 'channel:active',
+              kind: 'channel',
+              source: { cid: 'messaging:active' },
+            }),
+          ],
+        },
+      },
+    });
+
+    await renderComponent({
+      chatViewProps: {
+        layoutController,
+      },
+    });
+
+    expect(
+      screen.getByRole('button', { name: 'aria/Expand sidebar' }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      screen.getByRole('button', { name: 'aria/Expand sidebar' }).click();
+    });
+
+    await waitFor(() =>
+      expect(layoutController.state.getLatestValue().hiddenSlots.slot1).toBe(false),
+    );
   });
 });

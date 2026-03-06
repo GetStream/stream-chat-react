@@ -1,12 +1,9 @@
 import clsx from 'clsx';
 import React from 'react';
-import { useMemo } from 'react';
 
-import { useStateStore } from '../../../store';
-import { getChatViewEntityBinding, useChatViewContext } from '../ChatView';
+import { useLayoutViewState } from '../hooks/useLayoutViewState';
 
 import type { ReactNode } from 'react';
-import type { ChatViewLayoutState } from '../layoutController/layoutControllerTypes';
 
 export type SlotProps = {
   children?: ReactNode;
@@ -14,22 +11,9 @@ export type SlotProps = {
   slot: string;
 };
 
-const slotHiddenSelector =
-  (slot: string) =>
-  ({ entityListPaneOpen, hiddenSlots, slotBindings }: ChatViewLayoutState) => ({
-    entityListPaneOpen,
-    isChannelListSlot:
-      getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
-    isExplicitlyHidden: !!hiddenSlots?.[slot],
-  });
-
 export const Slot = ({ children, className, slot }: SlotProps) => {
-  const { layoutController } = useChatViewContext();
-  const selector = useMemo(() => slotHiddenSelector(slot), [slot]);
-  const { entityListPaneOpen, isChannelListSlot, isExplicitlyHidden } =
-    useStateStore(layoutController.state, selector) ??
-    selector(layoutController.state.getLatestValue());
-  const hidden = isExplicitlyHidden || (isChannelListSlot && !entityListPaneOpen);
+  const { hiddenSlots } = useLayoutViewState();
+  const hidden = !!hiddenSlots?.[slot];
 
   return (
     <section

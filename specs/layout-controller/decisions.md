@@ -158,7 +158,7 @@ Extend `ChatView` with optional `layout='nav-rail-entity-list-workspace'` and `s
 
 - nav rail (`ChatViewSelector`)
 - entity list pane (`ChannelList` when `activeView='channels'`, `ThreadList` when `activeView='threads'`) controlled by `entityListPaneOpen`
-- workspace slots from `visibleSlots`, where each bound entity is rendered by `slotRenderers[entity.kind]`.
+- workspace slots from `availableSlots`, where each bound entity is rendered by `slotRenderers[entity.kind]`.
 
 The layout container is implemented in `src/components/ChatView/layout/WorkspaceLayout.tsx`, while existing custom-children behavior remains the default when `layout` is not provided.
 
@@ -207,7 +207,7 @@ In this local environment, executing Jest is blocked by missing runtime dependen
 Rewrite `spec.md` as an implementation snapshot for completed tasks only:
 
 - document current `LayoutController` contract (`bind`, `clear`, `open`, domain open helpers, `setActiveView`, `setMode`, `setEntityListPaneOpen`, `toggleEntityListPane`),
-- document current state shape (`entityListPaneOpen`, `slotBindings`, `slotMeta`, `visibleSlots`),
+- document current state shape (`entityListPaneOpen`, `slotBindings`, `slotMeta`, `availableSlots`),
 - document current resolver registry and default chain,
 - document built-in ChatView layout mode (`layout='nav-rail-entity-list-workspace'` + `slotRenderers`),
 - add migration notes and low-level vs high-level usage examples,
@@ -276,7 +276,7 @@ Controller legacy fields (`entityListPaneOpen` and related methods) still exist 
 Task 10 requires minimum slot rendering before entity selection and fallback content for unbound slots while preserving `maxSlots` as the upper bound.
 
 **Decision:**  
-Add `minSlots` to `ChatViewProps` and initialize internal `visibleSlots` count from a clamped value `minSlots..maxSlots`. Add optional `slotFallbackRenderer` prop and default fallback content for unbound workspace slots in built-in layout mode. Extend layout state type with optional `minSlots` and `maxSlots` metadata.
+Add `minSlots` to `ChatViewProps` and initialize internal `availableSlots` count from a clamped value `minSlots..maxSlots`. Add optional `slotFallbackRenderer` prop and default fallback content for unbound workspace slots in built-in layout mode. Extend layout state type with optional `minSlots` and `maxSlots` metadata.
 
 **Reasoning:**  
 This guarantees a visible empty workspace pane (e.g., alongside `channelList`) before channel selection, while keeping existing resolver and slot binding behavior intact.
@@ -1418,3 +1418,107 @@ Thread-vs-main behavior should be contextual and not carried via drill props. Co
 
 **Tradeoffs / Consequences:**  
 Tests now model thread scope through context wrappers, which is closer to production wiring but slightly more setup-heavy in fixtures. Typecheck remains green.
+
+## Decision: Adopt declarative slot topology (`slotNames`) and slot-claimer ownership model
+
+**Date:** 2026-03-05  
+**Context:**  
+Recent integration feedback showed friction from hard-coded `slot<number>` assumptions and ad hoc list-pane concepts. The desired DX is declarative slot topology with explicit slot claimers (`ChatView.Channels`, `ChannelSlot`, `ThreadSlot`) and policy-driven conflict resolution through controller/navigation APIs.
+
+**Decision:**  
+Introduce a declarative slot topology requirement:
+
+- `ChatView` accepts `slotNames` as canonical ordered topology.
+- `minSlots`/`maxSlots` initialization and expansion respect configured slot names.
+- `ChatView.Channels`, `ChannelSlot`, and `ThreadSlot` claim/request slots; they do not implement replacement policy.
+- conflict outcomes remain controller-owned (`duplicateEntityPolicy`, resolver chain).
+- no dedicated `entityListSlot` concept is introduced.
+
+**Reasoning:**  
+This keeps slot ownership explicit and predictable for custom JSX layouts, removes naming-coupled behavior from navigation internals, and preserves a single policy authority in controller/resolvers.
+
+**Alternatives considered:**
+
+- Keep hard-coded `slot${n}` expansion and rely on documentation only — rejected because behavior remains surprising with custom slot ids.
+- Add separate list-pane slot prop (`entityListSlot`) — rejected because it introduces duplicate semantics instead of using generic slot claiming.
+
+**Tradeoffs / Consequences:**  
+Integrations gain clearer declarative control but implementation must ensure strict backward compatibility when `slotNames` is omitted.
+
+## Decision: Implement initial `slotNames` topology in ChatView and navigation expansion
+
+**Date:** 2026-03-05  
+**Context:**  
+Task 45/46 began to make slot topology declarative and remove hard-coded `slot${n}` expansion assumptions.
+
+**Decision:**  
+Implement `slotNames?: string[]` on `ChatView` and initialize internal layout state with:
+
+- `slotNames` as ordered topology,
+- `availableSlots` from the first `minSlots` names,
+- `maxSlots`/`minSlots` clamped against topology length when names are provided.
+
+Also update `useChatViewNavigation()` expansion logic to pick the next slot from ordered topology (`slotNames` first, generated fallback otherwise) instead of constructing `slot${n}` directly.
+
+**Reasoning:**  
+This keeps slot ordering declarative and allows named slots (`list`, `main`, `thread`) while preserving backward compatibility for existing numeric slot ids.
+
+**Alternatives considered:**
+
+- Introduce a separate topology context only for navigation — rejected because topology belongs in layout state shared by all slot-aware consumers.
+- Make `slotNames` mandatory — rejected to avoid breaking existing integrations.
+
+**Tradeoffs / Consequences:**  
+Current tests are updated for initialization and named-slot expansion semantics; full Jest verification remains environment-dependent in this workspace.
+
+## Decision: Add Task 49 for slot-equal navigation and API rename convergence
+
+**Date:** 2026-03-05  
+**Context:**  
+The spec was updated with final requirements to remove implicit current-slot semantics, separate history/lifecycle/visibility concerns, add forward navigation per slot, and adopt clearer low-level API names (`setSlotBinding`, `openInLayout`).
+
+**Decision:**  
+Add Task 49 to `plan.md` and `state.json` as the implementation convergence task for these requirements.
+
+**Reasoning:**  
+This keeps Ralph artifacts synchronized and creates a single execution unit for the breaking refactor, test updates, and migration-doc alignment.
+
+**Alternatives considered:**
+
+- Split into multiple micro-tasks immediately — rejected for now to keep sequencing simple while requirements are still converging.
+- Leave only spec updates without plan/state tasking — rejected because it breaks Ralph tracking discipline.
+
+**Tradeoffs / Consequences:**  
+Task 49 is broad and may later be split into implementation subtasks once execution starts, but current plan/state now reliably track this requirement set.
+
+## Decision: Implement slot-equal controller API with explicit history/visibility separation
+
+**Date:** 2026-03-05  
+**Context:**  
+Task 49 required removing implicit current-slot behavior, adding forward navigation, and clarifying low-level controller method semantics.
+
+**Decision:**  
+Implement the following breaking layout-controller changes:
+
+- remove `activeSlot` from layout state and resolver/duplicate callback args,
+- add per-slot `slotForwardHistory` alongside `slotHistory`,
+- rename low-level methods:
+  - `bind` -> `setSlotBinding`,
+  - `open` -> `openInLayout`,
+  - `close` -> `goBack`,
+  - `setSlotHidden` -> `hide`/`unhide`,
+- add `goForward(slot)`,
+- keep `clear(slot)` as lifecycle reset separate from history and visibility.
+
+Also update ChatView navigation and slot/entity hooks to avoid implicit slot fallback and use deterministic slot targeting.
+
+**Reasoning:**  
+This enforces slot equality, reduces accidental coupling to a hidden "current pane", and makes controller intent explicit by API name.
+
+**Alternatives considered:**
+
+- Keep legacy names as aliases for a transitional period — rejected to keep the breaking contract unambiguous.
+- Keep `activeSlot` only as optional hint — rejected because it preserves the same semantic overload problem.
+
+**Tradeoffs / Consequences:**  
+Tests and downstream integrations must migrate to renamed methods and explicit slot targeting. In this environment, only typecheck validation was fully runnable.

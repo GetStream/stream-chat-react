@@ -9,7 +9,7 @@ import {
   UserSearchResultItem,
 } from '../SearchResults';
 import { ChatView, createChatViewSlotBinding } from '../../../components/ChatView';
-import { createLayoutController } from '../../../components/ChatView/layoutController/LayoutController';
+import { LayoutController } from '../../../components/ChatView/layoutController/LayoutController';
 import { SearchContextProvider } from '../SearchContext';
 import { ChannelListContextProvider, ChatProvider } from '../../../context';
 import {
@@ -165,8 +165,8 @@ describe('SearchResultItem Components', () => {
         messageResponseData.channel.type,
         messageResponseData.channel.id,
       );
-      const layoutController = createLayoutController({
-        initialState: { visibleSlots: ['slot1'] },
+      const layoutController = new LayoutController({
+        initialState: { availableSlots: ['slot1'] },
       });
       layoutController.open(
         createChatViewSlotBinding({

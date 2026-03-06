@@ -26,6 +26,7 @@ import {
   getChatViewEntityBinding,
   useChatViewContext,
 } from '../ChatView';
+import { useLayoutViewState } from '../ChatView/hooks/useLayoutViewState';
 import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
@@ -57,10 +58,8 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   searchIsActive: nextValue.isActive,
 });
 const layoutStateSelector = (nextValue: ChatViewLayoutState) => ({
-  activeSlot: nextValue.activeSlot,
-  entityListPaneOpen: nextValue.entityListPaneOpen,
-  slotBindings: nextValue.slotBindings,
-  visibleSlots: nextValue.visibleSlots,
+  activeView: nextValue.activeView,
+  listSlotByView: nextValue.listSlotByView,
 });
 
 export type ChannelListProps = {
@@ -224,14 +223,19 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
   const { layoutController } = useChatViewContext();
-  const {
-    closeChannel,
-    hideChannelList,
-    openChannel: openChannelFromNavigation,
-  } = useChatViewNavigation();
-  const { activeSlot, entityListPaneOpen, slotBindings, visibleSlots } =
+  const { closeChannel, openChannel: openChannelFromNavigation } =
+    useChatViewNavigation();
+  const { activeView, listSlotByView } =
     useStateStore(layoutController.state, layoutStateSelector) ??
     layoutStateSelector(layoutController.state.getLatestValue());
+  const { availableSlots, hiddenSlots, slotBindings } = useLayoutViewState();
+  const listSlotHint = listSlotByView?.[activeView];
+  const listSlot =
+    (listSlotHint && availableSlots.includes(listSlotHint) ? listSlotHint : undefined) ??
+    availableSlots.find(
+      (slot) => getChatViewEntityBinding(slotBindings[slot])?.kind === 'channelList',
+    );
+  const listVisible = listSlot ? !hiddenSlots?.[listSlot] : true;
   const { Search } = useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
@@ -241,9 +245,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     searchController.state,
     searchControllerStateSelector,
   );
-  const activeChannel = [activeSlot, ...visibleSlots]
-    .filter(Boolean)
-    .map((slot) => getChatViewEntityBinding(slotBindings[slot as string]))
+  const activeChannel = availableSlots
+    .map((slot) => getChatViewEntityBinding(slotBindings[slot]))
     .find((binding) => binding?.kind === 'channel')?.source as Channel | undefined;
 
   const openChannel = useCallback(
@@ -252,17 +255,9 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       if (Object.keys(watchers).length) {
         await nextChannel.query({ watch: true, watchers });
       }
-      const openResult = openChannelFromNavigation(nextChannel);
-      // Auto-hide only when channel open consumed the channel-list slot,
-      // meaning layout had no spare visible slot capacity for both panes.
-      if (
-        openResult.status === 'replaced' &&
-        getChatViewEntityBinding(openResult.replaced)?.kind === 'channelList'
-      ) {
-        hideChannelList({ slot: openResult.slot });
-      }
+      openChannelFromNavigation(nextChannel);
     },
-    [hideChannelList, openChannelFromNavigation, watchers],
+    [openChannelFromNavigation, watchers],
   );
 
   /**
@@ -410,7 +405,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     {
       'str-chat--windows-flags':
         useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
-      [`${baseClass}--open`]: entityListPaneOpen,
+      [`${baseClass}--open`]: listVisible,
     },
   );
 

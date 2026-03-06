@@ -50,7 +50,7 @@ const renderWithProviders = (ui: React.ReactNode) =>
   );
 
 describe('useChatViewNavigation', () => {
-  it('supports open/close thread flow with one-slot history restoration', () => {
+  it('supports open/close thread flow where close clears thread slot state', () => {
     const channel = makeChannel('messaging:navigation');
     const thread = makeThread('thread-navigation');
     let capturedController: LayoutController | undefined;
@@ -101,10 +101,61 @@ describe('useChatViewNavigation', () => {
     fireEvent.click(screen.getByText('close-thread'));
     const closeThreadState = capturedController?.state.getLatestValue();
     expect(closeThreadState?.activeView).toBe('channels');
-    expect(getChatViewEntityBinding(closeThreadState?.slotBindings.slot1)?.kind).toBe(
-      'channel',
-    );
+    expect(closeThreadState?.slotBindings.slot1).toBeUndefined();
     expect(closeThreadState?.slotHistory).toEqual({});
+    expect(closeThreadState?.slotForwardHistory).toEqual({});
+  });
+
+  it('closes thread when opening a new channel', () => {
+    const channelA = makeChannel('messaging:channel-a');
+    const channelB = makeChannel('messaging:channel-b');
+    const thread = makeThread('thread-navigation-switch');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button onClick={() => navigation.openChannel(channelA)} type='button'>
+            open-channel-a
+          </button>
+          <button onClick={() => navigation.openThread(thread)} type='button'>
+            open-thread
+          </button>
+          <button onClick={() => navigation.openChannel(channelB)} type='button'>
+            open-channel-b
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={1}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel-a'));
+    fireEvent.click(screen.getByText('open-thread'));
+    expect(
+      getChatViewEntityBinding(
+        capturedController?.state.getLatestValue()?.slotBindings.slot1,
+      )?.kind,
+    ).toBe('thread');
+
+    fireEvent.click(screen.getByText('open-channel-b'));
+    const stateAfterSecondChannelOpen = capturedController?.state.getLatestValue();
+    expect(
+      getChatViewEntityBinding(stateAfterSecondChannelOpen?.slotBindings.slot1)?.kind,
+    ).toBe('channel');
+    expect(
+      getChatViewEntityBinding(stateAfterSecondChannelOpen?.slotBindings.slot1)?.source,
+    ).toBe(channelB);
+    expect(stateAfterSecondChannelOpen?.slotHistory).toEqual({});
+    expect(stateAfterSecondChannelOpen?.slotForwardHistory).toEqual({});
   });
 
   it('hides and unhides channelList slot without requiring existing binding', () => {
@@ -141,7 +192,6 @@ describe('useChatViewNavigation', () => {
 
     fireEvent.click(screen.getByText('hide-list'));
     expect(capturedController?.state.getLatestValue()).toMatchObject({
-      entityListPaneOpen: false,
       hiddenSlots: {
         slot1: true,
       },
@@ -149,7 +199,6 @@ describe('useChatViewNavigation', () => {
 
     fireEvent.click(screen.getByText('unhide-list'));
     const unhiddenState = capturedController?.state.getLatestValue();
-    expect(unhiddenState?.entityListPaneOpen).toBe(true);
     expect(unhiddenState?.hiddenSlots.slot1).toBe(false);
     expect(getChatViewEntityBinding(unhiddenState?.slotBindings.slot1)).toMatchObject({
       key: 'channel-list',
@@ -158,7 +207,7 @@ describe('useChatViewNavigation', () => {
     });
   });
 
-  it('openView can activate provided slot', () => {
+  it('openView updates activeView', () => {
     let capturedController: LayoutController | undefined;
 
     const Harness = () => {
@@ -184,8 +233,89 @@ describe('useChatViewNavigation', () => {
 
     fireEvent.click(screen.getByText('open-threads-slot2'));
     expect(capturedController?.state.getLatestValue()).toMatchObject({
-      activeSlot: 'slot2',
       activeView: 'threads',
     });
+  });
+
+  it('openThread expands available slots up to maxSlots before replacing occupied slot', () => {
+    const channel = makeChannel('messaging:expand-channel');
+    const thread = makeThread('thread-expand');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button onClick={() => navigation.openChannel(channel)} type='button'>
+            open-channel
+          </button>
+          <button onClick={() => navigation.openThread(thread)} type='button'>
+            open-thread
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={3} minSlots={2}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+    fireEvent.click(screen.getByText('open-thread'));
+
+    const openThreadState = capturedController?.state.getLatestValue();
+    expect(openThreadState?.availableSlots).toEqual(['slot1', 'slot2', 'slot3']);
+    expect(getChatViewEntityBinding(openThreadState?.slotBindings.slot2)?.kind).toBe(
+      'channel',
+    );
+    expect(getChatViewEntityBinding(openThreadState?.slotBindings.slot3)?.kind).toBe(
+      'thread',
+    );
+  });
+
+  it('openThread uses configured slotNames for expansion', () => {
+    const channel = makeChannel('messaging:expand-named');
+    const thread = makeThread('thread-expand-named');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button onClick={() => navigation.openChannel(channel)} type='button'>
+            open-channel
+          </button>
+          <button onClick={() => navigation.openThread(thread)} type='button'>
+            open-thread
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={3} minSlots={2} slotNames={['list', 'main', 'thread']}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+    fireEvent.click(screen.getByText('open-thread'));
+
+    const openThreadState = capturedController?.state.getLatestValue();
+    expect(openThreadState?.availableSlots).toEqual(['list', 'main', 'thread']);
+    expect(getChatViewEntityBinding(openThreadState?.slotBindings.main)?.kind).toBe(
+      'channel',
+    );
+    expect(getChatViewEntityBinding(openThreadState?.slotBindings.thread)?.kind).toBe(
+      'thread',
+    );
   });
 });

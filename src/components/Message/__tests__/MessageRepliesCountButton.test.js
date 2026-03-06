@@ -10,34 +10,32 @@ import {
 } from '../../../context';
 
 const onClickMock = jest.fn();
+const mockOpenThread = jest.fn();
 const defaultSingularText = '1 reply';
 const defaultPluralText = '2 replies';
+
+jest.mock('../../ChatView/ChatViewNavigationContext', () => ({
+  useChatViewNavigation: () => ({
+    openThread: mockOpenThread,
+  }),
+}));
 
 const i18nMock = (key, { count }) =>
   count > 1 ? defaultPluralText : defaultSingularText;
 
-const getChannel = (channelCapabilities = { 'send-reply': true }) => {
-  const ownCapabilities = Object.entries(channelCapabilities)
-    .filter(([, value]) => value)
-    .map(([capability]) => capability);
+const getChannel = () => ({
+  cid: 'messaging:test-channel',
+  messagePaginator: {
+    state: new StateStore({ items: [] }),
+  },
+});
 
-  return {
-    cid: 'messaging:test-channel',
-    messagePaginator: {
-      state: new StateStore({ items: [] }),
-    },
-    state: {
-      ownCapabilitiesStore: new StateStore({ ownCapabilities }),
-    },
-  };
-};
-
-const renderComponent = (props, channelStateCtx) =>
+const renderComponent = (props) =>
   render(
     <TranslationProvider value={{ t: i18nMock }}>
       <ChannelInstanceProvider
         value={{
-          channel: getChannel(channelStateCtx?.channelCapabilities),
+          channel: getChannel(),
         }}
       >
         <MessageRepliesCountButton {...props} onClick={onClickMock} />
@@ -90,6 +88,7 @@ describe('MessageRepliesCountButton', () => {
     fireEvent.click(getByTestId('replies-count-button'));
 
     expect(onClickMock).toHaveBeenCalledTimes(1);
+    expect(mockOpenThread).not.toHaveBeenCalled();
   });
 
   it('should not render anything if reply_count is 0 or undefined', () => {
@@ -107,13 +106,21 @@ describe('MessageRepliesCountButton', () => {
     expect(queryByTestId('reply-icon')).not.toBeInTheDocument();
   });
 
-  it('should be disabled on missing "send-reply" permission', () => {
-    const { getByText } = renderComponent(
-      { reply_count: 1 },
-      { channelCapabilities: { 'send-reply': false } },
+  it('opens thread by default when custom onClick is not supplied', () => {
+    const message = { id: 'message-id' };
+    const channel = getChannel();
+    const { getByTestId } = render(
+      <TranslationProvider value={{ t: i18nMock }}>
+        <ChannelInstanceProvider value={{ channel }}>
+          <MessageProvider value={{ message }}>
+            <MessageRepliesCountButton reply_count={1} />
+          </MessageProvider>
+        </ChannelInstanceProvider>
+      </TranslationProvider>,
     );
 
-    expect(getByText(defaultSingularText)).toBeDisabled();
+    fireEvent.click(getByTestId('replies-count-button'));
+    expect(mockOpenThread).toHaveBeenCalledWith({ channel, message });
   });
 
   it('prefers live reply_count from messagePaginator for the current message', () => {

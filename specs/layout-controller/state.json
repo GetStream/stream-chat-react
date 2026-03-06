@@ -43,14 +43,19 @@
     "task-41-remove-messageisunread-from-messagecontextvalue-and-use-messagereceiptstracker-api": "done",
     "task-42-remove-openthread-from-messageprops-and-align-navigation-contract": "done",
     "task-43-remove-threadlist-from-messageprops-and-infer-thread-scope-locally": "done",
-    "task-44-remove-legacythreadcontext-and-legacy-thread-context-wiring": "pending"
+    "task-44-remove-legacythreadcontext-and-legacy-thread-context-wiring": "pending",
+    "task-45-declarative-slot-topology-slotnames-in-chatview": "done",
+    "task-46-navigation-expansion-must-respect-configured-slot-names": "in-progress",
+    "task-47-slot-claimer-components-contract-tightening": "pending",
+    "task-48-documentation-and-migration-notes-for-declarative-slot-topology": "pending",
+    "task-49-slot-equal-navigation-refactor-and-controller-api-renames": "done"
   },
   "flags": {
     "blocked": false,
     "needs-review": false
   },
   "meta": {
-    "last_updated": "2026-03-03",
+    "last_updated": "2026-03-05",
     "worktree": "../stream-chat-react-worktrees/chatview-layout-controller",
     "branch": "feat/chatview-layout-controller"
   }

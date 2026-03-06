@@ -348,7 +348,9 @@ const ChannelInner = (
       originalTitle.current = document.title;
 
       if (!errored) {
-        const ownReadState = client.userID ? channel.state.read[client.userID] : undefined;
+        const ownReadState = client.userID
+          ? channel.state.read[client.userID]
+          : undefined;
         const lastReadAtFromOwnReadState = ownReadState?.last_read
           ? new Date(ownReadState.last_read)
           : undefined;

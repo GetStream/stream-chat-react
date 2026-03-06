@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 import { IconArrowRightUp } from '../Icons';
 import {
@@ -7,10 +7,11 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import { useMessagePaginator } from '../../hooks';
-import { formatMessage, type LocalMessage } from 'stream-chat';
-import { useChatViewNavigation } from '../ChatView/ChatViewNavigationContext';
+import { useStateStore } from '../../store';
+import { useChatViewContext, useChatViewNavigation } from '../ChatView';
 import { useThreadContext } from '../Threads';
+
+const activeViewSelector = ({ activeView }: { activeView: string }) => ({ activeView });
 
 /**
  * Indicator shown when the message was also sent to the main channel (show_in_channel === true).
@@ -19,72 +20,63 @@ export const MessageAlsoSentInChannelIndicator = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { openThread } = useChatViewNavigation();
+  const { openChannel, openThread } = useChatViewNavigation();
+  const { layoutController } = useChatViewContext();
   const thread = useThreadContext();
-  const messagePaginator = useMessagePaginator();
   const { message } = useMessageContext('MessageAlsoSentInChannelIndicator');
-  const targetMessageRef = useRef<LocalMessage | null | undefined>(undefined);
+  const { activeView } = useStateStore(layoutController.state, activeViewSelector) ?? {
+    activeView: layoutController.state.getLatestValue().activeView,
+  };
 
-  const queryParent = () =>
-    channel
-      .getClient()
-      .search({ cid: channel.cid }, { id: message.parent_id })
-      .then(({ results }) => {
-        if (!results.length) {
-          throw new Error('Thread has not been found');
-        }
-        targetMessageRef.current = formatMessage(results[0].message);
-      })
-      .catch((error: Error) => {
-        client.notifications.addError({
-          message: t('Thread has not been found'),
-          options: {
-            originalError: error,
-            type: 'api:message:search:not-found',
-          },
-          origin: {
-            context: { threadReply: message },
-            emitter: 'MessageIsThreadReplyInChannelButtonIndicator',
-          },
-        });
-      });
+  const addThreadNotFoundNotification = (error: Error) => {
+    client.notifications.addError({
+      message: t('Thread has not been found'),
+      options: {
+        originalError: error,
+        type: 'api:message:search:not-found',
+      },
+      origin: {
+        context: { threadReply: message },
+        emitter: 'MessageIsThreadReplyInChannelButtonIndicator',
+      },
+    });
+  };
 
-  // todo: it is not possible to jump to a message in thread
-  const jumpToReplyInChannelMessages = async (id: string) =>
-    await messagePaginator.jumpToMessage(id);
-  // todo: we do not have API to control, whether thread of channel message list is show - on mobile devices important
-  useEffect(() => {
-    if (
-      targetMessageRef.current ||
-      targetMessageRef.current === null ||
-      !message.parent_id
-    )
-      return;
-    const localMessage = channel.state.findMessage(message.parent_id);
-    if (localMessage) {
-      targetMessageRef.current = localMessage;
-      return;
+  const jumpToReplyInChannelMessages = async (id: string) => {
+    if (activeView === 'threads') {
+      // todo: switching views to a specific channel will work only with ChannelListOrchestrator because it will not force us to reload the whole channel list
+      openChannel(channel);
+      // TODO: Use ChannelListOrchestrator to check whether this channel is already loaded before querying.
+      await channel.query({ messages: { limit: 0 } });
     }
-  }, [channel, message]);
+
+    await channel.messagePaginator.jumpToMessage(id);
+  };
+
+  const jumpToReplyInThread = async (replyId: string, parentId: string) => {
+    let targetThread = client.threads.threadsById[parentId];
+
+    if (!targetThread) {
+      try {
+        targetThread = await client.getThread(parentId, { watch: true });
+      } catch (error) {
+        addThreadNotFoundNotification(error as Error);
+        return;
+      }
+    }
+
+    openThread(targetThread);
+    await targetThread.messagePaginator.jumpToMessage(replyId);
+  };
 
   const handleClickViewReference = async () => {
-    if (!targetMessageRef.current) {
-      // search query is performed here in order to prevent multiple search queries in useEffect
-      // due to the message list 3x remounting its items
-      if (thread) {
-        await jumpToReplyInChannelMessages(message.id); // we are in thread, and we want to jump to this reply in the main message list
-        return;
-      } else await queryParent(); // we are in the main list and need to query the thread
-    }
-    const target = targetMessageRef.current;
-    if (!target) {
-      // prevent further search queries if the message is not found in the DB
-      targetMessageRef.current = null;
+    if (thread) {
+      await jumpToReplyInChannelMessages(message.id);
       return;
     }
 
-    if (thread) await jumpToReplyInChannelMessages(message.id);
-    else openThread({ channel, message: target });
+    if (!message.parent_id) return;
+    await jumpToReplyInThread(message.id, message.parent_id);
   };
 
   if (!message?.show_in_channel) return null;

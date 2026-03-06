@@ -11,7 +11,10 @@ import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from 
 import { useChatContext, useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-const selector = (nextValue: ThreadManagerState) => ({ threads: nextValue.threads });
+const selector = (nextValue: ThreadManagerState) => ({
+  threadCount: nextValue.threads.length,
+  threads: nextValue.threads,
+});
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
@@ -23,6 +26,21 @@ export const useThreadList = () => {
   const { client } = useChatContext();
 
   useEffect(() => {
+    // Reset derived pagination inputs before initial reload so the first mount requests
+    // the default first page size, rather than a limit inferred from cached/unseen threads.
+    const { pagination } = client.threads.state.getLatestValue();
+    client.threads.state.partialNext({
+      isThreadOrderStale: false,
+      pagination: {
+        ...pagination,
+        nextCursor: null,
+      },
+      ready: false,
+      threads: [],
+      unseenThreadIds: [],
+    });
+    void client.threads.reload({ force: true });
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         client.threads.activate();

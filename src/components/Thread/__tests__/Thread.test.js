@@ -74,7 +74,11 @@ const i18nMock = jest.fn((key, props) => {
   return key;
 });
 
-const makeThread = ({ channel = mockedChannel, thread = parentMessage } = {}) =>
+const makeThread = ({
+  channel = mockedChannel,
+  messagePaginatorState = {},
+  thread = parentMessage,
+} = {}) =>
   thread
     ? {
         channel,
@@ -84,6 +88,18 @@ const makeThread = ({ channel = mockedChannel, thread = parentMessage } = {}) =>
         },
         deactivate: jest.fn(),
         id: `thread-${thread.id}`,
+        messagePaginator: {
+          state: {
+            getLatestValue: () => ({
+              hasMoreHead: false,
+              hasMoreTail: false,
+              isLoading: false,
+              items: undefined,
+              ...messagePaginatorState,
+            }),
+            subscribeWithSelector: () => () => null,
+          },
+        },
         reload: jest.fn(),
         state: {
           getLatestValue: () => ({ isStateStale: false, parentMessage: thread }),
@@ -140,6 +156,7 @@ describe('Thread', () => {
   afterEach(() => {
     cleanup();
     jest.clearAllMocks();
+    chatClient?.threads?.resetState?.();
   });
 
   it('should render the MessageList component with the correct props without date separators', () => {
@@ -347,11 +364,38 @@ describe('Thread', () => {
     expect(container.querySelector('.str-chat__thread')).not.toBeInTheDocument();
   });
 
-  it('should reload thread instance on mount', () => {
+  it('should reload unmanaged thread instance on mount when paginator has not loaded yet', () => {
     const threadInstance = makeThread();
+    chatClient.threads.resetState();
     renderComponent({ chatClient, threadInstance });
 
     expect(threadInstance.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not reload thread instance on mount when the thread is already managed', () => {
+    const threadInstance = makeThread();
+    chatClient.threads.state.next((current) => ({
+      ...current,
+      threads: [threadInstance],
+    }));
+
+    renderComponent({ chatClient, threadInstance });
+
+    expect(threadInstance.reload).not.toHaveBeenCalled();
+  });
+
+  it('should register an unmanaged thread in ThreadManager after first page load', () => {
+    const threadInstance = makeThread({
+      messagePaginatorState: {
+        items: [],
+      },
+    });
+
+    chatClient.threads.resetState();
+    renderComponent({ chatClient, threadInstance });
+
+    const { threads } = chatClient.threads.state.getLatestValue();
+    expect(threads.some((thread) => thread.id === threadInstance.id)).toBe(true);
   });
 
   it('should render null if replies is disabled', () => {
