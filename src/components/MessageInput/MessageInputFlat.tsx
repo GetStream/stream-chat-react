@@ -135,8 +135,27 @@ export const MessageInputFlat = () => {
             <div className='str-chat__message-composer-compose-area'>
               <MessageComposerPreviews />
               <div className='str-chat__message-composer-controls'>
-                <CommandChip />
-                <TextareaComposer />
+                <div
+                  className={
+                    'str-chat__message-composer-controls__text-composition-controls'
+                  }
+                >
+                  <div
+                    className={
+                      'str-chat__message-composer-controls__text-composition-controls__text'
+                    }
+                  >
+                    <div
+                      className={
+                        'str-chat__message-composer-controls__text-composition-controls__command-chip-container'
+                      }
+                    >
+                      <CommandChip />
+                    </div>
+                    <TextareaComposer />
+                  </div>
+                  <SendToChannelCheckbox />
+                </div>
                 <AdditionalMessageComposerActions />
                 <MessageComposerActions />
               </div>
@@ -144,7 +163,6 @@ export const MessageInputFlat = () => {
           </>
         )}
       </div>
-      <SendToChannelCheckbox />
     </WithDragAndDropUpload>
   );
 };

@@ -90,6 +90,19 @@
 
     $controls-containers-min-height: 26px;
 
+    .str-chat__message-composer-controls__text-composition-controls {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .str-chat__message-composer-controls__text-composition-controls__text {
+      display: flex;
+      align-items: end;
+      gap: var(--spacing-xxs)
+    }
+
     .str-chat__message-composer__actions,
     .str-chat__message-composer__additional-actions {
       height: $controls-containers-min-height;
