@@ -92,18 +92,27 @@ body {
     //max-width: none;
   }
 
-  .str-chat__chat-view__threads {
+  /* Threads view: thread detail takes all space (higher specificity than channel 360px rules). */
+  .str-chat__chat-view .str-chat__chat-view__threads {
     .str-chat__dropzone-root--thread,
     .str-chat__thread-container {
       flex: 1 1 auto;
-      //min-width: 360px;
+      min-width: 0;
       max-width: none;
+      width: 100%;
     }
   }
 
-  /* Desktop (≥768px): thread fixed width next to channel; channel takes remaining space. */
+  .str-chat__thread-list-container .str-chat__thread-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Desktop (≥768px): in channel view only, thread fixed 360px next to channel. */
   @media (min-width: 768px) {
-    .str-chat__container:has(.str-chat__thread-container) {
+    .str-chat__chat-view__channels .str-chat__container:has(.str-chat__thread-container) {
       > .str-chat__main-panel,
       > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
         flex: 1 1 auto;
@@ -118,8 +127,8 @@ body {
       }
     }
 
-    .str-chat__dropzone-root--thread,
-    .str-chat__thread-container {
+    .str-chat__chat-view__channels .str-chat__container .str-chat__dropzone-root--thread,
+    .str-chat__chat-view__channels .str-chat__container .str-chat__thread-container {
       width: 100%;
       max-width: 360px;
     }
