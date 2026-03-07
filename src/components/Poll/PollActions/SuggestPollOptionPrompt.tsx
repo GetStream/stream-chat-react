@@ -16,12 +16,12 @@ export type SuggestPollOptionFormProps = {
   messageId: string;
 };
 
-export const SuggestPollOptionForm = ({
+export const SuggestPollOptionPrompt = ({
   close,
   messageId,
 }: SuggestPollOptionFormProps) => {
-  const { client } = useChatContext('SuggestPollOptionForm');
-  const { t } = useTranslationContext('SuggestPollOptionForm');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
 
@@ -65,7 +65,7 @@ export const SuggestPollOptionForm = ({
   const submitDisabled = !value.optionText?.trim();
 
   return (
-    <Prompt.Root className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'>
+    <Prompt.Root className='str-chat__modal__suggest-poll-option-prompt'>
       <Prompt.Header close={close} title={t('Suggest an option')} />
       <Prompt.Body>
         <form autoComplete='off' onSubmit={handleSubmit}>

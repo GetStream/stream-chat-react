@@ -63,27 +63,23 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 
   const messageId = displayMessage ? `${id}-message` : undefined;
 
-  const messageContent = displayError
-    ? ((
-        <>
-          <span aria-hidden className='str-chat__form-text-input__message-icon'>
-            {errorMessageIcon ?? <IconExclamationCircle />}
-          </span>
-          {errorMessage ?? message}
-        </>
-      ) as ReactNode)
-    : displaySuccess
-      ? ((
-          <>
-            <span aria-hidden className='str-chat__form-text-input__message-icon'>
-              {successMessageIcon ?? <IconCheckmark2 />}
-            </span>
-            {successMessage}
-          </>
-        ) as ReactNode)
-      : displayNeutralMessage
-        ? (message as ReactNode)
-        : null;
+  const messageContent = displayError ? (
+    <>
+      <span aria-hidden className='str-chat__form-text-input__message-icon'>
+        {errorMessageIcon ?? <IconExclamationCircle />}
+      </span>
+      {errorMessage ?? message}
+    </>
+  ) : displaySuccess ? (
+    <>
+      <span aria-hidden className='str-chat__form-text-input__message-icon'>
+        {successMessageIcon ?? <IconCheckmark2 />}
+      </span>
+      {successMessage}
+    </>
+  ) : displayNeutralMessage ? (
+    (message as ReactNode)
+  ) : null;
 
   return (
     <div

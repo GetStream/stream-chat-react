@@ -11,13 +11,13 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
   ownAnswer: nextValue.ownAnswer,
 });
 
-export type AddCommentFormProps = {
+export type AddCommentPromptProps = {
   close: () => void;
   messageId: string;
 };
 
-export const AddCommentForm = ({ close, messageId }: AddCommentFormProps) => {
-  const { t } = useTranslationContext('AddCommentForm');
+export const AddCommentPrompt = ({ close, messageId }: AddCommentPromptProps) => {
+  const { t } = useTranslationContext('AddCommentPrompt');
   const { poll } = usePollContext();
   const { ownAnswer } = useStateStore(poll.state, pollStateSelector);
 

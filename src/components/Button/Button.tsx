@@ -35,7 +35,7 @@ const sizeToClass: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { appearance, circular, className, size, variant, ...props },
+  { appearance, children, circular, className, size, variant, ...props },
   ref,
 ) {
   return (
@@ -51,6 +51,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         size != null && sizeToClass[size],
         className,
       )}
-    />
+    >
+      <span className='str-chat__button__content'>{children}</span>
+    </button>
   );
 });

@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import { PollAction } from './PollAction';
-import type { AddCommentFormProps } from './AddCommentForm';
-import { AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
-import type { SuggestPollOptionFormProps } from './SuggestPollOptionForm';
-import { SuggestPollOptionForm as DefaultSuggestPollOptionForm } from './SuggestPollOptionForm';
+import type { AddCommentPromptProps } from './AddCommentPrompt';
+import { AddCommentPrompt as DefaultAddCommentPrompt } from './AddCommentPrompt';
+import type { SuggestPollOptionFormProps } from './SuggestPollOptionPrompt';
+import { SuggestPollOptionPrompt as DefaultSuggestPollOptionForm } from './SuggestPollOptionPrompt';
 import {
   EndPollAlert as DefaultEndPollAlert,
   type EndPollAlertProps,
@@ -49,7 +49,7 @@ const pollStateSelector = (nextValue: PollState) => ({
 });
 
 export type PollActionsProps = {
-  AddCommentForm?: React.ComponentType<AddCommentFormProps>;
+  AddCommentPrompt?: React.ComponentType<AddCommentPromptProps>;
   EndPollAlert?: React.ComponentType<EndPollAlertProps>;
   PollAnswerList?: React.ComponentType<PollAnswerListProps>;
   PollOptionsFullList?: React.ComponentType<FullPollOptionsListingProps>;
@@ -58,7 +58,7 @@ export type PollActionsProps = {
 };
 
 export const PollActions = ({
-  AddCommentForm = DefaultAddCommentForm,
+  AddCommentPrompt = DefaultAddCommentPrompt,
   EndPollAlert = DefaultEndPollAlert,
   PollAnswerList = DefaultPollAnswerList,
   PollOptionsFullList = DefaultPollOptionsFullList,
@@ -162,7 +162,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
         >
-          <AddCommentForm close={closeModal} messageId={message.id} />
+          <AddCommentPrompt close={closeModal} messageId={message.id} />
         </PollAction>
       )}
 
