@@ -1,5 +1,5 @@
 export * from './AddCommentForm';
-export * from './EndPollDialog';
+export * from './EndPollAlert';
 export * from './PollActions';
 export * from './PollAnswerList';
 export * from './PollOptionsFullList';

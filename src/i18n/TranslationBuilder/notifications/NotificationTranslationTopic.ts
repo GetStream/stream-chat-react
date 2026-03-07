@@ -10,6 +10,10 @@ import type { TranslationTopicOptions, Translator } from '../../index';
 import { pollCreationFailedNotificationTranslator } from './pollComposition';
 import { pollVoteCountTrespass } from './pollVoteCountTrespass';
 import { browserAudioPlaybackError } from './browserAudioPlaybackError';
+import {
+  pollEndFailedNotificationTranslator,
+  pollEndSucceededNotificationTranslator,
+} from './pollEnd';
 
 export const defaultNotificationTranslators: Record<
   string,
@@ -17,6 +21,8 @@ export const defaultNotificationTranslators: Record<
 > = {
   'api:attachment:upload:failed': attachmentUploadFailedNotificationTranslator,
   'api:poll:create:failed': pollCreationFailedNotificationTranslator,
+  'api:poll:end:failed': pollEndFailedNotificationTranslator,
+  'api:poll:end:success': pollEndSucceededNotificationTranslator,
   'browser:audio:playback:error': browserAudioPlaybackError,
   'validation:attachment:upload:blocked': attachmentUploadBlockedNotificationTranslator,
   'validation:attachment:upload:in-progress': attachmentUploadNotTerminatedTranslator,

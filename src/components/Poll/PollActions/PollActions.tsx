@@ -5,8 +5,10 @@ import type { AddCommentFormProps } from './AddCommentForm';
 import { AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
 import type { SuggestPollOptionFormProps } from './SuggestPollOptionForm';
 import { SuggestPollOptionForm as DefaultSuggestPollOptionForm } from './SuggestPollOptionForm';
-import type { EndPollDialogProps } from './EndPollDialog';
-import { EndPollDialog as DefaultEndPollDialog } from './EndPollDialog';
+import {
+  EndPollAlert as DefaultEndPollAlert,
+  type EndPollAlertProps,
+} from './EndPollAlert';
 import type { PollAnswerListProps } from './PollAnswerList';
 import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
 import type { FullPollOptionsListingProps } from './PollOptionsFullList';
@@ -48,7 +50,7 @@ const pollStateSelector = (nextValue: PollState) => ({
 
 export type PollActionsProps = {
   AddCommentForm?: React.ComponentType<AddCommentFormProps>;
-  EndPollDialog?: React.ComponentType<EndPollDialogProps>;
+  EndPollAlert?: React.ComponentType<EndPollAlertProps>;
   PollAnswerList?: React.ComponentType<PollAnswerListProps>;
   PollOptionsFullList?: React.ComponentType<FullPollOptionsListingProps>;
   PollResults?: React.ComponentType<PollResultsProps>;
@@ -57,7 +59,7 @@ export type PollActionsProps = {
 
 export const PollActions = ({
   AddCommentForm = DefaultAddCommentForm,
-  EndPollDialog = DefaultEndPollDialog,
+  EndPollAlert = DefaultEndPollAlert,
   PollAnswerList = DefaultPollAnswerList,
   PollOptionsFullList = DefaultPollOptionsFullList,
   PollResults = DefaultPollResults,
@@ -98,13 +100,13 @@ export const PollActions = ({
     <div className='str-chat__poll-actions'>
       {!is_closed && created_by_id === client.user?.id && (
         <PollAction
-          buttonText={t('End vote')}
+          buttonText={t('End poll')}
           closeModal={closeModal}
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__end-poll-modal')}
           modalIsOpen={modalOpen === 'end-vote'}
           openModal={() => setModalOpen('end-vote')}
         >
-          <EndPollDialog close={closeModal} />
+          <EndPollAlert close={closeModal} />
         </PollAction>
       )}
 
