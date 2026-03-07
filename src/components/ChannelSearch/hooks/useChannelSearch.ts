@@ -61,7 +61,7 @@ export type ChannelSearchParams = {
     params: ChannelSearchFunctionParams,
     result: ChannelOrUserResponse,
   ) => Promise<void> | void;
-  /** The number of milliseconds to debounce the search query. The default interval is 200ms. */
+  /** The number of milliseconds to debounce the search query. The default interval is 300ms. */
   searchDebounceIntervalMs?: number;
   /** Boolean to search for channels in the server query, default is false and just searches for users */
   searchForChannels?: boolean;
