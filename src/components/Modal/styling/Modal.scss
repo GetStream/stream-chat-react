@@ -45,16 +45,6 @@
   background-color: var(--str-chat__modal-overlay-color);
   backdrop-filter: var(--str-chat__modal-overlay-backdrop-filter);
 
-  .str-chat__modal__inner {
-    @include utils.component-layer-overrides('modal');
-    @include utils.flex-col-center;
-    position: relative;
-    max-height: 80%;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-  }
-
   .str-chat__modal__overlay__close-button {
     position: absolute;
     right: 10px;

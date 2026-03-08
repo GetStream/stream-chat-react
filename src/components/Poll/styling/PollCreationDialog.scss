@@ -54,25 +54,9 @@
   }
 }
 
-.str-chat__modal.str-chat__create-poll-modal {
-  .str-chat__modal__inner {
-    padding: 0;
-    max-height: unset;
-    display: block;
-  }
-}
-
 @media only screen and (max-device-width: 768px) {
-  .str-chat__modal--open .str-chat__modal__inner {
-    width: 90%;
-  }
-
   .str-chat__create-poll-modal,
   .str-chat__poll-answer-list-modal,
   .str-chat__poll-results-modal {
-    .str-chat__modal__inner {
-      height: 90%;
-      max-height: unset;
-    }
   }
 }

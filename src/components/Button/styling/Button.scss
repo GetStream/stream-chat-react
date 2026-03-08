@@ -11,7 +11,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-xs);
 
     font: var(--str-chat__body-emphasis-text);
     text-transform: capitalize;
@@ -147,6 +146,13 @@
 
     &.str-chat__button--circular {
       border-radius: var(--button-radius-full);
+    }
+
+    .str-chat__button__content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
     }
   }
 }

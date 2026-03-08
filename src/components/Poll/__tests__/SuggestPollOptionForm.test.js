@@ -2,7 +2,7 @@ import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { SuggestPollOptionForm } from '../PollActions';
+import { SuggestPollOptionPrompt } from '../PollActions';
 import { ChatProvider, PollProvider, TranslationProvider } from '../../../context';
 import { generatePoll } from '../../../mock-builders';
 
@@ -19,13 +19,13 @@ const renderComponent = ({ client, poll, props }) =>
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t }}>
         <PollProvider poll={poll}>
-          <SuggestPollOptionForm close={close} messageId={messageId} {...props} />
+          <SuggestPollOptionPrompt close={close} messageId={messageId} {...props} />
         </PollProvider>
       </TranslationProvider>
     </ChatProvider>,
   );
 
-describe('SuggestPollOptionForm', () => {
+describe('SuggestPollOptionPrompt', () => {
   afterEach(jest.resetAllMocks);
 
   it('renders with empty input that is updated and submitted', async () => {

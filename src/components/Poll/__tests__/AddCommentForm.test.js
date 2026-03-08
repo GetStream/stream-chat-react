@@ -2,7 +2,7 @@ import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AddCommentForm } from '../PollActions';
+import { AddCommentPrompt } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
 import { generatePoll } from '../../../mock-builders';
 
@@ -16,12 +16,12 @@ const renderComponent = ({ poll, props }) =>
   render(
     <TranslationProvider value={{ t }}>
       <PollProvider poll={poll}>
-        <AddCommentForm close={close} messageId={messageId} {...props} />
+        <AddCommentPrompt close={close} messageId={messageId} {...props} />
       </PollProvider>
     </TranslationProvider>,
   );
 
-describe('AddCommentForm', () => {
+describe('AddCommentPrompt', () => {
   afterEach(jest.resetAllMocks);
 
   it('renders update form for existing comment and submits it', async () => {

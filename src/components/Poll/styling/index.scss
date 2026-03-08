@@ -1,2 +1,11 @@
+@use 'AddCommentPrompt';
+@use 'EndPollAlert';
 @use 'Poll';
+@use 'PollAnswerList';
 @use 'PollCreationDialog';
+@use 'PollOptionFullList';
+@use 'PollOptionList';
+@use 'PollQuestion';
+@use 'PollResults';
+@use 'PollVote';
+@use 'SuggestPollOptionPrompt';

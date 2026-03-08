@@ -1,0 +1,70 @@
+@use '../../../styling/utils';
+
+.str-chat__viewer {
+  @include utils.modal;
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+  max-height: 640px;
+
+  .str-chat__viewer__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs) var(--spacing-md);
+    width: 100%;
+    padding: var(--spacing-xl);
+
+    .str-chat__viewer__header__title-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .str-chat__viewer__header__title {
+      font: var(--str-chat__heading-sm-text);
+      color: var(--text-primary);
+    }
+
+    .str-chat__viewer__header__description {
+      font: var(--str-chat__body-text);
+      color: var(--text-secondary);
+    }
+
+    .str-chat__viewer__header__go-back-button {
+      path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5px;
+      }
+    }
+
+    .str-chat__viewer__header__close-button {
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+  }
+
+  .str-chat__viewer__body {
+    padding: 0 var(--spacing-xl);
+
+    .str-chat__viewer__title {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .str-chat__viewer__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    padding: var(--spacing-xl);
+
+    .str-chat__viewer__footer__controls {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+  }
+}

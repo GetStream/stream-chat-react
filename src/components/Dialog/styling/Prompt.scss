@@ -1,14 +1,7 @@
 @use '../../../styling/utils';
 
-.str-chat__dialog-overlay {
-  inset: 0;
-  position: absolute;
-  height: var(--str-chat__dialog-overlay-height);
-  width: 100%;
-  z-index: 2;
-}
-
 .str-chat__prompt {
+  @include utils.modal;
   width: 100%;
 
   .str-chat__prompt__header {
@@ -44,7 +37,7 @@
 
   .str-chat__prompt__body {
     padding: 0 var(--spacing-xl);
-    overflow-y: auto;
+    @include utils.scrollable-y;
 
     .str-chat__prompt__title {
       margin-bottom: 1rem;

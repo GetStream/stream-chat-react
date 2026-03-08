@@ -112,7 +112,7 @@ export const ShareLocationDialog = ({
 
   return (
     <Prompt.Root
-      className='str-chat__prompt str-chat__share-location-dialog'
+      className='str-chat__share-location-dialog'
       data-testid='share-location-dialog'
     >
       <Prompt.Header close={close} title={t('Share Location')} />

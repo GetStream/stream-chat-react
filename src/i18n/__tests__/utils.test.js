@@ -1,10 +1,14 @@
 import { getDateString, predefinedFormatters } from '../utils';
 import { Streami18n } from '../Streami18n';
+import Dayjs from 'dayjs';
 
 jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
 const t = jest.fn();
 const timestampTranslationKey = 'timestampTranslationKey';
+
+const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
+const tDateTimeParserDayjs = (input) => Dayjs(input || new Date().toISOString());
 
 describe('getDateString', () => {
   it('returns null if not creation date provided', () => {
@@ -270,6 +274,163 @@ describe('getDateString', () => {
       expect(result).toBe(expectedValue);
     },
   );
+
+  describe('relativeCompact', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(FIXED_NOW);
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('returns "Today" for same calendar day', () => {
+      const mockT = jest.fn((key) => {
+        if (key === 'timestamp/relativeToday') return 'Today';
+        return key;
+      });
+      const result = getDateString({
+        messageCreatedAt: FIXED_NOW.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toBe('Today');
+      expect(mockT).toHaveBeenCalledWith('timestamp/relativeToday');
+    });
+
+    it('returns "Yesterday" for 1 day ago', () => {
+      const mockT = jest.fn((key) => {
+        if (key === 'timestamp/relativeYesterday') return 'Yesterday';
+        return key;
+      });
+      const yesterday = new Date(FIXED_NOW);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const result = getDateString({
+        messageCreatedAt: yesterday.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toBe('Yesterday');
+      expect(mockT).toHaveBeenCalledWith('timestamp/relativeYesterday');
+    });
+
+    it('returns "Nd ago" for 2–6 days ago', () => {
+      const mockT = jest.fn((key, opts) => {
+        if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
+          return `${opts.count}d ago`;
+        return key;
+      });
+      const threeDaysAgo = new Date(FIXED_NOW);
+      threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
+      const result = getDateString({
+        messageCreatedAt: threeDaysAgo.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toBe('3d ago');
+      expect(mockT).toHaveBeenCalledWith('timestamp/relativeDaysAgo', { count: 3 });
+    });
+
+    it('returns "Nw ago" for 1–3 weeks ago', () => {
+      const mockT = jest.fn((key, opts) => {
+        if (key === 'timestamp/relativeWeeksAgo' && opts && opts.count)
+          return `${opts.count}w ago`;
+        return key;
+      });
+      const sevenDaysAgo = new Date(FIXED_NOW);
+      sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
+      const result = getDateString({
+        messageCreatedAt: sevenDaysAgo.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toBe('1w ago');
+      expect(mockT).toHaveBeenCalledWith('timestamp/relativeWeeksAgo', { count: 1 });
+    });
+
+    it('returns DD/MM/YY for 4+ weeks ago', () => {
+      const mockT = jest.fn((key) => key);
+      const twentyEightDaysAgo = new Date(FIXED_NOW);
+      twentyEightDaysAgo.setUTCDate(twentyEightDaysAgo.getUTCDate() - 28);
+      const result = getDateString({
+        messageCreatedAt: twentyEightDaysAgo.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+      expect(result).toBe('22/01/25');
+    });
+
+    it('returns DD/MM/YY for future date', () => {
+      const mockT = jest.fn((key) => key);
+      const tomorrow = new Date(FIXED_NOW);
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      const result = getDateString({
+        messageCreatedAt: tomorrow.toISOString(),
+        relativeCompact: true,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+      expect(result).toBe('20/02/25');
+    });
+
+    it('respects relativeCompactMaxWeeks: 0 (no "Nw ago", 7+ days show as date)', () => {
+      const mockT = jest.fn((key) => key);
+      const sevenDaysAgo = new Date(FIXED_NOW);
+      sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
+      const result = getDateString({
+        messageCreatedAt: sevenDaysAgo.toISOString(),
+        relativeCompact: true,
+        relativeCompactMaxWeeks: 0,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+      expect(result).toBe('12/02/25');
+    });
+
+    it('respects relativeCompactMaxDays (only 2–N days show "Nd ago")', () => {
+      const mockT = jest.fn((key, opts) => {
+        if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
+          return `${opts.count}d ago`;
+        return key;
+      });
+      const threeDaysAgo = new Date(FIXED_NOW);
+      threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
+      const result = getDateString({
+        messageCreatedAt: threeDaysAgo.toISOString(),
+        relativeCompact: true,
+        relativeCompactMaxDays: 2,
+        relativeCompactMaxWeeks: 0,
+        t: mockT,
+        tDateTimeParser: tDateTimeParserDayjs,
+      });
+      expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+      expect(result).toBe('16/02/25');
+    });
+
+    it('does not use relativeCompact when t or tDateTimeParser is missing', () => {
+      const dayOrMoment = {
+        calendar: jest.fn(),
+        format: jest.fn().mockReturnValue('formatted'),
+        isSame: true,
+      };
+      getDateString({
+        messageCreatedAt: FIXED_NOW.toISOString(),
+        relativeCompact: true,
+        t: undefined,
+        tDateTimeParser: () => dayOrMoment,
+      });
+      expect(dayOrMoment.calendar).not.toHaveBeenCalled();
+      expect(dayOrMoment.format).toHaveBeenCalled();
+    });
+  });
 });
 
 describe('predefinedFormatters', () => {
@@ -353,6 +514,56 @@ describe('predefinedFormatters', () => {
           format: 'YYYY',
         }),
       ).toBeUndefined();
+    });
+
+    describe('relativeCompact', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(FIXED_NOW);
+      });
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('formats with relativeCompact: true (uses t for labels; date for 4+ weeks)', () => {
+        const todayIso = FIXED_NOW.toISOString();
+        const yesterday = new Date(FIXED_NOW);
+        yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+        const threeDaysAgo = new Date(FIXED_NOW);
+        threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
+        const thirtyDaysAgo = new Date(FIXED_NOW);
+        thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
+        expect(timestampFormatter(todayIso, 'en', { relativeCompact: true })).toBe(
+          'timestamp/relativeToday',
+        );
+        expect(
+          timestampFormatter(yesterday.toISOString(), 'en', { relativeCompact: true }),
+        ).toBe('timestamp/relativeYesterday');
+        expect(
+          timestampFormatter(threeDaysAgo.toISOString(), 'en', { relativeCompact: true }),
+        ).toBe('timestamp/relativeDaysAgo');
+        expect(
+          timestampFormatter(thirtyDaysAgo.toISOString(), 'en', {
+            relativeCompact: true,
+          }),
+        ).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+      });
+
+      it('respects relativeCompactMaxWeeks: 0 when passed as number or string', () => {
+        const sevenDaysAgo = new Date(FIXED_NOW);
+        sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
+        const result = timestampFormatter(sevenDaysAgo.toISOString(), 'en', {
+          relativeCompact: true,
+          relativeCompactMaxWeeks: 0,
+        });
+        expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+        expect(result).toBe('12/02/25');
+        const resultStr = timestampFormatter(sevenDaysAgo.toISOString(), 'en', {
+          relativeCompact: true,
+          relativeCompactMaxWeeks: '0',
+        });
+        expect(resultStr).toBe('12/02/25');
+      });
     });
   });
 });

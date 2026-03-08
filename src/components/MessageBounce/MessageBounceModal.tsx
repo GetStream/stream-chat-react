@@ -18,7 +18,7 @@ export function MessageBounceModal({
   return (
     <Modal className='str-chat__message-bounce-modal' {...modalProps}>
       <MessageBounceProvider>
-        <MessageBouncePrompt onClose={modalProps.onClose} />
+        <MessageBouncePrompt />
       </MessageBounceProvider>
     </Modal>
   );

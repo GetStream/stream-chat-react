@@ -2,6 +2,7 @@ import React from 'react';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
+import { IconTrophy } from '../../../Icons';
 
 type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
@@ -29,7 +30,7 @@ export const PollResultOptionVoteCounter = ({
   return (
     <div className='str-chat__poll-result-option-vote-counter'>
       {maxVotedOptionIds.length === 1 && maxVotedOptionIds[0] === optionId && (
-        <div className='str-chat__poll-result-winning-option-icon' />
+        <IconTrophy />
       )}
       <span className='str-chat__poll-result-option-vote-count'>
         {t('{{count}} votes', { count: vote_counts_by_option[optionId] ?? 0 })}
@@ -40,11 +41,24 @@ export const PollResultOptionVoteCounter = ({
 
 export type PollOptionWithVotesHeaderProps = {
   option: PollOption;
+  optionOrderNumber: number;
 };
 
-export const PollOptionWithVotesHeader = ({ option }: PollOptionWithVotesHeaderProps) => (
-  <div className='str-chat__poll-option__header'>
-    <div className='str-chat__poll-option__option-text'>{option.text}</div>
-    <PollResultOptionVoteCounter optionId={option.id} />
-  </div>
-);
+export const PollOptionWithVotesHeader = ({
+  option,
+  optionOrderNumber,
+}: PollOptionWithVotesHeaderProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <div className='str-chat__poll-option__header'>
+      <div className='str-chat__poll-option__header__label'>
+        {t('Question {{ optionOrderNumber}}', { optionOrderNumber })}
+      </div>
+      <div className='str-chat__poll-option__header__title'>
+        <div className='str-chat__poll-option__option-text'>{option.text}</div>
+        <PollResultOptionVoteCounter optionId={option.id} />
+      </div>
+    </div>
+  );
+};

@@ -161,14 +161,6 @@
   // Gallery modal-specific overrides
   &.str-chat__modal.str-chat__gallery-modal,
   &.str-chat__modal.str-chat__image-modal {
-    .str-chat__modal__inner {
-      width: 90%;
-      height: 80%;
-      max-height: 80vh;
-      padding: var(--spacing-md);
-      background-color: transparent;
-      box-shadow: none;
-    }
   }
 
   @media only screen and (max-device-width: 768px) {
@@ -179,12 +171,6 @@
 
     &.str-chat__modal.str-chat__gallery-modal,
     &.str-chat__modal.str-chat__image-modal {
-      .str-chat__modal__inner {
-        width: 95%;
-        height: 90%;
-        max-height: 90vh;
-        padding: var(--spacing-sm);
-      }
     }
   }
 }

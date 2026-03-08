@@ -1,15 +1,16 @@
 import { Alert } from '../Dialog';
 import { Button } from '../Button';
 import React from 'react';
-import { useTranslationContext } from '../../context';
-import type { ModalProps } from '../Modal';
+import { useModalContext, useTranslationContext } from '../../context';
 
-export type DeleteMessageAlertProps = Pick<ModalProps, 'onClose'> & {
+export type DeleteMessageAlertProps = {
+  onCancel: () => void;
   onDelete: () => void;
 };
 
-export const DeleteMessageAlert = ({ onClose, onDelete }: DeleteMessageAlertProps) => {
+export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertProps) => {
   const { t } = useTranslationContext();
+  const { close } = useModalContext();
   return (
     <Alert.Root
       className='str-chat__delete-message-alert'
@@ -34,7 +35,10 @@ export const DeleteMessageAlert = ({ onClose, onDelete }: DeleteMessageAlertProp
           appearance='outline'
           className='str-chat__delete-message-alert__cancel-button'
           data-testid='delete-message-alert-cancel-button'
-          onClick={onClose}
+          onClick={() => {
+            onCancel();
+            close();
+          }}
           size='md'
           variant='secondary'
         >

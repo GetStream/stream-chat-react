@@ -1,3 +1,5 @@
+@use '../../../styling/utils';
+
 .str-chat__reaction-selector {
   display: flex;
   padding-inline-start: var(--spacing-xxs, 0);
@@ -16,7 +18,7 @@
   &:has(.str-chat__reaction-selector-extended-list) {
     padding: 0;
     display: block;
-    overflow-y: auto;
+    @include utils.scrollable-y;
     scrollbar-width: none;
     border-radius: var(--radius-lg);
     max-height: 250px;
@@ -33,10 +35,10 @@
   }
 
   .str-chat__reaction-selector-extended-list {
+    @include utils.scrollable-y;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     height: 100%;
-    overflow-y: auto;
     padding-block: var(--spacing-md);
     padding-inline: var(--spacing-sm);
 

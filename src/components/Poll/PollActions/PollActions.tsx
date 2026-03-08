@@ -1,17 +1,14 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import { PollAction } from './PollAction';
-import type { AddCommentFormProps } from './AddCommentForm';
-import { AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
-import type { SuggestPollOptionFormProps } from './SuggestPollOptionForm';
-import { SuggestPollOptionForm as DefaultSuggestPollOptionForm } from './SuggestPollOptionForm';
-import type { EndPollDialogProps } from './EndPollDialog';
-import { EndPollDialog as DefaultEndPollDialog } from './EndPollDialog';
+import type { AddCommentPromptProps } from './AddCommentPrompt';
+import { AddCommentPrompt as DefaultAddCommentPrompt } from './AddCommentPrompt';
+import type { SuggestPollOptionFormProps } from './SuggestPollOptionPrompt';
+import { SuggestPollOptionPrompt as DefaultSuggestPollOptionForm } from './SuggestPollOptionPrompt';
+import { EndPollAlert as DefaultEndPollAlert } from './EndPollAlert';
 import type { PollAnswerListProps } from './PollAnswerList';
 import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
-import type { FullPollOptionsListingProps } from './PollOptionsFullList';
 import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollOptionsFullList';
-import type { PollResultsProps } from './PollResults';
 import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 import {
@@ -47,17 +44,17 @@ const pollStateSelector = (nextValue: PollState) => ({
 });
 
 export type PollActionsProps = {
-  AddCommentForm?: React.ComponentType<AddCommentFormProps>;
-  EndPollDialog?: React.ComponentType<EndPollDialogProps>;
+  AddCommentPrompt?: React.ComponentType<AddCommentPromptProps>;
+  EndPollAlert?: React.ComponentType;
   PollAnswerList?: React.ComponentType<PollAnswerListProps>;
-  PollOptionsFullList?: React.ComponentType<FullPollOptionsListingProps>;
-  PollResults?: React.ComponentType<PollResultsProps>;
+  PollOptionsFullList?: React.ComponentType;
+  PollResults?: React.ComponentType;
   SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
 
 export const PollActions = ({
-  AddCommentForm = DefaultAddCommentForm,
-  EndPollDialog = DefaultEndPollDialog,
+  AddCommentPrompt = DefaultAddCommentPrompt,
+  EndPollAlert = DefaultEndPollAlert,
   PollAnswerList = DefaultPollAnswerList,
   PollOptionsFullList = DefaultPollOptionsFullList,
   PollResults = DefaultPollResults,
@@ -98,13 +95,13 @@ export const PollActions = ({
     <div className='str-chat__poll-actions'>
       {!is_closed && created_by_id === client.user?.id && (
         <PollAction
-          buttonText={t('End vote')}
+          buttonText={t('End poll')}
           closeModal={closeModal}
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__end-poll-modal')}
           modalIsOpen={modalOpen === 'end-vote'}
           openModal={() => setModalOpen('end-vote')}
         >
-          <EndPollDialog close={closeModal} />
+          <EndPollAlert />
         </PollAction>
       )}
 
@@ -116,7 +113,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-results'}
           openModal={() => setModalOpen('view-results')}
         >
-          <PollResults close={closeModal} />
+          <PollResults />
         </PollAction>
       )}
       {options.length > MAX_OPTIONS_DISPLAYED && (
@@ -129,7 +126,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-all-options'}
           openModal={() => setModalOpen('view-all-options')}
         >
-          <PollOptionsFullList close={closeModal} />
+          <PollOptionsFullList />
         </PollAction>
       )}
 
@@ -147,7 +144,7 @@ export const PollActions = ({
             modalIsOpen={modalOpen === 'suggest-option'}
             openModal={() => setModalOpen('suggest-option')}
           >
-            <SuggestPollOptionForm close={closeModal} messageId={message.id} />
+            <SuggestPollOptionForm messageId={message.id} />
           </PollAction>
         )}
 
@@ -160,7 +157,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
         >
-          <AddCommentForm close={closeModal} messageId={message.id} />
+          <AddCommentPrompt messageId={message.id} />
         </PollAction>
       )}
 
@@ -173,10 +170,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
         >
-          <PollAnswerList
-            close={closeModal}
-            onUpdateOwnAnswerClick={onUpdateAnswerClick}
-          />
+          <PollAnswerList onUpdateOwnAnswerClick={onUpdateAnswerClick} />
         </PollAction>
       )}
     </div>

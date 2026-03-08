@@ -50,6 +50,7 @@
 
   .app__settings-modal__tabs {
     overflow-y: auto;
+    overscroll-behavior: contain;
     border-right: 1px solid #dfe5ef;
     padding: 10px;
   }
@@ -71,6 +72,7 @@
 
   .app__settings-modal__content {
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 20px 24px;
   }
 
@@ -144,6 +146,7 @@
       gap: 8px;
       padding: 10px 12px;
       overflow-x: auto;
+      overscroll-behavior: contain;
       overflow-y: hidden;
     }
   }

@@ -1,84 +1,74 @@
 import React, { useCallback, useMemo } from 'react';
-import { useChatContext, usePollContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { PollOption, PollState } from 'stream-chat';
+import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
+import type { PollAnswer, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
 import { useFormState } from '../../Form/hooks';
 
-type PollStateSelectorReturnValue = { options: PollOption[] };
+type PollStateSelectorReturnValue = { ownAnswer: PollAnswer | undefined };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
-  options: nextValue.options,
+  ownAnswer: nextValue.ownAnswer,
 });
 
-export type SuggestPollOptionFormProps = {
-  close: () => void;
+export type AddCommentPromptProps = {
   messageId: string;
 };
 
-export const SuggestPollOptionForm = ({
-  close,
-  messageId,
-}: SuggestPollOptionFormProps) => {
-  const { client } = useChatContext('SuggestPollOptionForm');
-  const { t } = useTranslationContext('SuggestPollOptionForm');
+export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
+  const { t } = useTranslationContext();
+  const { close } = useModalContext();
   const { poll } = usePollContext();
-  const { options } = useStateStore(poll.state, pollStateSelector);
+  const { ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
-  const initialValue = useMemo(() => ({ optionText: '' }), []);
+  const initialComment = ownAnswer?.answer_text ?? '';
+  const initialValue = useMemo(() => ({ comment: initialComment }), [initialComment]);
   const validators = useMemo(
     () => ({
-      optionText: (v: string) => {
+      comment: (v: string) => {
         const trimmed = typeof v === 'string' ? v.trim() : '';
         if (!trimmed) {
           return new Error(t('This field cannot be empty or contain only spaces'));
         }
-        const existingOption = options.find((option) => option.text === trimmed);
-        if (existingOption) {
-          return new Error(t('Option already exists'));
-        }
         return undefined;
       },
     }),
-    [t, options],
+    [t],
   );
-
   const onSubmit = useCallback(
-    async (formValue: { optionText: string }) => {
-      const { poll_option } = await client.createPollOption(poll.id, {
-        text: formValue.optionText,
-      });
-      poll.castVote(poll_option.id, messageId);
+    async (formValue: { comment: string }) => {
+      await poll.addAnswer(formValue.comment, messageId);
       close();
     },
-    [client, poll, messageId, close],
+    [poll, messageId, close],
   );
-
   const { fieldErrors, handleSubmit, setFieldValue, value } = useFormState<{
-    optionText: string;
+    comment: string;
   }>({
     initialValue,
     onSubmit,
     validators,
   });
 
-  const submitDisabled = !value.optionText?.trim();
+  const title = ownAnswer ? t('Update your comment') : t('Add a comment');
+  const submitDisabled =
+    !value.comment?.trim() || value.comment === ownAnswer?.answer_text;
 
   return (
-    <Prompt.Root className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'>
-      <Prompt.Header close={close} title={t('Suggest an option')} />
+    <Prompt.Root className='str-chat__modal__poll-add-comment'>
+      {title && <Prompt.Header close={close} title={title} />}
       <Prompt.Body>
         <form autoComplete='off' onSubmit={handleSubmit}>
           <TextInput
-            error={!!fieldErrors.optionText}
-            errorMessage={fieldErrors.optionText?.message}
-            id='optionText'
-            name='optionText'
-            onChange={(e) => setFieldValue('optionText', e.target.value)}
+            error={!!fieldErrors.comment}
+            errorMessage={fieldErrors.comment?.message}
+            id='comment'
+            name='comment'
+            onChange={(e) => setFieldValue('comment', e.target.value)}
             required
-            title={t('Suggest an option')}
+            title={title}
             type='text'
-            value={value.optionText}
+            value={value.comment}
           />
         </form>
       </Prompt.Body>
@@ -87,6 +77,7 @@ export const SuggestPollOptionForm = ({
           <Prompt.FooterControlsButtonSecondary
             className='str-chat__prompt__footer__controls-button--cancel'
             onClick={close}
+            type='button'
           >
             {t('Cancel')}
           </Prompt.FooterControlsButtonSecondary>

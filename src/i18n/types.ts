@@ -15,6 +15,37 @@ export type TimestampFormatterOptions = {
   calendarFormats?: Record<string, string>;
   /* Overrides the default timestamp format if calendar is disabled. */
   format?: string;
+  /**
+   * Show a short, friendly date instead of a full date and time.
+   * - Today shows as "Today"
+   * - Yesterday shows as "Yesterday"
+   * - A few days ago (2 up to relativeCompactMaxDays) show as "2d ago", "3d ago", etc.
+   * - A few weeks ago (if relativeCompactMaxWeeks is greater than 0) show as "1w ago", "2w ago", etc.
+   * - Older than that (or future dates) show as a calendar date like 19/02/25
+   * You can change the words used (e.g. "Hoy" instead of "Today") by adding or overriding
+   * these keys in your locale JSON. Example (paste into your translation JSON):
+   *
+   *   "timestamp/relativeToday": "Today",
+   *   "timestamp/relativeYesterday": "Yesterday",
+   *   "timestamp/relativeDaysAgo": "{{ count }}d ago",
+   *   "timestamp/relativeWeeksAgo": "{{ count }}w ago",
+   *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}"
+   *
+   * Only days, no weeks (7+ days show as date):
+   *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactMaxWeeks: 0) }}"
+   */
+  relativeCompact?: boolean;
+  /**
+   * How many days in the past still show as "Xd ago" (e.g. 6 means 2d, 3d … 6d ago).
+   * After that, it shows weeks (if enabled) or a calendar date.
+   */
+  relativeCompactMaxDays?: number;
+  /**
+   * How many weeks in the past show as "Xw ago" (e.g. 3 means 1w, 2w, 3w ago).
+   * Set to 0 if you don’t want "Xw ago" at all: anything older than relativeCompactMaxDays
+   * will show as a calendar date instead.
+   */
+  relativeCompactMaxWeeks?: number;
 };
 
 /**

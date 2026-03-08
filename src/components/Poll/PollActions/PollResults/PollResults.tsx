@@ -1,73 +1,100 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
-import { PollOptionVotesList } from './PollOptionVotesList';
-import { PollOptionWithLatestVotes } from './PollOptionWithLatestVotes';
-import { Prompt } from '../../../Dialog';
+import { PollOptionWithVotes } from './PollOptionWithVotes';
+import { Viewer } from '../../../Dialog';
 import { useStateStore } from '../../../../store';
-import { usePollContext, useTranslationContext } from '../../../../context';
+import {
+  useModalContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
+import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
+import { PollQuestion } from '../PollQuestion';
 
-const pollStateSelector = ({ name, options, vote_counts_by_option }: PollState) => ({
+const pollStateSelector = ({
+  name,
+  options,
+  vote_count,
+  vote_counts_by_option,
+}: PollState) => ({
   name,
   options: [...options],
+  vote_count,
   vote_counts_by_option,
 });
 
-export type PollResultsProps = {
-  close?: () => void;
-};
-
-export const PollResults = ({ close }: PollResultsProps) => {
+export const PollResults = () => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
-  const { name, options, vote_counts_by_option } = useStateStore(
+  const { close } = useModalContext();
+  const { name, options, vote_count, vote_counts_by_option } = useStateStore(
     poll.state,
     pollStateSelector,
   );
-  const [optionToView, setOptionToView] = useState<PollOption>();
+  const [optionToView, setOptionToView] = useState<{
+    option: PollOption;
+    optionOrderNumber: number;
+  } | null>(null);
 
-  const goBack = useCallback(() => setOptionToView(undefined), []);
+  const goBack = useCallback(() => setOptionToView(null), []);
 
   return (
-    <Prompt.Root
+    <Viewer.Root
       className={clsx('str-chat__modal__poll-results', {
         'str-chat__modal__poll-results--option-detail': optionToView,
       })}
     >
-      {optionToView ? (
+      {optionToView?.option ? (
         <>
-          <Prompt.Header close={close} goBack={goBack} title={optionToView.text} />
-          <Prompt.Body className='str-chat__modal__poll-results__body'>
-            <PollOptionVotesList
-              key={`poll-option-detail-${optionToView.id}`}
-              option={optionToView}
-            />
-          </Prompt.Body>
+          <Viewer.Header close={close} goBack={goBack} title={t('Votes')} />
+          <Viewer.Body className='str-chat__modal__poll-results__body'>
+            <div className='str-chat__modal__poll-results__option-detail'>
+              <PollOptionWithVotes
+                option={optionToView?.option}
+                orderNumber={optionToView?.optionOrderNumber}
+              />
+            </div>
+          </Viewer.Body>
         </>
       ) : (
         <>
-          <Prompt.Header close={close} title={t('Poll results')} />
-          <Prompt.Body className='str-chat__modal__poll-results__body'>
-            <div className='str-chat__modal__poll-results__title'>{name}</div>
-            <div className='str-chat__modal__poll-results__option-list'>
-              {options
-                .sort((next, current) =>
-                  (vote_counts_by_option[current.id] ?? 0) >=
-                  (vote_counts_by_option[next.id] ?? 0)
-                    ? 1
-                    : -1,
-                )
-                .map((option) => (
-                  <PollOptionWithLatestVotes
-                    key={`poll-option-${option.id}`}
-                    option={option}
-                    showAllVotes={() => setOptionToView(option)}
-                  />
-                ))}
+          <Viewer.Header close={close} title={t('Poll results')} />
+          <Viewer.Body className='str-chat__modal__poll-results__body'>
+            <PollQuestion question={name} />
+            <div className='str-chat__modal__poll-results__options'>
+              <div className='str-chat__modal__poll-results__option-list'>
+                {options
+                  .sort((next, current) =>
+                    (vote_counts_by_option[current.id] ?? 0) >=
+                    (vote_counts_by_option[next.id] ?? 0)
+                      ? 1
+                      : -1,
+                  )
+                  .map((option, i) => {
+                    const optionOrderNumber = i + 1;
+                    return (
+                      <PollOptionWithVotes
+                        countVotesPreview={COUNT_OPTION_VOTES_PREVIEW}
+                        key={`poll-option-${option.id}`}
+                        option={option}
+                        orderNumber={optionOrderNumber}
+                        showAllVotes={() =>
+                          setOptionToView({ option, optionOrderNumber })
+                        }
+                      />
+                    );
+                  })}
+              </div>
+              <div className='str-chat__modal__poll-results__options__footer'>
+                <div className='str-chat__modal__poll-results__options-total-count'>
+                  {t('totalVoteCount', { count: vote_count })}
+                </div>
+              </div>
             </div>
-          </Prompt.Body>
+          </Viewer.Body>
         </>
       )}
-    </Prompt.Root>
+    </Viewer.Root>
   );
 };
