@@ -1,0 +1,30 @@
+@use '../../../styling/utils';
+
+.str-chat__modal__poll-option-list {
+  .str-chat__modal__poll-option-list__body {
+    @include utils.scrollable-y;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+
+    .str-chat__poll-option-list--full {
+      @include utils.scrollable-y;
+      gap: var(--spacing-xxs);
+      scrollbar-width: none;
+      max-height: 380px;
+      padding: var(--spacing-sm) var(--spacing-xxs);
+      border-radius: var(--radius-lg);
+      background-color: var(--background-core-surface-card);
+
+      .str-chat__poll-option {
+        padding: var(--spacing-sm) var(--spacing-xs);
+        border-radius: var(--radius-lg);
+      }
+      .str-chat__poll-option--votable {
+        &:hover {
+          background-color: var(--background-core-hover);
+        }
+      }
+    }
+  }
+}

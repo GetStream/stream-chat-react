@@ -2,7 +2,6 @@
 
 .str-chat {
   .str-chat__poll {
-    $checkmark_size: 24px;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
@@ -16,27 +15,6 @@
     button {
       @include utils.button-reset;
       cursor: pointer;
-    }
-
-    .str-chat__checkmark {
-      grid-column: 1;
-      grid-row: span 2;
-      align-self: center;
-      height: $checkmark_size;
-      width: $checkmark_size;
-      border-radius: var(--str-chat__border-radius-circle);
-      border: 1px solid var(--str-chat__disabled-color);
-    }
-
-    .str-chat__checkmark--checked {
-      height: calc($checkmark_size + 1px);
-      width: calc($checkmark_size + 1px);
-      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im00IDkuNC00LTRMMS40IDQgNCA2LjYgMTAuNiAwIDEyIDEuNGwtOCA4WiIvPjwvc3ZnPg==');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 11px 10px;
-      background-color: var(--str-chat__primary-color);
-      border: none;
     }
 
     .str-chat__poll-header {
@@ -53,34 +31,6 @@
       align-items: center;
       gap: var(--spacing-xs);
     }
-
-    .str-chat__poll-option-list {
-      .str-chat__poll-option {
-        &.str-chat__poll-option--votable:hover {
-          cursor: pointer;
-        }
-
-        .str-chat__poll-option__votes-bar {
-          background: linear-gradient(
-            to right,
-            var(--chat-poll-progress-fill-incoming)
-              var(--str-chat__amount-bar-fulfillment),
-            var(--chat-poll-progress-track-incoming)
-              var(--str-chat__amount-bar-fulfillment)
-          );
-          border-radius: calc(var(--str-chat__spacing-px) * 4);
-        }
-
-        .str-chat__poll-option__votes-bar--winner {
-          background: linear-gradient(
-            to right,
-            var(--chat-poll-progress-fill-incoming)
-              var(--str-chat__amount-bar-fulfillment),
-            var(--str-chat__surface-color) var(--str-chat__amount-bar-fulfillment)
-          );
-        }
-      }
-    }
   }
 
   .str-chat__button.str-chat__poll-action {
@@ -92,66 +42,6 @@
 
     &.str-chat__poll-action--additional {
       border: none;
-    }
-  }
-
-  .str-chat__poll-option {
-    cursor: pointer;
-
-    .str-chat__poll-option-data {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-
-      p {
-        margin: 0;
-        flex: 1;
-      }
-
-      .str-chat__poll-option-voters,
-      .str-chat__poll-option-vote-count {
-        align-self: end;
-      }
-
-      .str-chat__poll-option-voters {
-        --str-chat__avatar-size: 1.175rem;
-        display: flex;
-      }
-
-      .str-chat__poll-option-vote-count {
-        font-size: var(--typography-font-size-xs);
-        line-height: var(--typography-line-height-tight);
-      }
-    }
-  }
-
-  .str-chat__poll-option-list:not(.str-chat__poll-option-list--full) {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-
-    .str-chat__poll-option {
-      display: grid;
-      grid-template-columns: minmax(0, auto) 1fr;
-      grid-template-rows: 1fr auto;
-      row-gap: var(--spacing-xs);
-
-      &.str-chat__poll-option--votable {
-        column-gap: var(--spacing-sm);
-      }
-
-      .str-chat__poll-option-data {
-        grid-column: 2 / 3;
-        grid-row: 1 / 2;
-      }
-
-      .str-chat__poll-option__votes-bar {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-        height: 8px;
-        width: 100%;
-      }
     }
   }
 
@@ -191,25 +81,9 @@
     }
   }
 
-  .str-chat__poll-vote-listing {
-    padding: 0 1rem 0.75rem;
-  }
-
-  .str-chat__poll--closed {
-    .str-chat__poll-option {
-      &:hover {
-        cursor: unset;
-      }
-    }
-  }
-
   .str-chat__poll-vote {
     .str-chat__poll-vote__author__name {
       text-transform: capitalize;
-    }
-
-    .str-chat__poll-vote__timestamp {
-      color: var(--str-chat__text-low-emphasis-color);
     }
   }
 }

@@ -2,5 +2,8 @@
 @use 'EndPollAlert';
 @use 'Poll';
 @use 'PollCreationDialog';
+@use 'PollOptionFullList';
+@use 'PollOptionList';
+@use 'PollQuestion';
 @use 'PollResults';
 @use 'SuggestPollOptionPrompt';

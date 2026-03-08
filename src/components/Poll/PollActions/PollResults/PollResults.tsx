@@ -6,6 +6,7 @@ import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
+import { PollQuestion } from '../PollQuestion';
 
 const pollStateSelector = ({
   name,
@@ -59,12 +60,7 @@ export const PollResults = ({ close }: PollResultsProps) => {
         <>
           <Viewer.Header close={close} title={t('Poll results')} />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
-            <div className='str-chat__modal__poll-results__question'>
-              <div className='str-chat__modal__poll-results__question__label'>
-                {t('Question')}
-              </div>
-              <div className='str-chat__modal__poll-results__question__text'>{name}</div>
-            </div>
+            <PollQuestion question={name} />
             <div className='str-chat__modal__poll-results__options'>
               <div className='str-chat__modal__poll-results__option-list'>
                 {options

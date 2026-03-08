@@ -1,10 +1,11 @@
 import React from 'react';
-import { Prompt } from '../../Dialog';
+import { Viewer } from '../../Dialog';
 import { PollOptionList } from '../PollOptionList';
 import { useStateStore } from '../../../store';
 import { usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollState } from 'stream-chat';
+import { PollQuestion } from './PollQuestion';
 
 type PollStateSelectorReturnValue = { name: string };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
@@ -21,12 +22,12 @@ export const PollOptionsFullList = ({ close }: FullPollOptionsListingProps) => {
   const { name } = useStateStore(poll.state, pollStateSelector);
 
   return (
-    <Prompt.Root className={'str-chat__modal__poll-option-list'}>
-      <Prompt.Header close={close} title={t('Poll options')} />
-      <Prompt.Body className='str-chat__modal__poll-option-list__body'>
-        <div className='str-chat__modal__poll-option-list__title'>{name}</div>
+    <Viewer.Root className={'str-chat__modal__poll-option-list'}>
+      <Viewer.Header close={close} title={t('Poll options')} />
+      <Viewer.Body className='str-chat__modal__poll-option-list__body'>
+        <PollQuestion question={name} />
         <PollOptionList />
-      </Prompt.Body>
-    </Prompt.Root>
+      </Viewer.Body>
+    </Viewer.Root>
   );
 };

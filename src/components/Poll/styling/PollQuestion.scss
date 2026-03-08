@@ -1,0 +1,20 @@
+.str-chat__modal__poll-question {
+  display: flex;
+  padding: var(--spacing-md);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xxs);
+  align-self: stretch;
+  border-radius: var(--radius-lg);
+  background: var(--background-core-surface-card);
+
+  .str-chat__modal__poll-question__label {
+    font: var(--str-chat__heading-xs-text);
+    color: var(--text-tertiary);
+  }
+
+  .str-chat__modal__poll-question__text {
+    font: var(--str-chat__heading-sm-text);
+    color: var(--text-primary);
+  }
+}
