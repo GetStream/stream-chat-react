@@ -1,0 +1,44 @@
+.str-chat__modal__poll-answer-list {
+
+  .str-chat__poll-answer-list {
+    border-radius: var(--radius-lg);
+    background: var(--background-core-surface-card);
+
+    .str-chat__infinite-scroll-paginator {
+      scrollbar-width: none;
+      max-height: 480px;
+    }
+
+    .str-chat__loading-indicator-placeholder {
+      width: 100%;
+      height: calc(var(--str-chat__loading-indicator-size) + (2 * var(--spacing-xxs)));
+      display: flex;
+      justify-content: center;
+    }
+
+    .str-chat__poll-answer {
+      display: flex;
+      padding: var(--spacing-md);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-xxs);
+      align-self: stretch;
+
+      p {
+        margin: 0;
+      }
+
+      .str-chat__poll-answer__text {
+        font: var(--str-chat__heading-sm-text);
+      }
+
+      .str-chat__poll-vote {
+        padding-inline: var(--spacing-none);
+      }
+    }
+  }
+
+  .str-chat__viewer__footer {
+    justify-content: center;
+  }
+}

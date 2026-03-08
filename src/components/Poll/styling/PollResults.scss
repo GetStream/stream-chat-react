@@ -66,23 +66,6 @@
         align-items: flex-start;
         align-self: stretch;
         padding: var(--spacing-xs) var(--spacing-none);
-
-        .str-chat__poll-vote {
-          display: flex;
-          padding: var(--spacing-xxs) var(--spacing-sm);
-          align-items: center;
-          gap: var(--spacing-none, 0);
-          align-self: stretch;
-          min-height: 40px;
-          width: 100%;
-
-          .str-chat__poll-vote__author {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-          }
-        }
       }
 
       .str-chat__poll-option__show-all-votes-button-container {
