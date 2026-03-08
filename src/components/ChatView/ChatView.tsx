@@ -11,9 +11,10 @@ import React, {
 import { Button, type ButtonProps } from '../Button';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import {
-  IconBubble3ChatMessage,
-  IconBubble3Solid,
+  IconBubble2ChatMessage,
+  IconBubble2Solid,
   IconBubbleText6ChatMessage,
+  IconBubbleText6SolidChatMessage,
 } from '../Icons';
 import { ThreadProvider } from '../Threads';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
@@ -231,13 +232,14 @@ export const ChatViewChannelsSelectorButton = ({
   const { openMobileNav } = useChatContext('ChatViewChannelsSelectorButton');
   const { t } = useTranslationContext();
 
+  const isActive = activeChatView === 'channels';
   return (
     <ChatViewSelectorButton
-      ActiveIcon={IconBubble3Solid}
-      aria-selected={activeChatView === 'channels'}
-      Icon={IconBubble3ChatMessage}
+      ActiveIcon={IconBubble2Solid}
+      aria-selected={isActive}
+      Icon={IconBubble2ChatMessage}
       iconOnly={iconOnly}
-      isActive={activeChatView === 'channels'}
+      isActive={isActive}
       onPointerDown={() => {
         openMobileNav();
         setActiveChatView('channels');
@@ -260,10 +262,14 @@ export const ChatViewThreadsSelectorButton = ({
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { t } = useTranslationContext();
 
+  const isActive = activeChatView === 'threads';
   return (
     <ChatViewSelectorButton
-      aria-selected={activeChatView === 'threads'}
+      ActiveIcon={IconBubbleText6SolidChatMessage}
+      aria-selected={isActive}
+      Icon={IconBubbleText6ChatMessage}
       iconOnly={iconOnly}
+      isActive={isActive}
       onPointerDown={() => {
         openMobileNav();
         setActiveChatView('threads');
@@ -271,7 +277,7 @@ export const ChatViewThreadsSelectorButton = ({
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
-        <IconBubbleText6ChatMessage />
+        {isActive ? <IconBubbleText6SolidChatMessage /> : <IconBubbleText6ChatMessage />}
       </UnreadCountBadge>
     </ChatViewSelectorButton>
   );
