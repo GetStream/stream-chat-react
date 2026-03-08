@@ -1,0 +1,7 @@
+.str-chat__dialog-overlay {
+  inset: 0;
+  position: absolute;
+  height: var(--str-chat__dialog-overlay-height);
+  width: 100%;
+  z-index: 2;
+}

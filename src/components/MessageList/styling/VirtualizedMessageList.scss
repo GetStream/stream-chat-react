@@ -4,7 +4,7 @@
 
 // Layout
 .str-chat__virtual-list {
-  @include utils.scrollable;
+  @include utils.scrollable-y;
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)

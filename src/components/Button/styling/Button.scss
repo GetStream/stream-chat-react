@@ -154,11 +154,5 @@
       justify-content: center;
       gap: var(--spacing-xs);
     }
-
-    &:not(.str-chat__button--circular) {
-      .str-chat__button__content {
-        padding-inline: var(--spacing-sm);
-      }
-    }
   }
 }

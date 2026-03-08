@@ -37,7 +37,7 @@ export const Modal = ({
   onCloseAttempt,
   open,
 }: PropsWithChildren<ModalProps>) => {
-  const innerRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const maybeClose = useCallback(
@@ -52,11 +52,9 @@ export const Modal = ({
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (innerRef.current?.contains(target)) return;
-
     if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current?.contains(target)) {
+    } else if (overlayRef.current === target) {
       maybeClose('overlay', event);
     }
   };
@@ -78,14 +76,10 @@ export const Modal = ({
     <div
       className={clsx('str-chat__modal str-chat__modal--open', className)}
       onClick={handleClick}
+      ref={overlayRef}
     >
       <FocusScope autoFocus contain>
-        <div
-          className='str-chat__modal__inner str-chat-react__modal__inner'
-          ref={innerRef}
-        >
-          {children}
-        </div>
+        {children}
       </FocusScope>
       {CloseButtonOnOverlay && (
         <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />

@@ -22,7 +22,7 @@ export const GlobalModal = ({
 }: PropsWithChildren<ModalProps>) => {
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
-  const innerRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
 
@@ -39,16 +39,10 @@ export const GlobalModal = ({
   );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
-    // Prevent DialogPortalDestination overlay from handling any click (closeAll).
-    // Ensures overlay/button close is fully controlled by onCloseAttempt/onClose.
-    event.stopPropagation();
-
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (innerRef.current?.contains(target)) return;
-
     if (closeButtonRef.current?.contains(target)) {
       maybeClose('button', event);
-    } else if (!innerRef.current?.contains(target)) {
+    } else if (overlayRef.current === target) {
       maybeClose('overlay', event);
     }
   };
@@ -85,14 +79,10 @@ export const GlobalModal = ({
           className,
         )}
         onClick={handleClick}
+        ref={overlayRef}
       >
         <FocusScope autoFocus contain>
-          <div
-            className='str-chat__modal__inner str-chat-react__modal__inner'
-            ref={innerRef}
-          >
-            {children}
-          </div>
+          {children}
         </FocusScope>
         {CloseButtonOnOverlay && (
           <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />

@@ -89,7 +89,7 @@
   }
 
   .str-chat__message-reactions-detail__user-list {
-    overflow-y: auto;
+    @include utils.scrollable-y;
     scrollbar-width: thin;
     position: relative;
 

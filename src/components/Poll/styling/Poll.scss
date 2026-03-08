@@ -95,20 +95,8 @@
     }
   }
 
-  .str-chat__poll-option-list--full {
-    .str-chat__amount-bar {
-      display: none;
-    }
-  }
-
   .str-chat__poll-option {
     cursor: pointer;
-
-    &.str-chat__poll-option--full-vote-list {
-      cursor: default;
-      height: 100%;
-      padding: 0;
-    }
 
     .str-chat__poll-option-data {
       flex: 1;
@@ -119,6 +107,11 @@
       p {
         margin: 0;
         flex: 1;
+      }
+
+      .str-chat__poll-option-voters,
+      .str-chat__poll-option-vote-count {
+        align-self: end;
       }
 
       .str-chat__poll-option-voters {
@@ -202,74 +195,10 @@
     padding: 0 1rem 0.75rem;
   }
 
-  .str-chat__poll-option-list--full {
-    overflow: clip;
-
-    .str-chat__poll-option {
-      display: flex;
-      flex-direction: row;
-      padding: 1rem 0.75rem;
-
-      &:nth-of-type(1) {
-        padding-top: 1rem;
-        border-top-left-radius: var(--str-chat__border-radius-sm);
-        border-top-right-radius: var(--str-chat__border-radius-sm);
-      }
-
-      &:last-child {
-        padding-bottom: 1rem;
-        border-bottom-left-radius: var(--str-chat__border-radius-sm);
-        border-bottom-right-radius: var(--str-chat__border-radius-sm);
-      }
-    }
-  }
-
   .str-chat__poll--closed {
     .str-chat__poll-option {
       &:hover {
         cursor: unset;
-      }
-    }
-  }
-
-  .str-chat__modal,
-  .str-chat__poll-actions .str-chat__modal {
-    .str-chat__poll-answer__text,
-    .str-chat__modal__poll-option-list__title,
-    .str-chat__modal__poll-results__title {
-      font: var(--str-chat__subtitle-medium-text);
-    }
-
-    .str-chat__poll-option-list--full,
-    .str-chat__poll-answer,
-    .str-chat__modal__poll-option-list__title,
-    .str-chat__modal__poll-results__title,
-    .str-chat__poll-option {
-      background-color: var(--str-chat__tertiary-surface-color);
-    }
-
-    .str-chat__poll-option-list--full {
-      .str-chat__poll-option-text {
-        font-weight: 500;
-      }
-
-      .str-chat__poll-option--votable:hover {
-        background-color: var(--str-chat__secondary-surface-color);
-      }
-    }
-
-    .str-chat__poll-option {
-      .str-chat__poll-option__header {
-        font: var(--str-chat__subtitle-text);
-
-        .str-chat__poll-option__option-text {
-          font: var(--str-chat__subtitle-medium-text);
-        }
-      }
-
-      .str-chat__poll-option__show-all-votes-button {
-        font: var(--str-chat__subtitle-text);
-        color: var(--str-chat__primary-color);
       }
     }
   }

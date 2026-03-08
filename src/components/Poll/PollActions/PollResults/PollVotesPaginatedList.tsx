@@ -3,14 +3,13 @@ import { PollVoteListing } from '../../PollVote';
 import { usePollOptionVotesPagination } from '../../hooks';
 import { LoadingIndicator } from '../../../Loading';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 import type { PollOption, PollOptionVotesQueryParams } from 'stream-chat';
 
-export type PollOptionVotesListingProps = {
+export type PollOptionPaginatedVotesListProps = {
   option: PollOption;
 };
 
-export const PollOptionVotesList = ({ option }: PollOptionVotesListingProps) => {
+export const PollVotesPaginatedList = ({ option }: PollOptionPaginatedVotesListProps) => {
   const paginationParams = useMemo<PollOptionVotesQueryParams>(
     () => ({ filter: { option_id: option.id } }),
     [option.id],
@@ -20,8 +19,7 @@ export const PollOptionVotesList = ({ option }: PollOptionVotesListingProps) => 
   });
 
   return (
-    <div className='str-chat__poll-option str-chat__poll-option--full-vote-list'>
-      <PollOptionWithVotesHeader option={option} />
+    <div className='str-chat__poll-option__votes-paginated-list'>
       <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
         <PollVoteListing votes={votes} />
         {hasNextPage && (

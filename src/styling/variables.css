@@ -4,11 +4,12 @@
 
 .str-chat {
     --base-transparent-0: rgba(255, 255, 255, 0);
-    --base-transparent-black-5: rgba(0, 0, 0, 0.05); /** Used for bg in closeButton */
-    --base-transparent-black-10: rgba(0, 0, 0, 0.1); /** Used for bg in closeButton */
-    --base-transparent-white-70: rgba(255, 255, 255, 0.7);
     --base-transparent-white-10: rgba(255, 255, 255, 0.1);
     --base-transparent-white-20: rgba(255, 255, 255, 0.2);
+    --base-transparent-white-30: rgba(255, 255, 255, 0.3);
+    --base-transparent-white-70: rgba(255, 255, 255, 0.7);
+    --base-transparent-black-5: rgba(0, 0, 0, 0.05); /** Used for bg in closeButton */
+    --base-transparent-black-10: rgba(0, 0, 0, 0.1); /** Used for bg in closeButton */
     --base-transparent-black-70: rgba(0, 0, 0, 0.7); /** Used for bg in closeButton */
     --base-black: #000000;
     --base-white: #ffffff;
@@ -142,6 +143,10 @@
     --size-480: 480px;
     --size-560: 560px;
     --size-640: 640px;
+    --size-760: 760px;
+    --size-144: 144px;
+    --size-208: 208px;
+    --size-56: 56px;
     --radius-0: 0;
     --radius-2: 2px;
     --radius-4: 4px;
@@ -182,24 +187,28 @@
     --font-weight-w500: 500;
     --font-weight-w600: 600;
     --font-weight-w700: 700;
+    --font-size-size-8: 8px;
     --font-size-size-10: 10px;
+    --font-size-size-11: 11px;
     --font-size-size-12: 12px;
+    --font-size-size-13: 13px;
     --font-size-size-14: 14px;
     --font-size-size-16: 16px;
     --font-size-size-15: 15px;
     --font-size-size-17: 17px;
     --font-size-size-18: 18px;
     --font-size-size-20: 20px;
+    --font-size-size-22: 22px;
     --font-size-size-24: 24px;
     --font-size-size-28: 28px;
     --font-size-size-32: 32px;
     --font-size-size-40: 40px;
     --font-size-size-48: 48px;
-    --font-size-size-13: 13px;
-    --font-size-size-8: 8px;
+    --font-size-size-64: 64px;
     --line-height-line-height-8: 8px;
     --line-height-line-height-10: 10px;
     --line-height-line-height-12: 12px;
+    --line-height-line-height-13: 13px;
     --line-height-line-height-14: 14px;
     --line-height-line-height-15: 15px;
     --line-height-line-height-16: 16px;
@@ -215,12 +224,10 @@
     --typography-font-weight-medium: 500;
     --typography-font-weight-semi-bold: 600;
     --typography-font-weight-bold: 700;
-    --light-elevation-0: 0 0 0 0 rgba(0,0,0,0); /** Base elevation level. */
     --light-elevation-1: 0 0 0 1px rgba(0,0,0,0.05), 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.06); /** Low elevation level for subtle separation. */
     --light-elevation-2: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px 0 rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.06);
     --light-elevation-3: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 8px 0 rgba(0,0,0,0.14), 0 12px 24px 0 rgba(0,0,0,0.1);
     --light-elevation-4: 0 0 0 1px rgba(0,0,0,0.05), 0 6px 12px 0 rgba(0,0,0,0.16), 0 20px 32px 0 rgba(0,0,0,0.12);
-    --dark-elevation-0: 0 0 0 0 rgba(0,0,0,0);
     --dark-elevation-1: 0 0 0 1px rgba(255,255,255,0.15), 0 1px 2px 0 rgba(0,0,0,0.2), 0 4px 8px 0 rgba(0,0,0,0.1);
     --dark-elevation-2: 0 0 0 1px rgba(255,255,255,0.15), 0 2px 4px 0 rgba(0,0,0,0.22), 0 6px 16px 0 rgba(0,0,0,0.12);
     --dark-elevation-3: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 8px 0 rgba(0,0,0,0.24), 0 12px 24px 0 rgba(0,0,0,0.14);
@@ -244,6 +251,7 @@
     --background-core-overlay: rgba(255, 255, 255, 0.75); /** Selected overlay. */
     --background-core-overlay-light: rgba(255, 255, 255, 0.75); /** Selected overlay. */
     --background-core-overlay-dark: rgba(0, 0, 0, 0.25); /** Selected overlay. */
+    --border-utility-focus: rgba(120, 168, 255, 0.5); /** Focus ring or focus border. */
     --border-core-opacity-10: rgba(0, 0, 0, 0.1); /** Image frame border treatment. */
     --border-core-opacity-25: rgba(0, 0, 0, 0.25); /** Image frame border treatment. */
     --system-bg-blur: rgba(255, 255, 255, 0.01);
@@ -319,12 +327,17 @@
     --icon-stroke-subtle: var(--w120);
     --icon-stroke-default: var(--w150);
     --icon-stroke-emphasis: var(--w200);
+    --emoji-md: var(--font-size-size-24);
+    --emoji-lg: var(--font-size-size-32);
+    --emoji-xl: var(--font-size-size-48);
+    --emoji-2xl: var(--font-size-size-64);
     --background-core-disabled: var(--slate-100); /** Optional disabled background for inputs, buttons, or chips. */
     --background-core-surface: var(--slate-100); /** Standard section background. */
     --background-core-surface-subtle: var(--slate-50); /** Very light section background. */
     --background-core-surface-strong: var(--slate-150); /** Stronger section background. */
     --background-core-inverse: var(--slate-900); /** Inverse background used for elevated, transient, or high-attention UI surfaces that sit on top of the default app background. */
     --background-core-highlight: var(--yellow-50);
+    --background-core-surface-card: var(--slate-50);
     --background-elevation-elevation-0: var(--base-white); /** Flat surfaces. */
     --background-elevation-elevation-1: var(--base-white); /** Slightly elevated surfaces. */
     --background-elevation-elevation-2: var(--base-white); /** Card-like elements. */
@@ -341,8 +354,7 @@
     --chat-waveform-bar: var(--border-core-opacity-25);
     --system-text: var(--base-black);
     --control-radiocheck-bg: var(--base-transparent-0);
-    --control-progress-bar-track: var(--slate-200);
-    --control-progress-bar-fill: var(--slate-500);
+    --control-checkbox-bg: var(--base-transparent-0);
     --text-primary: var(--slate-900); /** Main text color. */
     --text-secondary: var(--slate-700); /** Secondary metadata text. */
     --text-tertiary: var(--slate-500); /** Lowest priority text. */
@@ -350,22 +362,22 @@
     --text-disabled: var(--slate-300); /** Disabled text. */
     --text-on-accent: var(--base-white); /** Text on dark or accent backgrounds. */
     --text-on-dark: var(--base-white); /** Text on dark or accent backgrounds. */
-    --avatar-palette-bg-1: var(--blue-100);
-    --avatar-palette-bg-2: var(--cyan-100);
-    --avatar-palette-bg-3: var(--green-100);
-    --avatar-palette-bg-4: var(--purple-100);
-    --avatar-palette-bg-5: var(--yellow-100);
-    --avatar-palette-text-1: var(--blue-800);
-    --avatar-palette-text-2: var(--cyan-800);
-    --avatar-palette-text-3: var(--green-800);
-    --avatar-palette-text-4: var(--purple-800);
-    --avatar-palette-text-5: var(--yellow-800);
+    --avatar-palette-bg-1: var(--blue-150);
+    --avatar-palette-bg-2: var(--cyan-150);
+    --avatar-palette-bg-3: var(--green-150);
+    --avatar-palette-bg-4: var(--purple-150);
+    --avatar-palette-bg-5: var(--yellow-150);
+    --avatar-palette-text-1: var(--blue-900);
+    --avatar-palette-text-2: var(--cyan-900);
+    --avatar-palette-text-3: var(--green-900);
+    --avatar-palette-text-4: var(--purple-900);
+    --avatar-palette-text-5: var(--yellow-900);
     --avatar-bg-placeholder: var(--slate-100);
     --avatar-text-placeholder: var(--slate-500);
     --accent-success: var(--green-400); /** For success states and positive actions. */
     --accent-warning: var(--yellow-400); /** Warning or caution messages. */
     --accent-error: var(--red-500); /** Destructive actions and error states. */
-    --accent-neutral: var(--slate-500); /** Neutral accent for low-priority badges. */
+    --accent-neutral: var(--slate-400); /** Neutral accent for low-priority badges. */
     --accent-black: var(--base-black); /** Neutral accent for low-priority badges. */
     --brand-50: var(--blue-50);
     --brand-100: var(--blue-100);
@@ -378,9 +390,8 @@
     --brand-700: var(--blue-700);
     --brand-800: var(--blue-800);
     --brand-900: var(--blue-900);
-    --skeleton-gradient-default-base: var(--slate-50); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
-    --skeleton-gradient-default-highlight: var(--base-white); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
-    --skeleton-gradient-accent-highlight: var(--base-white); /** Highlight color for the accent skeleton loading gradient. Used for the shimmer on accent placeholders. */
+    --skeleton-loading-base: var(--base-transparent-0); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
+    --skeleton-loading-highlight: var(--base-white); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
     --device-radius: var(--radius-md);
     --message-bubble-radius-group-top: var(--radius-2xl);
     --message-bubble-radius-group-middle: var(--radius-2xl);
@@ -409,8 +420,8 @@
     --button-destructive-border: var(--accent-error);
     --button-destructive-text-on-dark: var(--text-on-dark);
     --button-destructive-border-on-dark: var(--text-on-dark);
+    --emoji-sm: var(--typography-font-size-md);
     --background-core-app: var(--background-elevation-elevation-0); /** Global application background. */
-    --border-utility-focus: var(--brand-150); /** Focus ring or focus border. */
     --border-utility-error: var(--accent-error); /** Error state. */
     --border-utility-warning: var(--accent-warning); /** Warning borders. */
     --border-utility-success: var(--accent-success); /** Success borders. */
@@ -430,9 +441,7 @@
     --chat-border-on-chat-outgoing: var(--brand-300);
     --chat-border-on-chat-incoming: var(--border-core-strong);
     --chat-reply-indicator-outgoing: var(--brand-400); /** Reply indicator shading for outgoing. */
-    --chat-poll-progress-track-incoming: var(--control-progress-bar-track);
     --chat-poll-progress-track-outgoing: var(--brand-200);
-    --chat-poll-progress-fill-incoming: var(--control-progress-bar-fill);
     --chat-thread-connector-incoming: var(--border-core-default);
     --chat-thread-connector-outgoing: var(--brand-150);
     --input-border-default: var(--border-core-default); /** Default border of the chat input. Uses the standard border role from foundations. In high-contrast always black. */
@@ -455,37 +464,45 @@
     --badge-bg-neutral: var(--accent-neutral);
     --badge-text: var(--text-primary);
     --badge-text-inverse: var(--text-on-dark);
-    --badge-bg-default: var(--background-elevation-elevation-2);
+    --badge-bg-default: var(--background-elevation-elevation-3);
     --badge-bg-inverse: var(--background-core-inverse);
     --badge-text-on-accent: var(--text-on-accent);
     --control-radiocheck-border: var(--border-core-default);
-    --control-radiocheck-icon-selected: var(--text-on-dark);
-    --control-remove-control-bg: var(--accent-black);
-    --control-remove-control-icon: var(--text-on-accent);
+    --control-radiocheck-icon-selected: var(--text-on-accent);
+    --control-remove-control-bg: var(--background-core-inverse);
+    --control-remove-control-icon: var(--text-on-dark);
     --control-remove-control-border: var(--border-core-on-dark);
+    --control-progress-bar-track: var(--background-core-surface-strong);
+    --control-progress-bar-fill: var(--accent-neutral);
     --control-play-control-bg: var(--accent-black);
     --control-play-control-icon: var(--text-on-accent);
     --control-toggle-switch-knob: var(--background-elevation-elevation-4);
-    --control-toggle-switch-bg: var(--background-core-surface-strong);
+    --control-toggle-switch-bg: var(--accent-neutral);
     --control-toggle-switch-bg-disabled: var(--background-core-disabled);
     --control-playback-toggle-border: var(--border-core-default);
     --control-playback-toggle-text: var(--text-primary);
+    --control-checkbox-border: var(--border-core-default);
+    --control-checkbox-icon-selected: var(--text-on-accent);
     --avatar-bg-default: var(--avatar-palette-bg-1);
     --avatar-text-default: var(--avatar-palette-text-1);
     --accent-primary: var(--brand-500); /** Main brand accent for interactive elements. */
     --chip-bg: var(--brand-100);
     --chip-text: var(--brand-900);
-    --skeleton-gradient-accent-base: var(--brand-50); /** Base color for the accent skeleton loading gradient. Used on higher-contrast or accent surfaces (e.g. outgoing messages). */
     --button-primary-bg: var(--accent-primary);
     --button-primary-text: var(--accent-primary);
     --border-utility-selected: var(--accent-primary); /** Focus ring or focus border. */
+    --chat-text-read: var(--accent-primary);
+    --chat-text-typing-indicator: var(--chat-text-incoming); /** Typing indicator chip. */
     --chat-waveform-bar-playing: var(--accent-primary);
+    --chat-poll-progress-track-incoming: var(--control-progress-bar-track);
+    --chat-poll-progress-fill-incoming: var(--control-progress-bar-fill);
     --chat-poll-progress-fill-outgoing: var(--accent-primary);
     --input-send-icon: var(--accent-primary); /** Default send icon color in the input. Uses the brand accent. */
     --system-caret: var(--accent-primary);
     --badge-bg-primary: var(--accent-primary);
     --control-radiocheck-bg-selected: var(--accent-primary);
     --control-toggle-switch-bg-selected: var(--accent-primary);
+    --control-checkbox-bg-selected: var(--accent-primary);
     --text-link: var(--accent-primary); /** Hyperlinks and inline actions. */
     --chat-text-mention: var(--text-link); /** Mention styling. */
     --chat-text-link: var(--text-link); /** Links inside message bubbles. */
