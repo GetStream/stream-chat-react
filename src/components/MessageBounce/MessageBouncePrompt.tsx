@@ -1,26 +1,29 @@
+import type { MouseEventHandler } from 'react';
 import React from 'react';
-import { useMessageBounceContext, useTranslationContext } from '../../context';
-
-import type { MouseEventHandler, PropsWithChildren } from 'react';
-
-import type { ModalProps } from '../Modal';
+import {
+  useMessageBounceContext,
+  useModalContext,
+  useTranslationContext,
+} from '../../context';
 import { Button } from '../Button';
 import { IconExclamationCircle } from '../Icons';
 import { Alert } from '../Dialog';
+import type { PropsWithChildrenOnly } from '../../types/types';
 
-export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
+export type MessageBouncePromptProps = PropsWithChildrenOnly;
 
 // todo: shall we rename this to MessageBounceAlert?
-export function MessageBouncePrompt({ children, onClose }: MessageBouncePromptProps) {
+export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
   const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext();
   const { t } = useTranslationContext();
+  const { close } = useModalContext();
 
   function createHandler(
     handle: MouseEventHandler<HTMLButtonElement>,
   ): MouseEventHandler<HTMLButtonElement> {
     return (e) => {
       handle(e);
-      onClose?.(e);
+      close();
     };
   }
 

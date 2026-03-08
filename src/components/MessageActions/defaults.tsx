@@ -316,8 +316,9 @@ const DefaultMessageActionComponents = {
           </ContextMenuButton>
           <Modal open={openModal}>
             <DeleteMessageAlert
-              onClose={() => {
+              onCancel={() => {
                 setOpenModal(false);
+                closeMenu();
               }}
               onDelete={() => {
                 if (message.type === 'error') removeMessage(message);

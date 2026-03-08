@@ -5,7 +5,7 @@ import { usePollAnswerPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useStateStore } from '../../../store';
-import { usePollContext, useTranslationContext } from '../../../context';
+import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollAnswer, PollState } from 'stream-chat';
 
@@ -20,15 +20,12 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 
 export type PollAnswerListProps = {
   onUpdateOwnAnswerClick: () => void;
-  close?: () => void;
 };
 
-export const PollAnswerList = ({
-  close,
-  onUpdateOwnAnswerClick,
-}: PollAnswerListProps) => {
+export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
+  const { close } = useModalContext();
   const { is_closed, ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
   const { answers, error, hasNextPage, loading, loadMore } = usePollAnswerPagination();

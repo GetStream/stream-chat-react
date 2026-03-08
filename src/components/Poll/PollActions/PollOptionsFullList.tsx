@@ -2,7 +2,7 @@ import React from 'react';
 import { Viewer } from '../../Dialog';
 import { PollOptionList } from '../PollOptionList';
 import { useStateStore } from '../../../store';
-import { usePollContext, useTranslationContext } from '../../../context';
+import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollState } from 'stream-chat';
 import { PollQuestion } from './PollQuestion';
@@ -12,13 +12,10 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
   name: nextValue.name,
 });
 
-export type FullPollOptionsListingProps = {
-  close?: () => void;
-};
-
-export const PollOptionsFullList = ({ close }: FullPollOptionsListingProps) => {
+export const PollOptionsFullList = () => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
+  const { close } = useModalContext();
   const { name } = useStateStore(poll.state, pollStateSelector);
 
   return (

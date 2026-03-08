@@ -5,15 +5,10 @@ import type { AddCommentPromptProps } from './AddCommentPrompt';
 import { AddCommentPrompt as DefaultAddCommentPrompt } from './AddCommentPrompt';
 import type { SuggestPollOptionFormProps } from './SuggestPollOptionPrompt';
 import { SuggestPollOptionPrompt as DefaultSuggestPollOptionForm } from './SuggestPollOptionPrompt';
-import {
-  EndPollAlert as DefaultEndPollAlert,
-  type EndPollAlertProps,
-} from './EndPollAlert';
+import { EndPollAlert as DefaultEndPollAlert } from './EndPollAlert';
 import type { PollAnswerListProps } from './PollAnswerList';
 import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
-import type { FullPollOptionsListingProps } from './PollOptionsFullList';
 import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollOptionsFullList';
-import type { PollResultsProps } from './PollResults';
 import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 import {
@@ -50,10 +45,10 @@ const pollStateSelector = (nextValue: PollState) => ({
 
 export type PollActionsProps = {
   AddCommentPrompt?: React.ComponentType<AddCommentPromptProps>;
-  EndPollAlert?: React.ComponentType<EndPollAlertProps>;
+  EndPollAlert?: React.ComponentType;
   PollAnswerList?: React.ComponentType<PollAnswerListProps>;
-  PollOptionsFullList?: React.ComponentType<FullPollOptionsListingProps>;
-  PollResults?: React.ComponentType<PollResultsProps>;
+  PollOptionsFullList?: React.ComponentType;
+  PollResults?: React.ComponentType;
   SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
 
@@ -106,7 +101,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'end-vote'}
           openModal={() => setModalOpen('end-vote')}
         >
-          <EndPollAlert close={closeModal} />
+          <EndPollAlert />
         </PollAction>
       )}
 
@@ -118,7 +113,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-results'}
           openModal={() => setModalOpen('view-results')}
         >
-          <PollResults close={closeModal} />
+          <PollResults />
         </PollAction>
       )}
       {options.length > MAX_OPTIONS_DISPLAYED && (
@@ -131,7 +126,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-all-options'}
           openModal={() => setModalOpen('view-all-options')}
         >
-          <PollOptionsFullList close={closeModal} />
+          <PollOptionsFullList />
         </PollAction>
       )}
 
@@ -149,7 +144,7 @@ export const PollActions = ({
             modalIsOpen={modalOpen === 'suggest-option'}
             openModal={() => setModalOpen('suggest-option')}
           >
-            <SuggestPollOptionForm close={closeModal} messageId={message.id} />
+            <SuggestPollOptionForm messageId={message.id} />
           </PollAction>
         )}
 
@@ -162,7 +157,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
         >
-          <AddCommentPrompt close={closeModal} messageId={message.id} />
+          <AddCommentPrompt messageId={message.id} />
         </PollAction>
       )}
 
@@ -175,10 +170,7 @@ export const PollActions = ({
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
         >
-          <PollAnswerList
-            close={closeModal}
-            onUpdateOwnAnswerClick={onUpdateAnswerClick}
-          />
+          <PollAnswerList onUpdateOwnAnswerClick={onUpdateAnswerClick} />
         </PollAction>
       )}
     </div>

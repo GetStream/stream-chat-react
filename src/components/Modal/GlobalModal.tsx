@@ -1,16 +1,42 @@
 import clsx from 'clsx';
-import type { PropsWithChildren } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {
+  type ComponentProps,
+  type ComponentType,
+  type PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { FocusScope } from '@react-aria/focus';
 
-import { modalDialogManagerId } from '../../context';
+import { ModalContextProvider, modalDialogManagerId } from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
   useModalDialog,
   useModalDialogIsOpen,
 } from '../Dialog';
-import type { ModalCloseEvent, ModalCloseSource, ModalProps } from './Modal';
+
+export type ModalCloseEvent =
+  | KeyboardEvent
+  | React.KeyboardEvent
+  | React.MouseEvent<HTMLButtonElement | HTMLDivElement>;
+
+export type ModalCloseSource = 'overlay' | 'button' | 'escape';
+
+export type ModalProps = {
+  /** If true, modal is opened or visible. */
+  open: boolean;
+  /** Custom class to be applied to the modal root div */
+  className?: string;
+  /** If provided, the close button is rendered on overlay */
+  CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
+  /** Callback handler for closing of modal. */
+  onClose?: (event: ModalCloseEvent) => void;
+  /** Optional handler to intercept closing logic. Return false to prevent onClose. */
+  onCloseAttempt?: (source: ModalCloseSource, event: ModalCloseEvent) => boolean;
+};
 
 export const GlobalModal = ({
   children,
@@ -36,6 +62,13 @@ export const GlobalModal = ({
       }
     },
     [dialog, onClose, onCloseAttempt],
+  );
+
+  const modalContextValue = useMemo<{ close: () => void }>(
+    () => ({
+      close: () => maybeClose('button', {} as ModalCloseEvent),
+    }),
+    [maybeClose],
   );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
@@ -73,21 +106,23 @@ export const GlobalModal = ({
 
   return (
     <DialogPortalEntry dialogId={modalDialogId} dialogManagerId={modalDialogManagerId}>
-      <div
-        className={clsx(
-          'str-chat str-chat__modal str-chat-react__modal str-chat__modal--open',
-          className,
-        )}
-        onClick={handleClick}
-        ref={overlayRef}
-      >
-        <FocusScope autoFocus contain>
-          {children}
-        </FocusScope>
-        {CloseButtonOnOverlay && (
-          <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
-        )}
-      </div>
+      <ModalContextProvider value={modalContextValue}>
+        <div
+          className={clsx(
+            'str-chat str-chat__modal str-chat-react__modal str-chat__modal--open',
+            className,
+          )}
+          onClick={handleClick}
+          ref={overlayRef}
+        >
+          <FocusScope autoFocus contain>
+            {children}
+          </FocusScope>
+          {CloseButtonOnOverlay && (
+            <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+          )}
+        </div>
+      </ModalContextProvider>
     </DialogPortalEntry>
   );
 };

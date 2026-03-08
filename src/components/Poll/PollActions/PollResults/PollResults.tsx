@@ -3,7 +3,11 @@ import React, { useCallback, useState } from 'react';
 import { PollOptionWithVotes } from './PollOptionWithVotes';
 import { Viewer } from '../../../Dialog';
 import { useStateStore } from '../../../../store';
-import { usePollContext, useTranslationContext } from '../../../../context';
+import {
+  useModalContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
 import { PollQuestion } from '../PollQuestion';
@@ -20,13 +24,10 @@ const pollStateSelector = ({
   vote_counts_by_option,
 });
 
-export type PollResultsProps = {
-  close?: () => void;
-};
-
-export const PollResults = ({ close }: PollResultsProps) => {
+export const PollResults = () => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
+  const { close } = useModalContext();
   const { name, options, vote_count, vote_counts_by_option } = useStateStore(
     poll.state,
     pollStateSelector,

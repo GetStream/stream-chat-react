@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useStateStore } from '../../../store';
-import { usePollContext, useTranslationContext } from '../../../context';
+import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
 import type { PollAnswer, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
@@ -12,12 +12,12 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type AddCommentPromptProps = {
-  close: () => void;
   messageId: string;
 };
 
-export const AddCommentPrompt = ({ close, messageId }: AddCommentPromptProps) => {
-  const { t } = useTranslationContext('AddCommentPrompt');
+export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
+  const { t } = useTranslationContext();
+  const { close } = useModalContext();
   const { poll } = usePollContext();
   const { ownAnswer } = useStateStore(poll.state, pollStateSelector);
 

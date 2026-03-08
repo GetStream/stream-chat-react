@@ -1,16 +1,18 @@
 import React from 'react';
 import { Alert } from '../../Dialog';
-import { useChatContext, usePollContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useModalContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../../context';
 import { Button } from '../../Button';
 
-export type EndPollAlertProps = {
-  close: () => void;
-};
-
-export const EndPollAlert = ({ close }: EndPollAlertProps) => {
+export const EndPollAlert = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
+  const { close } = useModalContext();
 
   return (
     <Alert.Root className={'str-chat__end-poll-alert'}>

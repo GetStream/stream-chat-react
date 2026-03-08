@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { useChatContext, usePollContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useModalContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../../context';
 import { useStateStore } from '../../../store';
 import type { PollOption, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
@@ -12,17 +17,14 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type SuggestPollOptionFormProps = {
-  close: () => void;
   messageId: string;
 };
 
-export const SuggestPollOptionPrompt = ({
-  close,
-  messageId,
-}: SuggestPollOptionFormProps) => {
+export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
+  const { close } = useModalContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
 
   const initialValue = useMemo(() => ({ optionText: '' }), []);
