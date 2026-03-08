@@ -83,21 +83,18 @@
 
     .str-chat__poll-option__votes-bar {
       background: linear-gradient(
-                      to right,
-                      var(--chat-poll-progress-fill-incoming)
-                      var(--str-chat__amount-bar-fulfillment),
-                      var(--chat-poll-progress-track-incoming)
-                      var(--str-chat__amount-bar-fulfillment)
+        to right,
+        var(--chat-poll-progress-fill-incoming) var(--str-chat__amount-bar-fulfillment),
+        var(--chat-poll-progress-track-incoming) var(--str-chat__amount-bar-fulfillment)
       );
       border-radius: calc(var(--str-chat__spacing-px) * 4);
     }
 
     .str-chat__poll-option__votes-bar--winner {
       background: linear-gradient(
-                      to right,
-                      var(--chat-poll-progress-fill-incoming)
-                      var(--str-chat__amount-bar-fulfillment),
-                      var(--str-chat__surface-color) var(--str-chat__amount-bar-fulfillment)
+        to right,
+        var(--chat-poll-progress-fill-incoming) var(--str-chat__amount-bar-fulfillment),
+        var(--str-chat__surface-color) var(--str-chat__amount-bar-fulfillment)
       );
     }
   }
