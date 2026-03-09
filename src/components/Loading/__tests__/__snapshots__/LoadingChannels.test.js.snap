@@ -6,13 +6,13 @@ exports[`LoadingChannels should render component with default props 1`] = `
     class="str-chat__loading-channels"
   >
     <div
-      class="str-chat__loading-channels-item str-chat__channel-preview-loading"
+      class="str-chat__channel-preview-loading"
     >
       <div
         class="str-chat__loading-channels-avatar"
       />
       <div
-        class="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
+        class="str-chat__channel-preview-end-loading"
       >
         <div
           class="str-chat__loading-channels-username"
@@ -23,13 +23,13 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__loading-channels-item str-chat__channel-preview-loading"
+      class="str-chat__channel-preview-loading"
     >
       <div
         class="str-chat__loading-channels-avatar"
       />
       <div
-        class="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
+        class="str-chat__channel-preview-end-loading"
       >
         <div
           class="str-chat__loading-channels-username"
@@ -40,13 +40,47 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__loading-channels-item str-chat__channel-preview-loading"
+      class="str-chat__channel-preview-loading"
     >
       <div
         class="str-chat__loading-channels-avatar"
       />
       <div
-        class="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
+        class="str-chat__channel-preview-end-loading"
+      >
+        <div
+          class="str-chat__loading-channels-username"
+        />
+        <div
+          class="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__channel-preview-loading"
+    >
+      <div
+        class="str-chat__loading-channels-avatar"
+      />
+      <div
+        class="str-chat__channel-preview-end-loading"
+      >
+        <div
+          class="str-chat__loading-channels-username"
+        />
+        <div
+          class="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__channel-preview-loading"
+    >
+      <div
+        class="str-chat__loading-channels-avatar"
+      />
+      <div
+        class="str-chat__channel-preview-end-loading"
       >
         <div
           class="str-chat__loading-channels-username"
