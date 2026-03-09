@@ -118,20 +118,12 @@
 }
 
 .str-chat__modal__poll-results.str-chat__modal__poll-results--option-detail {
-  display: flex;
-  flex-direction: column;
-
-  .str-chat__modal__poll-results__body {
+  .str-chat__infinite-scroll-paginator {
     flex: 1;
-    min-height: 0;
-
-    .str-chat__infinite-scroll-paginator {
-      flex: 1;
-      scrollbar-width: none;
-      width: 100%;
-      height: 100%;
-      padding-bottom: var(--spacing-xl);
-    }
+    scrollbar-width: none;
+    width: 100%;
+    height: 100%;
+    padding-bottom: var(--spacing-xl);
   }
 }
 

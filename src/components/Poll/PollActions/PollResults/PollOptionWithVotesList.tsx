@@ -42,7 +42,5 @@ export const PollOptionWithVotesList = ({
         </div>
       </div>
     </InfiniteScrollPaginator>
-    // todo: find out how to show errors in paginated lists
-    // {error && error.message}
   );
 };
