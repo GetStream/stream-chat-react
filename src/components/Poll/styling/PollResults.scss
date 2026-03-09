@@ -17,7 +17,7 @@
     width: 100%;
   }
 
-  .str-chat__modal__poll-results__option-detail,
+  .str-chat_poll-option-with-votes-list,
   .str-chat__modal__poll-results__option-list {
     display: flex;
     flex-direction: column;
@@ -82,17 +82,12 @@
     }
   }
 
-  .str-chat__modal__poll-results__option-detail {
+  .str-chat_poll-option-with-votes-list {
     .str-chat__poll-option {
       padding-bottom: 0;
     }
 
     .str-chat__poll-option__votes-paginated-list {
-      .str-chat__infinite-scroll-paginator {
-        max-height: 480px;
-        scrollbar-width: none;
-      }
-
       .str-chat__loading-indicator-placeholder {
         width: 100%;
         height: calc(var(--str-chat__loading-indicator-size) + (2 * var(--spacing-xxs)));
@@ -118,6 +113,24 @@
     align-items: center;
 
     svg {
+    }
+  }
+}
+
+.str-chat__modal__poll-results.str-chat__modal__poll-results--option-detail {
+  display: flex;
+  flex-direction: column;
+
+  .str-chat__modal__poll-results__body {
+    flex: 1;
+    min-height: 0;
+
+    .str-chat__infinite-scroll-paginator {
+      flex: 1;
+      scrollbar-width: none;
+      width: 100%;
+      height: 100%;
+      padding-bottom: var(--spacing-xl);
     }
   }
 }
