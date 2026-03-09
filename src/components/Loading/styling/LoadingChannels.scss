@@ -1,0 +1,87 @@
+@mixin channel-preview-shimmer {
+  background-color: var(--str-chat__channel-preview-loading-state-color);
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-loading-base) 0%,
+    var(--skeleton-loading-highlight) 50%,
+    var(--skeleton-loading-base) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: loading-channels-shimmer 1.2s linear infinite;
+}
+
+.str-chat {
+  /* The color of the loading indicator while initializing the channel list */
+  --str-chat__channel-preview-loading-state-color: var(--slate-100);
+}
+
+.str-chat__loading-channels {
+  display: flex;
+  flex-direction: column;
+}
+
+.str-chat__channel-preview--loading {
+  cursor: default;
+  pointer-events: none;
+}
+
+.str-chat__channel-preview--loading,
+.str-chat__channel-preview-data--loading {
+  min-width: 0;
+}
+
+.str-chat__channel-preview-data--loading {
+  justify-content: center;
+}
+
+.str-chat__loading-channels-avatar,
+.str-chat__loading-channels-username,
+.str-chat__loading-channels-status {
+  @include channel-preview-shimmer;
+}
+
+.str-chat__loading-channels-avatar {
+  flex-shrink: 0;
+  width: calc(var(--str-chat__spacing-px) * 48);
+  height: calc(var(--str-chat__spacing-px) * 48);
+  border-radius: 50%;
+}
+
+.str-chat__loading-channels-username,
+.str-chat__loading-channels-status {
+  height: calc(var(--str-chat__spacing-px) * 20);
+  border-radius: 999px;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 94%,
+    rgba(0, 0, 0, 0.7) 98%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 94%,
+    rgba(0, 0, 0, 0.7) 98%,
+    transparent 100%
+  );
+}
+
+.str-chat__loading-channels-username {
+  width: min(62%, calc(var(--str-chat__spacing-px) * 180));
+}
+
+.str-chat__loading-channels-status {
+  width: min(84%, calc(var(--str-chat__spacing-px) * 244));
+}
+
+@keyframes loading-channels-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}

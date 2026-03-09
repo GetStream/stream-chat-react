@@ -3,11 +3,11 @@
 exports[`ChannelListMessenger by default, children should be rendered 1`] = `
 <div>
   <div
-    class="str-chat__channel-list-messenger str-chat__channel-list-messenger-react"
+    class="str-chat__channel-list-messenger"
   >
     <div
       aria-label="Channel list"
-      class="str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main"
+      class="str-chat__channel-list-messenger__main"
       role="listbox"
     >
       <div>
@@ -31,8 +31,18 @@ exports[`ChannelListMessenger when \`error\` prop is true, \`LoadingErrorIndicat
 
 exports[`ChannelListMessenger when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
 <div>
-  <div>
-    Loading Indicator
+  <div
+    class="str-chat__channel-list-messenger"
+  >
+    <div
+      aria-label="Channel list"
+      class="str-chat__channel-list-messenger__main"
+      role="listbox"
+    >
+      <div>
+        Loading Indicator
+      </div>
+    </div>
   </div>
 </div>
 `;

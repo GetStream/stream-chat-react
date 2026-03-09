@@ -42,7 +42,17 @@ export const ChannelListMessenger = (
   }
 
   if (loading) {
-    return <LoadingIndicator />;
+    return (
+      <div className='str-chat__channel-list-messenger'>
+        <div
+          aria-label={t('aria/Channel list')}
+          className='str-chat__channel-list-messenger__main'
+          role='listbox'
+        >
+          <LoadingIndicator />
+        </div>
+      </div>
+    );
   }
 
   return (
