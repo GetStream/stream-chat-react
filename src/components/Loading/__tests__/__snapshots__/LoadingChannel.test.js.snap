@@ -41,15 +41,8 @@ exports[`LoadingChannel should render component with default props 1`] = `
                 class="str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--lg"
               />
               <div
-                class="str-chat__loading-channel-message-metadata"
-              >
-                <div
-                  class="str-chat__loading-channel-message-sender"
-                />
-                <div
-                  class="str-chat__loading-channel-message-date"
-                />
-              </div>
+                class="str-chat__loading-channel-message-metadata str-chat__loading-channel-message-metadata--md"
+              />
             </div>
           </div>
           <div
@@ -59,18 +52,11 @@ exports[`LoadingChannel should render component with default props 1`] = `
               class="str-chat__loading-channel-message-content"
             >
               <div
-                class="str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--sm"
+                class="str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--md"
               />
               <div
-                class="str-chat__loading-channel-message-metadata"
-              >
-                <div
-                  class="str-chat__loading-channel-message-sender"
-                />
-                <div
-                  class="str-chat__loading-channel-message-date"
-                />
-              </div>
+                class="str-chat__loading-channel-message-metadata str-chat__loading-channel-message-metadata--sm"
+              />
             </div>
           </div>
           <div
@@ -83,18 +69,11 @@ exports[`LoadingChannel should render component with default props 1`] = `
               class="str-chat__loading-channel-message-content"
             >
               <div
-                class="str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--md"
+                class="str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--lg"
               />
               <div
-                class="str-chat__loading-channel-message-metadata"
-              >
-                <div
-                  class="str-chat__loading-channel-message-sender"
-                />
-                <div
-                  class="str-chat__loading-channel-message-date"
-                />
-              </div>
+                class="str-chat__loading-channel-message-metadata str-chat__loading-channel-message-metadata--md"
+              />
             </div>
           </div>
         </div>
