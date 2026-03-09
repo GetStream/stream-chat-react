@@ -6,6 +6,8 @@
   max-width: 520px;
   height: 100%;
   max-height: 640px;
+  display: flex;
+  flex-direction: column;
 
   .str-chat__viewer__header {
     display: flex;
@@ -48,6 +50,8 @@
 
   .str-chat__viewer__body {
     padding: 0 var(--spacing-xl);
+    flex: 1;
+    min-height: 0;
 
     .str-chat__viewer__title {
       margin-bottom: 1rem;

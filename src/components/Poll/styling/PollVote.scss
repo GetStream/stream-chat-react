@@ -4,8 +4,8 @@
   align-items: center;
   gap: var(--spacing-none, 0);
   align-self: stretch;
-  min-height: 40px;
   width: 100%;
+  font: var(--str-chat__caption-default-text);
 
   .str-chat__poll-vote__author {
     flex: 1;

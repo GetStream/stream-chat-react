@@ -66,6 +66,11 @@
         align-items: flex-start;
         align-self: stretch;
         padding: var(--spacing-xs) var(--spacing-none);
+
+        .str-chat__avatar {
+          height: var(--spacing-2xl);
+          width: var(--spacing-2xl);
+        }
       }
 
       .str-chat__poll-option__show-all-votes-button-container {
@@ -111,6 +116,7 @@
     display: flex;
     gap: var(--spacing-xs);
     align-items: center;
+    font: var(--str-chat__caption-emphasis-text);
 
     svg {
     }

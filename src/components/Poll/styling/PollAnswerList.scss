@@ -1,11 +1,17 @@
 .str-chat__modal__poll-answer-list {
   .str-chat__poll-answer-list {
-    border-radius: var(--radius-lg);
-    background: var(--background-core-surface-card);
+    height: 100%;
 
     .str-chat__infinite-scroll-paginator {
       scrollbar-width: none;
-      max-height: 480px;
+      height: 100%;
+
+      .str-chat__infinite-scroll-paginator__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        padding-bottom: var(--spacing-xl);
+      }
     }
 
     .str-chat__loading-indicator-placeholder {
@@ -16,28 +22,48 @@
     }
 
     .str-chat__poll-answer {
-      display: flex;
-      padding: var(--spacing-md);
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--spacing-xxs);
-      align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xxs);
+        align-self: stretch;
+        border-radius: var(--radius-lg);
+        background: var(--background-core-surface-card);
 
-      p {
-        margin: 0;
+      .str-chat__poll-answer__data {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+        align-self: stretch;
+        padding: var(--spacing-md);
+
+        .str-chat__avatar {
+          height: var(--spacing-xl);
+          width: var(--spacing-xl);
+        }
+
+        p {
+          margin: 0;
+        }
+
+        .str-chat__poll-answer__text {
+          font: var(--str-chat__body-default-text);
+        }
+
+        .str-chat__poll-vote {
+          padding-inline: var(--spacing-none);
+          padding-block: 0;
+        }
       }
 
-      .str-chat__poll-answer__text {
-        font: var(--str-chat__heading-sm-text);
-      }
-
-      .str-chat__poll-vote {
-        padding-inline: var(--spacing-none);
+      .str-chat__poll-vote__update-vote-button-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding: var(--spacing-xs) var(--spacing-md);
+        border-top: 1px solid var(--border-core-default);
       }
     }
-  }
-
-  .str-chat__viewer__footer {
-    justify-content: center;
   }
 }

@@ -36,7 +36,9 @@ type PollVoteProps = {
   vote: PollVoteType;
 };
 
-const PollVoteAuthor = ({ vote }: PollVoteProps) => {
+type PollVoteAuthor = PollVoteProps;
+
+const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { handleEnter, handleLeave, tooltipVisible } =
