@@ -5,6 +5,7 @@ import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { Button, IconCircleX, IconMagnifyingGlassSearch } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -43,13 +44,13 @@ export const SearchBar = () => {
   return (
     <div className='str-chat__search-bar' data-testid='search-bar'>
       <div
-        className={clsx('str-chat__search-input--wrapper', {
-          'str-chat__search-input--wrapper-active': isActive,
+        className={clsx('str-chat__search-bar__input-wrapper', {
+          'str-chat__search-bar__input-wrapper--active': isActive,
         })}
       >
-        <div className='str-chat__search-input--icon' />
+        <IconMagnifyingGlassSearch />
         <input
-          className='str-chat__search-input'
+          className='str-chat__search-bar__input'
           data-testid='search-input'
           disabled={disabled}
           onBlur={() => {
@@ -69,33 +70,39 @@ export const SearchBar = () => {
           value={searchQuery}
         />
         {searchQuery && (
-          <button
-            className='str-chat__search-input--clear-button'
+          <Button
+            appearance='ghost'
+            circular
+            className='str-chat__search-bar__clear-button'
             data-testid='clear-input-button'
             disabled={queriesInProgress.length > 0} // prevent user from clearing the input while query is in progress and avoid out-of-sync UX
             onClick={() => {
               searchController.clear();
               input?.focus();
             }}
+            size='xs'
+            variant='secondary'
           >
-            <div className='str-chat__search-input--clear-button-icon' />
-          </button>
+            <IconCircleX />
+          </Button>
         )}
       </div>
-      {isActive ? (
-        <button
-          className={clsx(
-            'str-chat__search-bar-button str-chat__search-bar-button--exit-search',
-          )}
+      {/* TODO: return button once designs are in */}
+      {isActive && (
+        <Button
+          appearance='ghost'
+          className='str-chat__search-bar__exit-search-button'
           data-testid='search-bar-button'
           onClick={() => {
             input?.blur();
             searchController.exit();
           }}
+          size='sm'
+          variant='secondary'
         >
           {t('Cancel')}
-        </button>
-      ) : null}
+        </Button>
+      )}
     </div>
   );
 };

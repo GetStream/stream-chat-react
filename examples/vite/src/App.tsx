@@ -40,6 +40,8 @@ import { humanId } from 'human-id';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
 
+import { Search } from 'stream-chat-react/experimental';
+
 init({ data });
 
 const parseUserIdFromToken = (token: string) => {
@@ -204,12 +206,12 @@ const App = () => {
           />
           <ChatView.Channels>
             <ChannelList
+              ChannelSearch={Search}
               Avatar={ChannelAvatar}
               filters={filters}
               options={options}
               sort={sort}
               showChannelSearch
-              additionalChannelSearchProps={{ searchForChannels: true }}
             />
             <Channel>
               <WithDragAndDropUpload>

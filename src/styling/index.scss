@@ -51,6 +51,7 @@
 @use '../components/Threads/ThreadList/styling' as ThreadList;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
 @use '../components/SummarizedMessagePreview/styling' as SummarizedMessagePreview;
+@use '../experimental/Search/styling/' as Search;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);

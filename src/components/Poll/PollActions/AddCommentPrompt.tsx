@@ -57,8 +57,8 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
   return (
     <Prompt.Root className='str-chat__modal__poll-add-comment'>
       {title && <Prompt.Header close={close} title={title} />}
-      <Prompt.Body>
-        <form autoComplete='off' onSubmit={handleSubmit}>
+      <form autoComplete='off' onSubmit={handleSubmit}>
+        <Prompt.Body>
           <TextInput
             error={!!fieldErrors.comment}
             errorMessage={fieldErrors.comment?.message}
@@ -70,26 +70,26 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
             type='text'
             value={value.comment}
           />
-        </form>
-      </Prompt.Body>
-      <Prompt.Footer>
-        <Prompt.FooterControls>
-          <Prompt.FooterControlsButtonSecondary
-            className='str-chat__prompt__footer__controls-button--cancel'
-            onClick={close}
-            type='button'
-          >
-            {t('Cancel')}
-          </Prompt.FooterControlsButtonSecondary>
-          <Prompt.FooterControlsButtonPrimary
-            className='str-chat__prompt__footer__controls-button--submit'
-            disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
-            type='submit'
-          >
-            {t('Send')}
-          </Prompt.FooterControlsButtonPrimary>
-        </Prompt.FooterControls>
-      </Prompt.Footer>
+        </Prompt.Body>
+        <Prompt.Footer>
+          <Prompt.FooterControls>
+            <Prompt.FooterControlsButtonSecondary
+              className='str-chat__prompt__footer__controls-button--cancel'
+              onClick={close}
+              type='button'
+            >
+              {t('Cancel')}
+            </Prompt.FooterControlsButtonSecondary>
+            <Prompt.FooterControlsButtonPrimary
+              className='str-chat__prompt__footer__controls-button--submit'
+              disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
+              type='submit'
+            >
+              {t('Send')}
+            </Prompt.FooterControlsButtonPrimary>
+          </Prompt.FooterControls>
+        </Prompt.Footer>
+      </form>
     </Prompt.Root>
   );
 };
