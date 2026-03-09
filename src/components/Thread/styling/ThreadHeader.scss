@@ -1,0 +1,77 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* The border radius used for the borders of the thread header */
+  --str-chat__thread-header-border-radius: 0;
+
+  /* The text/icon color of the thread header */
+  --str-chat__thread-header-color: var(--str-chat__text-color);
+
+  /* The background color of the thread header */
+  --str-chat__thread-header-background-color: var(--background-elevation-elevation-1);
+
+  /* Top border of the thread header */
+  --str-chat__thread-header-border-block-start: none;
+
+  /* Bottom border of the thread header */
+  --str-chat__thread-header-border-block-end: 1px solid var(--border-core-default);
+
+  /* Left (right in RTL layout) border of the thread header */
+  --str-chat__thread-header-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of the thread header */
+  --str-chat__thread-header-border-inline-end: none;
+
+  /* Box shadow applied to the thread header */
+  --str-chat__thread-header-box-shadow: none;
+}
+
+
+.str-chat__thread-header {
+  @include utils.header-layout;
+  @include utils.component-layer-overrides('thread-header');
+
+  .str-chat__thread-header-name,
+  .str-chat__thread-header-title {
+    font: var(--str-chat__subtitle-medium-text);
+  }
+
+  .str-chat__thread-header-channel-name,
+  .str-chat__thread-header-subtitle {
+    font: var(--str-chat__body-text);
+    color: var(--str-chat__thread-header-info-color);
+  }
+
+  .str-chat__thread-header-details {
+    @include utils.header-text-layout;
+    align-items: start;
+
+    .str-chat__thread-header-name,
+    .str-chat__thread-header-reply-count,
+    .str-chat__thread-header-channel-name,
+    .str-chat__thread-header-subtitle,
+    .str-chat__thread-header-title {
+      @include utils.ellipsis-text;
+    }
+
+    .str-chat__thread-header-subtitle {
+      @include utils.prevent-glitch-text-overflow;
+    }
+  }
+
+  .str-chat__close-thread-button {
+    $icon-size: calc(var(--str-chat__spacing-px) * 21);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    width: calc(var(--str-chat__spacing-px) * 40);
+    height: calc(var(--str-chat__spacing-px) * 40);
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+
+    svg {
+      fill: var(--str-chat__thread-color);
+    }
+  }
+}

@@ -145,6 +145,9 @@
     }
 
     &.str-chat__button--circular {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: var(--button-radius-full);
     }
 

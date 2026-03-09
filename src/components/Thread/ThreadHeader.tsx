@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
-import { CloseIcon } from './icons';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { ChannelPreviewInfoParams } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import type { LocalMessage } from 'stream-chat';
+import { Button } from '../Button';
+import { IconCrossMedium } from '../Icons';
 
 export type ThreadHeaderProps = {
   /** Callback for closing the thread */
@@ -36,14 +37,18 @@ export const ThreadHeader = (
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <div className='str-chat__thread-header-subtitle'>{displayTitle}</div>
       </div>
-      <button
+      <Button
+        appearance='ghost'
         aria-label={t('aria/Close thread')}
+        circular
         className='str-chat__close-thread-button'
-        data-testid='close-button'
+        data-testid='close-thread-button'
         onClick={closeThread}
+        size='md'
+        variant='secondary'
       >
-        <CloseIcon />
-      </button>
+        <IconCrossMedium />
+      </Button>
     </div>
   );
 };
