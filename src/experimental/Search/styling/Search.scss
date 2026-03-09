@@ -11,7 +11,7 @@
   display: flex;
   gap: var(--spacing-xs);
 
-  .str-chat__search-input--wrapper {
+  .str-chat__search-bar__input-wrapper {
     display: flex;
     min-height: 40px;
     align-items: center;
@@ -31,7 +31,7 @@
     //   outline-offset: 2px;
     // }
 
-    .str-chat__search-input {
+    .str-chat__search-bar__input {
       border: none;
       background: none;
       width: 100%;
@@ -43,11 +43,6 @@
       }
     }
 
-    .str-chat__button.str-chat__search-input--clear-button {
-      aspect-ratio: 1/1;
-      padding: var(--spacing-xxs);
-    }
-
     padding-block: var(--spacing-xs);
     padding-inline: var(--spacing-sm);
 
@@ -55,6 +50,10 @@
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
     }
+  }
+
+  .str-chat__search-bar__exit-search-button {
+    flex-shrink: 0;
   }
 }
 

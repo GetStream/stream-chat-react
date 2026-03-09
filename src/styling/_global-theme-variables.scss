@@ -37,19 +37,19 @@
     var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont,
     Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 
+  --str-chat__metadata-emphasis-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+    
   --str-chat__metadata-default-text: normal var(--typography-font-weight-regular)
     var(--typography-font-size-xs) / var(--typography-line-height-tight)
     var(--str-chat__font-family);
 
-  --str-chat__metadata-emphasis-text: normal var(--typography-font-weight-semi-bold)
-    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+  --str-chat__caption-emphasis-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
     var(--str-chat__font-family);
 
   --str-chat__caption-default-text: normal var(--typography-font-weight-regular)
-    var(--typography-font-size-sm) / var(--typography-line-height-normal)
-    var(--str-chat__font-family);
-
-  --str-chat__caption-emphasis-text: normal var(--typography-font-weight-semi-bold)
     var(--typography-font-size-sm) / var(--typography-line-height-tight)
     var(--str-chat__font-family);
 
@@ -57,17 +57,26 @@
     var(--typography-font-size-md) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
-  --str-chat__heading-xs-text: normal var(--typography-font-weight-medium)
-    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+  --str-chat__body-default-text: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  --str-chat__heading-xs-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
   --str-chat__heading-sm-text: normal var(--typography-font-weight-semi-bold)
     var(--typography-font-size-md) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
+  --str-chat__heading-md-text: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-lg) / var(--typography-line-height-relaxed)
+    var(--str-chat__font-family);
+
   --str-chat__heading-lg-text: normal var(--typography-font-weight-semi-bold)
     var(--typography-font-size-xl) / var(--typography-line-height-relaxed)
     var(--str-chat__font-family);
+
   color: var(--text-primary, #1a1b25);
 
   // todo: adapt the old text variables to so that they use the new semantic text variables

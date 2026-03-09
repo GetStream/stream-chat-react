@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger';
 export type ButtonAppearance = 'solid' | 'outline' | 'ghost';
-export type ButtonSize = 'lg' | 'md' | 'sm';
+export type ButtonSize = 'lg' | 'md' | 'sm' | 'xs';
 
 export type ButtonProps = ComponentProps<'button'> & {
   /** Semantic variant: primary, secondary, or danger (maps to destructive in styles). */
@@ -32,6 +32,7 @@ const sizeToClass: Record<ButtonSize, string> = {
   lg: 'str-chat__button--size-lg',
   md: 'str-chat__button--size-md',
   sm: 'str-chat__button--size-sm',
+  xs: 'str-chat__button--size-xs',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
