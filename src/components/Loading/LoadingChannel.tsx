@@ -1,11 +1,16 @@
 import React from 'react';
 
 type LoadingMessageProps = {
-  bubbleSize: 'sm' | 'md' | 'lg';
+  bubbleSize: 'md' | 'lg';
+  metadataSize: 'sm' | 'md';
   outgoing?: boolean;
 };
 
-const LoadingMessage = ({ bubbleSize, outgoing = false }: LoadingMessageProps) => (
+const LoadingMessage = ({
+  bubbleSize,
+  metadataSize,
+  outgoing = false,
+}: LoadingMessageProps) => (
   <div
     className={`str-chat__loading-channel-message ${
       outgoing
@@ -18,10 +23,9 @@ const LoadingMessage = ({ bubbleSize, outgoing = false }: LoadingMessageProps) =
       <div
         className={`str-chat__loading-channel-message-bubble str-chat__loading-channel-message-bubble--${bubbleSize}`}
       ></div>
-      <div className='str-chat__loading-channel-message-metadata'>
-        <div className='str-chat__loading-channel-message-sender'></div>
-        <div className='str-chat__loading-channel-message-date'></div>
-      </div>
+      <div
+        className={`str-chat__loading-channel-message-metadata str-chat__loading-channel-message-metadata--${metadataSize}`}
+      ></div>
     </div>
   </div>
 );
@@ -50,9 +54,9 @@ export const LoadingChannel = () => (
     <div className='str-chat__message-list str-chat__message-list--loading'>
       <div className='str-chat__message-list-scroll'>
         <div className='str-chat__loading-channel-message-list'>
-          <LoadingMessage bubbleSize='lg' />
-          <LoadingMessage bubbleSize='sm' outgoing />
-          <LoadingMessage bubbleSize='md' />
+          <LoadingMessage bubbleSize='lg' metadataSize='md' />
+          <LoadingMessage bubbleSize='md' metadataSize='sm' outgoing />
+          <LoadingMessage bubbleSize='lg' metadataSize='md' />
         </div>
       </div>
     </div>
