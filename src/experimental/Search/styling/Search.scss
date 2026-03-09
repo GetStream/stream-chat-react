@@ -9,7 +9,7 @@
 .str-chat__search-bar {
   padding-inline: var(--spacing-md);
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-xxxs);
 
   .str-chat__search-bar__input-wrapper {
     display: flex;
@@ -19,19 +19,14 @@
     border-radius: var(--radius-max);
     border: 1px solid var(--input-border-default);
     color: var(--input-text-placeholder);
-    font-family: var(--typography-font-family-sans);
-    font-size: var(--typography-font-size-sm);
+    font: var(--str_chat__heading-xs-text);
+    // FIXME: there's no proper variation so we need to adjust font-weight separately
     font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-normal);
     flex-shrink: 1;
     flex-grow: 1;
 
-    // &:focus-visible:focus-within {
-    //   outline: 2px solid var(--border-utility-focus);
-    //   outline-offset: 2px;
-    // }
-
     .str-chat__search-bar__input {
+      min-height: 24px;
       border: none;
       background: none;
       width: 100%;
@@ -41,6 +36,10 @@
       &:focus {
         outline: none;
       }
+    }
+
+    .str-chat__search-bar__clear-button {
+      flex-shrink: 0;
     }
 
     padding-block: var(--spacing-xs);
