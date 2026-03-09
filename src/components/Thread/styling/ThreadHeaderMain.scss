@@ -1,16 +1,12 @@
+@use '../../../styling/utils';
+
 .str-chat__thread-header--main {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border-core-default, #d5dbe1);
-  background: var(--background-elevation-elevation-1, #fff);
+  @include utils.header-layout;
+  border-bottom: 1px solid var(--border-core-default);
+  background: var(--background-elevation-elevation-1);
 
   .str-chat__thread-header--main__details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    @include utils.header-text-layout;
 
     .str-chat__thread-header--main__title {
       font: var(--str-chat__heading-sm-text);

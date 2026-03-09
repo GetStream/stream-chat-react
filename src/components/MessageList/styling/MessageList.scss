@@ -38,23 +38,6 @@
       margin: 0;
     }
   }
-
-  .str-chat__parent-message-li {
-    $spacing: var(--str-chat__spacing-4);
-    padding-block-end: $spacing;
-    margin-block-end: $spacing;
-    border-block-end: 1px solid var(--str-chat__thread-head-start-border-block-end-color);
-
-    .str-chat__thread-start {
-      color: var(--str-chat__thread-head-start-color);
-      font: var(--str-chat__subtitle-text);
-    }
-
-    .str-chat__thread-start {
-      text-align: start;
-      padding-top: var(--str-chat__spacing-3);
-    }
-  }
 }
 
 .str-chat__main-panel {

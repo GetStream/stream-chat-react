@@ -33,17 +33,11 @@
 
 .str-chat__channel-header {
   @include utils.component-layer-overrides('channel-header');
-  display: flex;
-  padding: var(--spacing-md);
-  column-gap: var(--spacing-sm);
-  align-items: center;
+  @include utils.header-layout;
   flex: 1;
-  min-width: 0;
-  height: var(--str-chat__channel-header-height);
 
   .str-chat__channel-header__data {
     @include utils.header-text-layout;
-    min-width: 0;
   }
 
   .str-chat__channel-header__data__title,

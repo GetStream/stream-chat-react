@@ -103,9 +103,11 @@
 
 @mixin header-layout {
   display: flex;
-  padding: var(--str-chat__spacing-2);
-  column-gap: var(--str-chat__spacing-4);
   align-items: center;
+  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  height: var(--str-chat__channel-header-height);
+  min-width: 0;
 }
 
 @mixin header-text-layout {
@@ -115,7 +117,7 @@
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
   flex: 1;
-  row-gap: var(--str-chat__spacing-1_5);
+  row-gap: var(--spacing-none);
 }
 
 @mixin empty-theme($component-name) {
@@ -135,10 +137,6 @@
 
   // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
   .str-chat__li {
-    margin-inline: calc(-1 * #{$spacing});
-  }
-
-  .str-chat__parent-message-li {
     margin-inline: calc(-1 * #{$spacing});
   }
 }

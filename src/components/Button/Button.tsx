@@ -52,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         className,
       )}
     >
-      <span className='str-chat__button__content'>{children}</span>
+      <div className='str-chat__button__content'>{children}</div>
     </button>
   );
 });
