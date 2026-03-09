@@ -142,7 +142,6 @@ const App = () => {
         },
         { type: 'public' },
       ],
-      // archived: false,
     }),
     [userId],
   );
