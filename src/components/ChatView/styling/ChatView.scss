@@ -16,9 +16,8 @@
   .str-chat__chat-view__selector {
     display: flex;
     flex-direction: column;
-    padding-inline: 8px;
-    padding-block: 16px;
-    gap: 20px;
+    padding: var(--spacing-md);
+    gap: var(--spacing-xs);
     border-right: 1px solid var(--str-chat-selector-border-color);
     background-color: var(--str-chat-selector-background-color);
 
@@ -64,12 +63,10 @@
       --str-chat-unread-count-badge-absolute-offset-vertical: 25%;
       --str-chat-icon-color: var(--str-chat-selector-button-color-default);
 
-      flex-direction: column;
       gap: 4px;
-      padding-inline: 10px;
-      padding-block: 16px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-md);
+      font: var(--str-chat__caption-emphasis-text);
       line-height: 1;
       position: relative;
 
@@ -85,6 +82,12 @@
       svg {
         height: var(--str-chat-icon-height);
         width: var(--str-chat-icon-height);
+      }
+
+      .str-chat__button__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
     }
 
