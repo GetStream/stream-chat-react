@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   useChatContext,
   useModalContext,
@@ -26,6 +26,7 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
   const { poll } = usePollContext();
   const { close } = useModalContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
+  const [input, setInput] = useState<HTMLInputElement | null>(null);
 
   const initialValue = useMemo(() => ({ optionText: '' }), []);
   const validators = useMemo(
@@ -64,6 +65,10 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
     validators,
   });
 
+  useEffect(() => {
+    input?.focus();
+  }, [input]);
+
   const submitDisabled = !value.optionText?.trim();
 
   return (
@@ -77,6 +82,7 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
             id='optionText'
             name='optionText'
             onChange={(e) => setFieldValue('optionText', e.target.value)}
+            ref={setInput}
             required
             title={t('Suggest an option')}
             type='text'

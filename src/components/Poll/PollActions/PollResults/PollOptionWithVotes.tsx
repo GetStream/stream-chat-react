@@ -10,7 +10,6 @@ import {
 import type { PollOption, PollState, PollVote } from 'stream-chat';
 import { Button } from '../../../Button';
 import clsx from 'clsx';
-import { PollVotesPaginatedList } from './PollVotesPaginatedList';
 
 type PollStateSelectorReturnValue = {
   latest_votes_by_option: Record<string, PollVote[]>;
@@ -50,11 +49,7 @@ export const PollOptionWithVotes = ({
       })}
     >
       <PollOptionWithVotesHeader option={option} optionOrderNumber={orderNumber} />
-      {!votes ? null : isVotesPreview ? (
-        <PollVoteListing votes={votes.slice(0, countVotesPreview)} />
-      ) : (
-        <PollVotesPaginatedList option={option} />
-      )}
+      {!!votes && <PollVoteListing votes={votes.slice(0, countVotesPreview)} />}
       {channelCapabilities['query-poll-votes'] &&
         showAllVotes &&
         isVotesPreview &&

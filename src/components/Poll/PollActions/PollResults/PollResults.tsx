@@ -11,6 +11,7 @@ import {
 import type { PollOption, PollState } from 'stream-chat';
 import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
 import { PollQuestion } from '../PollQuestion';
+import { PollOptionWithVotesList } from './PollOptionWithVotesList';
 
 const pollStateSelector = ({
   name,
@@ -49,12 +50,10 @@ export const PollResults = () => {
         <>
           <Viewer.Header close={close} goBack={goBack} title={t('Votes')} />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
-            <div className='str-chat__modal__poll-results__option-detail'>
-              <PollOptionWithVotes
-                option={optionToView?.option}
-                orderNumber={optionToView?.optionOrderNumber}
-              />
-            </div>
+            <PollOptionWithVotesList
+              option={optionToView?.option}
+              optionOrderNumber={optionToView?.optionOrderNumber}
+            />
           </Viewer.Body>
         </>
       ) : (

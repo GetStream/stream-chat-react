@@ -1,11 +1,17 @@
 import React from 'react';
+import { Button } from '../../Button';
 import { Viewer } from '../../Dialog';
 import { PollVote } from '../PollVote';
 import { usePollAnswerPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useStateStore } from '../../../store';
-import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useModalContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../../context';
 
 import type { PollAnswer, PollState } from 'stream-chat';
 
@@ -23,10 +29,11 @@ export type PollAnswerListProps = {
 };
 
 export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) => {
+  const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();
-  const { is_closed, ownAnswer } = useStateStore(poll.state, pollStateSelector);
+  const { is_closed } = useStateStore(poll.state, pollStateSelector);
 
   const { answers, error, hasNextPage, loading, loadMore } = usePollAnswerPagination();
 
@@ -38,10 +45,25 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
           <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
             {answers.map((answer) => (
               <div className='str-chat__poll-answer' key={`comment-${answer.id}`}>
-                {answer.answer_text && (
-                  <p className='str-chat__poll-answer__text'>{answer.answer_text}</p>
+                <div className='str-chat__poll-answer__data'>
+                  {answer.answer_text && (
+                    <p className='str-chat__poll-answer__text'>{answer.answer_text}</p>
+                  )}
+                  <PollVote key={`poll-vote-${answer.id}`} vote={answer} />
+                </div>
+                {!is_closed && answer.user?.id === client.user?.id && (
+                  <div className='str-chat__poll-vote__update-vote-button-container'>
+                    <Button
+                      appearance='ghost'
+                      className='str-chat__poll-vote__update-vote-button'
+                      onClick={onUpdateOwnAnswerClick}
+                      size='md'
+                      variant='secondary'
+                    >
+                      {t('Update your comment')}
+                    </Button>
+                  </div>
                 )}
-                <PollVote key={`poll-vote-${answer.id}`} vote={answer} />
               </div>
             ))}
 
@@ -54,18 +76,18 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
         </div>
         {error?.message && <div>{error?.message}</div>}
       </Viewer.Body>
-      <Viewer.Footer>
-        {answers.length > 0 && !is_closed && (
-          <Viewer.FooterControls>
-            <Viewer.FooterControlsButtonSecondary
-              className='str-chat__poll-action'
-              onClick={onUpdateOwnAnswerClick}
-            >
-              {ownAnswer ? t('Update your comment') : t('Add a comment')}
-            </Viewer.FooterControlsButtonSecondary>
-          </Viewer.FooterControls>
-        )}
-      </Viewer.Footer>
+      {/*<Viewer.Footer>*/}
+      {/*  {answers.length > 0 && !is_closed && (*/}
+      {/*    <Viewer.FooterControls>*/}
+      {/*      <Viewer.FooterControlsButtonSecondary*/}
+      {/*        className='str-chat__poll-action'*/}
+      {/*        onClick={onUpdateOwnAnswerClick}*/}
+      {/*      >*/}
+      {/*        {ownAnswer ? t('Update your comment') : t('Add a comment')}*/}
+      {/*      </Viewer.FooterControlsButtonSecondary>*/}
+      {/*    </Viewer.FooterControls>*/}
+      {/*  )}*/}
+      {/*</Viewer.Footer>*/}
     </Viewer.Root>
   );
 };

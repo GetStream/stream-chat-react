@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStateStore } from '../../../store';
 import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
 import type { PollAnswer, PollState } from 'stream-chat';
@@ -20,6 +20,7 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
   const { close } = useModalContext();
   const { poll } = usePollContext();
   const { ownAnswer } = useStateStore(poll.state, pollStateSelector);
+  const [input, setInput] = useState<HTMLInputElement | null>(null);
 
   const initialComment = ownAnswer?.answer_text ?? '';
   const initialValue = useMemo(() => ({ comment: initialComment }), [initialComment]);
@@ -50,6 +51,10 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
     validators,
   });
 
+  useEffect(() => {
+    input?.focus();
+  }, [input]);
+
   const title = ownAnswer ? t('Update your comment') : t('Add a comment');
   const submitDisabled =
     !value.comment?.trim() || value.comment === ownAnswer?.answer_text;
@@ -65,6 +70,7 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
             id='comment'
             name='comment'
             onChange={(e) => setFieldValue('comment', e.target.value)}
+            ref={setInput}
             required
             title={title}
             type='text'
@@ -85,7 +91,7 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
               disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
               type='submit'
             >
-              {t('Send')}
+              {initialComment ? t('Update') : t('Send')}
             </Prompt.FooterControlsButtonPrimary>
           </Prompt.FooterControls>
         </Prompt.Footer>
