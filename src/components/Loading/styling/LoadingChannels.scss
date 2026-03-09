@@ -1,25 +1,3 @@
-@mixin channel-preview-layout {
-  display: flex;
-  column-gap: var(--spacing-md);
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  min-height: calc(var(--str-chat__spacing-px) * 72);
-  padding: var(--spacing-sm);
-  margin: 0;
-  box-sizing: border-box;
-  text-align: start;
-}
-
-@mixin channel-preview-end-layout {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  row-gap: var(--spacing-xxs);
-  flex: 1;
-  min-width: 0;
-}
-
 @mixin channel-preview-shimmer {
   background-color: var(--str-chat__channel-preview-loading-state-color);
   background-image: linear-gradient(
@@ -38,50 +16,64 @@
   --str-chat__channel-preview-loading-state-color: var(--slate-100);
 }
 
-.str-chat__channel-preview-loading {
-  .str-chat__loading-channels-avatar {
-    flex-shrink: 0;
-    width: calc(var(--str-chat__spacing-px) * 48);
-    height: calc(var(--str-chat__spacing-px) * 48);
-    border-radius: 50%;
-  }
-
-  .str-chat__loading-channels-avatar,
-  .str-chat__loading-channels-username,
-  .str-chat__loading-channels-status {
-    @include channel-preview-shimmer;
-  }
-
-  .str-chat__loading-channels-username,
-  .str-chat__loading-channels-status {
-    height: calc(var(--str-chat__spacing-px) * 20);
-    border-radius: 999px;
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      #000 0%,
-      #000 94%,
-      rgba(0, 0, 0, 0.7) 98%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      90deg,
-      #000 0%,
-      #000 94%,
-      rgba(0, 0, 0, 0.7) 98%,
-      transparent 100%
-    );
-  }
-}
-
 .str-chat__loading-channels {
   display: flex;
   flex-direction: column;
-  background: var(--background-elevation-elevation-1);
-  border-top: 1px solid var(--border-core-subtle);
+}
 
-  .str-chat__channel-preview-loading:not(:last-child) {
-    border-bottom: 1px solid var(--border-core-subtle);
-  }
+.str-chat__channel-preview--loading {
+  cursor: default;
+  pointer-events: none;
+}
+
+.str-chat__channel-preview--loading,
+.str-chat__channel-preview-data--loading {
+  min-width: 0;
+}
+
+.str-chat__channel-preview-data--loading {
+  justify-content: center;
+}
+
+.str-chat__loading-channels-avatar,
+.str-chat__loading-channels-username,
+.str-chat__loading-channels-status {
+  @include channel-preview-shimmer;
+}
+
+.str-chat__loading-channels-avatar {
+  flex-shrink: 0;
+  width: calc(var(--str-chat__spacing-px) * 48);
+  height: calc(var(--str-chat__spacing-px) * 48);
+  border-radius: 50%;
+}
+
+.str-chat__loading-channels-username,
+.str-chat__loading-channels-status {
+  height: calc(var(--str-chat__spacing-px) * 20);
+  border-radius: 999px;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 94%,
+    rgba(0, 0, 0, 0.7) 98%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 94%,
+    rgba(0, 0, 0, 0.7) 98%,
+    transparent 100%
+  );
+}
+
+.str-chat__loading-channels-username {
+  width: min(62%, calc(var(--str-chat__spacing-px) * 180));
+}
+
+.str-chat__loading-channels-status {
+  width: min(84%, calc(var(--str-chat__spacing-px) * 244));
 }
 
 @keyframes loading-channels-shimmer {
@@ -91,21 +83,5 @@
 
   to {
     background-position: -200% 0;
-  }
-}
-
-.str-chat__channel-preview-loading {
-  @include channel-preview-layout;
-
-  .str-chat__channel-preview-end-loading {
-    @include channel-preview-end-layout;
-  }
-
-  .str-chat__loading-channels-username {
-    width: min(62%, calc(var(--str-chat__spacing-px) * 180));
-  }
-
-  .str-chat__loading-channels-status {
-    width: min(84%, calc(var(--str-chat__spacing-px) * 244));
   }
 }
