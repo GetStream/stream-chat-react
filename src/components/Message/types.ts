@@ -26,6 +26,7 @@ export type MessageProps = {
   deliveredTo?: UserResponse[];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
+  // todo: remove
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */

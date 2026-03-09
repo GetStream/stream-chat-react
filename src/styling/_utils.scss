@@ -139,10 +139,6 @@
   .str-chat__li {
     margin-inline: calc(-1 * #{$spacing});
   }
-
-  .str-chat__parent-message-li {
-    margin-inline: calc(-1 * #{$spacing});
-  }
 }
 
 @mixin loading-item-background($component-name) {
