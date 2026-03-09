@@ -40,6 +40,8 @@ import { humanId } from 'human-id';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import { useAppSettingsState } from './AppSettings';
 
+import { Search } from 'stream-chat-react/experimental';
+
 init({ data });
 
 const parseUserIdFromToken = (token: string) => {
@@ -67,7 +69,7 @@ const options: ChannelOptions = {
   state: true,
 };
 // pinned_at param leads to BE not returning (empty) channels
-const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+const sort: ChannelSort = { pinned_at: -1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
@@ -140,6 +142,7 @@ const App = () => {
         },
         { type: 'public' },
       ],
+      archived: false,
     }),
     [userId],
   );
@@ -204,12 +207,12 @@ const App = () => {
           />
           <ChatView.Channels>
             <ChannelList
+              ChannelSearch={Search}
               Avatar={ChannelAvatar}
               filters={filters}
               options={options}
               sort={sort}
               showChannelSearch
-              additionalChannelSearchProps={{ searchForChannels: true }}
             />
             <Channel>
               <WithDragAndDropUpload>

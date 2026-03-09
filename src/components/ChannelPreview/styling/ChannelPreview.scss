@@ -3,6 +3,7 @@
   padding: var(--spacing-xxs);
   position: relative;
 
+  &:has(.str-chat__channel-preview__action-buttons--active),
   &:hover {
     .str-chat__channel-preview__action-buttons {
       display: flex;
@@ -33,6 +34,10 @@
   }
 
   border-bottom: 1px solid var(--border-core-subtle);
+}
+
+.str-chat__channel-preview__action-buttons-context-menu {
+  min-width: 150px;
 }
 
 .str-chat__channel-preview {

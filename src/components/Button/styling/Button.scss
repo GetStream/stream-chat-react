@@ -12,7 +12,7 @@
     align-items: center;
     justify-content: center;
 
-    font: var(--str-chat__body-emphasis-text);
+    font: var(--str-chat__heading-xs-text);
     text-transform: capitalize;
 
     &.str-chat__button--solid {
@@ -144,7 +144,18 @@
       }
     }
 
+    &.str-chat__button--size-xs {
+      padding-block: var(--button-padding-y-xs);
+      padding-inline: var(--button-padding-x-with-label-xs);
+      border-radius: var(--button-radius-md);
+
+      &.str-chat__button--circular {
+        padding-inline: var(--button-padding-x-icon-only-xs);
+      }
+    }
+
     &.str-chat__button--circular {
+      aspect-ratio: 1/1;
       display: flex;
       align-items: center;
       justify-content: center;
