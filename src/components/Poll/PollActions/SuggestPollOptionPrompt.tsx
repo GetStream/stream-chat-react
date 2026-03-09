@@ -69,8 +69,8 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
   return (
     <Prompt.Root className='str-chat__modal__suggest-poll-option-prompt'>
       <Prompt.Header close={close} title={t('Suggest an option')} />
-      <Prompt.Body>
-        <form autoComplete='off' onSubmit={handleSubmit}>
+      <form autoComplete='off' onSubmit={handleSubmit}>
+        <Prompt.Body>
           <TextInput
             error={!!fieldErrors.optionText}
             errorMessage={fieldErrors.optionText?.message}
@@ -82,25 +82,25 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
             type='text'
             value={value.optionText}
           />
-        </form>
-      </Prompt.Body>
-      <Prompt.Footer>
-        <Prompt.FooterControls>
-          <Prompt.FooterControlsButtonSecondary
-            className='str-chat__prompt__footer__controls-button--cancel'
-            onClick={close}
-          >
-            {t('Cancel')}
-          </Prompt.FooterControlsButtonSecondary>
-          <Prompt.FooterControlsButtonPrimary
-            className='str-chat__prompt__footer__controls-button--submit'
-            disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
-            type='submit'
-          >
-            {t('Send')}
-          </Prompt.FooterControlsButtonPrimary>
-        </Prompt.FooterControls>
-      </Prompt.Footer>
+        </Prompt.Body>
+        <Prompt.Footer>
+          <Prompt.FooterControls>
+            <Prompt.FooterControlsButtonSecondary
+              className='str-chat__prompt__footer__controls-button--cancel'
+              onClick={close}
+            >
+              {t('Cancel')}
+            </Prompt.FooterControlsButtonSecondary>
+            <Prompt.FooterControlsButtonPrimary
+              className='str-chat__prompt__footer__controls-button--submit'
+              disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
+              type='submit'
+            >
+              {t('Send')}
+            </Prompt.FooterControlsButtonPrimary>
+          </Prompt.FooterControls>
+        </Prompt.Footer>
+      </form>
     </Prompt.Root>
   );
 };
