@@ -75,12 +75,19 @@
 
   .str-chat__message-composer-voice-preview-slot {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     width: 100%;
     padding: var(--spacing-xxs);
     min-width: 0;
 
+    > * {
+      flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+
     .str-chat__attachment-preview-audio {
+      flex: 1 1 auto;
       width: 100%;
       min-width: 0;
       max-width: none;
@@ -118,8 +125,8 @@
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
     padding-right: var(--spacing-sm);
-    min-width: min(224px, 100%);
-    max-width: min(280px, 100%);
+    min-width: 290px;
+    max-width: 290px;
   }
 
   .str-chat__attachment-preview-audio {

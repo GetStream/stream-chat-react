@@ -1,7 +1,10 @@
 import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AttachmentPreviewList } from '../AttachmentPreviewList';
+import {
+  AttachmentPreviewList,
+  VoiceRecordingPreviewSlot,
+} from '../AttachmentPreviewList';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 
@@ -31,6 +34,7 @@ const renderComponent = async ({
   attachments,
   channel: customChannel,
   client: customClient,
+  component: Component = AttachmentPreviewList,
   components,
   coords,
   editedMessage,
@@ -62,10 +66,10 @@ const renderComponent = async ({
                   },
                 }}
               >
-                <AttachmentPreviewList {...props} />
+                <Component {...props} />
               </MessageProvider>
             ) : (
-              <AttachmentPreviewList {...props} />
+              <Component {...props} />
             )}
           </Channel>
         </Chat>
@@ -123,6 +127,33 @@ describe('AttachmentPreviewList', () => {
       expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
     },
   );
+
+  it('renders voice recordings in the dedicated full-width slot', async () => {
+    const CustomVoiceRecordingPreview = () => (
+      <div data-testid='custom-voice-recording-preview'>voice preview</div>
+    );
+
+    await renderComponent({
+      attachments: [
+        generateVoiceRecordingAttachment({
+          localMetadata: {
+            id: 'voice-recording-attachment-id',
+            uploadState: 'finished',
+          },
+          title: 'voice-recording-finished',
+        }),
+      ],
+      component: VoiceRecordingPreviewSlot,
+      props: {
+        VoiceRecordingPreview: CustomVoiceRecordingPreview,
+      },
+    });
+
+    const voicePreviewSlot = screen.getByTestId('voice-preview-slot');
+
+    expect(voicePreviewSlot).toBeInTheDocument();
+    expect(screen.getByTestId('custom-voice-recording-preview')).toBeInTheDocument();
+  });
 
   // voiceRecording is rendered in VoiceRecordingPreviewSlot (REACT-794), not in AttachmentPreviewList
   describe.each(['audio', 'file', 'image', 'unsupported', 'video'])(
