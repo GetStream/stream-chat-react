@@ -57,6 +57,7 @@
     position: absolute;
     width: var(--avatar-status-badge-size);
     height: var(--avatar-status-badge-size);
+    z-index: 1;
 
     left: calc(
       var(--avatar-size) / 2 + var(--avatar-size) / 2 *

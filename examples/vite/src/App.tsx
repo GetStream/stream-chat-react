@@ -9,6 +9,9 @@ import {
   createDraftCommandInjectionMiddleware,
   createActiveCommandGuardMiddleware,
   createCommandStringExtractionMiddleware,
+  SearchController,
+  ChannelSearchSource,
+  UserSearchSource,
 } from 'stream-chat';
 import {
   AIStateIndicator,
@@ -134,6 +137,28 @@ const App = () => {
     userData: { id: userId },
   });
 
+  const searchController = useMemo(() => {
+    if (!chatClient) return undefined;
+
+    return new SearchController({
+      sources: [
+        new ChannelSearchSource(chatClient, undefined, {
+          initialFilterConfig: {
+            $or: {
+              enabled: true,
+              generate: () => ({
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $or: [{ members: { $in: [chatClient.userID!] } }, { type: 'public' }],
+                members: undefined,
+              }),
+            },
+          },
+        }),
+        new UserSearchSource(chatClient),
+      ],
+    });
+  }, [chatClient]);
+
   const filters: ChannelFilters = useMemo(
     () => ({
       $or: [
@@ -198,7 +223,11 @@ const App = () => {
         reactionOptions: newReactionOptions,
       }}
     >
-      <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+      <Chat
+        searchController={searchController}
+        client={chatClient}
+        isMessageAIGenerated={isMessageAIGenerated}
+      >
         <ChatView>
           <ChatView.Selector
             itemSet={chatViewSelectorItemSet}

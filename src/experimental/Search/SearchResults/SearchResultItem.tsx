@@ -8,6 +8,7 @@ import { Avatar } from '../../../components/Avatar';
 import { ChannelPreview } from '../../../components/ChannelPreview';
 import { useChannelListContext, useChatContext } from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
+import { Timestamp } from '../../../components/Message/Timestamp';
 
 export type ChannelSearchResultItemProps = {
   item: Channel;
@@ -104,21 +105,31 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
   }, [client, item, setActiveChannel, setChannels, directMessagingChannelType]);
 
   return (
-    <button
-      aria-label={`Select User Channel: ${item.name || ''}`}
-      className='str-chat__search-result'
-      data-testid='search-result-user'
-      onClick={onClick}
-      role='option'
-    >
-      <Avatar
-        className='str-chat__avatar--channel-preview'
-        imageUrl={item.image}
-        size='md'
-        userName={item.name || item.id}
-      />
-      <div className='str-chat__search-result--display-name'>{item.name || item.id}</div>
-    </button>
+    <div className='str-chat__search-result-container'>
+      <button
+        aria-label={`Select User Channel: ${item.name || ''}`}
+        className='str-chat__search-result str-chat__search-result--user'
+        data-testid='search-result-user'
+        onClick={onClick}
+        role='option'
+      >
+        <Avatar
+          imageUrl={item.image}
+          isOnline={item.online}
+          size='xl'
+          userName={item.name || item.id}
+        />
+        <div className='str-chat__search-result-data'>
+          <div className='str-chat__search-result__display-name'>
+            {item.name || item.username || item.id}
+          </div>
+          <Timestamp
+            customClass='str-chat__search-result__last-active-timestamp'
+            timestamp={item.last_active}
+          />
+        </div>
+      </button>
+    </div>
   );
 };
 

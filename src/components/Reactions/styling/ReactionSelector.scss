@@ -12,7 +12,6 @@
   border: 1px solid var(--border-core-surface-subtle, #e2e6ea);
   background: var(--background-elevation-elevation-2, #fff);
 
-  /* shadow/ios/light/elevation-3 */
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
 
   &:has(.str-chat__reaction-selector-extended-list) {
@@ -35,7 +34,6 @@
   }
 
   .str-chat__reaction-selector-extended-list {
-    @include utils.scrollable-y;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     height: 100%;

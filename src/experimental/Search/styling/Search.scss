@@ -9,7 +9,7 @@
 .str-chat__search-bar {
   padding-inline: var(--spacing-md);
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-xxxs);
 
   .str-chat__search-bar__input-wrapper {
     display: flex;
@@ -19,19 +19,14 @@
     border-radius: var(--radius-max);
     border: 1px solid var(--input-border-default);
     color: var(--input-text-placeholder);
-    font-family: var(--typography-font-family-sans);
-    font-size: var(--typography-font-size-sm);
+    font: var(--str_chat__heading-xs-text);
+    // FIXME: there's no proper variation so we need to adjust font-weight separately
     font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-normal);
     flex-shrink: 1;
     flex-grow: 1;
 
-    // &:focus-visible:focus-within {
-    //   outline: 2px solid var(--border-utility-focus);
-    //   outline-offset: 2px;
-    // }
-
     .str-chat__search-bar__input {
+      min-height: 24px;
       border: none;
       background: none;
       width: 100%;
@@ -41,6 +36,10 @@
       &:focus {
         outline: none;
       }
+    }
+
+    .str-chat__search-bar__clear-button {
+      flex-shrink: 0;
     }
 
     padding-block: var(--spacing-xs);
@@ -54,6 +53,94 @@
 
   .str-chat__search-bar__exit-search-button {
     flex-shrink: 0;
+  }
+}
+
+.str-chat__search-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  .str-chat__search-results-header {
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    .str-chat__search-results-header__filter-source-buttons {
+      display: flex;
+      gap: var(--spacing-xxs);
+      padding-inline: var(--spacing-md);
+
+      & > .str-chat__button {
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+.str-chat__search-source-result-list {
+  .str-chat__search-result-container {
+    padding: var(--spacing-xxs);
+    border-bottom: 1px solid var(--border-core-subtle);
+
+    .str-chat__search-result {
+      &--user {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-lg);
+        width: 100%;
+        border: none;
+        background: none;
+        cursor: pointer;
+
+        .str-chat__avatar {
+          flex-shrink: 0;
+        }
+
+        .str-chat__search-result-data {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-xxs);
+          flex: 1 0 0;
+          min-width: 0;
+          text-align: start;
+
+          .str-chat__search-result__display-name {
+            font: var(--str-chat__heading-xs-text);
+            color: var(--text-primary);
+            flex: 1;
+            min-width: 0;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+
+          .str-chat__search-result__last-active-timestamp {
+            flex: 1;
+            min-width: 0;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-weight: var(--typography-font-weight-regular);
+            font-size: var(--typography-font-size-sm);
+            color: var(--text-tertiary);
+            line-height: var(--typography-line-height-normal);
+          }
+        }
+
+        background: var(--background-elevation-elevation-1);
+        &:not(:disabled):hover {
+          background: var(--background-core-hover);
+        }
+        &:not(:disabled):active {
+          background: var(--background-core-pressed);
+        }
+        &:not(:disabled)[aria-pressed='true'] {
+          background: var(--background-core-selected);
+        }
+      }
+    }
   }
 }
 
