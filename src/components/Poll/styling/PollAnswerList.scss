@@ -22,13 +22,13 @@
     }
 
     .str-chat__poll-answer {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-xxs);
-        align-self: stretch;
-        border-radius: var(--radius-lg);
-        background: var(--background-core-surface-card);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-xxs);
+      align-self: stretch;
+      border-radius: var(--radius-lg);
+      background: var(--background-core-surface-card);
 
       .str-chat__poll-answer__data {
         display: flex;

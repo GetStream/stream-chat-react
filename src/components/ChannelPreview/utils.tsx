@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Channel, PollVote, UserResponse } from 'stream-chat';
+import type { Channel, PollVote } from 'stream-chat';
 
 import type { ChatContextValue } from '../../context';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
@@ -108,7 +108,16 @@ export const getLatestMessagePreview = (
   return t('Empty message...');
 };
 
-export type GroupChannelDisplayInfo = { imageUrl?: string; userName?: string }[];
+export type GroupChannelDisplayInfoMember = {
+  imageUrl?: string;
+  userName?: string;
+};
+
+export type GroupChannelDisplayInfo = {
+  members: GroupChannelDisplayInfoMember[];
+  /** When members.length > 4, count for the "+N" badge (members.length - 2). */
+  overflowCount?: number;
+};
 
 export const getGroupChannelDisplayInfo = (
   channel: Channel,
@@ -116,32 +125,14 @@ export const getGroupChannelDisplayInfo = (
   const members = Object.values(channel.state.members);
   if (members.length <= 2) return;
 
-  const data: GroupChannelDisplayInfo = [];
+  const memberList: GroupChannelDisplayInfoMember[] = [];
   for (const member of members) {
     const { user } = member;
     if (!user?.name && !user?.image) continue;
-    data.push({ imageUrl: user.image, userName: user.name });
-    if (data.length === 4) break;
+    memberList.push({ imageUrl: user.image, userName: user.name });
   }
-  return data;
+  return {
+    members: memberList,
+    overflowCount: memberList.length > 4 ? memberList.length - 2 : undefined,
+  };
 };
-
-const getChannelDisplayInfo = (
-  info: 'name' | 'image',
-  channel: Channel,
-  currentUser?: UserResponse,
-) => {
-  if (channel.data?.[info]) return channel.data[info];
-  const members = Object.values(channel.state.members);
-  if (members.length !== 2) return;
-  const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
-  return (
-    otherMember?.user?.[info] || (info === 'name' ? otherMember?.user?.id : undefined)
-  );
-};
-
-export const getDisplayTitle = (channel: Channel, currentUser?: UserResponse) =>
-  getChannelDisplayInfo('name', channel, currentUser);
-
-export const getDisplayImage = (channel: Channel, currentUser?: UserResponse) =>
-  getChannelDisplayInfo('image', channel, currentUser);

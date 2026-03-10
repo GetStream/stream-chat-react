@@ -1,24 +1,29 @@
 import clsx from 'clsx';
 import React, { type ComponentPropsWithoutRef } from 'react';
 import { Avatar, type AvatarProps } from './Avatar';
-import type { GroupChannelDisplayInfo } from '../ChannelPreview';
+
+export type GroupAvatarMember = {
+  imageUrl?: string;
+  userName?: string;
+};
 
 export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
-  /** Mapping of image URLs to names which initials will be used as fallbacks in case image assets fail to load. */
-  groupChannelDisplayInfo: GroupChannelDisplayInfo;
+  /** List of members to show as avatars; at most 2 when overflowCount is set, otherwise 4. Defaults to [] when omitted. */
+  displayMembers?: GroupAvatarMember[];
+  /** Optional count for the "+N" badge when there are more members than shown. */
+  overflowCount?: number;
   size: '2xl' | 'xl' | 'lg' | null;
   isOnline?: boolean;
-  overflowCount?: number;
 };
 
 /**
- * Avatar component to display multiple users' avatars in a group channel, with a maximum of 4 avatars shown.
- * Renders a single Avatar if only one user is provided.
+ * Avatar component to display multiple users' avatars in a group.
+ * Renders a single Avatar if fewer than 2 members. Otherwise, renders up to 2 avatars (when overflowCount is set) or 4, plus an optional +N badge.
  */
 // TODO: rename to AvatarGroup
 export const GroupAvatar = ({
   className,
-  groupChannelDisplayInfo,
+  displayMembers = [],
   isOnline,
   overflowCount,
   size,
@@ -26,8 +31,8 @@ export const GroupAvatar = ({
 }: GroupAvatarProps) => {
   const displayCountBadge = typeof overflowCount === 'number' && overflowCount > 0;
 
-  if (!groupChannelDisplayInfo || groupChannelDisplayInfo.length < 2) {
-    const [firstUser] = groupChannelDisplayInfo || [];
+  if (displayMembers.length < 2) {
+    const firstUser = displayMembers[0];
 
     return (
       <Avatar
@@ -64,7 +69,7 @@ export const GroupAvatar = ({
       role='button'
       {...rest}
     >
-      {groupChannelDisplayInfo
+      {displayMembers
         .slice(0, displayCountBadge ? 2 : 4)
         .map(({ imageUrl, userName }, index) => (
           <Avatar

@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { IconLayoutAlignLeft } from '../Icons/icons';
-import type { ChannelAvatarProps } from '../Avatar';
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -33,7 +32,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   } = props;
 
   const { channel } = useChannelStateContext();
-  const { navOpen } = useChatContext('ChannelHeader');
+  const { navOpen } = useChatContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -60,8 +59,9 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       </div>
       <Avatar
         className='str-chat__avatar--channel-header'
-        groupChannelDisplayInfo={groupChannelDisplayInfo}
+        displayMembers={groupChannelDisplayInfo?.members}
         imageUrl={displayImage}
+        overflowCount={groupChannelDisplayInfo?.overflowCount}
         size='lg'
         userName={displayTitle}
       />

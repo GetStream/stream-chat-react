@@ -14,7 +14,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from '../utils';
+import { getLatestMessagePreview } from '../utils';
 import { generateStaticLocationResponse } from '../../../mock-builders';
 import { render } from '@testing-library/react';
 
@@ -107,7 +107,7 @@ describe('ChannelPreview utils', () => {
         generateChannel({ channel: { name } }),
       );
 
-      expect(getDisplayTitle(channel, chatClient.user)).toBe(name);
+      expect(channel.getDisplayName()).toBe(name);
     });
 
     it('should return name of other member of conversation if only 2 members and channel name doesnot exist', async () => {
@@ -120,7 +120,7 @@ describe('ChannelPreview utils', () => {
           ],
         }),
       );
-      expect(getDisplayTitle(channel, chatClient.user)).toBe(otherUser.name);
+      expect(channel.getDisplayName()).toBe(otherUser.name);
     });
   });
 
@@ -131,10 +131,10 @@ describe('ChannelPreview utils', () => {
         generateChannel({ channel: { image } }),
       );
 
-      expect(getDisplayImage(channel, chatClient.user)).toBe(image);
+      expect(channel.getDisplayImage()).toBe(image);
     });
 
-    it('should return picture of other member of conversation if only 2 members and channel name doesnot exist', async () => {
+    it('should return null when no image is available (image fallback removed)', async () => {
       const otherUser = generateUser();
       const channel = await getQueriedChannelInstance(
         generateChannel({
@@ -144,7 +144,8 @@ describe('ChannelPreview utils', () => {
           ],
         }),
       );
-      expect(getDisplayImage(channel, chatClient.user)).toBe(otherUser.image);
+      // getDisplayImage no longer falls back to member image, only channel.data.image
+      expect(channel.getDisplayImage()).toBeNull();
     });
   });
 });
