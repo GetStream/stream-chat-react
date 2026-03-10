@@ -27,6 +27,11 @@
 
   @media (max-width: 767px) {
     transition: none;
+
+    &.str-chat__channel-list__header--sidebar-collapsed {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

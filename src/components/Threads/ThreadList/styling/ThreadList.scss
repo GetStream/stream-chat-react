@@ -19,17 +19,28 @@
 
   /* Mobile: hide when nav closed; when open show as overlay. */
   @media (max-width: 767px) {
-    display: none;
+    inset-inline-start: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transform: translateX(
+      calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
+    );
+    transition:
+      transform var(--str-chat__channel-list-transition-duration, 180ms)
+        var(--str-chat__channel-list-transition-easing, ease),
+      visibility 0s linear var(--str-chat__channel-list-transition-duration, 180ms);
+    visibility: hidden;
+    width: 100%;
+    z-index: 1;
 
     &.str-chat__thread-list-container--open {
-      display: flex;
-      inset-inline-start: 0;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 100%;
-      z-index: 1;
       box-shadow: var(--str-chat__thread-list-box-shadow);
+      pointer-events: auto;
+      transform: translateX(0);
+      transition-delay: 0s, 0s;
+      visibility: visible;
 
       .str-chat__chat-view & {
         inset-inline-start: var(--str-chat__chat-view-selector-mobile-width, 0px);
