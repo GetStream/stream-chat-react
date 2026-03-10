@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
@@ -53,9 +53,29 @@ const parseUserIdFromToken = (token: string) => {
 };
 
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
+const selectedChannelUrlParam = 'channel';
 const token =
   new URLSearchParams(window.location.search).get('token') ||
   import.meta.env.VITE_USER_TOKEN;
+
+const getSelectedChannelIdFromUrl = () =>
+  new URLSearchParams(window.location.search).get(selectedChannelUrlParam);
+
+const updateSelectedChannelIdInUrl = (channelId?: string) => {
+  const url = new URL(window.location.href);
+
+  if (channelId) {
+    url.searchParams.set(selectedChannelUrlParam, channelId);
+  } else {
+    url.searchParams.delete(selectedChannelUrlParam);
+  }
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
+};
 
 if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
@@ -127,6 +147,7 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
 const App = () => {
   const { userId, tokenProvider } = useUser();
   const { chatView } = useAppSettingsState();
+  const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -208,6 +229,7 @@ const App = () => {
             <ChannelList
               ChannelSearch={Search}
               Avatar={ChannelAvatar}
+              customActiveChannel={initialChannelId ?? undefined}
               filters={filters}
               options={options}
               sort={sort}
@@ -247,6 +269,21 @@ const App = () => {
 
 const ChannelExposer = () => {
   const { channel, client } = useChatContext();
+  const previousChannelId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (channel?.id) {
+      previousChannelId.current = channel.id;
+      updateSelectedChannelIdInUrl(channel.id);
+      return;
+    }
+
+    if (!previousChannelId.current) return;
+
+    previousChannelId.current = undefined;
+    updateSelectedChannelIdInUrl();
+  }, [channel?.id]);
+
   // @ts-expect-error expose client and channel for debugging purposes
   window.client = client;
   // @ts-expect-error expose client and channel for debugging purposes
