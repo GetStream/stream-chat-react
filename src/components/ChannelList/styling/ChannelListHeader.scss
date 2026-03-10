@@ -1,8 +1,14 @@
 .str-chat__channel-list__header {
   display: flex;
   align-items: center;
+  opacity: 1;
   padding: var(--spacing-md);
-  // height: var(--str-chat__channel-header-height);
+  transform: translateX(0);
+  transition:
+    opacity var(--str-chat__channel-list-transition-duration, 180ms)
+      var(--str-chat__channel-list-transition-easing, ease),
+    transform var(--str-chat__channel-list-transition-duration, 180ms)
+      var(--str-chat__channel-list-transition-easing, ease);
   width: 100%;
 
   .str-chat__channel-list__header__title {
@@ -12,11 +18,23 @@
   }
 
   &.str-chat__channel-list__header--sidebar-collapsed {
-    flex: 0 0 0;
-    width: 0;
-    min-width: 0;
-    max-width: 0;
-    overflow: hidden;
-    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(
+      calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
+    );
+  }
+
+  @media (max-width: 767px) {
+    transition: none;
+
+    &.str-chat__channel-list__header--sidebar-collapsed {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }

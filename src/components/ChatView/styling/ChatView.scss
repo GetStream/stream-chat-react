@@ -1,6 +1,12 @@
 .str-chat {
   --str-chat-selector-background-color: var(--str-chat__secondary-background-color);
   --str-chat-selector-border-color: var(--border-core-subtle);
+  --str-chat__chat-view-selector-transition-duration: 180ms;
+  --str-chat__chat-view-selector-transition-easing: ease;
+  --str-chat__chat-view-selector-transition-offset: 8px;
+  --str-chat__chat-view-selector-mobile-width: calc(
+    var(--spacing-md) + var(--spacing-md) + var(--spacing-xs) + var(--spacing-xs) + 20px
+  );
 
   --str-chat-selector-button-color-default: var(--str-chat__text-low-emphasis-color);
   --str-chat-selector-button-color-selected: var(--str-chat__text-color);
@@ -12,6 +18,7 @@
   display: flex;
   width: 100%;
   height: 100%;
+  position: relative;
 
   .str-chat__chat-view__selector {
     display: flex;
@@ -24,11 +31,28 @@
     /* Mobile: hide when nav closed, show when nav open. */
     @media (max-width: 767px) {
       &.str-chat__chat-view__selector--nav-closed {
-        display: none;
+        pointer-events: none;
+        transform: translateX(
+          calc(0px - var(--str-chat__chat-view-selector-transition-offset))
+        );
+        visibility: hidden;
       }
 
+      inset-block: 0;
+      inset-inline-start: 0;
+      position: absolute;
+      transition:
+        transform var(--str-chat__chat-view-selector-transition-duration)
+          var(--str-chat__chat-view-selector-transition-easing),
+        visibility 0s linear var(--str-chat__chat-view-selector-transition-duration);
+      width: var(--str-chat__chat-view-selector-mobile-width);
+      z-index: 2;
+
       &.str-chat__chat-view__selector--nav-open {
-        display: flex;
+        pointer-events: auto;
+        transform: translateX(0);
+        transition-delay: 0s, 0s;
+        visibility: visible;
       }
     }
 
@@ -111,10 +135,14 @@
   .str-chat__chat-view__channels {
     display: flex;
     flex-grow: 1;
+    min-width: 0;
+    position: relative;
   }
 
   .str-chat__chat-view__threads {
     display: flex;
     flex-grow: 1;
+    min-width: 0;
+    position: relative;
   }
 }

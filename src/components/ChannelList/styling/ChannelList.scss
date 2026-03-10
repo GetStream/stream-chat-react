@@ -13,6 +13,21 @@
   /* Box shadow applied to the component */
   --str-chat__channel-list-box-shadow: none;
 
+  /* Animation duration used when the component enters or exits */
+  --str-chat__channel-list-transition-duration: 180ms;
+
+  /* Animation easing used when the component enters or exits */
+  --str-chat__channel-list-transition-easing: ease;
+
+  /* Horizontal offset used by the sidebar enter/exit transition */
+  --str-chat__channel-list-transition-offset: 8px;
+
+  /* Default desktop width of the channel list. Override to match custom layouts. */
+  --str-chat__channel-list-width: 30%;
+
+  /* Default mobile overlay width of the channel list. Override to match custom layouts. */
+  --str-chat__channel-list-mobile-width: 100%;
+
   /* Top border of the component */
   --str-chat__channel-list-border-block-start: none;
 
@@ -84,8 +99,27 @@
 
 .str-chat__channel-list {
   display: flex;
+  flex: 0 0 var(--str-chat__channel-list-width);
   flex-direction: column;
   height: 100%;
+  max-width: 100%;
+  min-width: 280px;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    flex-basis var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing),
+    min-width var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing),
+    width var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing),
+    max-width var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing),
+    opacity var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing),
+    transform var(--str-chat__channel-list-transition-duration)
+      var(--str-chat__channel-list-transition-easing);
+  width: var(--str-chat__channel-list-width);
   @include utils.scrollable-y;
   @include utils.component-layer-overrides('channel-list');
 
@@ -141,28 +175,62 @@
 
   /* Mobile: hide when nav closed; when open show as overlay. */
   @media (max-width: 767px) {
-    display: none;
+    box-shadow: var(--str-chat__channel-list-box-shadow);
+    flex-basis: auto;
+    inset-inline-start: 0;
+    max-width: 100%;
+    min-width: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transform: translateX(calc(0px - var(--str-chat__channel-list-transition-offset)));
+    visibility: hidden;
+    width: var(--str-chat__channel-list-mobile-width);
+    z-index: 1;
+    transition:
+      transform var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      visibility 0s linear var(--str-chat__channel-list-transition-duration);
+
+    .str-chat__chat-view & {
+      inset-inline-start: var(--str-chat__chat-view-selector-mobile-width, 0px);
+      width: calc(100% - var(--str-chat__chat-view-selector-mobile-width, 0px));
+    }
 
     &.str-chat__channel-list--open {
-      display: flex;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      z-index: 1;
-      min-width: 280px;
-      max-width: 100%;
-      box-shadow: var(--str-chat__channel-list-box-shadow);
+      pointer-events: auto;
+      transform: translateX(0);
+      transition-delay: 0s, 0s;
+      visibility: visible;
     }
   }
 
   /* Desktop (≥768px): collapse when nav closed so main content uses space. */
   @media (min-width: 768px) {
+    &.str-chat__channel-list--open {
+      flex-basis: var(--str-chat__channel-list-width);
+      max-width: 100%;
+      min-width: 280px;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+      width: var(--str-chat__channel-list-width);
+    }
+
     &:not(.str-chat__channel-list--open) {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
       max-width: 0;
+      opacity: 0;
       overflow: hidden;
+      pointer-events: none;
+      transform: translateX(calc(0px - var(--str-chat__channel-list-transition-offset)));
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }
