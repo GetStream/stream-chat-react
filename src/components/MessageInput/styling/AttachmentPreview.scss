@@ -14,8 +14,11 @@
   --str-chat__attachment-preview-list-border-inline-end: none;
   --str-chat__attachment-preview-list-box-shadow: none;
 
-  --str-chat__attachment-preview-close-icon-background: var(--base-black);
-  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-border);
+  --str-chat__attachment-preview-close-icon-background: var(--control-remove-control-bg);
+  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-icon);
+  --str-chat__attachment-preview-close-icon-border-color: var(
+    --control-remove-control-border
+  );
   --str-chat__attachment-preview-retry-icon-color: var(--str-chat__primary-color);
   --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
   --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
@@ -75,19 +78,12 @@
 
   .str-chat__message-composer-voice-preview-slot {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     padding: var(--spacing-xxs);
     min-width: 0;
 
-    > * {
-      flex: 1 1 100%;
-      min-width: 0;
-      max-width: 100%;
-    }
-
     .str-chat__attachment-preview-audio {
-      flex: 1 1 auto;
       width: 100%;
       min-width: 0;
       max-width: none;
@@ -125,8 +121,7 @@
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
     padding-right: var(--spacing-sm);
-    min-width: 290px;
-    max-width: 290px;
+    width: 290px;
   }
 
   .str-chat__attachment-preview-audio {
