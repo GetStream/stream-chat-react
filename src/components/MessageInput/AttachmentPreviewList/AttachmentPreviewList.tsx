@@ -62,7 +62,10 @@ export const AttachmentPreviewList = ({
   if (!filteredAttachments.length && !location) return null;
 
   return (
-    <div className='str-chat__attachment-preview-list'>
+    <div
+      className='str-chat__attachment-preview-list'
+      data-testid='attachment-preview-list'
+    >
       {location && (
         <GeolocationPreview
           location={location}

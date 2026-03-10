@@ -14,8 +14,11 @@
   --str-chat__attachment-preview-list-border-inline-end: none;
   --str-chat__attachment-preview-list-box-shadow: none;
 
-  --str-chat__attachment-preview-close-icon-background: var(--base-black);
-  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-border);
+  --str-chat__attachment-preview-close-icon-background: var(--control-remove-control-bg);
+  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-icon);
+  --str-chat__attachment-preview-close-icon-border-color: var(
+    --control-remove-control-border
+  );
   --str-chat__attachment-preview-retry-icon-color: var(--str-chat__primary-color);
   --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
   --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
@@ -95,16 +98,15 @@
     @include utils.component-layer-overrides('attachment-preview-list');
     padding: var(--spacing-xxs);
     display: flex;
-    align-items: center;
-    //justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
     justify-content: flex-start;
     width: 100%;
-
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
-    flex: 1 1 auto;
-    overflow-y: hidden;
+    overflow: visible;
+    flex: 0 0 auto;
     gap: var(--spacing-md);
   }
 
@@ -115,11 +117,11 @@
     @include utils.component-layer-overrides('attachment-preview-file');
     display: flex;
     align-items: center;
+    flex: 0 1 auto;
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
     padding-right: var(--spacing-sm);
-    min-width: 224px;
-    max-width: 280px;
+    width: 290px;
   }
 
   .str-chat__attachment-preview-audio {
@@ -161,6 +163,7 @@
 
   .str-chat__attachment-preview-media {
     @include utils.component-layer-overrides('attachment-preview-image');
+    flex: 0 0 auto;
     width: 72px;
     height: 72px;
     cursor: pointer;
@@ -283,7 +286,8 @@
     .str-chat__attachment-preview-file__data {
       display: flex;
       align-items: center;
-      width: 160px;
+      width: min(160px, 100%);
+      max-width: 100%;
       gap: var(--spacing-xxs);
       color: var(--text-secondary);
       font-weight: var(--typography-font-weight-regular);

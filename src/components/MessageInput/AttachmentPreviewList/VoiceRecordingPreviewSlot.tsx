@@ -1,9 +1,15 @@
 import type { ComponentType } from 'react';
 import React from 'react';
-import { isLocalVoiceRecordingAttachment } from 'stream-chat';
+import {
+  isLocalVoiceRecordingAttachment,
+  type LocalVoiceRecordingAttachment,
+} from 'stream-chat';
 import { useAttachmentsForPreview, useMessageComposer } from '../hooks';
 import { AudioAttachmentPreview } from './AudioAttachmentPreview';
-import type { VoiceRecordingPreviewProps } from './VoiceRecordingPreview';
+import type { UploadAttachmentPreviewProps } from './types';
+
+export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
+  UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
 
 export type VoiceRecordingPreviewSlotProps = {
   /** Custom UI component for each voice recording preview in the slot; defaults to AudioAttachmentPreview */

@@ -1,7 +1,10 @@
 import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AttachmentPreviewList } from '../AttachmentPreviewList';
+import {
+  AttachmentPreviewList,
+  VoiceRecordingPreviewSlot,
+} from '../AttachmentPreviewList';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 
@@ -25,11 +28,13 @@ const RETRY_BTN_IMAGE_TEST_ID = 'image-preview-item-retry-button';
 const DELETE_BTN_TEST_ID = 'file-preview-item-delete-button';
 const DELETE_BTN_IMAGE_TEST_ID = 'image-preview-item-delete-button';
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
 
 const renderComponent = async ({
   attachments,
   channel: customChannel,
   client: customClient,
+  component: Component = AttachmentPreviewList,
   components,
   coords,
   editedMessage,
@@ -61,10 +66,10 @@ const renderComponent = async ({
                   },
                 }}
               >
-                <AttachmentPreviewList {...props} />
+                <Component {...props} />
               </MessageProvider>
             ) : (
-              <AttachmentPreviewList {...props} />
+              <Component {...props} />
             )}
           </Channel>
         </Chat>
@@ -82,7 +87,7 @@ describe('AttachmentPreviewList', () => {
   it('does not render without attachments', async () => {
     await renderComponent();
 
-    const attachmentList = screen.queryByTestId('attachment-list-scroll-container');
+    const attachmentList = screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
 
     expect(attachmentList).not.toBeInTheDocument();
   });
@@ -122,6 +127,33 @@ describe('AttachmentPreviewList', () => {
       expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
     },
   );
+
+  it('renders voice recordings in the dedicated full-width slot', async () => {
+    const CustomVoiceRecordingPreview = () => (
+      <div data-testid='custom-voice-recording-preview'>voice preview</div>
+    );
+
+    await renderComponent({
+      attachments: [
+        generateVoiceRecordingAttachment({
+          localMetadata: {
+            id: 'voice-recording-attachment-id',
+            uploadState: 'finished',
+          },
+          title: 'voice-recording-finished',
+        }),
+      ],
+      component: VoiceRecordingPreviewSlot,
+      props: {
+        VoiceRecordingPreview: CustomVoiceRecordingPreview,
+      },
+    });
+
+    const voicePreviewSlot = screen.getByTestId('voice-preview-slot');
+
+    expect(voicePreviewSlot).toBeInTheDocument();
+    expect(screen.getByTestId('custom-voice-recording-preview')).toBeInTheDocument();
+  });
 
   // voiceRecording is rendered in VoiceRecordingPreviewSlot (REACT-794), not in AttachmentPreviewList
   describe.each(['audio', 'file', 'image', 'unsupported', 'video'])(
