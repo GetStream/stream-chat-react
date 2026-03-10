@@ -25,6 +25,7 @@ const RETRY_BTN_IMAGE_TEST_ID = 'image-preview-item-retry-button';
 const DELETE_BTN_TEST_ID = 'file-preview-item-delete-button';
 const DELETE_BTN_IMAGE_TEST_ID = 'image-preview-item-delete-button';
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
 
 const renderComponent = async ({
   attachments,
@@ -82,7 +83,7 @@ describe('AttachmentPreviewList', () => {
   it('does not render without attachments', async () => {
     await renderComponent();
 
-    const attachmentList = screen.queryByTestId('attachment-list-scroll-container');
+    const attachmentList = screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
 
     expect(attachmentList).not.toBeInTheDocument();
   });

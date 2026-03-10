@@ -32,7 +32,7 @@ const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
 const FILE_INPUT_TEST_ID = 'file-input';
 const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
 const SEND_BTN_TEST_ID = 'send-button';
-const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-list-scroll-container';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
 const UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID = 'attachment-preview-unknown';
 
 const cid = 'messaging:general';

@@ -95,16 +95,15 @@
     @include utils.component-layer-overrides('attachment-preview-list');
     padding: var(--spacing-xxs);
     display: flex;
-    align-items: center;
-    //justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
     justify-content: flex-start;
     width: 100%;
-
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
-    flex: 1 1 auto;
-    overflow-y: hidden;
+    overflow: visible;
+    flex: 0 0 auto;
     gap: var(--spacing-md);
   }
 
@@ -115,11 +114,12 @@
     @include utils.component-layer-overrides('attachment-preview-file');
     display: flex;
     align-items: center;
+    flex: 0 1 auto;
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
     padding-right: var(--spacing-sm);
-    min-width: 224px;
-    max-width: 280px;
+    min-width: min(224px, 100%);
+    max-width: min(280px, 100%);
   }
 
   .str-chat__attachment-preview-audio {
@@ -161,6 +161,7 @@
 
   .str-chat__attachment-preview-media {
     @include utils.component-layer-overrides('attachment-preview-image');
+    flex: 0 0 auto;
     width: 72px;
     height: 72px;
     cursor: pointer;
@@ -283,7 +284,8 @@
     .str-chat__attachment-preview-file__data {
       display: flex;
       align-items: center;
-      width: 160px;
+      width: min(160px, 100%);
+      max-width: 100%;
       gap: var(--spacing-xxs);
       color: var(--text-secondary);
       font-weight: var(--typography-font-weight-regular);
