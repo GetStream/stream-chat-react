@@ -23,13 +23,18 @@
 
     &.str-chat__thread-list-container--open {
       display: flex;
+      inset-inline-start: 0;
       position: absolute;
       top: 0;
       bottom: 0;
+      width: 100%;
       z-index: 1;
-      min-width: 280px;
-      max-width: 100%;
       box-shadow: var(--str-chat__thread-list-box-shadow);
+
+      .str-chat__chat-view & {
+        inset-inline-start: var(--str-chat__chat-view-selector-mobile-width, 0px);
+        width: calc(100% - var(--str-chat__chat-view-selector-mobile-width, 0px));
+      }
     }
   }
 
