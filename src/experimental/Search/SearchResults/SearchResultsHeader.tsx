@@ -5,6 +5,7 @@ import type { SearchSource, SearchSourceState } from 'stream-chat';
 import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { Button } from '../../../components';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isActive: nextValue.isActive,
@@ -36,8 +37,10 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
   );
 
   return (
-    <button
+    <Button
+      appearance='outline'
       aria-label={t('aria/Search results header filter button')}
+      aria-pressed={isActive}
       className={clsx('str-chat__search-results-header__filter-source-button', {
         'str-chat__search-results-header__filter-source-button--active': isActive,
       })}
@@ -51,9 +54,11 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
             source.search(searchController.searchQuery);
         }
       }}
+      size='xs'
+      variant='secondary'
     >
       {knownLabels[label] ?? t(label)}
-    </button>
+    </Button>
   );
 };
 

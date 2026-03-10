@@ -93,7 +93,7 @@
 
       &:not(:disabled)[aria-pressed='true'] {
         // toggled
-        @include utils.overlay-after(0.1);
+        @include utils.overlay-after(var(--background-core-selected));
       }
 
       &:disabled {
