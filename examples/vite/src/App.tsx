@@ -15,6 +15,7 @@ import {
   Channel,
   ChannelAvatar,
   ChannelHeader,
+  type ChatView as ChatViewType,
   ChannelList,
   Chat,
   ChatView,
@@ -29,6 +30,7 @@ import {
   ReactionsList,
   WithDragAndDropUpload,
   useChatContext,
+  useChatViewContext,
   defaultReactionOptions,
   ReactionOptions,
   mapEmojiMartData,
@@ -54,12 +56,24 @@ const parseUserIdFromToken = (token: string) => {
 
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
 const selectedChannelUrlParam = 'channel';
+const selectedChatViewUrlParam = 'view';
 const token =
   new URLSearchParams(window.location.search).get('token') ||
   import.meta.env.VITE_USER_TOKEN;
 
 const getSelectedChannelIdFromUrl = () =>
   new URLSearchParams(window.location.search).get(selectedChannelUrlParam);
+
+const getSelectedChatViewFromUrl = (): ChatViewType | undefined => {
+  const selectedChatView = new URLSearchParams(window.location.search).get(
+    selectedChatViewUrlParam,
+  );
+
+  if (selectedChatView === 'threads') return 'threads';
+  if (selectedChatView === 'channels' || selectedChatView === 'chat') return 'channels';
+
+  return undefined;
+};
 
 const updateSelectedChannelIdInUrl = (channelId?: string) => {
   const url = new URL(window.location.href);
@@ -69,6 +83,21 @@ const updateSelectedChannelIdInUrl = (channelId?: string) => {
   } else {
     url.searchParams.delete(selectedChannelUrlParam);
   }
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
+};
+
+const updateSelectedChatViewInUrl = (chatView: ChatViewType) => {
+  const url = new URL(window.location.href);
+
+  url.searchParams.set(
+    selectedChatViewUrlParam,
+    chatView === 'threads' ? 'threads' : 'chat',
+  );
 
   window.history.replaceState(
     window.history.state,
@@ -148,6 +177,7 @@ const App = () => {
   const { userId, tokenProvider } = useUser();
   const { chatView } = useAppSettingsState();
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
+  const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -221,6 +251,7 @@ const App = () => {
     >
       <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
         <ChatView>
+          <ChatStateSync initialChatView={initialChatView} />
           <ChatView.Selector
             itemSet={chatViewSelectorItemSet}
             iconOnly={chatView.iconOnly}
@@ -247,7 +278,6 @@ const App = () => {
                     maxRows={10}
                     asyncMessagesMultiSendEnabled
                   />
-                  <ChannelExposer />
                 </Window>
               </WithDragAndDropUpload>
               <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
@@ -267,9 +297,27 @@ const App = () => {
   );
 };
 
-const ChannelExposer = () => {
+const ChatStateSync = ({ initialChatView }: { initialChatView?: ChatViewType }) => {
+  const { activeChatView, setActiveChatView } = useChatViewContext();
   const { channel, client } = useChatContext();
+  const previousSyncedChatView = useRef<ChatViewType | undefined>(undefined);
   const previousChannelId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (
+      initialChatView &&
+      previousSyncedChatView.current === undefined &&
+      activeChatView !== initialChatView
+    ) {
+      setActiveChatView(initialChatView);
+      return;
+    }
+
+    if (previousSyncedChatView.current === activeChatView) return;
+
+    previousSyncedChatView.current = activeChatView;
+    updateSelectedChatViewInUrl(activeChatView);
+  }, [activeChatView, initialChatView, setActiveChatView]);
 
   useEffect(() => {
     if (channel?.id) {
