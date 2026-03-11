@@ -1,5 +1,10 @@
 @use '../../../styling/utils';
 
+.str-chat__message {
+  --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
+  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-inverse);
+}
+
 .str-chat__attachment-list {
   .str-chat__message-attachment--gallery {
     $max-width: var(--str-chat__attachment-max-width);
@@ -86,6 +91,40 @@
         cursor: zoom-in;
         // CDN resize requires max-width to be present on this element
         max-width: $max-width;
+      }
+
+      &.str-chat__modal-gallery__image--load-failed {
+        cursor: pointer;
+
+        img {
+          opacity: 0;
+          cursor: pointer;
+        }
+      }
+
+      .str-chat__modal-gallery__image-load-failed-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .str-chat__modal-gallery__image-retry-indicator {
+        @include utils.flex-row-center;
+        position: relative;
+        z-index: 1;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: var(--radius-max);
+        background-color: var(--str-chat__modal-gallery-load-failed-indicator-background);
+        color: var(--str-chat__modal-gallery-load-failed-indicator-color);
+
+        svg {
+          width: 1.125rem;
+          height: 1.125rem;
+        }
       }
 
       &:hover::after {
