@@ -388,9 +388,32 @@ const ThreadStateSync = () => {
   const attemptedThreadLookup = useRef(false);
 
   useEffect(() => {
+    if (activeThread?.id) {
+      selectedThreadId.current = activeThread.id;
+      previousThreadId.current = activeThread.id;
+      attemptedThreadLookup.current = false;
+      updateSelectedThreadIdInUrl(activeThread.id);
+      return;
+    }
+
+    if (!previousThreadId.current) return;
+
+    selectedThreadId.current = undefined;
+    previousThreadId.current = undefined;
+    attemptedThreadLookup.current = false;
+    updateSelectedThreadIdInUrl();
+  }, [activeThread?.id]);
+
+  useEffect(() => {
     const threadIdToRestore = selectedThreadId.current;
 
     if (!threadIdToRestore) return;
+
+    // If the user just picked another thread, let that selection win and let the
+    // URL-sync effect above update the restore target before we try to restore again.
+    if (activeThread?.id && activeThread.id !== threadIdToRestore) {
+      return;
+    }
 
     const matchingThreadFromList = threads.find(
       (thread) => thread.id === threadIdToRestore,
@@ -435,23 +458,6 @@ const ThreadStateSync = () => {
       cancelled = true;
     };
   }, [activeThread, client, isLoading, ready, setActiveThread, threads]);
-
-  useEffect(() => {
-    if (activeThread?.id) {
-      selectedThreadId.current = activeThread.id;
-      previousThreadId.current = activeThread.id;
-      attemptedThreadLookup.current = false;
-      updateSelectedThreadIdInUrl(activeThread.id);
-      return;
-    }
-
-    if (!previousThreadId.current) return;
-
-    selectedThreadId.current = undefined;
-    previousThreadId.current = undefined;
-    attemptedThreadLookup.current = false;
-    updateSelectedThreadIdInUrl();
-  }, [activeThread?.id]);
 
   return null;
 };
