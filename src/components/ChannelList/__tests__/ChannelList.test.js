@@ -622,6 +622,41 @@ describe('ChannelList', () => {
       expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
     });
 
+    it('should fall back to the first channel when `customActiveChannel` is not found', async () => {
+      chatClient.axiosInstance.post.mockReset();
+      chatClient.axiosInstance.post
+        .mockResolvedValueOnce(queryChannelsApi([testChannel1, testChannel2]).response)
+        .mockResolvedValueOnce(queryChannelsApi([]).response);
+
+      render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            searchController: new SearchController(),
+            setActiveChannel,
+          }}
+        >
+          <ChannelList
+            customActiveChannel='missing-channel-id'
+            filters={{}}
+            List={ChannelListComponent}
+            options={{ presence: true, state: true, watch: true }}
+            setActiveChannel={setActiveChannel}
+            setActiveChannelOnMount
+            watchers={watchersConfig}
+          />
+        </ChatContext.Provider>,
+      );
+
+      const channelInstance = chatClient.channel(
+        testChannel1.channel.type,
+        testChannel1.channel.id,
+      );
+
+      expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+    });
+
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
       const { container, getAllByRole, getByRole, getByTestId } = render(
         <ChatContext.Provider

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useIsMobileViewport } from '../ChannelHeader/hooks/useIsMobileViewport';
 import { useChatContext, useTranslationContext } from '../../context';
 import { Button, type ButtonProps } from './Button';
