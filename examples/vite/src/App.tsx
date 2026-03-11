@@ -5,6 +5,7 @@ import {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
+  type ThreadManagerState,
   createCommandInjectionMiddleware,
   createDraftCommandInjectionMiddleware,
   createActiveCommandGuardMiddleware,
@@ -31,9 +32,11 @@ import {
   WithDragAndDropUpload,
   useChatContext,
   useChatViewContext,
+  useThreadsViewContext,
   defaultReactionOptions,
   ReactionOptions,
   mapEmojiMartData,
+  useStateStore,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -57,6 +60,7 @@ const parseUserIdFromToken = (token: string) => {
 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
 const selectedChannelUrlParam = 'channel';
 const selectedChatViewUrlParam = 'view';
+const selectedThreadUrlParam = 'thread';
 const token =
   new URLSearchParams(window.location.search).get('token') ||
   import.meta.env.VITE_USER_TOKEN;
@@ -74,6 +78,9 @@ const getSelectedChatViewFromUrl = (): ChatViewType | undefined => {
 
   return undefined;
 };
+
+const getSelectedThreadIdFromUrl = () =>
+  new URLSearchParams(window.location.search).get(selectedThreadUrlParam);
 
 const updateSelectedChannelIdInUrl = (channelId?: string) => {
   const url = new URL(window.location.href);
@@ -98,6 +105,22 @@ const updateSelectedChatViewInUrl = (chatView: ChatViewType) => {
     selectedChatViewUrlParam,
     chatView === 'threads' ? 'threads' : 'chat',
   );
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
+};
+
+const updateSelectedThreadIdInUrl = (threadId?: string) => {
+  const url = new URL(window.location.href);
+
+  if (threadId) {
+    url.searchParams.set(selectedThreadUrlParam, threadId);
+  } else {
+    url.searchParams.delete(selectedThreadUrlParam);
+  }
 
   window.history.replaceState(
     window.history.state,
@@ -286,6 +309,7 @@ const App = () => {
             </Channel>
           </ChatView.Channels>
           <ChatView.Threads>
+            <ThreadStateSync />
             <ThreadList />
             <ChatView.ThreadAdapter>
               <Thread virtualized />
@@ -336,6 +360,91 @@ const ChatStateSync = ({ initialChatView }: { initialChatView?: ChatViewType }) 
   window.client = client;
   // @ts-expect-error expose client and channel for debugging purposes
   window.channel = channel;
+  return null;
+};
+
+const threadManagerSelector = (nextValue: ThreadManagerState) => ({
+  isLoading: nextValue.pagination.isLoading,
+  ready: nextValue.ready,
+  threads: nextValue.threads,
+});
+
+const ThreadStateSync = () => {
+  const initialThreadId = useMemo(() => getSelectedThreadIdFromUrl(), []);
+  const { client } = useChatContext();
+  const { activeThread, setActiveThread } = useThreadsViewContext();
+  const { isLoading, ready, threads } = useStateStore(
+    client.threads.state,
+    threadManagerSelector,
+  ) ?? {
+    isLoading: false,
+    ready: false,
+    threads: [],
+  };
+  const isRestoringThread = useRef(false);
+  const previousThreadId = useRef<string | undefined>(undefined);
+  const attemptedThreadLookup = useRef(false);
+
+  useEffect(() => {
+    if (!initialThreadId) return;
+
+    const matchingThreadFromList = threads.find(
+      (thread) => thread.id === initialThreadId,
+    );
+
+    if (matchingThreadFromList && activeThread !== matchingThreadFromList) {
+      setActiveThread(matchingThreadFromList);
+      return;
+    }
+
+    if (
+      matchingThreadFromList ||
+      activeThread?.id === initialThreadId ||
+      isRestoringThread.current ||
+      attemptedThreadLookup.current ||
+      isLoading ||
+      !ready
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+
+    attemptedThreadLookup.current = true;
+    isRestoringThread.current = true;
+
+    client
+      .getThread(initialThreadId)
+      .then((thread) => {
+        if (!thread || cancelled) return;
+
+        setActiveThread(thread);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (cancelled) return;
+
+        isRestoringThread.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeThread, client, initialThreadId, isLoading, ready, setActiveThread, threads]);
+
+  useEffect(() => {
+    if (activeThread?.id) {
+      previousThreadId.current = activeThread.id;
+      updateSelectedThreadIdInUrl(activeThread.id);
+      return;
+    }
+
+    if (!previousThreadId.current) return;
+
+    previousThreadId.current = undefined;
+    updateSelectedThreadIdInUrl();
+  }, [activeThread?.id]);
+
   return null;
 };
 
