@@ -13,6 +13,7 @@ export type EventComponentProps = TimestampFormatterOptions & {
   message: LocalMessage & {
     event?: Event;
   };
+  unsafeHTML?: boolean;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
 };
@@ -21,10 +22,17 @@ export type EventComponentProps = TimestampFormatterOptions & {
  * Component to display system and channel event messages
  */
 const UnMemoizedEventComponent = (props: EventComponentProps) => {
-  const { Avatar = DefaultAvatar, calendar, calendarFormats, format, message } = props;
+  const {
+    Avatar = DefaultAvatar,
+    calendar,
+    calendarFormats,
+    format,
+    message,
+    unsafeHTML = false,
+  } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('EventComponent');
-  const { created_at = '', event, text, type } = message;
+  const { created_at = '', event, type } = message;
   const getDateOptions = { messageCreatedAt: created_at.toString(), tDateTimeParser };
 
   if (type === 'system')
@@ -32,7 +40,14 @@ const UnMemoizedEventComponent = (props: EventComponentProps) => {
       <div className='str-chat__message--system' data-testid='message-system'>
         <div className='str-chat__message--system__text'>
           <div className='str-chat__message--system__line' />
-          <p>{text}</p>
+          {unsafeHTML ? (
+            <div
+              dangerouslySetInnerHTML={{ __html: message.html || '' }}
+              data-unsafe-inner-html
+            />
+          ) : (
+            <p>{message.text}</p>
+          )}
           <div className='str-chat__message--system__line' />
         </div>
         <div className='str-chat__message--system__date'>
