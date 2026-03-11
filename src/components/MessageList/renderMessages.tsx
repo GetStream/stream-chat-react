@@ -99,7 +99,7 @@ export function defaultRenderMessages({
           data-message-id={message.id}
           key={message.id || message.created_at.toISOString()}
         >
-          <MessageSystem message={message} />
+          <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
         </MessageListItem>,
       );
     } else {
