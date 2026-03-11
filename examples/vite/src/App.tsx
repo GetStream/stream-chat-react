@@ -370,7 +370,9 @@ const threadManagerSelector = (nextValue: ThreadManagerState) => ({
 });
 
 const ThreadStateSync = () => {
-  const initialThreadId = useMemo(() => getSelectedThreadIdFromUrl(), []);
+  const selectedThreadId = useRef<string | undefined>(
+    getSelectedThreadIdFromUrl() ?? undefined,
+  );
   const { client } = useChatContext();
   const { activeThread, setActiveThread } = useThreadsViewContext();
   const { isLoading, ready, threads } = useStateStore(
@@ -386,10 +388,12 @@ const ThreadStateSync = () => {
   const attemptedThreadLookup = useRef(false);
 
   useEffect(() => {
-    if (!initialThreadId) return;
+    const threadIdToRestore = selectedThreadId.current;
+
+    if (!threadIdToRestore) return;
 
     const matchingThreadFromList = threads.find(
-      (thread) => thread.id === initialThreadId,
+      (thread) => thread.id === threadIdToRestore,
     );
 
     if (matchingThreadFromList && activeThread !== matchingThreadFromList) {
@@ -399,7 +403,7 @@ const ThreadStateSync = () => {
 
     if (
       matchingThreadFromList ||
-      activeThread?.id === initialThreadId ||
+      activeThread?.id === threadIdToRestore ||
       isRestoringThread.current ||
       attemptedThreadLookup.current ||
       isLoading ||
@@ -414,7 +418,7 @@ const ThreadStateSync = () => {
     isRestoringThread.current = true;
 
     client
-      .getThread(initialThreadId)
+      .getThread(threadIdToRestore)
       .then((thread) => {
         if (!thread || cancelled) return;
 
@@ -430,18 +434,22 @@ const ThreadStateSync = () => {
     return () => {
       cancelled = true;
     };
-  }, [activeThread, client, initialThreadId, isLoading, ready, setActiveThread, threads]);
+  }, [activeThread, client, isLoading, ready, setActiveThread, threads]);
 
   useEffect(() => {
     if (activeThread?.id) {
+      selectedThreadId.current = activeThread.id;
       previousThreadId.current = activeThread.id;
+      attemptedThreadLookup.current = false;
       updateSelectedThreadIdInUrl(activeThread.id);
       return;
     }
 
     if (!previousThreadId.current) return;
 
+    selectedThreadId.current = undefined;
     previousThreadId.current = undefined;
+    attemptedThreadLookup.current = false;
     updateSelectedThreadIdInUrl();
   }, [activeThread?.id]);
 
