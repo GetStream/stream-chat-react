@@ -42,10 +42,16 @@
       display: flex;
       align-items: center;
       color: var(--reaction-text);
-      font-family: var(--typography-font-family-sans);
       font-size: var(--typography-font-size-xxs);
       font-weight: var(--typography-font-weight-bold);
       line-height: 1;
+    }
+  }
+
+  &--bottom {
+    .str-chat__message-reactions__list-button,
+    .str-chat__message-reactions__list-item-button {
+      box-shadow: none;
     }
   }
 }
