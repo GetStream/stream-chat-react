@@ -15,13 +15,14 @@ const makeImageItem = (overrides = {}) => ({
   ...overrides,
 });
 
-const renderComponent = (props = {}) =>
+const renderComponent = (props = {}, componentOverrides = {}) =>
   render(
     <TranslationProvider value={mockTranslationContext}>
       <ComponentProvider
         value={{
           Modal: ({ children, className, open }) =>
             open ? <div className={className}>{children}</div> : null,
+          ...componentOverrides,
         }}
       >
         <ModalGallery items={[]} {...props} />
@@ -68,6 +69,26 @@ describe('ModalGallery', () => {
         '--original-width': '320',
       });
       expect(imageRef.current).toBe(image);
+    });
+
+    it('should forward supported custom BaseImage props from the gallery item', () => {
+      const receivedProps = [];
+      const items = [makeImageItem({ showDownloadButtonOnError: true })];
+      const CustomBaseImage = (props) => {
+        receivedProps.push(props);
+
+        return <div data-testid='custom-base-image' />;
+      };
+
+      renderComponent({ items }, { BaseImage: CustomBaseImage });
+
+      expect(screen.getByTestId('custom-base-image')).toBeInTheDocument();
+      expect(receivedProps[0]).toMatchObject({
+        alt: 'User uploaded content',
+        showDownloadButtonOnError: true,
+        src: 'http://test-image.jpg',
+      });
+      expect(receivedProps[0]).not.toHaveProperty('localMetadata');
     });
 
     it('should apply --two-images modifier for 2 images', () => {
@@ -238,17 +259,18 @@ describe('ModalGallery', () => {
       const items = [makeImageItem()];
 
       const { container } = renderComponent({ items });
+      const image = screen.getByTestId('str-chat__base-image');
 
-      fireEvent.error(screen.getByTestId('str-chat__base-image'));
+      fireEvent.error(image);
       fireEvent.click(container.querySelector('.str-chat__modal-gallery__image'));
 
-      expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
-      expect(screen.getByTestId('str-chat__base-image')).toHaveAttribute(
-        'src',
-        'http://test-image.jpg?str-chat-retry=1',
-      );
+      const retriedImage = screen.getByTestId('str-chat__base-image');
 
-      fireEvent.load(screen.getByTestId('str-chat__base-image'));
+      expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+      expect(retriedImage).not.toBe(image);
+      expect(retriedImage).toHaveAttribute('src', 'http://test-image.jpg');
+
+      fireEvent.load(retriedImage);
       fireEvent.click(container.querySelector('.str-chat__modal-gallery__image'));
 
       await waitFor(() => {

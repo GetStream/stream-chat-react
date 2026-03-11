@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
 import type { BaseImageProps, GalleryItem } from '../Gallery';
@@ -14,7 +14,29 @@ import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 import { CloseButtonOnModalOverlay } from '../Modal/CloseButtonOnModalOverlay';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
-const RETRY_QUERY_KEY = 'str-chat-retry';
+const BASE_IMAGE_PROP_KEYS = [
+  'className',
+  'crossOrigin',
+  'decoding',
+  'draggable',
+  'fetchPriority',
+  'height',
+  'loading',
+  'onError',
+  'onLoad',
+  'ref',
+  'showDownloadButtonOnError',
+  'sizes',
+  'srcSet',
+  'style',
+  'title',
+  'useMap',
+  'width',
+] as const satisfies ReadonlyArray<keyof Omit<BaseImageProps, 'src'>>;
+type BaseImagePropsWithoutSrc = Omit<BaseImageProps, 'src'>;
+type PartialBaseImagePropMap = Partial<
+  Record<(typeof BASE_IMAGE_PROP_KEYS)[number], unknown>
+>;
 
 export type ModalGalleryProps = {
   /** Array of media attachments to display */
@@ -116,10 +138,6 @@ const ThumbnailButton = ({
     onLoad: itemOnLoad,
     ...baseImageProps
   } = getBaseImageProps(item);
-  const retryImageUrl = useMemo(
-    () => getRetryImageUrl(imageUrl, retryCount),
-    [imageUrl, retryCount],
-  );
   const showRetryIndicator = isLoadFailed && !showOverlay;
 
   const handleButtonClick = () => {
@@ -149,6 +167,9 @@ const ThumbnailButton = ({
         <VideoThumbnail alt={t('User uploaded content')} src={item.videoThumbnailUrl} />
       ) : (
         <BaseImage
+          // Remount the image on retry so the browser gets a fresh load attempt and
+          // BaseImage clears its local load-failed state.
+          key={retryCount}
           {...baseImageProps}
           alt={item.alt ?? t('User uploaded content')}
           onError={(event) => {
@@ -159,7 +180,7 @@ const ThumbnailButton = ({
             setIsLoadFailed(false);
             itemOnLoad?.(event);
           }}
-          src={retryImageUrl}
+          src={imageUrl}
           {...(baseImageUsesDefaultBehavior ? { showDownloadButtonOnError: false } : {})}
         />
       )}
@@ -196,51 +217,14 @@ const itemCountAwareLabel = ({
         index: imageIndex,
       });
 
-const getRetryImageUrl = (imageUrl?: string, retryCount = 0) => {
-  if (!imageUrl || retryCount === 0 || /^(blob:|data:)/i.test(imageUrl)) return imageUrl;
+const getBaseImageProps = (item: GalleryItem): BaseImagePropsWithoutSrc => {
+  const baseImageProps: PartialBaseImagePropMap = {};
+  for (const key of BASE_IMAGE_PROP_KEYS) {
+    const value = item[key];
+    if (value !== undefined) {
+      baseImageProps[key] = value;
+    }
+  }
 
-  const [baseUrl, hash = ''] = imageUrl.split('#');
-  const separator = baseUrl.includes('?') ? '&' : '?';
-
-  return `${baseUrl}${separator}${RETRY_QUERY_KEY}=${retryCount}${hash ? `#${hash}` : ''}`;
-};
-
-const getBaseImageProps = (item: GalleryItem): Omit<BaseImageProps, 'src'> => {
-  const {
-    className,
-    crossOrigin,
-    decoding,
-    draggable,
-    fetchPriority,
-    height,
-    loading,
-    onError,
-    onLoad,
-    ref,
-    sizes,
-    srcSet,
-    style,
-    title,
-    useMap,
-    width,
-  } = item;
-
-  return {
-    className,
-    crossOrigin,
-    decoding,
-    draggable,
-    fetchPriority,
-    height,
-    loading,
-    onError,
-    onLoad,
-    ref,
-    sizes,
-    srcSet,
-    style,
-    title,
-    useMap,
-    width,
-  };
+  return baseImageProps as BaseImagePropsWithoutSrc;
 };
