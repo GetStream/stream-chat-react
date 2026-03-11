@@ -1,3 +1,9 @@
+## [13.14.2](https://github.com/GetStream/stream-chat-react/compare/v13.14.1...v13.14.2) (2026-03-11)
+
+### Bug Fixes
+
+* allow forwarding `unsafeHTML` to system messages (`EventComponent`) ([#2973](https://github.com/GetStream/stream-chat-react/issues/2973)) ([5364e14](https://github.com/GetStream/stream-chat-react/commit/5364e14c55b5e0c8210f69bcdf084ef918820f56))
+
 ## [13.14.1](https://github.com/GetStream/stream-chat-react/compare/v13.14.0...v13.14.1) (2026-02-26)
 
 ### Bug Fixes
