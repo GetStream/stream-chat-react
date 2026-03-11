@@ -225,6 +225,22 @@ describe('ModalGallery', () => {
   });
 
   describe('BaseImage error handling', () => {
+    it('should render the loading overlay until the image loads', () => {
+      const items = [makeImageItem()];
+
+      renderComponent({ items });
+
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).toBeInTheDocument();
+
+      fireEvent.load(screen.getByTestId('str-chat__base-image'));
+
+      expect(
+        screen.queryByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).not.toBeInTheDocument();
+    });
+
     it('should display image fallback on error', () => {
       const items = [makeImageItem(), makeImageItem()];
 
@@ -267,6 +283,9 @@ describe('ModalGallery', () => {
       const retriedImage = screen.getByTestId('str-chat__base-image');
 
       expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).toBeInTheDocument();
       expect(retriedImage).not.toBe(image);
       expect(retriedImage).toHaveAttribute('src', 'http://test-image.jpg');
 

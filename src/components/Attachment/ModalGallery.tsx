@@ -7,6 +7,7 @@ import {
   Gallery as DefaultGallery,
   GalleryUI,
 } from '../Gallery';
+import { LoadingIndicator } from '../Loading';
 import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
 import { IconArrowRotateClockwise } from '../Icons';
@@ -129,20 +130,23 @@ const ThumbnailButton = ({
   showOverlay,
 }: ThumbnailButtonProps) => {
   const { t } = useTranslationContext();
+  const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
   const [retryCount, setRetryCount] = useState(0);
 
-  const imageUrl = item.imageUrl;
   const {
     onError: itemOnError,
     onLoad: itemOnLoad,
     ...baseImageProps
   } = getBaseImageProps(item);
   const showRetryIndicator = isLoadFailed && !showOverlay;
+  const showLoadingIndicator = isImageLoading && !showRetryIndicator && !showOverlay;
 
   const handleButtonClick = () => {
     if (showRetryIndicator) {
       setIsLoadFailed(false);
+      setIsImageLoading(true);
       setRetryCount((currentRetryCount) => currentRetryCount + 1);
       return;
     }
@@ -159,6 +163,7 @@ const ThumbnailButton = ({
       aria-label={buttonLabel}
       className={clsx('str-chat__modal-gallery__image', {
         'str-chat__modal-gallery__image--load-failed': showRetryIndicator,
+        'str-chat__modal-gallery__image--loading': showLoadingIndicator,
       })}
       onClick={handleButtonClick}
       type='button'
@@ -173,16 +178,27 @@ const ThumbnailButton = ({
           {...baseImageProps}
           alt={item.alt ?? t('User uploaded content')}
           onError={(event) => {
+            setIsImageLoading(false);
             setIsLoadFailed(true);
             itemOnError?.(event);
           }}
           onLoad={(event) => {
+            setIsImageLoading(false);
             setIsLoadFailed(false);
             itemOnLoad?.(event);
           }}
           src={imageUrl}
           {...(baseImageUsesDefaultBehavior ? { showDownloadButtonOnError: false } : {})}
         />
+      )}
+      {showLoadingIndicator && (
+        <div
+          aria-hidden='true'
+          className='str-chat__modal-gallery__image-loading-overlay'
+          data-testid='str-chat__modal-gallery__image-loading-overlay'
+        >
+          <LoadingIndicator size={32} />
+        </div>
       )}
       {showRetryIndicator && (
         <div
