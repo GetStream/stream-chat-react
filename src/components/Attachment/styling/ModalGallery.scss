@@ -22,12 +22,18 @@
       grid-template-rows: 50% 50%;
       overflow: hidden;
       border-radius: var(--radius-lg);
-      // Safari needs this
-      width: fit-content;
       gap: var(--str-chat__spacing-0_5);
+      width: $max-width;
       max-width: $max-width;
       // CDN resize requires height/max-height to be present on the img element, this rule ensures that
       height: var(--str-chat__attachment-max-width);
+
+      .str-chat__modal-gallery__image {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        min-height: 0;
+      }
 
       &.str-chat__modal-gallery--two-images {
         grid-template-rows: 1fr;
@@ -178,10 +184,10 @@
 
 @keyframes str-chat__modal-gallery-loading-shimmer {
   from {
-    background-position: -200% 0;
+    background-position: 200% 0;
   }
 
   to {
-    background-position: 200% 0;
+    background-position: -200% 0;
   }
 }
