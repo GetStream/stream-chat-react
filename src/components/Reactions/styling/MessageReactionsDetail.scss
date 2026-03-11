@@ -1,5 +1,6 @@
 @use '../../../styling/utils' as utils;
 @use './common' as common;
+@use '../../Channel/styling/Channel' as channel-utils;
 
 .str-chat {
   .str-chat__dialog-contents:has(.str-chat__message-reactions-detail):focus-visible {
@@ -10,9 +11,20 @@
 .str-chat__message-reactions-detail {
   border-radius: var(--radius-lg);
   background: var(--background-elevation-elevation-2);
-  max-width: 280px;
-  min-width: min(90vw, 280px);
-  max-height: 200px;
+  max-width: 256px;
+  min-width: min(90vw, 256px);
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    height: var(--size-12);
+    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: inherit;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0.1) 130%);
+  }
 
   font-family: var(--typography-font-family-sans);
 
@@ -25,42 +37,30 @@
 
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xxs);
+  gap: var(--spacing-xxxs);
 
   .str-chat__message-reactions-detail__total-count {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding-inline: var(--spacing-md);
-    padding-block: 6px;
+    min-height: var(--size-32);
+    max-height: var(--size-32);
 
-    color: var(--text-tertiary, #687385);
-
+    color: var(--text-tertiary);
     font-size: var(--typography-font-size-sm);
     font-weight: var(--typography-font-weight-medium);
     line-height: var(--typography-line-height-normal);
   }
 
-  .str-chat__message-reactions-detail__reaction-type-list-container {
-    display: flex;
-    overflow-x: auto;
-    width: 100%;
-
-    scrollbar-color: red orange;
-    scrollbar-width: none;
-  }
-
   .str-chat__message-reactions-detail__reaction-type-list {
     list-style: none;
     margin: 0;
-    padding-inline: var(--spacing-md);
+    padding-inline: var(--spacing-xs);
     padding-block: var(--spacing-xs);
     display: flex;
-    align-items: center;
-    gap: var(--spacing-xxs);
-
-    display: flex;
-    gap: var(--spacing-xxs);
+    flex-wrap: wrap;
+    gap: var(--spacing-xs) var(--spacing-xxs);
 
     .str-chat__message-reactions-detail__reaction-type-list-item {
       display: flex;
@@ -90,29 +90,47 @@
 
   .str-chat__message-reactions-detail__user-list {
     @include utils.scrollable-y;
-    scrollbar-width: thin;
+    scrollbar-width: none;
     position: relative;
+    padding-block-end: var(--spacing-xxs);
+    max-height: 100px;
 
-    .str-chat__message-reactions-detail__loading-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(1px);
-      border-bottom-left-radius: var(--radius-lg);
-      border-bottom-right-radius: var(--radius-lg);
-      z-index: 1;
+    &:has(
+        .str-chat__message-reactions-detail__user-list-item
+          .str-chat__message-reactions-detail__user-list-item-button:nth-child(-n + 3)
+      ) {
+      max-height: 106px;
     }
 
-    .str-chat__message-reactions-detail__user-list-item {
-      padding-block: var(--spacing-xs);
+    .str-chat__message-reactions-detail__skeleton-item {
+      padding-block: var(--spacing-xxs);
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
-      padding-inline: var(--spacing-md);
+      padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
+
+      .str-chat__message-reactions-detail__skeleton-avatar {
+        width: var(--size-32);
+        height: var(--size-32);
+        border-radius: var(--radius-max);
+        @include channel-utils.channel-loading-shimmer;
+        flex-shrink: 0;
+      }
+
+      .str-chat__message-reactions-detail__skeleton-line {
+        flex-grow: 1;
+        height: var(--size-20);
+        border-radius: var(--radius-sm);
+        @include channel-utils.channel-loading-faded-bar;
+      }
+    }
+
+    .str-chat__message-reactions-detail__user-list-item {
+      padding-block: var(--spacing-xxs);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
 
       .str-chat__message-reactions-detail__user-list-item-info {
         display: flex;
@@ -129,9 +147,7 @@
         .str-chat__message-reactions-detail__user-list-item-button {
           @include utils.unset-button;
           color: var(--text-tertiary);
-          font-size: var(--typography-font-size-xs);
-          font-weight: var(--typography-font-weight-regular);
-          line-height: var(--typography-line-height-tight);
+          font: var(--str-chat__metadata-default-text);
           cursor: pointer;
         }
       }
