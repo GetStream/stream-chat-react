@@ -10,15 +10,40 @@ import {
 import { type ComponentType, useState } from 'react';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
-import { ThemeTab } from './tabs/Theme';
+import { appSettingsStore, useAppSettingsState } from './state';
 
-type TabId = 'reactions' | 'sidebar' | 'theme';
+type TabId = 'reactions' | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
   { Icon: IconBubble3ChatMessage, id: 'sidebar', title: 'Sidebar' },
-  { Icon: IconLightBulbSimple, id: 'theme', title: 'Theme' },
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
+
+const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  const {
+    theme: { mode },
+  } = useAppSettingsState();
+  const nextMode = mode === 'dark' ? 'light' : 'dark';
+
+  return (
+    <ChatViewSelectorButton
+      aria-checked={mode === 'dark'}
+      aria-label={`Switch to ${nextMode} mode`}
+      aria-selected={mode === 'dark'}
+      className='app__settings-group_button'
+      iconOnly={iconOnly}
+      Icon={IconLightBulbSimple}
+      isActive={mode === 'dark'}
+      onClick={() =>
+        appSettingsStore.partialNext({
+          theme: { mode: nextMode },
+        })
+      }
+      role='switch'
+      text={mode === 'dark' ? 'Dark mode' : 'Light mode'}
+    />
+  );
+};
 
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [activeTab, setActiveTab] = useState<TabId>('sidebar');
@@ -26,7 +51,9 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
   return (
     <div className='app__settings-group'>
+      <SidebarThemeToggle iconOnly={iconOnly} />
       <ChatViewSelectorButton
+        className='app__settings-group_button'
         iconOnly={iconOnly}
         Icon={IconSettingsGear2}
         onClick={() => setOpen(true)}
@@ -66,7 +93,6 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
               role='tabpanel'
             >
               {activeTab === 'sidebar' && <SidebarTab />}
-              {activeTab === 'theme' && <ThemeTab />}
               {activeTab === 'reactions' && <ReactionsTab />}
             </section>
           </div>
