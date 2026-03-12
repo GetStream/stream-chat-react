@@ -35,15 +35,8 @@
     flex-direction: row;
     align-items: center;
 
-    color: var(--text-primary);
-    font-feature-settings:
-      'liga' off,
-      'clig' off;
-    font-family: var(--typography-font-family-sans);
-    font-size: var(--typography-font-size-sm);
-    font-style: normal;
-    font-weight: var(--typography-font-weight-semi-bold);
-    line-height: var(--typography-line-height-tight);
+    color: var(--text-link);
+    font: var(--str-chat__heading-xs-text);
   }
 }
 
