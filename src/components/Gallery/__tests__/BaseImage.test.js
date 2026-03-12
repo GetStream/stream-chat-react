@@ -61,7 +61,6 @@ describe('BaseImage', () => {
           src="src"
         />
         <a
-          aria-label="Attachment"
           class="str-chat__message-attachment-file--item-download"
           download=""
           href="src"
@@ -82,6 +81,26 @@ describe('BaseImage', () => {
             />
           </svg>
         </a>
+      </div>
+    `);
+  });
+
+  it('should allow disabling the download fallback on load error', () => {
+    const { container } = renderComponent({
+      ...props,
+      showDownloadButtonOnError: false,
+    });
+
+    fireEvent.error(getImage());
+
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <img
+          alt="alt"
+          class="str-chat__base-image str-chat__base-image--load-failed"
+          data-testid="str-chat__base-image"
+          src="src"
+        />
       </div>
     `);
   });

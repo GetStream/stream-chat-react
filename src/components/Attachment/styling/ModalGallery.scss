@@ -1,5 +1,16 @@
 @use '../../../styling/utils';
 
+.str-chat__message {
+  --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
+  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-inverse);
+  --str-chat__modal-gallery-loading-background: var(--chat-bg-incoming);
+  --str-chat__modal-gallery-loading-highlight: var(--base-white);
+}
+
+.str-chat__message--me {
+  --str-chat__modal-gallery-loading-background: var(--chat-bg-outgoing);
+}
+
 .str-chat__attachment-list {
   .str-chat__message-attachment--gallery {
     $max-width: var(--str-chat__attachment-max-width);
@@ -11,12 +22,18 @@
       grid-template-rows: 50% 50%;
       overflow: hidden;
       border-radius: var(--radius-lg);
-      // Safari needs this
-      width: fit-content;
       gap: var(--str-chat__spacing-0_5);
+      width: $max-width;
       max-width: $max-width;
       // CDN resize requires height/max-height to be present on the img element, this rule ensures that
       height: var(--str-chat__attachment-max-width);
+
+      .str-chat__modal-gallery__image {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        min-height: 0;
+      }
 
       &.str-chat__modal-gallery--two-images {
         grid-template-rows: 1fr;
@@ -74,6 +91,7 @@
       align-items: center;
       justify-content: center;
       margin: 0;
+      overflow: hidden;
       position: relative;
       // todo: we do not know the image background color;
       background-color: transparent;
@@ -86,6 +104,71 @@
         cursor: zoom-in;
         // CDN resize requires max-width to be present on this element
         max-width: $max-width;
+        transition: opacity 150ms ease-in-out;
+      }
+
+      &.str-chat__modal-gallery__image--loading {
+        img {
+          opacity: 0;
+        }
+      }
+
+      &.str-chat__modal-gallery__image--load-failed {
+        cursor: pointer;
+
+        img {
+          opacity: 0;
+          cursor: pointer;
+        }
+      }
+
+      .str-chat__modal-gallery__image-load-failed-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .str-chat__modal-gallery__image-loading-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--str-chat__modal-gallery-loading-background);
+        background-image: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          var(--str-chat__modal-gallery-loading-highlight) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        background-repeat: no-repeat;
+        background-size: 200% 100%;
+        animation: str-chat__modal-gallery-loading-shimmer 1.2s linear infinite;
+        pointer-events: none;
+      }
+
+      .str-chat__modal-gallery__image-loading-overlay .str-chat__loading-indicator {
+        position: relative;
+        z-index: 1;
+      }
+
+      .str-chat__modal-gallery__image-retry-indicator {
+        @include utils.flex-row-center;
+        position: relative;
+        z-index: 1;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: var(--radius-max);
+        background-color: var(--str-chat__modal-gallery-load-failed-indicator-background);
+        color: var(--str-chat__modal-gallery-load-failed-indicator-color);
+
+        svg {
+          width: 1.125rem;
+          height: 1.125rem;
+        }
       }
 
       &:hover::after {
@@ -96,5 +179,15 @@
         @include utils.focusable;
       }
     }
+  }
+}
+
+@keyframes str-chat__modal-gallery-loading-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
   }
 }

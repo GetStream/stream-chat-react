@@ -66,8 +66,9 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
         role='option'
       >
         <Avatar
-          groupChannelDisplayInfo={groupChannelDisplayInfo}
+          displayMembers={groupChannelDisplayInfo?.members}
           imageUrl={displayImage}
+          overflowCount={groupChannelDisplayInfo?.overflowCount}
           size='xl'
           userName={avatarName}
         />

@@ -4,21 +4,29 @@ import '@testing-library/jest-dom';
 
 import { ModalGallery } from '../../Attachment/ModalGallery';
 import { TranslationProvider } from '../../../context';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { mockTranslationContext } from '../../../mock-builders';
 
 const makeImageItem = (overrides = {}) => ({
   fallback: 'test.png',
-  image_url: 'http://test-image.jpg',
+  imageUrl: 'http://test-image.jpg',
   localMetadata: { id: `img-${Math.random()}` },
-  thumb_url: 'http://test-thumb.jpg',
   type: 'image',
   ...overrides,
 });
 
-const renderComponent = (props = {}) =>
+const renderComponent = (props = {}, componentOverrides = {}) =>
   render(
     <TranslationProvider value={mockTranslationContext}>
-      <ModalGallery items={[]} {...props} />
+      <ComponentProvider
+        value={{
+          Modal: ({ children, className, open }) =>
+            open ? <div className={className}>{children}</div> : null,
+          ...componentOverrides,
+        }}
+      >
+        <ModalGallery items={[]} {...props} />
+      </ComponentProvider>
     </TranslationProvider>,
   );
 
@@ -41,6 +49,46 @@ describe('ModalGallery', () => {
       renderComponent({ items });
 
       expect(screen.getAllByTestId('str-chat__base-image')).toHaveLength(2);
+    });
+
+    it('should forward image sizing props to BaseImage', () => {
+      const imageRef = React.createRef();
+      const items = [
+        makeImageItem({
+          ref: imageRef,
+          style: { '--original-height': 240, '--original-width': 320 },
+        }),
+      ];
+
+      renderComponent({ items });
+
+      const image = screen.getByTestId('str-chat__base-image');
+
+      expect(image).toHaveStyle({
+        '--original-height': '240',
+        '--original-width': '320',
+      });
+      expect(imageRef.current).toBe(image);
+    });
+
+    it('should forward supported custom BaseImage props from the gallery item', () => {
+      const receivedProps = [];
+      const items = [makeImageItem({ showDownloadButtonOnError: true })];
+      const CustomBaseImage = (props) => {
+        receivedProps.push(props);
+
+        return <div data-testid='custom-base-image' />;
+      };
+
+      renderComponent({ items }, { BaseImage: CustomBaseImage });
+
+      expect(screen.getByTestId('custom-base-image')).toBeInTheDocument();
+      expect(receivedProps[0]).toMatchObject({
+        alt: 'User uploaded content',
+        showDownloadButtonOnError: true,
+        src: 'http://test-image.jpg',
+      });
+      expect(receivedProps[0]).not.toHaveProperty('localMetadata');
     });
 
     it('should apply --two-images modifier for 2 images', () => {
@@ -143,9 +191,9 @@ describe('ModalGallery', () => {
 
     it('should pass correct initialIndex to Gallery when clicking second thumbnail', async () => {
       const items = [
-        makeImageItem({ image_url: 'http://img0.jpg' }),
-        makeImageItem({ image_url: 'http://img1.jpg' }),
-        makeImageItem({ image_url: 'http://img2.jpg' }),
+        makeImageItem({ imageUrl: 'http://img0.jpg' }),
+        makeImageItem({ imageUrl: 'http://img1.jpg' }),
+        makeImageItem({ imageUrl: 'http://img2.jpg' }),
       ];
 
       const { container } = renderComponent({ items });
@@ -177,6 +225,22 @@ describe('ModalGallery', () => {
   });
 
   describe('BaseImage error handling', () => {
+    it('should render the loading overlay until the image loads', () => {
+      const items = [makeImageItem()];
+
+      renderComponent({ items });
+
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).toBeInTheDocument();
+
+      fireEvent.load(screen.getByTestId('str-chat__base-image'));
+
+      expect(
+        screen.queryByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).not.toBeInTheDocument();
+    });
+
     it('should display image fallback on error', () => {
       const items = [makeImageItem(), makeImageItem()];
 
@@ -190,6 +254,47 @@ describe('ModalGallery', () => {
 
       const fallbacks = container.querySelectorAll('.str-chat__base-image--load-failed');
       expect(fallbacks).toHaveLength(items.length);
+    });
+
+    it('should render the retry indicator and suppress the legacy download fallback on error', () => {
+      const items = [makeImageItem()];
+
+      const { container } = renderComponent({ items });
+
+      fireEvent.error(screen.getByTestId('str-chat__base-image'));
+
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__image-load-failed-overlay'),
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-attachment-file--item-download'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should retry loading the image instead of opening the modal when the thumbnail is in error state', async () => {
+      const items = [makeImageItem()];
+
+      const { container } = renderComponent({ items });
+      const image = screen.getByTestId('str-chat__base-image');
+
+      fireEvent.error(image);
+      fireEvent.click(container.querySelector('.str-chat__modal-gallery__image'));
+
+      const retriedImage = screen.getByTestId('str-chat__base-image');
+
+      expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__image-loading-overlay'),
+      ).toBeInTheDocument();
+      expect(retriedImage).not.toBe(image);
+      expect(retriedImage).toHaveAttribute('src', 'http://test-image.jpg');
+
+      fireEvent.load(retriedImage);
+      fireEvent.click(container.querySelector('.str-chat__modal-gallery__image'));
+
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__gallery-modal')).toBeInTheDocument();
+      });
     });
   });
 });

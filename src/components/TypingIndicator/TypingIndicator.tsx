@@ -6,6 +6,7 @@ import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';
+import { useThreadContext } from '../Threads';
 
 const MAX_AVATARS = 3;
 
@@ -26,6 +27,8 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { isMessageListScrolledToBottom = true, scrollToBottom, threadList } = props;
 
   const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
+  const threadInstance = useThreadContext();
+  const parentId = threadInstance?.id ?? thread?.id;
   const { client } = useChatContext('TypingIndicator');
   const { typing = {} } = useTypingContext('TypingIndicator');
 
@@ -35,9 +38,10 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       )
     : [];
 
+  console.log('typing', typing);
   const typingInThread = threadList
     ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
       )
     : [];
 

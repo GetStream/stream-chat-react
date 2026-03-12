@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
 import { useFetchReactions } from './hooks/useFetchReactions';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import type { MessageContextValue } from '../../context';
 import {
   useChatContext,
   useComponentContext,
@@ -12,7 +12,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
-import type { MessageContextValue } from '../../context';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -38,8 +37,7 @@ export function MessageReactionsDetail({
   totalReactionCount,
 }: MessageReactionsDetailProps) {
   const { client } = useChatContext();
-  const { Avatar = DefaultAvatar, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext(MessageReactionsDetail.name);
+  const { Avatar = DefaultAvatar } = useComponentContext(MessageReactionsDetail.name);
   const { t } = useTranslationContext();
 
   const {
@@ -118,48 +116,63 @@ export function MessageReactionsDetail({
         data-testid='all-reacting-users'
       >
         {areReactionsLoading && (
-          <div className='str-chat__message-reactions-detail__loading-overlay'>
-            <LoadingIndicator />
-          </div>
-        )}
-        {reactionDetailsWithLegacyFallback.map(({ user }) => {
-          const belongsToCurrentUser = client.user?.id === user?.id;
-          return (
-            <div
-              className='str-chat__message-reactions-detail__user-list-item'
-              key={user?.id}
-            >
-              <Avatar
-                className='str-chat__avatar--with-border'
-                data-testid='avatar'
-                imageUrl={user?.image as string | undefined}
-                size='sm'
-                userName={user?.name || user?.id}
-              />
-              <div className='str-chat__message-reactions-detail__user-list-item-info'>
-                <span
-                  className='str-chat__message-reactions-detail__user-list-item-username'
-                  data-testid='reaction-user-username'
-                >
-                  {belongsToCurrentUser ? t('You') : user?.name || user?.id}
-                </span>
-                {belongsToCurrentUser && selectedReactionType && (
-                  <button
-                    className='str-chat__message-reactions-detail__user-list-item-button'
-                    data-testid='remove-reaction-button'
-                    onClick={(e) => {
-                      contextHandleReaction(selectedReactionType, e).then(() => {
-                        refetch();
-                      });
-                    }}
-                  >
-                    {t('Tap to remove')}
-                  </button>
-                )}
-              </div>
+          <>
+            <div className='str-chat__message-reactions-detail__skeleton-item'>
+              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
+              <div className='str-chat__message-reactions-detail__skeleton-line' />
             </div>
-          );
-        })}
+            <div className='str-chat__message-reactions-detail__skeleton-item'>
+              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
+              <div className='str-chat__message-reactions-detail__skeleton-line' />
+            </div>
+            <div className='str-chat__message-reactions-detail__skeleton-item'>
+              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
+              <div className='str-chat__message-reactions-detail__skeleton-line' />
+            </div>
+          </>
+        )}
+        {!areReactionsLoading && (
+          <>
+            {reactionDetailsWithLegacyFallback.map(({ user }) => {
+              const belongsToCurrentUser = client.user?.id === user?.id;
+              return (
+                <div
+                  className='str-chat__message-reactions-detail__user-list-item'
+                  key={user?.id}
+                >
+                  <Avatar
+                    className='str-chat__avatar--with-border'
+                    data-testid='avatar'
+                    imageUrl={user?.image as string | undefined}
+                    size='md'
+                    userName={user?.name || user?.id}
+                  />
+                  <div className='str-chat__message-reactions-detail__user-list-item-info'>
+                    <span
+                      className='str-chat__message-reactions-detail__user-list-item-username'
+                      data-testid='reaction-user-username'
+                    >
+                      {belongsToCurrentUser ? t('You') : user?.name || user?.id}
+                    </span>
+                    {belongsToCurrentUser && selectedReactionType && (
+                      <button
+                        className='str-chat__message-reactions-detail__user-list-item-button'
+                        data-testid='remove-reaction-button'
+                        onClick={(e) => {
+                          contextHandleReaction(selectedReactionType, e).then(() => {
+                            refetch();
+                          });
+                        }}
+                      >
+                        {t('Tap to remove')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
     </div>
   );

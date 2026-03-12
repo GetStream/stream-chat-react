@@ -265,9 +265,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
         });
 
         setChannels(newChannels);
+        return;
       }
-
-      return;
     }
 
     if (setActiveChannelOnMount) {

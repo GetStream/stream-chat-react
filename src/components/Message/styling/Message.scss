@@ -145,6 +145,17 @@
       line-height: 32px;
     }
   }
+
+  // remove paddings for certain elements in emoji-only messages
+  .str-chat__message-bubble,
+  .str-chat__message-inner .str-chat__message-bubble .str-chat__message-text,
+  .str-chat__message-inner .str-chat__message-replies-count-button-wrapper {
+    padding-inline: 0;
+  }
+
+  .str-chat__message-replies-count-button-wrapper::after {
+    display: none;
+  }
 }
 
 .str-chat__message.str-chat__message--has-attachment {
