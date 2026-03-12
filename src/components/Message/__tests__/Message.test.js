@@ -355,7 +355,7 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const muteUser = jest.fn(() => Promise.resolve());
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
@@ -363,7 +363,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -376,20 +375,22 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(userMutedNotification, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: userMutedNotification }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to mute a user and notify with default success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const defaultSuccessMessage = '{{ user }} has been muted';
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const muteUser = jest.fn(() => Promise.resolve());
     client.muteUser = muteUser;
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -402,13 +403,16 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultSuccessMessage, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultSuccessMessage }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const muteUser = jest.fn(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
@@ -416,7 +420,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -430,20 +433,22 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(userMutedFailNotification, 'error');
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: userMutedFailNotification }),
+    );
+    addErrorSpy.mockRestore();
   });
 
   it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const muteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     client.muteUser = muteUser;
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -456,13 +461,16 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultFailNotification, 'error');
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultFailNotification }),
+    );
+    addErrorSpy.mockRestore();
   });
 
   it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const unmuteUser = jest.fn(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
     const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
@@ -470,7 +478,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -484,20 +491,22 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(userUnmutedNotification, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: userUnmutedNotification }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const unmuteUser = jest.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     client.unmuteUser = unmuteUser;
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -510,13 +519,16 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultSuccessNotification }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to unmute a user and notify with custom error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const unmuteUser = jest.fn(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
@@ -524,7 +536,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -538,20 +549,22 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(userMutedFailNotification, 'error');
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: userMutedFailNotification }),
+    );
+    addErrorSpy.mockRestore();
   });
 
   it('should allow to unmute a user and notify with default error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const unmuteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     client.unmuteUser = unmuteUser;
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       contextCallback: (ctx) => {
@@ -564,7 +577,10 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultFailNotification, 'error');
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultFailNotification }),
+    );
+    addErrorSpy.mockRestore();
   });
 
   it.each([
@@ -735,7 +751,7 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const flagMessage = jest.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const messageFlaggedNotification = 'Message flagged!';
@@ -743,7 +759,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -756,20 +771,22 @@ describe('<Message /> component', () => {
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(messageFlaggedNotification, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: messageFlaggedNotification }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to flag a message and notify with default success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
     const flagMessage = jest.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const defaultSuccessNotification = 'Message has been successfully flagged';
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -781,13 +798,16 @@ describe('<Message /> component', () => {
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
+    expect(addSuccessSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultSuccessNotification }),
+    );
+    addSuccessSpy.mockRestore();
   });
 
   it('should allow to flag a message and notify with custom error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const flagMessage = jest.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
     const messageFlagFailedNotification = 'Message flagged failed!';
@@ -795,7 +815,6 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -808,20 +827,22 @@ describe('<Message /> component', () => {
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(messageFlagFailedNotification, 'error');
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: messageFlagFailedNotification }),
+    );
+    addErrorSpy.mockRestore();
   });
 
   it('should allow to flag a user and notify with default error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addNotification = jest.fn();
+    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
     const flagMessage = jest.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
     const defaultFlagMessageFailedNotification = 'Error adding flag';
     let context;
 
     await renderComponent({
-      channelActionOpts: { addNotification },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -833,10 +854,10 @@ describe('<Message /> component', () => {
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultFlagMessageFailedNotification,
-      'error',
+    expect(addErrorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: defaultFlagMessageFailedNotification }),
     );
+    addErrorSpy.mockRestore();
   });
 
   it('should allow user to pin messages when permissions allow', async () => {

@@ -144,7 +144,6 @@ export const reactionsPreviewChannelState = {
 };
 
 export const reactionsPreviewChannelActions = {
-  addNotification: () => undefined,
   closeThread: () => undefined,
   onMentionsClick: () => undefined,
   onMentionsHover: () => undefined,

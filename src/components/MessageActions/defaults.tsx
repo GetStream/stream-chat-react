@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 
 import {
+  addNotificationTargetTag,
   GlobalModal,
   IconArrowRotateClockwise,
   IconBellNotification,
@@ -24,6 +25,7 @@ import {
   isUserMuted,
   useMessageComposer,
   useMessageReminder,
+  useNotificationTarget,
 } from '../../components';
 import {
   ReactionIcon as DefaultReactionIcon,
@@ -293,9 +295,11 @@ const DefaultMessageActionComponents = {
       );
     },
     Delete({ closeMenu }: ContextMenuItemProps) {
+      const { client } = useChatContext();
       const { Modal = GlobalModal } = useComponentContext();
       const { removeMessage } = useChannelActionContext();
       const { handleDelete, message } = useMessageContext();
+      const panel = useNotificationTarget();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
 
@@ -312,7 +316,7 @@ const DefaultMessageActionComponents = {
               setOpenModal(true);
             }}
           >
-            {t('Delete')}
+            {t('Delete message')}
           </ContextMenuButton>
           <Modal open={openModal}>
             <DeleteMessageAlert
@@ -320,9 +324,28 @@ const DefaultMessageActionComponents = {
                 setOpenModal(false);
                 closeMenu();
               }}
-              onDelete={() => {
+              onDelete={async () => {
                 if (message.type === 'error') removeMessage(message);
-                else handleDelete();
+                else {
+                  try {
+                    await handleDelete();
+                    client.notifications.addSuccess({
+                      message: t('Message deleted'),
+                      options: {
+                        tags: addNotificationTargetTag(panel),
+                      },
+                      origin: { emitter: 'MessageActions' },
+                    });
+                  } catch (error) {
+                    client.notifications.addError({
+                      message: t('Failed to delete the message'),
+                      options: {
+                        tags: addNotificationTargetTag(panel),
+                      },
+                      origin: { emitter: 'MessageActions' },
+                    });
+                  }
+                }
                 setOpenModal(false);
                 closeMenu();
               }}

@@ -1,6 +1,7 @@
 import throttle from 'lodash.throttle';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useChannelActionContext, useTranslationContext } from '../../../context';
+import { useChatContext, useTranslationContext } from '../../../context';
+import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
 
 const isSeekable = (audioElement: HTMLAudioElement) =>
   !(audioElement.duration === Infinity || isNaN(audioElement.duration));
@@ -29,8 +30,9 @@ export const useAudioController = ({
   mimeType,
   playbackRates = DEFAULT_PLAYBACK_RATES,
 }: AudioControllerParams = {}) => {
-  const { addNotification } = useChannelActionContext('useAudioController');
+  const { client } = useChatContext('useAudioController');
   const { t } = useTranslationContext('useAudioController');
+  const panel = useNotificationTarget();
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackError, setPlaybackError] = useState<Error>();
   const [canPlayRecord, setCanPlayRecord] = useState(true);
@@ -43,9 +45,17 @@ export const useAudioController = ({
     (e: Error) => {
       logError(e as Error);
       setPlaybackError(e);
-      addNotification(e.message, 'error');
+      client.notifications.addError({
+        message: e.message,
+        options: {
+          originalError: e,
+          tags: addNotificationTargetTag(panel),
+          type: 'browser:audio:playback:error',
+        },
+        origin: { emitter: 'useAudioController' },
+      });
     },
-    [addNotification],
+    [client, panel],
   );
 
   const togglePlay = useCallback(async () => {
@@ -126,7 +136,16 @@ export const useAudioController = ({
     audioElement.addEventListener('ended', handleEnded);
 
     const handleError = () => {
-      addNotification(t('Error reproducing the recording'), 'error');
+      const error = new Error(t('Error reproducing the recording'));
+      client.notifications.addError({
+        message: error.message,
+        options: {
+          originalError: error,
+          tags: addNotificationTargetTag(panel),
+          type: 'browser:audio:playback:error',
+        },
+        origin: { emitter: 'useAudioController' },
+      });
       setIsPlaying(false);
     };
     audioElement.addEventListener('error', handleError);
@@ -142,7 +161,7 @@ export const useAudioController = ({
       audioElement.removeEventListener('error', handleError);
       audioElement.removeEventListener('timeupdate', handleTimeupdate);
     };
-  }, [addNotification, durationSeconds, t]);
+  }, [client, durationSeconds, panel, t]);
 
   return {
     audioRef,

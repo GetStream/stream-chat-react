@@ -25,6 +25,7 @@ import { ChannelSearch as DefaultChannelSearch } from '../ChannelSearch/ChannelS
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
+import { NotificationList } from '../Notifications';
 import {
   ChannelListContextProvider,
   DialogManagerProvider,
@@ -433,6 +434,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
               )}
             </List>
           )}
+          <NotificationList panel='channel-list' />
         </div>
       </ChannelListContextProvider>
     </DialogManagerProvider>

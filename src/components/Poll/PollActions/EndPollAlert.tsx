@@ -7,12 +7,14 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { Button } from '../../Button';
+import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
 
 export const EndPollAlert = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();
+  const panel = useNotificationTarget();
 
   return (
     <Alert.Root className={'str-chat__end-poll-alert'}>
@@ -34,6 +36,7 @@ export const EndPollAlert = () => {
               client.notifications.addSuccess({
                 message: t('Poll ended'),
                 options: {
+                  tags: addNotificationTargetTag(panel),
                   type: 'api:poll:end:success',
                 },
                 origin: { emitter: 'EndPollAlert' },
@@ -42,6 +45,8 @@ export const EndPollAlert = () => {
               client.notifications.addError({
                 message: t('Failed to end the poll'),
                 options: {
+                  originalError: e instanceof Error ? e : undefined,
+                  tags: addNotificationTargetTag(panel),
                   type: 'api:poll:end:failed',
                 },
                 origin: { emitter: 'EndPollAlert' },

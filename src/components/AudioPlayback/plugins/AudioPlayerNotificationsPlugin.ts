@@ -2,12 +2,18 @@ import type { AudioPlayerPlugin } from './AudioPlayerPlugin';
 import { type AudioPlayerErrorCode } from '../AudioPlayer';
 import type { StreamChat } from 'stream-chat';
 import type { TFunction } from 'i18next';
+import {
+  addNotificationTargetTag,
+  type NotificationTargetPanel,
+} from '../../Notifications/notificationOrigin';
 
 export const audioPlayerNotificationsPluginFactory = ({
   client,
+  panel = 'channel',
   t,
 }: {
   client: StreamChat;
+  panel?: NotificationTargetPanel;
   t: TFunction;
 }): AudioPlayerPlugin => {
   const errors: Record<AudioPlayerErrorCode, Error> = {
@@ -30,6 +36,7 @@ export const audioPlayerNotificationsPluginFactory = ({
         message: error.message,
         options: {
           originalError: error,
+          tags: addNotificationTargetTag(panel),
           type: 'browser:audio:playback:error',
         },
         origin: {

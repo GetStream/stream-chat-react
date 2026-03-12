@@ -33,6 +33,7 @@ export * from './Modal';
 export * from './Notifications';
 export * from './Poll';
 export * from './Reactions';
+export * from './ResizableContainer';
 export * from './SafeAnchor';
 export * from './TextareaComposer';
 export * from './Thread';

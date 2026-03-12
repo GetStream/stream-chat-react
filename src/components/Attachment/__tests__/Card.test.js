@@ -33,8 +33,7 @@ const user = generateUser({ id: 'userId', name: 'username' });
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
-const addNotificationSpy = jest.fn();
-const channelActionContext = { addNotification: addNotificationSpy };
+const channelActionContext = {};
 
 const mockedChannel = generateChannel({
   members: [generateMember({ user })],

@@ -1250,8 +1250,8 @@ describe('Channel', () => {
           }
         }
 
+        const addErrorSpy = jest.spyOn(chatClient.notifications, 'addError');
         let hasJumped;
-        let notifications;
         let highlightedMessageId;
         let channelUnreadUiStateAfterJump;
         await act(async () => {
@@ -1261,7 +1261,6 @@ describe('Channel', () => {
               channelUnreadUiState,
               highlightedMessageId: highlightedMessageIdContext,
               jumpToFirstUnreadMessage,
-              notifications: contextNotifications,
               setChannelUnreadUiState,
             }) => {
               if (!channelUnreadUiState) return;
@@ -1273,7 +1272,6 @@ describe('Channel', () => {
                 return;
               }
               if (hasJumped) {
-                notifications = contextNotifications;
                 highlightedMessageId = highlightedMessageIdContext;
                 channelUnreadUiStateAfterJump = channelUnreadUiState;
                 return;
@@ -1291,11 +1289,11 @@ describe('Channel', () => {
           }
 
           if (loadScenario.match('query fails')) {
-            expect(notifications).toHaveLength(1);
-            expect(notifications[0].text).toBe(errorNotificationText);
+            expect(addErrorSpy).toHaveBeenCalledWith(
+              expect.objectContaining({ message: errorNotificationText }),
+            );
             expect(highlightedMessageId).toBeUndefined();
           } else {
-            expect(notifications).toHaveLength(0);
             expect(highlightedMessageId).toBe(first_unread_message_id);
             if (!ownReadState.first_unread_message_id) {
               expect(channelUnreadUiStateAfterJump.first_unread_message_id).toBe(
@@ -1304,6 +1302,7 @@ describe('Channel', () => {
             }
           }
         });
+        addErrorSpy.mockRestore();
       };
 
       it('should not query messages around the first unread message if it is already loaded in state', async () => {
@@ -1470,10 +1469,10 @@ describe('Channel', () => {
             ],
             customUser: user,
           });
+          const addErrorSpy = jest.spyOn(chatClient.notifications, 'addError');
           let hasJumped;
           let hasMoreMessages;
           let highlightedMessageId;
-          let notifications;
           await renderComponent(
             { channel, chatClient },
             ({
@@ -1481,12 +1480,10 @@ describe('Channel', () => {
               hasMore,
               highlightedMessageId: contextHighlightedMessageId,
               jumpToFirstUnreadMessage,
-              notifications: contextNotifications,
             }) => {
               if (hasJumped) {
                 hasMoreMessages = hasMore;
                 highlightedMessageId = contextHighlightedMessageId;
-                notifications = contextNotifications;
                 return;
               }
               if (!channelUnreadUiState) return;
@@ -1501,8 +1498,13 @@ describe('Channel', () => {
           await waitFor(() => {
             expect(hasMoreMessages).toBe(expectedHasMore);
             expect(highlightedMessageId).toBe(expectedJumpToId);
-            expect(notifications).toHaveLength(!expectedJumpToId ? 1 : 0);
+            if (!expectedJumpToId) {
+              expect(addErrorSpy).toHaveBeenCalled();
+            } else {
+              expect(addErrorSpy).not.toHaveBeenCalled();
+            }
           });
+          addErrorSpy.mockRestore();
         },
       );
     });

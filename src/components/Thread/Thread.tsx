@@ -7,6 +7,7 @@ import type { MessageInputProps } from '../MessageInput';
 import { MessageInput, MessageInputFlat } from '../MessageInput';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
+import { NotificationList } from '../Notifications';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
@@ -197,6 +198,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           parent={thread ?? parentMessage}
           {...additionalMessageInputProps}
         />
+        <NotificationList panel='thread' />
       </div>
     </LegacyThreadContext.Provider>
   );

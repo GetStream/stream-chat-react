@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { MessageComposer } from 'stream-chat';
+import { useChatContext } from '../../../context/ChatContext';
 import { useMessageComposer } from './useMessageComposer';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -28,9 +30,10 @@ const takeStateSnapshot = (messageComposer: MessageComposer) => {
 export const useSubmitHandler = (props: MessageInputProps) => {
   const { overrideSubmitHandler } = props;
 
-  const { addNotification, editMessage, sendMessage } =
-    useChannelActionContext('useSubmitHandler');
+  const { client } = useChatContext('useSubmitHandler');
+  const { editMessage, sendMessage } = useChannelActionContext('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
+  const panel = useNotificationTarget();
   const messageComposer = useMessageComposer();
 
   const handleSubmit = useCallback(
@@ -46,7 +49,11 @@ export const useSubmitHandler = (props: MessageInputProps) => {
           await editMessage(localMessage, sendOptions);
           messageComposer.clear();
         } catch (err) {
-          addNotification(t('Edit message request failed'), 'error');
+          client.notifications.addError({
+            message: t('Edit message request failed'),
+            options: { tags: addNotificationTargetTag(panel) },
+            origin: { emitter: 'MessageInput' },
+          });
         }
       } else {
         const restoreComposerStateSnapshot = takeStateSnapshot(messageComposer);
@@ -77,18 +84,15 @@ export const useSubmitHandler = (props: MessageInputProps) => {
             await messageComposer.channel.stopTyping();
         } catch (err) {
           restoreComposerStateSnapshot();
-          addNotification(t('Send message request failed'), 'error');
+          client.notifications.addError({
+            message: t('Send message request failed'),
+            options: { tags: addNotificationTargetTag(panel) },
+            origin: { emitter: 'MessageInput' },
+          });
         }
       }
     },
-    [
-      addNotification,
-      editMessage,
-      messageComposer,
-      overrideSubmitHandler,
-      sendMessage,
-      t,
-    ],
+    [client, editMessage, messageComposer, overrideSubmitHandler, panel, sendMessage, t],
   );
 
   return { handleSubmit };

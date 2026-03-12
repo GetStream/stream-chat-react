@@ -1,0 +1,88 @@
+.str-chat__notification-list {
+  display: flex;
+  flex-direction: column;
+  max-height: min(50vh, 320px);
+  overflow: hidden;
+  padding: 8px 0;
+  pointer-events: auto;
+  position: fixed;
+  right: 16px;
+  top: 16px;
+  z-index: 1000;
+  perspective: 1200px;
+}
+
+.str-chat__notification-list__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 0;
+  transform: rotateX(3deg);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .str-chat__notification {
+    backface-visibility: visible;
+  }
+}
+
+.str-chat__notification-list__edge {
+  flex-shrink: 0;
+  height: 24px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+}
+
+.str-chat__notification-list__edge--top {
+  background: linear-gradient(
+    to bottom,
+    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
+    transparent 100%
+  );
+  top: 0;
+
+  @supports (backdrop-filter: blur(6px)) {
+    backdrop-filter: blur(6px);
+    background: linear-gradient(
+      to bottom,
+      var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
+      transparent 100%
+    );
+  }
+}
+
+.str-chat__notification-list__edge--bottom {
+  background: linear-gradient(
+    to top,
+    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
+    transparent 100%
+  );
+  bottom: 0;
+
+  @supports (backdrop-filter: blur(6px)) {
+    backdrop-filter: blur(6px);
+    background: linear-gradient(
+      to top,
+      var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
+      transparent 100%
+    );
+  }
+}
