@@ -283,7 +283,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <MessageListWrapper className='str-chat__ul'>
                     {elements}
                   </MessageListWrapper>
-                  <TypingIndicator threadList={threadList} />
+                  <TypingIndicator
+                    isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                    scrollToBottom={scrollToBottom}
+                    threadList={threadList}
+                  />
 
                   <div key='bottom' />
                 </InfiniteScroll>

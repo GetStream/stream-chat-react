@@ -26,7 +26,6 @@
   --str-chat__thread-header-box-shadow: none;
 }
 
-
 .str-chat__thread-header {
   @include utils.header-layout;
   @include utils.component-layer-overrides('thread-header');

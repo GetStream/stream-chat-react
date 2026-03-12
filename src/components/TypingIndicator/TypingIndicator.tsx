@@ -1,46 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 
+import { AvatarStack } from '../Avatar';
+import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+
+const MAX_AVATARS = 3;
 
 export type TypingIndicatorProps = {
+  /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
+  isMessageListScrolledToBottom?: boolean;
+  scrollToBottom: () => void;
   /** Whether the typing indicator is in a thread */
   threadList?: boolean;
 };
 
-const useJoinTypingUsers = (names: string[]) => {
-  const { t } = useTranslationContext();
-
-  if (!names.length) return null;
-
-  const [name, ...rest] = names;
-
-  if (names.length === 1)
-    return t('{{ user }} is typing...', {
-      user: name,
-    });
-
-  const MAX_JOINED_USERS = 3;
-
-  if (names.length > MAX_JOINED_USERS)
-    return t('{{ users }} and more are typing...', {
-      users: names.slice(0, MAX_JOINED_USERS).join(', ').trim(),
-    });
-
-  return t('{{ users }} and {{ user }} are typing...', {
-    user: name,
-    users: rest.join(', ').trim(),
-  });
-};
-
 /**
- * TypingIndicator lists users currently typing, it needs to be a child of Channel component
+ * TypingIndicator shows avatars of users currently typing and a bubble with animated dots.
+ * Renders only for other participants (never the current user), only when scrolled to latest message if isMessageListScrolledToBottom is provided.
+ * It must be a child of Channel component.
  */
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
-  const { threadList } = props;
+  const { isMessageListScrolledToBottom = true, scrollToBottom, threadList } = props;
 
   const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
   const { client } = useChatContext('TypingIndicator');
@@ -58,20 +41,30 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       )
     : [];
 
-  const typingUserList = (threadList ? typingInThread : typingInChannel)
-    .map(({ user }) => user?.name || user?.id)
-    .filter(Boolean) as string[];
+  const typingUsers = threadList ? typingInThread : typingInChannel;
 
-  const joinedTypingUsers = useJoinTypingUsers(typingUserList);
+  const isTypingActive = typingUsers.length > 0;
+  const displayInfo = typingUsers.slice(0, MAX_AVATARS).map(({ user }) => ({
+    id: user?.id,
+    imageUrl: user?.image,
+    userName: user?.name || user?.id || '',
+  }));
 
-  const isTypingActive =
-    (threadList && typingInThread.length) || (!threadList && typingInChannel.length);
+  useEffect(() => {
+    if (isTypingActive && isMessageListScrolledToBottom) scrollToBottom();
+  }, [scrollToBottom, isMessageListScrolledToBottom, isTypingActive]);
 
   if (channelConfig?.typing_events === false) {
     return null;
   }
 
-  if (!isTypingActive) return null;
+  if (!isTypingActive || !isMessageListScrolledToBottom) {
+    return null;
+  }
+
+  const overflowCount =
+    typingUsers.length > MAX_AVATARS ? typingUsers.length - MAX_AVATARS : 0;
+
   return (
     <div
       className={clsx('str-chat__typing-indicator', {
@@ -79,13 +72,18 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       })}
       data-testid='typing-indicator'
     >
-      <div className='str-chat__typing-indicator__dots'>
-        <span className='str-chat__typing-indicator__dot'></span>
-        <span className='str-chat__typing-indicator__dot'></span>
-        <span className='str-chat__typing-indicator__dot'></span>
-      </div>
-      <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
-        {joinedTypingUsers}
+      {displayInfo.length > 0 && (
+        <AvatarStack
+          badgeSize='md'
+          displayInfo={displayInfo}
+          overflowCount={overflowCount > 0 ? overflowCount : undefined}
+          size='md'
+        />
+      )}
+      <div className='str-chat__typing-indicator__bubble'>
+        <div className='str-chat__typing-indicator__dots'>
+          <TypingIndicatorDots />
+        </div>
       </div>
     </div>
   );

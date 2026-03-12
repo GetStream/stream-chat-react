@@ -2,7 +2,7 @@
 // Figma: Badge Notification (scroll-to-bottom unread count)
 
 .str-chat__badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--typography-font-weight-bold);
@@ -68,4 +68,38 @@
   padding-inline: var(--spacing-xs);
   border-width: 2px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+}
+
+.str-chat__badge--variant-counter {
+  border-radius: var(--radius-max);
+  border: 1px solid var(--border-core-subtle);
+  background: var(--badge-bg-default);
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+  font: var(--str-chat__numeric-xl-text);
+
+  &.str-chat__badge--size-xs {
+    min-width: 20px;
+    min-height: 20px;
+    padding-inline: var(--spacing-xxs);
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+    font: var(--str-chat__numeric-md-text);
+  }
+
+  &.str-chat__badge--size-sm {
+    min-width: 24px;
+    min-height: 24px;
+    padding-inline: var(--spacing-xs);
+  }
+
+  &.str-chat__badge--size-md {
+    min-width: 32px;
+    min-height: 32px;
+    padding-inline: var(--spacing-xs);
+  }
+
+  &.str-chat__badge--size-lg {
+    min-width: 40px;
+    min-height: 40px;
+    padding-inline: var(--spacing-sm);
+  }
 }

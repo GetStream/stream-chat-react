@@ -21,7 +21,9 @@
   &.str-chat__thread-list__header--sidebar-collapsed {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(calc(0px - var(--str-chat__channel-list-transition-offset, 8px)));
+    transform: translateX(
+      calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
+    );
 
     .str-chat__header-sidebar-toggle {
       // Compact styling when sidebar collapsed

@@ -77,6 +77,12 @@
     var(--typography-font-size-xl) / var(--typography-line-height-relaxed)
     var(--str-chat__font-family);
 
+  --str-chat__numeric-md-text: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-xxs) / 100% var(--str-chat__font-family);
+
+  --str-chat__numeric-xl-text: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-sm) / 100% var(--str-chat__font-family);
+
   color: var(--text-primary, #1a1b25);
 
   // todo: adapt the old text variables to so that they use the new semantic text variables
