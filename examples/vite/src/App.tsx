@@ -40,6 +40,7 @@ import {
   ReactionOptions,
   mapEmojiMartData,
   useStateStore,
+  TypingIndicator,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -329,31 +330,35 @@ const App = () => {
               sort={sort}
               showChannelSearch
             />
-            <Channel>
-              <WithDragAndDropUpload>
-                <Window>
-                  <ChannelHeader Avatar={ChannelAvatar} />
-                  <MessageList returnAllReadData />
-                  <AIStateIndicator />
-                  <MessageInput
-                    focus
-                    audioRecordingEnabled
-                    maxRows={10}
-                    asyncMessagesMultiSendEnabled
-                  />
-                </Window>
-              </WithDragAndDropUpload>
-              <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-                <Thread virtualized />
-              </WithDragAndDropUpload>
-            </Channel>
+            <WithComponents overrides={{ TypingIndicator }}>
+              <Channel>
+                <WithDragAndDropUpload>
+                  <Window>
+                    <ChannelHeader Avatar={ChannelAvatar} />
+                    <MessageList returnAllReadData />
+                    <AIStateIndicator />
+                    <MessageInput
+                      focus
+                      audioRecordingEnabled
+                      maxRows={10}
+                      asyncMessagesMultiSendEnabled
+                    />
+                  </Window>
+                </WithDragAndDropUpload>
+                <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+                  <Thread virtualized />
+                </WithDragAndDropUpload>
+              </Channel>
+            </WithComponents>
           </ChatView.Channels>
           <ChatView.Threads>
             <ThreadStateSync />
             <ThreadList />
             <ChatView.ThreadAdapter>
               <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-                <Thread virtualized />
+                <WithComponents overrides={{ TypingIndicator }}>
+                  <Thread virtualized />
+                </WithComponents>
               </WithDragAndDropUpload>
             </ChatView.ThreadAdapter>
           </ChatView.Threads>

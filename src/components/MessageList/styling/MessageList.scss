@@ -40,6 +40,19 @@
   }
 }
 
+.str-chat__thread {
+  .str-chat__message-list .str-chat__message-list-scroll {
+    padding-inline: 0;
+    /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
+    max-width: var(--str-chat__message-list-scroll-max-width);
+    .str-chat__ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+  }
+}
+
 .str-chat__main-panel {
   .str-chat__ul {
     .str-chat__li:first-of-type {

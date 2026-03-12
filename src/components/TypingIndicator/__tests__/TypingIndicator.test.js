@@ -23,7 +23,12 @@ expect.extend(toHaveNoViolations);
 
 const me = generateUser();
 
-async function renderComponent(typing = {}, threadList, value = {}) {
+async function renderComponent(
+  typing = {},
+  threadList,
+  value = {},
+  typingIndicatorProps = {},
+) {
   const client = await getTestClientWithUser(me);
 
   return render(
@@ -31,7 +36,7 @@ async function renderComponent(typing = {}, threadList, value = {}) {
       <ChannelStateProvider value={{ ...value }}>
         <ComponentProvider value={{}}>
           <TypingProvider value={{ typing }}>
-            <TypingIndicator threadList={threadList} />
+            <TypingIndicator threadList={threadList} {...typingIndicatorProps} />
           </TypingProvider>
         </ComponentProvider>
       </ChannelStateProvider>
@@ -84,7 +89,7 @@ describe('TypingIndicator', () => {
     });
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
-    expect(screen.getByText('{{ user }} is typing...')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -97,7 +102,7 @@ describe('TypingIndicator', () => {
     });
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
-    expect(screen.getByText('{{ user }} is typing...')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -109,9 +114,7 @@ describe('TypingIndicator', () => {
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
-    expect(
-      screen.getByText('{{ users }} and {{ user }} are typing...'),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -124,9 +127,19 @@ describe('TypingIndicator', () => {
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
-    expect(screen.getByText('{{ users }} and more are typing...')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should render null when isMessageListScrolledToBottom is false', async () => {
+    const { container } = await renderComponent(
+      { jessica: { user: { id: 'jessica', image: 'jessica.jpg' } } },
+      false,
+      {},
+      { isMessageListScrolledToBottom: false },
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render null if typing_events is disabled', async () => {

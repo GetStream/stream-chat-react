@@ -2,12 +2,38 @@ import React from 'react';
 
 import { IconLayoutAlignLeft } from '../Icons/icons';
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
+import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useTypingContext } from '../../context/TypingContext';
 import clsx from 'clsx';
 import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
+
+const ChannelHeaderSubtitle = () => {
+  const { channelConfig } = useChannelStateContext('ChannelHeaderSubtitle');
+  const { client } = useChatContext('ChannelHeaderSubtitle');
+  const { typing = {} } = useTypingContext('ChannelHeaderSubtitle');
+  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const typingInChannel = Object.values(typing).filter(
+    ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+  );
+  const hasTyping = channelConfig?.typing_events !== false && typingInChannel.length > 0;
+
+  if (!hasTyping && !onlineStatusText) return null;
+
+  return (
+    <div className='str-chat__channel-header__data__subtitle'>
+      <span
+        className='str-chat__subtitle-content-transition'
+        key={hasTyping ? 'typing' : 'default'}
+      >
+        {hasTyping ? <TypingIndicatorHeader /> : onlineStatusText}
+      </span>
+    </div>
+  );
+};
 
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
@@ -38,7 +64,6 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     overrideImage,
     overrideTitle,
   });
-  const onlineStatusText = useChannelHeaderOnlineStatus();
 
   return (
     <div
@@ -51,11 +76,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       </ToggleSidebarButton>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
-        {onlineStatusText != null && (
-          <div className='str-chat__channel-header__data__subtitle'>
-            {onlineStatusText}
-          </div>
-        )}
+        <ChannelHeaderSubtitle />
       </div>
       <Avatar
         className='str-chat__avatar--channel-header'
