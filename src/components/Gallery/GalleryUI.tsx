@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { BaseImage } from './BaseImage';
+import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
 import { IconChevronLeft, IconChevronRight } from '../Icons';
@@ -167,6 +168,7 @@ export const GalleryUI = () => {
   return (
     <div className='str-chat__gallery'>
       <div className='str-chat__gallery__main'>
+        <GalleryHeader currentItem={currentItem} />
         <NavButton
           aria-label={t('Previous image')}
           className={clsx(
@@ -228,7 +230,7 @@ export const GalleryUI = () => {
       </div>
       {itemCount > 1 && (
         <div className='str-chat__gallery__position-indicator'>
-          {currentIndex + 1} / {itemCount}
+          {currentIndex + 1} of {itemCount}
         </div>
       )}
     </div>

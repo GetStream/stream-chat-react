@@ -205,8 +205,8 @@ describe('ModalGallery', () => {
       });
 
       await waitFor(() => {
-        // The gallery should show position 2 / 3 (index 1)
-        expect(screen.getByText('2 / 3')).toBeInTheDocument();
+        // The gallery should show position 2 of 3 (index 1)
+        expect(screen.getByText('2 of 3')).toBeInTheDocument();
       });
     });
 
