@@ -25,6 +25,10 @@ body {
 
 @layer stream-overrides {
   .str-chat {
+    --app-chat-view-sidebar-width: 350px;
+    --str-chat__channel-list-width: var(--app-chat-view-sidebar-width);
+    --str-chat__thread-list-width: var(--app-chat-view-sidebar-width);
+
     height: 100%;
     width: 100%;
   }
@@ -48,11 +52,6 @@ body {
 
   .str-chat__channel-list {
     height: 100%;
-
-    &.str-chat__channel-list--open {
-      flex: 0 0 300px;
-      max-width: 300px;
-    }
   }
 
   .str-chat__main-panel {
@@ -129,11 +128,6 @@ body {
 
     .str-chat__chat-view__channels .str-chat__container .str-chat__dropzone-root--thread,
     .str-chat__chat-view__channels .str-chat__container .str-chat__thread-container {
-      width: 100%;
-      max-width: 360px;
-    }
-
-    .str-chat__thread-list-container.str-chat__thread-list-container--open {
       width: 100%;
       max-width: 360px;
     }
