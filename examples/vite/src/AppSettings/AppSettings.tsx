@@ -4,11 +4,13 @@ import {
   GlobalModal,
   IconBubble3ChatMessage,
   IconEmojiSmile,
+  IconLightBulbSimple,
   IconSettingsGear2,
 } from 'stream-chat-react';
 import { type ComponentType, useState } from 'react';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
+import { appSettingsStore, useAppSettingsState } from './state';
 
 type TabId = 'reactions' | 'sidebar';
 
@@ -17,13 +19,41 @@ const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
 
+const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  const {
+    theme: { mode },
+  } = useAppSettingsState();
+  const nextMode = mode === 'dark' ? 'light' : 'dark';
+
+  return (
+    <ChatViewSelectorButton
+      aria-checked={mode === 'dark'}
+      aria-label={`Switch to ${nextMode} mode`}
+      aria-selected={mode === 'dark'}
+      className='app__settings-group_button'
+      iconOnly={iconOnly}
+      Icon={IconLightBulbSimple}
+      isActive={mode === 'dark'}
+      onClick={() =>
+        appSettingsStore.partialNext({
+          theme: { mode: nextMode },
+        })
+      }
+      role='switch'
+      text={mode === 'dark' ? 'Dark mode' : 'Light mode'}
+    />
+  );
+};
+
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [activeTab, setActiveTab] = useState<TabId>('sidebar');
   const [open, setOpen] = useState(false);
 
   return (
     <div className='app__settings-group'>
+      <SidebarThemeToggle iconOnly={iconOnly} />
       <ChatViewSelectorButton
+        className='app__settings-group_button'
         iconOnly={iconOnly}
         Icon={IconSettingsGear2}
         onClick={() => setOpen(true)}

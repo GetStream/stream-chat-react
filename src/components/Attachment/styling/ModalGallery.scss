@@ -4,7 +4,8 @@
   --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
   --str-chat__modal-gallery-load-failed-indicator-color: var(--text-inverse);
   --str-chat__modal-gallery-loading-background: var(--chat-bg-incoming);
-  --str-chat__modal-gallery-loading-highlight: var(--base-white);
+  --str-chat__modal-gallery-loading-base: var(--skeleton-loading-base);
+  --str-chat__modal-gallery-loading-highlight: var(--skeleton-loading-highlight);
 }
 
 .str-chat__message--me {
@@ -140,9 +141,9 @@
         background-color: var(--str-chat__modal-gallery-loading-background);
         background-image: linear-gradient(
           90deg,
-          rgba(255, 255, 255, 0) 0%,
+          var(--str-chat__modal-gallery-loading-base) 0%,
           var(--str-chat__modal-gallery-loading-highlight) 50%,
-          rgba(255, 255, 255, 0) 100%
+          var(--str-chat__modal-gallery-loading-base) 100%
         );
         background-repeat: no-repeat;
         background-size: 200% 100%;

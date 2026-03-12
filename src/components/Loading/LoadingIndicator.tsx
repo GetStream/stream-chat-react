@@ -9,7 +9,9 @@ export type LoadingIndicatorProps = {
 };
 
 const UnMemoizedLoadingIndicator = (props: LoadingIndicatorProps) => {
-  const { color = '#006CFF', size = 15 } = props;
+  const { color, size = 15 } = props;
+  const baseColor = 'var(--str-chat__loading-indicator-base-color)';
+  const indicatorColor = color ?? 'var(--str-chat__loading-indicator-color)';
 
   return (
     <div
@@ -25,13 +27,18 @@ const UnMemoizedLoadingIndicator = (props: LoadingIndicatorProps) => {
       >
         <defs>
           <linearGradient id='a' x1='50%' x2='50%' y1='0%' y2='100%'>
-            <stop offset='0%' stopColor='#FFF' stopOpacity='0' />
+            <stop
+              offset='0%'
+              stopColor={baseColor}
+              stopOpacity='0'
+              style={{ stopColor: baseColor }}
+            />
             <stop
               data-testid='loading-indicator-circle'
               offset='100%'
-              stopColor={color}
+              stopColor={indicatorColor}
               stopOpacity='1'
-              style={{ stopColor: color }}
+              style={{ stopColor: indicatorColor }}
             />
           </linearGradient>
         </defs>

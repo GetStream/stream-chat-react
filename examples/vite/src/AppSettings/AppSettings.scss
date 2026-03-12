@@ -8,11 +8,6 @@
 
     .app__settings-group_button {
       color: var(--text-secondary);
-
-      svg {
-        height: 2rem;
-        width: 2rem;
-      }
     }
   }
 
@@ -22,7 +17,9 @@
     width: min(920px, 90vw);
     max-height: min(80vh, 760px);
     min-height: min(520px, 72vh);
-    background: #fff;
+    background: var(--background-elevation-elevation-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-core-default);
     border-radius: 14px;
   }
 
@@ -33,7 +30,7 @@
     padding: 16px 20px;
     font-size: 1.5rem;
     font-weight: 700;
-    border-bottom: 1px solid #dfe5ef;
+    border-bottom: 1px solid var(--border-core-default);
 
     svg.str-chat__icon--cog {
       height: 1.75rem;
@@ -51,7 +48,7 @@
   .app__settings-modal__tabs {
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-right: 1px solid #dfe5ef;
+    border-right: 1px solid var(--border-core-default);
     padding: 10px;
   }
 
@@ -61,12 +58,14 @@
     justify-content: flex-start;
     font-weight: 500;
     margin-bottom: 6px;
+    color: var(--text-secondary);
   }
 
   .app__settings-modal__tab[aria-selected='true'],
   .app__settings-modal__tab.app__settings-modal__tab--active {
-    background: #e9f0ff;
-    border-color: #3167f6;
+    background: var(--background-core-selected);
+    border-color: var(--border-utility-selected);
+    color: var(--text-primary);
     font-weight: 600;
   }
 
@@ -90,7 +89,7 @@
 
   .app__settings-modal__field-label {
     font-weight: 600;
-    color: #2f3550;
+    color: var(--text-primary);
   }
 
   .app__settings-modal__options-row {
@@ -100,8 +99,8 @@
   }
 
   .app__settings-modal__option-button[aria-pressed='true'] {
-    border-color: #3167f6;
-    background: #e9f0ff;
+    border-color: var(--border-utility-selected);
+    background: var(--background-core-selected);
     font-weight: 600;
   }
 
@@ -113,10 +112,10 @@
   }
 
   .app__settings-modal__preview {
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-core-default);
     border-radius: 12px;
     padding: 12px;
-    background: var(--bg-surface);
+    background: var(--background-core-surface);
 
     .str-chat__li--single {
       list-style: none;
@@ -141,7 +140,7 @@
 
     .app__settings-modal__tabs {
       border-right: 0;
-      border-bottom: 1px solid #dfe5ef;
+      border-bottom: 1px solid var(--border-core-default);
       display: flex;
       gap: 8px;
       padding: 10px 12px;

@@ -12,8 +12,8 @@
 }
 
 .str-chat {
-  /* The color of the loading indicator while initializing the channel list */
-  --str-chat__channel-preview-loading-state-color: var(--slate-100);
+  /* The base surface color behind the channel list loading shimmer */
+  --str-chat__channel-preview-loading-state-color: var(--background-core-surface);
 }
 
 .str-chat__loading-channels {

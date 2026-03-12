@@ -46,9 +46,9 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
-import { useAppSettingsState } from './AppSettings';
 
 import { Search } from 'stream-chat-react/experimental';
+import { useAppSettingsState } from './AppSettings/state.ts';
 
 init({ data });
 
@@ -199,9 +199,17 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
   );
 };
 
+const EmojiPickerWithCustomOptions = (
+  props: React.ComponentProps<typeof EmojiPicker>,
+) => {
+  const state = useAppSettingsState();
+
+  return <EmojiPicker {...props} pickerProps={{ theme: state.theme.mode }} />;
+};
+
 const App = () => {
   const { userId, tokenProvider } = useUser();
-  const { chatView } = useAppSettingsState();
+  const { chatView, theme } = useAppSettingsState();
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
 
@@ -288,11 +296,13 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
+  const chatTheme = theme.mode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
+
   return (
     <WithComponents
       overrides={{
         emojiSearchIndex: SearchIndex,
-        EmojiPicker,
+        EmojiPicker: EmojiPickerWithCustomOptions,
         ReactionsList: CustomMessageReactions,
         reactionOptions: newReactionOptions,
       }}
@@ -301,6 +311,7 @@ const App = () => {
         searchController={searchController}
         client={chatClient}
         isMessageAIGenerated={isMessageAIGenerated}
+        theme={chatTheme}
       >
         <ChatView>
           <ChatStateSync initialChatView={initialChatView} />

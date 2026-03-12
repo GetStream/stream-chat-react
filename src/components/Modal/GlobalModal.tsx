@@ -10,7 +10,11 @@ import React, {
 } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
-import { ModalContextProvider, modalDialogManagerId } from '../../context';
+import {
+  ModalContextProvider,
+  modalDialogManagerId,
+  useChatContext,
+} from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
@@ -51,6 +55,7 @@ export const GlobalModal = ({
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
+  const { theme } = useChatContext('GlobalModal');
 
   const maybeClose = useCallback(
     (source: ModalCloseSource, event: ModalCloseEvent) => {
@@ -109,7 +114,9 @@ export const GlobalModal = ({
       <ModalContextProvider value={modalContextValue}>
         <div
           className={clsx(
-            'str-chat str-chat__modal str-chat-react__modal str-chat__modal--open',
+            'str-chat',
+            theme,
+            'str-chat__modal str-chat-react__modal str-chat__modal--open',
             className,
           )}
           onClick={handleClick}

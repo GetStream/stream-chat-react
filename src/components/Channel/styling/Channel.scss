@@ -206,8 +206,8 @@
   /* The icon color used when no channel is selected */
   --str-chat__channel-empty-indicator-color: var(--str-chat__disabled-color);
 
-  /* The color of the loading indicator */
-  --str-chat__channel-loading-state-color: var(--slate-100);
+  /* The base surface color behind the loading shimmer */
+  --str-chat__channel-loading-state-color: var(--background-core-surface);
 }
 
 .str-chat__channel {
