@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { type JSX, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useDialog } from '../Dialog';
@@ -20,9 +20,17 @@ export type ReactionSelectorProps = {
   own_reactions?: ReactionResponse[];
 };
 
+interface ReactionSelectorInterface {
+  (props: ReactionSelectorProps): JSX.Element;
+  getReactionSelectorDialogId: (_: {
+    messageId: string;
+    threadList?: boolean;
+  }) => `reaction-selector${'-thread' | ''}--${string}`;
+}
+
 const stableOwnReactions: ReactionResponse[] = [];
 
-const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
+export const ReactionSelector: ReactionSelectorInterface = (props) => {
   const { handleReaction: propHandleReaction, own_reactions: propOwnReactions } = props;
   const [extendedListOpen, setExtendedListOpen] = useState(false);
 
@@ -33,8 +41,12 @@ const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
+    threadList,
   } = useMessageContext('ReactionSelector');
-  const dialogId = `reaction-selector--${message.id}`;
+  const dialogId = ReactionSelector.getReactionSelectorDialogId({
+    messageId: message.id,
+    threadList,
+  });
   const dialog = useDialog({ id: dialogId });
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
@@ -136,9 +148,7 @@ const UnMemoizedReactionSelector = (props: ReactionSelectorProps) => {
   );
 };
 
-/**
- * Component that allows a user to select a reaction.
- */
-export const ReactionSelector = React.memo(
-  UnMemoizedReactionSelector,
-) as typeof UnMemoizedReactionSelector;
+ReactionSelector.getReactionSelectorDialogId = (({ messageId, threadList }) => {
+  const dialogIdNamespace = threadList ? '-thread' : '';
+  return `reaction-selector${dialogIdNamespace}--${messageId}`;
+}) satisfies ReactionSelectorInterface['getReactionSelectorDialogId'];

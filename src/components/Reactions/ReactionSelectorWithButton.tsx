@@ -28,8 +28,10 @@ export const ReactionSelectorWithButton = ({
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
-  const dialogIdNamespace = threadList ? '-thread-' : '';
-  const dialogId = `reaction-selector${dialogIdNamespace}--${message.id}`;
+  const dialogId = DefaultReactionSelector.getReactionSelectorDialogId({
+    messageId: message.id,
+    threadList,
+  });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 

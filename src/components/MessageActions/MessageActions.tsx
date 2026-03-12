@@ -13,6 +13,7 @@ import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks
 import { defaultMessageActionSet } from './defaults';
 import { ActionsIcon, type MESSAGE_ACTIONS } from '../Message';
 import { Button } from '../Button';
+import { ReactionSelector } from '../Reactions';
 
 type BaseMessageActionSetItem = {
   placement: 'quick' | 'dropdown';
@@ -49,7 +50,7 @@ export const MessageActions = ({
   messageActionSet = defaultMessageActionSet,
 }: MessageActionsProps) => {
   const { theme } = useChatContext();
-  const { isMyMessage, message } = useMessageContext();
+  const { isMyMessage, message, threadList } = useMessageContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] =
     useState<HTMLSpanElement | null>(null);
@@ -64,7 +65,10 @@ export const MessageActions = ({
   );
 
   const dropdownDialogId = `message-actions--${message.id}`;
-  const reactionSelectorDialogId = `reaction-selector--${message.id}`;
+  const reactionSelectorDialogId = ReactionSelector.getReactionSelectorDialogId({
+    messageId: message.id,
+    threadList,
+  });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dropdownDialogId });
   const dropdownDialogIsOpen = useDialogIsOpen(dropdownDialogId, dialogManager?.id);
   const reactionSelectorDialogIsOpen = useDialogIsOpen(
