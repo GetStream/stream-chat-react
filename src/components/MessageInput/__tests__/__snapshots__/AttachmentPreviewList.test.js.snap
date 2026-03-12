@@ -71,7 +71,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
           </div>
           <button
             aria-label="Remove attachment"
-            class="str-chat__button str-chat__button--secondary str-chat__button--solid str-chat__button--circular str-chat__attachment-preview__remove-button"
+            class="str-chat__button str-chat__button--circular str-chat__attachment-preview__remove-button"
             data-testid="video-preview-item-delete-button"
             disabled=""
             type="button"
@@ -149,7 +149,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
           </div>
           <button
             aria-label="Remove attachment"
-            class="str-chat__button str-chat__button--secondary str-chat__button--solid str-chat__button--circular str-chat__attachment-preview__remove-button"
+            class="str-chat__button str-chat__button--circular str-chat__attachment-preview__remove-button"
             data-testid="video-preview-item-delete-button"
             disabled=""
             type="button"

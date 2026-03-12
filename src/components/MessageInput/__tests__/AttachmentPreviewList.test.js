@@ -19,16 +19,41 @@ import {
   generateVoiceRecordingAttachment,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { MessageProvider, WithComponents } from '../../../context';
+import { WithComponents } from '../../../context';
 
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 
-const RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
-const RETRY_BTN_IMAGE_TEST_ID = 'image-preview-item-retry-button';
-const DELETE_BTN_TEST_ID = 'file-preview-item-delete-button';
-const DELETE_BTN_IMAGE_TEST_ID = 'image-preview-item-delete-button';
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
+const ATTACHMENT_PREVIEW_TEST_IDS = {
+  audio: {
+    delete: 'audio-preview-item-delete-button',
+    retry: 'file-preview-item-retry-button',
+  },
+  file: {
+    delete: 'file-preview-item-delete-button',
+    retry: 'file-preview-item-retry-button',
+  },
+  image: {
+    delete: 'video-preview-item-delete-button',
+    retry: 'video-preview-item-retry-button',
+  },
+  unsupported: {
+    delete: 'file-preview-item-delete-button',
+    retry: 'file-preview-item-retry-button',
+  },
+  video: {
+    delete: 'video-preview-item-delete-button',
+    retry: 'video-preview-item-retry-button',
+  },
+};
+const PREVIEW_COMPONENT_PROP_NAMES = {
+  audio: 'AudioAttachmentPreview',
+  file: 'FileAttachmentPreview',
+  image: 'ImageAttachmentPreview',
+  unsupported: 'UnsupportedAttachmentPreview',
+  video: 'VideoAttachmentPreview',
+};
 
 const renderComponent = async ({
   attachments,
@@ -47,6 +72,15 @@ const renderComponent = async ({
     client = initiated.client;
     channel = initiated.channels[0];
   }
+  const composerMessage = editedMessage
+    ? {
+        ...editedMessage,
+        cid: channel.cid,
+        id: channel.id,
+        type: channel.type,
+      }
+    : undefined;
+  channel.messageComposer.initState({ composition: composerMessage });
   channel.messageComposer.attachmentManager.upsertAttachments(attachments ?? []);
   if (coords) channel.messageComposer.locationComposer.setData(coords);
   let result;
@@ -55,22 +89,7 @@ const renderComponent = async ({
       <WithComponents overrides={components}>
         <Chat client={client}>
           <Channel channel={channel}>
-            {editedMessage ? (
-              <MessageProvider
-                value={{
-                  message: {
-                    ...editedMessage,
-                    cid: channel.cid,
-                    id: channel.id,
-                    type: channel.type,
-                  },
-                }}
-              >
-                <Component {...props} />
-              </MessageProvider>
-            ) : (
-              <Component {...props} />
-            )}
+            <Component {...props} />
           </Channel>
         </Chat>
       </WithComponents>,
@@ -202,9 +221,7 @@ describe('AttachmentPreviewList', () => {
           client,
         });
 
-        const retryButton = screen.getByTestId(
-          type === 'image' ? RETRY_BTN_IMAGE_TEST_ID : RETRY_BTN_TEST_ID,
-        );
+        const retryButton = screen.getByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].retry);
 
         fireEvent.click(retryButton);
 
@@ -229,7 +246,9 @@ describe('AttachmentPreviewList', () => {
         });
 
         expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
-        expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].retry),
+        ).not.toBeInTheDocument();
       });
 
       it('removes retry button on successful upload', async () => {
@@ -247,7 +266,9 @@ describe('AttachmentPreviewList', () => {
           attachments: [localAttachment],
         });
 
-        expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].retry),
+        ).not.toBeInTheDocument();
       });
 
       it('removes the preview', async () => {
@@ -277,11 +298,7 @@ describe('AttachmentPreviewList', () => {
           client,
         });
 
-        fireEvent.click(
-          screen.getByTestId(
-            type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID,
-          ),
-        );
+        fireEvent.click(screen.getByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].delete));
 
         expect(removeAttachmentsSpy).toHaveBeenCalledWith([
           localAttachment.localMetadata.id,
@@ -289,13 +306,6 @@ describe('AttachmentPreviewList', () => {
       });
 
       it('renders custom preview component', async () => {
-        const previewComponentNames = {
-          audio: 'AudioAttachmentPreview',
-          file: 'FileAttachmentPreview',
-          image: 'ImageAttachmentPreview',
-          unsupported: 'UnsupportedAttachmentPreview',
-          video: 'MediaAttachmentPreview',
-        };
         const title = `${type}-attachment`;
         const id = `${type}-id`;
         const uploadedAttachmentData = generate[type]({
@@ -310,7 +320,7 @@ describe('AttachmentPreviewList', () => {
         const CustomPreviewComponent = () => <div>{text}</div>;
         await renderComponent({
           attachments: [localAttachment],
-          props: { [previewComponentNames[type]]: CustomPreviewComponent },
+          props: { [PREVIEW_COMPONENT_PROP_NAMES[type]]: CustomPreviewComponent },
         });
 
         expect(screen.queryByText(text)).toBeInTheDocument();

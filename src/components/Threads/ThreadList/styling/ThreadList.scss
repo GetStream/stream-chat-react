@@ -9,30 +9,65 @@
   --str-chat__thread-list-border-inline-start: none;
   --str-chat__thread-list-border-inline-end: 1px solid var(--str-chat__surface-color);
   --str-chat__thread-list-box-shadow: none;
+  --str-chat__thread-list-transition-duration: var(
+    --str-chat__channel-list-transition-duration,
+    180ms
+  );
+  --str-chat__thread-list-transition-easing: var(
+    --str-chat__channel-list-transition-easing,
+    ease
+  );
+  --str-chat__thread-list-transition-offset: var(
+    --str-chat__channel-list-transition-offset,
+    8px
+  );
+  --str-chat__thread-list-width: var(--str-chat__channel-list-width, 30%);
+  --str-chat__thread-list-mobile-width: var(--str-chat__channel-list-mobile-width, 100%);
+  --str-chat__thread-list-min-width: 280px;
 }
 
 .str-chat__thread-list-container {
   @include utils.component-layer-overrides('thread-list');
   display: flex;
+  flex: 0 0 var(--str-chat__thread-list-width);
   flex-direction: column;
   height: 100%;
+  max-width: 100%;
+  min-width: var(--str-chat__thread-list-min-width);
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    flex-basis var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing),
+    min-width var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing),
+    width var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing),
+    max-width var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing),
+    opacity var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing),
+    transform var(--str-chat__thread-list-transition-duration)
+      var(--str-chat__thread-list-transition-easing);
+  width: var(--str-chat__thread-list-width);
 
   /* Mobile: hide when nav closed; when open show as overlay. */
   @media (max-width: 767px) {
+    flex-basis: auto;
     inset-inline-start: 0;
+    max-width: 100%;
+    min-width: 0;
     pointer-events: none;
     position: absolute;
     top: 0;
     bottom: 0;
-    transform: translateX(
-      calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
-    );
+    transform: translateX(calc(0px - var(--str-chat__thread-list-transition-offset)));
     transition:
-      transform var(--str-chat__channel-list-transition-duration, 180ms)
-        var(--str-chat__channel-list-transition-easing, ease),
-      visibility 0s linear var(--str-chat__channel-list-transition-duration, 180ms);
+      transform var(--str-chat__thread-list-transition-duration)
+        var(--str-chat__thread-list-transition-easing),
+      visibility 0s linear var(--str-chat__thread-list-transition-duration);
     visibility: hidden;
-    width: 100%;
+    width: var(--str-chat__thread-list-mobile-width);
     z-index: 1;
 
     &.str-chat__thread-list-container--open {
@@ -51,13 +86,30 @@
 
   /* Desktop (≥768px): collapse when nav closed so main content uses space. */
   @media (min-width: 768px) {
+    &.str-chat__thread-list-container--open {
+      flex-basis: var(--str-chat__thread-list-width);
+      max-width: 100%;
+      min-width: var(--str-chat__thread-list-min-width);
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+      width: var(--str-chat__thread-list-width);
+    }
+
     &:not(.str-chat__thread-list-container--open) {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
       max-width: 0;
+      opacity: 0;
       overflow: hidden;
+      pointer-events: none;
+      transform: translateX(calc(0px - var(--str-chat__thread-list-transition-offset)));
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }
 
