@@ -28,9 +28,12 @@
     --str-chat__gallery-action-button-active-background: rgba(255, 255, 255, 0.2);
     --str-chat__gallery-foreground: var(--text-on-accent);
     --str-chat__gallery-muted-foreground: rgba(255, 255, 255, 0.72);
+    --str-chat__gallery-main-background: rgba(111, 117, 128, 0.46);
+    --str-chat__gallery-nav-border: none;
     --str-chat__gallery-nav-background: rgba(255, 255, 255, 0.92);
     --str-chat__gallery-nav-color: #101828;
     --str-chat__gallery-nav-hover-background: #ffffff;
+    --str-chat__gallery-nav-box-shadow: var(--str-chat__box-shadow-elevation-1);
 
     position: relative;
     display: flex;
@@ -42,6 +45,11 @@
     min-height: 0;
     padding: 0;
     box-sizing: border-box;
+  }
+
+  &.str-chat__modal.str-chat__gallery-modal {
+    --str-chat__modal-overlay-color: rgba(15, 23, 42, 0.4);
+    --str-chat__modal-overlay-backdrop-filter: blur(6px);
   }
 
   .str-chat__gallery__header {
@@ -149,7 +157,7 @@
     min-height: 0;
     overflow: hidden;
     border-radius: 0;
-    background: rgba(111, 117, 128, 0.46);
+    background: var(--str-chat__gallery-main-background);
     backdrop-filter: blur(24px);
   }
 
@@ -216,10 +224,11 @@
     width: 2rem;
     height: 2rem;
     padding: 0;
+    border: var(--str-chat__gallery-nav-border);
     border-radius: var(--radius-max);
     background-color: var(--str-chat__gallery-nav-background);
     color: var(--str-chat__gallery-nav-color);
-    box-shadow: var(--str-chat__box-shadow-elevation-1);
+    box-shadow: var(--str-chat__gallery-nav-box-shadow);
 
     @media (prefers-reduced-motion: no-preference) {
       transition:
@@ -286,6 +295,21 @@
     height: 100%;
     color: var(--str-chat__text-low-emphasis-color);
     font-size: var(--typography-font-size-sm);
+  }
+
+  &.str-chat__theme-dark {
+    .str-chat__gallery {
+      --str-chat__gallery-main-background: rgba(15, 23, 42, 0.62);
+      --str-chat__gallery-nav-border: 1px solid rgba(255, 255, 255, 0.08);
+      --str-chat__gallery-nav-background: rgba(17, 24, 39, 0.88);
+      --str-chat__gallery-nav-color: rgba(255, 255, 255, 0.92);
+      --str-chat__gallery-nav-hover-background: rgba(31, 41, 55, 0.96);
+      --str-chat__gallery-nav-box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    &.str-chat__modal.str-chat__gallery-modal {
+      --str-chat__modal-overlay-color: rgba(0, 0, 0, 0.82);
+    }
   }
 
   @media only screen and (max-device-width: 768px) {
