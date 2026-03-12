@@ -23,15 +23,14 @@ exports[`LoadingIndicator should render with default props 1`] = `
         >
           <stop
             offset="0%"
-            stop-color="#FFF"
+            stop-color="var(--str-chat__loading-indicator-base-color)"
             stop-opacity="0"
           />
           <stop
             data-testid="loading-indicator-circle"
             offset="100%"
-            stop-color="#006CFF"
+            stop-color="var(--str-chat__loading-indicator-color)"
             stop-opacity="1"
-            style="stop-color: rgb(0, 108, 255);"
           />
         </lineargradient>
       </defs>

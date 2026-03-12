@@ -1,8 +1,10 @@
 .str-chat {
   /* The size of the loading indicator, only available in Angular v5+ */
   --str-chat__loading-indicator-size: calc(var(--str-chat__spacing-px) * 15);
-  /* The color of the loading indicator */
-  --str-chat__loading-indicator-color: var(--str-chat__primary-color);
+  /* The transparent edge of the loading indicator gradient */
+  --str-chat__loading-indicator-base-color: var(--skeleton-loading-base);
+  /* The visible shimmer color of the loading indicator */
+  --str-chat__loading-indicator-color: var(--skeleton-loading-highlight);
 }
 
 .str-chat__loading-indicator {
@@ -14,11 +16,6 @@
   svg {
     width: var(--str-chat__loading-indicator-size);
     height: var(--str-chat__loading-indicator-size);
-    linearGradient {
-      stop:last-child {
-        stop-color: var(--str-chat__loading-indicator-color);
-      }
-    }
   }
 
   @-webkit-keyframes rotate {
