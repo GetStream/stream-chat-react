@@ -135,21 +135,9 @@ export const MessageInputFlat = () => {
             <div className='str-chat__message-composer-compose-area'>
               <MessageComposerPreviews />
               <div className='str-chat__message-composer-controls'>
-                <div
-                  className={
-                    'str-chat__message-composer-controls__text-composition-controls'
-                  }
-                >
-                  <div
-                    className={
-                      'str-chat__message-composer-controls__text-composition-controls__text'
-                    }
-                  >
-                    <div
-                      className={
-                        'str-chat__message-composer-controls__text-composition-controls__command-chip-container'
-                      }
-                    >
+                <div className='str-chat__message-composer-controls__text-composition-controls'>
+                  <div className='str-chat__message-composer-controls__text-composition-controls__text'>
+                    <div className='str-chat__message-composer-controls__text-composition-controls__command-chip-container'>
                       <CommandChip />
                     </div>
                     <TextareaComposer />
