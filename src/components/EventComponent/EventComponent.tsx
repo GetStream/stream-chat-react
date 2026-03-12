@@ -1,92 +1,39 @@
 import React from 'react';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
-import { useTranslationContext } from '../../context/TranslationContext';
-import { getDateString } from '../../i18n/utils';
-
 import type { Event, LocalMessage } from 'stream-chat';
-import type { AvatarProps } from '../Avatar';
 import type { TimestampFormatterOptions } from '../../i18n/types';
+import { useTranslationContext } from '../../context';
 
 export type EventComponentProps = TimestampFormatterOptions & {
-  /** Message object */
   message: LocalMessage & {
     event?: Event;
   };
   unsafeHTML?: boolean;
-  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
 };
 
 /**
  * Component to display system and channel event messages
  */
 const UnMemoizedEventComponent = (props: EventComponentProps) => {
-  const {
-    Avatar = DefaultAvatar,
-    calendar,
-    calendarFormats,
-    format,
-    message,
-    unsafeHTML = false,
-  } = props;
+  const { message, unsafeHTML = false } = props;
+  const { type } = message;
 
-  const { t, tDateTimeParser } = useTranslationContext('EventComponent');
-  const { created_at = '', event, type } = message;
-  const getDateOptions = { messageCreatedAt: created_at.toString(), tDateTimeParser };
+  if (type !== 'system') return null;
 
-  if (type === 'system')
-    return (
-      <div className='str-chat__message--system' data-testid='message-system'>
-        <div className='str-chat__message--system__text'>
-          <div className='str-chat__message--system__line' />
-          {unsafeHTML ? (
-            <div
-              dangerouslySetInnerHTML={{ __html: message.html || '' }}
-              data-unsafe-inner-html
-            />
-          ) : (
-            <p>{message.text}</p>
-          )}
-          <div className='str-chat__message--system__line' />
-        </div>
-        <div className='str-chat__message--system__date'>
-          <strong>
-            {getDateString({
-              ...getDateOptions,
-              calendar,
-              calendarFormats,
-              format,
-              t,
-              timestampTranslationKey: 'timestamp/SystemMessage',
-            })}
-          </strong>
-        </div>
+  return (
+    <div className='str-chat__message--system' data-testid='message-system'>
+      <div className='str-chat__message--system__text'>
+        {unsafeHTML ? (
+          <div
+            dangerouslySetInnerHTML={{ __html: message.html || '' }}
+            data-unsafe-inner-html
+          />
+        ) : (
+          <span>{message.text}</span>
+        )}
       </div>
-    );
-
-  if (event?.type === 'member.removed' || event?.type === 'member.added') {
-    const name = event.user?.name || event.user?.id;
-    const sentence = `${name} ${
-      event.type === 'member.added' ? 'has joined the chat' : 'was removed from the chat'
-    }`;
-
-    return (
-      <div className='str-chat__event-component__channel-event'>
-        <Avatar imageUrl={event.user?.image} size='md' userName={name} />
-        <div className='str-chat__event-component__channel-event__content'>
-          <em className='str-chat__event-component__channel-event__sentence'>
-            {sentence}
-          </em>
-          <div className='str-chat__event-component__channel-event__date'>
-            {getDateString({ ...getDateOptions, format: 'LT' })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 };
 
 export const EventComponent = React.memo(
