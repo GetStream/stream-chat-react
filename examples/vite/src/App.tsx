@@ -201,7 +201,7 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
 
 const App = () => {
   const { userId, tokenProvider } = useUser();
-  const { chatView } = useAppSettingsState();
+  const { chatView, theme } = useAppSettingsState();
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
 
@@ -288,6 +288,8 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
+  const chatTheme = theme.mode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
+
   return (
     <WithComponents
       overrides={{
@@ -301,6 +303,7 @@ const App = () => {
         searchController={searchController}
         client={chatClient}
         isMessageAIGenerated={isMessageAIGenerated}
+        theme={chatTheme}
       >
         <ChatView>
           <ChatStateSync initialChatView={initialChatView} />

@@ -70,7 +70,7 @@ describe('Chat', () => {
   });
 
   it('props change should update the context', async () => {
-    const theme = 'team dark';
+    const theme = 'str-chat__theme-dark';
     let context;
     const { rerender } = render(
       <Chat client={chatClient} theme={theme}>
@@ -86,7 +86,7 @@ describe('Chat', () => {
       expect(context.theme).toBe(theme);
     });
 
-    const newTheme = 'messaging dark';
+    const newTheme = 'str-chat__theme-dark custom-theme';
     const newClient = getTestClient();
     rerender(
       <Chat client={newClient} theme={newTheme}>

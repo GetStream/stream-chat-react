@@ -11,9 +11,14 @@ export type ChatViewSettingsState = {
   iconOnly: boolean;
 };
 
+export type ThemeSettingsState = {
+  mode: 'dark' | 'light';
+};
+
 export type AppSettingsState = {
   chatView: ChatViewSettingsState;
   reactions: ReactionsSettingsState;
+  theme: ThemeSettingsState;
 };
 
 const defaultAppSettingsState: AppSettingsState = {
@@ -24,6 +29,9 @@ const defaultAppSettingsState: AppSettingsState = {
     flipHorizontalPosition: false,
     verticalPosition: 'top',
     visualStyle: 'clustered',
+  },
+  theme: {
+    mode: 'light',
   },
 };
 

@@ -4,16 +4,19 @@ import {
   GlobalModal,
   IconBubble3ChatMessage,
   IconEmojiSmile,
+  IconLightBulbSimple,
   IconSettingsGear2,
 } from 'stream-chat-react';
 import { type ComponentType, useState } from 'react';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
+import { ThemeTab } from './tabs/Theme';
 
-type TabId = 'reactions' | 'sidebar';
+type TabId = 'reactions' | 'sidebar' | 'theme';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
   { Icon: IconBubble3ChatMessage, id: 'sidebar', title: 'Sidebar' },
+  { Icon: IconLightBulbSimple, id: 'theme', title: 'Theme' },
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
 
@@ -63,6 +66,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
               role='tabpanel'
             >
               {activeTab === 'sidebar' && <SidebarTab />}
+              {activeTab === 'theme' && <ThemeTab />}
               {activeTab === 'reactions' && <ReactionsTab />}
             </section>
           </div>
