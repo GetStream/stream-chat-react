@@ -117,7 +117,7 @@
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
   flex: 1;
-  row-gap: var(--spacing-none);
+  row-gap: var(--spacing-xxs);
 }
 
 @mixin empty-theme($component-name) {

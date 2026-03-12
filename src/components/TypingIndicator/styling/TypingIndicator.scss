@@ -1,10 +1,32 @@
+/* Shared transition: fade-in when subtitle or typing indicator content appears */
+@keyframes str-chat__typing-indicator-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.str-chat__subtitle-content-transition {
+  animation: str-chat__typing-indicator-fade-in 0.2s ease-out;
+  display: inline-block;
+}
+
 /* Inline typing indicator: avatar stack + bubble with animated dots (message-row layout) */
 .str-chat__typing-indicator {
   display: flex;
   align-items: flex-end;
+  width: 100%;
+  max-width: calc(var(--str-chat__message-composer-max-width) + var(--str-chat__message-composer-padding));
+  margin: auto;
   gap: var(--spacing-xs);
   padding-block: var(--spacing-xs);
-  padding-inline: 0;
+  padding-inline: var(--str-chat__message-composer-padding);
+
+  &.str-chat__typing-indicator--with-transition {
+    animation: str-chat__typing-indicator-fade-in 0.25s ease-out;
+  }
 }
 
 .str-chat__typing-indicator__bubble {
@@ -87,4 +109,20 @@
   66% {
     opacity: 0.5;
   }
+}
+
+/* Header variant: text + inline dots (ChannelHeader / ThreadHeader) */
+.str-chat__typing-indicator-header {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-xs, 4px);
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font: var(--str-chat__caption-default-text);
+}
+
+.str-chat__typing-indicator-header__dots {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }

@@ -8,6 +8,8 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useThreadContext } from '../Threads';
 
+import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
+
 const MAX_AVATARS = 3;
 
 export type TypingIndicatorProps = {
@@ -38,7 +40,6 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       )
     : [];
 
-  console.log('typing', typing);
   const typingInThread = threadList
     ? Object.values(typing).filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
@@ -46,34 +47,38 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     : [];
 
   const typingUsers = threadList ? typingInThread : typingInChannel;
-
-  const isTypingActive = typingUsers.length > 0;
-  const displayInfo = typingUsers.slice(0, MAX_AVATARS).map(({ user }) => ({
+  const { displayUsers } = useDebouncedTypingActive(typingUsers);
+  const showIndicator = displayUsers.length > 0;
+  const displayInfo = displayUsers.slice(0, MAX_AVATARS).map(({ user }) => ({
     id: user?.id,
     imageUrl: user?.image,
-    userName: user?.name || user?.id || '',
+    userName: user?.name ?? '',
   }));
 
   useEffect(() => {
-    if (isTypingActive && isMessageListScrolledToBottom) scrollToBottom();
-  }, [scrollToBottom, isMessageListScrolledToBottom, isTypingActive]);
+    if (showIndicator && isMessageListScrolledToBottom) scrollToBottom();
+  }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
 
   if (channelConfig?.typing_events === false) {
     return null;
   }
 
-  if (!isTypingActive || !isMessageListScrolledToBottom) {
+  if (!showIndicator || !isMessageListScrolledToBottom) {
     return null;
   }
 
   const overflowCount =
-    typingUsers.length > MAX_AVATARS ? typingUsers.length - MAX_AVATARS : 0;
+    displayUsers.length > MAX_AVATARS ? displayUsers.length - MAX_AVATARS : 0;
 
   return (
     <div
-      className={clsx('str-chat__typing-indicator', {
-        'str-chat__typing-indicator--typing': isTypingActive,
-      })}
+      className={clsx(
+        'str-chat__typing-indicator',
+        'str-chat__typing-indicator--with-transition',
+        {
+          'str-chat__typing-indicator--typing': showIndicator,
+        },
+      )}
       data-testid='typing-indicator'
     >
       {displayInfo.length > 0 && (
