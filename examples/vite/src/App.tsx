@@ -341,7 +341,9 @@ const App = () => {
             <ThreadStateSync />
             <ThreadList />
             <ChatView.ThreadAdapter>
-              <Thread virtualized />
+              <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+                <Thread virtualized />
+              </WithDragAndDropUpload>
             </ChatView.ThreadAdapter>
           </ChatView.Threads>
         </ChatView>

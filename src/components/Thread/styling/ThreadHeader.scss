@@ -26,7 +26,6 @@
   --str-chat__thread-header-box-shadow: none;
 }
 
-
 .str-chat__thread-header {
   @include utils.header-layout;
   @include utils.component-layer-overrides('thread-header');
@@ -72,6 +71,14 @@
 
     svg {
       fill: var(--str-chat__thread-color);
+    }
+  }
+}
+
+.str-chat__chat-view__threads {
+  .str-chat__thread-header {
+    .str-chat__thread-header-details {
+      align-items: center;
     }
   }
 }

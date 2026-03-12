@@ -1,11 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Channel } from 'stream-chat';
 
-import { getDisplayImage, getDisplayTitle, getGroupChannelDisplayInfo } from '../utils';
 import { useChatContext } from '../../../context';
+import {
+  getChannelDisplayImage,
+  getGroupChannelDisplayInfo,
+  type GroupChannelDisplayInfo,
+} from '../utils';
+import { useChannelDisplayName } from './useChannelDisplayName';
+
+const emptyGroupInfo: GroupChannelDisplayInfo = {
+  members: [],
+  overflowCount: undefined,
+};
 
 export type ChannelPreviewInfoParams = {
-  channel: Channel;
+  /** Channel to read display info from; when undefined, returns undefined display title/image */
+  channel?: Channel;
   /** Manually set the image to render, defaults to the Channel image */
   overrideImage?: string;
   /** Set title manually */
@@ -14,41 +25,41 @@ export type ChannelPreviewInfoParams = {
 
 export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const { channel, overrideImage, overrideTitle } = props;
+  const { client } = useChatContext();
 
-  const { client } = useChatContext('useChannelPreviewInfo');
-  const [displayTitle, setDisplayTitle] = useState(
-    () => overrideTitle || getDisplayTitle(channel, client.user),
-  );
-  const [displayImage, setDisplayImage] = useState(
-    () => overrideImage || getDisplayImage(channel, client.user),
-  );
+  const channelDisplayName = useChannelDisplayName(channel);
+  const displayTitle = overrideTitle ?? channelDisplayName;
 
-  const [groupChannelDisplayInfo, setGroupDisplayChannelInfo] = useState<
-    ReturnType<typeof getGroupChannelDisplayInfo>
-  >(() => getGroupChannelDisplayInfo(channel));
+  const [displayImage, setDisplayImage] = useState<string | undefined>(() =>
+    channel ? (overrideImage ?? getChannelDisplayImage(channel)) : undefined,
+  );
+  const [groupChannelDisplayInfo, setGroupChannelDisplayInfo] =
+    useState<GroupChannelDisplayInfo>(() =>
+      channel ? (getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo) : emptyGroupInfo,
+    );
 
   useEffect(() => {
-    if (overrideTitle && overrideImage) return;
+    if (!channel) return;
+    if (overrideImage) return;
 
     const updateInfo = () => {
-      if (!overrideTitle) setDisplayTitle(getDisplayTitle(channel, client.user));
-      if (!overrideImage) {
-        setDisplayImage(getDisplayImage(channel, client.user));
-        setGroupDisplayChannelInfo(getGroupChannelDisplayInfo(channel));
-      }
+      setDisplayImage(getChannelDisplayImage(channel));
+      setGroupChannelDisplayInfo(getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo);
     };
 
     updateInfo();
-
     client.on('user.updated', updateInfo);
     return () => {
       client.off('user.updated', updateInfo);
     };
-  }, [channel, channel.data, client, overrideImage, overrideTitle]);
+  }, [channel, channel?.data, client, overrideImage]);
 
-  return {
-    displayImage: overrideImage || displayImage,
-    displayTitle: overrideTitle || displayTitle,
-    groupChannelDisplayInfo,
-  };
+  return useMemo(
+    () => ({
+      displayImage: overrideImage ?? displayImage,
+      displayTitle,
+      groupChannelDisplayInfo,
+    }),
+    [displayImage, displayTitle, groupChannelDisplayInfo, overrideImage],
+  );
 };
