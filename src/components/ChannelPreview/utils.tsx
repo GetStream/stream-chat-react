@@ -119,6 +119,23 @@ export type GroupChannelDisplayInfo = {
   overflowCount?: number;
 };
 
+/**
+ * Channel display image: channel.data.image, or for DM (2 members) the other member's user.image.
+ */
+export const getChannelDisplayImage = (channel: Channel): string | undefined => {
+  const data = channel.data as { image?: string } | undefined;
+  if (data?.image && typeof data.image === 'string') return data.image;
+
+  const memberList = Object.values(channel.state.members);
+  const currentUserId = channel.getClient().userID ?? undefined;
+  if (memberList.length === 2) {
+    const other = memberList.find((m) => m.user?.id !== currentUserId);
+    const image = other?.user?.image;
+    if (image && typeof image === 'string') return image;
+  }
+  return undefined;
+};
+
 export const getGroupChannelDisplayInfo = (
   channel: Channel,
 ): GroupChannelDisplayInfo | undefined => {

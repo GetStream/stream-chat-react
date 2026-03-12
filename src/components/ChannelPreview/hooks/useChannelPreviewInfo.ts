@@ -1,8 +1,18 @@
-import { useMemo } from 'react';
-import type { Channel, StateStore } from 'stream-chat';
+import { useEffect, useMemo, useState } from 'react';
+import type { Channel } from 'stream-chat';
 
-import { useStateStore } from '../../../store';
-import type { GroupChannelDisplayInfo } from '../utils';
+import { useChatContext } from '../../../context';
+import {
+  getChannelDisplayImage,
+  getGroupChannelDisplayInfo,
+  type GroupChannelDisplayInfo,
+} from '../utils';
+import { useChannelDisplayName } from './useChannelDisplayName';
+
+const emptyGroupInfo: GroupChannelDisplayInfo = {
+  members: [],
+  overflowCount: undefined,
+};
 
 export type ChannelPreviewInfoParams = {
   /** Channel to read display info from; when undefined, returns undefined display title/image */
@@ -13,78 +23,43 @@ export type ChannelPreviewInfoParams = {
   overrideTitle?: string;
 };
 
-/** ChannelState with reactive display and members stores (stream-chat-js) */
-type ChannelStateWithStores = {
-  displayStore?: {
-    getLatestValue(): { displayName: string | null; displayImage: string | null };
-  };
-  membersStore?: {
-    getLatestValue(): {
-      members: Record<string, { user?: { name?: string; image?: string } }>;
-    };
-  };
-};
-
-const displayStoreSelector = (s: {
-  displayName: string | null;
-  displayImage: string | null;
-}) => ({
-  displayImage: s.displayImage,
-  displayName: s.displayName,
-});
-
-type MembersState = {
-  members: Record<string, { user?: { name?: string; image?: string } }>;
-};
-
-function buildGroupChannelDisplayInfo(
-  s: MembersState | undefined,
-): GroupChannelDisplayInfo {
-  if (!s?.members) return { members: [], overflowCount: undefined };
-  const memberList = (Object.values(s.members) as MembersState['members'][string][])
-    .filter((m) => m.user?.name || m.user?.image)
-    .map((m) => ({ imageUrl: m.user?.image, userName: m.user?.name }));
-  if (memberList.length <= 2) return { members: [], overflowCount: undefined };
-  return {
-    members: memberList,
-    overflowCount: memberList.length > 4 ? memberList.length - 2 : undefined,
-  };
-}
-
 export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const { channel, overrideImage, overrideTitle } = props;
+  const { client } = useChatContext();
 
-  const channelState = (channel?.state ?? undefined) as
-    | ChannelStateWithStores
-    | undefined;
+  const channelDisplayName = useChannelDisplayName(channel);
+  const displayTitle = overrideTitle ?? channelDisplayName;
 
-  const displayFromStore = useStateStore(
-    (channelState?.displayStore ?? undefined) as
-      | StateStore<{ displayName: string | null; displayImage: string | null }>
-      | undefined,
-    displayStoreSelector,
+  const [displayImage, setDisplayImage] = useState<string | undefined>(() =>
+    channel ? (overrideImage ?? getChannelDisplayImage(channel)) : undefined,
   );
+  const [groupChannelDisplayInfo, setGroupChannelDisplayInfo] =
+    useState<GroupChannelDisplayInfo>(() =>
+      channel ? (getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo) : emptyGroupInfo,
+    );
 
-  const groupChannelDisplayInfo = useStateStore(
-    (channelState?.membersStore ?? undefined) as
-      | StateStore<{
-          members: Record<string, { user?: { name?: string; image?: string } }>;
-        }>
-      | undefined,
-    buildGroupChannelDisplayInfo,
-  );
+  useEffect(() => {
+    if (!channel) return;
+    if (overrideImage) return;
 
-  const displayTitleResolved =
-    overrideTitle ?? displayFromStore?.displayName ?? undefined;
-  const displayImageResolved =
-    overrideImage ?? displayFromStore?.displayImage ?? undefined;
+    const updateInfo = () => {
+      setDisplayImage(getChannelDisplayImage(channel));
+      setGroupChannelDisplayInfo(getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo);
+    };
+
+    updateInfo();
+    client.on('user.updated', updateInfo);
+    return () => {
+      client.off('user.updated', updateInfo);
+    };
+  }, [channel, channel?.data, client, overrideImage]);
 
   return useMemo(
     () => ({
-      displayImage: displayImageResolved,
-      displayTitle: displayTitleResolved,
+      displayImage: overrideImage ?? displayImage,
+      displayTitle,
       groupChannelDisplayInfo,
     }),
-    [displayImageResolved, displayTitleResolved, groupChannelDisplayInfo],
+    [displayImage, displayTitle, groupChannelDisplayInfo, overrideImage],
   );
 };

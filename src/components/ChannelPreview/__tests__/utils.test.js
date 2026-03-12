@@ -14,7 +14,11 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import { getLatestMessagePreview } from '../utils';
+import {
+  getChannelDisplayImage,
+  getGroupChannelDisplayInfo,
+  getLatestMessagePreview,
+} from '../utils';
 import { generateStaticLocationResponse } from '../../../mock-builders';
 import { render } from '@testing-library/react';
 
@@ -146,6 +150,72 @@ describe('ChannelPreview utils', () => {
       );
       // getDisplayImage no longer falls back to member image, only channel.data.image
       expect(channel.getDisplayImage()).toBeNull();
+    });
+  });
+
+  describe('getChannelDisplayImage (utils)', () => {
+    it('returns channel.data.image when set', async () => {
+      const image = nanoid();
+      const channel = await getQueriedChannelInstance(
+        generateChannel({ channel: { image } }),
+      );
+      expect(getChannelDisplayImage(channel)).toBe(image);
+    });
+
+    it('returns other member user.image for DM (2 members) when channel has no image', async () => {
+      const otherUser = generateUser({ image: 'https://other-avatar.jpg' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          members: [
+            generateMember({ user: otherUser }),
+            generateMember({ user: clientUser }),
+          ],
+        }),
+      );
+      expect(getChannelDisplayImage(channel)).toBe('https://other-avatar.jpg');
+    });
+
+    it('returns undefined for DM when other member has no image', async () => {
+      const otherUser = generateUser({ image: undefined });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          members: [
+            generateMember({ user: otherUser }),
+            generateMember({ user: clientUser }),
+          ],
+        }),
+      );
+      expect(getChannelDisplayImage(channel)).toBeUndefined();
+    });
+  });
+
+  describe('getGroupChannelDisplayInfo (utils)', () => {
+    it('returns undefined for 2 or fewer members', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          members: [
+            generateMember({ user: generateUser() }),
+            generateMember({ user: clientUser }),
+          ],
+        }),
+      );
+      expect(getGroupChannelDisplayInfo(channel)).toBeUndefined();
+    });
+
+    it('returns members and overflowCount for 3+ members', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          members: [
+            generateMember({ user: generateUser({ image: 'a.jpg', name: 'A' }) }),
+            generateMember({ user: generateUser({ image: 'b.jpg', name: 'B' }) }),
+            generateMember({ user: clientUser }),
+          ],
+        }),
+      );
+      const info = getGroupChannelDisplayInfo(channel);
+      expect(info).toBeDefined();
+      expect(info.members.length).toBeGreaterThanOrEqual(2);
+      expect(info.members.every((m) => 'imageUrl' in m && 'userName' in m)).toBe(true);
     });
   });
 });

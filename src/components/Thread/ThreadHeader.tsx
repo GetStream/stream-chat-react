@@ -11,12 +11,9 @@ import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconCrossMedium } from '../Icons';
 
-const threadStateSelector = ({ displayName, replyCount }: ThreadState) => ({
-  displayName,
-  replyCount,
-});
+const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 
-/** Fallback when no Thread instance: use parent message author (name only, not id). */
+/** Fallback when channel has no display title: parent message author (name only). */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
   message.user?.name ?? undefined;
 
@@ -34,11 +31,10 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext('ThreadHeader');
-  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({
-    channel,
-  });
+  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
+
   const threadInstance = useThreadContext();
-  const { displayName, replyCount: replyCountThreadInstance } =
+  const { replyCount: replyCountThreadInstance } =
     useStateStore(threadInstance?.state, threadStateSelector) ?? {};
 
   const replyCount = threadInstance
@@ -47,10 +43,10 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
       ? (thread.reply_count ?? 0)
       : 0;
 
+  // Subtitle: channel display title (from parent or hook), with override and fallback to parent message author
   const threadDisplayName =
     overrideTitle ??
-    displayName ??
-    (threadInstance == null ? channelDisplayTitle : undefined) ??
+    channelDisplayTitle ??
     displayNameFromParentMessage(thread) ??
     undefined;
 
