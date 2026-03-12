@@ -130,14 +130,11 @@
 }
 
 @mixin message-list-spacing {
-  // 800px container, 16px padding, 768px content — align with composer
-  $spacing: var(--str-chat__message-composer-padding, 16px);
   padding: 0;
-  padding-inline: $spacing;
 
   // Need this trick to be able to apply full-width background color on hover to messages / full-width separator to thread header
   .str-chat__li {
-    margin-inline: calc(-1 * #{$spacing});
+    max-width: 100%;
   }
 }
 
