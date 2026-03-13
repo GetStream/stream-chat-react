@@ -272,7 +272,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   isLoading={props.loadingMore}
                   loader={
                     <div className='str-chat__list__loading' key='loading-indicator'>
-                      {props.loadingMore && <LoadingIndicator size={20} />}
+                      {props.loadingMore && <LoadingIndicator />}
                     </div>
                   }
                   loadNextPage={loadMoreNewer}
