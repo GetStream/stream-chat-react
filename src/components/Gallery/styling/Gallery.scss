@@ -48,8 +48,8 @@
   }
 
   &.str-chat__modal.str-chat__gallery-modal {
-    --str-chat__modal-overlay-color: var(--background-core-scrim);
-    --str-chat__modal-overlay-backdrop-filter: none;
+    --str-chat__modal-overlay-color: rgba(15, 23, 42, 0.4);
+    --str-chat__modal-overlay-backdrop-filter: blur(6px);
   }
 
   .str-chat__gallery__header {
@@ -305,6 +305,10 @@
       --str-chat__gallery-nav-color: rgba(255, 255, 255, 0.92);
       --str-chat__gallery-nav-hover-background: rgba(31, 41, 55, 0.96);
       --str-chat__gallery-nav-box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    &.str-chat__modal.str-chat__gallery-modal {
+      --str-chat__modal-overlay-color: rgba(0, 0, 0, 0.82);
     }
   }
 
