@@ -1072,3 +1072,26 @@ export const IconArchive = createIcon(
     strokeWidth='1.5'
   />,
 );
+
+export const IconLoadingCircle = createIcon(
+  'IconLoadingCircle',
+  <>
+    <path
+      d='M17.5 10C17.5 14.1422 14.1422 17.5 10 17.5C5.85787 17.5 2.5 14.1422 2.5 10C2.5 5.85787 5.85787 2.5 10 2.5C14.1422 2.5 17.5 5.85787 17.5 10Z'
+      fill='none'
+      opacity='0.25'
+      stroke='currentColor'
+      strokeWidth='1.5'
+    />
+    <path
+      d='M17.4542 10.8333C17.0698 14.3096 14.3096 17.0698 10.8333 17.4542'
+      fill='none'
+      stroke='currentColor'
+      strokeLinecap='round'
+      strokeWidth='1.5'
+    />
+  </>,
+  {
+    viewBox: '0 0 20 20',
+  },
+);

@@ -149,11 +149,13 @@
         background-size: 200% 100%;
         animation: str-chat__modal-gallery-loading-shimmer 1.2s linear infinite;
         pointer-events: none;
-      }
 
-      .str-chat__modal-gallery__image-loading-overlay .str-chat__loading-indicator {
-        position: relative;
-        z-index: 1;
+        .str-chat__loading-indicator {
+          position: relative;
+          z-index: 1;
+          width: var(--icon-size-lg);
+          height: var(--icon-size-lg);
+        }
       }
 
       .str-chat__modal-gallery__image-retry-indicator {
