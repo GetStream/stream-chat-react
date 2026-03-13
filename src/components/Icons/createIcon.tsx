@@ -15,10 +15,14 @@ function toIconClass(name: string) {
   );
 }
 
-export function createIcon(name: string, content: ReactNode) {
+export function createIcon(
+  name: string,
+  content: ReactNode,
+  defaultProps?: ComponentProps<'svg'>,
+) {
   const iconClass = toIconClass(name);
   const Icon = ({ className, ...props }: ComponentProps<'svg'>) => (
-    <BaseIcon {...props} className={clsx(iconClass, className)}>
+    <BaseIcon {...defaultProps} {...props} className={clsx(iconClass, className)}>
       {content}
     </BaseIcon>
   );

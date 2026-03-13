@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 
 import type { ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
@@ -14,9 +15,14 @@ import { Badge } from '../../Badge';
 import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
 import { NAV_SIDEBAR_DESKTOP_BREAKPOINT } from '../../Chat';
 
-export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
+export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
+  resetHighlighting?: () => void;
+};
 
-export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
+export const ThreadListItemUI = ({
+  resetHighlighting,
+  ...props
+}: ThreadListItemUIProps) => {
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
@@ -69,11 +75,26 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
     }));
   }, [participants]);
 
+  useEffect(() => {
+    if (!resetHighlighting) return;
+
+    const reset = resetHighlighting;
+
+    const timeout = setTimeout(() => {
+      reset();
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [resetHighlighting]);
+
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
         aria-pressed={activeThread === thread}
-        className='str-chat__thread-list-item'
+        className={clsx('str-chat__thread-list-item', {
+          'str-chat__thread-list-item--highlighted':
+            typeof resetHighlighting !== 'undefined',
+        })}
         data-thread-id={thread.id}
         onClick={() => {
           if (

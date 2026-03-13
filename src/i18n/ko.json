@@ -372,6 +372,8 @@
   "Thread has not been found": "스레드를 찾을 수 없습니다",
   "Thread reply": "스레드 답장",
   "Thread Reply": "스레드 답장",
+  "ThreadListUnseenThreadsBanner/loading": "로딩 중...",
+  "ThreadListUnseenThreadsBanner/unreadThreads_other": "읽지 않은 스레드 {{ count }}개",
   "Threads": "스레드",
   "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[어제]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘]\", \"nextDay\": \"[내일]\", \"lastDay\": \"[어제]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[지난] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",

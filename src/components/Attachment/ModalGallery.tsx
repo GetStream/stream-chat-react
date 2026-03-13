@@ -197,7 +197,7 @@ const ThumbnailButton = ({
           className='str-chat__modal-gallery__image-loading-overlay'
           data-testid='str-chat__modal-gallery__image-loading-overlay'
         >
-          <LoadingIndicator size={32} />
+          <LoadingIndicator />
         </div>
       )}
       {showRetryIndicator && (
