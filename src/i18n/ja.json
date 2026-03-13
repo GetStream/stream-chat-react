@@ -372,6 +372,8 @@
   "Thread has not been found": "スレッドが見つかりませんでした",
   "Thread reply": "スレッドの返信",
   "Thread Reply": "スレッドの返信",
+  "ThreadListUnseenThreadsBanner/loading": "読み込み中...",
+  "ThreadListUnseenThreadsBanner/unreadThreads_other": "{{ count }}件の未読スレッド",
   "Threads": "スレッド",
   "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[昨日]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日]\", \"nextDay\": \"[明日]\", \"lastDay\": \"[昨日]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[先週の] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
