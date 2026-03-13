@@ -42,10 +42,17 @@ export type ModalGalleryProps = {
   /** Array of media attachments to display */
   items: GalleryItem[];
   className?: string;
+  /** Whether clicking the empty gallery background should close the modal (default: true) */
+  closeOnBackgroundClick?: boolean;
   modalClassName?: string;
 };
 
-export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryProps) => {
+export const ModalGallery = ({
+  className,
+  closeOnBackgroundClick = true,
+  items,
+  modalClassName,
+}: ModalGalleryProps) => {
   const {
     BaseImage = DefaultBaseImage,
     Gallery = DefaultGallery,
@@ -100,7 +107,13 @@ export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryP
         onClose={closeModal}
         open={modalOpen}
       >
-        <Gallery GalleryUI={GalleryUI} initialIndex={selectedIndex} items={items} />
+        <Gallery
+          closeOnBackgroundClick={closeOnBackgroundClick}
+          GalleryUI={GalleryUI}
+          initialIndex={selectedIndex}
+          items={items}
+          onRequestClose={closeModal}
+        />
       </Modal>
     </>
   );

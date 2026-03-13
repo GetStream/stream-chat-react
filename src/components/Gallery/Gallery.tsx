@@ -5,6 +5,8 @@ import { GalleryContext } from './GalleryContext';
 import type { GalleryContextValue, GalleryItem } from './GalleryContext';
 
 export type GalleryProps = {
+  /** Whether clicking the empty gallery background should request close (default: true) */
+  closeOnBackgroundClick?: boolean;
   /** Array of media attachments to display */
   items: GalleryItem[];
   /** Custom UI component to replace the default GalleryUI */
@@ -13,13 +15,17 @@ export type GalleryProps = {
   initialIndex?: number;
   /** Callback when the active item changes */
   onIndexChange?: (index: number) => void;
+  /** Callback invoked when the gallery requests to close */
+  onRequestClose?: () => void;
 };
 
 export const Gallery = ({
+  closeOnBackgroundClick = true,
   GalleryUI,
   initialIndex = 0,
   items,
   onIndexChange,
+  onRequestClose,
 }: GalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -52,6 +58,7 @@ export const Gallery = ({
 
   const contextValue = useMemo<GalleryContextValue>(
     () => ({
+      closeOnBackgroundClick,
       currentIndex,
       currentItem,
       goToIndex,
@@ -61,8 +68,10 @@ export const Gallery = ({
       hasPrevious,
       itemCount,
       items,
+      onRequestClose,
     }),
     [
+      closeOnBackgroundClick,
       currentIndex,
       currentItem,
       goToIndex,
@@ -72,6 +81,7 @@ export const Gallery = ({
       hasPrevious,
       itemCount,
       items,
+      onRequestClose,
     ],
   );
 

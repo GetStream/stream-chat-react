@@ -11,6 +11,7 @@ import {
 } from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 
+import type { GalleryProps } from '../Gallery';
 import type { MessageContextValue, ModalContextValue } from '../../../context';
 import type { GalleryItem } from '../GalleryContext';
 
@@ -45,20 +46,35 @@ const makeMessageContext = (
     ...overrides,
   }) as MessageContextValue;
 
+const getSlideContainer = (container: HTMLElement) => {
+  const slideContainer = container.querySelector('.str-chat__gallery__slide-container');
+
+  expect(slideContainer).toBeInTheDocument();
+
+  return slideContainer as HTMLDivElement;
+};
+
 const renderGalleryUI = (
   items: GalleryItem[],
   {
+    galleryProps,
     initialIndex = 0,
     messageContext,
     modalContext,
   }: {
+    galleryProps?: Partial<GalleryProps>;
     initialIndex?: number;
     messageContext?: MessageContextValue;
     modalContext?: ModalContextValue;
   } = {},
 ) => {
   let children = (
-    <Gallery GalleryUI={GalleryUI} initialIndex={initialIndex} items={items} />
+    <Gallery
+      GalleryUI={GalleryUI}
+      initialIndex={initialIndex}
+      items={items}
+      {...galleryProps}
+    />
   );
 
   if (messageContext) {
@@ -270,6 +286,67 @@ describe('GalleryUI', () => {
       renderGalleryUI(items, { modalContext: { close } });
 
       fireEvent.click(screen.getByTitle('Close'));
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Background click closing', () => {
+    it('should close when the empty gallery background is clicked by default', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      const { container } = renderGalleryUI(items, { modalContext: { close } });
+
+      fireEvent.click(getSlideContainer(container));
+
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not close when the current media is clicked', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      renderGalleryUI(items, { modalContext: { close } });
+
+      fireEvent.click(screen.getByTestId('str-chat__base-image'));
+
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it('should not close when closeOnBackgroundClick is disabled', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      const { container } = renderGalleryUI(items, {
+        galleryProps: { closeOnBackgroundClick: false },
+        modalContext: { close },
+      });
+
+      fireEvent.click(getSlideContainer(container));
+
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it('should ignore the next click after a swipe gesture', () => {
+      const close = jest.fn();
+      const items = [makeImageItem(), makeImageItem(), makeImageItem()];
+
+      const { container } = renderGalleryUI(items, { modalContext: { close } });
+      const slideContainer = getSlideContainer(container);
+
+      fireEvent.touchStart(slideContainer, {
+        touches: [{ clientX: 180, clientY: 100 }],
+      });
+      fireEvent.touchMove(slideContainer, {
+        touches: [{ clientX: 80, clientY: 100 }],
+      });
+      fireEvent.touchEnd(slideContainer);
+      fireEvent.click(slideContainer);
+
+      expect(close).not.toHaveBeenCalled();
+
+      fireEvent.click(slideContainer);
+
       expect(close).toHaveBeenCalledTimes(1);
     });
   });

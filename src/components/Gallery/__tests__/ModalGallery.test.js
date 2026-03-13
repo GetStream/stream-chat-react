@@ -222,6 +222,58 @@ describe('ModalGallery', () => {
         expect(thumb).toHaveAttribute('type', 'button');
       });
     });
+
+    it('should close the modal when the empty gallery background is clicked by default', async () => {
+      const items = [makeImageItem(), makeImageItem()];
+
+      const { container } = renderComponent({ items });
+      const thumbnails = container.querySelectorAll('.str-chat__modal-gallery__image');
+
+      act(() => {
+        fireEvent.click(thumbnails[0]);
+      });
+
+      const slideContainer = await waitFor(() => {
+        expect(container.querySelector('.str-chat__gallery-modal')).toBeInTheDocument();
+        const element = container.querySelector('.str-chat__gallery__slide-container');
+        expect(element).toBeInTheDocument();
+        return element;
+      });
+
+      act(() => {
+        fireEvent.click(slideContainer);
+      });
+
+      await waitFor(() => {
+        expect(
+          container.querySelector('.str-chat__gallery-modal'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('should keep the modal open when closeOnBackgroundClick is disabled', async () => {
+      const items = [makeImageItem(), makeImageItem()];
+
+      const { container } = renderComponent({ closeOnBackgroundClick: false, items });
+      const thumbnails = container.querySelectorAll('.str-chat__modal-gallery__image');
+
+      act(() => {
+        fireEvent.click(thumbnails[0]);
+      });
+
+      const slideContainer = await waitFor(() => {
+        expect(container.querySelector('.str-chat__gallery-modal')).toBeInTheDocument();
+        const element = container.querySelector('.str-chat__gallery__slide-container');
+        expect(element).toBeInTheDocument();
+        return element;
+      });
+
+      act(() => {
+        fireEvent.click(slideContainer);
+      });
+
+      expect(container.querySelector('.str-chat__gallery-modal')).toBeInTheDocument();
+    });
   });
 
   describe('BaseImage error handling', () => {
