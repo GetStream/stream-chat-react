@@ -1,18 +1,24 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Gallery } from '../Gallery';
 import { GalleryUI } from '../GalleryUI';
-import { TranslationProvider } from '../../../context';
+import {
+  MessageProvider,
+  ModalContextProvider,
+  TranslationProvider,
+} from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 
+import type { GalleryProps } from '../Gallery';
+import type { MessageContextValue, ModalContextValue } from '../../../context';
 import type { GalleryItem } from '../GalleryContext';
 
 const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
   ({
-    fallback: 'test-image.png',
-    image_url: 'http://test-image.jpg',
+    alt: 'test-image.png',
+    imageUrl: 'http://test-image.jpg',
     localMetadata: { id: 'img-1' },
     type: 'image',
     ...overrides,
@@ -20,25 +26,76 @@ const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
 
 const makeVideoItem = (overrides: Record<string, unknown> = {}): GalleryItem =>
   ({
-    asset_url: 'http://test-video.mp4',
     localMetadata: { id: 'vid-1' },
-    thumb_url: 'http://test-thumb.jpg',
     title: 'test-video.mp4',
     type: 'video',
+    videoThumbnailUrl: 'http://test-thumb.jpg',
+    videoUrl: 'http://test-video.mp4',
     ...overrides,
   }) as unknown as GalleryItem;
 
-const renderGalleryUI = (items: GalleryItem[], initialIndex = 0) =>
-  render(
-    <TranslationProvider value={mockTranslationContext}>
-      <Gallery GalleryUI={GalleryUI} initialIndex={initialIndex} items={items} />
-    </TranslationProvider>,
+const makeMessageContext = (
+  overrides: Partial<MessageContextValue> = {},
+): MessageContextValue =>
+  ({
+    isMyMessage: () => false,
+    message: {
+      created_at: new Date('2025-01-01T12:34:56.000Z'),
+      user: { id: 'jenny', name: 'Jenny' },
+    },
+    ...overrides,
+  }) as MessageContextValue;
+
+const getSlideContainer = (container: HTMLElement) => {
+  const slideContainer = container.querySelector('.str-chat__gallery__slide-container');
+
+  expect(slideContainer).toBeInTheDocument();
+
+  return slideContainer as HTMLDivElement;
+};
+
+const renderGalleryUI = (
+  items: GalleryItem[],
+  {
+    galleryProps,
+    initialIndex = 0,
+    messageContext,
+    modalContext,
+  }: {
+    galleryProps?: Partial<GalleryProps>;
+    initialIndex?: number;
+    messageContext?: MessageContextValue;
+    modalContext?: ModalContextValue;
+  } = {},
+) => {
+  let children = (
+    <Gallery
+      GalleryUI={GalleryUI}
+      initialIndex={initialIndex}
+      items={items}
+      {...galleryProps}
+    />
   );
+
+  if (messageContext) {
+    children = <MessageProvider value={messageContext}>{children}</MessageProvider>;
+  }
+
+  if (modalContext) {
+    children = (
+      <ModalContextProvider value={modalContext}>{children}</ModalContextProvider>
+    );
+  }
+
+  return render(
+    <TranslationProvider value={mockTranslationContext}>{children}</TranslationProvider>,
+  );
+};
 
 describe('GalleryUI', () => {
   describe('Image rendering', () => {
     it('should render current image using BaseImage', () => {
-      const items = [makeImageItem({ image_url: 'http://my-image.jpg' })];
+      const items = [makeImageItem({ imageUrl: 'http://my-image.jpg' })];
 
       renderGalleryUI(items);
 
@@ -48,7 +105,7 @@ describe('GalleryUI', () => {
     });
 
     it('should use fallback as alt text for images', () => {
-      const items = [makeImageItem({ fallback: 'my-fallback.png' })];
+      const items = [makeImageItem({ alt: 'my-fallback.png' })];
 
       renderGalleryUI(items);
 
@@ -71,8 +128,8 @@ describe('GalleryUI', () => {
       );
     });
 
-    it('should show video player when play button is clicked', () => {
-      const items = [makeVideoItem({ asset_url: 'http://video.mp4' })];
+    it('should show video player when play button is clicked', async () => {
+      const items = [makeVideoItem({ videoUrl: 'http://video.mp4' })];
 
       const { container } = renderGalleryUI(items);
 
@@ -80,9 +137,11 @@ describe('GalleryUI', () => {
         fireEvent.click(screen.getByLabelText('Play video'));
       });
 
-      const video = container.querySelector('video');
-      expect(video).toBeInTheDocument();
-      expect(video).toHaveAttribute('src', 'http://video.mp4');
+      await waitFor(() => {
+        const video = container.querySelector('video');
+        expect(video).toBeInTheDocument();
+        expect(video).toHaveAttribute('src', 'http://video.mp4');
+      });
     });
   });
 
@@ -103,7 +162,7 @@ describe('GalleryUI', () => {
     it('should hide next button on last item', () => {
       const items = [makeImageItem(), makeImageItem()];
 
-      renderGalleryUI(items, 1);
+      renderGalleryUI(items, { initialIndex: 1 });
 
       expect(screen.getByLabelText('Previous image')).not.toBeDisabled();
       const nextButton = screen.getByLabelText('Next image');
@@ -116,7 +175,7 @@ describe('GalleryUI', () => {
     it('should show both buttons in the middle', () => {
       const items = [makeImageItem(), makeImageItem(), makeImageItem()];
 
-      renderGalleryUI(items, 1);
+      renderGalleryUI(items, { initialIndex: 1 });
 
       expect(screen.getByLabelText('Previous image')).toBeInTheDocument();
       expect(screen.getByLabelText('Next image')).toBeInTheDocument();
@@ -124,8 +183,8 @@ describe('GalleryUI', () => {
 
     it('should navigate forward when next button is clicked', () => {
       const items = [
-        makeImageItem({ image_url: 'http://img0.jpg' }),
-        makeImageItem({ image_url: 'http://img1.jpg' }),
+        makeImageItem({ imageUrl: 'http://img0.jpg' }),
+        makeImageItem({ imageUrl: 'http://img1.jpg' }),
       ];
 
       renderGalleryUI(items);
@@ -140,11 +199,11 @@ describe('GalleryUI', () => {
 
     it('should navigate backward when prev button is clicked', () => {
       const items = [
-        makeImageItem({ image_url: 'http://img0.jpg' }),
-        makeImageItem({ image_url: 'http://img1.jpg' }),
+        makeImageItem({ imageUrl: 'http://img0.jpg' }),
+        makeImageItem({ imageUrl: 'http://img1.jpg' }),
       ];
 
-      renderGalleryUI(items, 1);
+      renderGalleryUI(items, { initialIndex: 1 });
 
       act(() => {
         fireEvent.click(screen.getByLabelText('Previous image'));
@@ -161,7 +220,7 @@ describe('GalleryUI', () => {
 
       renderGalleryUI(items);
 
-      expect(screen.getByText('1 / 3')).toBeInTheDocument();
+      expect(screen.getByText('1 of 3')).toBeInTheDocument();
     });
 
     it('should not show position indicator for single item', () => {
@@ -169,7 +228,9 @@ describe('GalleryUI', () => {
 
       renderGalleryUI(items);
 
-      expect(screen.queryByText(/\//)).not.toBeInTheDocument();
+      expect(
+        document.querySelector('.str-chat__gallery__position-indicator'),
+      ).not.toBeInTheDocument();
     });
 
     it('should update position indicator on navigation', () => {
@@ -181,15 +242,120 @@ describe('GalleryUI', () => {
         fireEvent.click(screen.getByLabelText('Next image'));
       });
 
-      expect(screen.getByText('2 / 3')).toBeInTheDocument();
+      expect(screen.getByText('2 of 3')).toBeInTheDocument();
+    });
+  });
+
+  describe('Header metadata and actions', () => {
+    it('should render sender metadata in the header when message context is available', () => {
+      const items = [makeImageItem({ title: 'beach.png' })];
+
+      const { container } = renderGalleryUI(items, {
+        messageContext: makeMessageContext({ isMyMessage: () => true }),
+      });
+
+      expect(screen.getByText('You')).toBeInTheDocument();
+      expect(container.querySelector('.str-chat__gallery__timestamp')).toHaveAttribute(
+        'datetime',
+        '2025-01-01T12:34:56.000Z',
+      );
+    });
+
+    it('should render a download action for the current item', () => {
+      const items = [
+        makeImageItem({
+          imageUrl: 'https://example.com/download-image.jpg',
+          title: 'beach.png',
+        }),
+      ];
+
+      renderGalleryUI(items);
+
+      const downloadLink = screen.getByLabelText('Download attachment');
+      expect(downloadLink).toHaveAttribute('download');
+      expect(downloadLink).toHaveAttribute(
+        'href',
+        'https://example.com/download-image.jpg',
+      );
+    });
+
+    it('should render a close action when the gallery is shown inside a modal', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      renderGalleryUI(items, { modalContext: { close } });
+
+      fireEvent.click(screen.getByTitle('Close'));
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Background click closing', () => {
+    it('should close when the empty gallery background is clicked by default', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      const { container } = renderGalleryUI(items, { modalContext: { close } });
+
+      fireEvent.click(getSlideContainer(container));
+
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not close when the current media is clicked', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      renderGalleryUI(items, { modalContext: { close } });
+
+      fireEvent.click(screen.getByTestId('str-chat__base-image'));
+
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it('should not close when closeOnBackgroundClick is disabled', () => {
+      const close = jest.fn();
+      const items = [makeImageItem()];
+
+      const { container } = renderGalleryUI(items, {
+        galleryProps: { closeOnBackgroundClick: false },
+        modalContext: { close },
+      });
+
+      fireEvent.click(getSlideContainer(container));
+
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it('should ignore the next click after a swipe gesture', () => {
+      const close = jest.fn();
+      const items = [makeImageItem(), makeImageItem(), makeImageItem()];
+
+      const { container } = renderGalleryUI(items, { modalContext: { close } });
+      const slideContainer = getSlideContainer(container);
+
+      fireEvent.touchStart(slideContainer, {
+        touches: [{ clientX: 180, clientY: 100 }],
+      });
+      fireEvent.touchMove(slideContainer, {
+        touches: [{ clientX: 80, clientY: 100 }],
+      });
+      fireEvent.touchEnd(slideContainer);
+      fireEvent.click(slideContainer);
+
+      expect(close).not.toHaveBeenCalled();
+
+      fireEvent.click(slideContainer);
+
+      expect(close).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Keyboard navigation', () => {
     it('should navigate forward with ArrowRight key', () => {
       const items = [
-        makeImageItem({ image_url: 'http://img0.jpg' }),
-        makeImageItem({ image_url: 'http://img1.jpg' }),
+        makeImageItem({ imageUrl: 'http://img0.jpg' }),
+        makeImageItem({ imageUrl: 'http://img1.jpg' }),
       ];
 
       renderGalleryUI(items);
@@ -204,11 +370,11 @@ describe('GalleryUI', () => {
 
     it('should navigate backward with ArrowLeft key', () => {
       const items = [
-        makeImageItem({ image_url: 'http://img0.jpg' }),
-        makeImageItem({ image_url: 'http://img1.jpg' }),
+        makeImageItem({ imageUrl: 'http://img0.jpg' }),
+        makeImageItem({ imageUrl: 'http://img1.jpg' }),
       ];
 
-      renderGalleryUI(items, 1);
+      renderGalleryUI(items, { initialIndex: 1 });
 
       act(() => {
         fireEvent.keyDown(document, { key: 'ArrowLeft' });
@@ -246,7 +412,7 @@ describe('GalleryUI', () => {
     it('should have aria-label on navigation buttons', () => {
       const items = [makeImageItem(), makeImageItem(), makeImageItem()];
 
-      renderGalleryUI(items, 1);
+      renderGalleryUI(items, { initialIndex: 1 });
 
       expect(screen.getByLabelText('Previous image')).toHaveAttribute('type', 'button');
       expect(screen.getByLabelText('Next image')).toHaveAttribute('type', 'button');
@@ -268,6 +434,7 @@ describe('GalleryUI', () => {
       const { container } = renderGalleryUI(items);
 
       expect(container.querySelector('.str-chat__gallery')).toBeInTheDocument();
+      expect(container.querySelector('.str-chat__gallery__header')).toBeInTheDocument();
       expect(container.querySelector('.str-chat__gallery__main')).toBeInTheDocument();
       expect(container.querySelector('.str-chat__gallery__media')).toBeInTheDocument();
       expect(
