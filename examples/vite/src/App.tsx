@@ -1,4 +1,4 @@
-import { type CSSProperties, useCallback, useEffect, useMemo } from 'react';
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ChannelFilters,
   ChannelOptions,
@@ -28,10 +28,10 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
-import { useAppSettingsState } from './AppSettings/state.ts';
+import { appSettingsStore, useAppSettingsSelector } from './AppSettings/state.ts';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
-import { SidebarLayoutSync } from './ChatLayout/Resize.tsx';
+import { PanelLayoutStyleSync, SidebarLayoutSync } from './ChatLayout/Resize.tsx';
 import {
   ChatStateSync,
   getSelectedChannelIdFromUrl,
@@ -105,8 +105,8 @@ const useUser = () => {
 };
 
 const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList>) => {
-  const { reactions } = useAppSettingsState();
-  const { visualStyle, verticalPosition, flipHorizontalPosition } = reactions;
+  const { visualStyle, verticalPosition, flipHorizontalPosition } =
+    useAppSettingsSelector((state) => state.reactions);
 
   return (
     <ReactionsList
@@ -121,18 +121,26 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
 const EmojiPickerWithCustomOptions = (
   props: React.ComponentProps<typeof EmojiPicker>,
 ) => {
-  const {
-    theme: { mode },
-  } = useAppSettingsState();
+  const mode = useAppSettingsSelector((state) => state.theme.mode);
 
   return <EmojiPicker {...props} pickerProps={{ theme: mode }} />;
 };
 
 const App = () => {
   const { tokenProvider, userId } = useUser();
-  const { chatView, panelLayout, theme } = useAppSettingsState();
+  const chatView = useAppSettingsSelector((state) => state.chatView);
+  const themeMode = useAppSettingsSelector((state) => state.theme.mode);
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
+  const initialPanelLayout = useMemo(
+    () => appSettingsStore.getLatestValue().panelLayout,
+    [],
+  );
+  const initialNavOpen = useMemo(
+    () => !initialPanelLayout.leftPanel.collapsed,
+    [initialPanelLayout.leftPanel.collapsed],
+  );
+  const appLayoutRef = useRef<HTMLDivElement | null>(null);
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -217,11 +225,15 @@ const App = () => {
     });
   }, [chatClient]);
 
-  const chatTheme = theme.mode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
-  const appLayoutStyle = {
-    '--app-left-panel-width': `${panelLayout.leftPanel.width}px`,
-    '--app-thread-panel-width': `${panelLayout.threadPanel.width}px`,
-  } as CSSProperties;
+  const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
+  const initialAppLayoutStyle = useMemo(
+    () =>
+      ({
+        '--app-left-panel-width': `${initialPanelLayout.leftPanel.width}px`,
+        '--app-thread-panel-width': `${initialPanelLayout.threadPanel.width}px`,
+      }) as CSSProperties,
+    [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
+  );
 
   if (!chatClient) return <>Loading...</>;
 
@@ -237,12 +249,13 @@ const App = () => {
       <Chat
         searchController={searchController}
         client={chatClient}
-        initialNavOpen={!panelLayout.leftPanel.collapsed}
+        initialNavOpen={initialNavOpen}
         initialNavOpenResponsive={useResponsiveInitialNav}
         isMessageAIGenerated={isMessageAIGenerated}
         theme={chatTheme}
       >
-        <div className='app-chat-layout' style={appLayoutStyle}>
+        <div className='app-chat-layout' ref={appLayoutRef} style={initialAppLayoutStyle}>
+          <PanelLayoutStyleSync layoutRef={appLayoutRef} />
           <ChatView>
             <ChatStateSync initialChatView={initialChatView} />
             <SidebarLayoutSync />

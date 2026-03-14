@@ -9,10 +9,11 @@ import {
 import { useChatContext } from 'stream-chat-react';
 
 import {
+  type LeftPanelLayoutSettingsState,
   LEFT_PANEL_MIN_WIDTH,
   THREAD_PANEL_MIN_WIDTH,
   updatePanelLayoutSettings,
-  useAppSettingsState,
+  useAppSettingsSelector,
 } from '../AppSettings/state.ts';
 import { DESKTOP_LAYOUT_BREAKPOINT, MESSAGE_VIEW_MIN_WIDTH } from './constants.ts';
 
@@ -74,6 +75,47 @@ const beginHorizontalResize = ({
   window.addEventListener('pointercancel', stopResize);
 };
 
+const getAppLayoutElement = (element?: HTMLElement | null) => {
+  const appLayout = element?.closest('.app-chat-layout');
+
+  return appLayout instanceof HTMLDivElement ? appLayout : null;
+};
+
+const setPanelWidthCssVariable = (
+  appLayoutElement: HTMLDivElement,
+  cssVariableName: '--app-left-panel-width' | '--app-thread-panel-width',
+  width: number,
+) => {
+  appLayoutElement.style.setProperty(cssVariableName, `${width}px`);
+};
+
+export const PanelLayoutStyleSync = ({
+  layoutRef,
+}: {
+  layoutRef: RefObject<HTMLDivElement | null>;
+}) => {
+  const panelLayout = useAppSettingsSelector((state) => state.panelLayout);
+
+  useEffect(() => {
+    const layoutElement = layoutRef.current;
+
+    if (!layoutElement) return;
+
+    setPanelWidthCssVariable(
+      layoutElement,
+      '--app-left-panel-width',
+      panelLayout.leftPanel.width,
+    );
+    setPanelWidthCssVariable(
+      layoutElement,
+      '--app-thread-panel-width',
+      panelLayout.threadPanel.width,
+    );
+  }, [layoutRef, panelLayout]);
+
+  return null;
+};
+
 const PanelResizeHandle = ({
   className,
   onPointerDown,
@@ -95,18 +137,20 @@ const PanelResizeHandle = ({
 
 export const SidebarLayoutSync = () => {
   const { navOpen = true } = useChatContext();
-  const {
-    panelLayout: { leftPanel },
-  } = useAppSettingsState();
+  const leftPanelCollapsed = useAppSettingsSelector(
+    (state) => state.panelLayout.leftPanel.collapsed,
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT) {
       return;
     }
 
+    if (document.body.classList.contains('app-chat-resizing-sidebar')) return;
+
     const shouldBeCollapsed = !navOpen;
 
-    if (shouldBeCollapsed === leftPanel.collapsed) return;
+    if (shouldBeCollapsed === leftPanelCollapsed) return;
 
     updatePanelLayoutSettings((panelLayout) => ({
       ...panelLayout,
@@ -115,7 +159,7 @@ export const SidebarLayoutSync = () => {
         collapsed: shouldBeCollapsed,
       },
     }));
-  }, [leftPanel.collapsed, navOpen]);
+  }, [leftPanelCollapsed, navOpen]);
 
   return null;
 };
@@ -126,21 +170,31 @@ export const SidebarResizeHandle = ({
   layoutRef: RefObject<HTMLDivElement | null>;
 }) => {
   const { closeMobileNav, openMobileNav } = useChatContext('SidebarResizeHandle');
-  const {
-    panelLayout: { leftPanel },
-  } = useAppSettingsState();
+  const leftPanel = useAppSettingsSelector((state) => state.panelLayout.leftPanel);
   const isSidebarCollapsedRef = useRef(leftPanel.collapsed);
+  const leftPanelStateRef = useRef(leftPanel);
 
   useEffect(() => {
     isSidebarCollapsedRef.current = leftPanel.collapsed;
-  }, [leftPanel.collapsed]);
+    leftPanelStateRef.current = leftPanel;
+  }, [leftPanel]);
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.button !== 0) return;
 
+      const layoutElement = layoutRef.current;
+      const appLayoutElement = getAppLayoutElement(layoutElement);
+      const layoutBounds = layoutElement?.getBoundingClientRect();
+
+      if (!layoutBounds || !appLayoutElement) return;
+
       event.preventDefault();
-      document.body.dataset.appSidebarResizeState = leftPanel.collapsed
+      const dragState: LeftPanelLayoutSettingsState = {
+        ...leftPanelStateRef.current,
+      };
+
+      document.body.dataset.appSidebarResizeState = dragState.collapsed
         ? 'collapsed'
         : 'expanded';
 
@@ -148,10 +202,6 @@ export const SidebarResizeHandle = ({
         bodyClassName: 'app-chat-resizing-sidebar',
         handle: event.currentTarget,
         onMove: (pointerEvent) => {
-          const layoutBounds = layoutRef.current?.getBoundingClientRect();
-
-          if (!layoutBounds) return;
-
           const nextWidth = pointerEvent.clientX - layoutBounds.left;
           const maxWidth = layoutBounds.width - MESSAGE_VIEW_MIN_WIDTH;
           const shouldCollapse = nextWidth < LEFT_PANEL_MIN_WIDTH;
@@ -159,6 +209,28 @@ export const SidebarResizeHandle = ({
           document.body.dataset.appSidebarResizeState = shouldCollapse
             ? 'collapsed'
             : 'expanded';
+
+          if (shouldCollapse) {
+            if (!dragState.collapsed) {
+              dragState.previousWidth = dragState.width;
+              dragState.collapsed = true;
+            }
+          } else {
+            const clampedWidth = clamp(nextWidth, LEFT_PANEL_MIN_WIDTH, maxWidth);
+            const expandedWidth = dragState.collapsed
+              ? Math.max(dragState.previousWidth, clampedWidth)
+              : clampedWidth;
+
+            dragState.collapsed = false;
+            dragState.previousWidth = expandedWidth;
+            dragState.width = expandedWidth;
+
+            setPanelWidthCssVariable(
+              appLayoutElement,
+              '--app-left-panel-width',
+              expandedWidth,
+            );
+          }
 
           if (shouldCollapse !== isSidebarCollapsedRef.current) {
             isSidebarCollapsedRef.current = shouldCollapse;
@@ -169,43 +241,31 @@ export const SidebarResizeHandle = ({
               openMobileNav();
             }
           }
-
-          updatePanelLayoutSettings((panelLayout) => {
-            if (shouldCollapse) {
-              return {
-                ...panelLayout,
-                leftPanel: {
-                  ...panelLayout.leftPanel,
-                  collapsed: true,
-                  previousWidth: panelLayout.leftPanel.collapsed
-                    ? panelLayout.leftPanel.previousWidth
-                    : panelLayout.leftPanel.width,
-                },
-              };
-            }
-
-            const clampedWidth = clamp(nextWidth, LEFT_PANEL_MIN_WIDTH, maxWidth);
-            const expandedWidth = panelLayout.leftPanel.collapsed
-              ? Math.max(panelLayout.leftPanel.previousWidth, clampedWidth)
-              : clampedWidth;
-
-            return {
-              ...panelLayout,
-              leftPanel: {
-                collapsed: false,
-                previousWidth: expandedWidth,
-                width: expandedWidth,
-              },
-            };
-          });
         },
         onStop: () => {
           delete document.body.dataset.appSidebarResizeState;
+
+          const previousPanelState = leftPanelStateRef.current;
+
+          leftPanelStateRef.current = dragState;
+
+          if (
+            previousPanelState.collapsed === dragState.collapsed &&
+            previousPanelState.previousWidth === dragState.previousWidth &&
+            previousPanelState.width === dragState.width
+          ) {
+            return;
+          }
+
+          updatePanelLayoutSettings((panelLayout) => ({
+            ...panelLayout,
+            leftPanel: dragState,
+          }));
         },
         pointerId: event.pointerId,
       });
     },
-    [closeMobileNav, layoutRef, leftPanel.collapsed, openMobileNav],
+    [closeMobileNav, layoutRef, openMobileNav],
   );
 
   return (
@@ -217,28 +277,52 @@ export const SidebarResizeHandle = ({
 };
 
 export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
+  const threadPanelWidth = useAppSettingsSelector(
+    (state) => state.panelLayout.threadPanel.width,
+  );
+  const threadPanelWidthRef = useRef(threadPanelWidth);
+
+  useEffect(() => {
+    threadPanelWidthRef.current = threadPanelWidth;
+  }, [threadPanelWidth]);
+
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.button !== 0 || !isOpen) return;
 
       const container = event.currentTarget.parentElement;
+      const appLayoutElement = getAppLayoutElement(container);
+      const containerBounds = container?.getBoundingClientRect();
 
-      if (!container) return;
+      if (!container || !containerBounds || !appLayoutElement) return;
 
       event.preventDefault();
+      const dragState = {
+        width: threadPanelWidthRef.current,
+      };
 
       beginHorizontalResize({
         bodyClassName: 'app-chat-resizing-thread',
         handle: event.currentTarget,
         onMove: (pointerEvent) => {
-          const containerBounds = container.getBoundingClientRect();
           const nextWidth = containerBounds.right - pointerEvent.clientX;
           const maxWidth = containerBounds.width - MESSAGE_VIEW_MIN_WIDTH;
+          const width = clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth);
+
+          dragState.width = width;
+          setPanelWidthCssVariable(appLayoutElement, '--app-thread-panel-width', width);
+        },
+        onStop: () => {
+          const previousWidth = threadPanelWidthRef.current;
+
+          threadPanelWidthRef.current = dragState.width;
+
+          if (previousWidth === dragState.width) return;
 
           updatePanelLayoutSettings((panelLayout) => ({
             ...panelLayout,
             threadPanel: {
-              width: clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth),
+              width: dragState.width,
             },
           }));
         },
