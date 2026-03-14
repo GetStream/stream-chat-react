@@ -41,6 +41,8 @@ body {
     .str-chat__channel-list,
   body.app-chat-resizing-sidebar[data-app-sidebar-resize-state='expanded']
     .str-chat__thread-list-container,
+  body.app-chat-resizing-thread .app-chat-resize-handle--thread,
+  body.app-chat-resizing-thread .app-chat-thread-panel,
   body.app-chat-resizing-thread
     .str-chat__chat-view__channels
     .str-chat__container
@@ -127,6 +129,35 @@ body {
     width: 1px;
     height: 100%;
     background: var(--str-chat__surface-color);
+  }
+
+  .app-chat-resize-handle--thread {
+    transition:
+      flex-basis var(--str-chat__channel-list-transition-duration, 180ms)
+        var(--str-chat__channel-list-transition-easing, ease),
+      width var(--str-chat__channel-list-transition-duration, 180ms)
+        var(--str-chat__channel-list-transition-easing, ease),
+      min-width var(--str-chat__channel-list-transition-duration, 180ms)
+        var(--str-chat__channel-list-transition-easing, ease),
+      opacity var(--str-chat__channel-list-transition-duration, 180ms)
+        var(--str-chat__channel-list-transition-easing, ease);
+  }
+
+  .app-chat-resize-handle--thread-hidden {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .app-chat-thread-panel {
+    background: var(--str-chat__secondary-background-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
   }
 
   .str-chat__chat-view-channels {
@@ -280,31 +311,68 @@ body {
 
     .str-chat__chat-view__channels
       .str-chat__container:has(.app-chat-resize-handle--thread) {
+      overflow-x: hidden;
+
       > .str-chat__main-panel,
       > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
         flex: 1 1 auto;
         min-width: 0;
       }
 
-      > .app-chat-resize-handle--thread + .str-chat__thread-container,
-      > .app-chat-resize-handle--thread + .str-chat__dropzone-root--thread:not(:empty) {
+      > .app-chat-resize-handle--thread + .app-chat-thread-panel {
+        flex: 0 0 0;
+        width: 0;
+        min-width: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transform: translateX(var(--str-chat__channel-list-transition-offset, 8px));
+        transition:
+          flex-basis var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease),
+          min-width var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease),
+          width var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease),
+          max-width var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease),
+          opacity var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease),
+          transform var(--str-chat__channel-list-transition-duration, 180ms)
+            var(--str-chat__channel-list-transition-easing, ease);
+      }
+
+      > .app-chat-resize-handle--thread
+        + .app-chat-thread-panel.app-chat-thread-panel--open {
         flex: 0 0 var(--app-thread-panel-width);
         width: var(--app-thread-panel-width);
         max-width: var(--app-thread-panel-width);
         min-width: 0;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(0);
       }
     }
 
     .str-chat__chat-view__channels
       .str-chat__container:has(.app-chat-resize-handle--thread)
       > .app-chat-resize-handle--thread
-      + .str-chat__dropzone-root--thread
+      + .app-chat-thread-panel
+      .str-chat__dropzone-root--thread,
+    .str-chat__chat-view__channels
+      .str-chat__container:has(.app-chat-resize-handle--thread)
+      > .app-chat-resize-handle--thread
+      + .app-chat-thread-panel
       .str-chat__thread-container,
     .str-chat__chat-view__channels
       .str-chat__container:has(.app-chat-resize-handle--thread)
       > .app-chat-resize-handle--thread
-      + .str-chat__thread-container {
+      + .app-chat-thread-panel
+      .str-chat__dropzone-root--thread
+      .str-chat__thread-container {
       width: 100%;
+      height: 100%;
       max-width: none;
     }
   }
@@ -317,7 +385,7 @@ body {
     .str-chat__chat-view__channels
       .str-chat__container:has(.app-chat-resize-handle--thread)
       > .app-chat-resize-handle--thread
-      + .str-chat__dropzone-root--thread:not(:empty),
+      + .app-chat-thread-panel.app-chat-thread-panel--open,
     .str-chat__thread-container {
       flex: 1 1 auto;
       width: 100%;

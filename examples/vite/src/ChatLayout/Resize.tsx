@@ -6,7 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { useChannelStateContext, useChatContext } from 'stream-chat-react';
+import { useChatContext } from 'stream-chat-react';
 
 import {
   LEFT_PANEL_MIN_WIDTH,
@@ -216,42 +216,43 @@ export const SidebarResizeHandle = ({
   );
 };
 
-export const ThreadResizeHandle = () => {
-  const { thread } = useChannelStateContext('ThreadResizeHandle');
+export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0 || !isOpen) return;
 
-  const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
+      const container = event.currentTarget.parentElement;
 
-    const container = event.currentTarget.parentElement;
+      if (!container) return;
 
-    if (!container) return;
+      event.preventDefault();
 
-    event.preventDefault();
+      beginHorizontalResize({
+        bodyClassName: 'app-chat-resizing-thread',
+        handle: event.currentTarget,
+        onMove: (pointerEvent) => {
+          const containerBounds = container.getBoundingClientRect();
+          const nextWidth = containerBounds.right - pointerEvent.clientX;
+          const maxWidth = containerBounds.width - MESSAGE_VIEW_MIN_WIDTH;
 
-    beginHorizontalResize({
-      bodyClassName: 'app-chat-resizing-thread',
-      handle: event.currentTarget,
-      onMove: (pointerEvent) => {
-        const containerBounds = container.getBoundingClientRect();
-        const nextWidth = containerBounds.right - pointerEvent.clientX;
-        const maxWidth = containerBounds.width - MESSAGE_VIEW_MIN_WIDTH;
-
-        updatePanelLayoutSettings((panelLayout) => ({
-          ...panelLayout,
-          threadPanel: {
-            width: clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth),
-          },
-        }));
-      },
-      pointerId: event.pointerId,
-    });
-  }, []);
-
-  if (!thread) return null;
+          updatePanelLayoutSettings((panelLayout) => ({
+            ...panelLayout,
+            threadPanel: {
+              width: clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth),
+            },
+          }));
+        },
+        pointerId: event.pointerId,
+      });
+    },
+    [isOpen],
+  );
 
   return (
     <PanelResizeHandle
-      className='app-chat-resize-handle--thread'
+      className={clsx('app-chat-resize-handle--thread', {
+        'app-chat-resize-handle--thread-hidden': !isOpen,
+      })}
       onPointerDown={handlePointerDown}
     />
   );

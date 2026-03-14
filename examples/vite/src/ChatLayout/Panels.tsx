@@ -16,12 +16,31 @@ import {
   Window,
   WithComponents,
   WithDragAndDropUpload,
+  useChannelStateContext,
   useChatContext,
 } from 'stream-chat-react';
 import { Search } from 'stream-chat-react/experimental';
 
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ThreadStateSync } from './Sync.tsx';
+
+const ChannelThreadPanel = () => {
+  const { thread } = useChannelStateContext('ChannelThreadPanel');
+  const isOpen = !!thread;
+
+  return (
+    <>
+      <ThreadResizeHandle isOpen={isOpen} />
+      <WithDragAndDropUpload
+        className={clsx('str-chat__dropzone-root--thread app-chat-thread-panel', {
+          'app-chat-thread-panel--open': isOpen,
+        })}
+      >
+        <Thread virtualized />
+      </WithDragAndDropUpload>
+    </>
+  );
+};
 
 export const ChannelsPanels = ({
   filters,
@@ -70,10 +89,7 @@ export const ChannelsPanels = ({
                 />
               </Window>
             </WithDragAndDropUpload>
-            <ThreadResizeHandle />
-            <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-              <Thread virtualized />
-            </WithDragAndDropUpload>
+            <ChannelThreadPanel />
           </Channel>
         </WithComponents>
       </div>
