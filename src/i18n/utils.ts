@@ -111,7 +111,8 @@ export function getDateString({
     !messageCreatedAt ||
     (typeof messageCreatedAt === 'string' && !Date.parse(messageCreatedAt))
   ) {
-    console.warn(notValidDateWarning);
+    // TODO: replace with proper logging (@stream-io/logger)
+    // console.warn(notValidDateWarning);
     return null;
   }
 
@@ -158,7 +159,8 @@ export function getDateString({
   }
 
   if (!tDateTimeParser) {
-    console.warn(noParsingFunctionWarning);
+    // TODO: replace with proper logging (@stream-io/logger)
+    // console.warn(noParsingFunctionWarning);
     return null;
   }
 
