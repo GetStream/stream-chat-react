@@ -121,7 +121,7 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
 const EmojiPickerWithCustomOptions = (
   props: React.ComponentProps<typeof EmojiPicker>,
 ) => {
-  const mode = useAppSettingsSelector((state) => state.theme.mode);
+  const { mode } = useAppSettingsSelector((state) => state.theme);
 
   return <EmojiPicker {...props} pickerProps={{ theme: mode }} />;
 };
@@ -129,7 +129,7 @@ const EmojiPickerWithCustomOptions = (
 const App = () => {
   const { tokenProvider, userId } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
-  const themeMode = useAppSettingsSelector((state) => state.theme.mode);
+  const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
   const initialPanelLayout = useMemo(

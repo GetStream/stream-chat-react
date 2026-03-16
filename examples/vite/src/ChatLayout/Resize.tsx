@@ -137,8 +137,8 @@ const PanelResizeHandle = ({
 
 export const SidebarLayoutSync = () => {
   const { navOpen = true } = useChatContext();
-  const leftPanelCollapsed = useAppSettingsSelector(
-    (state) => state.panelLayout.leftPanel.collapsed,
+  const { collapsed: leftPanelCollapsed } = useAppSettingsSelector(
+    (state) => state.panelLayout.leftPanel,
   );
 
   useEffect(() => {
@@ -277,8 +277,8 @@ export const SidebarResizeHandle = ({
 };
 
 export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
-  const threadPanelWidth = useAppSettingsSelector(
-    (state) => state.panelLayout.threadPanel.width,
+  const { width: threadPanelWidth } = useAppSettingsSelector(
+    (state) => state.panelLayout.threadPanel,
   );
   const threadPanelWidthRef = useRef(threadPanelWidth);
 

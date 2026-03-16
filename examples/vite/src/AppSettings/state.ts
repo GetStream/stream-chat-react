@@ -229,8 +229,11 @@ export const updatePanelLayoutSettings = (
   });
 };
 
-export const useAppSettingsSelector = <T>(selector: (state: AppSettingsState) => T): T =>
-  useStateStore(appSettingsStore, selector) ?? selector(initialAppSettingsState);
+export const useAppSettingsSelector = <
+  T extends Readonly<Record<string, unknown> | Readonly<unknown[]>>,
+>(
+  selector: (state: AppSettingsState) => T,
+): T => useStateStore(appSettingsStore, selector) ?? selector(initialAppSettingsState);
 
 export const useAppSettingsState = () =>
   useAppSettingsSelector((nextValue: AppSettingsState) => nextValue);
