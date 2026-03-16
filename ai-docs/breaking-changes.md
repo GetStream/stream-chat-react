@@ -1,0 +1,1526 @@
+# React v14 Breaking Changes
+
+Last updated: 2026-03-15
+
+## Scope
+
+This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
+
+- Baseline: `v13.14.2..master`
+- Primary evidence: source diff and current exports
+- Secondary evidence: commit history, changelog entries, PR metadata
+
+## Audit Reference
+
+- Baseline tag: `v13.14.2`
+- Current audited SDK head: `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a` (`6ea7a78e`, `2026-03-13`, `feat: adjust media gallery viewer (#3006)`)
+- Future mining starting point: diff `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+
+Only confirmed items should move from this file into the migration guide.
+
+## Status Legend
+
+- `confirmed`: verified in current source against the v13 baseline
+- `likely`: strong signal, but still needs source-level confirmation
+- `ruled-out`: investigated and determined to not be a v13 to v14 breaking change
+
+## Confirmed
+
+### BC-001: `with*Context` HOC wrappers were removed
+
+- Status: confirmed
+- Area: contexts
+- User impact: imports or usage of the HOC wrappers no longer compile; consumers must switch to hooks
+- Old API:
+  - `withChannelActionContext`
+  - `withChannelStateContext`
+  - `withChatContext`
+  - `withComponentContext`
+  - `withMessageContext`
+  - `withTranslationContext`
+  - `withTypingContext`
+- Replacement: use the corresponding hooks directly inside function components
+- Evidence:
+  - `v13.14.2:src/context/ChatContext.tsx:99` exported `withChatContext`
+  - `v13.14.2:src/context/ComponentContext.tsx:275` exported `withComponentContext`
+  - `v13.14.2:src/context/MessageContext.tsx:191` exported `withMessageContext`
+  - `git grep` on `v13.14.2` finds all seven `with*Context` exports under `src/context`
+  - current `rg` over `src/context` returns no `with*Context` exports
+  - commit: `e0cd4f25 chore: remove with*Context HOC wrappers (#2962)`
+- Docs impact:
+  - migration guide
+  - context docs that still imply HOC availability
+- Example needed: yes
+
+### BC-002: `MessageIsThreadReplyInChannelButtonIndicator` was replaced by `MessageAlsoSentInChannelIndicator`
+
+- Status: confirmed
+- Area: message UI overrides
+- User impact:
+  - top-level imports using `MessageIsThreadReplyInChannelButtonIndicator` break
+  - `ComponentContext` override keys using the old name need to be renamed
+  - custom docs/examples using the old component name are stale
+- Old API:
+  - `v13.14.2:src/components/Message/index.ts:8` exported `MessageIsThreadReplyInChannelButtonIndicator`
+  - `v13.14.2:src/context/ComponentContext.tsx:133` documented `MessageIsThreadReplyInChannelButtonIndicator`
+- New API:
+  - `src/components/Message/index.ts:7` exports `MessageAlsoSentInChannelIndicator`
+  - `src/context/ComponentContext.tsx:163` documents `MessageAlsoSentInChannelIndicator`
+- Evidence:
+  - `git grep` on `v13.14.2` finds the old export, usage, and override key
+  - current source exposes the new component name instead
+  - commit: `b1980290 feat: replace MessageIsThreadReplyInChannelButtonIndicator with MessageAlsoSentInChannelIndicator (#2968)`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-003: `stream-chat-react/experimental` no longer exports `MessageActions`
+
+- Status: confirmed
+- Area: package entrypoints
+- User impact:
+  - imports from the experimental entrypoint break if they still rely on `MessageActions`
+  - imports from the experimental entrypoint also break if they relied on `DefaultDropdownActionButton`, `MessageActionSetItem`, `useBaseMessageActionSetFilter`, or `useSplitMessageActionSet`
+- Old API:
+  - `v13.14.2:src/experimental/index.ts:1` exported `MessageActions`
+  - `v13.14.2:src/experimental/MessageActions/index.ts:1` through `:3` re-exported `MessageActions`, `defaults`, and `hooks`
+- New API:
+  - `src/experimental/index.ts:1` exports only `Search`
+  - `src/components/index.ts:28` exports stable `MessageActions`
+  - `src/components/MessageActions/defaults.tsx:29` exports `DefaultDropdownActionButton`
+  - `src/components/MessageActions/MessageActions.tsx:33` exports `MessageActionSetItem`
+  - `src/components/MessageActions/hooks/index.ts:1` and `:2` export `useBaseMessageActionSetFilter` and `useSplitMessageActionSet`
+- Replacement: import `MessageActions` and related helpers from the main package entrypoint instead of `stream-chat-react/experimental`
+- Evidence:
+  - v13 experimental entrypoint exported `MessageActions`
+  - v13 experimental `MessageActions` index re-exported the related defaults and hooks
+  - current experimental entrypoint does not
+  - current stable components entrypoint still exports `MessageActions`
+  - current stable `MessageActions` module now owns the helper exports that used to leak through the experimental entrypoint
+  - commit: `1467b5c5 feat: promote experimental \`MessageActions\` to stable (#2908)`
+- Docs impact:
+  - migration guide
+  - v14 docs pages still linking to `src/experimental/MessageActions/MessageActions.tsx`
+- Example needed: yes
+
+### BC-004: top-level `MessageDeleted` export was replaced by `MessageDeletedBubble`
+
+- Status: confirmed
+- Area: message exports
+- User impact:
+  - imports using `MessageDeleted` from the package no longer resolve
+  - consumers need to update imports to `MessageDeletedBubble`
+- Old API:
+  - `v13.14.2:src/components/Message/index.ts:6` exported `MessageDeleted`
+  - `v13.14.2:src/context/ComponentContext.tsx:131` documented `MessageDeleted` as the default deleted-message component
+- New API:
+  - `src/components/Message/index.ts:5` exports `MessageDeletedBubble`
+  - `src/context/ComponentContext.tsx:142` still allows a `MessageDeleted` override prop, but the default component export is now `MessageDeletedBubble`
+- Evidence:
+  - `git grep` on `v13.14.2` finds the old `MessageDeleted` component export
+  - current `src/components/Message/index.ts` exports `MessageDeletedBubble` instead
+  - current `src/components/Message/MessageDeletedBubble.tsx:13` defines `MessageDeletedBubble`
+  - commit: `446de99a feat: redesign deleted message (#2964)`
+- Docs impact:
+  - migration guide
+  - any docs/examples importing `MessageDeleted`
+- Example needed: yes
+
+### BC-005: `MessageOptions` was removed from the public surface in favor of `MessageActions`
+
+- Status: confirmed
+- Area: message UI overrides
+- User impact:
+  - top-level imports using `MessageOptions` break
+  - top-level imports using `MessageOptionsProps` break
+  - deprecated `MessageOptions` override keys on `Channel` and `ComponentContext` are no longer available
+  - docs/examples still composed around `MessageOptions` need to be updated to `MessageActions`
+- Old API:
+  - `v13.14.2:src/components/Message/index.ts:9` exported `MessageOptions`
+  - `v13.14.2:src/context/ComponentContext.tsx:145` exposed deprecated `MessageOptions`
+  - `v13.14.2:src/components/Channel/Channel.tsx:129` still carried `MessageOptions` through the supported override keys
+- New API:
+  - `src/components/Message/MessageSimple.tsx:82` uses `MessageActions`
+  - `src/context/ComponentContext.tsx:136` exposes `MessageActions`
+  - current source has no public `MessageOptions` export
+- Replacement: switch imports and overrides to `MessageActions`
+- Evidence:
+  - v13 public message exports included `MessageOptions`
+  - v13 `ComponentContext` still exposed it as a deprecated override
+  - current source routes message actions through `MessageActions`
+  - current `rg` over `src/components` and `src/context` finds no public `MessageOptions` component export or override prop
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+  - message component docs still describing `MessageOptions`
+- Example needed: yes
+
+### BC-006: top-level `FixedHeightMessage` export was removed
+
+- Status: confirmed
+- Area: virtualized message rendering
+- User impact:
+  - imports using `FixedHeightMessage` break
+  - imports using `FixedHeightMessageProps` break
+  - `VirtualMessage` customization is now typed around `MessageUIComponentProps` instead of `FixedHeightMessageProps`
+  - docs still saying `FixedHeightMessage` is available are stale
+- Old API:
+  - `v13.14.2:src/components/Message/index.ts:1` exported `FixedHeightMessage`
+  - `v13.14.2:src/context/ComponentContext.tsx:242` typed `VirtualMessage` as `React.ComponentType<FixedHeightMessageProps>`
+- New API:
+  - current `src/components/Message/index.ts` no longer exports `FixedHeightMessage`
+  - `src/context/ComponentContext.tsx:250` types `VirtualMessage` as `React.ComponentType<MessageUIComponentProps>`
+- Replacement: provide a custom `VirtualMessage` component built against `MessageUIComponentProps`
+- Evidence:
+  - v13 public message exports included `FixedHeightMessage`
+  - current `rg` over `src/components` and `src/context` finds no `FixedHeightMessage`
+  - current `VirtualMessage` typing no longer references `FixedHeightMessageProps`
+- Docs impact:
+  - migration guide
+  - message UI docs that still mention `FixedHeightMessage`
+- Example needed: yes
+
+### BC-007: component override props were removed from `Channel` in favor of `WithComponents`
+
+- Status: confirmed
+- Area: component customization
+- User impact:
+  - code passing UI overrides directly to `Channel` no longer type-checks against current `ChannelProps`
+  - migration guidance needs to point users to `WithComponents` / `ComponentContext` for UI overrides
+  - the current `Channel` docs page is structurally stale because it still documents many override props as `Channel` props
+  - `Channel` without an active channel no longer defaults to rendering nothing; it now renders `EmptyStateIndicator` unless you explicitly pass `EmptyPlaceholder={null}`
+- Old API:
+  - `v13.14.2:src/components/Channel/Channel.tsx:94` defined `ChannelPropsForwardedToComponentContext`
+  - `v13.14.2:src/components/Channel/Channel.tsx:120` through `:130` included overrides like `Message`, `MessageActions`, `MessageDeleted`, `MessageOptions`, and `MessageRepliesCountButton`
+  - `v13.14.2:src/components/Channel/Channel.tsx:202` documented `EmptyPlaceholder` as defaulting to `null`
+- New API:
+  - `src/components/Channel/Channel.tsx:93` defines a narrower `ChannelProps` surface without those forwarded component overrides
+  - `src/context/WithComponents.tsx:7` exposes `WithComponents` for override injection via `ComponentContext`
+  - `src/components/Channel/Channel.tsx:130` documents `EmptyPlaceholder` as defaulting to the message `EmptyStateIndicator`, with `null` as the opt-out
+  - `src/components/Channel/Channel.tsx:183` through `:186` now resolve the no-active-channel placeholder from `EmptyStateIndicator` unless `EmptyPlaceholder` is explicitly present in props
+  - `README.md:65` documents `WithComponents` as the customization path
+- Replacement:
+  - move UI overrides from `Channel` props to `WithComponents` or a direct `ComponentContext` provider
+  - pass `EmptyPlaceholder={null}` if you need the old “render nothing when no channel is active” behavior
+- Evidence:
+  - v13 explicitly forwarded a large override subset from `Channel` to `ComponentContext`
+  - current `ChannelProps` no longer define that forwarded subset
+  - current source exports `WithComponents` as the override helper
+  - current `Channel` now derives its empty placeholder from `EmptyStateIndicator` unless the prop is explicitly present
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - any v14 docs that still present component overrides as `Channel` props
+- Example needed: yes
+
+### BC-008: `MessageContext` removed edit-state fields and `customMessageActions`, and changed `handleDelete`
+
+- Status: confirmed
+- Area: message customization
+- User impact:
+  - custom message UIs using `useMessageContext()` can no longer rely on `clearEditingState`, `editing`, `handleEdit`, `setEditingState`, `additionalMessageInputProps`, or `customMessageActions`
+  - imports using the `CustomMessageActions` type no longer compile
+  - `handleDelete` handlers wired as `(event, options)` no longer match the current context type
+- Old API:
+  - `v13.14.2:src/context/MessageContext.tsx:30` exported `CustomMessageActions`
+  - `v13.14.2:src/context/MessageContext.tsx:41` `clearEditingState`
+  - `v13.14.2:src/context/MessageContext.tsx:43` `editing`
+  - `v13.14.2:src/context/MessageContext.tsx:52` `handleDelete(event, options?)`
+  - `v13.14.2:src/context/MessageContext.tsx:57` `handleEdit`
+  - `v13.14.2:src/context/MessageContext.tsx:95` `setEditingState`
+  - `v13.14.2:src/context/MessageContext.tsx:97` `additionalMessageInputProps`
+  - `v13.14.2:src/context/MessageContext.tsx:103` `customMessageActions`
+- New API:
+  - `src/context/MessageContext.tsx:39` `handleDelete(options?)`
+  - `src/context/MessageContext.tsx:114` `showAvatar`
+  - `src/context/MessageContext.tsx:141` `translationView`
+  - `src/context/MessageContext.tsx:143` `setTranslationView`
+- Replacement:
+  - delete handlers should call `handleDelete(options?)` without an event argument
+  - edit flows now go through `MessageComposer`; current default message actions call `useMessageComposer().initState({ composition: message })` in `src/components/MessageActions/defaults.tsx:163`
+  - custom message actions need to be implemented through the new `MessageActions` customization surface instead of `customMessageActions`
+- Evidence:
+  - current `MessageContextValue` removes the old edit-state and custom-action fields
+  - current `useDeleteHandler` signature changed from `(event, options?)` to `(options?)` in `src/components/Message/hooks/useDeleteHandler.ts`
+  - current default edit action uses `MessageComposer` instead of `handleEdit`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/05-message_ui.md`
+  - message cookbook pages using `handleDelete` or removed edit-state fields
+- Example needed: yes
+
+### BC-009: `MessageInputContext` no longer exposes cooldown timer state directly
+
+- Status: confirmed
+- Area: message input customization
+- User impact:
+  - custom input UIs using `useMessageInputContext()` can no longer rely on `cooldownInterval`, `cooldownRemaining`, or `setCooldownRemaining`
+  - inherited docs that still treat cooldown state as part of `MessageInputContext` are stale
+- Old API:
+  - `v13.14.2:src/context/MessageInputContext.tsx:7` composed `MessageInputContextValue` from `MessageInputHookProps`, `MessageInputProps`, and `CooldownTimerState`
+- New API:
+  - `src/context/MessageInputContext.tsx:7` composes `MessageInputContextValue` from `MessageInputHookProps` and `MessageInputProps` only
+  - `src/components/MessageInput/hooks/index.ts:4` exports `useCooldownRemaining`
+  - `src/components/MessageInput/hooks/useCooldownRemaining.tsx:16` provides the remaining cooldown value
+  - `src/components/MessageInput/hooks/useIsCooldownActive.ts:9` provides a boolean cooldown-state helper
+- Replacement: read cooldown state via `useCooldownRemaining()` / `useIsCooldownActive()` instead of `useMessageInputContext()`
+- Evidence:
+  - current `MessageInputHookProps` contains only `handleSubmit`, `onPaste`, `recordingController`, and `textareaRef`
+  - current public hooks expose cooldown state directly from channel state
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/02-message_input_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/01-input_ui.md`
+- Example needed: yes
+
+### BC-010: `AttachmentProps` customization changed from `Gallery` to `ModalGallery`
+
+- Status: confirmed
+- Area: attachment customization
+- User impact:
+  - custom `Attachment` wrappers using the old `Gallery` prop no longer type-check
+  - attachment docs describing separate `gallery` and `image` render paths are stale against current code
+  - `Media` custom components now receive `VideoPlayerProps` instead of `ReactPlayerProps`
+- Old API:
+  - `v13.14.2:src/components/Attachment/Attachment.tsx:72` exposed `Gallery?: React.ComponentType<GalleryProps>`
+  - `v13.14.2:src/components/Attachment/Attachment.tsx:80` typed `Media` as `React.ComponentType<ReactPlayerProps>`
+- New API:
+  - `src/components/Attachment/Attachment.tsx:71` exposes `ModalGallery?: React.ComponentType<ModalGalleryProps>`
+  - `src/components/Attachment/Attachment.tsx:75` exposes `Giphy?: React.ComponentType<GiphyAttachmentProps>`
+  - `src/components/Attachment/Attachment.tsx:81` types `Media` as `React.ComponentType<VideoPlayerProps>`
+  - current attachment rendering groups image and video attachments into the `media` path instead of separate `gallery` / `image` containers
+- Replacement:
+  - rename `Gallery` overrides to `ModalGallery`
+  - update custom media players to the `VideoPlayerProps` contract
+- Evidence:
+  - current `AttachmentProps` no longer define `Gallery`
+  - current attachment docs in code refer to `ModalGallery`, `Giphy`, and `VideoPlayerProps`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/01-attachment.md`
+- Example needed: yes
+
+### BC-011: `ComponentContext` override keys changed in multiple places
+
+- Status: confirmed
+- Area: component overrides
+- User impact:
+  - apps using `WithComponents` or `ComponentContext` with old override keys will need renames or rewrites
+  - the v14 `ComponentContext` docs are still only partially aligned with current source
+- Confirmed key changes:
+  - `MessageNotification` -> `NewMessageNotification`
+  - `ReactionsListModal` -> `MessageReactionsDetail`
+  - `MessageIsThreadReplyInChannelButtonIndicator` -> `MessageAlsoSentInChannelIndicator`
+  - `MessageDeletedBubble` added as the default deleted-message bubble override
+  - `CustomMessageActionsList` removed
+  - `EditMessageInput` removed
+  - `EditMessageModal` removed
+  - `FileUploadIcon` removed
+  - `MessageOptions` removed
+  - `QuotedPoll` removed
+- Old API evidence:
+  - `v13.14.2:src/context/ComponentContext.tsx` exported the removed/old keys above
+- New API evidence:
+  - `src/context/ComponentContext.tsx:144` `MessageDeletedBubble`
+  - `src/context/ComponentContext.tsx:149` `NewMessageNotification`
+  - `src/context/ComponentContext.tsx:163` `MessageAlsoSentInChannelIndicator`
+  - `src/context/ComponentContext.tsx:187` `MessageReactionsDetail`
+- Replacement notes:
+  - notification override: use `NewMessageNotification`
+  - reactions detail override: use `MessageReactionsDetail`
+  - old message-options customization should move to `MessageActions`
+  - file-upload icon customization should move to `AttachmentSelectorInitiationButtonContents`
+  - edit-message customization needs re-evaluation against the new composer/edit-preview surface
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-012: message-list notification and scroll exports were renamed and rewired
+
+- Status: confirmed
+- Area: message list notifications
+- User impact:
+  - imports using `MessageNotification` or `ScrollToBottomButton` no longer compile
+  - imports using `MessageNotificationProps` no longer compile
+  - custom `MessageListNotifications` implementations built against the v13 prop contract no longer type-check
+  - `MessageList` and `VirtualizedMessageList` now render the new notification and scroll controls directly instead of passing them through `MessageListNotifications`
+  - custom CSS targeting the old `ScrollToBottomButton` or `UnreadMessagesSeparator` markup and classnames no longer matches
+  - `<UnreadMessagesSeparator unreadCount={...} />` now shows the unread count by default and renders a mark-read button unless you override that behavior
+- Old API:
+  - `v13.14.2:src/components/MessageList/index.ts:5` exported `MessageNotification`
+  - `v13.14.2:src/components/MessageList/index.ts:6` exported `ScrollToBottomButton`
+  - `v13.14.2:src/components/MessageList/MessageListNotifications.tsx:30` exposed `MessageListNotificationsProps` with `MessageNotification`, `hasNewMessages`, `isMessageListScrolledToBottom`, `isNotAtLatestMessageSet`, `scrollToBottom`, `threadList`, and `unreadCount`
+  - `v13.14.2:src/components/MessageList/UnreadMessagesSeparator.tsx:6` documented `showCount` as disabled by default
+  - `v13.14.2:src/components/MessageList/UnreadMessagesSeparator.tsx:23` through `:29` rendered only plain separator text
+  - `v13.14.2:src/components/MessageList/ScrollToBottomButton.tsx:71` through `:90` rendered the old floating-action-button markup and unread counter classes
+- New API:
+  - `src/components/MessageList/index.ts:5` exports `NewMessageNotification`
+  - `src/components/MessageList/index.ts:6` exports `ScrollToLatestMessageButton`
+  - `src/components/MessageList/MessageListNotifications.tsx:29` now types `MessageListNotificationsProps` as notifications-only
+  - `src/components/MessageList/MessageList.tsx:295` and `src/components/MessageList/VirtualizedMessageList.tsx:585` render `NewMessageNotification` directly
+  - `src/components/MessageList/MessageList.tsx:299` and `src/components/MessageList/VirtualizedMessageList.tsx:589` render `ScrollToLatestMessageButton` directly
+  - `src/components/MessageList/UnreadMessagesSeparator.tsx:20` defaults `showCount` to `true`
+  - `src/components/MessageList/UnreadMessagesSeparator.tsx:24` through `:43` render a text wrapper plus a mark-read button
+  - `src/components/MessageList/ScrollToLatestMessageButton.tsx:87` through `:104` render a `Button` plus `Badge`-based unread counter with new classnames
+- Replacement:
+  - rename imports to `NewMessageNotification` and `ScrollToLatestMessageButton`
+  - customize the notification UI through the `NewMessageNotification` override instead of the removed `MessageNotification`
+  - treat `MessageListNotifications` as the container for SDK/channel notifications only
+  - if you need the old unread-separator behavior, pass `showCount={false}` or provide a custom `UnreadMessagesSeparator`
+  - audit custom CSS selectors and tests against the new unread-separator and scroll-button markup
+- Evidence:
+  - v13 `MessageList` and `VirtualizedMessageList` passed `MessageNotification` into `MessageListNotifications`
+  - current `MessageList` and `VirtualizedMessageList` render the renamed components outside `MessageListNotifications`
+  - current `MessageListNotificationsProps` no longer includes the old scrolling/unread props
+  - current `UnreadMessagesSeparator` changed its default `showCount` behavior and adds a mark-read button wired to `markRead()`
+  - current scroll button UI uses `Button` / `Badge` markup and different classnames from the v13 floating action button
+  - commit `12d075bb feat: redesign floating indicators in message lists (#2966)` also calls out removed `--str-chat__jump-to-latest-message-*` CSS variables and markup changes
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/03-message_list_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/04-virtualized_message_list_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-013: dedicated edit-message form/modal APIs were removed in favor of `MessageComposer`-based editing
+
+- Status: confirmed
+- Area: message editing
+- User impact:
+  - imports using `EditMessageForm`, `EditMessageModal`, `EditMessageModalProps`, `useEditHandler`, or `EditHandlerReturnType` no longer compile
+  - `ComponentContext` and old `Channel` override keys for `EditMessageInput` / `EditMessageModal` no longer exist
+  - custom edit-message flows built around the old modal/form contract need to be rewritten around `MessageComposer`
+  - `MessageInputProps.clearEditingState` no longer exists as a public escape hatch for custom edit flows
+- Old API:
+  - `v13.14.2:src/components/MessageInput/index.ts:13` exported `EditMessageForm`
+  - `v13.14.2:src/components/MessageInput/EditMessageForm.tsx:71` exported `EditMessageModal`
+  - `v13.14.2:src/components/Message/hooks/index.ts:3` exported `useEditHandler`
+  - `v13.14.2:src/components/MessageSimple.tsx:162` rendered `EditMessageModal`
+  - `v13.14.2:src/context/ComponentContext.tsx:100` and `:101` exposed `EditMessageInput` / `EditMessageModal`
+- New API:
+  - current `src/components/MessageInput/index.ts` no longer exports `EditMessageForm`
+  - `src/context/ComponentContext.tsx:112` exposes `EditedMessagePreview` instead
+  - `src/components/MessageInput/EditedMessagePreview.tsx:5` defines the new edit preview override surface
+  - `src/components/MessageInput/MessageInput.tsx:15` no longer exposes `clearEditingState` in `MessageInputProps`
+  - `src/components/MessageInput/MessageInputFlat.tsx:94` renders `EditedMessagePreview` from the active `MessageComposer` state
+  - `src/components/MessageInput/hooks/useSubmitHandler.ts:47` clears edit state through `messageComposer.clear()`
+- Replacement:
+  - switch custom edit flows to `MessageComposer`
+  - customize the edit preview with `EditedMessagePreview`
+  - use the standard composer send/cancel flow instead of the removed modal wrapper
+  - call `messageComposer.clear()` or the current composer actions instead of a removed `clearEditingState` prop
+- Evidence:
+  - v13 exported a dedicated edit form/modal pair and an edit-state hook
+  - current source removed those exports and routes edit state through `MessageComposer`
+  - current `MessageInputFlat` renders edit state as a composer preview rather than a special modal
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/04-message_hooks.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-014: cooldown timer APIs moved from prop/state objects to dedicated hooks
+
+- Status: confirmed
+- Area: message input cooldowns
+- User impact:
+  - custom cooldown UIs using `CooldownTimerProps`, `CooldownTimerState`, or `useCooldownTimer()` no longer compile
+  - `<CooldownTimer cooldownInterval={...} />` no longer matches the current component contract
+- Old API:
+  - `v13.14.2:src/components/MessageInput/CooldownTimer.tsx:4` exported `CooldownTimerProps` with `cooldownInterval` and `setCooldownRemaining`
+  - `v13.14.2:src/components/MessageInput/CooldownTimer.tsx:8` expected `cooldownInterval` as a prop
+  - root exports included `CooldownTimerProps`, `CooldownTimerState`, and `useCooldownTimer`
+- New API:
+  - `src/components/MessageInput/CooldownTimer.tsx:4` exports a zero-prop `CooldownTimer`
+  - `src/components/MessageInput/CooldownTimer.tsx:5` reads state from `useCooldownRemaining()`
+  - `src/components/MessageInput/hooks/index.ts:4` exports `useCooldownRemaining`
+  - `src/components/MessageInput/hooks/index.ts:5` exports `useIsCooldownActive`
+- Replacement:
+  - render `<CooldownTimer />` without props
+  - use `useCooldownRemaining()` / `useIsCooldownActive()` for custom cooldown logic
+- Evidence:
+  - current root export comparison removes `CooldownTimerProps`, `CooldownTimerState`, and `useCooldownTimer`
+  - current `CooldownTimer` implementation no longer receives or mutates cooldown state via props
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/02-message_input_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/01-input_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-015: reactions detail and selector customization APIs were redesigned
+
+- Status: confirmed
+- Area: reactions
+- User impact:
+  - imports using `ReactionsListModal` no longer compile
+  - imports using `ReactionsListModalProps` no longer compile
+  - the `ReactionsListModal` component override key must be renamed to `MessageReactionsDetail`
+  - custom `ReactionSelector` components can no longer rely on props like `Avatar`, `detailedView`, `latest_reactions`, `reaction_counts`, `reaction_groups`, `reactionOptions`, or `reverse`
+  - custom CSS targeting the old reaction selector or reactions-detail markup no longer matches
+- Old API:
+  - `v13.14.2:src/components/Reactions/index.ts:3` exported `ReactionsListModal`
+  - `v13.14.2:src/context/ComponentContext.tsx:183` exposed `ReactionsListModal`
+  - `v13.14.2:src/components/Reactions/ReactionSelector.tsx:17` exposed a wide prop surface including `Avatar`, `detailedView`, `latest_reactions`, `reaction_counts`, `reaction_groups`, `reactionOptions`, and `reverse`
+  - `v13.14.2:src/components/Reactions/ReactionsListModal.tsx:15` typed `ReactionsListModalProps` as `ModalProps & ...`
+  - `v13.14.2:src/components/Reactions/ReactionsListModal.tsx:65` through `:133` rendered modal-based detail markup under `str-chat__message-reactions-details*`
+  - `v13.14.2:src/components/Reactions/ReactionSelector.tsx:143` through `:219` rendered tooltip/avatar/count-heavy selector markup and the old class names
+- New API:
+  - `src/components/Reactions/index.ts:3` exports `MessageReactionsDetail`
+  - `src/context/ComponentContext.tsx:188` exposes `MessageReactionsDetail`
+  - `src/components/Reactions/ReactionSelector.tsx:13` narrows `ReactionSelectorProps` to `handleReaction` and `own_reactions`
+  - `src/components/Reactions/reactionOptions.tsx:18` now supports the new `quick` / `extended` reaction-options shape in addition to legacy arrays
+  - `src/components/Reactions/MessageReactionsDetail.tsx:14` defines `MessageReactionsDetailProps` without `ModalProps`
+  - `src/components/Reactions/MessageReactionsDetail.tsx:75` through `:161` render dialog content under `str-chat__message-reactions-detail*`
+  - `src/components/Reactions/ReactionSelector.tsx:82` through `:140` render the new quick/extended selector markup under `str-chat__reaction-selector*`
+- Replacement:
+  - rename `ReactionsListModal` imports and override keys to `MessageReactionsDetail`
+  - move reaction-option customization to `ComponentContext.reactionOptions` or the list components that still accept `reactionOptions`
+  - rewrite custom `ReactionSelector` wrappers to use `MessageContext` and `ComponentContext` instead of the removed prop-driven API
+  - wrap `MessageReactionsDetail` in your own dialog/modal only if you truly need standalone modal usage; the default v14 surface is dialog content
+  - audit reaction selector/detail CSS selectors and class-based tests against the new markup
+- Evidence:
+  - current root export comparison removes `ReactionsListModal`
+  - current `ReactionsList` imports and renders `MessageReactionsDetail`
+  - current `ReactionSelectorProps` removed the old display and data-prop overrides
+  - current details component dropped `ModalProps` and no longer renders its own modal container
+  - current selector/detail implementations switched to new class namespaces and aria-based state instead of the old tooltip/avatar/count structure
+  - commit `a941ed25 feat: message reactions detail redesign (#2963)` and `24a11690 feat: add ReactionSelector styling + cleanup (#2916)` explicitly call out the markup/class changes
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/12-reactions.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-016: poll quoted-mode and poll-action component surfaces changed
+
+- Status: confirmed
+- Area: polls
+- User impact:
+  - imports using `QuotedPoll`, `AddCommentForm`, `EndPollDialog`, or `SuggestPollOptionForm` no longer compile
+  - imports using `AddCommentFormProps`, `EndPollDialogProps`, `FullPollOptionsListingProps`, or `PollResultsProps` no longer compile
+  - `Poll` no longer accepts `isQuoted`
+  - old `PollActions` customization names and prop contracts are partially changed
+  - `PollActionsProps` no longer exposes `AddCommentForm` or `EndPollDialog`
+  - custom `PollOptionsFullList`, `PollResults`, `PollAnswerList`, and `SuggestPollOptionForm` overrides can no longer rely on passed `close` props
+- Old API:
+  - `v13.14.2:src/components/Poll/index.ts:9` exported `QuotedPoll`
+  - `v13.14.2:src/components/Poll/Poll.tsx:7` accepted `isQuoted?: boolean`
+  - `v13.14.2:src/components/Poll/PollActions/index.ts:1` exported `AddCommentForm`
+  - `v13.14.2:src/components/Poll/PollActions/index.ts:2` exported `EndPollDialog`
+  - `v13.14.2:src/components/Poll/PollActions/index.ts:7` exported `SuggestPollOptionForm`
+  - `v13.14.2:src/components/Poll/PollActions/PollActions.tsx:58` and `:59` exposed `AddCommentForm` / `EndPollDialog` override props
+  - `v13.14.2:src/components/Poll/PollActions/PollActions.tsx:61` and `:62` typed `PollOptionsFullList` / `PollResults` with `FullPollOptionsListingProps` / `PollResultsProps`
+  - `v13.14.2:src/components/Poll/PollActions/PollOptionsFullList.tsx:14` exported `FullPollOptionsListingProps`
+  - `v13.14.2:src/components/Poll/PollActions/PollResults/PollResults.tsx:21` exported `PollResultsProps`
+  - `v13.14.2:src/components/Poll/PollActions/PollAnswerList.tsx:21` through `:24` typed `PollAnswerListProps` with `close?: () => void`
+  - `v13.14.2:src/components/Poll/PollActions/SuggestPollOptionForm.tsx:12` through `:15` typed `SuggestPollOptionFormProps` with `close: () => void`
+- New API:
+  - current `src/components/Poll/index.ts` no longer exports `QuotedPoll`
+  - `src/components/Poll/Poll.tsx:6` accepts only `{ poll }`
+  - `src/components/Poll/PollActions/index.ts:1` exports `AddCommentPrompt`
+  - `src/components/Poll/PollActions/index.ts:2` exports `EndPollAlert`
+  - `src/components/Poll/PollActions/index.ts:7` exports `SuggestPollOptionPrompt`
+  - `src/components/Poll/PollActions/PollActions.tsx:47` exposes `AddCommentPrompt` / `EndPollAlert`, while `SuggestPollOptionForm` remains as the override prop name but now points at `SuggestPollOptionPrompt`
+  - `src/components/Poll/PollActions/PollActions.tsx:50` and `:51` type `PollOptionsFullList` / `PollResults` as generic `React.ComponentType`
+  - `src/components/Poll/PollActions/PollOptionsFullList.tsx:15` no longer exports a prop type and reads `close` from `useModalContext()`
+  - `src/components/Poll/PollActions/PollResults/PollResults.tsx:28` no longer exports a prop type and reads `close` from `useModalContext()`
+  - `src/components/Poll/PollActions/PollAnswerList.tsx:27` through `:29` no longer include `close` in `PollAnswerListProps`
+  - `src/components/Poll/PollActions/SuggestPollOptionPrompt.tsx:19` through `:21` no longer include `close` in `SuggestPollOptionFormProps`
+- Replacement:
+  - rename direct imports to `AddCommentPrompt`, `EndPollAlert`, and `SuggestPollOptionPrompt`
+  - stop passing `isQuoted` to `Poll`
+  - rewrite custom poll dialog overrides as modal-context consumers instead of `close`-prop consumers
+  - if you customized quoted-poll rendering, move that behavior into custom message / quoted-message UI instead of relying on `QuotedPoll`
+- Evidence:
+  - current poll root exports removed `QuotedPoll`
+  - current `Poll` implementation always renders `PollContent`
+  - current poll actions index renamed the public action components
+  - current poll dialog-style components now read `close` from `useModalContext()` or internal dialog primitives
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/10-poll.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-017: the stable `MessageActions` API was redesigned and legacy sub-exports were removed
+
+- Status: confirmed
+- Area: message actions
+- User impact:
+  - imports using `MessageActionsBox`, `MessageActionsWrapper`, or `CustomMessageActionsList` no longer compile
+  - imports using `MessageActionsBoxProps`, `MessageActionsWrapperProps`, or `CustomMessageActionsListProps` no longer compile
+  - custom `MessageActions` integrations using props like `ActionsIcon`, `customWrapperClass`, `inline`, `mine`, or the old context-picked action handlers no longer match the current component contract
+  - `customMessageActions`-style customization is no longer supported through the old list/wrapper APIs
+  - `MessageListProps`, `VirtualizedMessageListProps`, `MessageProps`, and `SharedMessageProps` no longer expose `customMessageActions`
+  - the default action order and action set are different in v14, so integrations that merge with `defaultMessageActionSet` can render a different menu even without custom code changes
+- Old API:
+  - `v13.14.2:src/components/MessageActions/index.ts:2` exported `MessageActionsBox`
+  - `v13.14.2:src/components/MessageActions/index.ts:3` exported `CustomMessageActionsList`
+  - `v13.14.2:src/components/MessageActions/MessageActions.tsx:26` typed `MessageActionsProps` around `ActionsIcon`, `customWrapperClass`, `inline`, `mine`, and picked handlers from `MessageContext`
+  - `v13.14.2:src/components/MessageActions/MessageActions.tsx:145` exported `MessageActionsWrapper`
+- New API:
+  - `src/components/MessageActions/index.ts:2` exports `QuickMessageActionButton`
+  - `src/components/MessageActions/index.ts:3` exports `defaults`
+  - `src/components/MessageActions/index.ts:4` exports `hooks`
+  - `src/components/MessageActions/MessageActions.tsx:35` types `MessageActionsProps` as `disableBaseMessageActionSetFilter?` and `messageActionSet?`
+  - `src/components/MessageActions/defaults.tsx:383` exports `defaultMessageActionSet`
+  - `src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:19` and `useSplitMessageActionSet.ts:9` provide the new customization hooks
+  - `src/components/Message/types.ts:16` no longer includes `customMessageActions` in `MessageProps`
+  - `src/components/MessageList/MessageList.tsx` and `src/components/MessageList/VirtualizedMessageList.tsx` no longer accept or route `customMessageActions`
+- Replacement:
+  - rebuild custom action menus around `messageActionSet`, `defaultMessageActionSet`, and `ContextMenu`-style action items
+  - stop relying on `MessageActionsBox`, `MessageActionsWrapper`, or `CustomMessageActionsList`
+  - route any custom edit/delete/etc. logic through the new action-set items and the current message/composer context
+  - if your UX depends on action ordering, define your own `messageActionSet` explicitly instead of relying on the SDK defaults
+- Evidence:
+  - current root export comparison removes `MessageActionsBox`, `MessageActionsWrapper`, and `CustomMessageActionsList`
+  - current `MessageActions` implementation renders quick actions plus a `ContextMenu`, not the old wrapper/box pair
+  - current `MessageActionsProps` no longer exposes the old prop-driven customization surface
+  - current public `MessageList` / `VirtualizedMessageList` / `Message` prop types no longer expose `customMessageActions`
+  - current `defaultMessageActionSet` adds entries like `ThreadReply`, `CopyMessageText`, `Resend`, and `BlockUser`, and reorders destructive actions compared with the v13 baseline
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/10-dialog-management.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/01-message.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-018: avatar props and channel-display helper APIs were redesigned
+
+- Status: confirmed
+- Area: avatars and channel previews
+- User impact:
+  - custom `Avatar`, `ChannelAvatar`, and `GroupAvatar` components written against the v13 prop contracts no longer type-check
+  - helper imports using `getDisplayTitle` or `getDisplayImage` no longer compile
+  - any code building `groupChannelDisplayInfo` as an array of `{ image, name }` objects must switch to the new shape
+  - code using `useChannelPreviewInfo()` can no longer treat `groupChannelDisplayInfo == null` as the signal for a non-group channel
+  - code using `useChannelPreviewInfo().displayTitle` can now receive synthesized group/direct-message titles where v13 helper code often returned `undefined`
+  - if you switched to the current `stream-chat` core helper `channel.getDisplayImage()`, note that it no longer falls back to the other DM member's image the way the old React helper path effectively did
+- Old API:
+  - `v13.14.2:src/components/Avatar/Avatar.tsx:8` `AvatarProps` exposed `image`, `name`, `onClick`, `onMouseOver`, and `user`
+  - `v13.14.2:src/components/Avatar/ChannelAvatar.tsx:6` `ChannelAvatarProps = Partial<GroupAvatarProps> & AvatarProps`
+  - `v13.14.2:src/components/Avatar/GroupAvatar.tsx:7` `GroupAvatarProps` exposed `groupChannelDisplayInfo`
+  - `v13.14.2:src/components/ChannelPreview/utils.tsx:110` typed `GroupChannelDisplayInfo` as `{ image?: string; name?: string }[]`
+  - `v13.14.2:src/components/ChannelPreview/utils.tsx:140` exported `getDisplayTitle`
+  - `v13.14.2:src/components/ChannelPreview/utils.tsx:143` exported `getDisplayImage`
+  - `v13.14.2:src/components/ChannelPreview/utils.tsx:129` through `:144` only synthesized a title/image fallback for direct messages with exactly two members
+  - `v13.14.2:src/components/ChannelPreview/hooks/useChannelPreviewInfo.ts:46` returned `groupChannelDisplayInfo` as the nullable result of `getGroupChannelDisplayInfo(channel)`
+- New API:
+  - `src/components/Avatar/Avatar.tsx:10` `AvatarProps` now expose `imageUrl`, `userName`, `isOnline`, and required `size`
+  - `src/components/Avatar/ChannelAvatar.tsx:7` `ChannelAvatarProps` now expose `displayMembers`, `overflowCount`, and required `size`
+  - `src/components/Avatar/GroupAvatar.tsx:10` `GroupAvatarProps` now expose `displayMembers`, `overflowCount`, `size`, and `isOnline`
+  - `src/components/ChannelPreview/utils.tsx:116` types `GroupChannelDisplayInfo` as `{ members, overflowCount }`
+  - `src/components/ChannelPreview/utils.tsx:125` exports `getChannelDisplayImage`
+  - `src/components/ChannelPreview/hooks/index.ts:1` exports `useChannelDisplayName`
+  - `src/components/ChannelPreview/hooks/useChannelDisplayName.ts:8` through `:10` synthesize DM labels and group titles from up to two member names
+  - `src/components/ChannelPreview/hooks/useChannelPreviewInfo.ts:10` defines a stable empty group-info object
+  - `src/components/ChannelPreview/hooks/useChannelPreviewInfo.ts:34` and `:44` return `groupChannelDisplayInfo ?? emptyGroupInfo`
+- Replacement:
+  - rename avatar props from `image` / `name` to `imageUrl` / `userName`
+  - supply the new required `size` prop when rendering SDK avatars directly
+  - migrate group avatar data from `groupChannelDisplayInfo` to `displayMembers` plus optional `overflowCount`
+  - replace `getDisplayImage` with `getChannelDisplayImage`
+  - replace `getDisplayTitle` with `useChannelDisplayName()` or `useChannelPreviewInfo()`, depending on whether the caller is already inside React
+  - update any `useChannelPreviewInfo()` checks that previously depended on `groupChannelDisplayInfo` being `null` or `undefined`
+  - if you need the old DM-image fallback in custom preview code, prefer `getChannelDisplayImage(channel)` over `channel.getDisplayImage()`
+- Evidence:
+  - current `ChannelHeader` passes `displayMembers`, `imageUrl`, `overflowCount`, `size`, and `userName` into `ChannelAvatar`
+  - current `GroupAvatar` renders a `+N` badge from `overflowCount` instead of the old three-part/four-part array-only logic
+  - current package exports no `getDisplayTitle` or `getDisplayImage`
+  - current `useChannelPreviewInfo()` normalizes empty/non-group state to `{ members: [], overflowCount: undefined }`
+  - current `useChannelDisplayName()` adds synthesized DM/group title behavior that did not exist in the old helper pair
+  - current `ChannelPreview` tests assert that `channel.getDisplayImage()` no longer falls back to member images, while `getChannelDisplayImage()` preserves the UI-oriented fallback
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`
+- Example needed: yes
+
+### BC-019: `ChannelHeader.live` was removed
+
+- Status: confirmed
+- Area: channel header
+- User impact:
+  - `<ChannelHeader live />` no longer type-checks
+  - the built-in live badge and the old member/watcher count rendering tied to `live` no longer exist in the default header
+  - the default `ChannelHeader` no longer renders `channel.data.subtitle`
+- Old API:
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:11` `ChannelHeaderProps` exposed `live?: boolean`
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:65` rendered the `live` badge
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:71` hid the member-count line when `live` was true
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:45` and `:69` read and rendered `channel.data.subtitle`
+- New API:
+  - `src/components/ChannelHeader/ChannelHeader.tsx:38` `ChannelHeaderProps` only expose `Avatar`, `image`, `MenuIcon`, and `title`
+  - `src/components/ChannelHeader/ChannelHeader.tsx:14` through `:35` drive the subtitle from typing and online-status state
+- Replacement:
+  - remove the `live` prop
+  - if you still need a live badge, `channel.data.subtitle`, or livestream-specific metadata, provide a custom `ChannelHeader` implementation
+- Evidence:
+  - current `ChannelHeaderProps` no longer define `live`
+  - current header implementation renders title, typing/online subtitle, sidebar toggle, and avatar only
+  - current header implementation no longer reads `channel.data.subtitle`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md`
+- Example needed: yes
+
+### BC-020: the legacy `Modal` export was replaced by `GlobalModal`, and `ButtonWithSubmenu` was removed
+
+- Status: confirmed
+- Area: dialogs and overlays
+- User impact:
+  - imports using `Modal` from the package no longer compile
+  - imports using `ButtonWithSubmenu` no longer compile
+  - older customization patterns centered on the legacy modal component or submenu button primitive need to be rewritten
+  - custom CSS or DOM selectors targeting the old `.str-chat__modal__inner` wrapper no longer match
+- Old API:
+  - `v13.14.2:src/components/Modal/index.ts:1` exported `GlobalModal`
+  - `v13.14.2:src/components/Modal/index.ts:2` exported `Modal`
+  - `v13.14.2:src/components/Modal/Modal.tsx:28` defined the `Modal` component
+  - `v13.14.2:src/components/Modal/Modal.tsx:87` through `:92` wrapped modal contents in `.str-chat__modal__inner`
+  - `v13.14.2:src/components/Dialog/index.ts:1` exported `ButtonWithSubmenu`
+  - `v13.14.2:src/components/Dialog/ButtonWithSubmenu.tsx:14` defined the public `ButtonWithSubmenu`
+- New API:
+  - `src/components/Modal/index.ts:1` exports only `GlobalModal`
+  - `src/components/Modal/GlobalModal.tsx:45` defines the public modal component
+  - `src/components/Modal/GlobalModal.tsx:115` through `:129` render children directly inside the overlay/dialog shell with no `.str-chat__modal__inner` wrapper
+  - `src/components/Dialog/index.ts:1` exports `./components`
+  - `src/components/Dialog/components/ContextMenu.tsx:247` exports `ContextMenuButton`
+  - `src/components/Dialog/components/ContextMenu.tsx:269` exports `ContextMenuBackButton`
+  - `src/components/Dialog/components/ContextMenu.tsx:283` exports `ContextMenuHeader`
+- Replacement:
+  - rename direct `Modal` imports to `GlobalModal`
+  - rebuild submenu UIs around `ContextMenu` and its exported button/header primitives instead of `ButtonWithSubmenu`
+  - audit any modal CSS or tests that depended on the old inner wrapper or close-button placement
+- Evidence:
+  - current modal entrypoint no longer re-exports `./Modal`
+  - current dialog entrypoint keeps dialog services, but the submenu primitive has been dropped from the public surface
+  - current `GlobalModal` no longer renders the old inner wrapper that legacy modal customizations often targeted
+  - commit `44e2eaf4 feat: unify dialog UI system (#2955)` explicitly called out the wrapper removal
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/16-modal.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/10-dialog-management.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-021: `FileIcon` props were redesigned
+
+- Status: confirmed
+- Area: file attachments
+- User impact:
+  - custom file-preview UIs using the old `FileIcon` props no longer type-check
+  - helper calls to `mimeTypeToIcon(type, mimeType)` no longer match the current function signature
+- Old API:
+  - `v13.14.2:src/components/ReactFileUtilities/FileIcon/FileIcon.tsx:6` `FileIconProps` exposed `big`, `filename`, `mimeType`, `size`, `sizeSmall`, and `type`
+  - `v13.14.2:src/components/ReactFileUtilities/FileIcon/FileIcon.tsx:16` `mimeTypeToIcon(type, mimeType)`
+- New API:
+  - `src/components/FileIcon/FileIcon.tsx:5` `FileIconProps` expose only `className`, `fileName`, and `mimeType`
+  - `src/components/FileIcon/FileIcon.tsx:11` `mimeTypeToIcon(mimeType?)`
+- Replacement:
+  - rename `filename` to `fileName`
+  - remove `big`, `size`, `sizeSmall`, and `type`
+  - style the rendered icon through `className` or a wrapper instead of size-mode props
+- Evidence:
+  - current file-icon implementation uses an internal label renderer and no longer passes size variants into the icon set
+  - current attachment and composer previews import the simplified `FileIcon`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/15-audio-playback.md`
+- Example needed: yes
+
+### BC-022: `QuotedMessagePreviewHeader` was removed and quoted-preview customization moved to `QuotedMessagePreviewUI`
+
+- Status: confirmed
+- Area: quoted-message previews
+- User impact:
+  - imports using `QuotedMessagePreviewHeader` no longer compile
+  - custom quoted-preview composition built around the old header plus `Attachment` / `Avatar` / quoted `Poll` content no longer matches the current preview surface
+- Old API:
+  - `v13.14.2:src/components/MessageInput/QuotedMessagePreview.tsx:22` exported `QuotedMessagePreviewHeader`
+  - `v13.14.2:src/components/MessageInput/QuotedMessagePreview.tsx:52` exported `QuotedMessagePreview`
+  - `v13.14.2:src/components/MessageInput/QuotedMessagePreview.tsx:56` pulled `Attachment` and `Avatar` from `ComponentContext`
+  - `v13.14.2:src/components/MessageInput/QuotedMessagePreview.tsx:102` rendered `<Poll isQuoted />`
+- New API:
+  - `src/components/MessageInput/QuotedMessagePreview.tsx:52` exposes `QuotedMessagePreviewProps` with `getQuotedMessageAuthor` and `renderText`
+  - `src/components/MessageInput/QuotedMessagePreview.tsx:245` exports `QuotedMessagePreview`
+  - `src/components/MessageInput/QuotedMessagePreview.tsx:273` exports `QuotedMessagePreviewUI`
+  - `src/components/MessageInput/EditedMessagePreview.tsx:14` reuses `QuotedMessagePreviewUI` for edit previews
+- Replacement:
+  - replace any `QuotedMessagePreviewHeader` usage with `QuotedMessagePreviewUI` or a custom quoted-preview wrapper
+  - if you customized the author label, use `getQuotedMessageAuthor`
+  - if you relied on quoted polls or quoted attachments rendering through the old preview structure, port that logic into a custom preview component
+- Evidence:
+  - current quoted preview is a summarized UI with attachment-type icons, optional preview thumbnails, and a remove button
+  - current source exports no `QuotedMessagePreviewHeader`
+- Docs impact:
+  - migration guide
+- Example needed: yes
+
+### BC-023: legacy helper and standalone icon exports were removed from the public surface
+
+- Status: confirmed
+- Area: utilities and low-level UI exports
+- User impact:
+  - imports using the removed helper utilities or standalone status/input icons no longer compile
+  - low-level customization patterns built on those exports need to move to the new `Icons` set, newer helper names, or higher-level components
+- Confirmed removed exports:
+  - `CloseIcon`
+  - `showMessageActionsBox`
+  - `shouldRenderMessageActions`
+  - `isOnlyEmojis`
+  - `RetryIcon`
+  - `DownloadIcon`
+  - `LinkIcon`
+  - `SendIcon`
+  - `MicIcon`
+  - `MessageSentIcon`
+  - `MessageDeliveredIcon`
+  - `attachmentTypeIconMap`
+- Old API evidence:
+  - `v13.14.2:src/components/MessageInput/icons.tsx:67` exported `CloseIcon`
+  - `v13.14.2:src/components/Message/utils.tsx:241` exported `showMessageActionsBox`
+  - `v13.14.2:src/components/Message/utils.tsx:246` exported `shouldRenderMessageActions`
+  - `v13.14.2:src/components/Message/utils.tsx:483` exported `isOnlyEmojis`
+  - `v13.14.2:src/components/MessageInput/icons.tsx:83` through `:149` exported `RetryIcon`, `DownloadIcon`, `LinkIcon`, `SendIcon`, and `MicIcon`
+  - `v13.14.2:src/components/Message/icons.tsx:77` and `:92` exported `MessageSentIcon` and `MessageDeliveredIcon`
+  - `v13.14.2:src/components/Threads/ThreadList/ThreadListItemUI.tsx:25` exported `attachmentTypeIconMap`
+- New API evidence:
+  - `src/components/Message/utils.tsx:431` exports `countEmojis`
+  - `src/components/Message/utils.tsx:436` exports `messageTextHasEmojisOnly`
+  - `src/components/index.ts:21` exports the shared `Icons` set
+  - `src/components/Message/MessageStatus.tsx:122` and `:138` render `IconCheckmark1Small` and `IconDoubleCheckmark1Small`
+  - `src/components/Threads/ThreadList/ThreadListItemUI.tsx:14` now builds thread previews around `SummarizedMessagePreview`
+- Replacement:
+  - move emoji-only checks to `countEmojis()` / `messageTextHasEmojisOnly()`
+  - stop relying on `showMessageActionsBox()` / `shouldRenderMessageActions()` and instead customize the new `MessageActions` action-set flow
+  - replace direct icon imports with the public `Icons` components or with higher-level components like `MessageStatus`, `SendButton`, and thread preview components
+  - if you used `attachmentTypeIconMap`, inline your own map or switch to the new thread preview components
+- Evidence:
+  - current `MessageInput/index.ts` and `Message/index.ts` still re-export their `icons.tsx` files, but the removed icon symbols are no longer present there
+  - current `MessageStatus` and thread-list UIs rely on the shared icon library and new summary components instead of the old standalone exports
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+- Example needed: yes
+
+### BC-024: `MessageInput` attachment preview customization changed, and voice recordings moved into a dedicated slot
+
+- Status: confirmed
+- Area: message input attachment previews
+- User impact:
+  - custom `AttachmentPreviewList` overrides written against the v13 prop contract no longer type-check cleanly
+  - voice recordings are no longer rendered inside `AttachmentPreviewList`
+  - customization now needs to account for `VoiceRecordingPreviewSlot` as a separate override point
+- Old API:
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:26` exposed `AttachmentPreviewListProps`
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:27` typed `AudioAttachmentPreview` as `ComponentType<FileAttachmentPreviewProps>`
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:32` typed `VideoAttachmentPreview` as `ComponentType<FileAttachmentPreviewProps>`
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:33` exposed `VoiceRecordingPreview`
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:72` rendered voice recordings inside the attachment preview list
+  - `v13.14.2:src/components/MessageInput/AttachmentPreviewList/index.ts:7` exported `VoiceRecordingPreviewProps` from `VoiceRecordingPreview`
+  - `v13.14.2:src/components/MessageInput/MessageInputFlat.tsx:105` rendered `QuotedMessagePreviewHeader` and then `AttachmentPreviewList`
+- New API:
+  - `src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:36` exposes a narrower `AttachmentPreviewListProps` surface with no `VoiceRecordingPreview`
+  - `src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:37` types `AudioAttachmentPreview` as `ComponentType<AudioAttachmentPreviewProps>`
+  - `src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:42` types `VideoAttachmentPreview` as `ComponentType<MediaAttachmentPreviewProps>`
+  - `src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx:83` skips voice recordings because they render in a separate slot
+  - `src/components/MessageInput/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx:14` defines `VoiceRecordingPreviewSlotProps`
+  - `src/components/MessageInput/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx:22` exports `VoiceRecordingPreviewSlot`
+  - `src/components/MessageInput/MessageInputFlat.tsx:61` reads `VoiceRecordingPreviewSlot` from `ComponentContext`
+  - `src/components/MessageInput/MessageInputFlat.tsx:104` renders `<VoiceRecordingPreviewSlot />` ahead of `<AttachmentPreviewList />`
+- Replacement:
+  - update custom audio/video attachment preview components to the new prop types
+  - stop overriding `VoiceRecordingPreview` through `AttachmentPreviewList`
+  - customize voice-recording previews via `VoiceRecordingPreviewSlot` instead
+- Evidence:
+  - current attachment preview list filters voice recordings out of the list render path
+  - current `MessageInputFlat` has a dedicated voice-preview slot above the list
+  - current package exports `VoiceRecordingPreviewSlot` and `VoiceRecordingPreviewSlotProps`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/05-ui_components.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/03-attachment_previews.md`
+- Example needed: yes
+
+### BC-025: `Gallery` and `ModalGallery` were redesigned
+
+- Status: confirmed
+- Area: image galleries
+- User impact:
+  - custom `Gallery` components written against the v13 thumbnail-grid/lightbox API no longer type-check
+  - `ModalGallery` no longer accepts `images` and `index`
+  - custom `Image` components written against the old `ImageProps` contract no longer type-check cleanly
+  - integrations using the old `GalleryProps.images` / `innerRefs` model must move either to the new provider-style `Gallery` API or to the new `ModalGallery`
+- Old API:
+  - `v13.14.2:src/components/Gallery/Gallery.tsx:15` typed `GalleryProps` around `images` and optional `innerRefs`
+  - `v13.14.2:src/components/Gallery/Gallery.tsx:110` rendered `Modal`
+  - `v13.14.2:src/components/Gallery/Gallery.tsx:115` rendered `<ModalGallery images={images} index={index} />`
+  - `v13.14.2:src/components/Gallery/Image.tsx:14` typed `ImageProps` around `dimensions`, `innerRef`, `previewUrl`, `fallback`, `image_url`, and `thumb_url`
+  - `v13.14.2:src/components/Gallery/index.tsx:3` exported `Image`
+  - `v13.14.2:src/components/Gallery/index.tsx:4` exported `ModalGallery`
+- New API:
+  - `src/components/Gallery/Gallery.tsx:7` types `GalleryProps` around `items`, optional `GalleryUI`, `initialIndex`, `onIndexChange`, and `onRequestClose`
+  - `src/components/Gallery/Gallery.tsx:89` renders a `GalleryContext.Provider` instead of the old thumbnail grid
+  - `src/components/Attachment/Image.tsx:6` now types `ImageProps` as `GalleryItem`
+  - `src/components/Attachment/Image.tsx:14` renders `ModalGallery` directly via `items={[props]}`
+  - `src/components/Attachment/ModalGallery.tsx:41` defines the new `ModalGalleryProps` around `items`, `className`, `closeOnBackgroundClick`, and `modalClassName`
+  - `src/components/Attachment/ModalGallery.tsx:110` renders the provider-style `Gallery` inside `GlobalModal`
+  - `src/components/Gallery/index.tsx:3` now exports `GalleryContext`
+  - `src/components/Gallery/index.tsx:4` now exports `GalleryUI`
+- Replacement:
+  - if you need the old thumbnail-grid-plus-lightbox behavior, use `ModalGallery`
+  - if you customize the gallery carousel itself, migrate to the new `Gallery` provider API and a custom `GalleryUI`
+  - rename `ModalGallery` props from `images` / `index` to `items` / `initialIndex` semantics as appropriate
+  - rewrite custom `Image` components against the new `GalleryItem` contract and let `ModalGallery` own modal state
+- Evidence:
+  - current `Gallery` is no longer a visible thumbnail-grid component by itself unless a `GalleryUI` is supplied
+  - current `ModalGallery` owns the thumbnail grid and modal-opening behavior
+  - current top-level `Image` export now comes from `src/components/Attachment/Image.tsx`, not `src/components/Gallery/Image.tsx`
+  - current docs examples still using `<ModalGallery images={[...]} index={0} />` no longer match the public props
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/02-image_gallery.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/16-modal.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/10-dialog-management.md`
+- Example needed: yes
+
+### BC-026: low-level attachment rendering utilities and container exports were redesigned
+
+- Status: confirmed
+- Area: custom attachment rendering
+- User impact:
+  - code importing low-level attachment primitives from the package root can break or stop type-checking cleanly
+  - custom attachment renderers written against the old `MediaContainer`, `GalleryAttachment`, or `FileContainer` contracts need rewrites
+  - custom audio attachment components written against `AudioProps.og` need a prop rename
+  - `CardAudio` is no longer re-exported from the main package surface
+- Old API:
+  - `v13.14.2:src/components/Attachment/index.ts:3` re-exported `AttachmentContainer`
+  - `v13.14.2:src/components/Attachment/AttachmentContainer.tsx:106` defined `GalleryContainer` around `Gallery images={...} innerRefs={...}`
+  - `v13.14.2:src/components/Attachment/AttachmentContainer.tsx:208` defined `FileContainer` for non-audio file attachments only
+  - `v13.14.2:src/components/Attachment/AttachmentContainer.tsx:243` defined `MediaContainer(props: RenderAttachmentProps)` around a single `attachment`
+  - `v13.14.2:src/components/Attachment/utils.tsx:16` typed `GalleryAttachment` as `{ images: Attachment[]; type: 'gallery' }`
+  - `v13.14.2:src/components/Attachment/utils.tsx:12` derived `AttachmentComponentType` from `ATTACHMENT_GROUPS_ORDER`
+  - `v13.14.2:src/components/Attachment/Audio.tsx:43` through `:46` typed `AudioProps` as `{ og: Attachment }`
+  - `v13.14.2:src/components/Attachment/Card.tsx:171` exported `CardAudio`
+- New API:
+  - `src/components/Attachment/index.ts:3` still re-exports `AttachmentContainer`, so these changes are public
+  - `src/components/Attachment/AttachmentContainer.tsx:112` defines `MediaContainer(props: RenderMediaProps)` around `attachments`
+  - `src/components/Attachment/AttachmentContainer.tsx:157` exports `GiphyContainer`
+  - `src/components/Attachment/AttachmentContainer.tsx:180` makes `FileContainer` a dispatcher for audio, voice recordings, and other files
+  - `src/components/Attachment/AttachmentContainer.tsx:198` defines `GalleryContainer` around `ModalGallery items={...}`
+  - `src/components/Attachment/AttachmentContainer.tsx:263` exports `OtherFilesContainer`
+  - `src/components/Attachment/AttachmentContainer.tsx:299` exports `VideoContainer`
+  - `src/components/Attachment/utils.tsx:25` introduces `AttachmentContainerType` for grouped render keys
+  - `src/components/Attachment/utils.tsx:29` types `GalleryAttachment` as `{ items: Attachment[]; type: 'gallery' }`
+  - `src/components/Attachment/Audio.tsx:44` through `:46` now type `AudioProps` as `{ attachment: Attachment }`
+  - current `src/components/Attachment/LinkPreview/Card.tsx` no longer exports `CardAudio`
+- Replacement:
+  - prefer the supported high-level `AttachmentProps` / `ComponentContext` customization surface when possible
+  - if you use the low-level containers directly, migrate media flows to `MediaContainer({ attachments })`
+  - rename gallery payloads from `images` to `items`
+  - rename custom audio attachment props from `og` to `attachment`
+  - split file handling across `OtherFilesContainer`, `AudioContainer`, `VoiceRecordingContainer`, or `VideoContainer` as needed
+  - if you depended on `CardAudio`, build the UI directly in a custom card implementation because it is no longer public from the package root
+- Evidence:
+  - current attachment container logic collapses multiple old branches into dispatcher-style containers
+  - current attachment utility types rename the gallery payload from `images` to `items`
+  - current package root still exports the attachment container module, so these contract changes are public
+  - current package root no longer re-exports `CardAudio`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/01-attachment.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/02-image_gallery.md`
+- Example needed: yes
+
+### BC-027: `Chat` initial sidebar state no longer depends on `initialNavOpen` alone
+
+- Status: confirmed
+- Area: chat layout behavior
+- User impact:
+  - apps that previously used `initialNavOpen={false}` to force a closed sidebar on first render can get different behavior in v14
+  - `initialNavOpen` is now ignored unless `initialNavOpenResponsive={false}`
+  - channel selection no longer closes the sidebar on desktop-sized viewports
+- Old API:
+  - `v13.14.2:src/components/Chat/Chat.tsx:30` exposed `initialNavOpen` as the only initial nav-state prop
+  - `v13.14.2:src/components/Chat/hooks/useChat.ts:42` initialized `navOpen` from `initialNavOpen`
+  - `v13.14.2:src/components/Chat/hooks/useChat.ts:135` always called `closeMobileNav()` in `setActiveChannel`
+- New API:
+  - `src/components/Chat/Chat.tsx:30` documents that `initialNavOpen` is ignored when `initialNavOpenResponsive` is true
+  - `src/components/Chat/Chat.tsx:33` adds `initialNavOpenResponsive?: boolean`
+  - `src/components/Chat/Chat.tsx:60` defaults `initialNavOpenResponsive` to `true`
+  - `src/components/Chat/hooks/useChat.ts:52` initializes `navOpen` from responsive mode first, then falls back to `initialNavOpen`
+  - `src/components/Chat/hooks/useChat.ts:148` through `:151` only closes the sidebar after channel selection on mobile-width viewports
+- Replacement:
+  - if you relied on the v13 `initialNavOpen` behavior, pass `initialNavOpenResponsive={false}` and then use `initialNavOpen`
+  - if you relied on channel selection always collapsing the sidebar, reintroduce that behavior explicitly in app-level layout code
+- Evidence:
+  - current `ChatProps` explicitly warns that `initialNavOpen` can be ignored
+  - current `useChat` contains new responsive-state initialization logic and viewport-guarded sidebar closing
+  - current v14 docs still document only `initialNavOpen`, which would mislead upgraders
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`
+- Example needed: yes
+
+### BC-028: custom CSS selectors and theming hooks need review because core component markup changed
+
+- Status: confirmed
+- Area: styling and theming
+- User impact:
+  - apps with custom CSS targeting old `ChannelHeader`, `MessageInput`, or `Avatar` DOM/classnames can lose styling after upgrading
+  - apps with custom CSS targeting old channel-list, channel-preview, thread-list, send-to-channel, or loading-placeholder DOM can lose styling after upgrading
+  - tests and accessibility hooks that relied on the old sidebar/list selection semantics (`aria-selected`) or `*-react` classnames can break
+  - snapshot and interaction tests that expected the old channel-preview action buttons or preview content layout can break
+  - selector-based theming against internal wrappers needs an audit before release adoption
+  - teams should expect to rebalance custom theme work around the new tokenized styling layer
+- Old API:
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:48` through `:80` used selectors such as `str-chat__header-hamburger`, `str-chat__channel-header-end`, `str-chat__channel-header-title`, `str-chat__channel-header-info`, and `str-chat__header-livestream-livelabel`
+  - `v13.14.2:src/components/MessageInput/MessageInputFlat.tsx:95` through `:150` used `str-chat__message-input-inner`, `str-chat__message-textarea-container`, and `str-chat__message-textarea-with-emoji-picker`
+  - `v13.14.2:src/components/Avatar/Avatar.tsx:47` through `:76` used `str-chat__message-sender-avatar` and `str-chat__avatar-fallback`
+  - `v13.14.2:src/components/ChannelList/ChannelListMessenger.tsx:44` through `:57` used `str-chat__channel-list-messenger-react` and `str-chat__channel-list-messenger-react__main`, and returned `LoadingIndicator` without the list wrapper while loading
+  - `v13.14.2:src/components/ChannelPreview/ChannelPreviewMessenger.tsx:47` through `:85` used `aria-selected`, `str-chat__channel-preview-messenger*`, `str-chat__channel-preview-end*`, and the old unread-badge / latest-message layout
+  - `v13.14.2:src/components/ChannelPreview/ChannelPreviewActionButtons.tsx:20` through `:58` rendered dedicated pin and archive buttons instead of the current menu-plus-secondary-action layout
+  - `v13.14.2:src/components/Threads/ThreadList/ThreadListItemUI.tsx:97` through `:141` used `aria-selected` and the old `__channel`, `__parent-message`, and `__latest-reply` DOM sections
+  - `v13.14.2:src/components/MessageInput/SendToChannelCheckbox.tsx:18` through `:33` rendered a plain checkbox/label pair without the new visual wrapper and checked-state modifier
+  - `v13.14.2:src/components/Loading/LoadingChannels.tsx:3` through `:18` used the old `str-chat__loading-channels-item` / `str-chat__channel-preview-loading` skeleton markup
+- New API:
+  - `src/components/ChannelHeader/ChannelHeader.tsx:69` through `:88` now uses `str-chat__channel-header--sidebar-collapsed`, `str-chat__channel-header__data`, `str-chat__channel-header__data__title`, and `str-chat__channel-header__data__subtitle`
+  - `src/components/MessageInput/MessageInputFlat.tsx:125` through `:149` now uses `str-chat__message-composer-container`, `str-chat__message-composer`, `str-chat__message-composer-compose-area`, and `str-chat__message-composer-controls`
+  - `src/components/Avatar/Avatar.tsx:73` through `:107` now uses size modifiers, `str-chat__avatar-status-badge`, and `str-chat__avatar-initials`
+  - `src/components/ChannelList/ChannelListMessenger.tsx:44` through `:67` removed the `*-react` classnames and now wraps the loading state inside `str-chat__channel-list-messenger__main`
+  - `src/components/ChannelPreview/ChannelPreviewMessenger.tsx:54` through `:95` now use `aria-pressed`, `str-chat__channel-preview-data*`, `ChannelPreviewTimestamp`, `SummarizedMessagePreview`, and muted-state modifiers
+  - `src/components/ChannelPreview/ChannelPreviewActionButtons.tsx:40` through `:171` now use `Button`, `ContextMenu`, a dialog-open state class, and different secondary actions for direct-message vs non-DM channels
+  - `src/components/Threads/ThreadList/ThreadListItemUI.tsx:73` through `:119` now use `aria-pressed`, `str-chat__thread-list-item-container`, summarized-preview content, avatar stacks, and badges
+  - `src/components/MessageInput/SendToChannelCheckbox.tsx:25` through `:50` now use `str-chat__send-to-channel-checkbox__container--checked`, explicit input classes, and a custom visual/checkmark wrapper
+  - `src/components/Loading/LoadingChannels.tsx:3` through `:25` now render loading placeholders with `str-chat__channel-preview-container` / `str-chat__channel-preview--loading`
+  - `src/components/MessageInput/WithDragAndDropUpload.tsx:122` through `:165` now add `str-chat__dropzone-root` and `str-chat__dropzone-container__content` around the default drag-and-drop overlay
+  - `src/styling/index.scss:1` now assembles a new styling entrypoint, and `src/styling/variables.css:5` introduces a tokenized variable layer under `.str-chat`
+- Replacement:
+  - audit custom CSS selectors against current rendered markup before upgrading
+  - prefer current component variables and current selectors over legacy internal wrappers
+  - re-test any layout code that styled the old header, sidebar/list, or message-input internals directly
+  - update selector-based tests that depended on `str-chat__channel-list-messenger-react__main`, old channel-preview DOM/action buttons, `aria-selected` sidebar items, or the older loading skeleton DOM
+- Evidence:
+  - the class structure changed across header, composer, avatar, channel-preview, sidebar/list, and loading surfaces
+  - current docs still contain stale selectors like `.str-chat__header-hamburger`, `.str-chat__channel-list-messenger-react__main`, and `aria-selected` thread-item examples
+  - v14 now ships a centralized styling/token layer alongside those markup changes
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`
+- Example needed: yes
+
+### BC-029: `TypingIndicatorProps` were redesigned around scroll state and avatar stacks
+
+- Status: confirmed
+- Area: typing indicator customization
+- User impact:
+  - custom `TypingIndicator` overrides written against the v13 prop contract no longer type-check
+  - old custom typing indicators that only consumed `threadList` miss the new `scrollToBottom` behavior and scroll-state gating
+  - docs that still describe `TypingIndicatorProps.Avatar` are stale
+- Old API:
+  - `v13.14.2:src/components/TypingIndicator/TypingIndicator.tsx:9` through `:12` exposed `TypingIndicatorProps` with only `threadList?: boolean`
+  - `v13.14.2:src/components/TypingIndicator/TypingIndicator.tsx:75` through `:90` rendered dot/text UI with no avatar stack or scroll callback
+- New API:
+  - `src/components/TypingIndicator/TypingIndicator.tsx:15` through `:20` defines `TypingIndicatorProps` with `scrollToBottom`, optional `isMessageListScrolledToBottom`, and `threadList`
+  - `src/components/TypingIndicator/TypingIndicator.tsx:58` through `:60` scrolls to latest message when typing appears and the list is at the bottom
+  - `src/components/TypingIndicator/TypingIndicator.tsx:84` through `:90` renders `AvatarStack` instead of the old text-only list
+- Replacement:
+  - update custom typing indicator components to accept `scrollToBottom` and optional `isMessageListScrolledToBottom`
+  - if you want the default “stay pinned to latest message while typing” behavior, preserve the scroll callback in custom implementations
+  - stop documenting or expecting an `Avatar` prop on `TypingIndicatorProps`
+- Evidence:
+  - current `TypingIndicatorProps` adds a required scroll callback and removes the old avatar-oriented docs contract
+  - current typing indicator implementation is built around `AvatarStack` plus scroll-state behavior
+  - current docs pages still show the pre-v14 prop contract
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/12-indicators.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/07-typing_indicator.md`
+- Example needed: yes
+
+### BC-030: some modal-style override components no longer receive dismissal callbacks in props
+
+- Status: confirmed
+- Area: dialog override components
+- User impact:
+  - custom `MessageBouncePrompt` implementations using `onClose` no longer type-check
+  - custom `RecordingPermissionDeniedNotification` components using `onClose` no longer type-check
+  - several prompt-like overrides now have to close themselves via modal context or parent flow instead of explicit props
+- Old API:
+  - `v13.14.2:src/components/MessageBounce/MessageBouncePrompt.tsx:8` typed `MessageBouncePromptProps` as `PropsWithChildren<Pick<ModalProps, 'onClose'>>`
+  - `v13.14.2:src/components/MessageBounce/MessageBouncePrompt.tsx:10` through `:21` called `onClose?.(e)` after bounce actions
+  - `v13.14.2:src/components/MediaRecorder/RecordingPermissionDeniedNotification.tsx:6` through `:8` typed `RecordingPermissionDeniedNotificationProps` with `onClose`
+  - `v13.14.2:src/components/MediaRecorder/RecordingPermissionDeniedNotification.tsx:36` through `:40` rendered a dismiss button wired to `onClose`
+- New API:
+  - `src/components/MessageBounce/MessageBouncePrompt.tsx:13` defines `MessageBouncePromptProps` as `PropsWithChildrenOnly`
+  - `src/components/MessageBounce/MessageBouncePrompt.tsx:19` reads `close` from `useModalContext()`
+  - `src/components/MediaRecorder/RecordingPermissionDeniedNotification.tsx:5` through `:7` define `RecordingPermissionDeniedNotificationProps` with only `permissionName`
+  - `src/components/MediaRecorder/RecordingPermissionDeniedNotification.tsx:24` through `:33` no longer render a dismiss button
+- Replacement:
+  - rewrite custom `MessageBouncePrompt` implementations to use `useModalContext().close()` rather than an `onClose` prop
+  - rewrite custom `RecordingPermissionDeniedNotification` components without assuming a dismissal callback prop
+  - audit any other dialog-style overrides that previously depended on explicit `close` callbacks
+- Evidence:
+  - current `MessageBouncePrompt` and recording-permission notification contracts both dropped direct close props
+  - current bounce prompt uses modal context and alert primitives instead of the old modal callback pattern
+  - current docs still show `onClose`-based customizations
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/03-message_bounce_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/07-audio_recorder.md`
+- Example needed: yes
+
+### BC-031: `MessageStatusProps` and default status rendering changed
+
+- Status: confirmed
+- Area: message status customization
+- User impact:
+  - custom `MessageStatus` overrides written against the v13 prop contract no longer type-check cleanly
+  - the `Avatar` prop was removed from `MessageStatusProps`
+  - the default read/sent/delivered indicators no longer render the old standalone icon exports or the reader avatar
+- Old API:
+  - `v13.14.2:src/components/Message/MessageStatus.tsx:19` through `:33` exposed `MessageStatusProps` including `Avatar?: React.ComponentType<AvatarProps>`
+  - `v13.14.2:src/components/Message/MessageStatus.tsx:64` used `Avatar` to render the last reader in read state
+  - `v13.14.2:src/components/Message/MessageStatus.tsx:119`, `:135`, and `:151` rendered `LoadingIndicator`, `MessageSentIcon`, and `MessageDeliveredIcon`
+- New API:
+  - `src/components/Message/MessageStatus.tsx:13` through `:25` define `MessageStatusProps` without `Avatar`
+  - `src/components/Message/MessageStatus.tsx:106`, `:122`, `:138`, and `:155` render `IconClock`, `IconCheckmark1Small`, and `IconDoubleCheckmark1Small`
+  - `src/components/Message/MessageStatus.tsx:142` through `:166` no longer render the reader avatar in the default read state
+- Replacement:
+  - remove `Avatar` from custom `MessageStatus` wrappers
+  - if you need reader-avatar-based read status, implement it in a custom `MessageReadStatus` component
+  - stop relying on the removed standalone message-status icons
+- Evidence:
+  - current `MessageStatusProps` no longer accept `Avatar`
+  - current default status UI is icon-based for all states, including read state
+  - current docs still describe the removed avatar prop and older default behavior
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+- Example needed: yes
+
+### BC-032: `MessageTextProps.theme` was removed and `MessageText` has a narrower responsibility
+
+- Status: confirmed
+- Area: message text customization
+- User impact:
+  - custom `MessageText` wrappers using the `theme` prop no longer type-check
+  - selector logic based on `str-chat__message-${theme}-text-inner` classes no longer maps to the current component
+  - `MessageText` no longer renders quoted-message UI itself
+- Old API:
+  - `v13.14.2:src/components/Message/MessageText.tsx:18` through `:27` exposed `MessageTextProps` including `theme?: string`
+  - `v13.14.2:src/components/Message/MessageText.tsx:65` through `:77` built theme-based inner class names and emoji/attachment modifiers from `theme`
+  - `v13.14.2:src/components/Message/MessageText.tsx:83` rendered `QuotedMessage` inside `MessageText`
+- New API:
+  - `src/components/Message/MessageText.tsx:13` through `:20` define `MessageTextProps` without `theme`
+  - `src/components/Message/MessageText.tsx:55` through `:67` use non-theme-specific text classes
+  - `src/components/Message/MessageText.tsx:58` returns `null` for empty text without special quoted-message handling
+  - `src/components/Message/MessageText.tsx:45` through `:48` now resolve text through `translationView` and `getTranslatedMessageText`
+- Replacement:
+  - stop passing `theme` into `MessageText`
+  - move any theme-specific selectors to the current message/text class structure
+  - if you need quoted-message rendering, handle it in the surrounding message UI rather than inside `MessageText`
+- Evidence:
+  - current `MessageTextProps` no longer include `theme`
+  - current `MessageText` no longer imports or renders `QuotedMessage`
+  - current docs still document the removed `theme` prop
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+- Example needed: yes
+
+### BC-033: custom `Message` overrides should no longer rely on SDK-provided `MessageUIComponentProps`
+
+- Status: confirmed
+- Area: custom message UI
+- User impact:
+  - custom `Message` override components should no longer expect the SDK to inject `MessageUIComponentProps` directly
+  - code that relied on a directly passed `groupedByUser` prop in custom message UIs stops receiving it in v14
+  - TypeScript users also lose `customMessageActions`, `endOfGroup`, `firstOfGroup`, and `groupedByUser` from the exported `MessageProps` / `SharedMessageProps` surface
+- Old API:
+  - `v13.14.2:src/components/Message/types.ts:25` through `:27` exposed `endOfGroup`, `firstOfGroup`, and `groupedByUser` in `MessageProps`
+  - `v13.14.2:src/components/Message/types.ts:23` exposed `customMessageActions` in `MessageProps`
+  - `v13.14.2:src/components/Message/Message.tsx:176` rendered `<MessageUIComponent groupedByUser={groupedByUser} />`
+- New API:
+  - `src/components/Message/types.ts:16` no longer exposes `customMessageActions`, `endOfGroup`, `firstOfGroup`, or `groupedByUser` in `MessageProps`
+  - `src/components/Message/Message.tsx:179` now renders `<MessageUIComponent />`
+  - `src/context/MessageContext.tsx:83` through `:89` still expose `endOfGroup`, `firstOfGroup`, and `groupedByUser` through `useMessageContext()`
+- Replacement:
+  - read grouping and other message state from `useMessageContext()` inside custom message overrides instead of expecting direct props
+  - treat `MessageUIComponentProps` as an implementation detail/helper type, not as a guarantee that the SDK will inject those props into your component
+  - move any old `customMessageActions` logic to the v14 `MessageActions` / `messageActionSet` model
+- Evidence:
+  - the current `Message` component still provides grouping state in `MessageContext`, but no longer passes it as a direct prop to the override component
+  - current exported `MessageProps` / `SharedMessageProps` no longer advertise the v13 grouping/custom-actions props
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/16-ai-integrations/02-chat-sdk-integration.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/01-message.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+- Example needed: yes
+
+### BC-034: some low-level helper components no longer receive SDK-injected helper props
+
+- Status: confirmed
+- Area: low-level customization helpers
+- User impact:
+  - custom `PinIndicator` components typed against the v13 `PinIndicatorProps` contract no longer receive `t`
+  - custom textarea-composer `UserItem` components typed against the v13 `UserItemProps` contract no longer receive `Avatar`
+- Old API:
+  - `v13.14.2:src/components/Message/types.ts:120` through `:123` exposed `PinIndicatorProps` as `{ message?: LocalMessage; t?: TFunction }`
+  - `v13.14.2:src/components/Message/icons.tsx:55` used the injected `t` prop inside `PinIndicator`
+  - `v13.14.2:src/components/TextareaComposer/SuggestionList/UserItem.tsx:7` through `:22` exposed `UserItemProps` with `Avatar?: React.ComponentType<AvatarProps>`
+  - `v13.14.2:src/components/TextareaComposer/SuggestionList/UserItem.tsx:28` rendered the injected `Avatar` component
+- New API:
+  - `src/components/Message/PinIndicator.tsx:7` through `:9` define `PinIndicatorProps` with `message?: LocalMessage` only
+  - `src/components/Message/PinIndicator.tsx:16` calls `useTranslationContext()` internally instead of using an injected `t`
+  - `src/components/TextareaComposer/SuggestionList/UserItem.tsx:6` through `:18` define `UserItemProps` around `entity`, `focused?`, and button props
+  - `src/components/TextareaComposer/SuggestionList/UserItem.tsx:47` renders `UserContextMenuButton` and no longer accepts an injected `Avatar`
+- Replacement:
+  - use `useTranslationContext()` inside custom `PinIndicator` implementations instead of expecting `t` as a prop
+  - render avatar/button UI directly inside custom suggestion-item helpers instead of expecting an injected `Avatar` component
+- Evidence:
+  - the current `PinIndicator` and `UserItem` helper components are more self-contained and no longer advertise the v13 helper props
+  - the removed props still appear in the v13 baseline and disappear from the current exported prop types
+- Docs impact:
+  - migration guide
+- Example needed: no
+
+### BC-035: `stream-chat-react` v14 requires a newer `stream-chat` peer version
+
+- Status: confirmed
+- Area: package compatibility
+- User impact:
+  - apps pinned to the v13-era `stream-chat` range can fail peer-dependency resolution when upgrading to v14
+  - integrators should upgrade `stream-chat` alongside `stream-chat-react`
+- Old API:
+  - `v13.14.2:package.json` declared `"stream-chat": "^9.27.2"` in `peerDependencies`
+- New API:
+  - `package.json:121` declares `"stream-chat": "^9.35.0"` in `peerDependencies`
+- Replacement:
+  - upgrade `stream-chat` to `^9.35.0` or newer when adopting `stream-chat-react` v14
+  - treat the React SDK and JS client as a coordinated upgrade rather than mixing v14 UI with the older v13 client baseline
+- Evidence:
+  - the package peer dependency floor moved from `^9.27.2` to `^9.35.0`
+  - current docs still describe installing both packages together but do not call out the new minimum in migration guidance
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/01-basics/02-installation.md`
+- Example needed: no
+
+### BC-036: implicit initial query limits were removed from `Channel` and `ChannelList`
+
+- Status: confirmed
+- Area: channel and channel-list data loading
+- User impact:
+  - apps that relied on the SDK’s old default initial query limits can see different first-load payload sizes and pagination behavior after upgrading
+  - `Channel` no longer injects a default initial `messages.limit` into `channelQueryOptions`
+  - `ChannelList` no longer assumes an internal channel/page-size default when deciding whether more channels are available
+- Old API:
+  - `v13.14.2:src/components/Channel/Channel.tsx:231` through `:238` merged `channelQueryOptions` with `messages: { limit: DEFAULT_INITIAL_CHANNEL_PAGE_SIZE }`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:237` through `:240` compared loaded channels against `options?.limit || MAX_QUERY_CHANNELS_LIMIT`
+- New API:
+  - `src/components/Channel/Channel.tsx:229` uses `channelQueryOptions` as provided, without injecting `messages.limit`
+  - `src/components/ChannelList/ChannelList.tsx:237` now returns early only when `!channels.length`
+  - `src/components/ChannelList/hooks/usePaginatedChannels.ts:90` still infers `hasNextPage` from `newOptions.limit`, but only if the consumer supplied one
+- Replacement:
+  - set `channelQueryOptions.messages.limit` explicitly if your app depends on a particular initial message batch size
+  - set `ChannelList` `options.limit` explicitly if your app depends on stable first-page size or custom pagination behavior
+  - do not rely on the SDK to inject an initial `queryChannels` limit for you
+- Evidence:
+  - commit `6302c967 feat: use server-defined default limits for channel and channel lists (#2943)` removed the old default-merge logic
+  - current `Channel` source no longer calls `defaultsDeep` to supply an initial message limit
+  - current `ChannelList` active-channel logic no longer references `MAX_QUERY_CHANNELS_LIMIT`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`
+- Example needed: yes
+
+### BC-037: `AutocompleteSuggestionItem` customization now follows the redesigned suggestion-list item contract
+
+- Status: confirmed
+- Area: textarea composer customization
+- User impact:
+  - custom `AutocompleteSuggestionItem` overrides built against the old list-item wrapper contract need to be rewritten
+  - suggestion-item overrides now receive button-like props from the dialog/context-menu layer rather than living inside the old internal `<li><button /></li>` wrapper
+  - custom suggestion UIs that relied on the old wrapper semantics or prop names can break after upgrading
+- Old API:
+  - `v13.14.2:src/components/TextareaComposer/SuggestionList/SuggestionListItem.tsx:21` through `:26` typed `SuggestionItemProps` as `component`, `item`, `focused`, `className?`, and `onMouseEnter?`
+  - `v13.14.2:src/components/TextareaComposer/SuggestionList/SuggestionListItem.tsx:46` through `:61` rendered an internal `<li>` plus `<button>` wrapper and only passed `entity` / `focused` to the inner item component
+  - `v13.14.2:src/components/TextareaComposer/SuggestionList/SuggestionList.tsx:90` through `:108` rendered suggestion items inside a plain `<ul>`
+- New API:
+  - `src/components/TextareaComposer/SuggestionList/SuggestionListItem.tsx:18` through `:21` types `SuggestionItemProps` as `ComponentProps<'button'>` plus `component`, `item`, and `focused`
+  - `src/components/TextareaComposer/SuggestionList/SuggestionListItem.tsx:44` through `:63` renders the component itself as the interactive item
+  - `src/components/TextareaComposer/SuggestionList/SuggestionList.tsx:113` through `:136` renders suggestion items as `ContextMenu` items and forwards button props through `AutocompleteSuggestionItem`
+- Replacement:
+  - rewrite custom `AutocompleteSuggestionItem` overrides against the current `SuggestionListItem` contract
+  - if you need to customize the inner visuals only, prefer custom `suggestionItemComponents` / `CommandItem` / `EmoticonItem` / `UserItem`-style components instead of replacing the whole item wrapper
+  - migrate examples away from the old `selected` / `onSelectHandler` / `onClickHandler` mental model
+- Evidence:
+  - current suggestion-list rendering moved from a static list wrapper to a caret-anchored dialog/context-menu implementation
+  - current `SuggestionListItem` props and rendering responsibilities differ materially from the v13 baseline
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`
+- Example needed: yes
+
+### BC-038: the default composer textarea now grows up to 10 rows instead of 1
+
+- Status: confirmed
+- Area: message composer behavior
+- User impact:
+  - apps that relied on the old one-line default composer behavior will see a taller multi-line input as users type longer messages
+  - layouts that were tuned around the old single-row composer can need explicit `maxRows` configuration to preserve the previous behavior
+- Old API:
+  - `v13.14.2:src/components/TextareaComposer/TextareaComposer.tsx:87` resolved `maxRows` as `maxRowsProp ?? maxRowsContext ?? 1`
+- New API:
+  - `src/components/TextareaComposer/TextareaComposer.tsx:87` resolves `maxRows` as `maxRowsProp ?? maxRowsContext ?? 10`
+- Replacement:
+  - set `maxRows={1}` on `MessageInput` or your custom composer path if you want to preserve the v13 one-line growth behavior
+  - review composer/container CSS if your layout assumed the old height cap
+- Evidence:
+  - the source default changed directly in `TextareaComposer`
+  - commit `6b0310a5 feat: redesign message composer for thread and allow to grow to 10 lines (#2983)` matches the behavioral change
+- Docs impact:
+  - migration guide
+- Example needed: no
+
+### BC-039: `DateSeparator` no longer renders the old `position` / `unread` visuals, and the default composer markup was redesigned
+
+- Status: confirmed
+- Area: date separators and composer markup
+- User impact:
+  - custom `DateSeparator` usage that relied on `position="left" | "center"` to render separator lines no longer gets that behavior from the default component
+  - custom `DateSeparator` usage that relied on `unread` to render the old `New - ...` label no longer gets that behavior from the default component
+  - custom CSS targeting the old message-input wrappers like `str-chat__message-input-inner`, `str-chat__message-textarea-container`, or `str-chat__message-textarea-with-emoji-picker` no longer matches the default composer DOM
+- Old API:
+  - `v13.14.2:src/components/DateSeparator/DateSeparator.tsx:8` through `:16` exposed `date`, `formatDate`, `position`, and `unread`
+  - `v13.14.2:src/components/DateSeparator/DateSeparator.tsx:42` through `:50` rendered `str-chat__date-separator-line` elements and prefixed unread separators with `New -`
+  - `v13.14.2:src/components/MessageInput/MessageInputFlat.tsx:95` through `:112` used wrapper classes like `str-chat__message-input`, `str-chat__message-input-inner`, `str-chat__message-textarea-container`, and `str-chat__message-textarea-with-emoji-picker`
+- New API:
+  - `src/components/DateSeparator/DateSeparator.tsx:9` through `:22` add `className` and `floating`, but keep `position` / `unread` only as legacy props
+  - `src/components/DateSeparator/DateSeparator.tsx:47` through `:58` render only the date label inside `str-chat__date-separator`, with optional `--floating` styling and no separator lines or unread prefix
+  - `src/components/MessageInput/MessageInputFlat.tsx:126` through `:149` now render the default composer under `str-chat__message-composer-container`, `str-chat__message-composer`, and `str-chat__message-composer-controls*`
+- Replacement:
+  - provide a custom `DateSeparator` if you still need left/right/center separator lines or unread-prefixed labels
+  - use the new `floating` and `className` props only for the current simplified separator UI
+  - audit custom composer CSS, tests, and DOM queries against the new `str-chat__message-composer*` structure
+- Evidence:
+  - the current `DateSeparator` still accepts `position` / `unread`, but its implementation no longer uses those props for rendering
+  - the current `MessageInputFlat` source replaced the old message-input wrappers with the new message-composer layout
+  - commit `1bf815f3 feat: redesign message list elements spacing (#2937)` explicitly called out both the new composer wrapper and the date-separator visual change
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`
+- Example needed: yes
+
+### BC-040: `ThreadHeader` dropped `overrideImage` and changed its default subtitle/close-button behavior
+
+- Status: confirmed
+- Area: threads
+- User impact:
+  - direct `ThreadHeader` usage with `overrideImage` no longer type-checks
+  - custom wrappers/tests that expected the old always-visible close button or the old `data-testid='close-button'` can break
+  - the default thread-header subtitle is no longer just the channel title; it now includes reply count and can switch to typing state
+- Old API:
+  - `v13.14.2:src/components/Thread/index.ts:2` exported `ThreadHeader`
+  - `v13.14.2:src/components/Thread/ThreadHeader.tsx:17` through `:18` accepted `ThreadHeaderProps & Pick<ChannelPreviewInfoParams, 'overrideImage' | 'overrideTitle'>`
+  - `v13.14.2:src/components/Thread/ThreadHeader.tsx:27` through `:42` rendered `displayTitle` as the subtitle and always showed a close button with `data-testid='close-button'`
+- New API:
+  - `src/components/Thread/index.ts:2` still exports `ThreadHeader`
+  - `src/components/Thread/ThreadHeader.tsx:61` through `:67` define `ThreadHeaderProps` with only `closeThread`, `thread`, and optional `overrideTitle`
+  - `src/components/Thread/ThreadHeader.tsx:22` through `:55` define a subtitle that can render typing state or `threadDisplayName · replyCount`
+  - `src/components/Thread/ThreadHeader.tsx:94` through `:106` render the close button only when the legacy thread context is active, with `data-testid='close-thread-button'`
+- Replacement:
+  - remove `overrideImage` from any direct `ThreadHeader` usage
+  - if you need image-based customization, build a custom `ThreadHeader` rather than relying on a removed prop
+  - audit tests and custom wrappers for the new subtitle format, typing-state behavior, and conditional close-button rendering
+- Evidence:
+  - current `ThreadHeader` is still public but its prop type no longer includes `overrideImage`
+  - current subtitle behavior is driven by `useChannelPreviewInfo()`, `replyCount`, and `TypingIndicatorHeader`
+  - current close button is hidden when rendering against the newer thread-instance flow
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/05-thread.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-041: `AttachmentSelector` action model and default button behavior were redesigned
+
+- Status: confirmed
+- Area: message composer attachments
+- User impact:
+  - custom `attachmentSelectorActionSet` code that assumed the old three-action model can behave differently in v14
+  - spreading `defaultAttachmentSelectorActionSet` can now add a `selectCommand` entry when the channel has commands configured
+  - custom upload flows that relied on the old disabled file action can break because the default file action is now filtered out entirely when uploads are runtime-disabled
+  - custom CSS and tests targeting the old simple-selector DOM (`str-chat__file-input-container`, `str-chat__file-input-label`) no longer match
+  - the default attachment-selector button is now disabled during cooldown, including the single-upload fallback
+- Old API:
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:25` through `:67` rendered `SimpleAttachmentSelector` as `str-chat__file-input-container` plus a focusable `<label>` and optional `FileUploadIcon`
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:85` through `:93` typed `AttachmentSelectorActionProps` with only `closeMenu` and `openModalForAction`
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:90` through `:94` typed `AttachmentSelectorAction` with only `ActionButton`, `type`, and optional `ModalContent`
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:145` through `:155` defined `defaultAttachmentSelectorActionSet` with only `uploadFile`, `createPoll`, and `addLocation`
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:97` through `:112` kept the file action visible but disabled it via `isUploadEnabled`
+  - `v13.14.2:src/components/MessageInput/AttachmentSelector.tsx:248` through `:279` rendered the menu with the older dialog-anchor structure and a plain `<button>` trigger
+- New API:
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:64` through `:81` define `AttachmentSelectorButton` as the new shared button primitive
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:83` through `:115` render `SimpleAttachmentSelector` under `str-chat__attachment-selector` and disable it via `useIsCooldownActive()`
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:121` through `:136` extend `AttachmentSelectorAction` / `AttachmentSelectorActionProps` with `id`, `Header`, `Submenu`, `openSubmenu`, `submenuItems`, and `submenuHeader`
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:212` through `:230` add `selectCommand` to `defaultAttachmentSelectorActionSet`
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:248` through `:272` filter upload actions by `isUploadEnabled` and add conditional command-menu support
+  - `src/components/MessageInput/AttachmentSelector/AttachmentSelector.tsx:297` through `:377` render the menu with `ContextMenu`, the redesigned trigger button, and `GlobalModal`
+- Replacement:
+  - audit any custom `attachmentSelectorActionSet` logic that assumes only `uploadFile`, `createPoll`, and `addLocation`
+  - if you need the old disabled-file-action behavior, provide a custom upload action instead of relying on the default filter
+  - move custom selector styling and tests to the new `str-chat__attachment-selector*` and `ContextMenu` DOM
+  - account for cooldown-disabled selector buttons in message-input UX tests
+- Evidence:
+  - commit `87e89f7f feat: refresh MessageComposer design (#2919)` introduced the redesigned selector button, cooldown-disabled simple selector, and a `selectCommand` default action
+  - commit `f151abcd feat: redesign message composer commands, mentions and emoji suggestion lists (#2931)` expanded the selector action contract with submenu support and the commands submenu implementation
+  - current source filters upload actions by `isUploadEnabled`, unlike the v13 source which rendered the file action disabled
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/08-attachment-selector.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`
+- Example needed: yes
+
+### BC-042: `LinkPreviewList` changed its default visibility, count, and card UI behavior
+
+- Status: confirmed
+- Area: message composer link previews
+- User impact:
+  - direct `LinkPreviewList` usage without props now shows only one preview by default instead of all loaded previews
+  - the default composer can now render link previews alongside a quoted-message preview, where v13 suppressed link previews while quoting
+  - custom CSS and tests targeting the old icon-only link preview card markup no longer match
+- Old API:
+  - `v13.14.2:src/components/MessageInput/LinkPreviewList.tsx:23` through `:41` subscribed to `quotedMessage` and suppressed previews while quoting
+  - `v13.14.2:src/components/MessageInput/LinkPreviewList.tsx:43` through `:48` rendered all loaded/loading previews with no count prop
+  - `v13.14.2:src/components/MessageInput/LinkPreviewList.tsx:68` through `:106` rendered the old icon-container card UI with `LinkIcon` and a plain dismiss button using `CloseIcon`
+  - `v13.14.2:src/components/MessageInput/MessageInputFlat.tsx:104` through `:110` rendered `LinkPreviewList` above the quoted-message preview header rather than inside the shared preview stack
+- New API:
+  - `src/components/MessageInput/LinkPreviewList.tsx:13` through `:15` define `LinkPreviewListProps` with `displayLinkCount?: number`
+  - `src/components/MessageInput/LinkPreviewList.tsx:25` through `:40` default `displayLinkCount` to `1` and render `linkPreviews.slice(0, displayLinkCount)`
+  - `src/components/MessageInput/LinkPreviewList.tsx:48` through `:105` render the redesigned card with optional image thumbnails, a URL row, and `RemoveAttachmentPreviewButton`
+  - `src/components/MessageInput/MessageInputFlat.tsx:81` through `:107` render `QuotedMessagePreview`, attachment previews, and `LinkPreviewList` together inside `str-chat__message-composer-previews`
+- Replacement:
+  - wrap the default component and pass `displayLinkCount` if you want to keep showing more than one preview
+  - provide a custom `LinkPreviewList` if you want the old quote-mode suppression or the old card UI
+  - audit link-preview CSS, snapshots, and DOM queries against the new thumbnail/URL-row markup
+- Evidence:
+  - commit `87e89f7f feat: refresh MessageComposer design (#2919)` added `displayLinkCount`, removed the `quotedMessage` guard from `LinkPreviewList`, and moved link previews into the shared composer preview stack
+  - current source no longer reads `quotedMessage` inside `LinkPreviewList` and limits the rendered previews with `slice(0, displayLinkCount)`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/05-ui_components.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/02-link-previews.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`
+- Example needed: yes
+
+### BC-043: `ChatView.ThreadAdapter` no longer stays blank when no thread is selected
+
+- Status: confirmed
+- Area: chat view and thread selection
+- User impact:
+  - apps using the default `ChatView.ThreadAdapter` no longer get an empty thread pane before a thread is selected
+  - snapshot and UI tests that expected `ThreadAdapter` to render only `ThreadProvider` can fail once thread state is ready
+  - `EmptyStateIndicator` overrides now affect the default thread pane in `ChatView.Threads`
+- Old API:
+  - `v13.14.2:src/components/ChatView/ChatView.tsx:120` through `:125` implemented `ThreadAdapter` as a thin wrapper that only called `useActiveThread()` and returned `<ThreadProvider thread={activeThread}>{children}</ThreadProvider>`
+- New API:
+  - `src/components/ChatView/ChatView.tsx:139` through `:166` resolve `EmptyStateIndicator` from component context, read `client.threads.state` readiness, and render a message-list empty state with `messageText={t('Select a thread to continue the conversation')}` when no thread is active
+- Replacement:
+  - if you want to preserve the old blank-state behavior, avoid `ChatView.ThreadAdapter` and wire `ThreadProvider` manually, or override `EmptyStateIndicator` in that scope with a component that renders `null`
+  - update tests and empty-state assumptions around `ChatView.Threads` to account for the new default placeholder
+- Evidence:
+  - current source added an explicit ready-state branch before `ThreadProvider`
+  - current `ChatView` tests assert that the placeholder text appears when no thread is selected and disappears after thread selection
+  - current v14 docs still describe `ThreadAdapter` as only forwarding the active thread to `ThreadProvider`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/06-thread-list/01-thread-list.md`
+- Example needed: yes
+
+### BC-044: `ChatView.Selector` now defaults to icon-only buttons
+
+- Status: confirmed
+- Area: chat view navigation
+- User impact:
+  - apps using the default `<ChatView.Selector />` no longer get visible `Channels` / `Threads` labels by default
+  - snapshot, text-based UI, and accessibility tests that expected the old labeled selector buttons can fail
+  - layouts that relied on the wider labeled selector can need explicit configuration to preserve the v13 appearance
+- Old API:
+  - `v13.14.2:src/components/ChatView/ChatView.tsx:132` through `:160` rendered `ChatView.Selector` as two always-labeled buttons with visible `Channels` / `Threads` text
+- New API:
+  - `src/components/ChatView/ChatView.tsx:224` through `:312` introduce `ChatViewSelectorProps` with `iconOnly?: boolean`
+  - `src/components/ChatView/ChatView.tsx:229`, `:253`, and `:310` default the selector items and selector itself to `iconOnly = true`
+  - `src/components/ChatView/ChatView.tsx:186` through `:209` now hide the visible text by default and render it as a tooltip/`aria-label` instead
+- Replacement:
+  - pass `iconOnly={false}` to `ChatView.Selector` if you want to preserve the old always-labeled button layout
+  - re-baseline any selector snapshots or text queries against the current default icon-only behavior
+- Evidence:
+  - the old selector had no `iconOnly` prop and always rendered visible button text
+  - the current selector path defaults `iconOnly` to `true` in both item components and the exported selector
+  - current docs still show `<ChatView.Selector />` without warning that the visible labels are no longer the default
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`
+- Example needed: yes
+
+## Likely
+
+- None yet
+
+## Ruled Out
+
+- `WithDragAndDropUpload` redesign (`d2a72b54`): investigated; current source adds `FileDragAndDropContent`, `str-chat__dropzone-root`, and cooldown-aware disabling, but does not remove or rename the public `WithDragAndDropUpload` props. Treat the DOM changes under the existing theming/markup buckets instead of as a separate API migration item.
+- Experimental `Search` redesign (`c0b62306`): investigated; the quick diff showed major markup/styling updates, but no material public prop-surface break in the experimental `Search` exports. Keep it out of the core migration guide unless a deeper experimental-only audit finds contract changes.
+- `BaseImage` redesign (`3539020e`): investigated; `showDownloadButtonOnError` was added and the fallback behavior changed, but this is additive rather than a v13 to v14 breaking API change.
+
+## Notes For Migration Guide Drafting
+
+- Keep the guide grouped by user task:
+  - imports to rename
+  - override keys to rename
+  - entrypoints to stop using
+  - HOCs to replace with hooks
+- Prefer small before/after snippets over long prose.
