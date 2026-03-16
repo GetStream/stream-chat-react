@@ -59,9 +59,11 @@ export const SearchBar = () => {
           className='str-chat__search-bar__input'
           data-testid='search-input'
           disabled={disabled}
-          onBlur={({ relatedTarget }) => {
+          onBlur={({ currentTarget, relatedTarget }) => {
             if (
               exitSearchOnInputBlur &&
+              // input is empty
+              !currentTarget.value &&
               // clicking on filter buttons or clear button shouldn't trigger exit search on blur
               !filterButtonsContainerRef.current?.contains(relatedTarget) &&
               // clicking clear button shouldn't trigger exit search on blur
