@@ -16,9 +16,15 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
-  const { disabled, exitSearchOnInputBlur, placeholder, searchController } =
-    useSearchContext();
+  const {
+    disabled,
+    exitSearchOnInputBlur,
+    filterButtonsContainerRef,
+    placeholder,
+    searchController,
+  } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
+  const clearButtonRef = React.useRef<HTMLButtonElement | null>(null);
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const { isActive, searchQuery } = useStateStore(
@@ -53,8 +59,16 @@ export const SearchBar = () => {
           className='str-chat__search-bar__input'
           data-testid='search-input'
           disabled={disabled}
-          onBlur={() => {
-            if (exitSearchOnInputBlur) searchController.exit();
+          onBlur={({ relatedTarget }) => {
+            if (
+              exitSearchOnInputBlur &&
+              // clicking on filter buttons or clear button shouldn't trigger exit search on blur
+              !filterButtonsContainerRef.current?.contains(relatedTarget) &&
+              // clicking clear button shouldn't trigger exit search on blur
+              (!clearButtonRef.current || relatedTarget !== clearButtonRef.current)
+            ) {
+              searchController.exit();
+            }
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             if (event.target.value) {
@@ -80,6 +94,7 @@ export const SearchBar = () => {
               searchController.clear();
               input?.focus();
             }}
+            ref={clearButtonRef}
             size='xs'
             variant='secondary'
           >
@@ -87,7 +102,6 @@ export const SearchBar = () => {
           </Button>
         )}
       </div>
-      {/* TODO: return button once designs are in */}
       {isActive && (
         <Button
           appearance='ghost'
