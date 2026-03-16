@@ -75,7 +75,7 @@ export const Header = ({ context }: CommonVirtuosoComponentProps) => {
       {context?.head}
       {context?.loadingMore && LoadingIndicator && (
         <div className='str-chat__virtual-list__loading'>
-          <LoadingIndicator size={20} />
+          <LoadingIndicator />
         </div>
       )}
     </>
