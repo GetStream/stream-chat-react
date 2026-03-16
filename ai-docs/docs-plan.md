@@ -222,17 +222,35 @@ Completed WS4 pages:
 - `data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`
 - `data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`
 
-## Active Batch: WS5
+## Completed Batch: WS5
 
 Objective: finish the cross-cutting sweep for residual stale examples, installation/typescript copy, and remaining old override patterns that were intentionally deferred while WS1 through WS4 were being rewritten.
 
-Current WS5 targets:
+WS5 exit note:
 
-- installation/version-alignment docs
-- TypeScript custom-data guidance
-- remaining reaction and message cookbook pages
-- residual avatar examples outside the WS4 page set
-- the final sweep for old `Channel X={...}` examples and renamed exports
+- the remaining message cookbooks, installation/typescript guidance, and repo-wide override-example sweep are now aligned with the current v14 docs patterns
+- the remaining `Channel X={...}` hits in the v14 docs tree are supported props such as `EmptyPlaceholder`, not stale SDK UI override paths
+- the only intentionally retained legacy names are in the theming variables table, where the CSS token groups still follow historical `stream-chat-css` folder names
+
+Completed WS5 pages:
+
+- `data/docs/chat-sdk/react/v14/01-basics/02-installation.md`
+- `data/docs/chat-sdk/react/v14/02-ui-components/02-theming/03-component-variables.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/05-pin_indicator.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/04-giphy_preview.md`
+- `data/docs/chat-sdk/react/v14/03-ui-cookbook/07-emoji_picker.md`
+- `data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md`
+- `data/docs/chat-sdk/react/v14/04-guides/11-blocking-users.md`
+- `data/docs/chat-sdk/react/v14/04-guides/12-message-reminders.md`
+- `data/docs/chat-sdk/react/v14/04-guides/14-location-sharing.md`
+
+## Active Batch: Verification
+
+Objective: merge the open docs PRs, run docs verification, and fix any markdown/build issues that surface from the updated v14 content set.
 
 ## Confirmed Docs Issues
 
@@ -273,13 +291,13 @@ Current WS5 targets:
 
 ### 6. v14 Channel docs still present component overrides as `Channel` props
 
-- Status: open
+- Status: resolved
 - Evidence:
   - `v13.14.2:src/components/Channel/Channel.tsx` forwarded many component overrides through `Channel`
   - current `src/components/Channel/Channel.tsx` no longer defines that forwarded override surface in `ChannelProps`
   - current `Channel` also defaults `EmptyPlaceholder` to `EmptyStateIndicator` instead of rendering nothing when no channel is active
   - `src/context/WithComponents.tsx` and `README.md` now point to `WithComponents` for overrides
-  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md` still documents many component overrides on the `Channel` page
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md` now keeps `Channel` focused on actual behavior/data props and sends SDK UI override guidance to `WithComponents`
 - Expected fix: decide whether to rewrite the page around actual `ChannelProps` and move override guidance to `ComponentContext` / `WithComponents`, or clearly split the concepts in docs; also document the new `EmptyPlaceholder={null}` opt-out for the old blank state behavior
 
 ### 7. v14 MessageContext docs still document removed edit-state and custom-action fields
@@ -311,19 +329,19 @@ Current WS5 targets:
 
 ### 10. v14 ComponentContext docs are still only partially aligned with the current override keys
 
-- Status: open
+- Status: resolved
 - Evidence:
   - current `src/context/ComponentContext.tsx` removed or renamed several keys
-  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md` still documents `CustomMessageActionsList`, `EditMessageInput`, `EditMessageModal`, `FileUploadIcon`, `MessageNotification`, `QuotedPoll`, and `ReactionsListModal`
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md` now mirrors the current `ComponentContextValue` key set and directs readers toward `WithComponents`
 - Expected fix: fully reconcile the page with the current `ComponentContextValue`
 
 ### 11. many v14 docs examples still pass component overrides directly to `Channel`
 
-- Status: open
+- Status: resolved
 - Evidence:
   - current `ChannelProps` no longer expose the old forwarded override surface
-  - many v14 docs examples still use `<Channel Message={...}>`, `<Channel Attachment={...}>`, `<Channel Modal={...}>`, `<Channel Input={...}>`, `<Channel ThreadHeader={...}>`, etc.
-  - `rg` over `data/docs/chat-sdk/react/v14` shows affected examples in message, attachment, modal, thread, AI, and cookbook pages
+  - the remaining `rg` hits in `data/docs/chat-sdk/react/v14` are supported `Channel` props such as `EmptyPlaceholder`, not stale UI override props
+  - WS1 through WS5 moved cookbook and guide examples to `WithComponents` or current local prop surfaces where appropriate
 - Expected fix: migrate examples to `WithComponents` / `ComponentContext` where appropriate, and only keep direct `Channel` props where they still exist in current source
 
 ### 12. v14 message-list docs still describe `MessageNotification` and `ScrollToBottomButton`
@@ -341,22 +359,22 @@ Current WS5 targets:
 
 ### 13. v14 edit-message and cooldown docs still describe removed form/modal and hook APIs
 
-- Status: partial
+- Status: resolved
 - Evidence:
   - current source removed `EditMessageForm`, `EditMessageModal`, `useEditHandler`, `useCooldownTimer`, and prop-driven `CooldownTimer`
-  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md` and `05-component_context.md` still document `EditMessageForm`, `EditMessageModal`, and old `CooldownTimer` customization
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md` and `05-component_context.md` no longer document the removed edit-form/modal surfaces and instead point readers to the current composer override paths
 - Expected fix: rewrite edit-message docs around `MessageComposer` / `EditedMessagePreview`, and cooldown docs around `CooldownTimer`, `useCooldownRemaining`, and `useIsCooldownActive`
 
 ### 14. v14 reactions docs still describe `ReactionsListModal` and the old `ReactionSelector` prop surface
 
-- Status: partial
+- Status: resolved
 - Evidence:
   - current source exports `MessageReactionsDetail` instead of `ReactionsListModal`
   - current `ReactionSelectorProps` no longer accepts `reactionOptions` and the older display/data props
   - current `MessageReactionsDetail` is dialog content with renamed classnames, not a modal component with the old `str-chat__message-reactions-details*` structure
   - current `ReactionSelector` markup/classes changed substantially from the old tooltip/avatar/count layout
-  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md` still passes `reactionOptions` into `ReactionSelector`
-  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md` still assumes array-only `reactionOptions` from `useComponentContext()`
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md` now uses `WithComponents`, `MessageReactionsDetail`, and the current shared `reactionOptions` contract
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md` now wires reactions through `WithComponents` and current `ComponentContext` usage
 - Expected fix: update reactions docs to the current `MessageReactionsDetail` naming, the narrowed `ReactionSelector` props, the current reaction-options shape, and the new selector/detail markup expectations
 
 ### 15. v14 poll docs still describe `QuotedPoll`, `Poll.isQuoted`, and old poll-action component names
@@ -371,22 +389,22 @@ Current WS5 targets:
 
 ### 16. v14 MessageActions docs still describe the removed wrapper/box/custom-actions surface
 
-- Status: partial
+- Status: resolved
 - Evidence:
   - current source removed `MessageActionsBox`, `MessageActionsWrapper`, and `CustomMessageActionsList`
   - current `MessageActions` uses `messageActionSet`, quick actions, and `ContextMenu`
-  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md` still references `CustomMessageActionsList`
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md` now uses `defaultMessageActionSet`, `MessageActions`, and `WithComponents`
 - Expected fix: replace the legacy docs model with current `MessageActions`, action-set items, and `ContextMenu`-based customization
 
 ### 17. v14 avatar docs and examples still use the v13 avatar prop names and helper assumptions
 
-- Status: partial
+- Status: resolved
 - Evidence:
   - current `AvatarProps` use `imageUrl`, `userName`, `isOnline`, and required `size`
   - current channel/group avatar rendering expects `displayMembers` plus optional `overflowCount`
   - `data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md` now documents the current prop names, `ChannelAvatar`, and the helper-based channel display image/title flow
   - `data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md` and `03-ui-cookbook/05-message-input/06-suggestion_list.md` now use the current `Avatar` prop names
-  - residual custom-message examples in `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md` and `03-ui-cookbook/04-message/06-system_message.md` still use old `Avatar` props
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md` and `03-ui-cookbook/04-message/06-system_message.md` now use the current `Avatar` prop names too
 - Expected fix: finish the remaining avatar-using cookbook examples outside the WS4 page set
 
 ### 18. v14 ChannelHeader docs still document the removed `live` prop
@@ -400,11 +418,11 @@ Current WS5 targets:
 
 ### 19. v14 modal/dialog docs still mix legacy `Modal` usage with stale component-override patterns
 
-- Status: partial
+- Status: resolved
 - Evidence:
   - current public modal component is `GlobalModal`; the old `Modal` component is no longer exported
   - current `GlobalModal` no longer renders the legacy `.str-chat__modal__inner` wrapper
-  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md` and `05-component_context.md` still document `Channel`/`ComponentContext` modal override patterns that need reconciliation with the current `WithComponents` model
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`, `05-component_context.md`, `16-modal.md`, and `04-guides/10-dialog-management.md` now align with the current `WithComponents` and dialog model
 - Expected fix: rewrite the modal docs around `GlobalModal` and current dialog primitives, mention the removed inner wrapper, then reconcile any remaining modal override guidance with the actual v14 customization surface
 
 ### 20. v14 FileIcon docs still use the old prop API
@@ -518,11 +536,11 @@ Current WS5 targets:
 
 ### 32. v14 installation and migration docs do not call out the newer `stream-chat` minimum
 
-- Status: open
+- Status: resolved
 - Evidence:
   - current `stream-chat-react/package.json` requires `stream-chat@^9.35.0`
   - v13 baseline required only `stream-chat@^9.27.2`
-  - `data/docs/chat-sdk/react/v14/01-basics/02-installation.md` tells users to install both packages but does not call out the v14 minimum or the need to upgrade them together
+  - `data/docs/chat-sdk/react/v14/01-basics/02-installation.md` now calls out the current `stream-chat` minimum and tells users to upgrade both packages together
 - Expected fix: mention the new `stream-chat` minimum in the migration guide and add a short version-alignment note to installation docs
 
 ### 33. v14 Channel and ChannelList docs still imply old SDK-managed initial query defaults
@@ -537,10 +555,10 @@ Current WS5 targets:
 
 ### 34. v14 TypeScript custom-data docs still imply default components rely on `subtitle`
 
-- Status: open
+- Status: resolved
 - Evidence:
   - current `DefaultChannelData` still includes `subtitle`, but the current default `ChannelHeader` no longer renders `channel.data.subtitle`
-  - `data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md` still warns that default components expect `subtitle`, `image`, and `name`
+  - `data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md` now narrows the warning to the remaining helpers/defaults that still rely on `image` and `name`
 - Expected fix: narrow the warning so it reflects which default components still actually rely on `DefaultChannelData` fields in v14
 
 ### 35. v14 DateSeparator docs still describe the old `position` / `unread` rendering model
@@ -634,70 +652,78 @@ Current WS5 targets:
 - [x] Finish WS4: layout, headers, lists, threads, indicators
 - [x] Update Channel docs for current `MessageActions`
 - [x] Update ComponentContext docs for `MessageAlsoSentInChannelIndicator`
-- [ ] Sweep v14 docs for stale `MessageOptions`, `experimental/MessageActions`, renamed exports, and `Channel X={...}` examples
+- [x] Sweep v14 docs for stale `MessageOptions`, `experimental/MessageActions`, renamed exports, and `Channel X={...}` examples
 - [ ] Run docs verification commands
 
 ## Page Tracker
 
-| Status   | Page                                                                                               | Reason                                                                                                                                                                                                                                                       |
-| -------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| in PR    | `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md`                              | v13 to v14 migration guide drafted in `docs-content#1080`; keep aligned with post-snapshot changes until merged                                                                                                                                              |
-| in PR    | `data/docs/_sidebars/[chat-sdk][react][v14-rc].json`                                               | Nav label and migration guide metadata are updated in `docs-content#1080`; merge pending                                                                                                                                                                     |
-| partial  | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`                           | Fixed stale `MessageActions`/`MessageOptions` references, but the page still needs a broader rewrite because component overrides no longer match current `ChannelProps` and `channelQueryOptions` docs still imply the removed default initial message limit |
-| partial  | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`                 | Updated `MessageActions`, removed `MessageOptions`, and fixed `MessageDeleted`/`MessageDeletedBubble` plus `MessageAlsoSentInChannelIndicator`, but several old override keys are still documented                                                           |
-| open     | `data/docs/chat-sdk/react/v14/01-basics/02-installation.md`                                        | Should call out the newer `stream-chat` minimum required by v14                                                                                                                                                                                              |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`                     | Rewritten to the current deleted-message, message-status, message-text, and bounce-prompt surfaces                                                                                                                                                           |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/05-message_ui.md`                        | Rewritten around the current message UI composition without `FixedHeightMessage` or `MessageOptions`                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`                      | Rewritten to the stable `MessageActions` model with `messageActionSet`, quick actions, and `ContextMenu`                                                                                                                                                     |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`                   | Rewritten to the current `MessageContext` contract and `handleDelete` signature                                                                                                                                                                              |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/02-message_input_context.md`       | Rewritten to the current `MessageInputContext` surface and dedicated cooldown helpers                                                                                                                                                                        |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md`         | Rewritten to the currently exported composer hooks                                                                                                                                                                                                           |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/01-input_ui.md`                      | Rewritten to current composer building blocks and `useCooldownRemaining()`                                                                                                                                                                                   |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/04-message_hooks.md`                     | Rewritten without `useEditHandler` and aligned to the current edit flow                                                                                                                                                                                      |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/01-attachment.md`          | Rewritten to the current `Attachment` grouping, supported override points, and `Image` / `Media` / `ModalGallery` surfaces                                                                                                                                   |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/10-poll.md`                              | Rewritten to the current poll override surface and quoted-message guidance                                                                                                                                                                                   |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/12-reactions.md`                         | Rewritten to `MessageReactionsDetail`, the current selector surface, and the current markup expectations                                                                                                                                                     |
-| open     | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`                           | Still passes `reactionOptions` into `ReactionSelector` and references `ReactionsListModal`                                                                                                                                                                   |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`                                  | Rewritten to the current unread, new-message, and scroll-to-latest model                                                                                                                                                                                     |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`                                       | Rewritten to the current `MessageListNotifications` contract and override path                                                                                                                                                                               |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`                            | Rewritten to current `Avatar` props, `ChannelAvatar`, and helper-based channel display image/title guidance                                                                                                                                                  |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`           | Rewritten to current preview defaults, helpers, status guidance, `aria-pressed` semantics, and action-button behavior                                                                                                                                        |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md` | Rewritten to current channel-list selectors and explicit `options.limit` guidance                                                                                                                                                                            |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`           | Rewritten to current display-title/image helpers, preview semantics, and `aria-pressed` button state                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`                                  | Rewritten to current `ThreadHeader` behavior, current `Avatar` props, and the `WithComponents` override path                                                                                                                                                 |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`               | Rewritten to `SuggestionList`, current suggestion item contracts, current `Avatar` props, and the `WithComponents` override path                                                                                                                             |
-| open     | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`                          | Custom message examples still use old `Avatar` props and stale reactions guidance in places                                                                                                                                                                  |
-| open     | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`                      | System-message example still renders `<Avatar image=... />`                                                                                                                                                                                                  |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`                                    | Rewritten to current `ChatView.Selector` and `ThreadAdapter` behavior, including `iconOnly={false}`, `aria-pressed`, and placeholder/blank-state guidance                                                                                                    |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/06-thread-list/01-thread-list.md`                   | Updated to current `ChatView.ThreadAdapter` placeholder behavior and the current labeled-selector example                                                                                                                                                    |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/05-thread.md`                       | Rewritten to current `Thread` props and `WithComponents`-based thread-surface overrides                                                                                                                                                                      |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`                    | Rewritten to current `ChannelHeader` behavior, helper usage, and typing/status subtitle guidance                                                                                                                                                             |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/16-modal.md`                                        | Rewritten to the `GlobalModal` public surface and `WithComponents` modal override pattern                                                                                                                                                                    |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/10-dialog-management.md`                                   | Rewritten around current dialog primitives and `GlobalModal`                                                                                                                                                                                                 |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/15-audio-playback.md`                                      | Updated to the current `FileIcon` prop surface                                                                                                                                                                                                               |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`               | Rewritten around the current `MessageInput` props, `Input` override path, and v14 composer behavior                                                                                                                                                          |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/04-input_ui.md`                    | Rewritten to current `MessageInputFlat` composition and `MessageInput Input={...}` usage                                                                                                                                                                     |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/08-attachment-selector.md`         | Rewritten to the current selector action contract and `WithComponents` override path                                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/05-ui_components.md`               | Rewritten to current input building blocks, `LinkPreviewList` props, and `VoiceRecordingPreviewSlot`                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/02-link-previews.md`                 | Rewritten to the current `LinkPreviewList` contract, `displayLinkCount`, and `WithComponents` override path                                                                                                                                                  |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/03-attachment_previews.md`           | Rewritten to the current attachment preview model with `VoiceRecordingPreviewSlot` separated from `AttachmentPreviewList`                                                                                                                                    |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/02-image_gallery.md`                    | Rewritten around the `ModalGallery` override path and the lower-level `Gallery` provider split                                                                                                                                                               |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/02-voice-recording.md`     | Voice-recording customization example now mounts the custom attachment renderer through `WithComponents`                                                                                                                                                     |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/01-attachment_actions.md`               | Attachment-actions cookbook now uses `WithComponents` for attachment overrides and refreshed imports                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/03-geolocation_attachment.md`           | Geolocation attachment cookbook now registers the custom attachment renderer through `WithComponents`                                                                                                                                                        |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/05-payment_attachment.md`               | Payment attachment cookbook now registers the custom attachment renderer through `WithComponents`                                                                                                                                                            |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`                              | Updated styling examples to current header selectors                                                                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`                    | Rewritten to the current default separator behavior and custom-separator guidance                                                                                                                                                                            |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`                                 | Rewritten to current custom-header patterns and `TypingIndicatorHeader` usage                                                                                                                                                                                |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to current sidebar-state props, including `initialNavOpenResponsive`                                                                                                                                                                               |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`                 | Updated to current explicit `options.limit` guidance for initial load and pagination                                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/12-indicators.md`                                   | Rewritten to the current `TypingIndicator` / `TypingIndicatorHeader` split and current prop contract                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/07-typing_indicator.md`              | Rewritten to the current custom typing-indicator contract and header typing guidance                                                                                                                                                                         |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/03-message_bounce_context.md`            | Rewritten to the current bounce-prompt contract without removed close props                                                                                                                                                                                  |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/07-audio_recorder.md`              | Rewritten to current recorder overrides, permission flow, and voice-recording send behavior                                                                                                                                                                  |
-| open     | `data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md`                    | Still warns that default components expect `subtitle`, which no longer matches the default `ChannelHeader` behavior                                                                                                                                          |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/16-ai-integrations/02-chat-sdk-integration.md`             | Custom message examples now read SDK state from `useMessageContext()` instead of assuming injected `MessageUIComponentProps`                                                                                                                                 |
-| open     | `data/docs/chat-sdk/react/v14` (multiple pages)                                                    | Many examples still pass UI override props directly to `Channel`; these need migration to `WithComponents` or other current APIs                                                                                                                             |
+| Status   | Page                                                                                               | Reason                                                                                                                                                    |
+| -------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| in PR    | `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md`                              | v13 to v14 migration guide drafted in `docs-content#1080`; keep aligned with post-snapshot changes until merged                                           |
+| in PR    | `data/docs/_sidebars/[chat-sdk][react][v14-rc].json`                                               | Nav label and migration guide metadata are updated in `docs-content#1080`; merge pending                                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`                           | Now keeps `Channel` focused on current behavior/data props and points SDK UI overrides to `WithComponents`                                                |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`                 | Now reflects the current override-key surface and current `WithComponents` guidance                                                                       |
+| resolved | `data/docs/chat-sdk/react/v14/01-basics/02-installation.md`                                        | Now calls out the current `stream-chat` minimum and version-alignment guidance                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`                     | Rewritten to the current deleted-message, message-status, message-text, and bounce-prompt surfaces                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/05-message_ui.md`                        | Rewritten around the current message UI composition without `FixedHeightMessage` or `MessageOptions`                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`                      | Rewritten to the stable `MessageActions` model with `messageActionSet`, quick actions, and `ContextMenu`                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`                   | Rewritten to the current `MessageContext` contract and `handleDelete` signature                                                                           |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/02-message_input_context.md`       | Rewritten to the current `MessageInputContext` surface and dedicated cooldown helpers                                                                     |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md`         | Rewritten to the currently exported composer hooks                                                                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/01-input_ui.md`                      | Rewritten to current composer building blocks and `useCooldownRemaining()`                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/04-message_hooks.md`                     | Rewritten without `useEditHandler` and aligned to the current edit flow                                                                                   |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/01-attachment.md`          | Rewritten to the current `Attachment` grouping, supported override points, and `Image` / `Media` / `ModalGallery` surfaces                                |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/10-poll.md`                              | Rewritten to the current poll override surface and quoted-message guidance                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/12-reactions.md`                         | Rewritten to `MessageReactionsDetail`, the current selector surface, and the current markup expectations                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`                           | Rewritten to current `WithComponents`, `reactionOptions`, `ReactionSelector`, and `MessageReactionsDetail` patterns                                       |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`                                  | Rewritten to the current unread, new-message, and scroll-to-latest model                                                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`                                       | Rewritten to the current `MessageListNotifications` contract and override path                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`                            | Rewritten to current `Avatar` props, `ChannelAvatar`, and helper-based channel display image/title guidance                                               |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`           | Rewritten to current preview defaults, helpers, status guidance, `aria-pressed` semantics, and action-button behavior                                     |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md` | Rewritten to current channel-list selectors and explicit `options.limit` guidance                                                                         |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`           | Rewritten to current display-title/image helpers, preview semantics, and `aria-pressed` button state                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`                                  | Rewritten to current `ThreadHeader` behavior, current `Avatar` props, and the `WithComponents` override path                                              |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`               | Rewritten to `SuggestionList`, current suggestion item contracts, current `Avatar` props, and the `WithComponents` override path                          |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`                          | Rewritten to current `WithComponents` registration, `Avatar` props, and reaction wiring                                                                   |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`                      | Rewritten to current `WithComponents` registration and `Avatar` props                                                                                     |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`                     | Rewritten to current `MessageActions`, `defaultMessageActionSet`, and `WithComponents` customization                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/05-pin_indicator.md`                       | Updated to current `WithComponents` registration for `PinIndicator`                                                                                       |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/04-giphy_preview.md`                    | Updated to register `GiphyPreviewMessage` through `WithComponents`                                                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/07-emoji_picker.md`                                   | Updated to register `EmojiPicker` through `WithComponents`                                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/11-blocking-users.md`                                      | Updated custom blocking action guidance to the current `MessageActions` model                                                                             |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/12-message-reminders.md`                                   | Updated reminder override example to use `WithComponents`                                                                                                 |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/14-location-sharing.md`                                    | Updated location-sharing override examples to use `WithComponents`                                                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/02-theming/03-component-variables.md`               | Added a note clarifying that a few CSS token groups intentionally retain historical `stream-chat-css` names                                               |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`                                    | Rewritten to current `ChatView.Selector` and `ThreadAdapter` behavior, including `iconOnly={false}`, `aria-pressed`, and placeholder/blank-state guidance |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/06-thread-list/01-thread-list.md`                   | Updated to current `ChatView.ThreadAdapter` placeholder behavior and the current labeled-selector example                                                 |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/05-thread.md`                       | Rewritten to current `Thread` props and `WithComponents`-based thread-surface overrides                                                                   |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`                    | Rewritten to current `ChannelHeader` behavior, helper usage, and typing/status subtitle guidance                                                          |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/16-modal.md`                                        | Rewritten to the `GlobalModal` public surface and `WithComponents` modal override pattern                                                                 |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/10-dialog-management.md`                                   | Rewritten around current dialog primitives and `GlobalModal`                                                                                              |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/15-audio-playback.md`                                      | Updated to the current `FileIcon` prop surface                                                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/01-message_input.md`               | Rewritten around the current `MessageInput` props, `Input` override path, and v14 composer behavior                                                       |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/04-input_ui.md`                    | Rewritten to current `MessageInputFlat` composition and `MessageInput Input={...}` usage                                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/08-attachment-selector.md`         | Rewritten to the current selector action contract and `WithComponents` override path                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/05-ui_components.md`               | Rewritten to current input building blocks, `LinkPreviewList` props, and `VoiceRecordingPreviewSlot`                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/02-link-previews.md`                 | Rewritten to the current `LinkPreviewList` contract, `displayLinkCount`, and `WithComponents` override path                                               |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/03-attachment_previews.md`           | Rewritten to the current attachment preview model with `VoiceRecordingPreviewSlot` separated from `AttachmentPreviewList`                                 |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/02-image_gallery.md`                    | Rewritten around the `ModalGallery` override path and the lower-level `Gallery` provider split                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/02-voice-recording.md`     | Voice-recording customization example now mounts the custom attachment renderer through `WithComponents`                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/01-attachment_actions.md`               | Attachment-actions cookbook now uses `WithComponents` for attachment overrides and refreshed imports                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/03-geolocation_attachment.md`           | Geolocation attachment cookbook now registers the custom attachment renderer through `WithComponents`                                                     |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/05-payment_attachment.md`               | Payment attachment cookbook now registers the custom attachment renderer through `WithComponents`                                                         |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`                              | Updated styling examples to current header selectors                                                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`                    | Rewritten to the current default separator behavior and custom-separator guidance                                                                         |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`                                 | Rewritten to current custom-header patterns and `TypingIndicatorHeader` usage                                                                             |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to current sidebar-state props, including `initialNavOpenResponsive`                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`                 | Updated to current explicit `options.limit` guidance for initial load and pagination                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/12-indicators.md`                                   | Rewritten to the current `TypingIndicator` / `TypingIndicatorHeader` split and current prop contract                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/07-typing_indicator.md`              | Rewritten to the current custom typing-indicator contract and header typing guidance                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/03-message_bounce_context.md`            | Rewritten to the current bounce-prompt contract without removed close props                                                                               |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/07-audio_recorder.md`              | Rewritten to current recorder overrides, permission flow, and voice-recording send behavior                                                               |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/04-typescript_and_custom_data_types.md`                    | Warning now reflects the remaining default helpers/components that still rely on `DefaultChannelData` fields                                              |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/16-ai-integrations/02-chat-sdk-integration.md`             | Custom message examples now read SDK state from `useMessageContext()` instead of assuming injected `MessageUIComponentProps`                              |
+| resolved | `data/docs/chat-sdk/react/v14` (multiple pages)                                                    | Repo-wide sweep is complete; remaining `Channel X={...}` examples are current supported props such as `EmptyPlaceholder`                                  |
 
 ## Breaking Change Workflow
 
