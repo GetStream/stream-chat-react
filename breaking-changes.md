@@ -4,7 +4,7 @@ Last updated: 2026-03-15
 
 ## Scope
 
-This file tracks confirmed v13 to v14 breaking changes for `@stream-io/stream-chat-react`.
+This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 
 - Baseline: `v13.14.2..master`
 - Primary evidence: source diff and current exports

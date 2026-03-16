@@ -4,7 +4,7 @@ Last updated: 2026-03-15
 
 ## Goal
 
-Produce a reliable v13 to v14 migration guide for `@stream-io/stream-chat-react` and keep the v14 docs set aligned with the current source while the release is still in progress.
+Produce a reliable v13 to v14 migration guide for `stream-chat-react` and keep the v14 docs set aligned with the current source while the release is still in progress.
 
 ## Current Phase
 
@@ -17,9 +17,9 @@ Produce a reliable v13 to v14 migration guide for `@stream-io/stream-chat-react`
 - Code baseline for analysis: `stream-chat-react` `v13.14.2..master`
 - Current audited SDK head: `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a` (`6ea7a78e`, `2026-03-13`, `feat: adjust media gallery viewer (#3006)`)
 - Future mining starting point: review `stream-chat-react` diff `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
-- Docs content repo: `/Users/oliverlaz/w/repos/stream-chat-sdks/docs/data/docs`
+- Docs content repo: `/docs/data/docs`
 - Docs content branch: `react-chat-v14`
-- Site shell repo: `/Users/oliverlaz/w/repos/stream-chat-sdks/docs`
+- Site shell repo: `/docs`
 
 ## Working Rules
 
@@ -517,8 +517,8 @@ Produce a reliable v13 to v14 migration guide for `@stream-io/stream-chat-react`
 
 ## Verification
 
-- Docs shell: `npm run check` in `/Users/oliverlaz/w/repos/stream-chat-sdks/docs`
-- Docs shell: `npm run build` in `/Users/oliverlaz/w/repos/stream-chat-sdks/docs`
+- Docs shell: `npm run check` in `/docs`
+- Docs shell: `npm run build` in `/docs`
 - React SDK spot-checks as needed while verifying API claims
 
 ## Open Questions
