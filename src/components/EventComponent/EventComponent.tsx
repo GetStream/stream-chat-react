@@ -2,7 +2,6 @@ import React from 'react';
 
 import type { Event, LocalMessage } from 'stream-chat';
 import type { TimestampFormatterOptions } from '../../i18n/types';
-import { useTranslationContext } from '../../context';
 
 export type EventComponentProps = TimestampFormatterOptions & {
   message: LocalMessage & {
