@@ -20,6 +20,7 @@ import {
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
   type MessageDeletedProps,
+  type MessageEditedIndicatorProps,
   type MessageInputProps,
   type MessageListNotificationsProps,
   type MessageProps,
@@ -187,6 +188,8 @@ export type ComponentContextValue = {
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
   /** Custom UI component to display the message translation indicator when message has i18n, defaults to and accepts same props as: [MessageTranslationIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/TranslationIndicator.tsx) */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
+  /** Custom UI component to display the edited indicator and tooltip when a message has been edited, defaults to and accepts same props as: [MessageEditedIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageEditedIndicator.tsx) */
+  MessageEditedIndicator?: React.ComponentType<MessageEditedIndicatorProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
   Search?: React.ComponentType;
   /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */
