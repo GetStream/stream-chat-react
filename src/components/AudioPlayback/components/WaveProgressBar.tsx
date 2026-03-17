@@ -10,7 +10,8 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { resampleWaveformData } from '../../Attachment/audioSampling';
-import type { SeekFn } from '../../Attachment/hooks/useAudioController';
+
+export type SeekFn = (params: { clientX: number; currentTarget: HTMLDivElement }) => void;
 
 type WaveProgressBarProps = {
   /** Function that allows to change the track progress */
