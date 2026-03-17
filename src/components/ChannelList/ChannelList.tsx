@@ -36,7 +36,6 @@ import { moveChannelUpwards } from './utils';
 import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
 import type { ChannelListMessengerProps } from './ChannelListMessenger';
 import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import type { SearchProps } from '../Search';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import type { ChatContextValue } from '../../context';
