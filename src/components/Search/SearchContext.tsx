@@ -1,19 +1,17 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { SearchController } from 'stream-chat';
+import type { SearchProps } from './Search';
 
 export type SearchContextValue = {
-  /** The type of channel to create on user result select, defaults to `messaging` */
-  directMessagingChannelType: string;
   /** Instance of the search controller that handles the data management */
   searchController: SearchController;
-  /** Sets the input element into disabled state */
-  disabled?: boolean;
-  /** Clear search state / results on every click outside the search input, defaults to true */
-  exitSearchOnInputBlur?: boolean;
-  /** Custom placeholder text to be displayed in the search input */
-  placeholder?: string;
-};
+  /** Reference to the container element of the search component */
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  /** Reference to the container element of the filter buttons */
+  filterButtonsContainerRef: React.RefObject<HTMLDivElement | null>;
+} & Pick<SearchProps, 'disabled' | 'placeholder'> &
+  Required<Pick<SearchProps, 'exitSearchOnInputBlur' | 'directMessagingChannelType'>>;
 
 export const SearchContext = createContext<SearchContextValue | undefined>(undefined);
 

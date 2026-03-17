@@ -84,7 +84,7 @@ import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
-import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
+import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
 export type ChannelProps = {

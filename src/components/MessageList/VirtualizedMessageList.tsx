@@ -517,6 +517,16 @@ const VirtualizedMessageListWithContext = (
                   EmptyPlaceholder,
                   Header,
                   Item,
+                  ...(TypingIndicator && {
+                    Footer: () =>
+                      isMessageListScrolledToBottom ? (
+                        <TypingIndicator
+                          isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                          scrollToBottom={scrollToBottom}
+                          threadList={threadList}
+                        />
+                      ) : null,
+                  }),
                   ...virtuosoComponentsFromProps,
                 }}
                 computeItemKey={computeItemKey}
@@ -586,7 +596,6 @@ const VirtualizedMessageListWithContext = (
               />
             </div>
           </DialogManagerProvider>
-          {TypingIndicator && <TypingIndicator />}
           <MessageListNotificationsComponent panel={notificationTarget} />
         </MessageListMainPanel>
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}

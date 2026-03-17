@@ -2,6 +2,8 @@
 
 Source: `.ai/MAKE_PLAN.md`. Condensed in SKILL.md; details here.
 
+**Spec files location:** Create plan.md (and other Ralph spec files) under `specs/<feature-or-component-name>/` at repo root.
+
 ## Execution Order Example
 
 ```md

@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import clsx from 'clsx';
 
-import type { Thread, ThreadManagerState } from 'stream-chat';
+import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
 
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
@@ -49,6 +49,41 @@ export const useThreadList = () => {
   }, [client]);
 };
 
+const useThreadHighlighting = (threadManager: ThreadManager) => {
+  const [threadsToHighlight, setThreadsToHighlight] = useState<
+    Record<string, () => void>
+  >({});
+
+  useEffect(() => {
+    const unsubscribe = threadManager.state.subscribeWithSelector(
+      (state) => state.threads,
+      (nextThreads, previousThreads) => {
+        if (!previousThreads) return;
+
+        const resetByThreadId: Record<string, () => void> = {};
+
+        for (const thread of nextThreads) {
+          if (previousThreads.includes(thread)) continue;
+
+          resetByThreadId[thread.id] = () => {
+            setThreadsToHighlight((pv) => {
+              const copy = { ...pv };
+              delete copy[thread.id];
+              return copy;
+            });
+          };
+        }
+
+        setThreadsToHighlight(resetByThreadId);
+      },
+    );
+
+    return unsubscribe;
+  });
+
+  return threadsToHighlight;
+};
+
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client, navOpen = true } = useChatContext();
   const {
@@ -59,6 +94,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();
   const { isLoading, threads } = useStateStore(client.threads.state, selector);
+
+  const resetByThreadId = useThreadHighlighting(client.threads);
 
   useThreadList();
 
@@ -95,7 +132,14 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         }}
         computeItemKey={computeItemKey}
         data={threads}
-        itemContent={(_, thread) => <ThreadListItem thread={thread} />}
+        itemContent={(_, thread) => (
+          <ThreadListItem
+            thread={thread}
+            threadListItemUIProps={{
+              resetHighlighting: resetByThreadId[thread.id],
+            }}
+          />
+        )}
         // TODO: handle visibility (for a button that scrolls to the unread thread)
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}

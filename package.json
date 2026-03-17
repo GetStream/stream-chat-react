@@ -34,12 +34,6 @@
       "require": "./dist/cjs/mp3-encoder.js",
       "default": "./dist/cjs/mp3-encoder.js"
     },
-    "./experimental": {
-      "types": "./dist/types/experimental/index.d.ts",
-      "import": "./dist/es/experimental.mjs",
-      "require": "./dist/cjs/experimental.js",
-      "default": "./dist/cjs/experimental.js"
-    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },

@@ -275,7 +275,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   isLoading={props.loadingMore}
                   loader={
                     <div className='str-chat__list__loading' key='loading-indicator'>
-                      {props.loadingMore && <LoadingIndicator size={20} />}
+                      {props.loadingMore && <LoadingIndicator />}
                     </div>
                   }
                   loadNextPage={loadMoreNewer}
@@ -286,7 +286,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <MessageListWrapper className='str-chat__ul'>
                     {elements}
                   </MessageListWrapper>
-                  <TypingIndicator threadList={threadList} />
+                  <TypingIndicator
+                    isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                    scrollToBottom={scrollToBottom}
+                    threadList={threadList}
+                  />
 
                   <div key='bottom' />
                 </InfiniteScroll>

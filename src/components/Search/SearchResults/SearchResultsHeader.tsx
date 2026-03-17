@@ -63,7 +63,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
 };
 
 export const SearchResultsHeader = () => {
-  const { searchController } = useSearchContext();
+  const { filterButtonsContainerRef, searchController } = useSearchContext();
 
   // render nothing if there's only one source (can't change filters)
   if (searchController.sources.length < 2) return null;
@@ -73,12 +73,10 @@ export const SearchResultsHeader = () => {
       <div
         className='str-chat__search-results-header__filter-source-buttons'
         data-testid='filter-source-buttons'
+        ref={filterButtonsContainerRef}
       >
         {searchController.sources.map((source) => (
-          <SearchSourceFilterButton
-            key={`search-source-filter-button-${source.type}`}
-            source={source}
-          />
+          <SearchSourceFilterButton key={source.type} source={source} />
         ))}
       </div>
     </div>

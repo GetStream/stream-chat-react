@@ -1,0 +1,2 @@
+export const DESKTOP_LAYOUT_BREAKPOINT = 768;
+export const MESSAGE_VIEW_MIN_WIDTH = 360;

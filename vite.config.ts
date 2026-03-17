@@ -18,7 +18,6 @@ export default defineConfig({
         index: resolve(__dirname, './src/index.ts'),
         emojis: resolve(__dirname, './src/plugins/Emojis/index.ts'),
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
-        experimental: resolve(__dirname, './src/experimental/index.ts'),
       },
       fileName(format, entryName) {
         return `${format}/${entryName}.${format === 'cjs' ? 'js' : 'mjs'}`;

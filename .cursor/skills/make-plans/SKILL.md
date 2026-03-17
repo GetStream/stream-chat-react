@@ -7,6 +7,8 @@ description: Structures plan.md files for parallel, non-overlapping agent work. 
 
 Plans enable **parallel, non-overlapping work**. Each task must be independent; agents work in a **dedicated git worktree** (see worktrees skill).
 
+**Where to keep plan.md and spec files:** Create and edit plan.md (and the other Ralph spec files: goal.md/spec.md, state.json, decisions.md) in a **dedicated folder** under the **specs** folder at the **repo root**: `specs/<feature-or-component-name>/`. Example: `specs/resizable-container/plan.md`. Do not place spec files next to source (e.g. not under `src/components/...`).
+
 ## Required plan.md Structure
 
 1. **Worktree section** (top) — path, branch, base branch. See worktrees skill.

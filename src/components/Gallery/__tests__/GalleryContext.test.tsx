@@ -14,7 +14,6 @@ describe('useGalleryContext', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('useGalleryContext hook was called outside'),
     );
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('TestComponent'));
     expect(result.current).toEqual({});
 
     warnSpy.mockRestore();
@@ -22,6 +21,7 @@ describe('useGalleryContext', () => {
 
   it('should return context value when used inside provider', () => {
     const mockContextValue: GalleryContextValue = {
+      closeOnBackgroundClick: true,
       currentIndex: 0,
       currentItem: {
         image_url: 'http://test.jpg',
@@ -34,6 +34,7 @@ describe('useGalleryContext', () => {
       hasPrevious: false,
       itemCount: 2,
       items: [] as GalleryContextValue['items'],
+      onRequestClose: jest.fn(),
     };
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (

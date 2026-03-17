@@ -112,6 +112,31 @@
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
+
+  .str-chat__unseen-threads-banner {
+    @include utils.unset-button;
+
+    font: var(--str-chat__metadata-emphasis-text);
+    cursor: pointer;
+    display: flex;
+    color: var(--text-secondary);
+    height: 36px;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+    border-radius: var(--radius-none);
+    background: var(--background-core-surface);
+    position: relative;
+
+    & > .str-chat__icon {
+      height: var(--icon-size-md);
+      width: var(--icon-size-md);
+    }
+
+    &:not(:disabled):hover {
+      @include utils.overlay-after(var(--background-core-hover));
+    }
+  }
 }
 
 .str-chat__thread-list {

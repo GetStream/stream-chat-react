@@ -3,8 +3,11 @@ import React from 'react';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
-import { useChannelDisplayName } from '../ChannelPreview/hooks/useChannelDisplayName';
+import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useThreadContext } from '../Threads';
+import { useChatContext } from '../../context/ChatContext';
+import { useTypingContext } from '../../context/TypingContext';
 
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
@@ -16,6 +19,44 @@ const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 /** Fallback when channel has no display title: parent message author (name only). */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
   message.user?.name ?? undefined;
+
+/** Subtitle: replyCount, threadDisplayName, defaultSubtitle (name · reply count), and when typing also TypingIndicatorHeader. */
+const ThreadHeaderSubtitle = ({
+  replyCount,
+  threadDisplayName,
+  threadList,
+}: {
+  replyCount: number | undefined;
+  threadDisplayName: string | undefined;
+  threadList: boolean;
+}) => {
+  const { t } = useTranslationContext();
+  const { channelConfig, thread } = useChannelStateContext('ThreadHeaderSubtitle');
+  const threadInstance = useThreadContext();
+  const parentId = threadInstance?.id ?? thread?.id;
+  const { client } = useChatContext('ThreadHeaderSubtitle');
+  const { typing = {} } = useTypingContext('ThreadHeaderSubtitle');
+  const typingInThread = Object.values(typing).filter(
+    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
+  );
+  const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;
+  const defaultSubtitle =
+    threadDisplayName + ' · ' + t('replyCount', { count: replyCount ?? 0 });
+  return (
+    <div className='str-chat__thread-header-subtitle'>
+      <span
+        className='str-chat__subtitle-content-transition'
+        key={hasTyping ? 'typing' : 'default'}
+      >
+        {hasTyping ? (
+          <TypingIndicatorHeader threadList={threadList} />
+        ) : (
+          <>{defaultSubtitle}</>
+        )}
+      </span>
+    </div>
+  );
+};
 
 export type ThreadHeaderProps = {
   /** Callback for closing the thread */
@@ -31,7 +72,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext('ThreadHeader');
-  const channelDisplayTitle = useChannelDisplayName(channel);
+  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
   const { replyCount: replyCountThreadInstance } =
@@ -45,17 +86,20 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   // Subtitle: channel display title (from parent or hook), with override and fallback to parent message author
   const threadDisplayName =
-    overrideTitle ?? channelDisplayTitle ?? displayNameFromParentMessage(thread);
-  const replyCountLabel = t('replyCount', { count: replyCount });
-  const subtitle = threadDisplayName
-    ? `${threadDisplayName} · ${replyCountLabel}`
-    : replyCountLabel;
+    overrideTitle ??
+    channelDisplayTitle ??
+    displayNameFromParentMessage(thread) ??
+    undefined;
 
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
-        <div className='str-chat__thread-header-subtitle'>{subtitle}</div>
+        <ThreadHeaderSubtitle
+          replyCount={replyCount}
+          threadDisplayName={threadDisplayName}
+          threadList
+        />
       </div>
       {!threadInstance && (
         <Button

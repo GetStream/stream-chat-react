@@ -1,6 +1,6 @@
+import type { ReactNode } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
 import type {
   Channel,
   ChannelFilters,
@@ -12,20 +12,27 @@ import type {
 
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
+import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
 import {
   useChannelListShape,
   usePrepareShapeHandlers,
 } from './hooks/useChannelListShape';
 import { useStateStore } from '../../store';
+import type { ChannelListMessengerProps } from './ChannelListMessenger';
 import { ChannelListMessenger } from './ChannelListMessenger';
+import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import { ChannelPreview } from '../ChannelPreview/ChannelPreview';
-import { ChannelSearch as DefaultChannelSearch } from '../ChannelSearch/ChannelSearch';
+import { Search as DefaultSearch } from '../Search';
+import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
+import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
-import { NotificationList } from '../Notifications';
+import { NotificationList as DefaultNotificationList } from '../Notifications';
+import type { ChatContextValue } from '../../context';
 import {
   ChannelListContextProvider,
   DialogManagerProvider,
@@ -34,14 +41,6 @@ import {
 } from '../../context';
 import { NullComponent } from '../UtilityComponents';
 import { moveChannelUpwards } from './utils';
-import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
-import type { ChannelListMessengerProps } from './ChannelListMessenger';
-import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import type { ChannelSearchProps } from '../ChannelSearch/ChannelSearch';
-import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
-import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
-import type { ChatContextValue } from '../../context';
-import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
 import type { LoadingErrorIndicatorProps } from '../Loading';
@@ -57,8 +56,6 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 });
 
 export type ChannelListProps = {
-  /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: Omit<ChannelSearchProps, 'setChannels'>;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -70,8 +67,6 @@ export type ChannelListProps = {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (channels: Array<Channel>) => Array<Channel>;
-  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
-  ChannelSearch?: React.ComponentType<ChannelSearchProps>;
   // FIXME: how is this even legal (WHY IS IT STRING?!)
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
@@ -173,11 +168,9 @@ export type ChannelListProps = {
 
 const UnMemoizedChannelList = (props: ChannelListProps) => {
   const {
-    additionalChannelSearchProps,
     allowNewMessagesFromUnfilteredChannels = true,
     Avatar = DefaultAvatar,
     channelRenderFilterFn,
-    ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -222,11 +215,10 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
-  const { NotificationList: NotificationListFromContext = NotificationList, Search } =
-    useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
+  const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
+    useComponentContext(); // FIXME: use component context to retrieve ChannelPreview UI components too
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
-  const [searchActive, setSearchActive] = useState(false);
 
   // Indicator relevant when Search component that relies on SearchController is used
   const { searchIsActive } = useStateStore(
@@ -281,20 +273,6 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
   const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), []);
-
-  const onSearch = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchActive(!!event.target.value);
-
-      additionalChannelSearchProps?.onSearch?.(event);
-    },
-    [additionalChannelSearchProps],
-  );
-
-  const onSearchExit = useCallback(() => {
-    setSearchActive(false);
-    additionalChannelSearchProps?.onSearchExit?.();
-  }, [additionalChannelSearchProps]);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
@@ -381,8 +359,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     },
   );
 
-  const showChannelList =
-    (!searchActive && !searchIsActive) || additionalChannelSearchProps?.popupResults;
+  const showChannelList = !searchIsActive;
   return (
     <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
       <ChannelListContextProvider
@@ -390,24 +367,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       >
         <div className={className} ref={channelListRef}>
           <ChannelListHeader />
-          {showChannelSearch &&
-            (Search ? (
-              <Search
-                directMessagingChannelType={additionalChannelSearchProps?.channelType}
-                disabled={additionalChannelSearchProps?.disabled}
-                exitSearchOnInputBlur={
-                  additionalChannelSearchProps?.clearSearchOnClickOutside
-                }
-                placeholder={additionalChannelSearchProps?.placeholder}
-              />
-            ) : (
-              <ChannelSearch
-                onSearch={onSearch}
-                onSearchExit={onSearchExit}
-                setChannels={setChannels}
-                {...additionalChannelSearchProps}
-              />
-            ))}
+          {showChannelSearch && <Search />}
           {showChannelList && (
             <List
               error={channelsQueryState.error}
@@ -435,7 +395,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
               )}
             </List>
           )}
-          <NotificationListFromContext panel='channel-list' />
+          <NotificationList panel='channel-list' />
         </div>
       </ChannelListContextProvider>
     </DialogManagerProvider>

@@ -45,14 +45,14 @@
 @use '../components/Notifications/styling' as Notifications;
 @use '../components/Poll/styling' as Poll;
 @use '../components/Reactions/styling' as Reactions;
-@use '../components/ResizableContainer/styling' as ResizableContainer;
+@use '../components/Search/styling' as Search;
+@use '../components/SummarizedMessagePreview/styling' as SummarizedMessagePreview;
 @use '../components/TextareaComposer/styling' as TextareaComposer;
 @use '../components/Thread/styling' as Thread;
 @use '../components/Threads/styling' as Threads;
 @use '../components/Threads/ThreadList/styling' as ThreadList;
+@use '../components/TypingIndicator/styling' as TypingIndicator;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
-@use '../components/SummarizedMessagePreview/styling' as SummarizedMessagePreview;
-@use '../experimental/Search/styling/' as Search;
 
 // Layers have to be kept the last
 @import 'modern-normalize' layer(css-reset);
