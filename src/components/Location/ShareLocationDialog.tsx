@@ -10,6 +10,7 @@ import { useMessageComposer } from '../MessageInput';
 import { Prompt } from '../Dialog';
 import { SwitchField } from '../Form/SwitchField';
 import { Dropdown, useDropdownContext } from '../Form/Dropdown';
+import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import type { Coords } from 'stream-chat';
 
 const MIN_LIVE_LOCATION_SHARE_DURATION = 60 * 1000; // 1 minute;
@@ -35,13 +36,14 @@ export type ShareLocationDialogProps = {
 
 const DefaultGeolocationMap = () => null;
 
-export const ShareLocationDialog = ({
+const ShareLocationDialog = ({
   close,
   GeolocationMap = DefaultGeolocationMap,
   shareDurations = DEFAULT_SHARE_LOCATION_DURATIONS,
 }: ShareLocationDialogProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
+  const panel = useNotificationTarget();
   const messageComposer = useMessageComposer();
   const [durations, setDurations] = useState<number[]>([]);
   const [selectedDuration, setSelectedDuration] = useState<number | undefined>(undefined);
@@ -204,7 +206,8 @@ export const ShareLocationDialog = ({
                     message: t('Failed to retrieve location'),
                     options: {
                       originalError: e instanceof Error ? e : undefined,
-                      type: 'browser-api:location:get:failed',
+                      tags: addNotificationTargetTag(panel),
+                      type: 'browser:location:get:failed',
                     },
                     origin: { emitter: 'ShareLocationDialog' },
                   });
@@ -223,6 +226,7 @@ export const ShareLocationDialog = ({
                   message: t('Failed to share location'),
                   options: {
                     originalError: err instanceof Error ? err : undefined,
+                    tags: addNotificationTargetTag(panel),
                     type: 'api:location:share:failed',
                   },
                   origin: { emitter: 'ShareLocationDialog' },
@@ -240,6 +244,7 @@ export const ShareLocationDialog = ({
     </Prompt.Root>
   );
 };
+export default ShareLocationDialog;
 
 export type DurationDropdownItemsProps = {
   durations: number[];

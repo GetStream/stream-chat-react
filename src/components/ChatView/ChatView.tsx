@@ -35,12 +35,19 @@ type ChatViewContextValue = {
   setActiveChatView: (cv: ChatView) => void;
 };
 
-const ChatViewContext = createContext<ChatViewContextValue>({
-  activeChatView: 'channels',
-  setActiveChatView: () => undefined,
-});
+export const ChatViewContext = createContext<ChatViewContextValue | undefined>(undefined);
 
-export const useChatViewContext = () => useContext(ChatViewContext);
+export const useChatViewContext = () => {
+  const value = useContext(ChatViewContext);
+
+  if (!value) {
+    throw new Error(
+      'The useChatViewContext hook was called outside of the ChatView provider.',
+    );
+  }
+
+  return value;
+};
 
 export const ChatView = ({ children }: PropsWithChildren) => {
   const [activeChatView, setActiveChatView] = useState<ChatView>('channels');

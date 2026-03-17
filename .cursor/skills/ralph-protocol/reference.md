@@ -2,6 +2,8 @@
 
 Source: `.ai/RALPH.md`
 
+**Spec files location:** Keep all spec files (spec.md, plan.md, state.json, decisions.md) in a dedicated folder at repo root: `specs/<feature-or-component-name>/`.
+
 ## state.json example
 
 ```json

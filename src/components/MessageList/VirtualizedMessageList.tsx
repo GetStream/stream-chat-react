@@ -23,8 +23,6 @@ import {
   useUnreadMessagesNotificationVirtualized,
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
-
-import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
@@ -48,6 +46,7 @@ import {
 } from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
+import { NotificationList, useNotificationTarget } from '../Notifications';
 
 import { DialogManagerProvider } from '../../context';
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
@@ -215,7 +214,6 @@ const VirtualizedMessageListWithContext = (
     messageActions,
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages,
-    notifications,
     openThread,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
@@ -247,17 +245,21 @@ const VirtualizedMessageListWithContext = (
     DateSeparator = DefaultDateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageListMainPanel = DefaultMessageListMainPanel,
-    MessageListNotifications = DefaultMessageListNotifications,
+    MessageListNotifications = undefined,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
+    NotificationList: NotificationListFromContext = NotificationList,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext('VirtualizedMessageList');
+  const MessageListNotificationsComponent =
+    MessageListNotifications ?? NotificationListFromContext;
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
   const { client, customClasses } = useChatContext('VirtualizedMessageList');
+  const notificationTarget = useNotificationTarget();
 
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -515,6 +517,16 @@ const VirtualizedMessageListWithContext = (
                   EmptyPlaceholder,
                   Header,
                   Item,
+                  ...(TypingIndicator && {
+                    Footer: () =>
+                      isMessageListScrolledToBottom ? (
+                        <TypingIndicator
+                          isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                          scrollToBottom={scrollToBottom}
+                          threadList={threadList}
+                        />
+                      ) : null,
+                  }),
                   ...virtuosoComponentsFromProps,
                 }}
                 computeItemKey={computeItemKey}
@@ -584,9 +596,8 @@ const VirtualizedMessageListWithContext = (
               />
             </div>
           </DialogManagerProvider>
-          {TypingIndicator && <TypingIndicator />}
+          <MessageListNotificationsComponent panel={notificationTarget} />
         </MessageListMainPanel>
-        <MessageListNotifications notifications={notifications} />
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>

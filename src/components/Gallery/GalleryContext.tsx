@@ -102,6 +102,8 @@ export type GalleryItem = Omit<BaseImageProps, 'src'> & {
 };
 
 export type GalleryContextValue = {
+  /** Whether clicking the empty gallery background should request close */
+  closeOnBackgroundClick: boolean;
   /** Currently displayed item index */
   currentIndex: number;
   /** Currently displayed item */
@@ -120,6 +122,8 @@ export type GalleryContextValue = {
   itemCount: number;
   /** All items in the gallery */
   items: GalleryItem[];
+  /** Request closing the gallery viewer */
+  onRequestClose?: () => void;
 };
 
 export const GalleryContext = createContext<GalleryContextValue | undefined>(undefined);

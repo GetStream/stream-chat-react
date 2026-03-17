@@ -16,7 +16,7 @@
     gap: var(--spacing-xs);
     min-height: var(--size-40);
     padding: 0 var(--spacing-sm);
-    background-color: var(--background-elevation-elevation-0);
+    background-color: var(--background-core-elevation-0);
     border-radius: var(--radius-md);
     outline: none;
     transition:
@@ -28,7 +28,7 @@
   // Outline variant — always 1px border on wrapper; + 2px focus ring on focus-within
   // ---------------------------------------------------------------------------
   &__wrapper--outline {
-    border: 1px solid var(--input-border-default);
+    border: 1px solid var(--border-core-default);
     box-shadow: none;
   }
 

@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
-import { ShareLocationDialog } from '../ShareLocationDialog';
+import ShareLocationDialog from '../ShareLocationDialog';
 import { useMessageComposer } from '../../MessageInput';
 
 jest.mock('../../MessageInput/hooks/useMessageComposer', () => ({

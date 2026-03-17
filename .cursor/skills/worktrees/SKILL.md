@@ -23,7 +23,7 @@ git worktree add ../stream-chat-react-worktrees/gallery-redesign -b feat/gallery
 - **Branch:** `feat/<descriptive-name>` (repo conventions)
 - **Base:** current branch when creating
 
-Then in plan.md include a **Worktree** section with path, branch, base branch. Agent must `cd` into the worktree before any work.
+Then in the plan file (`specs/<plan-name>/plan.md`) include a **Worktree** section with path, branch, base branch. Agent must `cd` into the worktree before any work.
 
 ```bash
 cd ../stream-chat-react-worktrees/<plan-name>
@@ -69,7 +69,7 @@ git push origin agent/<branch-name>
 ```
 
 - Do this after each meaningful milestone or when someone needs to preview.
-- Document in plan.md: **Preview branch:** `agent/<branch-name>` — checkout to preview.
+- Document in `specs/<plan-name>/plan.md`: **Preview branch:** `agent/<branch-name>` — checkout to preview.
 
 ## Lifecycle
 

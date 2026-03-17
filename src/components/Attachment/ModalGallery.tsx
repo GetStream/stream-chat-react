@@ -12,7 +12,6 @@ import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
 import { IconArrowRotateClockwise } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
-import { CloseButtonOnModalOverlay } from '../Modal/CloseButtonOnModalOverlay';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
 const BASE_IMAGE_PROP_KEYS = [
@@ -43,10 +42,17 @@ export type ModalGalleryProps = {
   /** Array of media attachments to display */
   items: GalleryItem[];
   className?: string;
+  /** Whether clicking the empty gallery background should close the modal (default: true) */
+  closeOnBackgroundClick?: boolean;
   modalClassName?: string;
 };
 
-export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryProps) => {
+export const ModalGallery = ({
+  className,
+  closeOnBackgroundClick = true,
+  items,
+  modalClassName,
+}: ModalGalleryProps) => {
   const {
     BaseImage = DefaultBaseImage,
     Gallery = DefaultGallery,
@@ -98,11 +104,16 @@ export const ModalGallery = ({ className, items, modalClassName }: ModalGalleryP
       </div>
       <Modal
         className={clsx('str-chat__gallery-modal', modalClassName)}
-        CloseButtonOnOverlay={CloseButtonOnModalOverlay}
         onClose={closeModal}
         open={modalOpen}
       >
-        <Gallery GalleryUI={GalleryUI} initialIndex={selectedIndex} items={items} />
+        <Gallery
+          closeOnBackgroundClick={closeOnBackgroundClick}
+          GalleryUI={GalleryUI}
+          initialIndex={selectedIndex}
+          items={items}
+          onRequestClose={closeModal}
+        />
       </Modal>
     </>
   );
@@ -197,7 +208,7 @@ const ThumbnailButton = ({
           className='str-chat__modal-gallery__image-loading-overlay'
           data-testid='str-chat__modal-gallery__image-loading-overlay'
         >
-          <LoadingIndicator size={32} />
+          <LoadingIndicator />
         </div>
       )}
       {showRetryIndicator && (

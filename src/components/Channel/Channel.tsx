@@ -46,12 +46,9 @@ import {
   LoadingChannel as DefaultLoadingIndicator,
 } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import { addNotificationTargetTag } from '../Notifications';
 
-import type {
-  ChannelActionContextValue,
-  ChannelNotifications,
-  MarkReadWrapperOptions,
-} from '../../context';
+import type { ChannelActionContextValue, MarkReadWrapperOptions } from '../../context';
 import {
   ChannelActionProvider,
   ChannelStateProvider,
@@ -75,7 +72,7 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
+import { findInMsgSetByDate, findInMsgSetById } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import type {
@@ -87,7 +84,7 @@ import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
-import { useSearchFocusedMessage } from '../../experimental/Search/hooks';
+import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
 export type ChannelProps = {
@@ -249,8 +246,6 @@ const ChannelInner = (
   const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
-  const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
@@ -512,7 +507,6 @@ const ChannelInner = (
         channel.on(handleEvent);
       }
     })();
-    const notificationTimeoutsRef = notificationTimeouts.current;
 
     return () => {
       if (errored || !done) return;
@@ -520,7 +514,6 @@ const ChannelInner = (
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
-      notificationTimeoutsRef.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -572,12 +565,19 @@ const ChannelInner = (
   }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
 
   /** MESSAGE */
-
-  // Adds a temporary notification to message list, will be removed after 5 seconds
-  const addNotification = useMemo(
-    () => makeAddNotifications(setNotifications, notificationTimeouts.current),
-    [],
-  );
+  const notifyJumpToFirstUnreadError = useCallback(() => {
+    client.notifications.addError({
+      message: t('Failed to jump to the first unread message'),
+      options: {
+        tags: addNotificationTargetTag('channel'),
+        type: 'channel:jumpToFirstUnread:failed',
+      },
+      origin: {
+        context: { feature: 'jumpToFirstUnread' },
+        emitter: 'Channel',
+      },
+    });
+  }, [client, t]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
@@ -744,7 +744,7 @@ const ChannelInner = (
                 )
               ).messages;
             } catch (e) {
-              addNotification(t('Failed to jump to the first unread message'), 'error');
+              notifyJumpToFirstUnreadError();
               loadMoreFinished(
                 channel.state.messagePagination.hasPrev,
                 channel.state.messages,
@@ -754,7 +754,7 @@ const ChannelInner = (
 
             const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
             if (!firstMessageWithCreationDate) {
-              addNotification(t('Failed to jump to the first unread message'), 'error');
+              notifyJumpToFirstUnreadError();
               loadMoreFinished(
                 channel.state.messagePagination.hasPrev,
                 channel.state.messages,
@@ -779,7 +779,7 @@ const ChannelInner = (
         }
 
         if (!firstUnreadMessageId && !lastReadMessageId) {
-          addNotification(t('Failed to jump to the first unread message'), 'error');
+          notifyJumpToFirstUnreadError();
           return;
         }
 
@@ -806,7 +806,7 @@ const ChannelInner = (
             firstUnreadMessageId =
               firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
           } catch (e) {
-            addNotification(t('Failed to jump to the first unread message'), 'error');
+            notifyJumpToFirstUnreadError();
             loadMoreFinished(
               channel.state.messagePagination.hasPrev,
               channel.state.messages,
@@ -816,7 +816,7 @@ const ChannelInner = (
         }
 
         if (!firstUnreadMessageId) {
-          addNotification(t('Failed to jump to the first unread message'), 'error');
+          notifyJumpToFirstUnreadError();
           return;
         }
         if (!channelUnreadUiState.first_unread_message_id)
@@ -831,11 +831,10 @@ const ChannelInner = (
         });
       },
       [
-        addNotification,
         channel,
         handleHighlightedMessageChange,
         loadMoreFinished,
-        t,
+        notifyJumpToFirstUnreadError,
         channelUnreadUiState,
       ],
     );
@@ -1089,7 +1088,7 @@ const ChannelInner = (
     imageAttachmentSizeHandler:
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     mutes,
-    notifications,
+    notifications: [],
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -1098,7 +1097,6 @@ const ChannelInner = (
 
   const channelActionContextValue: ChannelActionContextValue = useMemo(
     () => ({
-      addNotification,
       closeThread,
       deleteMessage,
       dispatch,

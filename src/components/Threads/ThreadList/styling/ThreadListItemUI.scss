@@ -4,6 +4,10 @@
   border-bottom: 1px solid var(--border-core-subtle);
   padding: var(--spacing-xxs);
   max-width: 100%;
+
+  &:has(.str-chat__thread-list-item--highlighted) {
+    background: var(--background-core-highlight);
+  }
 }
 
 .str-chat__thread-list-item {
@@ -16,20 +20,19 @@
   border: none;
   cursor: pointer;
   text-align: start;
-  background: var(--background-elevation-elevation-1);
+  background: var(--background-core-elevation-1);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 100%;
 
-  background: var(--background-elevation-elevation-1);
   &:not(:disabled):hover {
-    background: var(--background-core-hover);
+    background: var(--background-utility-hover);
   }
   &:not(:disabled):active {
-    background: var(--background-core-pressed);
+    background: var(--background-utility-pressed);
   }
   &:not(:disabled)[aria-pressed='true'] {
-    background: var(--background-core-selected);
+    background: var(--background-utility-selected);
   }
 
   .str-chat__avatar {

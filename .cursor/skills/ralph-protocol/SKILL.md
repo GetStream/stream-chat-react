@@ -1,6 +1,6 @@
 ---
 name: ralph-protocol
-description: Collaboration protocol for Ralph loop (Plan → Act → Reflect → Refine). Use when working from goal.md, plan.md, state.json, decisions.md; when executing tasks in a shared plan; or when the user mentions Ralph, multi-agent, or file-based collaboration.
+description: Collaboration protocol for Ralph loop (Plan → Act → Reflect → Refine). Use when working from spec files in specs/<name>/ (goal.md/spec.md, plan.md, state.json, decisions.md); when executing tasks in a shared plan; or when the user mentions Ralph, multi-agent, or file-based collaboration.
 ---
 
 # Ralph Protocol (Agent Collaboration)
@@ -9,27 +9,29 @@ Files are the source of truth. All agents share memory via files. No silent deci
 
 ## Required Files
 
-| File             | Purpose                                                                                                                                                                                   |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **goal.md**      | What we achieve; success criteria; constraints; non-goals. Read first. Only change if goal actually changes. No implementation details.                                                   |
-| **plan.md**      | How we achieve it. Ordered tasks, ownership, dependencies, status (`pending \| in-progress \| done \| blocked`). Propose changes before big deviations; don't rewrite completed sections. |
-| **state.json**   | Current memory. Task statuses, flags (`blocked`, `needs-review`, etc.). Update immediately after acting. Read before assuming anything.                                                   |
-| **decisions.md** | Log of non-trivial decisions (what + why). Append only; never delete. Prevents reopening or contradicting past choices.                                                                   |
+**Location:** Generate and keep spec files in a **dedicated folder** inside the **specs** folder at the **root of the repo**: `specs/<feature-or-component-name>/`. Example: `specs/resizable-container/goal.md`, `specs/resizable-container/plan.md`, `specs/resizable-container/state.json`, `specs/resizable-container/decisions.md`. One folder per feature or component; do not put spec files next to source (e.g. not under `src/components/...`).
+
+| File                       | Purpose                                                                                                                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **spec.md** or **goal.md** | What we achieve; success criteria; constraints; non-goals. Read first. Only change if goal actually changes. No implementation details.                                                   |
+| **plan.md**                | How we achieve it. Ordered tasks, ownership, dependencies, status (`pending \| in-progress \| done \| blocked`). Propose changes before big deviations; don't rewrite completed sections. |
+| **state.json**             | Current memory. Task statuses, flags (`blocked`, `needs-review`, etc.). Update immediately after acting. Read before assuming anything.                                                   |
+| **decisions.md**           | Log of non-trivial decisions (what + why). Append only; never delete. Prevents reopening or contradicting past choices.                                                                   |
 
 ## Workflow
 
-**Before acting:** Read goal.md → plan.md → state.json → decisions.md.
+**Before acting:** Read the spec files in `specs/<name>/`: spec.md (or goal.md) → plan.md → state.json → decisions.md.
 
 **During:** Follow the plan; no overlapping work unless coordinated; no undocumented decisions.
 
-**After:** Update state.json → record decisions in decisions.md → update task status in plan.md. Optionally add learnings to observations.md.
+**After:** Update `specs/<name>/state.json` → record decisions in `specs/<name>/decisions.md` → update task status in `specs/<name>/plan.md`. Optionally add learnings to observations.md in the same folder.
 
 **Prohibited:** Decisions without recording; using chat as memory; re-solving done problems; changing goals implicitly; overwriting files without explanation.
 
 ## Task ownership (critical)
 
 - Work on **exactly one** task at a time.
-- That task must be in plan.md, marked `in-progress` and assigned to you.
+- That task must be in the plan file (`specs/<name>/plan.md`), marked `in-progress` and assigned to you.
 - Do not change files for other tasks, even if small.
 
 ## Commit scope
@@ -42,6 +44,6 @@ When acceptance criteria involve UI: use Playwright (MCP or project config). Tak
 
 ## Loop reminder
 
-Each iteration: Plan (update plan.md if needed) → Act (scoped work) → Reflect (learnings) → Refine (plan or decisions).
+Each iteration: Plan (update `specs/<name>/plan.md` if needed) → Act (scoped work) → Reflect (learnings) → Refine (plan or decisions).
 
 For decision log format and state.json example, see [reference.md](reference.md). Plan structure and worktrees: use make-plans and worktrees skills.

@@ -128,31 +128,6 @@ describe('ChannelPreview utils', () => {
     });
   });
 
-  describe('getDisplayImage', () => {
-    it('should return channel image, if it exists', async () => {
-      const image = nanoid();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({ channel: { image } }),
-      );
-
-      expect(channel.getDisplayImage()).toBe(image);
-    });
-
-    it('should return null when no image is available (image fallback removed)', async () => {
-      const otherUser = generateUser();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({
-          members: [
-            generateMember({ user: otherUser }),
-            generateMember({ user: clientUser }),
-          ],
-        }),
-      );
-      // getDisplayImage no longer falls back to member image, only channel.data.image
-      expect(channel.getDisplayImage()).toBeNull();
-    });
-  });
-
   describe('getChannelDisplayImage (utils)', () => {
     it('returns channel.data.image when set', async () => {
       const image = nanoid();

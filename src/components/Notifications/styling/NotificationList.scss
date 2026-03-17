@@ -1,0 +1,70 @@
+.str-chat__notification-list {
+  --str-chat__notification-list-inset: 16px;
+  --str-chat__notification-list-gap: 8px;
+  --str-chat__notification-list-max-height: calc(
+    100% - (var(--str-chat__notification-list-inset) * 2)
+  );
+  --str-chat__notification-list-width: min(
+    100%,
+    calc(100% - (var(--str-chat__notification-list-inset) * 2))
+  );
+
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  inline-size: var(--str-chat__notification-list-width);
+  max-width: 100%;
+  min-width: 0;
+  max-height: var(--str-chat__notification-list-max-height);
+  padding-inline: var(--spacing-xs);
+  pointer-events: none;
+  position: absolute;
+  inset-inline-end: var(--str-chat__notification-list-inset);
+  z-index: 2;
+}
+
+.str-chat__notification-list--position-top {
+  inset-block-start: var(--str-chat__notification-list-inset);
+}
+
+.str-chat__notification-list--position-bottom {
+  inset-block-end: var(--str-chat__notification-list-inset);
+}
+
+.str-chat__notification-list__edge {
+  flex-shrink: 0;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+}
+
+.str-chat__notification-list__edge--top {
+  top: 0;
+}
+
+.str-chat__notification-list__edge--bottom {
+  bottom: 0;
+}
+
+// Shared entry keyframe for the single-slot notification list.
+// The direction-specific travel is injected from NotificationList.tsx through CSS variables:
+// `--str-chat__notification-list-enter-x` and `--str-chat__notification-list-enter-y`.
+// Adjust timing/easing in Notification.scss and adjust travel distance in NotificationList.tsx.
+@keyframes str-chat__notification-list-enter {
+  from {
+    opacity: 0.2;
+    transform: translate(
+      var(--str-chat__notification-list-enter-x, 0),
+      var(--str-chat__notification-list-enter-y, 100%)
+    );
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}

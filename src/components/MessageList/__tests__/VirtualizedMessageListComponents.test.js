@@ -37,7 +37,7 @@ const PREPEND_OFFSET = 10 ** 7;
 const Wrapper = ({ children, componentContext = {} }) => (
   <ChatProvider value={{ client }}>
     <ChannelStateProvider value={{ channel }}>
-      <ChannelActionProvider value={{ addNotification: jest.fn() }}>
+      <ChannelActionProvider value={{}}>
         <ComponentProvider value={componentContext}>
           <DialogManagerProvider id='vml-components-dialog-manager'>
             {children}

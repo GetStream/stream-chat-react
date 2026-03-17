@@ -9,7 +9,7 @@
    */
   --str-chat__dialog-menu-border-radius: var(--radius-lg);
   --str-chat__dialog-menu-color: var(--text-primary);
-  --str-chat__dialog-menu-background-color: var(--background-elevation-elevation-2);
+  --str-chat__dialog-menu-background-color: var(--background-core-elevation-2);
   --str-chat__dialog-menu-border-block-start: none;
   --str-chat__dialog-menu-border-block-end: none;
   --str-chat__dialog-menu-border-inline-start: none;
@@ -19,15 +19,17 @@
   --str-chat__dialog-menu-button-border-radius: var(--radius-md);
   --str-chat__dialog-menu-button-color: var(--text-primary);
   --str-chat__dialog-menu-button-background-color: transparent;
-  --str-chat__dialog-menu-button-hover-background-color: var(--background-core-hover);
-  --str-chat__dialog-menu-button-active-background-color: var(--background-core-pressed);
+  --str-chat__dialog-menu-button-hover-background-color: var(--background-utility-hover);
+  --str-chat__dialog-menu-button-active-background-color: var(
+    --background-utility-pressed
+  );
   --str-chat__dialog-menu-button-focused-background-color: transparent;
   --str-chat__dialog-menu-button-disabled-background-color: transparent;
   --str-chat__dialog-menu-back-button-hover-background-color: var(
-    --background-core-hover
+    --background-utility-hover
   );
   --str-chat__dialog-menu-back-button-active-background-color: var(
-    --background-core-pressed
+    --background-utility-pressed
   );
   --str-chat__dialog-menu-back-button-focused-background-color: transparent;
   --str-chat__dialog-menu-back-button-disabled-background-color: transparent;

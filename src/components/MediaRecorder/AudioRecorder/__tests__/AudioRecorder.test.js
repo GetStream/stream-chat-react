@@ -46,9 +46,7 @@ const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
 const DEFAULT_RENDER_PARAMS = {
-  channelActionCtx: {
-    addNotification: jest.fn(),
-  },
+  channelActionCtx: {},
   channelStateCtx: {
     channelCapabilities: [],
   },

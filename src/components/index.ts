@@ -8,7 +8,7 @@ export * from './Channel';
 export * from './ChannelHeader';
 export * from './ChannelList';
 export * from './ChannelPreview';
-export * from './ChannelSearch';
+export * from './Search';
 export * from './Chat';
 export * from './ChatView';
 export * from './DateSeparator';

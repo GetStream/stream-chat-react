@@ -97,7 +97,7 @@ const renderComponent = async ({
         <ComponentProvider value={{ ...componentContext }}>
           <TranslationProvider value={translationContext}>
             <TypingProvider value={{}}>
-              <ChannelActionProvider value={{ addNotification: jest.fn() }}>
+              <ChannelActionProvider value={{}}>
                 <ChannelStateProvider
                   value={{
                     ...defaultChannelStateContext,

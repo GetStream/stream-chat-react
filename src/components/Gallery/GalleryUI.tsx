@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { BaseImage } from './BaseImage';
+import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
 import { IconChevronLeft, IconChevronRight } from '../Icons';
-import { useTranslationContext } from '../../context';
+import { ModalContext, useTranslationContext } from '../../context';
 import { VideoPlayer } from '../VideoPlayer';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
@@ -16,6 +17,7 @@ const TRANSITION_DURATION = 300;
 export const GalleryUI = () => {
   const { t } = useTranslationContext();
   const {
+    closeOnBackgroundClick,
     currentIndex,
     currentItem,
     goToNext,
@@ -23,7 +25,9 @@ export const GalleryUI = () => {
     hasNext,
     hasPrevious,
     itemCount,
+    onRequestClose,
   } = useGalleryContext();
+  const modalContext = useContext(ModalContext);
 
   const [showVideo, setShowVideo] = useState(false);
 
@@ -36,6 +40,9 @@ export const GalleryUI = () => {
   );
 
   // Touch tracking refs
+  // Some touch interactions on the slide container are followed by a click; suppress
+  // that one-shot click so swipe navigation doesn't immediately trigger background close.
+  const ignoreNextClickRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const isVerticalSwipeRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +105,7 @@ export const GalleryUI = () => {
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
     if (isTransitioningRef.current) return;
     const touch = event.touches[0];
+    ignoreNextClickRef.current = false;
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
     isVerticalSwipeRef.current = false;
   }, []);
@@ -113,10 +121,12 @@ export const GalleryUI = () => {
       // Determine swipe direction on first significant movement
       if (!isDragging && !isVerticalSwipeRef.current) {
         if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+          ignoreNextClickRef.current = true;
           isVerticalSwipeRef.current = true;
           return;
         }
         if (Math.abs(deltaX) > 10) {
+          ignoreNextClickRef.current = true;
           setIsDragging(true);
         }
       }
@@ -135,11 +145,15 @@ export const GalleryUI = () => {
 
   const handleTouchEnd = useCallback(() => {
     if (!touchStartRef.current || isVerticalSwipeRef.current) {
+      if (isVerticalSwipeRef.current) ignoreNextClickRef.current = true;
       touchStartRef.current = null;
       return;
     }
 
     const offset = slideOffset;
+    if (isDragging || Math.abs(offset) > 10) {
+      ignoreNextClickRef.current = true;
+    }
     touchStartRef.current = null;
 
     if (Math.abs(offset) >= SWIPE_THRESHOLD) {
@@ -157,7 +171,24 @@ export const GalleryUI = () => {
     }
 
     setIsDragging(false);
-  }, [slideOffset, hasNext, hasPrevious, goToNext, goToPrevious]);
+  }, [slideOffset, hasNext, hasPrevious, goToNext, goToPrevious, isDragging]);
+
+  const requestClose = modalContext?.close ?? onRequestClose;
+  const handleBackgroundClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (event.target !== event.currentTarget) return;
+
+      if (ignoreNextClickRef.current) {
+        ignoreNextClickRef.current = false;
+        return;
+      }
+
+      if (!closeOnBackgroundClick) return;
+
+      requestClose?.();
+    },
+    [closeOnBackgroundClick, requestClose],
+  );
 
   const mediaStyle: React.CSSProperties =
     isDragging || (slideOffset !== 0 && slideDirection === null)
@@ -167,6 +198,7 @@ export const GalleryUI = () => {
   return (
     <div className='str-chat__gallery'>
       <div className='str-chat__gallery__main'>
+        <GalleryHeader currentItem={currentItem} />
         <NavButton
           aria-label={t('Previous image')}
           className={clsx(
@@ -180,6 +212,7 @@ export const GalleryUI = () => {
         </NavButton>
         <div
           className='str-chat__gallery__slide-container'
+          onClick={handleBackgroundClick}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
           onTouchStart={handleTouchStart}
@@ -228,7 +261,7 @@ export const GalleryUI = () => {
       </div>
       {itemCount > 1 && (
         <div className='str-chat__gallery__position-indicator'>
-          {currentIndex + 1} / {itemCount}
+          {currentIndex + 1} of {itemCount}
         </div>
       )}
     </div>
