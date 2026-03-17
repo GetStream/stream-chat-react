@@ -10,11 +10,13 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { resampleWaveformData } from '../../Attachment/audioSampling';
-import type { SeekFn } from '../../Attachment/hooks/useAudioController';
+import type { SeekFn as AudioPlayerSeekFn } from '../AudioPlayer';
+
+type SeekParams = Parameters<AudioPlayerSeekFn>[0];
 
 type WaveProgressBarProps = {
   /** Function that allows to change the track progress */
-  seek: SeekFn;
+  seek: (params: SeekParams) => void;
   /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveformData: number[];
   /** Progress expressed in fractional number value btw 0 and 100. */
