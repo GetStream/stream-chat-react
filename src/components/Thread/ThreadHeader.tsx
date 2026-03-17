@@ -3,7 +3,7 @@ import React from 'react';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
-import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { useChannelDisplayName } from '../ChannelPreview/hooks/useChannelDisplayName';
 import { useThreadContext } from '../Threads';
 
 import type { LocalMessage } from 'stream-chat';
@@ -31,7 +31,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext('ThreadHeader');
-  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
+  const channelDisplayTitle = useChannelDisplayName(channel);
 
   const threadInstance = useThreadContext();
   const { replyCount: replyCountThreadInstance } =
@@ -45,18 +45,17 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   // Subtitle: channel display title (from parent or hook), with override and fallback to parent message author
   const threadDisplayName =
-    overrideTitle ??
-    channelDisplayTitle ??
-    displayNameFromParentMessage(thread) ??
-    undefined;
+    overrideTitle ?? channelDisplayTitle ?? displayNameFromParentMessage(thread);
+  const replyCountLabel = t('replyCount', { count: replyCount });
+  const subtitle = threadDisplayName
+    ? `${threadDisplayName} · ${replyCountLabel}`
+    : replyCountLabel;
 
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
-        <div className='str-chat__thread-header-subtitle'>
-          {threadDisplayName + ' · ' + t('replyCount', { count: replyCount })}
-        </div>
+        <div className='str-chat__thread-header-subtitle'>{subtitle}</div>
       </div>
       {!threadInstance && (
         <Button

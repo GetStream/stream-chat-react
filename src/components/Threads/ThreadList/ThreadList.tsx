@@ -52,6 +52,7 @@ export const useThreadList = () => {
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client, navOpen = true } = useChatContext();
   const {
+    NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
     ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
@@ -99,7 +100,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}
       />
-      <NotificationList panel='thread-list' />
+      <NotificationListFromContext panel='thread-list' />
     </div>
   );
 };

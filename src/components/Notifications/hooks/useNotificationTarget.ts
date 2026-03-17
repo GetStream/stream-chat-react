@@ -1,31 +1,21 @@
-import { useMemo } from 'react';
-
+import { useChatViewContext } from '../../ChatView';
+import { useChannelStateContext } from '../../../context';
 import { useThreadContext } from '../../Threads/ThreadContext';
 
-import type { NotificationTargetPanel } from '../notificationOrigin';
-
-export type UseNotificationTargetOptions = {
-  /**
-   * Explicitly set target panel. When provided, context-based detection is skipped.
-   */
-  target?: NotificationTargetPanel;
-  /**
-   * Fallback panel when no context-based target can be inferred.
-   */
-  fallbackTarget?: NotificationTargetPanel;
-};
+import type { NotificationTargetPanel } from '../notificationTarget';
+import { useLegacyThreadContext } from '../../Thread';
 
 /**
  * Resolves the panel target where notifications emitted by the current component should be displayed.
  */
-export const useNotificationTarget = (
-  options?: UseNotificationTargetOptions,
-): NotificationTargetPanel => {
-  const thread = useThreadContext();
+export const useNotificationTarget = (): NotificationTargetPanel => {
+  const { activeChatView } = useChatViewContext();
+  const { channel } = useChannelStateContext();
+  const threadInstance = useThreadContext();
+  const { legacyThread } = useLegacyThreadContext();
 
-  return useMemo(() => {
-    if (options?.target) return options.target;
-    if (thread) return 'thread';
-    return options?.fallbackTarget ?? 'channel';
-  }, [options?.fallbackTarget, options?.target, thread]);
+  if (threadInstance || legacyThread) return 'thread';
+  if (channel) return 'channel';
+  if (activeChatView === 'threads') return 'thread-list';
+  return 'channel-list';
 };

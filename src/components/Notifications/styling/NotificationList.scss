@@ -1,49 +1,41 @@
 .str-chat__notification-list {
+  --str-chat__notification-list-inset: 16px;
+  --str-chat__notification-list-gap: 8px;
+  --str-chat__notification-list-max-height: calc(
+    100% - (var(--str-chat__notification-list-inset) * 2)
+  );
+  --str-chat__notification-list-width: min(
+    100%,
+    calc(100% - (var(--str-chat__notification-list-inset) * 2))
+  );
+
+  background: transparent;
   display: flex;
   flex-direction: column;
-  max-height: min(50vh, 320px);
-  overflow: hidden;
-  padding: 8px 0;
+  align-items: center;
+  justify-content: flex-start;
+  inline-size: var(--str-chat__notification-list-width);
+  max-width: 100%;
+  min-width: 0;
+  max-height: var(--str-chat__notification-list-max-height);
+  padding-inline: var(--spacing-xs);
   pointer-events: auto;
-  position: fixed;
-  right: 16px;
-  top: 16px;
-  z-index: 1000;
-  perspective: 1200px;
+  position: absolute;
+  inset-inline-end: var(--str-chat__notification-list-inset);
+  z-index: 2;
 }
 
-.str-chat__notification-list__scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 12px 0;
-  transform: rotateX(3deg);
-  transform-origin: center center;
-  transform-style: preserve-3d;
+.str-chat__notification-list--position-top {
+  inset-block-start: var(--str-chat__notification-list-inset);
+}
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
-
-  .str-chat__notification {
-    backface-visibility: visible;
-  }
+.str-chat__notification-list--position-bottom {
+  inset-block-end: var(--str-chat__notification-list-inset);
 }
 
 .str-chat__notification-list__edge {
   flex-shrink: 0;
-  height: 24px;
+  //height: 24px;
   left: 0;
   pointer-events: none;
   position: absolute;
@@ -52,37 +44,56 @@
 }
 
 .str-chat__notification-list__edge--top {
-  background: linear-gradient(
-    to bottom,
-    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
-    transparent 100%
-  );
+  //background: linear-gradient(
+  //  to bottom,
+  //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
+  //  transparent 100%
+  //);
   top: 0;
 
   @supports (backdrop-filter: blur(6px)) {
-    backdrop-filter: blur(6px);
-    background: linear-gradient(
-      to bottom,
-      var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
-      transparent 100%
-    );
+    //backdrop-filter: blur(6px);
+    //background: linear-gradient(
+    //  to bottom,
+    //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
+    //  transparent 100%
+    //);
   }
 }
 
 .str-chat__notification-list__edge--bottom {
-  background: linear-gradient(
-    to top,
-    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
-    transparent 100%
-  );
+  //background: linear-gradient(
+  //  to top,
+  //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
+  //  transparent 100%
+  //);
   bottom: 0;
 
-  @supports (backdrop-filter: blur(6px)) {
-    backdrop-filter: blur(6px);
-    background: linear-gradient(
-      to top,
-      var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
-      transparent 100%
+  //@supports (backdrop-filter: blur(6px)) {
+  //  backdrop-filter: blur(6px);
+  //  background: linear-gradient(
+  //    to top,
+  //    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
+  //    transparent 100%
+  //  );
+  //}
+}
+
+// Shared entry keyframe for the single-slot notification list.
+// The direction-specific travel is injected from NotificationList.tsx through CSS variables:
+// `--str-chat__notification-list-enter-x` and `--str-chat__notification-list-enter-y`.
+// Adjust timing/easing in Notification.scss and adjust travel distance in NotificationList.tsx.
+@keyframes str-chat__notification-list-enter {
+  from {
+    opacity: 0.2;
+    transform: translate(
+      var(--str-chat__notification-list-enter-x, 0),
+      var(--str-chat__notification-list-enter-y, 100%)
     );
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
   }
 }

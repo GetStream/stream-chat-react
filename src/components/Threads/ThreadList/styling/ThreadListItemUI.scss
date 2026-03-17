@@ -16,12 +16,12 @@
   border: none;
   cursor: pointer;
   text-align: start;
-  background: var(--background-elevation-elevation-1);
+  background: var(--background-core-elevation-1);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 100%;
 
-  background: var(--background-elevation-elevation-1);
+  background: var(--background-core-elevation-1);
   &:not(:disabled):hover {
     background: var(--background-core-hover);
   }

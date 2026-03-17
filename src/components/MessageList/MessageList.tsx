@@ -43,6 +43,7 @@ import {
 } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { NotificationList, useNotificationTarget } from '../Notifications';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -94,12 +95,17 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListMainPanel = DefaultMessageListMainPanel,
-    // MessageListNotifications = DefaultMessageListNotifications,
+    MessageListNotifications = undefined,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
+    NotificationList: NotificationListFromContext = NotificationList,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext('MessageList');
+  const MessageListNotificationsComponent =
+    MessageListNotifications ?? NotificationListFromContext;
+
+  const notificationTarget = useNotificationTarget();
 
   const {
     hasNewMessages,
@@ -297,8 +303,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               threadList={threadList}
             />
           </DialogManagerProvider>
+          <MessageListNotificationsComponent panel={notificationTarget} />
         </MessageListMainPanel>
-        {/*<MessageListNotifications notifications={notifications} />*/}
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );

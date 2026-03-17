@@ -17,7 +17,7 @@
     align-items: center;
     gap: var(--spacing-xs);
     border-radius: var(--radius-max);
-    border: 1px solid var(--input-border-default);
+    border: 1px solid var(--border-core-default);
     color: var(--input-text-placeholder);
     font: var(--str_chat__heading-xs-text);
     // FIXME: there's no proper variation so we need to adjust font-weight separately
@@ -129,7 +129,7 @@
           }
         }
 
-        background: var(--background-elevation-elevation-1);
+        background: var(--background-core-elevation-1);
         &:not(:disabled):hover {
           background: var(--background-core-hover);
         }

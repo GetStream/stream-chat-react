@@ -12,8 +12,6 @@ const NOTIFICATION_TARGET_PANELS = [
  * Use in origin.context.panel when publishing so NotificationList can filter by panel.
  */
 export type NotificationTargetPanel = (typeof NOTIFICATION_TARGET_PANELS)[number];
-/** @deprecated use NotificationTargetPanel */
-export type NotificationOriginPanel = NotificationTargetPanel;
 
 export const isNotificationTargetPanel = (
   value: unknown,
@@ -34,8 +32,6 @@ export const getNotificationTargetPanel = (
   const panel = notification.origin.context?.panel;
   return isNotificationTargetPanel(panel) ? panel : undefined;
 };
-/** @deprecated use getNotificationTargetPanel */
-export const getNotificationOriginPanel = getNotificationTargetPanel;
 
 export const getNotificationTargetTag = (panel: NotificationTargetPanel) =>
   `target:${panel}` as const;

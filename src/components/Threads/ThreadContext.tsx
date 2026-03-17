@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 
-import { Channel } from '../../components';
+import { Channel } from '../Channel';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread } from 'stream-chat';

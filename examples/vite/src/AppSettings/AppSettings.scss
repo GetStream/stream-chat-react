@@ -11,6 +11,240 @@
     }
   }
 
+  .app__actions-menu-anchor {
+    position: relative;
+
+    .str-chat__icon--thunder {
+      fill: none;
+      stroke: currentColor;
+    }
+  }
+
+  .app__actions-menu {
+    min-width: min(320px, calc(100vw - 32px));
+    max-width: min(320px, calc(100vw - 32px));
+  }
+
+  .app__notification-dialog {
+    min-width: min(420px, calc(100vw - 32px));
+    max-width: min(420px, calc(100vw - 32px));
+  }
+
+  .app__notification-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(420px, calc(100vw - 32px));
+    max-height: min(500px, calc(100vh - 32px));
+    overflow: hidden;
+  }
+
+  .app__notification-dialog__drag-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .app__notification-dialog__drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .app__notification-dialog__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-top: 4px;
+  }
+
+  .app__notification-dialog__body-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .app__notification-dialog__form-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .app__notification-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .app__notification-dialog__field-label {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .app__notification-dialog__select {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-core-default);
+    border-radius: 10px;
+    background: var(--background-elevation-elevation-2);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  .app__notification-dialog__text-input {
+    width: 100%;
+  }
+
+  .app__notification-dialog__text-input--wide {
+    grid-column: 1 / -1;
+  }
+
+  .app__notification-dialog__footer-leading {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .app__notification-dialog__queue-controls {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .app__notification-dialog__queue-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .app__notification-dialog__queue-trigger:disabled {
+    cursor: not-allowed;
+  }
+
+  .app__notification-dialog__queue-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-core-default);
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .app__notification-dialog__queue-button-icon {
+    width: 16px;
+    height: 16px;
+    transition:
+      width 120ms ease,
+      height 120ms ease;
+  }
+
+  .app__notification-dialog__queue-button-icon--enabled {
+    width: 20px;
+    height: 20px;
+  }
+
+  .app__notification-dialog__queue-hint {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .app__notification-dialog__footer-leading .app__notification-dialog__queue-hint {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__notification-dialog__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 24px;
+    width: 100%;
+  }
+
+  .app__notification-dialog__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 6px 8px 6px 10px;
+    border: 1px solid var(--border-core-default);
+    border-radius: 999px;
+    background: var(--background-core-surface);
+  }
+
+  .app__notification-dialog__chip-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  .app__notification-dialog__chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__notification-dialog__chip-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .app__notification-dialog__chip-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .app__notification-dialog__chip-meta-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .app__notification-dialog__chip-panel {
+    font-style: italic;
+  }
+
+  .app__notification-dialog__chip-remove {
+    color: var(--text-secondary);
+  }
+
+  .app__notification-dialog__footer {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .app__notification-dialog__footer-controls {
+    align-self: flex-end;
+    flex-shrink: 0;
+    margin-inline-start: 0;
+  }
+
+  @media (max-width: 560px) {
+    .app__notification-dialog__queue-controls {
+      width: 100%;
+    }
+
+    .app__notification-dialog__footer-leading .app__notification-dialog__queue-hint {
+      white-space: normal;
+    }
+  }
+
   .app__settings-modal {
     display: flex;
     flex-direction: column;
@@ -130,6 +364,16 @@
   }
 
   @media (max-width: 760px) {
+    .app__actions-menu,
+    .app__notification-dialog {
+      min-width: min(360px, calc(100vw - 24px));
+      max-width: min(360px, calc(100vw - 24px));
+    }
+
+    .app__notification-dialog__prompt {
+      width: min(360px, calc(100vw - 24px));
+    }
+
     .app__settings-modal {
       width: min(92vw, 680px);
     }

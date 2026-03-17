@@ -46,11 +46,7 @@ import {
   LoadingChannel as DefaultLoadingIndicator,
 } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import {
-  addNotificationTargetTag,
-  NotificationList,
-  useNotificationTarget,
-} from '../Notifications';
+import { addNotificationTargetTag } from '../Notifications';
 
 import type { ChannelActionContextValue, MarkReadWrapperOptions } from '../../context';
 import {
@@ -569,15 +565,11 @@ const ChannelInner = (
   }, [jumpToMessageFromSearch, handleHighlightedMessageChange]);
 
   /** MESSAGE */
-  const jumpToUnreadNotificationTarget = useNotificationTarget({
-    target: state.thread ? 'thread' : 'channel',
-  });
-
   const notifyJumpToFirstUnreadError = useCallback(() => {
     client.notifications.addError({
       message: t('Failed to jump to the first unread message'),
       options: {
-        tags: addNotificationTargetTag(jumpToUnreadNotificationTarget),
+        tags: addNotificationTargetTag('channel'),
         type: 'channel:jumpToFirstUnread:failed',
       },
       origin: {
@@ -585,7 +577,7 @@ const ChannelInner = (
         emitter: 'Channel',
       },
     });
-  }, [client, jumpToUnreadNotificationTarget, t]);
+  }, [client, t]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
@@ -1174,10 +1166,7 @@ const ChannelInner = (
         <ChannelActionProvider value={channelActionContextValue}>
           <TypingProvider value={typingContextValue}>
             <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-              <div className={clsx(chatContainerClass)}>
-                {children}
-                <NotificationList panel='channel' />
-              </div>
+              <div className={clsx(chatContainerClass)}>{children}</div>
             </WithAudioPlayback>
           </TypingProvider>
         </ChannelActionProvider>

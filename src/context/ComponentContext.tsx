@@ -21,7 +21,6 @@ import {
   type MessageBouncePromptProps,
   type MessageDeletedProps,
   type MessageInputProps,
-  type MessageListNotificationsProps,
   type MessageProps,
   type MessageReactionsDetailProps,
   type MessageRepliesCountButtonProps,
@@ -31,6 +30,7 @@ import {
   type ModalGalleryProps,
   type ModalProps,
   type NewMessageNotificationProps,
+  type NotificationListProps,
   type PinIndicatorProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
@@ -144,8 +144,10 @@ export type ComponentContextValue = {
   /** Custom UI component for a message bubble of a deleted message, defaults to and accepts same props as: [MessageDeletedBubble](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeletedBubble.tsx) */
   MessageDeletedBubble?: React.ComponentType;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
+  /** Custom UI component to display notifications rendered by `NotificationList`, defaults to and accepts same props as: [NotificationList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Notifications/NotificationList.tsx) */
+  NotificationList?: React.ComponentType<NotificationListProps>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
-  MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
+  MessageListNotifications?: React.ComponentType<NotificationListProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [NewMessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/NewMessageNotification.tsx) */
   NewMessageNotification?: React.ComponentType<NewMessageNotificationProps>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */

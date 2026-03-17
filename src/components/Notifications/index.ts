@@ -1,4 +1,4 @@
 export * from './hooks';
 export * from './Notification';
 export * from './NotificationList';
-export * from './notificationOrigin';
+export * from './notificationTarget';

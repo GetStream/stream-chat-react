@@ -1,14 +1,10 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { Notification, NotificationManagerState } from 'stream-chat';
-import { isNotificationForPanel } from '../notificationOrigin';
+import { isNotificationForPanel } from '../notificationTarget';
 
-import type { NotificationTargetPanel } from '../notificationOrigin';
-
-const selector = (state: NotificationManagerState) => ({
-  notifications: state.notifications,
-});
+import type { NotificationTargetPanel } from '../notificationTarget';
 
 export type UseNotificationsFilter = (notification: Notification) => boolean;
 
@@ -36,22 +32,26 @@ export type UseNotificationsOptions = {
  */
 export const useNotifications = (options?: UseNotificationsOptions): Notification[] => {
   const { client } = useChatContext();
-  const result = useStateStore(client.notifications.store, selector);
-  const notifications = result.notifications;
+  const selector = useCallback(
+    (state: NotificationManagerState) => {
+      const notifications = state.notifications;
+      const panel = options?.panel;
+      const byPanel = panel
+        ? notifications.filter((notification) =>
+            isNotificationForPanel(notification, panel, {
+              fallbackPanel: options?.fallbackPanel,
+            }),
+          )
+        : notifications;
 
-  const filtered = useMemo(() => {
-    const panel = options?.panel;
-    const byPanel = panel
-      ? notifications.filter((notification) =>
-          isNotificationForPanel(notification, panel, {
-            fallbackPanel: options?.fallbackPanel,
-          }),
-        )
-      : notifications;
+      return {
+        notifications: options?.filter ? byPanel.filter(options.filter) : byPanel,
+      };
+    },
+    [options?.fallbackPanel, options?.filter, options?.panel],
+  );
 
-    if (!options?.filter) return byPanel;
-    return byPanel.filter(options.filter);
-  }, [notifications, options?.fallbackPanel, options?.filter, options?.panel]);
+  const { notifications } = useStateStore(client.notifications.store, selector);
 
-  return filtered;
+  return notifications;
 };

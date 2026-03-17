@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
 
 import { useFetchReactions } from './hooks/useFetchReactions';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import type { MessageContextValue } from '../../context';
 import {
   useChatContext,
   useComponentContext,
@@ -12,7 +12,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
-import type { MessageContextValue } from '../../context';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -38,8 +37,7 @@ export function MessageReactionsDetail({
   totalReactionCount,
 }: MessageReactionsDetailProps) {
   const { client } = useChatContext();
-  const { Avatar = DefaultAvatar, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext(MessageReactionsDetail.name);
+  const { Avatar = DefaultAvatar } = useComponentContext(MessageReactionsDetail.name);
   const { t } = useTranslationContext();
 
   const {

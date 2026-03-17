@@ -1,79 +1,169 @@
 .str-chat__notification {
-  align-items: center;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-height: 44px;
-  padding: 12px 16px;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  min-height: 48px;
+  width: 100%;
+  padding: var(--spacing-xs);
   position: relative;
+  background: var(--str-chat__notification-background, var(--background-core-inverse));
+  border-radius: var(--str-chat__notification-border-radius, var(--radius-3xl));
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 4px 8px 0 rgba(0, 0, 0, 0.14),
+    0 12px 24px 0 rgba(0, 0, 0, 0.1);
+  color: var(--str-chat__notification-color, var(--text-inverse));
 
-  .str-chat__notification-message {
+  .str-chat__notification-content {
+    align-items: flex-start;
+    display: flex;
     flex: 1 1 auto;
+    gap: var(--spacing-xs);
     min-width: 0;
+
+    .str-chat__notification-icon {
+      display: flex;
+      align-self: center;
+      height: 100%;
+
+      svg {
+        block-size: var(--icon-size-sm);
+        inline-size: var(--icon-size-sm);
+      }
+    }
+
+    .str-chat__notification-message {
+      flex: 1 1 auto;
+      padding-block: var(--spacing-xxxs);
+      font: var(--str-chat__caption-default-text);
+      min-width: 0;
+    }
   }
 
   .str-chat__notification-actions {
     display: flex;
-    gap: 8px;
-  }
-
-  .str-chat__notification-action {
-    background: transparent;
-    border: 1px solid currentColor;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    opacity: 0.9;
-    padding: 4px 12px;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  .str-chat__notification-close {
+    flex-basis: 100%;
     align-items: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    height: 24px;
-    justify-content: center;
-    margin-left: auto;
-    opacity: 0.7;
-    padding: 0;
-    width: 24px;
+    justify-content: flex-end;
+    gap: var(--spacing-xxs);
+  }
 
-    &::after {
-      content: '\00d7';
-      font-size: 1.25rem;
-      line-height: 1;
-    }
+  .str-chat__notification-close-button {
+    align-self: center;
+    padding: var(--spacing-xxs);
 
-    &:hover {
-      opacity: 1;
+    svg {
+      height: var(--icon-size-sm);
+      width: var(--icon-size-sm);
     }
   }
 }
 
-.str-chat__notification--success {
-  background: var(--str-chat-success-background, #e8f5e9);
-  color: var(--str-chat-success-color, #2e7d32);
+.str-chat__notification--is-entering {
+  // Keep entry slow enough to hide the slot swap when the current notification is dismissed.
+  // Duration/easing live here; directional distance is controlled by NotificationList.tsx.
+  animation: str-chat__notification-list-enter 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
-.str-chat__notification--error {
-  background: var(--str-chat-error-background, #ffebee);
-  color: var(--str-chat-error-color, #c62828);
+.str-chat__notification--is-exiting {
+  animation-duration: 340ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  will-change: opacity, transform;
 }
 
-.str-chat__notification--warning {
-  background: var(--str-chat-warning-background, #fff3e0);
-  color: var(--str-chat-warning-color, #e65100);
+.str-chat__notification--is-exiting.str-chat__notification--enter-from-bottom {
+  animation-name: str-chat__notification-list-exit-to-bottom;
 }
 
-.str-chat__notification--info {
-  background: var(--str-chat-info-background, #e3f2fd);
-  color: var(--str-chat-info-color, #1565c0);
+.str-chat__notification--is-exiting.str-chat__notification--enter-from-left {
+  animation-name: str-chat__notification-list-exit-to-left;
+}
+
+.str-chat__notification--is-exiting.str-chat__notification--enter-from-right {
+  animation-name: str-chat__notification-list-exit-to-right;
+}
+
+.str-chat__notification--is-exiting.str-chat__notification--enter-from-top {
+  animation-name: str-chat__notification-list-exit-to-top;
+}
+
+//// Severity overrides: allow themes to keep colored variants; defaults match Figma (inverse).
+//.str-chat__notification--success {
+//  background: var(--str-chat-success-background, var(--background-core-inverse));
+//  color: var(--str-chat-success-color, var(--text-inverse));
+//}
+//
+//.str-chat__notification--error {
+//  background: var(--str-chat-error-background, var(--background-core-inverse));
+//  color: var(--str-chat-error-color, var(--text-inverse));
+//}
+//
+//.str-chat__notification--warning {
+//  background: var(--str-chat-warning-background, var(--background-core-inverse));
+//  color: var(--str-chat-warning-color, var(--text-inverse));
+//}
+//
+//.str-chat__notification--info {
+//  background: var(--str-chat-info-background, var(--background-core-inverse));
+//  color: var(--str-chat-info-color, var(--text-inverse));
+//}
+
+// Loading state: spin the refresh icon
+.str-chat__notification--loading .str-chat__notification-icon {
+  animation: str-chat__notification-spin 0.8s linear infinite;
+}
+
+@keyframes str-chat__notification-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes str-chat__notification-list-exit-to-bottom {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(0, 35%) scale(0.98);
+  }
+}
+
+@keyframes str-chat__notification-list-exit-to-left {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-35%, 0) scale(0.98);
+  }
+}
+
+@keyframes str-chat__notification-list-exit-to-right {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(35%, 0) scale(0.98);
+  }
+}
+
+@keyframes str-chat__notification-list-exit-to-top {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(0, -35%) scale(0.98);
+  }
 }

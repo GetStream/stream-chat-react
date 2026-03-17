@@ -222,7 +222,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
-  const { Search } = useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
+  const { NotificationList: NotificationListFromContext = NotificationList, Search } =
+    useComponentContext(); // FIXME: us component context to retrieve ChannelPreview UI components too
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
@@ -434,7 +435,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
               )}
             </List>
           )}
-          <NotificationList panel='channel-list' />
+          <NotificationListFromContext panel='channel-list' />
         </div>
       </ChannelListContextProvider>
     </DialogManagerProvider>

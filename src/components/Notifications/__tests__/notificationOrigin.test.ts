@@ -2,7 +2,7 @@ import {
   getNotificationTargetPanel,
   isNotificationForPanel,
   isNotificationTargetPanel,
-} from '../notificationOrigin';
+} from '../notificationTarget';
 
 import type { Notification } from 'stream-chat';
 

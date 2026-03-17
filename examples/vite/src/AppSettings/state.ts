@@ -15,8 +15,13 @@ export type ThemeSettingsState = {
   mode: 'dark' | 'light';
 };
 
+export type NotificationsSettingsState = {
+  verticalAlignment: 'bottom' | 'top';
+};
+
 export type AppSettingsState = {
   chatView: ChatViewSettingsState;
+  notifications: NotificationsSettingsState;
   reactions: ReactionsSettingsState;
   theme: ThemeSettingsState;
 };
@@ -27,6 +32,9 @@ const themeUrlParam = 'theme';
 const defaultAppSettingsState: AppSettingsState = {
   chatView: {
     iconOnly: true,
+  },
+  notifications: {
+    verticalAlignment: 'bottom',
   },
   reactions: {
     flipHorizontalPosition: false,

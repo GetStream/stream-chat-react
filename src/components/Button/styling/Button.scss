@@ -169,4 +169,8 @@
       gap: var(--spacing-xs);
     }
   }
+
+  .str-chat__theme-dark .str-chat__button.str-chat__button--floating {
+    box-shadow: var(--dark-elevation-2);
+  }
 }

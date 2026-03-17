@@ -3,18 +3,22 @@ import {
   ChatViewSelectorButton,
   GlobalModal,
   IconBubble3ChatMessage,
+  IconBellNotification,
   IconEmojiSmile,
   IconLightBulbSimple,
   IconSettingsGear2,
 } from 'stream-chat-react';
 import { type ComponentType, useState } from 'react';
+import { ActionsMenu } from './ActionsMenu';
+import { NotificationsTab } from './tabs/Notifications';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
 import { appSettingsStore, useAppSettingsState } from './state';
 
-type TabId = 'reactions' | 'sidebar';
+type TabId = 'notifications' | 'reactions' | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
+  { Icon: IconBellNotification, id: 'notifications', title: 'Notifications' },
   { Icon: IconBubble3ChatMessage, id: 'sidebar', title: 'Sidebar' },
   { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
 ];
@@ -51,6 +55,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
   return (
     <div className='app__settings-group'>
+      <ActionsMenu iconOnly={iconOnly} />
       <SidebarThemeToggle iconOnly={iconOnly} />
       <ChatViewSelectorButton
         className='app__settings-group_button'
@@ -92,6 +97,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
               id={`${activeTab}-content`}
               role='tabpanel'
             >
+              {activeTab === 'notifications' && <NotificationsTab />}
               {activeTab === 'sidebar' && <SidebarTab />}
               {activeTab === 'reactions' && <ReactionsTab />}
             </section>

@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next';
 import {
   addNotificationTargetTag,
   type NotificationTargetPanel,
-} from '../../Notifications/notificationOrigin';
+} from '../../Notifications/notificationTarget';
 
 export const audioPlayerNotificationsPluginFactory = ({
   client,

@@ -35,6 +35,7 @@
   max-width: 100%;
   min-width: var(--str-chat__thread-list-min-width);
   opacity: 1;
+  position: relative;
   transform: translateX(0);
   transition:
     flex-basis var(--str-chat__thread-list-transition-duration)

@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { WaveProgressBar } from '../../Attachment';
-import {
-  type AudioPlayerState,
-  DurationDisplay,
-  useAudioPlayer,
-} from '../../AudioPlayback';
+import { DurationDisplay } from '../../AudioPlayback';
+import type { AudioPlayerState } from '../../AudioPlayback/AudioPlayer';
+import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
 import { IconPause, IconPlaySolid } from '../../Icons';
 import { Button } from '../../Button';
