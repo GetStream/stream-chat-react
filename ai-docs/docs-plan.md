@@ -1,6 +1,6 @@
 # React v14 Docs Plan
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## Goal
 
@@ -8,16 +8,16 @@ Produce a reliable v13 to v14 migration guide for `stream-chat-react` and keep t
 
 ## Current Phase
 
-- Phase: docs execution against the audited snapshot `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a`
+- Phase: post-snapshot docs maintenance against audited head `35f8a5d4bc220d3d50462883cf84e37eb507ea51`
 - Constraint: keep `breaking-changes.md` as the source of truth for confirmed migration items, but treat this file as the execution tracker for the remaining v14 docs work
 - Migration-guide and sidebar work is already in flight on `docs-content#1080`; keep the guide aligned with new SDK changes until that PR is merged
-- New SDK changes after the audited snapshot should be mined from `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..HEAD`, then folded back into both trackers before related docs edits are made
+- New SDK changes after the audited head should be mined from `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD`, then folded back into both trackers before related docs edits are made
 
 ## Working Baseline
 
 - Code baseline for analysis: `stream-chat-react` `v13.14.2..master`
-- Current audited SDK head: `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a` (`6ea7a78e`, `2026-03-13`, `feat: adjust media gallery viewer (#3006)`)
-- Future mining starting point: review `stream-chat-react` diff `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
+- Current audited SDK head: `35f8a5d4bc220d3d50462883cf84e37eb507ea51` (`35f8a5d4`, `2026-03-17`, `refactor!: remove deprecated useAudioController hook (#3016)`)
+- Future mining starting point: review `stream-chat-react` diff `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
 - Docs content repo: `/docs/data/docs`
 - Docs content branch: `react-chat-v14`
 - Active migration-guide PR: `docs-content#1080` (`docs/react-v14-migration-guide` -> `react-chat-v14`)
@@ -251,6 +251,11 @@ Completed WS5 pages:
 ## Active Batch: Verification
 
 Objective: merge the open docs PRs, run docs verification, and fix any markdown/build issues that surface from the updated v14 content set.
+
+Post-snapshot maintenance currently in scope:
+
+- Search was promoted to the stable entrypoint and `ChannelSearch` was removed, so the search reference, search cookbook, app-menu cookbook, ChannelList reference/context, migration guide, and sidebar labels all need a follow-up pass.
+- `useAudioController()` was removed after the last audited snapshot; the migration guide should keep pointing users to `useAudioPlayer()`.
 
 ## Confirmed Docs Issues
 
@@ -639,9 +644,31 @@ Objective: merge the open docs PRs, run docs verification, and fix any markdown/
   - `data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md` now calls out the icon-only default and uses `iconOnly={false}` in the labeled-selector examples
 - Expected fix: update the `ChatView` docs to call out the icon-only default and show `iconOnly={false}` as the migration path for apps that want the old labeled selector layout
 
+### 43. v14 Search docs still describe removed `ChannelSearch` APIs
+
+- Status: resolved
+- Evidence:
+  - `ChannelSearch` was removed from the public surface and `Search` was promoted to the main package entrypoint
+  - `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md` still documents `additionalChannelSearchProps` and `ChannelSearch`
+  - `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/02-channel_list_context.md` still lists `ChannelSearch`
+  - `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/05-channel_search.md` still documents the removed `ChannelSearch` component
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/02-channel_search.md` still teaches `additionalChannelSearchProps` and direct `ChannelSearch` usage
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/08-app_menu.md` still teaches the removed `AppMenu` prop path on `ChannelSearch`
+  - `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/08-advanced-search.md` should carry the restored SearchController/filter-builder guidance under the non-experimental docs tree
+- Expected fix: rewrite the search docs around stable `Search`, `WithComponents`, `SearchBar`, `SearchResults`, and `SearchController`, and remove the old `ChannelSearch` / `additionalChannelSearchProps` guidance
+
+### 44. v14 migration guide and sidebar still need the post-snapshot Search cleanup
+
+- Status: resolved
+- Evidence:
+  - the current migration guide mentions `MessageActions` and `useAudioController`, but it does not yet explain that `Search` moved to the stable entrypoint and `ChannelSearch` was removed
+  - the v14 sidebar still labels the search pages as `ChannelSearch`, `Channel Search`, and `Search` under the old pre-stable organization
+- Expected fix: add Search migration coverage to `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` and update `data/docs/_sidebars/[chat-sdk][react][v14-rc].json` titles to reflect the stable Search docs
+
 ## Docs Update Checklist
 
 - [x] Freeze the initial breaking-change inventory against audited snapshot `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a`
+- [x] Fold the post-snapshot Search and audio-hook changes from `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..35f8a5d4bc220d3d50462883cf84e37eb507ea51` back into the trackers
 - [x] Convert `ai-docs/docs-plan.md` from inventory mode into execution workstreams
 - [x] Draft the v13 to v14 migration guide content
 - [x] Prepare the v14 release-guide rename and sidebar update in `docs-content#1080`
@@ -661,6 +688,12 @@ Objective: merge the open docs PRs, run docs verification, and fix any markdown/
 | -------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | in PR    | `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md`                              | v13 to v14 migration guide drafted in `docs-content#1080`; keep aligned with post-snapshot changes until merged                                           |
 | in PR    | `data/docs/_sidebars/[chat-sdk][react][v14-rc].json`                                               | Nav label and migration guide metadata are updated in `docs-content#1080`; merge pending                                                                  |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`                 | Updated to the stable `Search` contract and removed the deleted `ChannelSearch` / `additionalChannelSearchProps` guidance                                 |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/02-channel_list_context.md`         | Updated to reference stable `Search` and the current `ComponentContext` override path                                                                     |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/05-channel_search.md`               | Rewritten around stable `Search`, its current prop surface, and `WithComponents` customization                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/02-channel_search.md`                 | Rewritten to stable Search customization patterns and current `SearchController` guidance                                                                 |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/08-app_menu.md`                                       | Rewritten to a custom `SearchBar` composition example instead of the removed `ChannelSearch AppMenu` prop                                                 |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/08-advanced-search.md`              | Rewritten as a stable advanced Search guide using `SearchController`, restored filter-builder guidance, and stable `stream-chat-react` imports            |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`                           | Now keeps `Channel` focused on current behavior/data props and points SDK UI overrides to `WithComponents`                                                |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`                 | Now reflects the current override-key surface and current `WithComponents` guidance                                                                       |
 | resolved | `data/docs/chat-sdk/react/v14/01-basics/02-installation.md`                                        | Now calls out the current `stream-chat` minimum and version-alignment guidance                                                                            |
