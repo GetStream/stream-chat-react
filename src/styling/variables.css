@@ -224,30 +224,14 @@
   --typography-font-weight-medium: 500;
   --typography-font-weight-semi-bold: 600;
   --typography-font-weight-bold: 700;
-  --light-elevation-1:
-    0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.1),
-    0 4px 8px 0 rgba(0, 0, 0, 0.06); /** Low elevation level for subtle separation. */
-  --light-elevation-2:
-    0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 4px 0 rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.06);
-  --light-elevation-3:
-    0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 8px 0 rgba(0, 0, 0, 0.14),
-    0 12px 24px 0 rgba(0, 0, 0, 0.1);
-  --light-elevation-4:
-    0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 12px 0 rgba(0, 0, 0, 0.16),
-    0 20px 32px 0 rgba(0, 0, 0, 0.12);
-  --dark-elevation-1:
-    0 0 0 1px rgba(255, 255, 255, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.2),
-    0 4px 8px 0 rgba(0, 0, 0, 0.1);
-  --dark-elevation-2:
-    0 0 0 1px rgba(255, 255, 255, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.22),
-    0 6px 16px 0 rgba(0, 0, 0, 0.12);
-  --dark-elevation-3:
-    0 0 0 1px rgba(255, 255, 255, 0.15), 0 4px 8px 0 rgba(0, 0, 0, 0.24),
-    0 12px 24px 0 rgba(0, 0, 0, 0.14);
-  --dark-elevation-4:
-    0 0 0 1px rgba(255, 255, 255, 0.15), 0 6px 12px 0 rgba(0, 0, 0, 0.28),
-    0 20px 32px 0 rgba(0, 0, 0, 0.16);
+  --light-elevation-1: 0 0 0 1px rgba(0,0,0,0.05), 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.06); /** Low elevation level for subtle separation. */
+  --light-elevation-2: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px 0 rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.06);
+  --light-elevation-3: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 8px 0 rgba(0,0,0,0.14), 0 12px 24px 0 rgba(0,0,0,0.1);
+  --light-elevation-4: 0 0 0 1px rgba(0,0,0,0.05), 0 6px 12px 0 rgba(0,0,0,0.16), 0 20px 32px 0 rgba(0,0,0,0.12);
+  --dark-elevation-1: 0 0 0 1px rgba(255,255,255,0.15), 0 1px 2px 0 rgba(0,0,0,0.2), 0 4px 8px 0 rgba(0,0,0,0.1);
+  --dark-elevation-2: 0 0 0 1px rgba(255,255,255,0.15), 0 2px 4px 0 rgba(0,0,0,0.22), 0 6px 16px 0 rgba(0,0,0,0.12);
+  --dark-elevation-3: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 8px 0 rgba(0,0,0,0.24), 0 12px 24px 0 rgba(0,0,0,0.14);
+  --dark-elevation-4: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 12px 0 rgba(0,0,0,0.28), 0 20px 32px 0 rgba(0,0,0,0.16);
   --button-padding-y-lg: 14px;
   --button-padding-y-md: 10px;
   --button-padding-y-sm: 6px;
@@ -260,87 +244,56 @@
   --button-padding-x-with-label-md: 16px;
   --button-padding-x-with-label-sm: 16px;
   --button-padding-x-with-label-xs: 12px;
-  --background-core-hover: rgba(30, 37, 43, 0.05); /** Hover feedback overlay. */
-  --background-core-pressed: rgba(30, 37, 43, 0.1); /** Pressed feedback overlay. */
-  --background-core-selected: rgba(30, 37, 43, 0.15); /** Selected overlay. */
-  --background-core-scrim: rgba(0, 0, 0, 0.25); /** Dimmed overlay for modals. */
-  --background-core-overlay: rgba(255, 255, 255, 0.75); /** Selected overlay. */
+  --background-core-scrim: rgba(26, 27, 37, 0.5); /** Dimmed overlay for modals. */
   --background-core-overlay-light: rgba(255, 255, 255, 0.75); /** Selected overlay. */
-  --background-core-overlay-dark: rgba(0, 0, 0, 0.25); /** Selected overlay. */
-  --border-utility-focus: rgba(120, 168, 255, 0.5); /** Focus ring or focus border. */
-  --border-core-opacity-10: rgba(0, 0, 0, 0.1); /** Image frame border treatment. */
-  --border-core-opacity-25: rgba(0, 0, 0, 0.25); /** Image frame border treatment. */
+  --background-core-overlay-dark: rgba(26, 27, 37, 0.25); /** Selected overlay. */
   --system-bg-blur: rgba(255, 255, 255, 0.01);
   --system-scrollbar: rgba(0, 0, 0, 0.5);
   --badge-bg-overlay: rgba(0, 0, 0, 0.75);
-  --typography-font-family-sans: var(--font-family-geist);
-  --typography-font-family-mono: var(--font-family-geist-mono);
-  --typography-font-size-xxs: var(
-    --font-size-size-10
-  ); /** Micro text such as timestamps or subtle metadata. */
-  --typography-font-size-xs: var(
-    --font-size-size-12
-  ); /** Compact secondary text, small UI labels. */
-  --typography-font-size-sm: var(
-    --font-size-size-14
-  ); /** Default mobile body size, small controls. */
-  --typography-font-size-md: var(
-    --font-size-size-16
-  ); /** Default desktop body size, main text. */
-  --typography-font-size-lg: var(
-    --font-size-size-18
-  ); /** Medium emphasis, section labels. */
-  --typography-font-size-xl: var(--font-size-size-20); /** Small headings. */
-  --typography-font-size-2xl: var(
-    --font-size-size-24
-  ); /** Section titles, important headings. */
-  --typography-font-size-micro: var(
-    --font-size-size-8
-  ); /** Micro text such as timestamps or subtle metadata. */
-  --typography-line-height-tight: var(
-    --line-height-line-height-16
-  ); /** Compact text, headers, UI labels. */
-  --typography-line-height-normal: var(
-    --line-height-line-height-20
-  ); /** Default reading line-height for sizes 14–16px. */
-  --typography-line-height-relaxed: var(
-    --line-height-line-height-24
-  ); /** For larger text sizes or multiline descriptions. */
-  --radius-none: var(--radius-0);
-  --radius-xxs: var(--radius-2);
-  --radius-xs: var(--radius-4);
-  --radius-sm: var(--radius-6);
-  --radius-md: var(--radius-8);
-  --radius-lg: var(--radius-12);
-  --radius-xl: var(--radius-16);
-  --radius-2xl: var(--radius-20);
-  --radius-max: var(--radius-full);
-  --radius-3xl: var(--radius-24);
-  --radius-4xl: var(--radius-32);
-  --spacing-none: var(--space-0); /** No spacing. Used for tight component joins. */
-  --spacing-xxs: var(--space-4); /** Base unit. Minimal padding, tight gaps. */
-  --spacing-xs: var(--space-8); /** Small padding and default vertical gaps. */
-  --spacing-sm: var(--space-12); /** Common internal spacing in inputs and buttons. */
-  --spacing-md: var(--space-16); /** Default large padding for sections and cards. */
-  --spacing-xl: var(
-    --space-24
-  ); /** Comfortable spacing for chat bubbles and list items. */
-  --spacing-2xl: var(--space-32); /** Larger spacing for panels, modals, and gutters. */
-  --spacing-3xl: var(--space-40); /** Used for wide layout spacing and breathing room. */
-  --spacing-lg: var(
-    --space-20
-  ); /** Medium spacing for grouping elements and section breaks. */
-  --spacing-xxxs: var(--space-2);
-  --device-safe-area-bottom: var(--space-0);
-  --device-safe-area-top: var(--space-0);
-  --button-radius-lg: var(--radius-full);
-  --button-radius-md: var(--radius-full);
-  --button-radius-sm: var(--radius-full);
-  --button-radius-full: var(--radius-full);
-  --button-visual-height-sm: var(--size-32);
-  --button-visual-height-md: var(--size-40);
-  --button-visual-height-lg: var(--size-48);
-  --button-visual-height-xs: var(--size-24);
+  --typography-font-family-sans: "Geist";
+  --typography-font-family-mono: "Geist Mono";
+  --typography-font-size-xxs: 10px; /** Micro text such as timestamps or subtle metadata. */
+  --typography-font-size-xs: 12px; /** Compact secondary text, small UI labels. */
+  --typography-font-size-sm: 14px; /** Default mobile body size, small controls. */
+  --typography-font-size-md: 16px; /** Default desktop body size, main text. */
+  --typography-font-size-lg: 18px; /** Medium emphasis, section labels. */
+  --typography-font-size-xl: 20px; /** Small headings. */
+  --typography-font-size-2xl: 24px; /** Section titles, important headings. */
+  --typography-font-size-micro: 8px; /** Micro text such as timestamps or subtle metadata. */
+  --typography-line-height-tight: 16px; /** Compact text, headers, UI labels. */
+  --typography-line-height-normal: 20px; /** Default reading line-height for sizes 14–16px. */
+  --typography-line-height-relaxed: 24px; /** For larger text sizes or multiline descriptions. */
+  --radius-none: 0;
+  --radius-xxs: 2px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-max: 9999px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  --spacing-none: 0; /** No spacing. Used for tight component joins. */
+  --spacing-xxs: 4px; /** Base unit. Minimal padding, tight gaps. */
+  --spacing-xs: 8px; /** Small padding and default vertical gaps. */
+  --spacing-sm: 12px; /** Common internal spacing in inputs and buttons. */
+  --spacing-md: 16px; /** Default large padding for sections and cards. */
+  --spacing-xl: 24px; /** Comfortable spacing for chat bubbles and list items. */
+  --spacing-2xl: 32px; /** Larger spacing for panels, modals, and gutters. */
+  --spacing-3xl: 40px; /** Used for wide layout spacing and breathing room. */
+  --spacing-lg: 20px; /** Medium spacing for grouping elements and section breaks. */
+  --spacing-xxxs: 2px;
+  --device-safe-area-bottom: 0;
+  --device-safe-area-top: 0;
+  --button-radius-lg: 9999px;
+  --button-radius-md: 9999px;
+  --button-radius-sm: 9999px;
+  --button-radius-full: 9999px;
+  --button-visual-height-sm: 32px;
+  --button-visual-height-md: 40px;
+  --button-visual-height-lg: 48px;
+  --button-visual-height-xs: 24px;
   /**
      * Minimum interactive hit target size.
      *
@@ -349,7 +302,7 @@
      *
      * Note: Web uses a placeholder value in Figma due to variable mode constraints.
      */
-  --button-hit-target-min-height: var(--size-48);
+  --button-hit-target-min-height: 48px;
   /**
      * Minimum interactive hit target size.
      *
@@ -358,282 +311,234 @@
      *
      * Note: Web uses a placeholder value in Figma due to variable mode constraints.
      */
-  --button-hit-target-min-width: var(--size-48);
-  --button-primary-bg-liquid-glass: var(--base-transparent-0);
-  --icon-size-xs: var(--size-12);
-  --icon-size-sm: var(--size-16);
-  --icon-size-md: var(--size-20);
-  --icon-size-lg: var(--size-32);
-  --icon-stroke-subtle: var(--w120);
-  --icon-stroke-default: var(--w150);
-  --icon-stroke-emphasis: var(--w200);
-  --emoji-md: var(--font-size-size-24);
-  --emoji-lg: var(--font-size-size-32);
-  --emoji-xl: var(--font-size-size-48);
-  --emoji-2xl: var(--font-size-size-64);
-  --background-core-disabled: var(
-    --slate-100
-  ); /** Optional disabled background for inputs, buttons, or chips. */
-  --background-core-surface: var(--slate-100); /** Standard section background. */
-  --background-core-surface-subtle: var(--slate-50); /** Very light section background. */
-  --background-core-surface-strong: var(--slate-150); /** Stronger section background. */
-  --background-core-inverse: var(
-    --slate-900
-  ); /** Inverse background used for elevated, transient, or high-attention UI surfaces that sit on top of the default app background. */
-  --background-core-highlight: var(--yellow-50);
-  --background-core-surface-card: var(--slate-50);
-  --background-elevation-elevation-0: var(--base-white); /** Flat surfaces. */
-  --background-elevation-elevation-1: var(
-    --base-white
-  ); /** Slightly elevated surfaces. */
-  --background-elevation-elevation-2: var(--base-white); /** Card-like elements. */
-  --background-elevation-elevation-3: var(--base-white); /** Popovers. */
-  --background-elevation-elevation-4: var(--base-white); /** Dialogs, modals. */
-  --border-utility-disabled: var(
-    --slate-100
-  ); /** Optional disabled background for inputs, buttons, or chips. */
-  --border-core-default: var(--slate-150); /** Standard surface border. */
-  --border-core-subtle: var(--slate-100); /** Very light separators. */
-  --border-core-strong: var(--slate-300); /** Stronger surface border. */
-  --border-core-on-dark: var(--base-white); /** Used on dark backgrounds. */
-  --border-core-on-accent: var(--base-white); /** Borders on accent backgrounds. */
-  --border-core-on-surface: var(--slate-200);
-  --chat-reply-indicator-incoming: var(
-    --slate-400
-  ); /** Reply indicator shading for incoming. */
-  --chat-waveform-bar: var(--border-core-opacity-25);
-  --system-text: var(--base-black);
-  --control-radiocheck-bg: var(--base-transparent-0);
-  --control-checkbox-bg: var(--base-transparent-0);
-  --text-primary: var(--slate-900); /** Main text color. */
-  --text-secondary: var(--slate-700); /** Secondary metadata text. */
-  --text-tertiary: var(--slate-500); /** Lowest priority text. */
-  --text-inverse: var(--base-white); /** Text on dark or accent backgrounds. */
-  --text-disabled: var(--slate-300); /** Disabled text. */
-  --text-on-accent: var(--base-white); /** Text on dark or accent backgrounds. */
-  --text-on-dark: var(--base-white); /** Text on dark or accent backgrounds. */
-  --avatar-palette-bg-1: var(--blue-150);
-  --avatar-palette-bg-2: var(--cyan-150);
-  --avatar-palette-bg-3: var(--green-150);
-  --avatar-palette-bg-4: var(--purple-150);
-  --avatar-palette-bg-5: var(--yellow-150);
-  --avatar-palette-text-1: var(--blue-900);
-  --avatar-palette-text-2: var(--cyan-900);
-  --avatar-palette-text-3: var(--green-900);
-  --avatar-palette-text-4: var(--purple-900);
-  --avatar-palette-text-5: var(--yellow-900);
-  --avatar-bg-placeholder: var(--slate-100);
-  --avatar-text-placeholder: var(--slate-500);
-  --accent-success: var(--green-400); /** For success states and positive actions. */
-  --accent-warning: var(--yellow-400); /** Warning or caution messages. */
-  --accent-error: var(--red-500); /** Destructive actions and error states. */
-  --accent-neutral: var(--slate-400); /** Neutral accent for low-priority badges. */
-  --accent-black: var(--base-black); /** Neutral accent for low-priority badges. */
-  --brand-50: var(--blue-50);
-  --brand-100: var(--blue-100);
-  --brand-150: var(--blue-150);
-  --brand-200: var(--blue-200);
-  --brand-300: var(--blue-300);
-  --brand-400: var(--blue-400);
-  --brand-500: var(--blue-500);
-  --brand-600: var(--blue-600);
-  --brand-700: var(--blue-700);
-  --brand-800: var(--blue-800);
-  --brand-900: var(--blue-900);
-  --skeleton-loading-base: var(
-    --base-transparent-0
-  ); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
-  --skeleton-loading-highlight: var(
-    --base-white
-  ); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
-  --device-radius: var(--radius-md);
-  --message-bubble-radius-group-top: var(--radius-2xl);
-  --message-bubble-radius-group-middle: var(--radius-2xl);
-  --message-bubble-radius-group-bottom: var(--radius-2xl);
-  --message-bubble-radius-tail: var(--radius-none);
-  --message-bubble-radius-attachment: var(--radius-lg);
-  --message-bubble-radius-attachment-inline: var(--radius-md);
-  --composer-radius-fixed: var(--radius-3xl);
-  --composer-radius-floating: var(--radius-3xl);
-  --composer-bg: var(
-    --background-elevation-elevation-1
-  ); /** Composer container background. */
-  --button-primary-text-on-accent: var(--text-on-accent);
-  --button-primary-border: var(--brand-200);
-  --button-primary-text-on-dark: var(--text-on-dark);
-  --button-primary-border-on-dark: var(--border-core-on-dark);
-  --button-secondary-text: var(--text-primary);
-  --button-secondary-bg-liquid-glass: var(--background-elevation-elevation-0);
-  --button-secondary-border: var(--border-core-default);
-  --button-secondary-bg: var(--background-core-surface);
-  --button-secondary-text-on-accent: var(--text-primary);
-  --button-secondary-text-on-dark: var(--text-on-dark);
-  --button-secondary-border-on-dark: var(--border-core-on-dark);
-  --button-destructive-text: var(--accent-error);
-  --button-destructive-bg: var(--accent-error);
-  --button-destructive-text-on-accent: var(--text-on-accent);
-  --button-destructive-bg-liquid-glass: var(--background-elevation-elevation-0);
-  --button-destructive-border: var(--accent-error);
-  --button-destructive-text-on-dark: var(--text-on-dark);
-  --button-destructive-border-on-dark: var(--text-on-dark);
-  --emoji-sm: var(--typography-font-size-md);
-  --background-core-app: var(
-    --background-elevation-elevation-0
-  ); /** Global application background. */
-  --border-utility-error: var(--accent-error); /** Error state. */
-  --border-utility-warning: var(--accent-warning); /** Warning borders. */
-  --border-utility-success: var(--accent-success); /** Success borders. */
-  --chat-bg-incoming: var(--background-core-surface); /** Incoming bubble background. */
-  --chat-bg-outgoing: var(--brand-100); /** Outgoing bubble background. */
-  --chat-bg-attachment-incoming: var(
-    --background-core-surface-strong
-  ); /** Attachment card in incoming bubble. */
-  --chat-bg-attachment-outgoing: var(
-    --brand-150
-  ); /** Attachment card in outgoing bubble. */
-  --chat-bg-typing-indicator: var(--accent-neutral); /** Typing indicator chip. */
-  --chat-text-timestamp: var(--text-tertiary); /** Time labels. */
-  --chat-text-username: var(--text-secondary); /** Username label. */
-  --chat-text-reaction: var(--text-secondary); /** Reaction count text. */
-  --chat-text-system: var(--text-secondary); /** System messages like date separators. */
-  --chat-text-incoming: var(--text-primary); /** Message body text. */
-  --chat-text-outgoing: var(--brand-900); /** Message body text. */
-  --chat-border-outgoing: var(--brand-100);
-  --chat-border-incoming: var(--border-core-subtle);
-  --chat-border-on-chat-outgoing: var(--brand-300);
-  --chat-border-on-chat-incoming: var(--border-core-strong);
-  --chat-reply-indicator-outgoing: var(
-    --brand-400
-  ); /** Reply indicator shading for outgoing. */
-  --chat-poll-progress-track-outgoing: var(--brand-200);
-  --chat-thread-connector-incoming: var(--border-core-default);
-  --chat-thread-connector-outgoing: var(--brand-150);
-  --input-border-default: var(
-    --border-core-default
-  ); /** Default border of the chat input. Uses the standard border role from foundations. In high-contrast always black. */
-  --input-border-hover: var(
-    --border-core-strong
-  ); /** Optional hover border when the input is hovered or highlighted. Slightly stronger than default. */
-  --input-text-default: var(--text-primary); /** Main text inside the chat input. */
-  --input-text-placeholder: var(
-    --text-tertiary
-  ); /** Placeholder text for the input. Lower emphasis than main text. */
-  --input-text-icon: var(
-    --text-tertiary
-  ); /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
-  --input-text-disabled: var(
-    --text-disabled
-  ); /** Placeholder text for the input. Lower emphasis than main text. */
-  --input-send-icon-disabled: var(
-    --text-disabled
-  ); /** Send icon when disabled (e.g. empty input). */
-  --input-option-card-bg: var(--background-core-surface-subtle);
-  --reaction-bg: var(--background-elevation-elevation-3); /** Reaction bar background. */
-  --reaction-border: var(
-    --border-core-default
-  ); /** Border around unselected reaction chips. Subtle in normal modes, strong in high-contrast for visibility. */
-  --reaction-text: var(
-    --text-primary
-  ); /** Count label next to the emoji inside the reaction chip. Uses secondary text so it does not compete with message text. */
-  --reaction-emoji: var(
-    --text-primary
-  ); /** Emoji color inside reaction chips. Uses primary text color so the emoji stays clearly legible. */
-  --presence-bg-online: var(
-    --accent-success
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
-  --presence-border: var(
-    --border-core-on-dark
-  ); /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
-  --presence-bg-offline: var(
-    --accent-neutral
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
-  --badge-border: var(--border-core-on-dark);
-  --badge-bg-error: var(--accent-error);
-  --badge-bg-neutral: var(--accent-neutral);
-  --badge-text: var(--text-primary);
-  --badge-text-inverse: var(--text-on-dark);
-  --badge-bg-default: var(--background-elevation-elevation-3);
-  --badge-bg-inverse: var(--background-core-inverse);
-  --badge-text-on-accent: var(--text-on-accent);
-  --control-radiocheck-border: var(--border-core-default);
-  --control-radiocheck-icon-selected: var(--text-on-accent);
-  --control-remove-control-bg: var(--background-core-inverse);
-  --control-remove-control-icon: var(--text-on-dark);
-  --control-remove-control-border: var(--border-core-on-dark);
-  --control-progress-bar-track: var(--background-core-surface-strong);
-  --control-progress-bar-fill: var(--accent-neutral);
-  --control-play-control-bg: var(--accent-black);
-  --control-play-control-icon: var(--text-on-accent);
-  --control-toggle-switch-knob: var(--background-elevation-elevation-4);
-  --control-toggle-switch-bg: var(--accent-neutral);
-  --control-toggle-switch-bg-disabled: var(--background-core-disabled);
-  --control-playback-toggle-border: var(--border-core-default);
-  --control-playback-toggle-text: var(--text-primary);
-  --control-checkbox-border: var(--border-core-default);
-  --control-checkbox-icon-selected: var(--text-on-accent);
-  --avatar-bg-default: var(--avatar-palette-bg-1);
-  --avatar-text-default: var(--avatar-palette-text-1);
-  --accent-primary: var(--brand-500); /** Main brand accent for interactive elements. */
-  --chip-bg: var(--brand-100);
-  --chip-text: var(--brand-900);
+  --button-hit-target-min-width: 48px;
+  --button-primary-bg-liquid-glass: rgba(255, 255, 255, 0);
+  --icon-size-xs: 12px;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 32px;
+  --icon-stroke-subtle: 1.2;
+  --icon-stroke-default: 1.5;
+  --icon-stroke-emphasis: 2;
+  --emoji-md: 24px;
+  --emoji-lg: 32px;
+  --emoji-xl: 48px;
+  --emoji-2xl: 64px;
+  --background-core-elevation-0: #ffffff; /** Flat surfaces. */
+  --background-core-elevation-1: #ffffff; /** Slightly elevated surfaces. */
+  --background-core-elevation-2: #ffffff; /** Card-like elements. */
+  --background-core-elevation-3: #ffffff; /** Popovers. */
+  --background-core-elevation-4: #ffffff; /** Dialogs, modals. */
+  --background-core-surface: #ebeef1; /** Standard section background. */
+  --background-core-surface-subtle: #f6f8fa; /** Very light section background. */
+  --background-core-surface-strong: #d5dbe1; /** Stronger section background. */
+  --background-core-inverse: #1a1b25; /** Inverse background used for elevated, transient, or high-attention UI surfaces that sit on top of the default app background. */
+  --background-core-on-accent: #ffffff; /** Use for surfaces that must remain white across themes (e.g., media controls over video). Don’t use for general UI surfaces. */
+  --background-core-highlight: #fef9da;
+  --background-core-surface-card: #f6f8fa;
+  --background-utility-hover: rgba(26, 27, 37, 0.1); /** Hover feedback overlay. */
+  --background-utility-pressed: rgba(26, 27, 37, 0.15); /** Pressed feedback overlay. */
+  --background-utility-selected: rgba(26, 27, 37, 0.2); /** Selected overlay. */
+  --background-utility-disabled: #ebeef1; /** Disabled backgrounds. */
+  --border-utility-disabled: #ebeef1; /** Optional disabled background for inputs, buttons, or chips. */
+  --border-utility-hover: rgba(26, 27, 37, 0.1); /** Hover feedback overlay. */
+  --border-utility-pressed: rgba(26, 27, 37, 0.2); /** Pressed feedback overlay. */
+  --border-core-default: #d5dbe1; /** Standard surface border. */
+  --border-core-subtle: #ebeef1; /** Very light separators. */
+  --border-core-strong: #a3acba; /** Stronger surface border. */
+  --border-core-on-accent: #ffffff; /** Borders on accent backgrounds. */
+  --border-core-on-surface: #c0c8d2;
+  --border-utility-focused: #c3d9ff; /** Focus ring or focus border. */
+  --border-utility-active: #005fff; /** Focus ring or focus border. */
+  --border-core-opacity-subtle: rgba(26, 27, 37, 0.1); /** Image frame border treatment. */
+  --border-core-opacity-strong: rgba(26, 27, 37, 0.25); /** Image frame border treatment. */
+  --chat-reply-indicator-incoming: #87909f; /** Reply indicator shading for incoming. */
+  --chat-waveform-bar: rgba(26, 27, 37, 0.25);
+  --system-text: #000000;
+  --control-checkbox-bg: rgba(255, 255, 255, 0);
+  --text-primary: #1a1b25; /** Main text color. */
+  --text-secondary: #414552; /** Secondary metadata text. */
+  --text-tertiary: #687385; /** Lowest priority text. */
+  --text-inverse: #ffffff; /** Text on dark or accent backgrounds. */
+  --text-disabled: #a3acba; /** Disabled text. */
+  --text-on-accent: #ffffff; /** Text on dark or accent backgrounds. */
+  --avatar-palette-bg-1: #c3d9ff;
+  --avatar-palette-bg-2: #a9e4ea;
+  --avatar-palette-bg-3: #8febbd;
+  --avatar-palette-bg-4: #d4d7ff;
+  --avatar-palette-bg-5: #fcd579;
+  --avatar-palette-text-1: #091a3b;
+  --avatar-palette-text-2: #002124;
+  --avatar-palette-text-3: #002213;
+  --avatar-palette-text-4: #1a114d;
+  --avatar-palette-text-5: #331302;
+  --avatar-bg-placeholder: #d5dbe1;
+  --avatar-text-placeholder: #687385;
+  --accent-success: #00a46e; /** For success states and positive actions. */
+  --accent-warning: #f26d10; /** Warning or caution messages. */
+  --accent-error: #d90d10; /** Destructive actions and error states. */
+  --accent-neutral: #687385; /** Neutral accent for low-priority badges. */
+  --brand-50: #f3f7ff;
+  --brand-100: #e3edff;
+  --brand-150: #c3d9ff;
+  --brand-200: #a5c5ff;
+  --brand-300: #78a8ff;
+  --brand-400: #4586ff;
+  --brand-500: #005fff;
+  --brand-600: #1b53bd;
+  --brand-700: #19418d;
+  --brand-800: #142f63;
+  --brand-900: #091a3b;
+  --skeleton-loading-base: rgba(255, 255, 255, 0); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
+  --skeleton-loading-highlight: #ffffff; /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
+  --device-radius: 8px;
+  --message-bubble-radius-group-top: 20px;
+  --message-bubble-radius-group-middle: 20px;
+  --message-bubble-radius-group-bottom: 20px;
+  --message-bubble-radius-tail: 0;
+  --message-bubble-radius-attachment: 12px;
+  --message-bubble-radius-attachment-inline: 8px;
+  --composer-radius-fixed: 24px;
+  --composer-radius-floating: 24px;
+  --button-primary-text-on-accent: #ffffff;
+  --button-primary-border: #a5c5ff;
+  --button-primary-text-on-dark: #ffffff;
+  --button-primary-border-on-dark: #ffffff;
+  --button-secondary-text: #1a1b25;
+  --button-secondary-bg-liquid-glass: #ffffff;
+  --button-secondary-border: #d5dbe1;
+  --button-secondary-bg: #ebeef1;
+  --button-secondary-text-on-accent: #1a1b25;
+  --button-secondary-text-on-dark: #ffffff;
+  --button-secondary-border-on-dark: #ffffff;
+  --button-destructive-text: #d90d10;
+  --button-destructive-bg: #d90d10;
+  --button-destructive-text-on-accent: #ffffff;
+  --button-destructive-bg-liquid-glass: #ffffff;
+  --button-destructive-border: #d90d10;
+  --button-destructive-text-on-dark: #ffffff;
+  --button-destructive-border-on-dark: #ffffff;
+  --emoji-sm: 16px;
+  --background-core-app: #ffffff; /** Global application background. */
+  --border-utility-error: #d90d10; /** Error state. */
+  --border-utility-warning: #f26d10; /** Warning borders. */
+  --border-utility-success: #00a46e; /** Success borders. */
+  --chat-bg-incoming: #ebeef1; /** Incoming bubble background. */
+  --chat-bg-outgoing: #e3edff; /** Outgoing bubble background. */
+  --chat-bg-attachment-incoming: #d5dbe1; /** Attachment card in incoming bubble. */
+  --chat-bg-attachment-outgoing: #c3d9ff; /** Attachment card in outgoing bubble. */
+  --chat-text-timestamp: #687385; /** Time labels. */
+  --chat-text-username: #414552; /** Username label. */
+  --chat-text-reaction: #414552; /** Reaction count text. */
+  --chat-text-system: #414552; /** System messages like date separators. */
+  --chat-text-incoming: #1a1b25; /** Message body text. */
+  --chat-text-outgoing: #091a3b; /** Message body text. */
+  --chat-border-outgoing: #e3edff;
+  --chat-border-incoming: #ebeef1;
+  --chat-border-on-chat-outgoing: #78a8ff;
+  --chat-border-on-chat-incoming: #a3acba;
+  --chat-reply-indicator-outgoing: #4586ff; /** Reply indicator shading for outgoing. */
+  --chat-poll-progress-track-outgoing: #a5c5ff;
+  --chat-thread-connector-incoming: #d5dbe1;
+  --chat-thread-connector-outgoing: #c3d9ff;
+  --input-text-default: #1a1b25; /** Main text inside the chat input. */
+  --input-text-placeholder: #687385; /** Placeholder text for the input. Lower emphasis than main text. */
+  --input-text-icon: #687385; /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
+  --input-text-disabled: #a3acba; /** Placeholder text for the input. Lower emphasis than main text. */
+  --input-send-icon-disabled: #a3acba; /** Send icon when disabled (e.g. empty input). */
+  --reaction-bg: #ffffff; /** Reaction bar background. */
+  --reaction-border: #d5dbe1; /** Border around unselected reaction chips. Subtle in normal modes, strong in high-contrast for visibility. */
+  --reaction-text: #1a1b25; /** Count label next to the emoji inside the reaction chip. Uses secondary text so it does not compete with message text. */
+  --reaction-emoji: #1a1b25; /** Emoji color inside reaction chips. Uses primary text color so the emoji stays clearly legible. */
+  --presence-bg-online: #00a46e; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --presence-border: #ffffff; /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+  --presence-bg-offline: #687385; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --badge-border: #ffffff;
+  --badge-bg-error: #d90d10;
+  --badge-bg-neutral: #687385;
+  --badge-text: #1a1b25;
+  --badge-bg-default: #ffffff;
+  --badge-text-on-accent: #ffffff;
+  --control-remove-control-bg: #1a1b25;
+  --control-remove-control-icon: #ffffff;
+  --control-remove-control-border: #ffffff;
+  --control-progress-bar-track: #d5dbe1;
+  --control-progress-bar-fill: #687385;
+  --control-toggle-switch-knob: #ffffff;
+  --control-toggle-switch-bg: #687385;
+  --control-toggle-switch-bg-disabled: #ebeef1;
+  --control-playback-toggle-border: #d5dbe1;
+  --control-playback-toggle-text: #1a1b25;
+  --control-checkbox-border: #d5dbe1;
+  --control-checkbox-icon: #ffffff;
+  --control-play-button-bg: #000000;
+  --control-play-button-icon: #ffffff;
+  --control-playback-thumb-bg-default: #ffffff;
+  --control-playback-thumb-border-default: rgba(26, 27, 37, 0.25);
+  --control-playback-thumb-bg-active: #005fff;
+  --control-playback-thumb-border-active: #ffffff;
+  --control-radio-button-bg: rgba(255, 255, 255, 0);
+  --control-radio-button-border: #d5dbe1;
+  --control-radio-button-bg-selected: #005fff;
+  --control-radio-button-indicator: #ffffff;
+  --control-radio-check-bg: rgba(255, 255, 255, 0);
+  --control-radio-check-border: #d5dbe1;
+  --control-radio-check-bg-selected: #005fff;
+  --control-radio-check-icon: #ffffff;
+  --avatar-bg-default: #c3d9ff;
+  --avatar-text-default: #091a3b;
+  --avatar-presence-bg-online: #00a46e; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --avatar-presence-bg-offline: #687385; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --avatar-presence-border: #ffffff; /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+  --accent-primary: #005fff; /** Main brand accent for interactive elements. */
   --button-primary-bg: var(--accent-primary);
-  --button-primary-text: var(--accent-primary);
-  --border-utility-selected: var(--accent-primary); /** Focus ring or focus border. */
-  --chat-text-read: var(--accent-primary);
-  --chat-text-typing-indicator: var(--chat-text-incoming); /** Typing indicator chip. */
-  --chat-waveform-bar-playing: var(--accent-primary);
-  --chat-poll-progress-track-incoming: var(--control-progress-bar-track);
-  --chat-poll-progress-fill-incoming: var(--control-progress-bar-fill);
-  --chat-poll-progress-fill-outgoing: var(--accent-primary);
-  --input-send-icon: var(
-    --accent-primary
-  ); /** Default send icon color in the input. Uses the brand accent. */
-  --system-caret: var(--accent-primary);
-  --badge-bg-primary: var(--accent-primary);
-  --control-radiocheck-bg-selected: var(--accent-primary);
-  --control-toggle-switch-bg-selected: var(--accent-primary);
-  --control-checkbox-bg-selected: var(--accent-primary);
-  --text-link: var(--accent-primary); /** Hyperlinks and inline actions. */
-  --chat-text-mention: var(--text-link); /** Mention styling. */
-  --chat-text-link: var(--text-link); /** Links inside message bubbles. */
-  --input-border-focus: var(
-    --border-utility-selected
-  ); /** Focus border when the input is focused. Uses the shared focus state token (brand in normal modes, black in high-contrast). */
-  --input-border-selected: var(
-    --border-utility-selected
-  ); /** Focus border when the input is focused. Uses the shared focus state token (brand in normal modes, black in high-contrast). */
+  --button-primary-text: #005fff;
+  --border-utility-selected: rgba(26, 27, 37, 0.15); /** Focus ring or focus border. */
+  --chat-text-read: #005fff;
+  --chat-text-typing-indicator: #1a1b25; /** Typing indicator chip. */
+  --chat-waveform-bar-playing: #005fff;
+  --chat-poll-progress-track-incoming: #d5dbe1;
+  --chat-poll-progress-fill-incoming: #687385;
+  --chat-poll-progress-fill-outgoing: #005fff;
+  --input-send-icon: #005fff; /** Default send icon color in the input. Uses the brand accent. */
+  --system-caret: #005fff;
+  --badge-bg-primary: #005fff;
+  --control-toggle-switch-bg-selected: #005fff;
+  --control-checkbox-bg-selected: #005fff;
+  --text-link: #005fff; /** Hyperlinks and inline actions. */
+  --chat-text-mention: #005fff; /** Mention styling. */
+  --chat-text-link: #005fff; /** Links inside message bubbles. */
+  --chrome-0: #ffffff; /** Neutral accent for low-priority badges. */
+  --chrome-50: #f6f8fa;
+  --chrome-100: #ebeef1;
+  --chrome-150: #d5dbe1;
+  --chrome-200: #c0c8d2;
+  --chrome-300: #a3acba;
+  --chrome-400: #87909f;
+  --chrome-500: #687385;
+  --chrome-600: #545969;
+  --chrome-700: #414552;
+  --chrome-800: #30313d;
+  --chrome-900: #1a1b25;
+  --chrome-1000: #000000; /** Neutral accent for low-priority badges. */
 }
 
 .str-chat__theme-dark {
-  --background-core-hover: rgba(255, 255, 255, 0.1);
-  --background-core-pressed: rgba(255, 255, 255, 0.15);
-  --background-core-selected: rgba(255, 255, 255, 0.2);
   --background-core-scrim: rgba(0, 0, 0, 0.75);
-  --background-core-overlay: rgba(0, 0, 0, 0.75);
   --background-core-overlay-light: rgba(0, 0, 0, 0.75);
   --background-core-overlay-dark: rgba(0, 0, 0, 0.5);
-  --border-utility-focus: rgba(120, 168, 255, 0.25);
-  --border-core-opacity-10: rgba(255, 255, 255, 0.2);
-  --border-core-opacity-25: rgba(255, 255, 255, 0.25);
   --system-bg-blur: rgba(0, 0, 0, 0.01);
   --system-scrollbar: rgba(255, 255, 255, 0.5);
-  --background-core-disabled: var(--neutral-800);
   --background-core-surface: var(--neutral-800);
   --background-core-surface-subtle: var(--neutral-900);
   --background-core-surface-strong: var(--neutral-700);
   --background-core-inverse: var(--neutral-50);
   --background-core-highlight: var(--yellow-800);
   --background-core-surface-card: var(--neutral-800);
-  --background-elevation-elevation-0: var(--base-black);
-  --background-elevation-elevation-1: var(--neutral-900);
-  --background-elevation-elevation-2: var(--neutral-800);
-  --background-elevation-elevation-3: var(--neutral-700);
-  --background-elevation-elevation-4: var(--neutral-600);
   --border-utility-disabled: var(--neutral-700);
   --border-core-default: var(--neutral-600);
   --border-core-subtle: var(--neutral-800);
   --border-core-strong: var(--neutral-400);
-  --border-core-on-dark: var(--neutral-900);
   --border-core-on-surface: var(--neutral-500);
   --border-core-inverse: var(--neutral-900);
   --chat-reply-indicator-incoming: var(--neutral-500);
@@ -644,7 +549,6 @@
   --text-tertiary: var(--neutral-300);
   --text-inverse: var(--neutral-900);
   --text-disabled: var(--neutral-500);
-  --text-on-dark: var(--neutral-900);
   --avatar-palette-bg-1: var(--blue-600);
   --avatar-palette-bg-2: var(--cyan-600);
   --avatar-palette-bg-3: var(--green-600);
@@ -674,8 +578,5 @@
   --skeleton-loading-highlight: var(--base-transparent-white-20);
   --button-primary-border-on-dark: var(--text-inverse);
   --chat-reply-indicator-outgoing: var(--brand-700);
-  --input-option-card-bg: var(--background-core-surface);
-  --control-playback-thumb-bg-default: var(--background-core-inverse);
   --accent-primary: var(--brand-400);
-  --chip-bg: var(--brand-200);
 }
