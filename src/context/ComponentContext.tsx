@@ -40,7 +40,10 @@ import {
   type ReactionsListProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
+  type SearchResultsPresearchProps,
+  type SearchSourceResultListProps,
   type SendButtonProps,
+  type ShareLocationDialogProps,
   type StartRecordingAudioButtonProps,
   type StreamedMessageTextProps,
   type TextareaComposerProps,
@@ -60,15 +63,8 @@ import type {
   SuggestionListProps,
 } from '../components/TextareaComposer';
 
-import type {
-  SearchProps,
-  SearchResultsPresearchProps,
-  SearchSourceResultListProps,
-} from '../experimental';
-
 import type { PropsWithChildrenOnly } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
-import type { ShareLocationDialogProps } from '../components/Location';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageInput/EditedMessagePreview';
 
@@ -192,7 +188,7 @@ export type ComponentContextValue = {
   /** Custom UI component to display the message translation indicator when message has i18n, defaults to and accepts same props as: [MessageTranslationIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/TranslationIndicator.tsx) */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
   /** Custom component to display the search UI, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/Search.tsx) */
-  Search?: React.ComponentType<SearchProps>;
+  Search?: React.ComponentType;
   /** Custom component to display the UI where the searched string is entered, defaults to and accepts same props as: [SearchBar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchBar/SearchBar.tsx) */
   SearchBar?: React.ComponentType;
   /** Custom component for the search UI dedicated to display the results area, defaults to and accepts same props as: [SearchResults](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchResults.tsx) */
