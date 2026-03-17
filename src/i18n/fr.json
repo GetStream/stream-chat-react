@@ -389,7 +389,7 @@
   "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[Hier]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Aujourd'hui]\", \"nextDay\": \"[Demain]\", \"lastDay\": \"[Hier]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Dernier] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
-  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
+  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}",
   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}",
   "timestamp/PollVoteTooltip": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/relativeDaysAgo": "{{ count }}d ago",
