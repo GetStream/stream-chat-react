@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useRef } from 'react';
 import type { SearchControllerState } from 'stream-chat';
 
 import { SearchBar as DefaultSearchBar } from './SearchBar/SearchBar';
@@ -17,10 +17,11 @@ const searchControllerStateSelector = (
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
 export type SearchProps = {
+  /** The type of channel to create on user result select, defaults to `messaging` */
   directMessagingChannelType?: string;
   /** Sets the input element into disabled state */
   disabled?: boolean;
-  /** Clear search state / results on every click outside the search input, defaults to false */
+  /** Clear the search state/results on every click outside the search input, defaults to `false` */
   exitSearchOnInputBlur?: boolean;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
@@ -29,11 +30,13 @@ export type SearchProps = {
 export const Search = ({
   directMessagingChannelType = 'messaging',
   disabled,
-  exitSearchOnInputBlur,
+  exitSearchOnInputBlur = false,
   placeholder,
 }: SearchProps) => {
   const { SearchBar = DefaultSearchBar, SearchResults = DefaultSearchResults } =
     useComponentContext();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const filterButtonsContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { searchController } = useChatContext();
 
@@ -45,9 +48,11 @@ export const Search = ({
   return (
     <SearchContextProvider
       value={{
+        containerRef,
         directMessagingChannelType,
         disabled,
         exitSearchOnInputBlur,
+        filterButtonsContainerRef,
         placeholder,
         searchController,
       }}
@@ -57,6 +62,7 @@ export const Search = ({
           'str-chat__search--active': isActive,
         })}
         data-testid='search'
+        ref={containerRef}
       >
         <SearchBar />
         <SearchResults />

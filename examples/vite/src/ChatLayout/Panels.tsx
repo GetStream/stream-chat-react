@@ -7,6 +7,7 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelList,
+  ChannelSearchProps,
   ChatView,
   MessageInput,
   MessageList,
@@ -42,6 +43,10 @@ const ChannelThreadPanel = () => {
   );
 };
 
+const CustomChannelSearch = (props: ChannelSearchProps) => (
+  <Search {...props} exitSearchOnInputBlur />
+);
+
 export const ChannelsPanels = ({
   filters,
   initialChannelId,
@@ -65,7 +70,7 @@ export const ChannelsPanels = ({
         ref={channelsLayoutRef}
       >
         <ChannelList
-          ChannelSearch={Search}
+          ChannelSearch={CustomChannelSearch}
           Avatar={ChannelAvatar}
           customActiveChannel={initialChannelId}
           filters={filters}
