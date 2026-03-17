@@ -18,8 +18,6 @@ export const isNotificationTargetPanel = (
 ): value is NotificationTargetPanel =>
   typeof value === 'string' &&
   (NOTIFICATION_TARGET_PANELS as readonly string[]).includes(value);
-/** @deprecated use isNotificationTargetPanel */
-export const isNotificationOriginPanel = isNotificationTargetPanel;
 
 export const getNotificationTargetPanel = (
   notification: Notification,

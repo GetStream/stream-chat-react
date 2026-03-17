@@ -19,7 +19,7 @@
   min-width: 0;
   max-height: var(--str-chat__notification-list-max-height);
   padding-inline: var(--spacing-xs);
-  pointer-events: auto;
+  pointer-events: none;
   position: absolute;
   inset-inline-end: var(--str-chat__notification-list-inset);
   z-index: 2;
@@ -35,7 +35,6 @@
 
 .str-chat__notification-list__edge {
   flex-shrink: 0;
-  //height: 24px;
   left: 0;
   pointer-events: none;
   position: absolute;
@@ -44,39 +43,11 @@
 }
 
 .str-chat__notification-list__edge--top {
-  //background: linear-gradient(
-  //  to bottom,
-  //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
-  //  transparent 100%
-  //);
   top: 0;
-
-  @supports (backdrop-filter: blur(6px)) {
-    //backdrop-filter: blur(6px);
-    //background: linear-gradient(
-    //  to bottom,
-    //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
-    //  transparent 100%
-    //);
-  }
 }
 
 .str-chat__notification-list__edge--bottom {
-  //background: linear-gradient(
-  //  to top,
-  //  var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.95)) 0%,
-  //  transparent 100%
-  //);
   bottom: 0;
-
-  //@supports (backdrop-filter: blur(6px)) {
-  //  backdrop-filter: blur(6px);
-  //  background: linear-gradient(
-  //    to top,
-  //    var(--str-chat__notification-list-edge-color, rgba(255, 255, 255, 0.6)) 0%,
-  //    transparent 100%
-  //  );
-  //}
 }
 
 // Shared entry keyframe for the single-slot notification list.

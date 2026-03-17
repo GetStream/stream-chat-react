@@ -3,9 +3,11 @@
   align-items: center;
   gap: var(--spacing-xxs);
   min-height: 48px;
-  width: 100%;
+  min-width: 200px;
+  max-width: 100%;
   padding: var(--spacing-xs);
   position: relative;
+  pointer-events: visible;
   background: var(--str-chat__notification-background, var(--background-core-inverse));
   border-radius: var(--str-chat__notification-border-radius, var(--radius-3xl));
   box-shadow:

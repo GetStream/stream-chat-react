@@ -76,7 +76,12 @@ export const NotificationList = ({
   const latestNotificationRef = useRef<Notification | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const observedElementRef = useRef<HTMLDivElement | null>(null);
-  const startedTimeoutIdsRef = useRef(new Set<string>());
+  const startedTimeoutIdsRef = useRef<Set<string> | null>(null);
+
+  if (!startedTimeoutIdsRef.current) {
+    startedTimeoutIdsRef.current = new Set<string>();
+  }
+
   const [displayedNotification, setDisplayedNotification] = useState<Notification | null>(
     null,
   );
@@ -86,7 +91,7 @@ export const NotificationList = ({
 
   const dismiss = useCallback(
     (id: string) => {
-      startedTimeoutIdsRef.current.delete(id);
+      startedTimeoutIdsRef.current?.delete(id);
       client.notifications.remove(id);
     },
     [client],
@@ -95,9 +100,9 @@ export const NotificationList = ({
   useEffect(() => {
     const notificationIds = new Set(notifications.map(({ id }) => id));
 
-    startedTimeoutIdsRef.current.forEach((id) => {
+    startedTimeoutIdsRef.current?.forEach((id) => {
       if (!notificationIds.has(id)) {
-        startedTimeoutIdsRef.current.delete(id);
+        startedTimeoutIdsRef.current?.delete(id);
       }
     });
   }, [notifications]);
@@ -143,7 +148,11 @@ export const NotificationList = ({
     if (!element || !notification || transitionState === 'exit') return;
 
     const startTimeout = () => {
-      if (startedTimeoutIdsRef.current.has(notification.id)) return;
+      if (
+        !startedTimeoutIdsRef.current ||
+        startedTimeoutIdsRef.current.has(notification.id)
+      )
+        return;
 
       startedTimeoutIdsRef.current.add(notification.id);
       client.notifications.startTimeout(notification.id);

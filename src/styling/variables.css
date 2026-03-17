@@ -746,6 +746,7 @@
   --chat-text-system: var(--text-secondary);
   --chat-border-incoming: var(--border-core-subtle);
   --chat-border-on-chat-incoming: var(--border-core-strong);
+  --chat-waveform-bar: var(--border-core-opacity-strong);
   --chat-waveform-bar-playing: var(--accent-primary);
   --chat-thread-connector-incoming: var(--border-core-default);
   --chat-text-typing-indicator: var(--chat-text-incoming);
