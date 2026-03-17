@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { type ComponentPropsWithoutRef } from 'react';
 import { Avatar, type AvatarProps } from './Avatar';
+import { Badge, type BadgeSize } from '../Badge';
 
 export type GroupAvatarMember = {
   imageUrl?: string;
@@ -13,6 +14,7 @@ export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
   /** Optional count for the "+N" badge when there are more members than shown. */
   overflowCount?: number;
   size: '2xl' | 'xl' | 'lg' | null;
+  badgeSize?: BadgeSize;
   isOnline?: boolean;
 };
 
@@ -22,6 +24,7 @@ export type GroupAvatarProps = ComponentPropsWithoutRef<'div'> & {
  */
 // TODO: rename to AvatarGroup
 export const GroupAvatar = ({
+  badgeSize,
   className,
   displayMembers = [],
   isOnline,
@@ -80,7 +83,13 @@ export const GroupAvatar = ({
           />
         ))}
       {displayCountBadge && (
-        <div className='str-chat__avatar-group__count-badge'>+{overflowCount}</div>
+        <Badge
+          className='str-chat__avatar-group__count-badge'
+          size={badgeSize}
+          variant='counter'
+        >
+          +{overflowCount}
+        </Badge>
       )}
     </div>
   );

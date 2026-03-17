@@ -297,7 +297,7 @@
 
   .app__settings-modal__tab[aria-selected='true'],
   .app__settings-modal__tab.app__settings-modal__tab--active {
-    background: var(--background-core-selected);
+    background: var(--background-utility-selected);
     border-color: var(--border-utility-selected);
     color: var(--text-primary);
     font-weight: 600;
@@ -334,7 +334,7 @@
 
   .app__settings-modal__option-button[aria-pressed='true'] {
     border-color: var(--border-utility-selected);
-    background: var(--background-core-selected);
+    background: var(--background-utility-selected);
     font-weight: 600;
   }
 

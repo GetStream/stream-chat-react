@@ -493,11 +493,11 @@
   --button-primary-border: #a5c5ff;
   --button-primary-text-inverse: #ffffff;
   --button-primary-border-inverse: #ffffff;
-  --button-secondary-text: #1a1b25;
+  --button-secondary-text: var(--text-primary);
   --button-secondary-bg-liquid-glass: #ffffff;
   --button-secondary-border: #d5dbe1;
   --button-secondary-bg: #ebeef1;
-  --button-secondary-text-on-accent: #1a1b25;
+  --button-secondary-text-on-accent: var(--text-primary);
   --button-secondary-text-inverse: #ffffff;
   --button-secondary-border-inverse: #ffffff;
   --button-destructive-text: #d90d10;
@@ -522,7 +522,7 @@
   --chat-text-username: #414552; /** Username label. */
   --chat-text-reaction: #414552; /** Reaction count text. */
   --chat-text-system: #414552; /** System messages like date separators. */
-  --chat-text-incoming: #1a1b25; /** Message body text. */
+  --chat-text-incoming: var(--text-primary); /** Message body text. */
   --chat-text-outgoing: #091a3b; /** Message body text. */
   --chat-border-outgoing: #e3edff;
   --chat-border-incoming: #ebeef1;
@@ -533,7 +533,7 @@
   --chat-thread-connector-incoming: #d5dbe1;
   --chat-thread-connector-outgoing: #c3d9ff;
   --chat-text-read: var(--accent-primary);
-  --chat-text-typing-indicator: #1a1b25; /** Typing indicator chip. */
+  --chat-text-typing-indicator: var(--text-primary); /** Typing indicator chip. */
   --chat-waveform-bar-playing: var(--accent-primary);
   --chat-poll-progress-track-incoming: #d5dbe1;
   --chat-poll-progress-fill-incoming: #687385;
@@ -542,7 +542,7 @@
   --chat-text-link: var(--accent-primary); /** Links inside message bubbles. */
 
   /* ─── Input ─── */
-  --input-text-default: #1a1b25; /** Main text inside the chat input. */
+  --input-text-default: var(--text-primary); /** Main text inside the chat input. */
   --input-text-placeholder: #687385; /** Placeholder text for the input. Lower emphasis than main text. */
   --input-text-icon: #687385; /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
   --input-text-disabled: #a3acba; /** Placeholder text for the input. Lower emphasis than main text. */
@@ -552,8 +552,8 @@
   /* ─── Reaction ─── */
   --reaction-bg: #ffffff; /** Reaction bar background. */
   --reaction-border: #d5dbe1; /** Border around unselected reaction chips. Subtle in normal modes, strong in high-contrast for visibility. */
-  --reaction-text: #1a1b25; /** Count label next to the emoji inside the reaction chip. Uses secondary text so it does not compete with message text. */
-  --reaction-emoji: #1a1b25; /** Emoji color inside reaction chips. Uses primary text color so the emoji stays clearly legible. */
+  --reaction-text: var(--text-primary); /** Count label next to the emoji inside the reaction chip. Uses secondary text so it does not compete with message text. */
+  --reaction-emoji: var(--text-primary); /** Emoji color inside reaction chips. Uses primary text color so the emoji stays clearly legible. */
 
   /* ─── Presence ─── */
   --presence-bg-online: #00a46e; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
@@ -565,7 +565,7 @@
   --badge-bg-primary: var(--accent-primary);
   --badge-bg-error: #d90d10;
   --badge-bg-neutral: #687385;
-  --badge-text: #1a1b25;
+  --badge-text: var(--text-primary);
   --badge-bg-default: #ffffff;
   --badge-text-on-accent: #ffffff;
 
@@ -580,7 +580,7 @@
   --control-toggle-switch-bg-selected: var(--accent-primary);
   --control-toggle-switch-bg-disabled: #ebeef1;
   --control-playback-toggle-border: #d5dbe1;
-  --control-playback-toggle-text: #1a1b25;
+  --control-playback-toggle-text: var(--text-primary);
   --control-checkbox-border: #d5dbe1;
   --control-checkbox-bg-selected: var(--accent-primary);
   --control-checkbox-icon: #ffffff;
@@ -608,7 +608,7 @@
 }
 
 .str-chat__theme-dark,
-.str-chat .str-chat__theme-inverse {
+.str-chat:not(.str-chat__theme-dark) *:not(.str-chat__theme-dark) .str-chat__theme-inverse {
   /* Background (Figma dark semantics) */
   --background-core-scrim: rgba(0, 0, 0, 0.75);
   --background-core-overlay-light: rgba(0, 0, 0, 0.75);
@@ -691,7 +691,22 @@
   --brand-800: var(--blue-100);
   --brand-900: var(--blue-50);
   /* Skeleton */
+  --skeleton-loading-base: var(--base-transparent-0);
   --skeleton-loading-highlight: var(--base-transparent-white-20);
+  /* Chrome (dark semantic scale) */
+  --chrome-0: var(--base-black);
+  --chrome-50: var(--neutral-900);
+  --chrome-100: var(--neutral-800);
+  --chrome-150: var(--neutral-700);
+  --chrome-200: var(--neutral-600);
+  --chrome-300: var(--neutral-500);
+  --chrome-400: var(--neutral-400);
+  --chrome-500: var(--neutral-300);
+  --chrome-600: var(--neutral-200);
+  --chrome-700: var(--neutral-150);
+  --chrome-800: var(--neutral-100);
+  --chrome-900: var(--neutral-50);
+  --chrome-1000: var(--base-white);
   /* Button (dark mode – aligned with Figma / design-system-tokens dark semantics) */
   --button-primary-bg: var(--accent-primary);
   --button-primary-bg-liquid-glass: var(--base-transparent-0);
@@ -722,45 +737,77 @@
   --chat-reply-indicator-incoming: var(--neutral-500);
   --chat-reply-indicator-outgoing: var(--brand-700);
   --chat-poll-progress-fill-outgoing: var(--base-white);
+  --chat-text-username: var(--text-secondary);
+  --chat-text-timestamp: var(--text-tertiary);
+  --chat-text-read: var(--accent-primary);
+  --chat-text-mention: var(--text-link);
+  --chat-text-link: var(--text-link);
+  --chat-text-reaction: var(--text-secondary);
+  --chat-text-system: var(--text-secondary);
+  --chat-border-incoming: var(--border-core-subtle);
+  --chat-border-on-chat-incoming: var(--border-core-strong);
+  --chat-waveform-bar-playing: var(--accent-primary);
+  --chat-thread-connector-incoming: var(--border-core-default);
+  --chat-text-typing-indicator: var(--chat-text-incoming);
+  --chat-poll-progress-track-incoming: var(--control-progress-bar-track);
+  --chat-poll-progress-fill-incoming: var(--control-progress-bar-fill);
   /* Input */
   --input-text-default: var(--text-primary);
   --input-text-placeholder: var(--text-tertiary);
   --input-text-icon: var(--text-tertiary);
   --input-text-disabled: var(--text-disabled);
   --input-send-icon: var(--accent-primary);
+  --input-send-icon-disabled: var(--text-disabled);
   /* Reaction */
   --reaction-bg: var(--background-core-elevation-3);
   --reaction-border: var(--border-core-default);
   --reaction-text: var(--text-primary);
   --reaction-emoji: var(--text-primary);
+  /* Presence */
+  --presence-border: var(--border-core-inverse);
+  --presence-bg-offline: var(--accent-neutral);
+  /* System */
+  --system-caret: var(--accent-primary);
+  /* Badge (-on-dark in tokens = *-inverse in react) */
+  --badge-bg-overlay: rgba(0, 0, 0, 0.75);
+  --badge-bg-default: var(--background-core-elevation-3);
+  --badge-bg-primary: var(--accent-primary);
+  --badge-bg-neutral: var(--accent-neutral);
+  --badge-text: var(--text-primary);
+  --badge-text-on-accent: var(--text-on-accent);
+  --badge-border: var(--border-core-inverse);
+  --badge-bg-inverse: var(--chrome-1000);
+  --badge-text-inverse: var(--text-inverse);
   /* Control */
+  --control-checkbox-bg: var(--base-transparent-0);
+  --control-playback-thumb-border-default: var(--border-core-opacity-strong);
+  --control-radio-button-bg: var(--base-transparent-0);
+  --control-radio-check-bg: var(--base-transparent-0);
+  --control-remove-control-bg: var(--background-core-inverse);
+  --control-remove-control-icon: var(--text-inverse);
+  --control-remove-control-border: var(--border-core-inverse);
+  --control-progress-bar-track: var(--background-core-surface-strong);
+  --control-progress-bar-fill: var(--accent-neutral);
+  --control-toggle-switch-bg: var(--accent-neutral);
+  --control-toggle-switch-bg-disabled: var(--background-utility-disabled);
+  --control-toggle-switch-knob: var(--background-core-elevation-4);
+  --control-playback-toggle-text: var(--text-primary);
+  --control-playback-toggle-border: var(--border-core-default);
+  --control-checkbox-border: var(--border-core-default);
+  --control-checkbox-bg-selected: var(--accent-primary);
+  --control-checkbox-icon: var(--text-on-accent);
+  --control-play-button-bg: var(--chrome-1000);
+  --control-play-button-icon: var(--text-on-accent);
   --control-playback-thumb-bg-default: var(--background-core-inverse);
-}
-
-/* Inverse theme in dark theme (light surface): inverse = default button look (light-theme values). */
-.str-chat__theme-dark .str-chat__theme-inverse {
-  --button-primary-text: var(--blue-500);
-  --button-primary-border: var(--blue-200);
-  --button-secondary-text: var(--slate-900);
-  --button-secondary-border: var(--slate-150);
-  --button-destructive-text: var(--red-500);
-  --button-destructive-border: var(--red-500);
-  --button-primary-bg: var(--blue-500);
-  --button-primary-text-on-accent: var(--base-white);
-  --button-secondary-bg: var(--slate-150);
-  --button-secondary-text-on-accent: var(--slate-900);
-  --button-destructive-bg: var(--red-500);
-  --button-destructive-text-on-accent: var(--base-white);
-  --button-primary-text-inverse: var(--button-primary-text);
-  --button-primary-border-inverse: var(--button-primary-border);
-  --button-primary-bg-inverse: var(--button-primary-bg);
-  --button-primary-text-on-accent-inverse: var(--button-primary-text-on-accent);
-  --button-secondary-text-inverse: var(--button-secondary-text);
-  --button-secondary-border-inverse: var(--button-secondary-border);
-  --button-secondary-bg-inverse: var(--button-secondary-bg);
-  --button-secondary-text-on-accent-inverse: var(--button-secondary-text-on-accent);
-  --button-destructive-text-inverse: var(--button-destructive-text);
-  --button-destructive-border-inverse: var(--button-destructive-border);
-  --button-destructive-bg-inverse: var(--button-destructive-bg);
-  --button-destructive-text-on-accent-inverse: var(--button-destructive-text-on-accent);
+  --control-playback-thumb-border-active: var(--border-core-on-accent);
+  --control-playback-thumb-bg-active: var(--accent-primary);
+  --control-radio-button-border: var(--border-core-default);
+  --control-radio-button-bg-selected: var(--accent-primary);
+  --control-radio-button-indicator: var(--text-on-accent);
+  --control-radio-check-border: var(--border-core-default);
+  --control-radio-check-bg-selected: var(--accent-primary);
+  --control-radio-check-icon: var(--text-on-accent);
+  /* Avatar */
+  --avatar-presence-bg-offline: var(--accent-neutral);
+  --avatar-presence-border: var(--border-core-inverse);
 }

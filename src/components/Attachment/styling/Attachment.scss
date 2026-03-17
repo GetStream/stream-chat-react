@@ -649,6 +649,7 @@
     border: 1px solid var(--chat-border-on-chat-incoming);
     cursor: pointer;
     font-size: var(--typography-font-size-xs);
+    color: var(--control-playback-toggle-text);
   }
 
   .str-chat__message-attachment-with-actions.str-chat__message-attachment--giphy {

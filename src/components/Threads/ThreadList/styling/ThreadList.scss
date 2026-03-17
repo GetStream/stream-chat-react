@@ -134,7 +134,7 @@
     }
 
     &:not(:disabled):hover {
-      @include utils.overlay-after(var(--background-core-hover));
+      @include utils.overlay-after(var(--background-utility-hover));
     }
   }
 }
