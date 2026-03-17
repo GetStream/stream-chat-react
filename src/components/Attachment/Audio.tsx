@@ -2,7 +2,8 @@ import React from 'react';
 import type { Attachment } from 'stream-chat';
 
 import { DownloadButton, FileSizeIndicator, ProgressBar } from './components';
-import { type AudioPlayerState, useAudioPlayer } from '../AudioPlayback';
+import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
+import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { useMessageContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';

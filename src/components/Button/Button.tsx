@@ -12,6 +12,8 @@ export type ButtonProps = ComponentProps<'button'> & {
   appearance?: ButtonAppearance;
   /** When true, uses full border-radius for icon-only/pill shape. */
   circular?: boolean;
+  /** When true, button uses inverse theme (e.g. on dark surface in light theme). */
+  inverseTheme?: boolean;
   /** Size: lg, md, or sm. */
   size?: ButtonSize;
 };
@@ -36,7 +38,7 @@ const sizeToClass: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { appearance, children, circular, className, size, variant, ...props },
+  { appearance, children, circular, className, inverseTheme, size, variant, ...props },
   ref,
 ) {
   return (
@@ -49,6 +51,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         variant != null && variantToClass[variant],
         appearance != null && appearanceToClass[appearance],
         circular && 'str-chat__button--circular',
+        inverseTheme && 'str-chat__theme-inverse',
         size != null && sizeToClass[size],
         className,
       )}

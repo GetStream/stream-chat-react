@@ -1,0 +1,28 @@
+{
+  "feature": "notification-target-system",
+  "active_task": null,
+  "tasks": {
+    "1": "done",
+    "2": "done",
+    "3": "done",
+    "4": "done",
+    "5": "done",
+    "6": "done"
+  },
+  "flags": {
+    "blocked": false,
+    "needs_review": false
+  },
+  "notes": [
+    "Optimized notification translation to a single generic fallback strategy in NotificationTranslationTopic.",
+    "Ran i18next extraction and updated locale files for newly handled notification keys.",
+    "Validated i18n tests, translation validation, and type checks."
+  ],
+  "verification": {
+    "tests": [
+      "yarn test src/i18n/__tests__/NotificationTranslationBuilder.test.js src/i18n/__tests__/TranslationBuilder.test.js --runInBand --watchman=false"
+    ],
+    "translations": ["yarn build-translations", "yarn validate-translations"],
+    "types": ["yarn types"]
+  }
+}

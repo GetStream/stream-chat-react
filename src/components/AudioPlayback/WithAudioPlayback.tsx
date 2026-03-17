@@ -4,6 +4,7 @@ import type { AudioPlayerOptions } from './AudioPlayer';
 import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
+import { useNotificationTarget } from '../Notifications';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 
@@ -67,6 +68,7 @@ export const useAudioPlayer = ({
   waveformData,
 }: UseAudioPlayerProps) => {
   const { client } = useChatContext();
+  const panel = useNotificationTarget();
   const { t } = useTranslationContext();
   const { audioPlayers } = useContext(AudioPlayerContext);
 
@@ -91,12 +93,16 @@ export const useAudioPlayer = ({
      * Avoid having to pass client and translation function to AudioPlayer instances
      * and instead provide plugin that takes care of translated notifications.
      */
-    const notificationsPlugin = audioPlayerNotificationsPluginFactory({ client, t });
+    const notificationsPlugin = audioPlayerNotificationsPluginFactory({
+      client,
+      panel,
+      t,
+    });
     audioPlayer.setPlugins((currentPlugins) => [
       ...currentPlugins.filter((plugin) => plugin.id !== notificationsPlugin.id),
       notificationsPlugin,
     ]);
-  }, [audioPlayer, client, t]);
+  }, [audioPlayer, client, panel, t]);
 
   return audioPlayer;
 };

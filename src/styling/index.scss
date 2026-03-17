@@ -3,7 +3,6 @@
 @use 'animations';
 @use 'global-layout-variables';
 @use 'global-theme-variables';
-@use 'palette-variables';
 @use './variables.css';
 @use 'base';
 @use 'icons';
@@ -16,7 +15,6 @@
 // Base components
 @use '../components/Badge/styling' as Badge;
 @use '../components/Button/styling' as Button;
-@use '../components/ChannelList/styling' as ChannelList;
 @use '../components/Form/styling' as Form;
 @use '../components/Dialog/styling' as Dialog;
 @use '../components/Modal/styling' as Modal;
@@ -29,6 +27,7 @@
 @use '../components/Avatar/styling/GroupAvatar' as GroupAvatar;
 @use '../components/Channel/styling' as Channel;
 @use '../components/ChannelHeader/styling' as ChannelHeader;
+@use '../components/ChannelList/styling' as ChannelList;
 @use '../components/ChannelPreview/styling' as ChannelPreview;
 @use '../components/ChatView/styling' as ChatView;
 @use '../components/DateSeparator/styling' as DateSeparator;
@@ -43,6 +42,7 @@
 @use '../components/MessageBounce/styling' as MessageBounce;
 @use '../components/MessageInput/styling' as MessageComposer;
 @use '../components/MessageList/styling' as MessageList;
+@use '../components/Notifications/styling' as Notifications;
 @use '../components/Poll/styling' as Poll;
 @use '../components/Reactions/styling' as Reactions;
 @use '../components/Search/styling' as Search;

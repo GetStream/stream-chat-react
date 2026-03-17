@@ -34,13 +34,13 @@
     }
 
     &:hover::before {
-      background: var(--background-core-hover);
+      background: var(--background-utility-hover);
     }
     &:active::before {
-      background: var(--background-core-pressed);
+      background: var(--background-utility-pressed);
     }
     &[aria-pressed='true']::before {
-      background: var(--background-core-selected);
+      background: var(--background-utility-selected);
     }
   }
 }

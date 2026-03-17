@@ -17,6 +17,9 @@ import {
   Chat,
   ChatView,
   ReactionsList,
+  MessageInput,
+  type NotificationListProps,
+  NotificationList,
   WithComponents,
   defaultReactionOptions,
   type ReactionOptions,
@@ -127,6 +130,12 @@ const EmojiPickerWithCustomOptions = (
   const { mode } = useAppSettingsSelector((state) => state.theme);
 
   return <EmojiPicker {...props} pickerProps={{ theme: mode }} />;
+};
+
+const ConfigurableNotificationList = (props: NotificationListProps) => {
+  const { verticalAlignment } = useAppSettingsSelector((state) => state.notifications);
+
+  return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
 };
 
 const App = () => {
@@ -245,6 +254,8 @@ const App = () => {
       overrides={{
         emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
+        MessageListNotifications: ConfigurableNotificationList,
+        NotificationList: ConfigurableNotificationList,
         ReactionsList: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,

@@ -28,7 +28,7 @@
 
   --str-chat__cooldown-border-radius: var(--button-radius-full);
   --str-chat__cooldown-color: var(--text-disabled);
-  --str-chat__cooldown-background-color: var(--background-core-disabled);
+  --str-chat__cooldown-background-color: var(--background-utility-disabled);
   --str-chat__cooldown-border-block-start: 0;
   --str-chat__cooldown-border-block-end: 0;
   --str-chat__cooldown-border-inline-start: 0;
@@ -48,7 +48,7 @@
     padding: var(--str-chat__message-composer-padding);
     min-width: 0;
     border-top: 1px solid var(--border-core-default);
-    background: var(--background-elevation-elevation-1);
+    background: var(--background-core-elevation-1);
   }
 
   .str-chat__message-composer {

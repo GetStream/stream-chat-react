@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { IconArrowRightUp } from '../Icons';
+import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import {
   useChannelActionContext,
   useChannelStateContext,
@@ -19,6 +20,7 @@ export const MessageAlsoSentInChannelIndicator = () => {
   const { channel } = useChannelStateContext();
   const { jumpToMessage, openThread } = useChannelActionContext();
   const { message, threadList } = useMessageContext('MessageAlsoSentInChannelIndicator');
+  const panel = useNotificationTarget();
   const targetMessageRef = useRef<LocalMessage | null | undefined>(undefined);
 
   const queryParent = () =>
@@ -36,7 +38,8 @@ export const MessageAlsoSentInChannelIndicator = () => {
           message: t('Thread has not been found'),
           options: {
             originalError: error,
-            type: 'api:message:search:not-found',
+            tags: addNotificationTargetTag(panel),
+            type: 'api:reply:search:failed',
           },
           origin: {
             context: { threadReply: message },

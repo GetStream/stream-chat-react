@@ -10,6 +10,7 @@ import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from 
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { LoadingChannels } from '../../Loading';
+import { NotificationList } from '../../Notifications';
 import { useChatContext, useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { ThreadListHeader } from './ThreadListHeader';
@@ -86,6 +87,7 @@ const useThreadHighlighting = (threadManager: ThreadManager) => {
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client, navOpen = true } = useChatContext();
   const {
+    NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
     ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
@@ -142,6 +144,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}
       />
+      <NotificationListFromContext panel='thread-list' />
     </div>
   );
 };

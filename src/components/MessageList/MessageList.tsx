@@ -8,13 +8,12 @@ import {
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
 import { useMarkRead } from './hooks/useMarkRead';
-
-import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
+import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { DialogManagerProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
@@ -30,14 +29,13 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
+import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { LocalMessage } from 'stream-chat';
-import type { MessageRenderer } from './renderMessages';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import type { MessageProps } from '../Message/types';
-import type { ChannelStateContextValue } from '../../context/ChannelStateContext';
 
 import {
   DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
@@ -45,6 +43,7 @@ import {
 } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { NotificationList, useNotificationTarget } from '../Notifications';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -75,7 +74,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages = [],
     noGroupByUser = false,
-    notifications,
     pinPermissions = defaultPinPermissions,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
@@ -97,12 +95,17 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListMainPanel = DefaultMessageListMainPanel,
-    MessageListNotifications = DefaultMessageListNotifications,
+    MessageListNotifications = undefined,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
+    NotificationList: NotificationListFromContext = NotificationList,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext('MessageList');
+  const MessageListNotificationsComponent =
+    MessageListNotifications ?? NotificationListFromContext;
+
+  const notificationTarget = useNotificationTarget();
 
   const {
     hasNewMessages,
@@ -292,16 +295,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <div key='bottom' />
                 </InfiniteScroll>
               )}
-              <NewMessageNotification
-                newMessageCount={channelUnreadUiState?.unread_messages}
-                showNotification={hasNewMessages || hasMoreNewer}
-              />
-              <ScrollToLatestMessageButton
-                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer}
-                onClick={scrollToBottomFromNotification}
-                threadList={threadList}
-              />
             </div>
             <NewMessageNotification
               newMessageCount={channelUnreadUiState?.unread_messages}
@@ -314,8 +307,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               threadList={threadList}
             />
           </DialogManagerProvider>
+          <MessageListNotificationsComponent panel={notificationTarget} />
         </MessageListMainPanel>
-        <MessageListNotifications notifications={notifications} />
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );

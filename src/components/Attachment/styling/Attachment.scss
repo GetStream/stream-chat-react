@@ -649,6 +649,7 @@
     border: 1px solid var(--chat-border-on-chat-incoming);
     cursor: pointer;
     font-size: var(--typography-font-size-xs);
+    color: var(--control-playback-toggle-text);
   }
 
   .str-chat__message-attachment-with-actions.str-chat__message-attachment--giphy {
@@ -720,7 +721,7 @@
     padding: 0;
     background-color: transparent;
     border: 1px solid var(--chat-border-incoming);
-    box-shadow: var(--background-elevation-elevation-0);
+    box-shadow: var(--background-core-elevation-0);
   }
 
   .str-chat__message-attachment {
@@ -741,7 +742,7 @@
   &.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
     .str-chat__message-bubble {
       border: 1px solid var(--chat-border-outgoing);
-      box-shadow: var(--background-elevation-elevation-0);
+      box-shadow: var(--background-core-elevation-0);
     }
 
     .str-chat__message-attachment {

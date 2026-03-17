@@ -15,6 +15,10 @@ export type ThemeSettingsState = {
   mode: 'dark' | 'light';
 };
 
+export type NotificationsSettingsState = {
+  verticalAlignment: 'bottom' | 'top';
+};
+
 export const LEFT_PANEL_MIN_WIDTH = 360;
 export const THREAD_PANEL_MIN_WIDTH = 360;
 
@@ -35,6 +39,7 @@ export type PanelLayoutSettingsState = {
 
 export type AppSettingsState = {
   chatView: ChatViewSettingsState;
+  notifications: NotificationsSettingsState;
   panelLayout: PanelLayoutSettingsState;
   reactions: ReactionsSettingsState;
   theme: ThemeSettingsState;
@@ -58,6 +63,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const defaultAppSettingsState: AppSettingsState = {
   chatView: {
     iconOnly: true,
+  },
+  notifications: {
+    verticalAlignment: 'bottom',
   },
   panelLayout: {
     leftPanel: {

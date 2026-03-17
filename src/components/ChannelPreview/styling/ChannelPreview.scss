@@ -16,7 +16,7 @@
     gap: var(--spacing-xs);
 
     border-radius: var(--radius-md, 8px);
-    background: var(--background-elevation-elevation-3, #fff);
+    background: var(--background-core-elevation-3, #fff);
 
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.05),
@@ -53,15 +53,15 @@
   border-radius: var(--radius-lg);
   width: 100%;
 
-  background: var(--background-elevation-elevation-1);
+  background: var(--background-core-elevation-1);
   &:not(:disabled):hover {
-    background: var(--background-core-hover);
+    background: var(--background-utility-hover);
   }
   &:not(:disabled):active {
-    background: var(--background-core-pressed);
+    background: var(--background-utility-pressed);
   }
   &:not(:disabled)[aria-pressed='true'] {
-    background: var(--background-core-selected);
+    background: var(--background-utility-selected);
   }
 
   .str-chat__avatar {

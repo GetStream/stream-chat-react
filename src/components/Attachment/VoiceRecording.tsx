@@ -4,13 +4,11 @@ import type { Attachment } from 'stream-chat';
 import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from './components';
 import { FileIcon } from '../FileIcon';
 import { useMessageContext, useTranslationContext } from '../../context';
-import {
-  type AudioPlayerState,
-  DurationDisplay,
-  useAudioPlayer,
-} from '../AudioPlayback/';
+import { DurationDisplay } from '../AudioPlayback';
+import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
+import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
-import type { AudioPlayer } from '../AudioPlayback';
+import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';

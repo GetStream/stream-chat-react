@@ -28,7 +28,6 @@ export type MarkReadWrapperOptions = {
 export type RetrySendMessage = (message: LocalMessage) => Promise<void>;
 
 export type ChannelActionContextValue = {
-  addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
   deleteMessage: (
     message: LocalMessage,

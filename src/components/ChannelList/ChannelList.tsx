@@ -1,6 +1,6 @@
+import type { ReactNode } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
 import type {
   Channel,
   ChannelFilters,
@@ -12,19 +12,27 @@ import type {
 
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
+import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
 import {
   useChannelListShape,
   usePrepareShapeHandlers,
 } from './hooks/useChannelListShape';
 import { useStateStore } from '../../store';
+import type { ChannelListMessengerProps } from './ChannelListMessenger';
 import { ChannelListMessenger } from './ChannelListMessenger';
+import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import { ChannelPreview } from '../ChannelPreview/ChannelPreview';
 import { Search as DefaultSearch } from '../Search';
+import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
+import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
+import { NotificationList as DefaultNotificationList } from '../Notifications';
+import type { ChatContextValue } from '../../context';
 import {
   ChannelListContextProvider,
   DialogManagerProvider,
@@ -33,14 +41,6 @@ import {
 } from '../../context';
 import { NullComponent } from '../UtilityComponents';
 import { moveChannelUpwards } from './utils';
-import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
-import type { ChannelListMessengerProps } from './ChannelListMessenger';
-import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import type { SearchProps } from '../Search';
-import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
-import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
-import type { ChatContextValue } from '../../context';
-import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
 import type { LoadingErrorIndicatorProps } from '../Loading';
@@ -215,7 +215,8 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
-  const { Search = DefaultSearch } = useComponentContext(); // FIXME: use component context to retrieve ChannelPreview UI components too
+  const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
+    useComponentContext(); // FIXME: use component context to retrieve ChannelPreview UI components too
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
 
@@ -394,6 +395,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
               )}
             </List>
           )}
+          <NotificationList panel='channel-list' />
         </div>
       </ChannelListContextProvider>
     </DialogManagerProvider>

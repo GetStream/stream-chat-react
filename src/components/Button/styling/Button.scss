@@ -32,7 +32,7 @@
       }
 
       &:disabled {
-        background-color: var(--background-core-disabled);
+        background-color: var(--background-utility-disabled);
       }
     }
 
@@ -77,13 +77,13 @@
     &.str-chat__button--outline,
     &.str-chat__button--ghost {
       &:not(:disabled):hover {
-        @include utils.overlay-after(var(--background-core-hover));
+        @include utils.overlay-after(var(--background-utility-hover));
       }
 
       &[aria-expanded='true'],
       &:not(:disabled):active {
         // pressed
-        @include utils.overlay-after(var(--background-core-pressed));
+        @include utils.overlay-after(var(--background-utility-pressed));
       }
 
       &:not(:disabled):focus-visible {
@@ -93,7 +93,7 @@
 
       &:not(:disabled)[aria-pressed='true'] {
         // toggled
-        @include utils.overlay-after(var(--background-core-selected));
+        @include utils.overlay-after(var(--background-utility-selected));
       }
 
       &:disabled {
@@ -168,5 +168,9 @@
       justify-content: center;
       gap: var(--spacing-xs);
     }
+  }
+
+  .str-chat__theme-dark .str-chat__button.str-chat__button--floating {
+    box-shadow: var(--dark-elevation-2);
   }
 }
