@@ -8,7 +8,7 @@ import {
   useMessageInputContext,
 } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import { useMessageComposer, useMessageCompositionIsEmpty } from './hooks';
+import { useMessageComposer, useMessageContentIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
@@ -44,7 +44,7 @@ export const MessageComposerActions = () => {
     textComposerStateSelector,
   );
 
-  const compositionIsEmpty = useMessageCompositionIsEmpty();
+  const contentIsEmpty = useMessageContentIsEmpty();
   /**
    * This bit here is needed to make sure that we can get rid of the default behaviour
    * if need be. Essentially, this allows us to pass StopAIGenerationButton={null} and
@@ -81,7 +81,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (compositionIsEmpty && !editedMessage && recordingEnabled) {
+  } else if (contentIsEmpty && !editedMessage && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 

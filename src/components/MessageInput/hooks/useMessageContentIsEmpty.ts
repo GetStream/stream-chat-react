@@ -4,8 +4,8 @@ import { useStateStore } from '../../../store';
 
 const editingAuditStateStateSelector = (state: EditingAuditState) => state;
 
-export const useMessageCompositionIsEmpty = () => {
+export const useMessageContentIsEmpty = () => {
   const messageComposer = useMessageComposer();
   useStateStore(messageComposer.editingAuditState, editingAuditStateStateSelector);
-  return messageComposer.compositionIsEmpty;
+  return messageComposer.contentIsEmpty;
 };
