@@ -4,7 +4,7 @@
   .str-chat__message {
     max-width: calc(
       var(--str-chat__message-composer-max-width) +
-      var(--str-chat__message-composer-padding)
+        var(--str-chat__message-composer-padding)
     );
     padding-block: var(--spacing-xs);
     margin-inline: auto;
