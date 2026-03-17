@@ -20,7 +20,9 @@
   --str-chat__dialog-menu-button-color: var(--text-primary);
   --str-chat__dialog-menu-button-background-color: transparent;
   --str-chat__dialog-menu-button-hover-background-color: var(--background-utility-hover);
-  --str-chat__dialog-menu-button-active-background-color: var(--background-utility-pressed);
+  --str-chat__dialog-menu-button-active-background-color: var(
+    --background-utility-pressed
+  );
   --str-chat__dialog-menu-button-focused-background-color: transparent;
   --str-chat__dialog-menu-button-disabled-background-color: transparent;
   --str-chat__dialog-menu-back-button-hover-background-color: var(
