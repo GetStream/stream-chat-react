@@ -22,6 +22,7 @@ import {
   type ReactionOptions,
   mapEmojiMartData,
   useCreateChatClient,
+  Search,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -117,6 +118,8 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList
     />
   );
 };
+
+const CustomChannelSearch = () => <Search exitSearchOnInputBlur />;
 
 const EmojiPickerWithCustomOptions = (
   props: React.ComponentProps<typeof EmojiPicker>,
@@ -244,6 +247,7 @@ const App = () => {
         EmojiPicker: EmojiPickerWithCustomOptions,
         ReactionsList: CustomMessageReactions,
         reactionOptions: newReactionOptions,
+        Search: CustomChannelSearch,
       }}
     >
       <Chat

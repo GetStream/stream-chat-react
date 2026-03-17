@@ -18,7 +18,6 @@ import {
   WithDragAndDropUpload,
   useChannelStateContext,
   useChatContext,
-  Search,
 } from 'stream-chat-react';
 
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
@@ -41,8 +40,6 @@ const ChannelThreadPanel = () => {
     </>
   );
 };
-
-const CustomChannelSearch = () => <Search exitSearchOnInputBlur />;
 
 export const ChannelsPanels = ({
   filters,
@@ -67,7 +64,6 @@ export const ChannelsPanels = ({
         ref={channelsLayoutRef}
       >
         <ChannelList
-          ChannelSearch={CustomChannelSearch}
           Avatar={ChannelAvatar}
           customActiveChannel={initialChannelId}
           filters={filters}

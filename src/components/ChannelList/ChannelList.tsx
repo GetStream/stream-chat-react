@@ -67,8 +67,6 @@ export type ChannelListProps = {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (channels: Array<Channel>) => Array<Channel>;
-  /** Custom UI component to display search results, defaults to and accepts same props as: [Search](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/Search.tsx) */
-  ChannelSearch?: React.ComponentType<SearchProps>;
   // FIXME: how is this even legal (WHY IS IT STRING?!)
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
