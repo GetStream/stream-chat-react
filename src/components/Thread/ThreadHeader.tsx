@@ -12,7 +12,9 @@ import { useTypingContext } from '../../context/TypingContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconCrossMedium } from '../Icons';
+import { IconCrossMedium, IconLayoutAlignLeft } from '../Icons';
+import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
+import { useChatViewContext } from '../ChatView';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 
@@ -40,8 +42,10 @@ const ThreadHeaderSubtitle = ({
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
   const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;
-  const defaultSubtitle =
-    threadDisplayName + ' · ' + t('replyCount', { count: replyCount ?? 0 });
+  const replyCountText = t('replyCount', { count: replyCount ?? 0 });
+  const defaultSubtitle = threadDisplayName
+    ? `${threadDisplayName} · ${replyCountText}`
+    : replyCountText;
   return (
     <div className='str-chat__thread-header-subtitle'>
       <span
@@ -63,15 +67,18 @@ export type ThreadHeaderProps = {
   closeThread: (event?: React.BaseSyntheticEvent) => void;
   /** The thread parent message */
   thread: LocalMessage;
+  /** UI component to display menu icon, defaults to IconLayoutAlignLeft*/
+  MenuIcon?: React.ComponentType;
   /** Override the thread display title */
   overrideTitle?: string;
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
-  const { closeThread, overrideTitle, thread } = props;
+  const { closeThread, MenuIcon = IconLayoutAlignLeft, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();
-  const { channel } = useChannelStateContext('ThreadHeader');
+  const { channel } = useChannelStateContext();
+  const { activeChatView } = useChatViewContext();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
@@ -93,6 +100,11 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   return (
     <div className='str-chat__thread-header'>
+      {activeChatView === 'threads' && (
+        <ToggleSidebarButton canCollapse={!!threadInstance} mode='expand'>
+          <MenuIcon />
+        </ToggleSidebarButton>
+      )}
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <ThreadHeaderSubtitle
