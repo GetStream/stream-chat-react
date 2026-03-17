@@ -18,7 +18,10 @@
   display: flex;
   align-items: flex-end;
   width: 100%;
-  max-width: calc(var(--str-chat__message-composer-max-width) + var(--str-chat__message-composer-padding));
+  max-width: calc(
+    var(--str-chat__message-composer-max-width) +
+      var(--str-chat__message-composer-padding)
+  );
   margin: auto;
   gap: var(--spacing-xs);
   padding-block: var(--spacing-xs);

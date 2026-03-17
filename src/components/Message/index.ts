@@ -10,6 +10,7 @@ export * from './MessageSimple';
 export * from './MessageStatus';
 export * from './MessageText';
 export * from './MessageTimestamp';
+export * from './MessageEditedIndicator';
 export * from './MessageTranslationIndicator';
 export * from './QuotedMessage';
 export * from './ReminderNotification';

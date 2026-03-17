@@ -9,6 +9,7 @@ import { MessageActions as DefaultMessageActions } from '../MessageActions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
+import { MessageEditedIndicator as DefaultMessageEditedIndicator } from './MessageEditedIndicator';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
@@ -39,11 +40,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import {
-  useChannelStateContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannelStateContext, useChatContext } from '../../context';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
@@ -70,7 +67,6 @@ const MessageSimpleWithContext = ({
 }: MessageSimpleWithContextProps) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
@@ -83,6 +79,7 @@ const MessageSimpleWithContext = ({
     MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageDeleted,
     MessageDeletedBubble = DefaultMessageDeletedBubble,
+    MessageEditedIndicator = DefaultMessageEditedIndicator,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
@@ -253,9 +250,7 @@ const MessageSimpleWithContext = ({
               </span>
             )}
             <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
-            {isEdited && (
-              <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
-            )}
+            {!isDeleted && isEdited && <MessageEditedIndicator />}
           </div>
         )}
       </div>
