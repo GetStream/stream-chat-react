@@ -111,7 +111,7 @@ const MessageInputProvider = (props: PropsWithChildren<MessageInputProps>) => {
     if (
       !threadId ||
       !messageComposer.channel ||
-      !messageComposer.compositionIsEmpty ||
+      !messageComposer.contentIsEmpty ||
       !messageComposer.config.drafts.enabled
     )
       return;

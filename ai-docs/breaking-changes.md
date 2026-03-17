@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-15
+Last updated: 2026-03-17
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a` (`6ea7a78e`, `2026-03-13`, `feat: adjust media gallery viewer (#3006)`)
-- Future mining starting point: diff `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `35f8a5d4bc220d3d50462883cf84e37eb507ea51` (`35f8a5d4`, `2026-03-17`, `refactor!: remove deprecated useAudioController hook (#3016)`)
+- Future mining starting point: diff `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -1506,6 +1506,71 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/11-chat-view.md`
 - Example needed: yes
 
+### BC-045: `Search` was promoted to the stable entrypoint and `ChannelSearch` was removed
+
+- Status: confirmed
+- Area: search and channel-list customization
+- User impact:
+  - imports using `Search` from `stream-chat-react/experimental` no longer resolve because the experimental entrypoint was removed
+  - imports using `ChannelSearch` no longer resolve
+  - `ChannelList` customizations using `additionalChannelSearchProps` or the `ChannelSearch` override prop no longer type-check
+  - `showChannelSearch` now renders the stable `Search` component from `ComponentContext`, so search customization moves to `WithComponents` / `ComponentContext`
+- Old API:
+  - `v13.14.2:src/components/index.ts:10` exported `ChannelSearch`
+  - `v13.14.2:src/experimental/index.ts:2` exported `Search`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:66` typed `additionalChannelSearchProps?: Omit<ChannelSearchProps, 'onSearch' | 'onSearchExit'>`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:75` typed `ChannelSearch?: React.ComponentType<ChannelSearchProps>`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:504` rendered `ChannelSearch` with `additionalChannelSearchProps`
+- New API:
+  - `src/components/index.ts:10` exports stable `Search`
+  - current source has no public `ChannelSearch` export
+  - current source has no `src/experimental/index.ts`
+  - `src/components/ChannelList/ChannelList.tsx:182` resolves `Search` from `ComponentContext`
+  - `src/components/ChannelList/ChannelList.tsx:395` through `:397` renders `<Search />` directly when `showChannelSearch` is true
+  - `src/components/Search/Search.tsx:17` through `:24` define the stable `SearchProps` surface as `directMessagingChannelType`, `disabled`, `exitSearchOnInputBlur`, and `placeholder`
+- Replacement:
+  - import `Search` from `stream-chat-react`
+  - replace standalone `ChannelSearch` usage with `Search`
+  - replace `ChannelList.additionalChannelSearchProps` and `ChannelList.ChannelSearch` customizations with `WithComponents` / `ComponentContext` overrides of `Search`, `SearchBar`, `SearchResults`, and related search subcomponents
+  - if you still use `showChannelSearch`, keep it enabled on `ChannelList` and customize the stable search surface through `ComponentContext`
+- Evidence:
+  - commit `9a7b7a2b feat: promote Search to stable, drop ChannelSearch [REACT-894] (#3014)` removed the old `ChannelSearch` export path and promoted `Search` to the stable package entrypoint
+  - current `ChannelList` renders `Search` directly and no longer types `additionalChannelSearchProps` or `ChannelSearch`
+  - current `Search` source exposes a smaller stable prop surface than the removed `ChannelSearch`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/02-channel_list_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/05-channel_search.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/02-channel_search.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/08-app_menu.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/08-advanced-search.md`
+  - `docs/data/docs/_sidebars/[chat-sdk][react][v14-rc].json`
+- Example needed: yes
+
+### BC-046: `useAudioController` was removed from the public attachment surface
+
+- Status: confirmed
+- Area: audio playback helpers
+- User impact:
+  - imports using `useAudioController` no longer resolve
+  - custom attachment or playback UIs built against the old hook need to switch to `useAudioPlayer`
+- Old API:
+  - `v13.14.2:src/components/Attachment/hooks/useAudioController.ts` exported `useAudioController`
+  - `v13.14.2:src/components/Attachment/index.ts:13` re-exported `useAudioController`
+- New API:
+  - current source has no `useAudioController` file or export
+  - current attachment/audio playback docs and examples use `useAudioPlayer`
+- Replacement:
+  - replace `useAudioController()` with `useAudioPlayer()`
+  - re-audit any custom audio controls for naming and return-value differences before upgrading
+- Evidence:
+  - commit `35f8a5d4 refactor!: remove deprecated useAudioController hook (#3016)` deleted `src/components/Attachment/hooks/useAudioController.ts`
+  - current `src/components/Attachment/index.ts` no longer exports `useAudioController`
+- Docs impact:
+  - migration guide
+- Example needed: no
+
 ## Likely
 
 - None yet
@@ -1513,7 +1578,6 @@ Only confirmed items should move from this file into the migration guide.
 ## Ruled Out
 
 - `WithDragAndDropUpload` redesign (`d2a72b54`): investigated; current source adds `FileDragAndDropContent`, `str-chat__dropzone-root`, and cooldown-aware disabling, but does not remove or rename the public `WithDragAndDropUpload` props. Treat the DOM changes under the existing theming/markup buckets instead of as a separate API migration item.
-- Experimental `Search` redesign (`c0b62306`): investigated; the quick diff showed major markup/styling updates, but no material public prop-surface break in the experimental `Search` exports. Keep it out of the core migration guide unless a deeper experimental-only audit finds contract changes.
 - `BaseImage` redesign (`3539020e`): investigated; `showDownloadButtonOnError` was added and the fallback behavior changed, but this is additive rather than a v13 to v14 breaking API change.
 
 ## Notes For Migration Guide Drafting
