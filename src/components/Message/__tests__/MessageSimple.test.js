@@ -824,17 +824,5 @@ describe('<MessageSimple />', () => {
       const { queryAllByText } = await renderMessageSimple({ message });
       expect(queryAllByText('Edited', { exact: true })).not.toHaveLength(0);
     });
-
-    it('should render open bounce modal on click', async () => {
-      const message = generateAliceMessage(editedMessageOptions);
-      const { getByTestId, queryByTestId } = await renderMessageSimple({
-        message,
-      });
-      fireEvent.click(getByTestId('message-inner'));
-      expect(queryByTestId('message-edited-timestamp')).toBeInTheDocument();
-      expect(queryByTestId('message-edited-timestamp')).toHaveClass(
-        'str-chat__message-edited-timestamp--open',
-      );
-    });
   });
 });

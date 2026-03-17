@@ -44,7 +44,6 @@ import {
   useChatContext,
   useTranslationContext,
 } from '../../context';
-import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
@@ -73,7 +72,6 @@ const MessageSimpleWithContext = ({
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
-  const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
   const {
@@ -178,8 +176,6 @@ const MessageSimpleWithContext = ({
 
   if (isBounced) {
     handleClick = () => setIsBounceDialogOpen(true);
-  } else if (isEdited) {
-    handleClick = () => setEditedTimestampOpen((prev) => !prev);
   }
 
   return (
@@ -260,7 +256,6 @@ const MessageSimpleWithContext = ({
             {isEdited && (
               <span className='str-chat__mesage-simple-edited'>{t('Edited')}</span>
             )}
-            {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
           </div>
         )}
       </div>

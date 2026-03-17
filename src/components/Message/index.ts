@@ -3,7 +3,6 @@ export * from './icons';
 export * from './Message';
 export * from './MessageBlocked';
 export * from './MessageDeletedBubble';
-export * from './MessageEditedTimestamp';
 export * from './MessageAlsoSentInChannelIndicator';
 export * from './MessageRepliesCountButton';
 export * from './PinIndicator';
