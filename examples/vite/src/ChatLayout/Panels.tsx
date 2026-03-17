@@ -7,7 +7,6 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelList,
-  ChannelSearchProps,
   ChatView,
   MessageInput,
   MessageList,
@@ -19,8 +18,8 @@ import {
   WithDragAndDropUpload,
   useChannelStateContext,
   useChatContext,
+  Search,
 } from 'stream-chat-react';
-import { Search } from 'stream-chat-react/experimental';
 
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ThreadStateSync } from './Sync.tsx';
@@ -43,9 +42,7 @@ const ChannelThreadPanel = () => {
   );
 };
 
-const CustomChannelSearch = (props: ChannelSearchProps) => (
-  <Search {...props} exitSearchOnInputBlur />
-);
+const CustomChannelSearch = () => <Search exitSearchOnInputBlur />;
 
 export const ChannelsPanels = ({
   filters,
