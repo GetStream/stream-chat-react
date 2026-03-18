@@ -172,6 +172,25 @@ describe('ModalGallery', () => {
     });
   });
 
+  describe('non-interactive mode', () => {
+    it('should render static items without opening modal on click', () => {
+      const items = [makeImageItem()];
+
+      const { container } = renderComponent({ interactive: false, items });
+
+      expect(
+        screen.getByTestId('str-chat__modal-gallery__static-item'),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /Open image in gallery/i }),
+      ).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('str-chat__base-image'));
+
+      expect(container.querySelector('.str-chat__gallery-modal')).toBeNull();
+    });
+  });
+
   describe('Modal behavior', () => {
     it('should open modal when thumbnail is clicked', async () => {
       const items = [makeImageItem(), makeImageItem()];

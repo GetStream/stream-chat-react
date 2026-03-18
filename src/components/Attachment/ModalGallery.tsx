@@ -44,12 +44,18 @@ export type ModalGalleryProps = {
   className?: string;
   /** Whether clicking the empty gallery background should close the modal (default: true) */
   closeOnBackgroundClick?: boolean;
+  /**
+   * When false, thumbnails are not buttons and the fullscreen gallery does not open on tap.
+   * @default true
+   */
+  interactive?: boolean;
   modalClassName?: string;
 };
 
 export const ModalGallery = ({
   className,
   closeOnBackgroundClick = true,
+  interactive = true,
   items,
   modalClassName,
 }: ModalGalleryProps) => {
@@ -87,7 +93,7 @@ export const ModalGallery = ({
           const isLastVisible = index === MAX_VISIBLE_THUMBNAILS - 1;
           const showOverlay = isLastVisible && overflowCount > 0;
 
-          return (
+          return interactive ? (
             <ThumbnailButton
               BaseImage={BaseImage}
               baseImageUsesDefaultBehavior={usesDefaultBaseImage}
@@ -99,22 +105,33 @@ export const ModalGallery = ({
               overflowCount={overflowCount}
               showOverlay={showOverlay}
             />
+          ) : (
+            <StaticGalleryItem
+              BaseImage={BaseImage}
+              baseImageUsesDefaultBehavior={usesDefaultBaseImage}
+              item={item}
+              key={index}
+              overflowCount={overflowCount}
+              showOverlay={showOverlay}
+            />
           );
         })}
       </div>
-      <Modal
-        className={clsx('str-chat__gallery-modal', modalClassName)}
-        onClose={closeModal}
-        open={modalOpen}
-      >
-        <Gallery
-          closeOnBackgroundClick={closeOnBackgroundClick}
-          GalleryUI={GalleryUI}
-          initialIndex={selectedIndex}
-          items={items}
-          onRequestClose={closeModal}
-        />
-      </Modal>
+      {interactive ? (
+        <Modal
+          className={clsx('str-chat__gallery-modal', modalClassName)}
+          onClose={closeModal}
+          open={modalOpen}
+        >
+          <Gallery
+            closeOnBackgroundClick={closeOnBackgroundClick}
+            GalleryUI={GalleryUI}
+            initialIndex={selectedIndex}
+            items={items}
+            onRequestClose={closeModal}
+          />
+        </Modal>
+      ) : null}
     </>
   );
 };
@@ -254,4 +271,54 @@ const getBaseImageProps = (item: GalleryItem): BaseImagePropsWithoutSrc => {
   }
 
   return baseImageProps as BaseImagePropsWithoutSrc;
+};
+
+type StaticGalleryItemProps = {
+  BaseImage: React.ComponentType<BaseImageProps>;
+  baseImageUsesDefaultBehavior: boolean;
+  item: GalleryItem;
+  overflowCount: number;
+  showOverlay: boolean;
+};
+
+const StaticGalleryItem = ({
+  BaseImage,
+  baseImageUsesDefaultBehavior,
+  item,
+  overflowCount,
+  showOverlay,
+}: StaticGalleryItemProps) => {
+  const { t } = useTranslationContext();
+  const imageUrl = item.imageUrl;
+  const {
+    onError: itemOnError,
+    onLoad: itemOnLoad,
+    ...baseImageProps
+  } = getBaseImageProps(item);
+
+  return (
+    <div
+      className='str-chat__modal-gallery__image str-chat__modal-gallery__image--static'
+      data-testid='str-chat__modal-gallery__static-item'
+    >
+      {item.videoThumbnailUrl ? (
+        <VideoThumbnail
+          alt={item.alt ?? t('User uploaded content')}
+          src={item.videoThumbnailUrl}
+        />
+      ) : (
+        <BaseImage
+          {...baseImageProps}
+          alt={item.alt ?? t('User uploaded content')}
+          onError={itemOnError}
+          onLoad={itemOnLoad}
+          src={imageUrl}
+          {...(baseImageUsesDefaultBehavior ? { showDownloadButtonOnError: false } : {})}
+        />
+      )}
+      {showOverlay && (
+        <div className='str-chat__modal-gallery__placeholder'>+{overflowCount}</div>
+      )}
+    </div>
+  );
 };

@@ -22,7 +22,7 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
 
   return (
     <div className={clsx(`str-chat__message-attachment-giphy`)}>
-      <ImageComponent {...imageDescriptors} />
+      <ImageComponent {...imageDescriptors} interactive={false} />
       <GiphyBadge />
     </div>
   );
