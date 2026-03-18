@@ -28,7 +28,7 @@ export const ReactionSelectorWithButton = ({
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
   const buttonRef = useRef<ElementRef<'button'>>(null);
-  const dialogId = DefaultReactionSelector.getReactionSelectorDialogId({
+  const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
   });

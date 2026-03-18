@@ -16,7 +16,6 @@ import { Button } from '../Button';
 import { ReactionSelector } from '../Reactions';
 
 type BaseMessageActionSetItem = {
-  placement: 'quick' | 'dropdown';
   type: keyof typeof MESSAGE_ACTIONS | (string & {});
 };
 
@@ -65,7 +64,7 @@ export const MessageActions = ({
   );
 
   const dropdownDialogId = `message-actions--${message.id}`;
-  const reactionSelectorDialogId = ReactionSelector.getReactionSelectorDialogId({
+  const reactionSelectorDialogId = ReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
   });

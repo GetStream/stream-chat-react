@@ -13,10 +13,8 @@ import {
   ContextMenu,
   ContextMenuButton,
   type ContextMenuHeaderComponent,
-  type ContextMenuItemComponent,
-  type ContextMenuItemProps,
-  type ContextMenuOpenSubmenuParams,
   type ContextMenuSubmenu,
+  useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../../Dialog';
@@ -128,16 +126,15 @@ export type AttachmentSelectorAction = {
 };
 
 export type AttachmentSelectorActionProps = {
-  closeMenu: () => void;
   openModalForAction: (actionType: AttachmentSelectorAction['type']) => void;
-  openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
   submenuItems?: ContextMenuSubmenu;
   submenuHeader?: ContextMenuHeaderComponent;
 };
 
 export const DefaultAttachmentSelectorComponents = {
-  Command({ openSubmenu, submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
+  Command({ submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { openSubmenu } = useContextMenuContext();
     const hasSubmenu = !!submenuItems;
     return (
       <ContextMenuButton
@@ -157,9 +154,10 @@ export const DefaultAttachmentSelectorComponents = {
       </ContextMenuButton>
     );
   },
-  File({ closeMenu }: AttachmentSelectorActionProps) {
+  File() {
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
+    const { closeMenu } = useContextMenuContext();
 
     return (
       <ContextMenuButton
@@ -174,8 +172,9 @@ export const DefaultAttachmentSelectorComponents = {
       </ContextMenuButton>
     );
   },
-  Location({ closeMenu, openModalForAction }: AttachmentSelectorActionProps) {
+  Location({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__add-location-button'
@@ -189,8 +188,9 @@ export const DefaultAttachmentSelectorComponents = {
       </ContextMenuButton>
     );
   },
-  Poll({ closeMenu, openModalForAction }: AttachmentSelectorActionProps) {
+  Poll({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
@@ -329,20 +329,14 @@ export const AttachmentSelector = ({
 
   const contextMenuItems = useMemo(
     () =>
-      actions.reduce<ContextMenuItemComponent[]>((acc, action) => {
-        const submenuItems = action.Submenu;
-        const ActionItem = ({ closeMenu, openSubmenu }: ContextMenuItemProps) => (
-          <action.ActionButton
-            closeMenu={closeMenu}
-            openModalForAction={openModalForAction}
-            openSubmenu={openSubmenu}
-            submenuHeader={action.Header}
-            submenuItems={submenuItems}
-          />
-        );
-        acc.push(ActionItem);
-        return acc;
-      }, []),
+      actions.map((action) => (
+        <action.ActionButton
+          key={action.type}
+          openModalForAction={openModalForAction}
+          submenuHeader={action.Header}
+          submenuItems={action.Submenu}
+        />
+      )),
     [actions, openModalForAction],
   );
 
@@ -380,13 +374,14 @@ export const AttachmentSelector = ({
           data-testid='attachment-selector-actions-menu'
           dialogManagerId={dialogManager?.id}
           id={menuDialogId}
-          items={contextMenuItems}
           onClose={menuDialog.close}
           placement='top-start'
           referenceElement={menuButtonRef.current}
           tabIndex={-1}
           trapFocus
-        />
+        >
+          {contextMenuItems}
+        </ContextMenu>
         <Portal
           getPortalDestination={getModalPortalDestination ?? getDefaultPortalDestination}
           isOpen={modalIsOpen}

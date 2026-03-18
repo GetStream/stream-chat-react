@@ -127,11 +127,7 @@ export const SuggestionList = ({
           )
         : (items ?? []);
     return sortedItems.map((item, i) => {
-      const Item: ContextMenuItemComponent = ({
-        closeMenu: _, // eslint-disable-line @typescript-eslint/no-unused-vars
-        openSubmenu: __, //eslint-disable-line @typescript-eslint/no-unused-vars
-        ...props
-      }: ContextMenuItemProps) => (
+      const Item: ContextMenuItemComponent = ({ ...props }: ContextMenuItemProps) => (
         <AutocompleteSuggestionItem
           {...props}
           component={component}
