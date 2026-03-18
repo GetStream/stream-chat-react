@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
 
-import { measureScrollWork } from './scrollInstrumentation';
 import { useChatContext } from '../../../../context/ChatContext';
 import type { LocalMessage } from 'stream-chat';
 
@@ -169,14 +168,8 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
 
     if (typeof prevMessages !== 'undefined') {
       if (prevMessages.length < newMessages.length) {
-        const messagesAddedToTop = measureScrollWork(
-          'message-list-scroll:classify-prepend',
-          () => messageIdsMatchAsSuffix(prevMessages, newMessages),
-        );
-        const messagesAddedToBottom = measureScrollWork(
-          'message-list-scroll:classify-append',
-          () => messageIdsMatchAsPrefix(prevMessages, newMessages),
-        );
+        const messagesAddedToTop = messageIdsMatchAsSuffix(prevMessages, newMessages);
+        const messagesAddedToBottom = messageIdsMatchAsPrefix(prevMessages, newMessages);
 
         // A clean prepend means older messages were inserted ahead of the current
         // viewport. Restore the viewport according to the mode chosen when loading
@@ -277,17 +270,22 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
 
   return (
     scrollTopValue: number,
-    latestAnchor: { id: string; offsetTop: number } | null = null,
+    getLatestAnchor: (() => { id: string; offsetTop: number } | null) | null = null,
   ) => {
     scrollTop.current = scrollTopValue;
 
     if (
       loadingMore &&
-      latestAnchor &&
+      getLatestAnchor &&
       olderPaginationState.current.mode === 'preserve-anchor'
     ) {
       // Keep the anchor fresh while the request is in flight so restoration matches
       // the latest viewport position if the user keeps scrolling before data arrives.
+      // The getter keeps normal scroll events cheap by avoiding DOM anchor capture
+      // unless anchor preservation is actually active.
+      const latestAnchor = getLatestAnchor();
+      if (!latestAnchor) return;
+
       olderPaginationState.current = {
         anchor: latestAnchor,
         mode: 'preserve-anchor',

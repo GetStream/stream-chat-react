@@ -128,3 +128,31 @@
 - Updated conclusion:
   - keep prefix/suffix id scans as-is for correctness
   - if we optimize this path, focus on reducing `captureAnchor()` frequency and DOM reads rather than rewriting `messageIdsMatchAsPrefix`
+
+## 2026-03-18 - Cached-rect anchor capture materially reduced the hotspot
+
+- Implemented two targeted `captureAnchor()` optimizations:
+  - stop calling it eagerly on every scroll event and only invoke it lazily while prepend anchor preservation is active
+  - cache each candidate row's `getBoundingClientRect()` result once per capture and reuse it for visibility filtering, top-edge selection, center selection, and final offset calculation
+- Rebuilt-browser profiling after the rect-caching change showed a clear improvement:
+  - small/early captures were mostly `0ms` to `0.3ms`
+  - common mid-range captures were roughly `0.4ms` to `0.9ms`
+  - larger captures were typically `1.0ms` to `1.3ms`
+  - the visible worst spike in the shared sample was about `2.6ms`
+- This is materially better than the earlier full-channel profile where `capture-anchor` commonly reached `0.7ms` to `1.5ms` and spiked as high as `7.4ms`.
+- Updated conclusion:
+  - the `captureAnchor()` hotspot has been reduced substantially
+  - `captureAnchor()` remains the dominant measured cost, but it is no longer an obvious first-priority problem unless the browser still shows user-visible jank
+  - any further optimization should be more structural, such as reducing how many DOM candidates are scanned per capture
+
+## 2026-03-18 - Instrumentation cleanup policy
+
+- Removed the temporary `measureScrollWork(...)` call sites from the production scroll hooks after the profiling pass completed.
+- Kept [`scrollInstrumentation.ts`](/Users/martincupela/Projects/stream/chat/stream-chat-react/src/components/MessageList/hooks/MessageList/scrollInstrumentation.ts) as a reusable manual-profiling helper with an inline note explaining that it is intentionally detached by default.
+- Future profiling can reattach the helper temporarily around the exact code path under investigation without rebuilding the instrumentation utility from scratch.
+- Re-enable procedure:
+  - import `measureScrollWork` into the target scroll hook/helper
+  - wrap the expression being profiled, such as `captureAnchor()`, prepend/append classification, or anchor restoration
+  - in the browser console, set `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__ = { enabled: true, entries: [] }`
+  - reproduce the interaction and inspect `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__.entries`
+  - remove the temporary call sites again once the profiling pass is finished

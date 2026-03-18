@@ -259,6 +259,27 @@ Tasks are mostly sequential because `Channel.tsx`, `channelState.ts`, and `Messa
 
 **Measured result:**
 
+- Initial targeted little-italy run:
+  - `classify-prepend` ~`0.30ms`
+  - `capture-anchor` ~`0.20ms`
+  - `classify-append` ~`0ms`
+- Broader benchat full-history pagination run:
+  - `classify-prepend` stayed near `0ms` to `0.2ms`
+  - `classify-append` stayed near `0ms`
+  - `apply-anchor` stayed mostly `0ms` to `0.3ms`
+  - `capture-anchor` scaled into the `0.7ms` to `1.5ms` range with spikes up to roughly `7.4ms`
+- After the lazy-capture and cached-rect optimizations:
+  - `capture-anchor` dropped to mostly `0ms` to `0.3ms` in small cases
+  - common later values were roughly `0.4ms` to `0.9ms`
+  - larger values were usually `1.0ms` to `1.3ms`
+  - the visible worst spike in the shared rebuilt sample was about `2.6ms`
+
+**Updated conclusion:**
+
+- Prefix/suffix classification remains negligible and should not be the target of further tuning.
+- The cached-rect `captureAnchor()` optimization was successful and materially reduced the dominant hotspot.
+- Further optimization is optional and should only happen if browser behavior still feels janky; the next step would be reducing the number of candidate DOM nodes scanned per capture rather than more micro-optimizing the prefix/suffix checks.
+
 - `message-list-scroll:classify-prepend`
   - count: `1`
   - avg/max: about `0.30ms`

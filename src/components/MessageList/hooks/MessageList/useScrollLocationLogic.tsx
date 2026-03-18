@@ -1,7 +1,6 @@
 import type React from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
-import { measureScrollWork } from './scrollInstrumentation';
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 import type { LocalMessage } from 'stream-chat';
 
@@ -44,71 +43,70 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const previousScrollTopRef = useRef(0);
   const anchorRestoreCleanupRef = useRef<(() => void) | null>(null);
 
-  const captureAnchor = useCallback(
-    () =>
-      measureScrollWork('message-list-scroll:capture-anchor', () => {
-        if (!listElement) return null;
+  const captureAnchor = useCallback(() => {
+    if (!listElement) return null;
 
-        const listRect = listElement.getBoundingClientRect();
-        const listTop = listRect.top;
-        const listCenter = listTop + listRect.height / 2;
-        // Older-page pagination should track the top edge, while the generic
-        // “keep this viewport stable” case works better from the center.
-        const preferTopEdgeAnchor =
-          loadingMore || listElement.scrollTop < loadMoreScrollThreshold;
-        const messageElements = Array.from(
-          listElement.querySelectorAll<HTMLElement>('[data-message-id]'),
-        );
+    const listRect = listElement.getBoundingClientRect();
+    const listTop = listRect.top;
+    const listBottom = listRect.bottom;
+    const listCenter = listTop + listRect.height / 2;
+    // Older-page pagination should track the top edge, while the generic
+    // “keep this viewport stable” case works better from the center.
+    const preferTopEdgeAnchor =
+      loadingMore || listElement.scrollTop < loadMoreScrollThreshold;
+    const messageElements = Array.from(
+      listElement.querySelectorAll<HTMLElement>('[data-message-id]'),
+    );
+    const messageAnchors = messageElements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        center: rect.top + rect.height / 2,
+        element,
+        offsetTop: rect.top - listTop,
+        rect,
+      };
+    });
 
-        const visibleMessageElements = messageElements.filter((element) => {
-          const rect = element.getBoundingClientRect();
-          return rect.bottom > listTop && rect.top < listRect.bottom;
-        });
+    const visibleMessageAnchors = messageAnchors.filter(
+      ({ rect }) => rect.bottom > listTop && rect.top < listBottom,
+    );
 
-        const topEdgeAnchorElement = visibleMessageElements.reduce<HTMLElement | null>(
-          (closest, element) => {
-            if (!closest) return element;
+    const topEdgeAnchor = visibleMessageAnchors.reduce<
+      (typeof visibleMessageAnchors)[number] | null
+    >((closest, candidate) => {
+      if (!closest || candidate.rect.top < closest.rect.top) {
+        return candidate;
+      }
 
-            const elementTop = element.getBoundingClientRect().top;
-            const closestTop = closest.getBoundingClientRect().top;
+      return closest;
+    }, null);
 
-            return elementTop < closestTop ? element : closest;
-          },
-          null,
-        );
+    const centerAnchor =
+      visibleMessageAnchors.find(
+        ({ rect }) => rect.top <= listCenter && rect.bottom >= listCenter,
+      ) ??
+      visibleMessageAnchors.reduce<(typeof visibleMessageAnchors)[number] | null>(
+        (closest, candidate) => {
+          if (!closest) return candidate;
 
-        const centerAnchorElement =
-          visibleMessageElements.find((element) => {
-            const rect = element.getBoundingClientRect();
-            return rect.top <= listCenter && rect.bottom >= listCenter;
-          }) ??
-          visibleMessageElements.reduce<HTMLElement | null>((closest, element) => {
-            const rect = element.getBoundingClientRect();
-            const distance = Math.abs(rect.top + rect.height / 2 - listCenter);
+          const distance = Math.abs(candidate.center - listCenter);
+          const closestDistance = Math.abs(closest.center - listCenter);
 
-            if (!closest) return element;
+          return distance < closestDistance ? candidate : closest;
+        },
+        null,
+      );
 
-            const closestRect = closest.getBoundingClientRect();
-            const closestDistance = Math.abs(
-              closestRect.top + closestRect.height / 2 - listCenter,
-            );
+    const anchor =
+      (preferTopEdgeAnchor ? topEdgeAnchor : centerAnchor) ?? messageAnchors[0];
 
-            return distance < closestDistance ? element : closest;
-          }, null);
+    if (!anchor?.element.dataset.messageId) return null;
 
-        const anchorElement =
-          (preferTopEdgeAnchor ? topEdgeAnchorElement : centerAnchorElement) ??
-          messageElements[0];
-
-        if (!anchorElement?.dataset.messageId) return null;
-
-        return {
-          id: anchorElement.dataset.messageId,
-          offsetTop: anchorElement.getBoundingClientRect().top - listTop,
-        };
-      }),
-    [listElement, loadMoreScrollThreshold, loadingMore],
-  );
+    return {
+      id: anchor.element.dataset.messageId,
+      offsetTop: anchor.offsetTop,
+    };
+  }, [listElement, loadMoreScrollThreshold, loadingMore]);
 
   const restoreAnchor = useCallback(
     (anchor: { id: string; offsetTop: number }) => {
@@ -126,26 +124,25 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
       isRestoringOlderAnchorRef.current = true;
 
-      const applyAnchor = () =>
-        measureScrollWork('message-list-scroll:apply-anchor', () => {
-          if (cancelled) return true;
+      const applyAnchor = () => {
+        if (cancelled) return true;
 
-          const anchorElement = listElement.querySelector<HTMLElement>(
-            `[data-message-id='${anchor.id}']`,
-          );
-          if (!anchorElement) return true;
+        const anchorElement = listElement.querySelector<HTMLElement>(
+          `[data-message-id='${anchor.id}']`,
+        );
+        if (!anchorElement) return true;
 
-          const listTop = listElement.getBoundingClientRect().top;
-          const nextOffsetTop = anchorElement.getBoundingClientRect().top - listTop;
-          const offsetDelta = nextOffsetTop - anchor.offsetTop;
+        const listTop = listElement.getBoundingClientRect().top;
+        const nextOffsetTop = anchorElement.getBoundingClientRect().top - listTop;
+        const offsetDelta = nextOffsetTop - anchor.offsetTop;
 
-          if (Math.abs(offsetDelta) > 1) {
-            listElement.scrollBy({ top: offsetDelta });
-            return false;
-          }
+        if (Math.abs(offsetDelta) > 1) {
+          listElement.scrollBy({ top: offsetDelta });
+          return false;
+        }
 
-          return true;
-        });
+        return true;
+      };
 
       const cleanup = () => {
         cancelled = true;
@@ -285,7 +282,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
       const scrollTop = element.scrollTop;
       previousScrollTopRef.current = scrollTop;
 
-      updateScrollTop(scrollTop, captureAnchor());
+      updateScrollTop(scrollTop, captureAnchor);
 
       const offsetHeight = element.offsetHeight;
       const scrollHeight = element.scrollHeight;
