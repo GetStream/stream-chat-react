@@ -1,20 +1,25 @@
 import { useMemo } from 'react';
 
-import type {
-  DropdownMessageActionSetItem,
-  MessageActionSetItem,
-  QuickMessageActionSetItem,
-} from '../MessageActions';
-
-export const useSplitMessageActionSet = (messageActionSet: MessageActionSetItem[]) =>
+export const useSplitActionSet = <
+  T extends { placement: 'quick' } | { placement: 'dropdown' },
+>(
+  actionSet: T[],
+) =>
   useMemo(() => {
-    const quickActionSet: QuickMessageActionSetItem[] = [];
-    const dropdownActionSet: DropdownMessageActionSetItem[] = [];
+    const quickActionSet: Extract<T, { placement: 'quick' }>[] = [];
+    const dropdownActionSet: Extract<T, { placement: 'dropdown' }>[] = [];
 
-    for (const action of messageActionSet) {
-      if (action.placement === 'quick') quickActionSet.push(action);
-      if (action.placement === 'dropdown') dropdownActionSet.push(action);
+    for (const action of actionSet) {
+      if (action.placement === 'quick')
+        quickActionSet.push(action as (typeof quickActionSet)[number]);
+      if (action.placement === 'dropdown')
+        dropdownActionSet.push(action as (typeof dropdownActionSet)[number]);
     }
 
     return { dropdownActionSet, quickActionSet } as const;
-  }, [messageActionSet]);
+  }, [actionSet]);
+
+/**
+ * @deprecated Use `useSplitActionSet` instead.
+ */
+export const useSplitMessageActionSet = useSplitActionSet;
