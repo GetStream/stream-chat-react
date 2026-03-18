@@ -33,7 +33,6 @@ import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings/state.ts';
-import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { PanelLayoutStyleSync, SidebarLayoutSync } from './ChatLayout/Resize.tsx';
 import {
@@ -159,9 +158,6 @@ const App = () => {
     tokenOrProvider: tokenProvider,
     userData: { id: userId },
   });
-  const useResponsiveInitialNav =
-    typeof window === 'undefined' || window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT;
-
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;
 
@@ -265,7 +261,6 @@ const App = () => {
         searchController={searchController}
         client={chatClient}
         initialNavOpen={initialNavOpen}
-        initialNavOpenResponsive={useResponsiveInitialNav}
         isMessageAIGenerated={isMessageAIGenerated}
         theme={chatTheme}
       >

@@ -28,10 +28,10 @@ export type UseChatParams = {
   client: StreamChat;
   defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
-  /** Initial open state of the sidebar. Ignored when initialNavOpenResponsive is true. */
+  /**
+   * Initial open state of the sidebar. Omit for responsive (viewport-derived); set to true/false for an explicit initial state.
+   */
   initialNavOpen?: boolean;
-  /** When true, initial nav state is open so sidebar (ChannelList/ThreadList + selector) is visible; close on channel/thread selection. */
-  initialNavOpenResponsive?: boolean;
 };
 
 export const useChat = ({
@@ -39,7 +39,6 @@ export const useChat = ({
   defaultLanguage = 'en',
   i18nInstance,
   initialNavOpen,
-  initialNavOpenResponsive = false,
 }: UseChatParams) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
     t: defaultTranslatorFunction,
@@ -50,8 +49,8 @@ export const useChat = ({
   const [channel, setChannel] = useState<Channel>();
   const [mutes, setMutes] = useState<Array<Mute>>([]);
   const [navOpen, setNavOpen] = useState(() => {
-    if (initialNavOpenResponsive) return getDefaultNavOpenFromViewport() ?? true;
-    return initialNavOpen === false ? false : true;
+    if (initialNavOpen === undefined) return getDefaultNavOpenFromViewport() ?? true;
+    return initialNavOpen;
   });
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
