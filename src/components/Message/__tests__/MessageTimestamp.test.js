@@ -58,7 +58,7 @@ describe('<MessageTimestamp />', () => {
           datetime="2019-04-03T14:42:47.087Z"
           title="2019-04-03T14:42:47.087Z"
         >
-          04/03/2019
+          14:42
         </time>
       </div>
     `);
@@ -74,7 +74,7 @@ describe('<MessageTimestamp />', () => {
           datetime="28"
           title="28"
         >
-          01/01/1970
+          00:00
         </time>
       </div>
     `);
@@ -90,7 +90,7 @@ describe('<MessageTimestamp />', () => {
         },
       },
     });
-    expect(container).toHaveTextContent('04/03/2020');
+    expect(container).toHaveTextContent('14:42');
   });
 
   it('should not render if no message is available', () => {
@@ -183,7 +183,7 @@ describe('<MessageTimestamp />', () => {
 
   it('should reflect the custom calendarFormats if calendar is enabled', async () => {
     const { container } = await renderComponent({
-      props: { calendarFormats },
+      props: { calendar: true, calendarFormats },
     });
     expect(container).toHaveTextContent('F 2019');
   });
@@ -229,7 +229,7 @@ describe('<MessageTimestamp />', () => {
           datetime="2019-04-03T14:42:47.087Z"
           title="2019-04-03T14:42:47.087Z"
         >
-          04/03/2019
+          14:42
         </time>
       </div>
     `);

@@ -381,7 +381,7 @@
   "timestamp/ChannelPreviewTimestamp": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"LT\", \"lastDay\": \"[어제]\", \"lastWeek\": \"dddd\", \"sameElse\": \"L\" }) }}",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘]\", \"nextDay\": \"[내일]\", \"lastDay\": \"[어제]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[지난] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/LiveLocation": "{{ timestamp | timestampFormatter(calendar: true) }}",
-  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
+  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}",
   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}",
   "timestamp/PollVoteTooltip": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/relativeDaysAgo": "{{ count }}d ago",
