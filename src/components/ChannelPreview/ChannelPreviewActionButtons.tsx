@@ -19,6 +19,7 @@ export type ChannelPreviewActionButtonsProps = {
 interface ChannelPreviewActionButtonsInterface {
   (props: ChannelPreviewActionButtonsProps): JSX.Element;
   getDialogId: (channelId: string) => string;
+  name: string;
 }
 
 export const ChannelPreviewActionButtons: ChannelPreviewActionButtonsInterface = ({

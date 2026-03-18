@@ -17,11 +17,11 @@ import { ContextMenuButton, useDialogOnNearestManager } from '../Dialog';
 import { ChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
 
 const useMuteActionButtonBehavior = () => {
+  const { client } = useChatContext();
   const { channel } = useChannelPreviewContext();
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
   const [inProgress, setInProgress] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   return {
     title: isMuted ? t('Unmute') : t('Mute'),
@@ -30,29 +30,36 @@ const useMuteActionButtonBehavior = () => {
       e.stopPropagation();
       try {
         setInProgress(true);
-        setError(null);
         if (isMuted) {
           await channel.unmute();
         } else {
           await channel.mute();
         }
       } catch (error) {
-        setError(error instanceof Error ? error : new Error('An unknown error occurred'));
+        client.notifications.addError({
+          message: 'Failed to update channel mute status',
+          origin: {
+            emitter: ChannelPreviewActionButtons.name,
+          },
+          options: {
+            originalError:
+              error instanceof Error ? error : new Error('An unknown error occurred'),
+          },
+        });
       } finally {
         setInProgress(false);
       }
     },
     disabled: inProgress,
-    'aria-errormessage': error instanceof Error ? error.message : undefined,
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
 const useArchiveActionButtonBehavior = () => {
   const { channel } = useChannelPreviewContext();
+  const { client } = useChatContext();
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
   const [inProgress, setInProgress] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   return {
     title: membership.archived_at ? t('Unarchive') : t('Archive'),
@@ -61,20 +68,27 @@ const useArchiveActionButtonBehavior = () => {
       e.stopPropagation();
       try {
         setInProgress(true);
-        setError(null);
         if (membership.archived_at) {
           await channel.unarchive();
         } else {
           await channel.archive();
         }
       } catch (error) {
-        setError(error instanceof Error ? error : new Error('An unknown error occurred'));
+        client.notifications.addError({
+          message: 'Failed to update channel archive status',
+          origin: {
+            emitter: ChannelPreviewActionButtons.name,
+          },
+          options: {
+            originalError:
+              error instanceof Error ? error : new Error('An unknown error occurred'),
+          },
+        });
       } finally {
         setInProgress(false);
       }
     },
     disabled: inProgress,
-    'aria-errormessage': error?.message ?? undefined,
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
@@ -159,23 +173,50 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
     },
   },
   {
+    // TODO: finalize (add unban check & behavior)
     type: 'ban',
     placement: 'dropdown',
     Component() {
       const { client } = useChatContext();
       const { t } = useTranslationContext();
       const { channel } = useChannelPreviewContext();
-
-      const user = channel.data?.members?.find(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        (member) => member.user?.id !== client.userID!,
-      )?.user;
+      const [inProgress, setInProgress] = useState(false);
 
       return (
         <ContextMenuButton
+          disabled={inProgress}
           Icon={IconCircleBanSign}
-          onClick={() => {
-            if (user) channel.banUser(user.id, {});
+          onClick={async () => {
+            try {
+              setInProgress(true);
+              const otherUserId = Object.keys(channel.state.members).find(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                (userId) => userId !== client.userID!,
+              );
+
+              if (!otherUserId) return;
+
+              await Promise.all([
+                channel.banUser(otherUserId, {}),
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                channel.removeMembers([client.userID!]),
+              ]);
+            } catch (error) {
+              client.notifications.addError({
+                message: 'Failed to ban user',
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
+                },
+                options: {
+                  originalError:
+                    error instanceof Error
+                      ? error
+                      : new Error('An unknown error occurred'),
+                },
+              });
+            } finally {
+              setInProgress(false);
+            }
           }}
         >
           {t('Block User')}
@@ -188,6 +229,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
     placement: 'dropdown',
     Component() {
       const { t } = useTranslationContext();
+      const { client } = useChatContext();
       const { channel } = useChannelPreviewContext();
       const membership = useChannelMembershipState(channel);
       const dialogId = ChannelPreviewActionButtons.getDialogId(
@@ -196,13 +238,11 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       );
       const { dialog } = useDialogOnNearestManager({ id: dialogId });
       const [inProgress, setInProgress] = useState(false);
-      const [error, setError] = useState<Error | null>(null);
 
       const title = membership.pinned_at ? t('Unpin') : t('Pin');
 
       return (
         <ContextMenuButton
-          aria-errormessage={error?.message ?? undefined}
           aria-label={title}
           disabled={inProgress}
           Icon={IconPin}
@@ -211,7 +251,6 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             let error: Error | null = null;
             try {
               setInProgress(true);
-              setError(null);
               if (membership.pinned_at) {
                 await channel.unpin();
               } else {
@@ -219,7 +258,15 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               }
             } catch (e) {
               error = e instanceof Error ? e : new Error('An unknown error occurred');
-              setError(error);
+              client.notifications.addError({
+                message: 'Failed to update channel pinned status',
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
+                },
+                options: {
+                  originalError: error,
+                },
+              });
             } finally {
               if (!error) dialog?.close();
               setInProgress(false);
@@ -240,13 +287,11 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const { channel } = useChannelPreviewContext();
       const { client } = useChatContext();
       const [inProgress, setInProgress] = useState(false);
-      const [error, setError] = useState<Error | null>(null);
 
       const title = t('Leave Channel');
 
       return (
         <ContextMenuButton
-          aria-errormessage={error?.message ?? undefined}
           aria-label={title}
           disabled={inProgress}
           Icon={IconArrowBoxLeft}
@@ -254,13 +299,21 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             e.stopPropagation();
             try {
               setInProgress(true);
-              setError(null);
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               await channel.removeMembers([client.userID!]);
             } catch (error) {
-              setError(
-                error instanceof Error ? error : new Error('An unknown error occurred'),
-              );
+              client.notifications.addError({
+                message: 'Failed to leave channel',
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
+                },
+                options: {
+                  originalError:
+                    error instanceof Error
+                      ? error
+                      : new Error('An unknown error occurred'),
+                },
+              });
             } finally {
               setInProgress(false);
             }
@@ -282,6 +335,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     // assuming one of the users is current user
     channel.data?.member_count === 2 &&
     channel.id?.startsWith('!members-');
+  const memberCount = channel.data?.member_count ?? 0;
 
   const ownCapabilities = channel.data?.own_capabilities;
 
@@ -304,7 +358,8 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
           continue;
         filtered.push(action);
       } else if (action.type === 'ban') {
-        if (!ownCapabilities?.includes('ban_users')) continue;
+        if (!ownCapabilities?.includes('ban-channel-members') || memberCount > 2)
+          continue;
         filtered.push(action);
       } else if (action.type === 'pin') {
         filtered.push(action);
@@ -315,5 +370,5 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     }
 
     return filtered;
-  }, [channelActionSet, isDirectMessageChannel, ownCapabilities]);
+  }, [channelActionSet, isDirectMessageChannel, memberCount, ownCapabilities]);
 };
