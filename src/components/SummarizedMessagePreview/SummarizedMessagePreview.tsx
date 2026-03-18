@@ -33,6 +33,7 @@ const contentTypeIconMap: Partial<
   deleted: IconCircleBanSign,
   error: IconExclamationCircle1,
   file: IconFileBend,
+  giphy: IconFileBend,
   image: IconCamera1,
   link: IconChainLink,
   location: IconMapPin,

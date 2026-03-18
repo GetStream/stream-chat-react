@@ -16,6 +16,7 @@ export type ChannelPreviewMessageType =
   | 'error'
   | 'empty'
   | 'image'
+  | 'giphy'
   | 'video'
   | 'voice'
   | 'file'
@@ -63,7 +64,8 @@ function getAttachmentContentType(attachment: Attachment): ChannelPreviewMessage
   if (!attachment) return 'text';
 
   // TODO: add audio (non-voice) content type when supported by the design
-  if (attachment.type === 'image' || attachment.type === 'giphy') return 'image';
+  if (attachment.type === 'giphy') return 'giphy';
+  if (attachment.type === 'image') return 'image';
   if (attachment.type === 'video') return 'video';
   if (attachment.type === 'voiceRecording') return 'voice';
   if (attachment.type === 'file') return 'file';
@@ -186,17 +188,23 @@ export const useLatestMessagePreview = ({
       }
 
       let text =
-        // prioritize message text content if available
-        textContent ||
-        // then fallback text of the single attachment if only one attachment is present and it's not a voice recording (fallback text is generic for voice recordings, so not useful in the preview)
-        (attachments.length === 1 && contentType !== 'voice'
-          ? firstAttachment.fallback || firstAttachment.title
-          : '') ||
-        // then generic fallback text based on attachment type and count
-        getAttachmentFallbackText(contentType, attachments.length, t);
+        contentType === 'giphy'
+          ? 'Giphy'
+          : // prioritize message text content if available
+            textContent ||
+            // then fallback text of the single attachment if only one attachment is present and it's not a voice recording (fallback text is generic for voice recordings, so not useful in the preview)
+            (attachments.length === 1 && contentType !== 'voice'
+              ? firstAttachment.fallback || firstAttachment.title
+              : '') ||
+            // then generic fallback text based on attachment type and count
+            getAttachmentFallbackText(contentType, attachments.length, t);
 
       // attach duration for audio/video attachments if available
-      if (attachments.length === 1 && typeof firstAttachment.duration === 'number') {
+      if (
+        contentType !== 'giphy' &&
+        attachments.length === 1 &&
+        typeof firstAttachment.duration === 'number'
+      ) {
         const minutes = Math.floor(firstAttachment.duration / 60);
         const seconds = Math.ceil(firstAttachment.duration) % 60;
         const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;

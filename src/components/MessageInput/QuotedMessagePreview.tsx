@@ -15,8 +15,10 @@ import { useStateStore } from '../../store';
 import { useMessageComposer } from './hooks';
 import {
   type Attachment,
+  type GiphyVersions,
   isAudioAttachment,
   isFileAttachment,
+  isGiphyAttachment,
   isImageAttachment,
   isScrapedContent,
   isVideoAttachment,
@@ -28,6 +30,7 @@ import {
   type SharedLocationResponse,
   type TranslationLanguages,
 } from 'stream-chat';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
@@ -56,9 +59,26 @@ export type QuotedMessagePreviewProps = {
 
 const NullAttachmentIcon = () => null;
 
+const QUOTED_GIPHY_PREVIEW_LABEL = 'Giphy';
+
 type AttachmentType = 'documents' | 'images' | 'links' | 'videos' | 'voiceRecordings';
 
+/** Giphy GIFs: native type or scraped link to giphy.com (file icon + thumbnail). */
+const isQuotedGiphyAttachment = (attachment: Attachment) => {
+  if (isGiphyAttachment(attachment)) return true;
+  if (!isScrapedContent(attachment)) return false;
+  const titleLink = (attachment as Attachment & { title_link?: string }).title_link;
+  return (
+    /giphy\.com/i.test(String(attachment.og_scrape_url ?? '')) ||
+    /giphy\.com/i.test(String(titleLink ?? '')) ||
+    !!(attachment as Attachment & { giphy?: object }).giphy
+  );
+};
+
 const getAttachmentType = (attachment: Attachment) => {
+  if (isQuotedGiphyAttachment(attachment)) {
+    return 'giphy';
+  }
   if (isScrapedContent(attachment)) {
     return 'link';
   } else if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
@@ -77,6 +97,7 @@ const getAttachmentType = (attachment: Attachment) => {
 };
 
 type GroupedAttachments = Record<AttachmentType, Attachment[]> & {
+  giphies: Attachment[];
   locations: SharedLocationResponse[];
   polls: PollResponse[];
   total: number;
@@ -85,6 +106,7 @@ type GroupedAttachments = Record<AttachmentType, Attachment[]> & {
 const getGroupedAttachments = (quotedMessage: LocalMessage | null) => {
   const groupedAttachments = {
     documents: [],
+    giphies: [],
     images: [],
     links: [],
     locations: [],
@@ -99,6 +121,10 @@ const getGroupedAttachments = (quotedMessage: LocalMessage | null) => {
   const result = quotedMessage.attachments.reduce<GroupedAttachments>(
     (count, attachment) => {
       switch (getAttachmentType(attachment)) {
+        case 'giphy':
+          count.giphies.push(attachment);
+          count.total += 1;
+          break;
         case 'link':
           count.links.push(attachment);
           count.total += 1;
@@ -142,6 +168,7 @@ type PreviewType =
   | 'voice'
   | 'file'
   | 'image'
+  | 'giphy'
   | 'link'
   | 'location'
   | 'poll'
@@ -150,6 +177,7 @@ type PreviewType =
 
 const getAttachmentIconWithType = (
   quotedMessage: LocalMessage | null,
+  giphyVersionName: GiphyVersions,
 ): {
   groupedAttachments: GroupedAttachments;
   Icon: ComponentType;
@@ -169,6 +197,31 @@ const getAttachmentIconWithType = (
   if (groupedAttachments.locations.length > 0)
     // todo: we do not generate the location preview image
     return { ...result, Icon: IconMapPin, previewType: 'location' };
+  if (
+    groupedAttachments.giphies.length > 0 &&
+    groupedAttachments.giphies.length === groupedAttachments.total
+  ) {
+    const giphyAttachment = groupedAttachments.giphies[0] as Attachment & {
+      giphy?: Record<string, { url?: string } | undefined>;
+    };
+    const giphyVersion =
+      giphyAttachment.giphy?.[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
+    const src =
+      giphyVersion?.url || giphyAttachment.thumb_url || giphyAttachment.image_url || '';
+    return {
+      ...result,
+      Icon: IconFileBend,
+      PreviewImage: (
+        <BaseImage
+          alt={QUOTED_GIPHY_PREVIEW_LABEL}
+          className='str-chat__attachment-preview__thumbnail'
+          src={src}
+          title={QUOTED_GIPHY_PREVIEW_LABEL}
+        />
+      ),
+      previewType: 'giphy',
+    };
+  }
   if (
     groupedAttachments.documents.length === groupedAttachments.total &&
     groupedAttachments.documents.length === 1
@@ -279,6 +332,8 @@ export const QuotedMessagePreviewUI = ({
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
+  const { giphyVersion: giphyVersionName = 'fixed_height' } =
+    useChannelStateContext('QuotedMessagePreview');
 
   const quotedMessageText = useMemo(
     () =>
@@ -295,7 +350,7 @@ export const QuotedMessagePreviewUI = ({
       Icon: AttachmentIcon,
       PreviewImage,
       previewType,
-    } = getAttachmentIconWithType(quotedMessage);
+    } = getAttachmentIconWithType(quotedMessage, giphyVersionName);
 
     let renderedText: ReactNode | undefined;
 
@@ -313,6 +368,8 @@ export const QuotedMessagePreviewUI = ({
             duration: displayDuration(voiceRecording!.duration),
           });
         }
+      } else if (previewType === 'giphy') {
+        renderedText = QUOTED_GIPHY_PREVIEW_LABEL;
       } else if (previewType === 'link') {
         renderedText = groupedAttachments.links[0].title;
       } else if (previewType === 'mixed') {
@@ -345,7 +402,7 @@ export const QuotedMessagePreviewUI = ({
       PreviewImage,
       renderedText,
     };
-  }, [quotedMessage, quotedMessageText, renderText, t]);
+  }, [giphyVersionName, quotedMessage, quotedMessageText, renderText, t]);
 
   const isOwnMessage = client.user?.id === quotedMessage?.user?.id;
 
