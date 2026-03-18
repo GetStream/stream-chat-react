@@ -1620,6 +1620,68 @@ describe('Channel', () => {
     });
 
     describe('jumpToMessage', () => {
+      it('does not reuse older-page loading state while jumping to a highlighted message', async () => {
+        const targetMessages = [
+          generateMessage({ id: 'target-1', text: 'target-1', user }),
+          generateMessage({ id: 'target-2', text: 'target-2', user }),
+        ];
+
+        let resolveTargetLoad;
+        jest.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveTargetLoad = () => {
+                channel.state.messages = targetMessages;
+                channel.state.messagePagination.hasPrev = true;
+                channel.state.messagePagination.hasNext = true;
+                resolve();
+              };
+            }),
+        );
+
+        const loadingSnapshots = [];
+        let jumpToMessageRef;
+        let hasStartedJump = false;
+
+        await renderComponent(
+          { channel, chatClient },
+          ({ jumpToMessage, loadingMore, loadingMoreForJumpToChannelMessage }) => {
+            jumpToMessageRef = jumpToMessage;
+            loadingSnapshots.push({
+              loadingMore,
+              loadingMoreForJumpToChannelMessage,
+            });
+
+            if (!hasStartedJump && jumpToMessageRef) {
+              hasStartedJump = true;
+              void jumpToMessageRef('target-2');
+            }
+          },
+        );
+
+        await waitFor(() => {
+          expect(
+            loadingSnapshots.some(
+              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
+                !loadingMore && loadingMoreForJumpToChannelMessage,
+            ),
+          ).toBe(true);
+        });
+
+        act(() => {
+          resolveTargetLoad();
+        });
+
+        await waitFor(() => {
+          expect(
+            loadingSnapshots.some(
+              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
+                !loadingMore && !loadingMoreForJumpToChannelMessage,
+            ),
+          ).toBe(true);
+        });
+      });
+
       it('applies the target message set and highlight without replaying stale loadMore state', async () => {
         const olderMessages = [
           generateMessage({ id: 'older-1', text: 'older-1', user }),

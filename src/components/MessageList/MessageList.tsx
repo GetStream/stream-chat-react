@@ -52,6 +52,7 @@ type MessageListWithContextProps = Omit<
   MessageListProps;
 
 type JumpToLatestPhase = 'idle' | 'waiting-for-render' | 'animating';
+type HighlightedJumpPhase = 'idle' | 'waiting-for-render' | 'animating';
 
 const getMessageSetSignature = (messages: LocalMessage[]) =>
   `${messages.length}:${messages[0]?.id || ''}:${messages[messages.length - 1]?.id || ''}`;
@@ -98,6 +99,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [jumpToLatestPhase, setJumpToLatestPhase] =
     React.useState<JumpToLatestPhase>('idle');
+  const [highlightedJumpPhase, setHighlightedJumpPhase] =
+    React.useState<HighlightedJumpPhase>('idle');
   const [jumpSourceMessageSetSignature, setJumpSourceMessageSetSignature] =
     React.useState<string | null>(null);
   const previousHasMoreNewerRef = React.useRef(hasMoreNewer);
@@ -139,6 +142,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     [messages],
   );
   const isJumpingToLatest = jumpToLatestPhase !== 'idle';
+  // Highlighted jumps temporarily disable prepend pagination so a target
+  // message rendered near the top does not immediately load the previous page.
+  const isJumpingToHighlightedMessage = highlightedJumpPhase !== 'idle';
   const justReachedLatestMergedSet = previousHasMoreNewerRef.current && !hasMoreNewer;
 
   const {
@@ -149,16 +155,20 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     wrapperRect,
   } = useScrollLocationLogic({
     disableAutoScrollToBottom: isJumpingToLatest || justReachedLatestMergedSet,
-    disableScrollManagement: isJumpingToLatest,
+    disableScrollManagement: isJumpingToLatest || isJumpingToHighlightedMessage,
     hasMoreNewer,
     listElement,
+    loadingMore: props.loadingMore,
     loadMoreScrollThreshold,
     messages, // todo: is it correct to base the scroll logic on an array that does not contain date separators or intro?
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
   });
   const isTypingIndicatorScrolledToBottom =
-    isMessageListScrolledToBottom && !isJumpingToLatest && !justReachedLatestMergedSet;
+    isMessageListScrolledToBottom &&
+    !isJumpingToLatest &&
+    !isJumpingToHighlightedMessage &&
+    !justReachedLatestMergedSet;
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
@@ -313,40 +323,32 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   }, [jumpToLatestPhase, listElement]);
 
   React.useLayoutEffect(() => {
-    if (!highlightedMessageId) return;
+    if (!highlightedMessageId) {
+      setHighlightedJumpPhase('idle');
+      return;
+    }
 
     const element = listElement?.querySelector(
       `[data-message-id='${highlightedMessageId}']`,
     );
-    if (!element) return;
+    if (!element) {
+      setHighlightedJumpPhase('waiting-for-render');
+      return;
+    }
 
     const messageSetChanged =
       previousMessageSetSignatureRef.current !== messageSetSignature;
-    const jumpedToOlderSet =
-      messageSetChanged &&
-      previousMessageSetBoundsRef.current.firstTimestamp !== null &&
-      messageSetBounds.lastTimestamp !== null &&
-      messageSetBounds.lastTimestamp < previousMessageSetBoundsRef.current.firstTimestamp;
-    const jumpedToNewerSet =
-      messageSetChanged &&
-      previousMessageSetBoundsRef.current.lastTimestamp !== null &&
-      messageSetBounds.firstTimestamp !== null &&
-      messageSetBounds.firstTimestamp > previousMessageSetBoundsRef.current.lastTimestamp;
+    setHighlightedJumpPhase(messageSetChanged ? 'animating' : 'idle');
     let settleTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     const animationFrameId = requestAnimationFrame(() => {
-      if (jumpedToOlderSet && listElement?.scrollTo) {
-        listElement.scrollTo({ top: listElement.scrollHeight });
-      } else if (jumpedToNewerSet && listElement?.scrollTo) {
-        listElement.scrollTo({ top: 0 });
-      }
-
       element.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       });
 
       if (!messageSetChanged || !listElement?.scrollTo) {
+        setHighlightedJumpPhase('idle');
         return;
       }
 
@@ -359,6 +361,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
           (listElement.clientHeight - elementRect.height) / 2;
 
         listElement.scrollTo({ top: Math.max(targetTop, 0) });
+        setHighlightedJumpPhase('idle');
       }, 500);
     });
 
@@ -421,16 +424,21 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   className='str-chat__message-list-scroll'
                   data-testid='reverse-infinite-scroll'
                   hasNextPage={props.hasMoreNewer}
-                  hasPreviousPage={props.hasMore}
+                  hasPreviousPage={isJumpingToHighlightedMessage ? false : props.hasMore}
                   head={props.head}
-                  isLoading={props.loadingMore}
+                  isLoading={Boolean(
+                    props.loadingMore || props.loadingMoreForJumpToChannelMessage,
+                  )}
                   loader={
                     <div className='str-chat__list__loading' key='loading-indicator'>
-                      {props.loadingMore && <LoadingIndicator />}
+                      {(props.loadingMore ||
+                        props.loadingMoreForJumpToChannelMessage) && <LoadingIndicator />}
                     </div>
                   }
                   loadNextPage={loadMoreNewer}
-                  loadPreviousPage={loadMore}
+                  loadPreviousPage={
+                    isJumpingToHighlightedMessage ? () => undefined : loadMore
+                  }
                   threshold={loadMoreScrollThreshold}
                   {...restInternalInfiniteScrollProps}
                 >
@@ -522,6 +530,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   jumpToLatestMessage?: () => Promise<void>;
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
+  /** Whether or not the list is currently jumping to a highlighted message */
+  loadingMoreForJumpToChannelMessage?: boolean;
   /** Whether or not the list is currently loading newer items */
   loadingMoreNewer?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */

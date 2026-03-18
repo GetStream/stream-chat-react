@@ -1,0 +1,51 @@
+{
+  "feature": "message-list-jump-scroll",
+  "active_task": null,
+  "tasks": {
+    "1": "done",
+    "2": "done",
+    "3": "done",
+    "4": "done",
+    "5": "done"
+  },
+  "flags": {
+    "blocked": false,
+    "needs_review": false
+  },
+  "notes": [
+    "Fixed the jump-to-latest race by making latest-page reducer updates atomic.",
+    "Replaced the previous timeout/scrollend workaround with a render-driven MessageList jump phase.",
+    "Extended the same stale-dispatch cancellation and render-driven behavior to jumpToMessage/highlighted-message flows.",
+    "Highlighted jumps now choose their entry edge from jump direction: older-page jumps start from bottom, newer-page jumps start from top.",
+    "Targeted MessageList and Channel regressions mock ChatView hooks because current suites do not mount ChatView providers by default.",
+    "Browser verification on the provided local thread reproduced a separate older-page prepend bug after several successful prepends.",
+    "Current prepend preservation in the scroll controller relies on scrollHeight deltas and appears too weak for repeated real-world prepends.",
+    "Attachment/media rows are a secondary risk factor for prepend drift, but browser inspection suggests they are not the primary root cause.",
+    "Anchor-based prepend restoration, center-anchor selection, and a bounded settle window improved early and mid prepend behavior but did not eliminate the later-page collapse.",
+    "Runtime instrumentation showed the later prepend failure was not caused by lost anchors or competing scroll writes; it was caused by preserving the old viewport even when pagination started from absolute top.",
+    "Older-page pagination now has two explicit modes: preserve the visible anchor when loading starts near the top, and stay pinned to the top of the newly loaded page when loading starts from absolute top.",
+    "Latest rebuilt browser verification on the provided thread kept scrollTop at 0 across the repeated 25 -> 225 older-page pagination sequence.",
+    "Split jumpToMessage into its own loading state so quoted-message jumps no longer reuse the older-page loading flag or prepend scroll-management path.",
+    "The exact benchat quoted-message browser repro still fails after the loading-state split and temporary previous-page suppression in MessageList.",
+    "Temporary browser-gated performance instrumentation was added for message-list scroll classification and anchor work.",
+    "A live browser profiling run on the rebuilt little-italy thread recorded classify-prepend at ~0.30ms and capture-anchor at ~0.20ms, which suggests prefix/suffix classification is not a meaningful bottleneck in the measured path.",
+    "A broader benchat profiling run while paginating the full channel confirmed that prefix/suffix classification stayed near 0-0.2ms, while captureAnchor grew into the 0.7-1.5ms range with spikes up to ~7.4ms as the rendered DOM grew."
+  ],
+  "verification": {
+    "types": ["yarn types", "yarn build"],
+    "tests": [
+      "NODE_PATH=/Users/martincupela/Projects/stream/chat/stream-chat-react/node_modules yarn test src/components/MessageList/__tests__/MessageList.test.js src/components/Channel/__tests__/Channel.test.js --runInBand --watchman=false -t \"starts scrolling only after the latest message page renders|smooth-scrolls to a highlighted message only after the target page renders|applies the latest page messages and flags together|applies the target message set and highlight without replaying stale loadMore state\"",
+      "NODE_PATH=/Users/martincupela/Projects/stream/chat/stream-chat-react/node_modules yarn test src/components/MessageList/__tests__/MessageList.test.js src/components/Channel/__tests__/Channel.test.js --runInBand --watchman=false -t \"preserves the viewport when older messages are prepended after pagination starts near the top|should be able to load more messages|should set hasMore to false if querying channel returns less messages than the limit|should set hasMore to true if querying channel returns an amount of messages that equals the limit\"",
+      "NODE_PATH=/Users/martincupela/Projects/stream/chat/stream-chat-react/node_modules yarn test src/components/Channel/__tests__/Channel.test.js src/components/MessageList/__tests__/MessageList.test.js --runInBand --watchman=false -t \"does not reuse older-page loading state while jumping to a highlighted message|applies the target message set and highlight without replaying stale loadMore state|smooth-scrolls to a highlighted message only after the target page renders\""
+    ],
+    "browser": [
+      "Fresh browser verification on http://localhost:5175/?mock_notifications=1&view=chat&channel=little-italy&thread=b472ce2e-ff3e-4fc0-8cef-8e75fe5002a4&theme=light reproduced repeated older-page prepends.",
+      "Observed later prepends where items increased and scrollHeight grew substantially while scrollTop changed only a few pixels, confirming prepend preservation drift in the browser.",
+      "After runtime instrumentation and the absolute-top pagination policy change, rebuilt browser verification kept scrollTop at 0 across repeated 25 -> 225 older-page prepends on the provided thread.",
+      "After splitting jumpToMessage loading from older-page pagination, rebuilt browser verification on http://localhost:5175/?mock_notifications=1&view=chat&channel=benchat&theme=light still stabilized at 50 messages with scrollTop ~264 and without the expected target id bc5efd05-eda7-4956-bc39-c3e6b4515fb0 in the DOM trace.",
+      "Performance profiling procedure on the rebuilt little-italy thread: enable window.__STREAM_MESSAGE_LIST_SCROLL_PERF__ = { enabled: true, entries: [] }, repeatedly scroll .str-chat__message-list to top to trigger older-page pagination, then aggregate entries by name from the browser console.",
+      "Measured live browser timings from that procedure: message-list-scroll:classify-prepend count 1 avg/max ~0.30ms, message-list-scroll:capture-anchor count 1 avg/max ~0.20ms, message-list-scroll:classify-append count 1 avg/max ~0ms.",
+      "A later benchat profiling run over full-channel pagination produced many entries and showed classify-prepend still around 0-0.2ms, classify-append effectively 0ms, apply-anchor mostly 0-0.3ms, and capture-anchor growing with rendered list size into the 0.7-1.5ms range with spikes up to ~7.4ms."
+    ]
+  }
+}

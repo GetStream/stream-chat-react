@@ -955,10 +955,12 @@ describe('MessageList', () => {
           expect(screen.getByText('latest-1')).toBeInTheDocument();
         });
 
-        expect(scrollToMock).toHaveBeenNthCalledWith(1, { top: 0 });
-        expect(scrollToMock).toHaveBeenNthCalledWith(2, {
-          behavior: 'smooth',
-          top: 1000,
+        await waitFor(() => {
+          expect(scrollToMock).toHaveBeenNthCalledWith(1, { top: 0 });
+          expect(scrollToMock).toHaveBeenNthCalledWith(2, {
+            behavior: 'smooth',
+            top: 1000,
+          });
         });
 
         if (originalScrollTo) {
@@ -1172,6 +1174,162 @@ describe('MessageList', () => {
         } else {
           delete HTMLElement.prototype.scrollTo;
         }
+      });
+
+      it('preserves the viewport when older messages are prepended after pagination starts near the top', async () => {
+        const currentMessages = Array.from({ length: 2 }, (_, index) =>
+          generateMessage({
+            id: `current-${index + 1}`,
+            text: `current-${index + 1}`,
+            user: user1,
+          }),
+        );
+        const prependedMessages = [
+          ...Array.from({ length: 2 }, (_, index) =>
+            generateMessage({
+              id: `older-${index + 1}`,
+              text: `older-${index + 1}`,
+              user: user2,
+            }),
+          ),
+          ...currentMessages,
+        ];
+        const scrollByMock = jest.fn(function scrollBy(options) {
+          if (typeof options === 'object' && typeof options.top === 'number') {
+            this.scrollTop += options.top;
+          }
+        });
+        const originalScrollBy = HTMLElement.prototype.scrollBy;
+        const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+        Object.defineProperty(HTMLElement.prototype, 'scrollBy', {
+          configurable: true,
+          value: scrollByMock,
+        });
+        Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+          configurable: true,
+          value: function getBoundingClientRect() {
+            if (this.classList?.contains('str-chat__message-list')) {
+              return {
+                bottom: 350,
+                height: 250,
+                left: 0,
+                right: 0,
+                toJSON: () => null,
+                top: 100,
+                width: 0,
+                x: 0,
+                y: 100,
+              };
+            }
+
+            const messageId = this.dataset?.messageId;
+            if (!messageId) {
+              return originalGetBoundingClientRect.call(this);
+            }
+
+            const messageTopMap = screen.queryByText('older-1')
+              ? {
+                  'current-1': 400,
+                  'current-2': 560,
+                  'older-1': 100,
+                  'older-2': 260,
+                }
+              : {
+                  'current-1': 100,
+                  'current-2': 260,
+                };
+            const top = messageTopMap[messageId] ?? 0;
+
+            return {
+              bottom: top + 120,
+              height: 120,
+              left: 0,
+              right: 0,
+              toJSON: () => null,
+              top,
+              width: 0,
+              x: 0,
+              y: top,
+            };
+          },
+        });
+
+        const MessageListHarness = () => {
+          const [renderedMessages, setRenderedMessages] = React.useState(currentMessages);
+          const [loadingMore, setLoadingMore] = React.useState(false);
+
+          return (
+            <>
+              <button onClick={() => setLoadingMore(true)} type='button'>
+                start load older
+              </button>
+              <button
+                onClick={() => {
+                  setRenderedMessages(prependedMessages);
+                  setLoadingMore(false);
+                }}
+                type='button'
+              >
+                finish load older
+              </button>
+              <Chat client={chatClient}>
+                <Channel channel={channel}>
+                  <MessageList
+                    loadingMore={loadingMore}
+                    messages={renderedMessages}
+                    scrolledUpThreshold={200}
+                  />
+                </Channel>
+              </Chat>
+            </>
+          );
+        };
+
+        render(<MessageListHarness />);
+
+        await waitFor(() => {
+          expect(screen.getByText('current-1')).toBeInTheDocument();
+        });
+
+        const listElement = document.querySelector('.str-chat__message-list');
+        Object.defineProperties(listElement, {
+          offsetHeight: { configurable: true, value: 250 },
+          scrollHeight: { configurable: true, value: 600, writable: true },
+          scrollTop: { configurable: true, value: 50, writable: true },
+        });
+
+        fireEvent.scroll(listElement, { target: { scrollTop: 50 } });
+        fireEvent.click(screen.getByText('start load older'));
+
+        listElement.scrollTop = 220;
+        fireEvent.scroll(listElement, { target: { scrollTop: 220 } });
+        Object.defineProperty(listElement, 'scrollHeight', {
+          configurable: true,
+          value: 900,
+          writable: true,
+        });
+
+        fireEvent.click(screen.getByText('finish load older'));
+
+        await waitFor(() => {
+          expect(screen.getByText('older-1')).toBeInTheDocument();
+        });
+
+        expect(scrollByMock).toHaveBeenCalledWith({ top: 300 });
+        expect(listElement.scrollTop).toBe(520);
+
+        if (originalScrollBy) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollBy', {
+            configurable: true,
+            value: originalScrollBy,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollBy;
+        }
+        Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+          configurable: true,
+          value: originalGetBoundingClientRect,
+        });
       });
     });
   });
