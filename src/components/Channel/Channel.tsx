@@ -676,9 +676,9 @@ const ChannelInner = (
       highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
     ) => {
       dispatch({ loadingMore: true, type: 'setLoadingMore' });
+      loadMoreFinished.cancel();
       await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
-      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
       handleHighlightedMessageChange({
         highlightDuration,
         highlightedMessageId: messageId,
@@ -689,10 +689,13 @@ const ChannelInner = (
 
   const jumpToLatestMessage: ChannelActionContextValue['jumpToLatestMessage'] =
     useCallback(async () => {
+      loadMoreFinished.cancel();
       await channel.state.loadMessageIntoState('latest');
-      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
       dispatch({
-        type: 'jumpToLatestMessage',
+        hasMore: channel.state.messagePagination.hasPrev,
+        hasMoreNewer: channel.state.messagePagination.hasNext,
+        messages: channel.state.messages,
+        type: 'jumpToLatestMessageFinished',
       });
     }, [channel, loadMoreFinished]);
 

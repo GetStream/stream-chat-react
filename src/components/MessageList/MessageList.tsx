@@ -51,6 +51,14 @@ type MessageListWithContextProps = Omit<
 > &
   MessageListProps;
 
+type JumpToLatestPhase = 'idle' | 'waiting-for-render' | 'animating';
+
+const getMessageSetSignature = (messages: LocalMessage[]) =>
+  `${messages.length}:${messages[0]?.id || ''}:${messages[messages.length - 1]?.id || ''}`;
+
+const getMessageTimestamp = (message?: LocalMessage) =>
+  message?.created_at?.getTime?.() ?? null;
+
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const {
     channel,
@@ -88,6 +96,19 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = props;
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
+  const [jumpToLatestPhase, setJumpToLatestPhase] =
+    React.useState<JumpToLatestPhase>('idle');
+  const [jumpSourceMessageSetSignature, setJumpSourceMessageSetSignature] =
+    React.useState<string | null>(null);
+  const previousHasMoreNewerRef = React.useRef(hasMoreNewer);
+  const previousMessageSetSignatureRef = React.useRef('');
+  const previousMessageSetBoundsRef = React.useRef<{
+    firstTimestamp: number | null;
+    lastTimestamp: number | null;
+  }>({
+    firstTimestamp: null,
+    lastTimestamp: null,
+  });
 
   const { customClasses } = useChatContext('MessageList');
 
@@ -106,6 +127,19 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     MessageListNotifications ?? NotificationListFromContext;
 
   const notificationTarget = useNotificationTarget();
+  const messageSetSignature = React.useMemo(
+    () => getMessageSetSignature(messages),
+    [messages],
+  );
+  const messageSetBounds = React.useMemo(
+    () => ({
+      firstTimestamp: getMessageTimestamp(messages[0]),
+      lastTimestamp: getMessageTimestamp(messages[messages.length - 1]),
+    }),
+    [messages],
+  );
+  const isJumpingToLatest = jumpToLatestPhase !== 'idle';
+  const justReachedLatestMergedSet = previousHasMoreNewerRef.current && !hasMoreNewer;
 
   const {
     hasNewMessages,
@@ -114,6 +148,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
+    disableAutoScrollToBottom: isJumpingToLatest || justReachedLatestMergedSet,
+    disableScrollManagement: isJumpingToLatest,
     hasMoreNewer,
     listElement,
     loadMoreScrollThreshold,
@@ -121,6 +157,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
   });
+  const isTypingIndicatorScrolledToBottom =
+    isMessageListScrolledToBottom && !isJumpingToLatest && !justReachedLatestMergedSet;
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
@@ -130,7 +168,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   useMarkRead({
-    isMessageListScrolledToBottom,
+    isMessageListScrolledToBottom: isTypingIndicatorScrolledToBottom,
     messageListIsThread: threadList,
     wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
   });
@@ -212,22 +250,135 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const scrollToBottomFromNotification = React.useCallback(async () => {
     if (hasMoreNewer) {
-      await jumpToLatestMessage();
-    } else {
-      scrollToBottom();
+      setJumpSourceMessageSetSignature(messageSetSignature);
+      setJumpToLatestPhase('waiting-for-render');
+      try {
+        await jumpToLatestMessage();
+      } catch (error) {
+        setJumpSourceMessageSetSignature(null);
+        setJumpToLatestPhase('idle');
+        throw error;
+      }
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollToBottom, hasMoreNewer]);
+
+    scrollToBottom({ behavior: 'smooth' });
+  }, [hasMoreNewer, jumpToLatestMessage, messageSetSignature, scrollToBottom]);
 
   React.useLayoutEffect(() => {
-    if (highlightedMessageId) {
-      const element = listElement?.querySelector(
-        `[data-message-id='${highlightedMessageId}']`,
-      );
-      element?.scrollIntoView({ block: 'center' });
+    if (
+      jumpToLatestPhase !== 'waiting-for-render' ||
+      hasMoreNewer ||
+      !listElement?.scrollTo ||
+      messageSetSignature === jumpSourceMessageSetSignature
+    ) {
+      return;
     }
+
+    listElement.scrollTo({ top: 0 });
+
+    const animationFrameId = requestAnimationFrame(() => {
+      setJumpToLatestPhase('animating');
+      listElement.scrollTo({
+        behavior: 'smooth',
+        top: listElement.scrollHeight,
+      });
+    });
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [
+    hasMoreNewer,
+    jumpSourceMessageSetSignature,
+    jumpToLatestPhase,
+    listElement,
+    messageSetSignature,
+  ]);
+
+  React.useLayoutEffect(() => {
+    if (jumpToLatestPhase !== 'animating' || !listElement?.scrollTo) {
+      return;
+    }
+
+    const finalize = () => {
+      listElement.scrollTo({ top: listElement.scrollHeight });
+      setJumpSourceMessageSetSignature(null);
+      setJumpToLatestPhase('idle');
+    };
+
+    const settleTimeoutId = setTimeout(finalize, 500);
+
+    return () => {
+      clearTimeout(settleTimeoutId);
+    };
+  }, [jumpToLatestPhase, listElement]);
+
+  React.useLayoutEffect(() => {
+    if (!highlightedMessageId) return;
+
+    const element = listElement?.querySelector(
+      `[data-message-id='${highlightedMessageId}']`,
+    );
+    if (!element) return;
+
+    const messageSetChanged =
+      previousMessageSetSignatureRef.current !== messageSetSignature;
+    const jumpedToOlderSet =
+      messageSetChanged &&
+      previousMessageSetBoundsRef.current.firstTimestamp !== null &&
+      messageSetBounds.lastTimestamp !== null &&
+      messageSetBounds.lastTimestamp < previousMessageSetBoundsRef.current.firstTimestamp;
+    const jumpedToNewerSet =
+      messageSetChanged &&
+      previousMessageSetBoundsRef.current.lastTimestamp !== null &&
+      messageSetBounds.firstTimestamp !== null &&
+      messageSetBounds.firstTimestamp > previousMessageSetBoundsRef.current.lastTimestamp;
+    let settleTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const animationFrameId = requestAnimationFrame(() => {
+      if (jumpedToOlderSet && listElement?.scrollTo) {
+        listElement.scrollTo({ top: listElement.scrollHeight });
+      } else if (jumpedToNewerSet && listElement?.scrollTo) {
+        listElement.scrollTo({ top: 0 });
+      }
+
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      if (!messageSetChanged || !listElement?.scrollTo) {
+        return;
+      }
+
+      settleTimeoutId = setTimeout(() => {
+        const elementRect = element.getBoundingClientRect();
+        const listRect = listElement.getBoundingClientRect();
+        const targetTop =
+          listElement.scrollTop +
+          (elementRect.top - listRect.top) -
+          (listElement.clientHeight - elementRect.height) / 2;
+
+        listElement.scrollTo({ top: Math.max(targetTop, 0) });
+      }, 500);
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      if (settleTimeoutId) {
+        clearTimeout(settleTimeoutId);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlightedMessageId]);
+  }, [highlightedMessageId, messageSetSignature]);
+
+  React.useEffect(() => {
+    previousHasMoreNewerRef.current = hasMoreNewer;
+  }, [hasMoreNewer]);
+
+  React.useEffect(() => {
+    previousMessageSetSignatureRef.current = messageSetSignature;
+    previousMessageSetBoundsRef.current = messageSetBounds;
+  }, [messageSetBounds, messageSetSignature]);
 
   const id = useStableId();
 
@@ -287,7 +438,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                     {elements}
                   </MessageListWrapper>
                   <TypingIndicator
-                    isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                    isMessageListScrolledToBottom={isTypingIndicatorScrolledToBottom}
                     scrollToBottom={scrollToBottom}
                     threadList={threadList}
                   />

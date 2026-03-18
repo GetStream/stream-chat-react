@@ -24,6 +24,12 @@ export type ChannelStateReducerAction =
       type: 'copyStateFromChannelOnEvent';
     }
   | {
+      hasMore: boolean;
+      hasMoreNewer: boolean;
+      messages: LocalMessage[];
+      type: 'jumpToLatestMessageFinished';
+    }
+  | {
       channel: Channel;
       highlightedMessageId: string;
       type: 'jumpToMessageFinished';
@@ -80,9 +86,6 @@ export type ChannelStateReducerAction =
       channel: Channel;
       message: MessageResponse;
       type: 'updateThreadOnEvent';
-    }
-  | {
-      type: 'jumpToLatestMessage';
     };
 
 export const makeChannelReducer =
@@ -139,12 +142,15 @@ export const makeChannelReducer =
         };
       }
 
-      case 'jumpToLatestMessage': {
+      case 'jumpToLatestMessageFinished': {
+        const { hasMore, hasMoreNewer, messages } = action;
         return {
           ...state,
-          hasMoreNewer: false,
+          hasMore,
+          hasMoreNewer,
           highlightedMessageId: undefined,
           loading: false,
+          messages,
           suppressAutoscroll: false,
         };
       }
@@ -152,9 +158,12 @@ export const makeChannelReducer =
       case 'jumpToMessageFinished': {
         return {
           ...state,
+          hasMore: action.channel.state.messagePagination.hasPrev,
           hasMoreNewer: action.channel.state.messagePagination.hasNext,
           highlightedMessageId: action.highlightedMessageId,
+          loadingMore: false,
           messages: action.channel.state.messages,
+          suppressAutoscroll: false,
         };
       }
 

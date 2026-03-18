@@ -35,6 +35,22 @@ jest.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: jest.fn(),
 }));
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
+
 const UNREAD_MESSAGES_SEPARATOR_TEST_ID = 'unread-messages-separator';
 
 const user1 = generateUser();
@@ -59,6 +75,15 @@ const renderComponent = ({ channelProps, chatClient, components = {}, msgListPro
       </Channel>
     </Chat>,
   );
+
+const createDeferred = () => {
+  let resolve;
+  const promise = new Promise((promiseResolve) => {
+    resolve = promiseResolve;
+  });
+
+  return { promise, resolve };
+};
 
 describe('MessageList', () => {
   let chatClient;
@@ -855,6 +880,298 @@ describe('MessageList', () => {
           dispatchMarkUnreadForChannel({ channel, client });
         });
         expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('starts scrolling only after the latest message page renders', async () => {
+        const olderMessages = [
+          generateMessage({ id: 'older-1', text: 'older-1', user: user1 }),
+          generateMessage({ id: 'older-2', text: 'older-2', user: user2 }),
+        ];
+        const latestMessages = [
+          generateMessage({ id: 'latest-1', text: 'latest-1', user: user1 }),
+          generateMessage({ id: 'latest-2', text: 'latest-2', user: user2 }),
+        ];
+        const jumpDeferred = createDeferred();
+        const scrollToMock = jest.fn(function scrollTo(options) {
+          if (typeof options === 'object' && typeof options.top === 'number') {
+            this.scrollTop = options.top;
+          }
+        });
+        const originalScrollTo = HTMLElement.prototype.scrollTo;
+        Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+          configurable: true,
+          value: scrollToMock,
+        });
+
+        const MessageListHarness = () => {
+          const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
+          const [canLoadNewer, setCanLoadNewer] = React.useState(true);
+
+          const jumpToLatestMessage = React.useCallback(
+            () =>
+              jumpDeferred.promise.then(() => {
+                setRenderedMessages(latestMessages);
+                setCanLoadNewer(false);
+              }),
+            [],
+          );
+
+          return (
+            <Chat client={chatClient}>
+              <Channel channel={channel}>
+                <MessageList
+                  hasMoreNewer={canLoadNewer}
+                  jumpToLatestMessage={jumpToLatestMessage}
+                  messages={renderedMessages}
+                />
+              </Channel>
+            </Chat>
+          );
+        };
+
+        render(<MessageListHarness />);
+
+        await waitFor(() => {
+          expect(screen.getByText('older-1')).toBeInTheDocument();
+        });
+
+        const listElement = document.querySelector('.str-chat__message-list');
+        Object.defineProperties(listElement, {
+          offsetHeight: { configurable: true, value: 250 },
+          scrollHeight: { configurable: true, value: 1000, writable: true },
+          scrollTop: { configurable: true, value: 0, writable: true },
+        });
+
+        fireEvent.click(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID));
+
+        expect(scrollToMock).not.toHaveBeenCalled();
+
+        await act(async () => {
+          jumpDeferred.resolve();
+          await jumpDeferred.promise;
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('latest-1')).toBeInTheDocument();
+        });
+
+        expect(scrollToMock).toHaveBeenNthCalledWith(1, { top: 0 });
+        expect(scrollToMock).toHaveBeenNthCalledWith(2, {
+          behavior: 'smooth',
+          top: 1000,
+        });
+
+        if (originalScrollTo) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+            configurable: true,
+            value: originalScrollTo,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollTo;
+        }
+      });
+
+      it('smooth-scrolls to a highlighted message only after the target page renders', async () => {
+        const olderMessages = [
+          generateMessage({ id: 'older-1', text: 'older-1', user: user1 }),
+          generateMessage({ id: 'older-2', text: 'older-2', user: user2 }),
+        ];
+        const targetMessages = [
+          generateMessage({ id: 'target-1', text: 'target-1', user: user1 }),
+          generateMessage({ id: 'target-2', text: 'target-2', user: user2 }),
+        ];
+        const jumpDeferred = createDeferred();
+        const scrollToMock = jest.fn(function scrollTo(options) {
+          if (typeof options === 'object' && typeof options.top === 'number') {
+            this.scrollTop = options.top;
+          }
+        });
+        const scrollIntoViewMock = jest.fn();
+        const originalScrollTo = HTMLElement.prototype.scrollTo;
+        const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+        Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+          configurable: true,
+          value: scrollToMock,
+        });
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+          configurable: true,
+          value: scrollIntoViewMock,
+        });
+        const requestAnimationFrameSpy = jest
+          .spyOn(window, 'requestAnimationFrame')
+          .mockImplementation((callback) => {
+            callback(0);
+            return 0;
+          });
+
+        const MessageListHarness = () => {
+          const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
+          const [highlightedId, setHighlightedId] = React.useState(undefined);
+
+          const jumpToQuotedMessage = React.useCallback(
+            () =>
+              jumpDeferred.promise.then(() => {
+                setRenderedMessages(targetMessages);
+                setHighlightedId('target-2');
+              }),
+            [],
+          );
+
+          return (
+            <>
+              <button onClick={() => void jumpToQuotedMessage()} type='button'>
+                jump
+              </button>
+              <Chat client={chatClient}>
+                <Channel channel={channel}>
+                  <MessageList
+                    highlightedMessageId={highlightedId}
+                    messages={renderedMessages}
+                  />
+                </Channel>
+              </Chat>
+            </>
+          );
+        };
+
+        render(<MessageListHarness />);
+
+        await waitFor(() => {
+          expect(screen.getByText('older-1')).toBeInTheDocument();
+        });
+
+        const listElement = document.querySelector('.str-chat__message-list');
+        Object.defineProperties(listElement, {
+          clientHeight: { configurable: true, value: 250 },
+          offsetHeight: { configurable: true, value: 250 },
+          scrollHeight: { configurable: true, value: 1000, writable: true },
+          scrollTop: { configurable: true, value: 0, writable: true },
+        });
+        scrollToMock.mockClear();
+        scrollIntoViewMock.mockClear();
+
+        fireEvent.click(screen.getByText('jump'));
+
+        expect(scrollToMock).not.toHaveBeenCalled();
+        expect(scrollIntoViewMock).not.toHaveBeenCalled();
+
+        await act(async () => {
+          jumpDeferred.resolve();
+          await jumpDeferred.promise;
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('target-2')).toBeInTheDocument();
+        });
+
+        expect(scrollIntoViewMock).toHaveBeenCalledWith({
+          behavior: 'smooth',
+          block: 'center',
+        });
+
+        requestAnimationFrameSpy.mockRestore();
+        if (originalScrollTo) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+            configurable: true,
+            value: originalScrollTo,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollTo;
+        }
+        if (originalScrollIntoView) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+            configurable: true,
+            value: originalScrollIntoView,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollIntoView;
+        }
+      });
+
+      it('does not auto-scroll to bottom when reaching the latest merged page via loadMoreNewer', async () => {
+        const olderMessages = Array.from({ length: 2 }, (_, index) =>
+          generateMessage({
+            id: `older-${index + 1}`,
+            text: `older-${index + 1}`,
+            user: user1,
+          }),
+        );
+        const mergedLatestMessages = [
+          ...olderMessages,
+          ...Array.from({ length: 100 }, (_, index) =>
+            generateMessage({
+              id: `latest-${index + 1}`,
+              text: `latest-${index + 1}`,
+              user: user2,
+            }),
+          ),
+        ];
+        const scrollToMock = jest.fn(function scrollTo(options) {
+          if (typeof options === 'object' && typeof options.top === 'number') {
+            this.scrollTop = options.top;
+          }
+        });
+        const originalScrollTo = HTMLElement.prototype.scrollTo;
+        Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+          configurable: true,
+          value: scrollToMock,
+        });
+
+        const MessageListHarness = () => {
+          const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
+          const [canLoadNewer, setCanLoadNewer] = React.useState(true);
+
+          return (
+            <>
+              <button
+                onClick={() => {
+                  setRenderedMessages(mergedLatestMessages);
+                  setCanLoadNewer(false);
+                }}
+                type='button'
+              >
+                load newer
+              </button>
+              <Chat client={chatClient}>
+                <Channel channel={channel}>
+                  <MessageList hasMoreNewer={canLoadNewer} messages={renderedMessages} />
+                </Channel>
+              </Chat>
+            </>
+          );
+        };
+
+        render(<MessageListHarness />);
+
+        await waitFor(() => {
+          expect(screen.getByText('older-1')).toBeInTheDocument();
+        });
+
+        const listElement = document.querySelector('.str-chat__message-list');
+        Object.defineProperties(listElement, {
+          offsetHeight: { configurable: true, value: 250 },
+          scrollHeight: { configurable: true, value: 600, writable: true },
+          scrollTop: { configurable: true, value: 350, writable: true },
+        });
+        scrollToMock.mockClear();
+
+        fireEvent.scroll(listElement, { target: { scrollTop: 350 } });
+        fireEvent.click(screen.getByText('load newer'));
+
+        await waitFor(() => {
+          expect(screen.getByText('latest-100')).toBeInTheDocument();
+        });
+
+        expect(scrollToMock).not.toHaveBeenCalled();
+        expect(listElement.scrollTop).toBe(350);
+        if (originalScrollTo) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+            configurable: true,
+            value: originalScrollTo,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollTo;
+        }
       });
     });
   });

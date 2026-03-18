@@ -9,6 +9,8 @@ export type ContainerMeasures = {
 };
 
 export type UseMessageListScrollManagerParams = {
+  disableScrollManagement?: boolean;
+  justReachedLatestMessageSet?: boolean;
   loadMoreScrollThreshold: number;
   messages: LocalMessage[];
   onScrollBy: (scrollBy: number) => void;
@@ -21,6 +23,8 @@ export type UseMessageListScrollManagerParams = {
 // FIXME: change this generic name to something like useAdjustScrollPositionToListSize
 export function useMessageListScrollManager(params: UseMessageListScrollManagerParams) {
   const {
+    disableScrollManagement = false,
+    justReachedLatestMessageSet = false,
     loadMoreScrollThreshold,
     onScrollBy,
     scrollContainerMeasures,
@@ -39,6 +43,12 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
   const scrollTop = useRef(0);
 
   useLayoutEffect(() => {
+    if (disableScrollManagement) {
+      messages.current = params.messages;
+      measures.current = scrollContainerMeasures();
+      return;
+    }
+
     const prevMeasures = measures.current;
     const prevMessages = messages.current;
     const newMessages = params.messages;
@@ -61,6 +71,12 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
         }
         // messages added to the bottom
         else {
+          if (justReachedLatestMessageSet) {
+            messages.current = newMessages;
+            measures.current = newMeasures;
+            return;
+          }
+
           const lastMessageIsFromCurrentUser = lastNewMessage.user?.id === client.userID;
 
           if (lastMessageIsFromCurrentUser || wasAtBottom) {
@@ -86,7 +102,14 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     messages.current = newMessages;
     measures.current = newMeasures;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [measures, messages, params.messages]);
+  }, [
+    disableScrollManagement,
+    justReachedLatestMessageSet,
+    measures,
+    messages,
+    params.messages,
+    scrollContainerMeasures,
+  ]);
 
   return (scrollTopValue: number) => {
     scrollTop.current = scrollTopValue;

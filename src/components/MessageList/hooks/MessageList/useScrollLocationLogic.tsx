@@ -5,6 +5,8 @@ import { useMessageListScrollManager } from './useMessageListScrollManager';
 import type { LocalMessage } from 'stream-chat';
 
 export type UseScrollLocationLogicParams = {
+  disableAutoScrollToBottom?: boolean;
+  disableScrollManagement?: boolean;
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   loadMoreScrollThreshold: number;
@@ -15,6 +17,8 @@ export type UseScrollLocationLogicParams = {
 
 export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => {
   const {
+    disableAutoScrollToBottom = false,
+    disableScrollManagement = false,
     hasMoreNewer,
     listElement,
     loadMoreScrollThreshold,
@@ -25,32 +29,61 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
+  const previousHasMoreNewerRef = useRef(hasMoreNewer);
+  const justReachedLatestMessageSet = previousHasMoreNewerRef.current && !hasMoreNewer;
+  const skipNextAutoScrollRef = useRef(false);
 
   const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
     useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
+  const previousScrollTopRef = useRef(0);
 
-  const scrollToBottom = useCallback(() => {
-    if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
-      return;
-    }
+  const scrollToBottom = useCallback(
+    (options?: ScrollToOptions) => {
+      if (
+        !listElement?.scrollTo ||
+        hasMoreNewer ||
+        justReachedLatestMessageSet ||
+        suppressAutoscroll
+      ) {
+        return;
+      }
 
-    listElement.scrollTo({
-      top: listElement.scrollHeight,
-    });
-    setHasNewMessages(false);
-  }, [listElement, hasMoreNewer, suppressAutoscroll]);
+      listElement.scrollTo({
+        behavior: options?.behavior,
+        top: listElement.scrollHeight,
+      });
+      setHasNewMessages(false);
+    },
+    [hasMoreNewer, justReachedLatestMessageSet, listElement, suppressAutoscroll],
+  );
 
   useLayoutEffect(() => {
     if (listElement) {
       setWrapperRect(listElement.getBoundingClientRect());
+    }
+
+    if (listElement && justReachedLatestMessageSet) {
+      listElement.scrollTop = previousScrollTopRef.current;
+      skipNextAutoScrollRef.current = true;
+      return;
+    }
+
+    if (skipNextAutoScrollRef.current) {
+      skipNextAutoScrollRef.current = false;
+      return;
+    }
+
+    if (listElement && !disableAutoScrollToBottom) {
       scrollToBottom();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listElement, hasMoreNewer]);
+  }, [disableAutoScrollToBottom, justReachedLatestMessageSet, listElement, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({
+    disableScrollManagement,
+    justReachedLatestMessageSet,
     loadMoreScrollThreshold,
     messages,
     onScrollBy: (scrollBy) => {
@@ -66,10 +99,15 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     showNewMessages: () => setHasNewMessages(true),
   });
 
+  useLayoutEffect(() => {
+    previousHasMoreNewerRef.current = hasMoreNewer;
+  }, [hasMoreNewer]);
+
   const onScroll = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
       const element = event.target as HTMLDivElement;
       const scrollTop = element.scrollTop;
+      previousScrollTopRef.current = scrollTop;
 
       updateScrollTop(scrollTop);
 
