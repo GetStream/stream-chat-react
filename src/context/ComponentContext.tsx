@@ -16,6 +16,7 @@ import {
   type FileDragAndDropContentProps,
   type GalleryProps,
   type GiphyPreviewMessageProps,
+  type ImagePlaceholderProps,
   type LoadingErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
@@ -96,6 +97,8 @@ export type ComponentContextValue = {
   BaseImage?: React.ComponentType<BaseImageProps>;
   /** Custom UI component to display the contents of callout dialog, accepts same props as: [DefaultCalloutDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/base/Callout.tsx) */
   CalloutDialog?: React.ComponentType<CalloutDialogProps>;
+  /** Custom UI component shown instead of the image when it fails to load, defaults to and accepts same props as: [ImagePlaceholder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ImagePlaceholder.tsx) */
+  ImagePlaceholder?: React.ComponentType<ImagePlaceholderProps>;
   /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
   ChannelPreviewActionButtons?: React.ComponentType<ChannelPreviewActionButtonsProps>;
   /** Custom UI component to display command chip, defaults to and accepts same props as: [CommandChip](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CommandChip.tsx) */
