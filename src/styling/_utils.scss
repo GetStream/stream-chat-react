@@ -64,7 +64,7 @@
 }
 
 @mixin focusable {
-  outline: 2px solid var(--border-utility-focus);
+  outline: 2px solid var(--border-utility-focused);
   outline-offset: 2px;
 }
 

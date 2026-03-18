@@ -177,37 +177,6 @@
   /* Box shadow applied to geolocation attachments */
   --str-chat__geolocation-attachment-box-shadow: none;
 
-  /* Border radius applied audio widget */
-  --str-chat__audio-attachment-widget-border-radius: calc(
-    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
-  );
-
-  /* Text color used in audio widget */
-  --str-chat__audio-attachment-widget-color: var(--str-chat__text-color);
-
-  /* Border radius applied audio widget */
-  --str-chat__audio-attachment-widget-secondary-color: var(
-    --str-chat__text-low-emphasis-color
-  );
-
-  /* The text/icon color for low emphasis texts (for example file size) in audio widget */
-  --str-chat__audio-attachment-widget-background-color: transparent;
-
-  /* Top border of audio widget */
-  --str-chat__audio-attachment-widget-border-block-start: none;
-
-  /* Bottom border of audio widget */
-  --str-chat__audio-attachment-widget-border-block-end: none;
-
-  /* Left (right in RTL layout) border of audio widget */
-  --str-chat__audio-attachment-widget-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of audio widget */
-  --str-chat__audio-attachment-widget-border-inline-end: none;
-
-  /* Box shadow applied to audio widget */
-  --str-chat__audio-attachment-widget-box-shadow: none;
-
   /* Border radius applied to audio recording widget */
   --str-chat__voice-recording-attachment-widget-border-radius: calc(
     var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
@@ -530,53 +499,6 @@
     }
   }
 
-  .str-chat__message-attachment-audio-widget {
-    @include utils.component-layer-overrides('audio-attachment-widget');
-
-    .str-chat__message-attachment-audio-widget--play-controls {
-      @include utils.flex-row-center();
-    }
-
-    .str-chat__message-attachment-audio-widget--progress-track {
-      max-width: calc(var(--str-chat__spacing-px) * 120);
-    }
-
-    .str-chat__message-attachment-audio-widget--text-second-row {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      grid-column-gap: var(--str-chat__spacing-5);
-      padding-top: var(--str-chat__spacing-2_5);
-
-      .str-chat__message-attachment-file--item-size {
-        line-height: calc(var(--str-chat__spacing-px) * 14);
-      }
-    }
-  }
-
-  .str-chat__message-attachment-audio-widget--progress-track {
-    position: relative;
-    height: calc(var(--str-chat__spacing-px) * 5);
-    flex: 1;
-    cursor: pointer;
-    background: linear-gradient(
-      to right,
-      var(--str-chat__primary-color)
-        var(--str-chat__message-attachment-audio-widget-progress),
-      var(--str-chat__disabled-color)
-        var(--str-chat__message-attachment-audio-widget-progress)
-    );
-    border-radius: calc(var(--str-chat__spacing-px) * 5);
-
-    .str-chat__message-attachment-audio-widget--progress-indicator {
-      position: absolute;
-      inset-inline-start: 0;
-      height: inherit;
-      background-color: var(--str-chat__primary-color);
-      border-radius: inherit;
-    }
-  }
-
   .str-chat__message-attachment__voice-recording-widget {
     @include utils.component-layer-overrides('voice-recording-attachment-widget');
     display: flex;
@@ -626,30 +548,8 @@
     .str-chat__message-attachment__voice-recording-widget__timer {
       min-width: calc(var(--str-chat__spacing-px) * 40);
       width: calc(var(--str-chat__spacing-px) * 40);
-      font-size: var(--typography-font-size-xs);
-      font-weight: var(--typography-font-weight-semi-bold);
+      font: var(--str-chat__metadata-emphasis-text);
     }
-  }
-
-  .str-chat__message_attachment__playback-rate-button {
-    @include utils.flex-row-center;
-    @include utils.button-reset;
-    text-transform: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--spacing-none);
-    flex-shrink: 0;
-    width: 40px;
-    min-width: 40px;
-    min-height: 24px;
-    max-height: 24px;
-    padding: var(--spacing-xxs) var(--spacing-none);
-    border-radius: var(--button-radius-lg);
-    border: 1px solid var(--chat-border-on-chat-incoming);
-    cursor: pointer;
-    font-size: var(--typography-font-size-xs);
-    color: var(--control-playback-toggle-text);
   }
 
   .str-chat__message-attachment-with-actions.str-chat__message-attachment--giphy {
@@ -661,58 +561,6 @@
 
   .str-chat__attachment-type-icon {
     --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 37);
-  }
-}
-
-.str-chat__message-attachment-audio-widget--play-button {
-  --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 24);
-  @include utils.component-layer-overrides('audio-attachment-controls-button');
-  @include utils.circle-fab-overrides('audio-attachment-controls-button');
-  @include utils.flex-row-center();
-  height: calc(var(--str-chat__spacing-px) * 36);
-  width: calc(var(--str-chat__spacing-px) * 36);
-  cursor: pointer;
-
-  svg {
-    width: var(--str-chat__spacing-3);
-  }
-}
-
-.str-chat__quoted-message-preview {
-  * {
-    cursor: pointer !important;
-  }
-
-  .str-chat__message-attachment-card {
-    .str-chat__message-attachment-card--source-link,
-    .str-chat__message-attachment-card--content {
-      display: none;
-    }
-  }
-
-  .str-chat__message-attachment__voice-recording-widget {
-    display: flex;
-    justify-content: space-between;
-
-    .str-chat__wave-progress-bar__track {
-      display: none;
-    }
-
-    .str-chat__message-attachment-audio-widget--play-button {
-      display: none;
-    }
-  }
-
-  .str-chat__message-attachment-file--item-download {
-    display: none;
-  }
-}
-
-.str-chat__message {
-  .str-chat__quoted-message-preview {
-    .str-chat__message-attachment-file--item {
-      padding: 0;
-    }
   }
 }
 
@@ -748,10 +596,6 @@
     .str-chat__message-attachment {
       background-color: var(--chat-bg-outgoing);
     }
-  }
-
-  .str-chat__message_attachment__playback-rate-button {
-    border: 1px solid var(--chat-border-on-chat-outgoing);
   }
 }
 

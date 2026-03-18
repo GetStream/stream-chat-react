@@ -1,0 +1,47 @@
+@use '../../../styling/utils';
+
+.str-chat .str-chat__button.str-chat__playback-rate-button {
+  text-transform: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 40px;
+  min-height: 24px;
+  max-height: 24px;
+  padding: var(--button-padding-y-sm) var(--spacing-xs);
+  background-color: inherit;
+  border-radius: var(--button-radius-lg);
+  border: 1px solid var(--control-playback-toggle-border);
+  color: var(--control-playback-toggle-text, var(--text-primary));
+  font: var(--str-chat__metadata-emphasis-text);
+
+  &:not(:disabled):hover {
+    @include utils.overlay-after(var(--background-utility-hover));
+  }
+
+  &:not(:disabled):focus-visible {
+    // focused
+    @include utils.focusable;
+    outline-offset: 0;
+  }
+
+  &:not(:disabled):active {
+    // pressed
+    @include utils.overlay-after(var(--background-utility-pressed));
+  }
+
+  &:disabled {
+    border-color: var(--border-utility-disabled);
+    color: var(--text-disabled);
+    cursor: default;
+  }
+}
+
+.str-chat__message--me {
+  .str-chat__message-attachment {
+    .str-chat__playback-rate-button {
+      border: 1px solid var(--chat-border-on-chat-outgoing);
+    }
+  }
+}

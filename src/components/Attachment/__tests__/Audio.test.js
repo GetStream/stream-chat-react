@@ -91,12 +91,19 @@ describe('Audio', () => {
 
   it('renders title and file size', () => {
     const { container, getByText } = renderComponent({
-      og: audioAttachment,
+      og: { ...audioAttachment, duration: undefined },
     });
 
     expect(getByText(audioAttachment.title)).toBeInTheDocument();
     expect(getByText(prettifyFileSize(audioAttachment.file_size))).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
+  });
+
+  it('renders duration instead of file size when available', () => {
+    renderComponent({ og: { ...audioAttachment, duration: 43.007999420166016 } });
+
+    expect(screen.getByText('00:44')).toBeInTheDocument();
+    expect(screen.queryByTestId('file-size-indicator')).not.toBeInTheDocument();
   });
 
   it('creates a playback Audio() with the right src only after clicked to play', async () => {

@@ -35,6 +35,8 @@ export type AudioPlayerState = {
   canPlayRecord: boolean;
   /** Current playback speed. Initiated with the first item of the playbackRates array. */
   currentPlaybackRate: number;
+  /** Audio duration in seconds, from descriptor or loaded metadata. */
+  durationSeconds?: number;
   /** The audio element ref */
   elementRef: HTMLAudioElement | null;
   /** Signals whether the playback is in progress. */
@@ -87,6 +89,8 @@ export class AudioPlayer {
   private _disposed = false;
   private _pendingLoadedMeta?: { element: HTMLAudioElement; onLoaded: () => void };
   private _elementIsReadyPromise?: Promise<boolean>;
+  private _metadataProbe: HTMLAudioElement | null = null;
+  private _metadataProbePromise?: Promise<void>;
   private _restoringPosition = false;
   private _removalTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
@@ -124,6 +128,7 @@ export class AudioPlayer {
     this.state = new StateStore<AudioPlayerState>({
       canPlayRecord,
       currentPlaybackRate: playbackRates[0],
+      durationSeconds,
       elementRef: null,
       isPlaying: false,
       playbackError: null,
@@ -133,6 +138,7 @@ export class AudioPlayer {
     });
 
     this.plugins.forEach((p) => p.onInit?.({ player: this }));
+    this.preloadMetadata();
   }
 
   private get plugins(): AudioPlayerPlugin[] {
@@ -160,7 +166,7 @@ export class AudioPlayer {
   }
 
   get durationSeconds() {
-    return this._data.durationSeconds;
+    return this.state.getLatestValue().durationSeconds;
   }
 
   get fileSize() {
@@ -199,6 +205,11 @@ export class AudioPlayer {
     return this._disposed;
   }
 
+  private setDurationSeconds = (durationSeconds?: number) => {
+    this._data.durationSeconds = durationSeconds;
+    this.state.partialNext({ durationSeconds });
+  };
+
   private ensureElementRef(): HTMLAudioElement {
     if (this._disposed) {
       throw new Error('AudioPlayer is disposed');
@@ -235,7 +246,74 @@ export class AudioPlayer {
     ) {
       return;
     }
-    this._data.durationSeconds = duration;
+    this.setDurationSeconds(duration);
+  };
+
+  private clearMetadataProbe = () => {
+    const probe = this._metadataProbe;
+    this._metadataProbe = null;
+    this._metadataProbePromise = undefined;
+
+    if (!probe) return;
+
+    try {
+      probe.pause();
+    } catch {
+      // ignore
+    }
+
+    probe.removeAttribute('src');
+    try {
+      probe.load();
+    } catch {
+      // ignore
+    }
+  };
+
+  private preloadMetadata = () => {
+    if (
+      this._disposed ||
+      this.durationSeconds != null ||
+      !this.src ||
+      this._metadataProbePromise ||
+      typeof document === 'undefined'
+    ) {
+      return;
+    }
+
+    const probe = document.createElement('audio');
+    probe.preload = 'metadata';
+    this._metadataProbe = probe;
+    this._metadataProbePromise = new Promise((resolve) => {
+      const cleanup = () => {
+        probe.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        probe.removeEventListener('error', handleError);
+        if (this._metadataProbe === probe) {
+          this.clearMetadataProbe();
+        } else {
+          this._metadataProbePromise = undefined;
+        }
+        resolve();
+      };
+
+      const handleLoadedMetadata = () => {
+        this.updateDurationFromElement(probe);
+        cleanup();
+      };
+
+      const handleError = () => {
+        cleanup();
+      };
+
+      probe.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+      probe.addEventListener('error', handleError, { once: true });
+      probe.src = this.src;
+      try {
+        probe.load();
+      } catch {
+        cleanup();
+      }
+    });
   };
 
   private clearPlaybackStartSafetyTimeout = () => {
@@ -295,14 +373,29 @@ export class AudioPlayer {
   };
 
   setDescriptor(descriptor: AudioPlayerDescriptor) {
+    const previousSrc = this.src;
     this._data = { ...this._data, ...descriptor };
-    if (descriptor.src !== this.src && this.elementRef) {
+    if (descriptor.src !== previousSrc && this.elementRef) {
       this.elementRef.src = descriptor.src;
+    }
+    if (descriptor.src && descriptor.src !== previousSrc) {
+      this.clearMetadataProbe();
+      if (descriptor.durationSeconds == null) {
+        this.setDurationSeconds(undefined);
+        this.preloadMetadata();
+      } else {
+        this.setDurationSeconds(descriptor.durationSeconds);
+      }
+      return;
+    }
+    if (descriptor.durationSeconds != null) {
+      this.setDurationSeconds(descriptor.durationSeconds);
     }
   }
 
   private releaseElement({ resetState }: { resetState: boolean }) {
     this.clearPendingLoadedMeta();
+    this.clearMetadataProbe();
     this._restoringPosition = false;
     if (resetState) {
       this.stop();
@@ -345,6 +438,7 @@ export class AudioPlayer {
       this.releaseElement({ resetState: false });
     }
     this.clearPendingLoadedMeta();
+    this.clearMetadataProbe();
     this._restoringPosition = false;
     this._elementIsReadyPromise = undefined;
     this.state.partialNext({ elementRef });
@@ -355,11 +449,9 @@ export class AudioPlayer {
   };
 
   setSecondsElapsed = (secondsElapsed: number) => {
+    const duration = this.elementRef?.duration ?? this.durationSeconds;
     this.state.partialNext({
-      progressPercent:
-        this.elementRef && secondsElapsed
-          ? (secondsElapsed / this.elementRef.duration) * 100
-          : 0,
+      progressPercent: duration && secondsElapsed ? (secondsElapsed / duration) * 100 : 0,
       secondsElapsed,
     });
   };
@@ -441,7 +533,6 @@ export class AudioPlayer {
   togglePlay = async () => (this.isPlaying ? this.pause() : await this.play());
 
   increasePlaybackRate = () => {
-    if (!this.elementRef) return;
     let currentPlaybackRateIndex = this.state
       .getLatestValue()
       .playbackRates.findIndex((rate) => rate === this.currentPlaybackRate);
@@ -454,7 +545,9 @@ export class AudioPlayer {
         : currentPlaybackRateIndex + 1;
     const currentPlaybackRate = this.playbackRates[nextIndex];
     this.state.partialNext({ currentPlaybackRate });
-    this.elementRef.playbackRate = currentPlaybackRate;
+    if (this.elementRef) {
+      this.elementRef.playbackRate = currentPlaybackRate;
+    }
   };
 
   seek = throttle<SeekFn>(async ({ clientX, currentTarget }) => {
@@ -492,6 +585,7 @@ export class AudioPlayer {
     this._disposed = true;
     this.cancelScheduledRemoval();
     this.clearPendingLoadedMeta();
+    this.clearMetadataProbe();
     this._restoringPosition = false;
     this.releaseElement({ resetState: true });
     this.unsubscribeEventListeners?.();

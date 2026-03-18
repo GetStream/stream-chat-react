@@ -1,8 +1,7 @@
-import { type AudioPlayerState, useAudioPlayer } from '../../AudioPlayback';
+import { type AudioPlayerState, ProgressBar, useAudioPlayer } from '../../AudioPlayback';
 import { useMessageContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
-import { ProgressBar } from '../components';
 import type { AudioProps } from '../Audio';
 import React from 'react';
 import { IconChainLink } from '../../Icons';
@@ -74,7 +73,7 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
       <div className='str-chat__message-attachment-audio-widget--play-controls'>
         <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       </div>
-      <ProgressBar onClick={audioPlayer.seek} progress={progress ?? 0} />
+      <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
     </div>
   );
 };

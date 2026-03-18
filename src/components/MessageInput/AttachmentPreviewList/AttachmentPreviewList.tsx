@@ -1,5 +1,4 @@
-import { type ComponentType, useMemo } from 'react';
-import React from 'react';
+import React, { type ComponentType, useMemo } from 'react';
 import {
   isLocalAttachment,
   isLocalAudioAttachment,
@@ -18,10 +17,7 @@ import {
   FileAttachmentPreview as DefaultFileAttachmentPreview,
   type FileAttachmentPreviewProps,
 } from './FileAttachmentPreview';
-import {
-  type AudioAttachmentPreviewProps,
-  AudioAttachmentPreview as DefaultAudioAttachmentPreview,
-} from './AudioAttachmentPreview';
+import { type AudioAttachmentPreviewProps } from './AudioAttachmentPreview';
 import { type ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
 import { useAttachmentsForPreview, useMessageComposer } from '../hooks';
 import {
@@ -34,7 +30,9 @@ import {
 } from './MediaAttachmentPreview';
 
 export type AttachmentPreviewListProps = {
-  AudioAttachmentPreview?: ComponentType<AudioAttachmentPreviewProps>;
+  AudioAttachmentPreview?:
+    | ComponentType<AudioAttachmentPreviewProps>
+    | ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   GeolocationPreview?: ComponentType<GeolocationPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
@@ -43,7 +41,7 @@ export type AttachmentPreviewListProps = {
 };
 
 export const AttachmentPreviewList = ({
-  AudioAttachmentPreview = DefaultAudioAttachmentPreview,
+  AudioAttachmentPreview = DefaultFileAttachmentPreview,
   FileAttachmentPreview = DefaultFileAttachmentPreview,
   GeolocationPreview = DefaultGeolocationPreview,
   ImageAttachmentPreview = MediaAttachmentPreview,

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { WaveProgressBar } from '../../Attachment';
-import { DurationDisplay } from '../../AudioPlayback';
+import { DurationDisplay, WaveProgressBar } from '../../AudioPlayback';
 import type { AudioPlayerState } from '../../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';

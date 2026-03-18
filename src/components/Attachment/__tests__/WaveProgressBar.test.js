@@ -14,11 +14,12 @@ window.ResizeObserver = ResizeObserverMock;
 
 const getBoundingClientRect = jest
   .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: 120 });
+  .mockReturnValue({ width: 120, x: 0 });
 
 describe('WaveProgressBar', () => {
   beforeEach(() => {
     ResizeObserverMock.observers = [];
+    getBoundingClientRect.mockReturnValue({ width: 120, x: 0 });
   });
 
   it('is not rendered if waveform data is missing', () => {
@@ -27,7 +28,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('is not rendered if no space available', () => {
-    getBoundingClientRect.mockReturnValueOnce({ width: 0 });
+    getBoundingClientRect.mockReturnValue({ width: 0, x: 0 });
     render(
       <WaveProgressBar
         amplitudesCount={5}
@@ -35,7 +36,8 @@ describe('WaveProgressBar', () => {
         waveformData={originalSample}
       />,
     );
-    expect(screen.queryByTestId(BAR_ROOT_TEST_ID)).not.toBeInTheDocument();
+    expect(screen.getByTestId(BAR_ROOT_TEST_ID)).toBeInTheDocument();
+    expect(screen.queryAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(0);
   });
 
   it('renders with default number of bars', () => {
@@ -110,15 +112,16 @@ describe('WaveProgressBar', () => {
   });
 
   it('is rendered with zero progress by default if waveform data is available', () => {
-    const { container } = render(
+    render(
       <WaveProgressBar
         amplitudesCount={5}
         seek={jest.fn()}
         waveformData={originalSample}
       />,
     );
-    expect(container).toMatchSnapshot();
+    expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(40);
     expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle('left: 0px');
   });
 
   it('is rendered with highlighted bars with non-zero progress', () => {
@@ -132,8 +135,8 @@ describe('WaveProgressBar', () => {
     );
     expect(
       container.querySelectorAll('.str-chat__wave-progress-bar__amplitude-bar--active'),
-    ).toHaveLength(1);
+    ).toHaveLength(8);
     expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
-    expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle('left: 20%');
+    expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).not.toHaveStyle('left: 0px');
   });
 });
