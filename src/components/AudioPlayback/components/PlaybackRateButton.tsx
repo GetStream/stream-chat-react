@@ -4,11 +4,15 @@ import clsx from 'clsx';
 
 export type PlaybackRateButtonProps = React.ComponentProps<'button'>;
 
-export const PlaybackRateButton = ({ children, onClick }: PlaybackRateButtonProps) => (
+export const PlaybackRateButton = ({
+  children,
+  className,
+  ...rest
+}: PlaybackRateButtonProps) => (
   <Button
-    className={clsx('str-chat__message_attachment__playback-rate-button')}
     data-testid='playback-rate-button'
-    onClick={onClick}
+    {...rest}
+    className={clsx('str-chat__playback-rate-button', className)}
   >
     {children}
   </Button>

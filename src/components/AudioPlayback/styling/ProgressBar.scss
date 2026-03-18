@@ -1,0 +1,31 @@
+.str-chat {
+  .str-chat__message-attachment-audio-widget--progress-track {
+    position: relative;
+    height: calc(var(--str-chat__spacing-px) * 5);
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    background: linear-gradient(
+      to right,
+      var(--str-chat__primary-color)
+        var(--str-chat__message-attachment-audio-widget-progress),
+      var(--str-chat__disabled-color)
+        var(--str-chat__message-attachment-audio-widget-progress)
+    );
+    border-radius: calc(var(--str-chat__spacing-px) * 5);
+
+    .str-chat__message-attachment-audio-widget--progress-indicator {
+      position: absolute;
+      inset-inline-start: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: calc(var(--str-chat__spacing-px) * 12);
+      width: calc(var(--str-chat__spacing-px) * 12);
+      border-radius: var(--radius-max);
+      border: 1px solid var(--control-playback-thumb-border-default);
+      background: var(--control-playback-thumb-bg-default);
+      box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+      cursor: grab;
+    }
+  }
+}

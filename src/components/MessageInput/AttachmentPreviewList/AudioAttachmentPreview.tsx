@@ -10,12 +10,16 @@ import clsx from 'clsx';
 import { LoadingIndicatorIcon } from '../icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from '../../Attachment';
+import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
 import { PlayButton } from '../../Button';
-import { DurationDisplay } from '../../AudioPlayback';
-import type { AudioPlayerState } from '../../AudioPlayback/AudioPlayer';
-import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
+import {
+  type AudioPlayerState,
+  DurationDisplay,
+  PlaybackRateButton,
+  useAudioPlayer,
+  WaveProgressBar,
+} from '../../AudioPlayback';
 import { useStateStore } from '../../../store';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =

@@ -1,16 +1,39 @@
 .str-chat {
   .str-chat__file-icon {
     fill: none;
-    width: 32px;
-    height: 40px;
 
     .str-chat__file-icon__label {
       fill: white;
-      //font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      font-size: 8px;
+      font-size: 8px; // default (md)
       font-weight: 800;
       letter-spacing: 0.1px;
       text-anchor: middle;
+    }
+
+    /* Hide label via CSS: .str-chat__file-icon__label { display: none; } then add .str-chat__file-icon--no-label for centering */
+    &.str-chat__file-icon--no-label .str-chat__file-icon__graphic {
+      transform: translate(
+        0,
+        6
+      ); /* viewBox units: center graphic in (0 0 32 40) when label hidden */
+    }
+
+    &.str-chat__file-icon--size-sm .str-chat__file-icon__label {
+      font-size: 0;
+      height: 0;
+    }
+
+    /* sm size hides label visually; center the graphic */
+    &.str-chat__file-icon--size-sm .str-chat__file-icon__graphic {
+      transform: translate(0, 6);
+    }
+
+    &.str-chat__file-icon--size-md .str-chat__file-icon__label {
+      font-size: 8px;
+    }
+
+    &.str-chat__file-icon--size-lg .str-chat__file-icon__label {
+      font-size: 10px;
     }
   }
 }

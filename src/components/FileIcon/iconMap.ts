@@ -8,7 +8,7 @@ import {
   wordMimeTypes,
 } from './mimeTypes';
 import type { ComponentType } from 'react';
-import type { IconProps } from './FileIconSet';
+import type { BaseFileIconProps } from './FileIconSet';
 
 type MimeTypeMappedComponent =
   | 'FilePdfIcon'
@@ -86,13 +86,13 @@ function generateGeneralTypeToIconMap<Props>({
 type IconMap = {
   standard: Record<
     SupportedMimeType | GeneralType | 'fallback',
-    ComponentType<IconProps>
+    ComponentType<BaseFileIconProps>
   >;
 };
 
 export const iconMap: IconMap = {
   standard: {
-    ...generateMimeTypeToIconMap<IconProps>({
+    ...generateMimeTypeToIconMap<BaseFileIconProps>({
       FileArchiveIcon: fileIconSet.FileArchiveIcon,
       FileCodeIcon: fileIconSet.FileCodeIcon,
       FileExcelIcon: fileIconSet.FileExcelIcon,
@@ -100,7 +100,7 @@ export const iconMap: IconMap = {
       FilePowerPointIcon: fileIconSet.FilePowerPointIcon,
       FileWordIcon: fileIconSet.FileWordIcon,
     }),
-    ...generateGeneralTypeToIconMap<IconProps>({
+    ...generateGeneralTypeToIconMap<BaseFileIconProps>({
       FileAltIcon: fileIconSet.FileFallbackIcon,
       FileAudioIcon: fileIconSet.FileAudioIcon,
       FileVideoIcon: fileIconSet.FileVideoIcon,

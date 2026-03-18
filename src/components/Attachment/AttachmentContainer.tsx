@@ -20,6 +20,7 @@ import {
   isVoiceRecordingAttachment,
 } from 'stream-chat';
 
+import { Audio as DefaultAudioAttachment } from './Audio';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { type GalleryItem, toGalleryItemDescriptors } from '../Gallery';
@@ -275,7 +276,7 @@ export const OtherFilesContainer = ({
 
 export const AudioContainer = ({
   attachment,
-  Audio = DefaultFile,
+  Audio = DefaultAudioAttachment,
 }: RenderAttachmentProps) => (
   <AttachmentWithinContainer attachment={attachment} componentType='audio'>
     <div className='str-chat__attachment'>

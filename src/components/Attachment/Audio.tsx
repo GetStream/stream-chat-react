@@ -1,13 +1,15 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { DownloadButton, FileSizeIndicator, ProgressBar } from './components';
+import { FileSizeIndicator } from './components';
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { useMessageContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
+import { FileIcon } from '../FileIcon';
+import { DurationDisplay, ProgressBar } from '../AudioPlayback';
 
 type AudioAttachmentUIProps = {
   audioPlayer: AudioPlayer;
@@ -18,7 +20,7 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
   const dataTestId = 'audio-widget';
   const rootClassName = 'str-chat__message-attachment-audio-widget';
 
-  const { isPlaying, progress } =
+  const { durationSeconds, isPlaying, progress, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
   return (
@@ -26,16 +28,34 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
       <div className='str-chat__message-attachment-audio-widget--play-controls'>
         <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       </div>
-      <div className='str-chat__message-attachment-audio-widget--text'>
+      <div className='str-chat__message-attachment-audio-widget--data'>
         <div className='str-chat__message-attachment-audio-widget--text-first-row'>
           <div className='str-chat__message-attachment-audio-widget--title'>
             {audioPlayer.title}
           </div>
-          <DownloadButton assetUrl={audioPlayer.src} />
+          <FileIcon
+            className='str-chat__file-icon'
+            mimeType={audioPlayer.mimeType}
+            size='sm'
+          />
+          {/*<DownloadButton assetUrl={audioPlayer.src} />*/}
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
-          <FileSizeIndicator fileSize={audioPlayer.fileSize} />
-          <ProgressBar onClick={audioPlayer.seek} progress={progress ?? 0} />
+          {durationSeconds ? (
+            <>
+              <DurationDisplay
+                duration={durationSeconds}
+                isPlaying={!!isPlaying}
+                secondsElapsed={secondsElapsed}
+              />
+              <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
+            </>
+          ) : (
+            <>
+              <FileSizeIndicator fileSize={audioPlayer.fileSize} />
+              <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -47,13 +67,18 @@ export type AudioProps = {
 };
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  durationSeconds: state.durationSeconds,
   isPlaying: state.isPlaying,
   progress: state.progressPercent,
+  secondsElapsed: state.secondsElapsed,
 });
 
-const UnMemoizedAudio = (props: AudioProps) => {
+/**
+ * Audio attachment with play/pause button and progress bar
+ */
+export const Audio = (props: AudioProps) => {
   const {
-    attachment: { asset_url, file_size, mime_type, title },
+    attachment: { asset_url, duration, file_size, mime_type, title },
   } = props;
 
   /**
@@ -68,6 +93,7 @@ const UnMemoizedAudio = (props: AudioProps) => {
   const { message, threadList } = useMessageContext() ?? {};
 
   const audioPlayer = useAudioPlayer({
+    durationSeconds: duration,
     fileSize: file_size,
     mimeType: mime_type,
     requester:
@@ -80,8 +106,3 @@ const UnMemoizedAudio = (props: AudioProps) => {
 
   return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;
 };
-
-/**
- * Audio attachment with play/pause button and progress bar
- */
-export const Audio = React.memo(UnMemoizedAudio) as typeof UnMemoizedAudio;

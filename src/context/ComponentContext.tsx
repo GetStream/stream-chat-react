@@ -68,12 +68,15 @@ import type { PropsWithChildrenOnly } from '../types/types';
 import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageInput/EditedMessagePreview';
+import type { FileIconProps } from '../components/FileIcon/FileIcon';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
   AdditionalMessageComposerActions?: React.ComponentType;
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: React.ComponentType<AttachmentProps>;
+  /** Custom UI component for the file type icon shown on file attachments (e.g. PDF, doc). Accepts same props as [FileIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/FileIcon/FileIcon.tsx) (e.g. mimeType, size, sizeConfig). Use this to override dimensions or provide a custom icon. */
+  AttachmentFileIcon?: React.ComponentType<FileIconProps>;
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */

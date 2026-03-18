@@ -1,0 +1,94 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* Border radius applied audio widget */
+  --str-chat__audio-attachment-widget-border-radius: calc(
+    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
+  );
+
+  /* Text color used in audio widget */
+  --str-chat__audio-attachment-widget-color: var(--str-chat__text-color);
+
+  /* Border radius applied audio widget */
+  --str-chat__audio-attachment-widget-secondary-color: var(
+    --str-chat__text-low-emphasis-color
+  );
+
+  /* The text/icon color for low emphasis texts (for example file size) in audio widget */
+  --str-chat__audio-attachment-widget-background-color: transparent;
+
+  /* Top border of audio widget */
+  --str-chat__audio-attachment-widget-border-block-start: none;
+
+  /* Bottom border of audio widget */
+  --str-chat__audio-attachment-widget-border-block-end: none;
+
+  /* Left (right in RTL layout) border of audio widget */
+  --str-chat__audio-attachment-widget-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of audio widget */
+  --str-chat__audio-attachment-widget-border-inline-end: none;
+
+  /* Box shadow applied to audio widget */
+  --str-chat__audio-attachment-widget-box-shadow: none;
+}
+
+.str-chat__message-attachment-audio-widget {
+  @include utils.component-layer-overrides('audio-attachment-widget');
+  flex: 1 1 auto;
+  min-width: 276px;
+
+  .str-chat__message-attachment-audio-widget--play-controls {
+    @include utils.flex-row-center();
+  }
+
+  .str-chat__message-attachment-audio-widget--data {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+  }
+
+  .str-chat__message-attachment-audio-widget--progress-track {
+    //max-width: calc(var(--str-chat__spacing-px) * 120);
+  }
+
+  .str-chat__message-attachment-audio-widget--text-first-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--spacing-xs);
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  .str-chat__message-attachment-audio-widget--title {
+    font: var(--str-chat__caption-emphasis-text);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .str-chat__duration-display {
+    width: 40px;
+    font: var(--str-chat__metadata-default-text);
+    color: var(--text-secondary);
+  }
+
+  .str-chat__message-attachment-audio-widget--text-second-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: var(--spacing-xs);
+
+    .str-chat__message-attachment-file--item-size {
+      line-height: calc(var(--str-chat__spacing-px) * 14);
+    }
+  }
+}

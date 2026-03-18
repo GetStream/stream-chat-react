@@ -415,7 +415,7 @@
   --border-core-on-accent: #ffffff; /** Borders on accent backgrounds. */
   --border-core-on-surface: #c0c8d2;
   --border-core-inverse: #ffffff; /** Border on inverse (dark) surface, e.g. presence ring. */
-  --border-utility-focused: #c3d9ff; /** Focus ring or focus border. */
+  --border-utility-focused: var(--blue-150); /** Focus ring or focus border. */
   --border-utility-active: var(--accent-primary); /** Focus ring or focus border. */
   --border-utility-selected: rgba(26, 27, 37, 0.15); /** Focus ring or focus border. */
   --border-core-opacity-subtle: rgba(26, 27, 37, 0.1); /** Image frame border treatment. */

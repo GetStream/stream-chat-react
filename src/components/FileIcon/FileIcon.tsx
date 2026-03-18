@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import clsx from 'clsx';
 import { iconMap } from './iconMap';
+import { FILE_ICON_NO_LABEL_CLASSNAME, mergeFileIconSizeConfig } from './FileIconSet';
 import { mimeTypeToExtensionMap } from './mimeTypes';
+import type { FileIconSize } from './FileIconSet';
+
+export type FileIconSizeConfigOverride = Partial<
+  Record<
+    FileIconSize,
+    Partial<{ width: number; height: number; labelX: number; labelY: number }>
+  >
+>;
 
 export type FileIconProps = {
   className?: string;
   fileName?: string;
+  /** When true, label is not rendered and the icon graphic is centered (adds str-chat__file-icon--no-label). */
+  hideLabel?: boolean;
   mimeType?: string;
+  /** Override dimensions/label position per size (sm, md, lg). */
+  sizeConfig?: FileIconSizeConfigOverride;
+  size?: FileIconSize;
 };
 
 export function mimeTypeToIcon(mimeType?: string) {
@@ -41,9 +56,28 @@ const labelFromMimeType = ({
 };
 
 export const FileIcon = (props: FileIconProps) => {
-  const { fileName, mimeType, ...rest } = props;
-
+  const {
+    className,
+    fileName,
+    hideLabel,
+    mimeType,
+    size = 'md',
+    sizeConfig: sizeConfigOverride,
+    ...rest
+  } = props;
+  const sizeConfig = useMemo(
+    () => mergeFileIconSizeConfig(sizeConfigOverride),
+    [sizeConfigOverride],
+  );
   const Icon = mimeTypeToIcon(mimeType);
-  const label = labelFromMimeType({ fileName, mimeType });
-  return <Icon {...rest} label={label} />;
+  const label = hideLabel ? undefined : labelFromMimeType({ fileName, mimeType });
+  return (
+    <Icon
+      {...rest}
+      className={clsx(className, hideLabel && FILE_ICON_NO_LABEL_CLASSNAME)}
+      label={label}
+      size={size}
+      sizeConfig={sizeConfig}
+    />
+  );
 };

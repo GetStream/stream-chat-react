@@ -83,6 +83,23 @@ describe('AudioPlayer', () => {
     expect(player.src).toBe(SRC);
     expect(player.mimeType).toBe(MIME);
     expect(player.durationSeconds).toBe(100);
+    expect(player.state.getLatestValue().durationSeconds).toBe(100);
+  });
+
+  it('preloads metadata and updates duration before playback starts', () => {
+    const probe = document.createElement('audio');
+    const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(probe);
+    const durationSpy = jest.spyOn(probe, 'duration', 'get').mockReturnValue(42);
+
+    const player = makePlayer({ durationSeconds: undefined });
+
+    probe.dispatchEvent(new Event('loadedmetadata'));
+
+    expect(createElementSpy).toHaveBeenCalledWith('audio');
+    expect(player.durationSeconds).toBe(42);
+    expect(player.state.getLatestValue().durationSeconds).toBe(42);
+
+    durationSpy.mockRestore();
   });
 
   it('constructor marks not playable when mimeType unsupported', () => {
@@ -223,6 +240,16 @@ describe('AudioPlayer', () => {
     const pauseSpy = jest.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).not.toHaveBeenCalled();
+  });
+
+  it('increasePlaybackRate() updates state even before the element is attached', () => {
+    const player = makePlayer({ playbackRates: [1, 1.5, 2] });
+
+    expect(player.elementRef).toBeNull();
+
+    player.increasePlaybackRate();
+
+    expect(player.currentPlaybackRate).toBe(1.5);
   });
 
   it('stop() pauses, resets secondsElapsed and currentTime', () => {

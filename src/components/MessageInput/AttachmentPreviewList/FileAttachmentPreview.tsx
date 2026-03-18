@@ -3,7 +3,7 @@ import { useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
 import { LoadingIndicatorIcon } from '../icons';
 
-import type { LocalFileAttachment } from 'stream-chat';
+import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
@@ -11,7 +11,9 @@ import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
-  UploadAttachmentPreviewProps<LocalFileAttachment<CustomLocalMetadata>>;
+  UploadAttachmentPreviewProps<
+    LocalFileAttachment<CustomLocalMetadata> | LocalAudioAttachment<CustomLocalMetadata>
+  >;
 
 export const FileAttachmentPreview = ({
   attachment,

@@ -1,20 +1,25 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator, PlaybackRateButton, WaveProgressBar } from './components';
+import { FileSizeIndicator } from './components';
 import { FileIcon } from '../FileIcon';
 import { useMessageContext, useTranslationContext } from '../../context';
-import { DurationDisplay } from '../AudioPlayback';
-import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
-import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
+import {
+  type AudioPlayer,
+  type AudioPlayerState,
+  DurationDisplay,
+  PlaybackRateButton,
+  useAudioPlayer,
+  WaveProgressBar,
+} from '../AudioPlayback';
 import { useStateStore } from '../../store';
-import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
   canPlayRecord: state.canPlayRecord,
+  durationSeconds: state.durationSeconds,
   isPlaying: state.isPlaying,
   playbackRate: state.currentPlaybackRate,
   progress: state.progressPercent,
@@ -27,8 +32,14 @@ type VoiceRecordingPlayerUIProps = {
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
 const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) => {
-  const { canPlayRecord, isPlaying, playbackRate, progress, secondsElapsed } =
-    useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
+  const {
+    canPlayRecord,
+    durationSeconds,
+    isPlaying,
+    playbackRate,
+    progress,
+    secondsElapsed,
+  } = useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
   return (
     <div className={rootClassName} data-testid='voice-recording-widget'>
@@ -36,9 +47,9 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {audioPlayer.durationSeconds ? (
+            {durationSeconds ? (
               <DurationDisplay
-                duration={audioPlayer.durationSeconds}
+                duration={durationSeconds}
                 isPlaying={!!isPlaying}
                 secondsElapsed={secondsElapsed}
                 showRemaining
