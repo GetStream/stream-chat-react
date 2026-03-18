@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseImage } from '../../Gallery';
+import { BaseImage } from '../../BaseImage';
 import { SafeAnchor } from '../../SafeAnchor';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 

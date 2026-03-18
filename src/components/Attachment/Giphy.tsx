@@ -1,5 +1,6 @@
 import type { Attachment } from 'stream-chat';
-import { BaseImage as DefaultBaseImage, toGalleryItemDescriptors } from '../Gallery';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
+import { toGalleryItemDescriptors } from '../Gallery';
 import clsx from 'clsx';
 import {
   useChannelStateContext,

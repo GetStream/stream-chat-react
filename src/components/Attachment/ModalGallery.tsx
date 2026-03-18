@@ -1,12 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
-import type { BaseImageProps, GalleryItem } from '../Gallery';
-import {
-  BaseImage as DefaultBaseImage,
-  Gallery as DefaultGallery,
-  GalleryUI,
-} from '../Gallery';
+import type { BaseImageProps } from '../BaseImage';
+import type { GalleryItem } from '../Gallery/GalleryContext';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
+import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';

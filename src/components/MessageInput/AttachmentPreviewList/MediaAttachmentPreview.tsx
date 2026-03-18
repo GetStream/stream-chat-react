@@ -5,7 +5,7 @@ import {
   type LocalVideoAttachment,
 } from 'stream-chat';
 import { useComponentContext, useTranslationContext } from '../../../context';
-import { BaseImage as DefaultBaseImage } from '../../Gallery';
+import { BaseImage as DefaultBaseImage } from '../../BaseImage';
 import React, {
   type KeyboardEvent,
   type MouseEvent,

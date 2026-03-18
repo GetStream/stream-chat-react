@@ -96,11 +96,11 @@ export type ComponentContextValue = {
   Avatar?: React.ComponentType<AvatarProps>;
   /** UI component to display a list of avatars stacked in a row, defaults to and accepts same props as: [AvatarStack](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/AvatarStack.tsx) */
   AvatarStack?: React.ComponentType<AvatarStackProps>;
-  /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/BaseImage.tsx) */
+  /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/BaseImage/BaseImage.tsx) */
   BaseImage?: React.ComponentType<BaseImageProps>;
   /** Custom UI component to display the contents of callout dialog, accepts same props as: [DefaultCalloutDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/base/Callout.tsx) */
   CalloutDialog?: React.ComponentType<CalloutDialogProps>;
-  /** Custom UI component shown instead of the image when it fails to load, defaults to and accepts same props as: [ImagePlaceholder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ImagePlaceholder.tsx) */
+  /** Custom UI component shown instead of the image when it fails to load, defaults to and accepts same props as: [ImagePlaceholder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/BaseImage/ImagePlaceholder.tsx) */
   ImagePlaceholder?: React.ComponentType<ImagePlaceholderProps>;
   /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelPreviewActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelPreviewActionButtons.tsx) */
   ChannelPreviewActionButtons?: React.ComponentType<ChannelPreviewActionButtonsProps>;
@@ -163,7 +163,7 @@ export type ComponentContextValue = {
   MessageTimestamp?: React.ComponentType<MessageTimestampProps>;
   /** Custom UI component for viewing content in a modal, defaults to and accepts the same props as [Modal](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Modal/Modal.tsx) */
   Modal?: React.ComponentType<ModalProps>;
-  /** Custom UI component for viewing message's image and giphy attachments with option to expand into the Gallery on Modal, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
+  /** Custom UI component for viewing message's image attachments with option to expand into the Gallery on Modal, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to show "Also sent in channel" in thread message lists when message.show_in_channel is true, defaults to and accepts same props as: [MessageAlsoSentInChannelIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageAlsoSentInChannelIndicator.tsx) */
   MessageAlsoSentInChannelIndicator?: React.ComponentType;

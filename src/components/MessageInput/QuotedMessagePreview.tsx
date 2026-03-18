@@ -44,7 +44,7 @@ import {
   IconVideoSolid,
 } from '../Icons';
 import clsx from 'clsx';
-import { BaseImage } from '../Gallery';
+import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 
