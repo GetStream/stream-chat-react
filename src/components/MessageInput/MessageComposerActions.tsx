@@ -81,7 +81,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (contentIsEmpty && !editedMessage && recordingEnabled) {
+  } else if (contentIsEmpty && !editedMessage && !command && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 
