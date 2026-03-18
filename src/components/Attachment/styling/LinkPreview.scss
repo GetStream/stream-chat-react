@@ -20,7 +20,7 @@
   line-height: var(--typography-line-height-tight);
 
   * {
-    color: var(--chat-text-incoming, #1a1b25);
+    color: var(--chat-text-incoming);
   }
 
   .str-chat__message-attachment-card--header {
@@ -32,8 +32,12 @@
     flex-shrink: 0;
     overflow: hidden;
 
-    img {
+    img,
+    .str-chat__image-placeholder {
       border-radius: var(--message-bubble-radius-attachment-inline, 8px);
+    }
+
+    img {
       object-fit: cover;
       width: 40px;
       height: 40px;
@@ -94,6 +98,14 @@
       height: var(--str-chat__scraped-image-height);
       width: 100%;
       border-radius: 0;
+    }
+
+    .str-chat__message-attachment-card--header:has(.str-chat__image-placeholder) {
+      height: var(--str-chat__scraped-image-height);
+
+      .str-chat__image-placeholder {
+        border-radius: 0;
+      }
     }
 
     .str-chat__message-attachment-card--content {

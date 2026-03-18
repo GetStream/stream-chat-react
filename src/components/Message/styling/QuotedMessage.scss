@@ -7,7 +7,10 @@
     .str-chat__quoted-message-preview {
       background-color: var(--chat-bg-attachment-incoming);
     }
-    .str-chat__quoted-message-preview--own {
+  }
+
+  .str-chat__message--me {
+    .str-chat__quoted-message-preview {
       background-color: var(--chat-bg-attachment-outgoing);
     }
   }

@@ -66,6 +66,11 @@
     .str-chat__quoted-message-preview__image {
       display: flex;
       position: relative;
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      overflow: hidden;
 
       .str-chat__attachment-preview__thumbnail__play-indicator {
         display: flex;
