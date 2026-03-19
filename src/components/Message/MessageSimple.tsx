@@ -34,7 +34,7 @@ import {
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Poll } from '../Poll';
-import { ReactionsList as DefaultReactionList } from '../Reactions';
+import { MessageReactions as DefaultMessageReactions } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
@@ -80,13 +80,13 @@ const MessageSimpleWithContext = ({
     MessageDeleted,
     MessageDeletedBubble = DefaultMessageDeletedBubble,
     MessageEditedIndicator = DefaultMessageEditedIndicator,
+    MessageReactions = DefaultMessageReactions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     MessageTranslationIndicator = DefaultMessageTranslationIndicator,
     PinIndicator = DefaultPinIndicator,
     QuotedMessage = DefaultQuotedMessage,
-    ReactionsList = DefaultReactionList,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
   } = useComponentContext('MessageSimple');
@@ -235,7 +235,7 @@ const MessageSimpleWithContext = ({
                 )}
               </MessageBubble>
               <div className='str-chat__message-reactions-host'>
-                {hasReactions && <ReactionsList reverse />}
+                {hasReactions && <MessageReactions reverse />}
               </div>
               <MessageErrorIcon />
             </>

@@ -27,7 +27,7 @@ import type {
 } from './types';
 import { DialogAnchor, useDialogOnNearestManager } from '../Dialog';
 
-export type ReactionsListProps = Partial<
+export type MessageReactionsProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
 > & {
   /** An array of the own reaction objects to distinguish own reactions visually */
@@ -78,7 +78,7 @@ const FragmentOrButton = ({
   return <>{children}</>;
 };
 
-const UnMemoizedReactionsList = (props: ReactionsListProps) => {
+const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const {
     flipHorizontalPosition = false,
     handleFetchReactions,
@@ -95,10 +95,10 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
   const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
     null,
   );
-  const { t } = useTranslationContext('ReactionsList');
+  const { t } = useTranslationContext('MessageReactions');
   const { MessageReactionsDetail = DefaultMessageReactionsDetail } =
     useComponentContext();
-  const { isMyMessage, message } = useMessageContext('ReactionsList');
+  const { isMyMessage, message } = useMessageContext('MessageReactions');
 
   const divRef = useRef<ComponentRef<'div'>>(null);
   const dialogId = `message-reactions-detail-${message.id}`;
@@ -233,6 +233,6 @@ const UnMemoizedReactionsList = (props: ReactionsListProps) => {
 /**
  * Component that displays a list of reactions on a message.
  */
-export const ReactionsList = React.memo(
-  UnMemoizedReactionsList,
-) as typeof UnMemoizedReactionsList;
+export const MessageReactions = React.memo(
+  UnMemoizedMessageReactions,
+) as typeof UnMemoizedMessageReactions;
