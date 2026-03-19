@@ -1,0 +1,204 @@
+/* ─── Variant 1: Sender names + alignment ────────────────────────── */
+
+.custom-message-ui {
+  --cmui-gap-size: 0.5rem;
+  --cmui-gap-size-md: 0.5rem;
+  --cmui-gap-size-sm: 0.2rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
+  --cmui-bg-color: #efefef;
+  --cmui-border-color: #ddd;
+  --cmui-border-radius: 0.2rem;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cmui-gap-size-md);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
+}
+
+.custom-message-ui__name {
+  display: flex;
+  gap: var(--cmui-gap-size);
+}
+
+.custom-message-ui--mine .custom-message-ui__name::before {
+  content: "<";
+}
+
+.custom-message-ui--other .custom-message-ui__name::after {
+  content: ">";
+}
+
+.custom-message-ui--mine {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ─── Variant 2: Avatars ─────────────────────────────────────────── */
+
+.custom-message-ui__text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+/* ─── Variant 3b+: MessageText ───────────────────────────────────── */
+
+.custom-message-ui .str-chat__message-text p {
+  all: unset;
+}
+
+.custom-message-ui .str-chat__message-text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.custom-message-ui .str-chat__message-mention {
+  font-weight: bold;
+  color: palevioletred;
+  cursor: pointer;
+}
+
+/* ─── Variant 4+: Body layout ────────────────────────────────────── */
+
+.custom-message-ui__body {
+  gap: var(--cmui-gap-size-md);
+  display: flex;
+}
+
+.custom-message-ui--mine .custom-message-ui__body {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ─── Variant 4: Metadata (always visible) ───────────────────────── */
+
+.custom-message-ui__metadata {
+  display: flex;
+  font-size: x-small;
+  align-items: baseline;
+}
+
+.custom-message-ui__metadata > *:nth-child(even)::after,
+.custom-message-ui__metadata > *:nth-child(even)::before {
+  content: "•";
+  padding-inline: var(--cmui-gap-size-sm);
+}
+
+.custom-message-ui__metadata > *:last-child::after {
+  display: none;
+}
+
+.custom-message-ui--mine .custom-message-ui__metadata {
+  align-self: flex-end;
+}
+
+/* ─── Variant 5: Grouped metadata (hidden by default) ────────────── */
+
+[data-variant="5"] .custom-message-ui__metadata,
+[data-variant="6"] .custom-message-ui__metadata,
+[data-variant="7"] .custom-message-ui__metadata,
+[data-variant="8"] .custom-message-ui__metadata {
+  display: none;
+}
+
+[data-variant="5"] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant="5"] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant="6"] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant="6"] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant="7"] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant="7"] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant="8"] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant="8"] .str-chat__li--single .custom-message-ui__metadata {
+  display: flex;
+}
+
+/* ─── Variant 6+: Message actions ────────────────────────────────── */
+
+.custom-message-ui:hover,
+.custom-message-ui:has(.str-chat__message-text:focus) {
+  background: var(--cmui-bg-color);
+}
+
+.custom-message-ui__actions {
+  display: none;
+  position: absolute;
+  gap: var(--cmui-gap-size-md);
+  top: -20px;
+}
+
+.custom-message-ui:hover .custom-message-ui__actions {
+  display: flex;
+}
+
+.custom-message-ui__actions-group {
+  display: flex;
+  background-color: var(--cmui-border-color);
+  border-radius: var(--cmui-border-radius);
+  gap: 1px;
+  padding: 1px;
+}
+
+.custom-message-ui__actions-group button {
+  all: unset;
+  background: white;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1rem;
+}
+
+.custom-message-ui__actions-group button:first-child {
+  border-bottom-left-radius: calc(var(--cmui-border-radius) - 1px);
+  border-top-left-radius: calc(var(--cmui-border-radius) - 1px);
+}
+
+.custom-message-ui__actions-group button:last-child {
+  border-bottom-right-radius: calc(var(--cmui-border-radius) - 1px);
+  border-top-right-radius: calc(var(--cmui-border-radius) - 1px);
+}
+
+.custom-message-ui__actions-group button:hover {
+  background: var(--cmui-bg-color);
+}
+
+.custom-message-ui--mine .custom-message-ui__actions {
+  left: var(--cmui-inline-spacing);
+}
+
+.custom-message-ui--other .custom-message-ui__actions {
+  right: var(--cmui-inline-spacing);
+}
+
+/* ─── Variant 7+: Reply count ────────────────────────────────────── */
+
+.custom-message-ui__metadata-reply-count {
+  all: unset;
+}
+
+.custom-message-ui__metadata-reply-count > span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ─── Variant 8: Reactions ───────────────────────────────────────── */
+
+.custom-message-ui--mine .str-chat__reaction-list {
+  align-self: flex-end;
+}
+
+.custom-message-ui .str-chat__message-reaction {
+  border: 1px solid var(--cmui-border-color);
+  padding: 5px;
+}
+
+[data-variant="8"] {
+  --str-chat__own-message-reaction-background-color: var(--cmui-bg-color, #efefef);
+  --str-chat__message-reaction-background-color: white;
+  --str-chat__message-reaction-border-radius: 0.2rem;
+}
