@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `1227617b0576c4d1f29e1dd00116ba43981c8139` (`1227617b`, `2026-03-18`, `refactor: remove initialNavOpenResponsive for redundancy (#3023)`)
-- Future mining starting point: diff `1227617b0576c4d1f29e1dd00116ba43981c8139..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `aa36a4dd65c74481fac6c8b0dd058be3ca6a45ba` (`aa36a4dd`, `2026-03-19`, `fix: giphy and command ui fixes (#3025)`)
+- Future mining starting point: diff `aa36a4dd65c74481fac6c8b0dd058be3ca6a45ba..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -1638,7 +1638,9 @@ Only confirmed items should move from this file into the migration guide.
 ## Ruled Out
 
 - `WithDragAndDropUpload` redesign (`d2a72b54`): investigated; current source adds `FileDragAndDropContent`, `str-chat__dropzone-root`, and cooldown-aware disabling, but does not remove or rename the public `WithDragAndDropUpload` props. Treat the DOM changes under the existing theming/markup buckets instead of as a separate API migration item.
-- `BaseImage` redesign (`3539020e`): investigated; `showDownloadButtonOnError` was added and the fallback behavior changed, but this is additive rather than a v13 to v14 breaking API change.
+- `BaseImage` module split and fallback refinements (`3539020e`, `dfe9d77f`): investigated; `showDownloadButtonOnError` was added, `BaseImage` / `ImagePlaceholder` moved out of `Gallery`, and `BaseImage` is now re-exported from the package root, but this is additive/path cleanup rather than a standalone v13 to v14 breaking API change. Update source links and reference docs only.
+- `Giphy` preview cleanup (`21b905ce`, `aa36a4dd`): investigated; current source gives native `giphy` attachments dedicated quoted-message and channel-preview handling and keeps inline giphy attachments out of `ModalGallery`, but it does not remove or rename the documented v13 public API. Treat this as current-behavior docs maintenance, not a new migration bucket.
+- command-selected composer layout (`22d32d46`, `aa36a4dd`): investigated; current `MessageInputFlat` hides `AttachmentSelector` and additional composer actions while a slash command is selected, but there is no public prop or export removal. Document it as current default UI behavior rather than a new breaking-change entry.
 
 ## Notes For Migration Guide Drafting
 
