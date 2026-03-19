@@ -23,7 +23,7 @@ import {
   TranslationProvider,
   useMessageContext,
 } from '../../../context';
-import { MessageSimple } from '../../Message';
+import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 
 const prependOffset = 0;
@@ -570,7 +570,7 @@ describe('VirtualizedMessageComponents', () => {
             <>
               {processedMessages.map((_, numItemsPrepended) => {
                 const virtuosoContext = {
-                  Message: MessageSimple,
+                  Message: MessageUI,
                   messageGroupStyles: {},
                   numItemsPrepended,
                   ownMessagesDeliveredToOthers: {},

@@ -28,7 +28,7 @@ import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageLi
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import { getGroupStyles, getLastReceived, processMessages } from './utils';
 import type { MessageProps, MessageUIComponentProps } from '../Message';
-import { MessageSimple } from '../Message';
+import { MessageUI } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
   calculateFirstItemIndex,
@@ -254,7 +254,7 @@ const VirtualizedMessageListWithContext = (
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
-    VirtualMessage: MessageUIComponentFromContext = MessageSimple,
+    VirtualMessage: MessageUIComponentFromContext = MessageUI,
   } = useComponentContext('VirtualizedMessageList');
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
@@ -656,7 +656,7 @@ export type VirtualizedMessageListProps = Partial<
   loadMoreNewer?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
-  /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  /** Custom UI component to display a message, defaults to and accepts same props as [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** The limit to use when paginating messages */
   messageLimit?: number;

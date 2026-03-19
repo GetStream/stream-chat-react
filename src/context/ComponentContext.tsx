@@ -134,7 +134,7 @@ export type ComponentContextValue = {
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */
   MessageActions?: React.ComponentType;
@@ -230,7 +230,7 @@ export type ComponentContextValue = {
   StreamedMessageText?: React.ComponentType<StreamedMessageTextProps>;
   /** Custom UI component to handle message text input, defaults to and accepts same props as [TextareaComposer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TextareaComposer/TextareaComposer.tsx) */
   TextareaComposer?: React.ComponentType<TextareaComposerProps>;
-  /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   ThreadHead?: React.ComponentType<MessageProps>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: React.ComponentType<ThreadHeaderProps>;

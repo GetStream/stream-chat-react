@@ -6,7 +6,7 @@ import calendar from 'dayjs/plugin/calendar';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { Message } from '../Message';
-import { MessageSimple } from '../MessageSimple';
+import { MessageUI } from '../MessageUI';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MESSAGE_ACTIONS } from '../utils';
 
@@ -105,7 +105,7 @@ describe('<MessageSimple />', () => {
               <WithComponents
                 overrides={{
                   Attachment: AttachmentMock,
-                  Message: () => <MessageSimple {...props} />,
+                  Message: () => <MessageUI {...props} />,
                   reactionOptions: defaultReactionOptions,
                   ...components,
                 }}

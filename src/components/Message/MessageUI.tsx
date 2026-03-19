@@ -47,9 +47,9 @@ import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { MessageBubble } from './MessageBubble';
 
-type MessageSimpleWithContextProps = MessageContextValue;
+type MessageUIWithContextProps = MessageContextValue;
 
-const MessageSimpleWithContext = ({
+const MessageUIWithContext = ({
   endOfGroup,
   firstOfGroup,
   groupedByUser,
@@ -64,7 +64,7 @@ const MessageSimpleWithContext = ({
   renderText,
   showAvatar = 'incoming',
   threadList,
-}: MessageSimpleWithContextProps) => {
+}: MessageUIWithContextProps) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
@@ -89,7 +89,7 @@ const MessageSimpleWithContext = ({
     QuotedMessage = DefaultQuotedMessage,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
-  } = useComponentContext('MessageSimple');
+  } = useComponentContext('MessageUI');
 
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
@@ -258,16 +258,16 @@ const MessageSimpleWithContext = ({
   );
 };
 
-const MemoizedMessageSimple = React.memo(
-  MessageSimpleWithContext,
+const MemoizedMessageUI = React.memo(
+  MessageUIWithContext,
   areMessageUIPropsEqual,
-) as typeof MessageSimpleWithContext;
+) as typeof MessageUIWithContext;
 
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
-export const MessageSimple = (props: MessageUIComponentProps) => {
-  const messageContext = useMessageContext('MessageSimple');
+export const MessageUI = (props: MessageUIComponentProps) => {
+  const messageContext = useMessageContext('MessageUI');
 
-  return <MemoizedMessageSimple {...messageContext} {...props} />;
+  return <MemoizedMessageUI {...messageContext} {...props} />;
 };

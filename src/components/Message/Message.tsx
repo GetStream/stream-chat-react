@@ -27,7 +27,7 @@ import {
 } from '../../context';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 
-import { MessageSimple as DefaultMessage } from './MessageSimple';
+import { MessageUI as DefaultMessageUI } from './MessageUI';
 
 import type { MessageProps } from './types';
 
@@ -85,7 +85,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   );
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
-  const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
+  const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessageUI;
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
