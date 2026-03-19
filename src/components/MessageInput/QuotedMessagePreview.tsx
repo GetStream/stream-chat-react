@@ -63,17 +63,8 @@ const QUOTED_GIPHY_PREVIEW_LABEL = 'Giphy';
 
 type AttachmentType = 'documents' | 'images' | 'links' | 'videos' | 'voiceRecordings';
 
-/** Giphy GIFs: native type or scraped link to giphy.com (file icon + thumbnail). */
-const isQuotedGiphyAttachment = (attachment: Attachment) => {
-  if (isGiphyAttachment(attachment)) return true;
-  if (!isScrapedContent(attachment)) return false;
-  const titleLink = (attachment as Attachment & { title_link?: string }).title_link;
-  return (
-    /giphy\.com/i.test(String(attachment.og_scrape_url ?? '')) ||
-    /giphy\.com/i.test(String(titleLink ?? '')) ||
-    !!(attachment as Attachment & { giphy?: object }).giphy
-  );
-};
+/** Giphy GIFs: only native type (e.g. /giphy command) is recognized as Giphy. */
+const isQuotedGiphyAttachment = (attachment: Attachment) => isGiphyAttachment(attachment);
 
 const getAttachmentType = (attachment: Attachment) => {
   if (isQuotedGiphyAttachment(attachment)) {
