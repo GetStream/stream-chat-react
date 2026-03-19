@@ -108,27 +108,6 @@
         transition: opacity 150ms ease-in-out;
       }
 
-      &.str-chat__modal-gallery__image--static {
-        cursor: default;
-
-        img {
-          cursor: default;
-        }
-
-        .str-chat__modal-gallery__placeholder {
-          cursor: default;
-        }
-
-        .str-chat__message-attachment__video-thumbnail,
-        .str-chat__message-attachment__video-thumbnail-image {
-          cursor: default;
-        }
-
-        &:hover::after {
-          display: none;
-        }
-      }
-
       &.str-chat__modal-gallery__image--loading {
         img {
           opacity: 0;
