@@ -14,12 +14,15 @@ import {
   createDraftCommandInjectionMiddleware,
 } from 'stream-chat';
 import {
+  Attachment,
+  type AttachmentProps,
   Chat,
   ChatView,
   ReactionsList,
   MessageInput,
   type NotificationListProps,
   NotificationList,
+  Streami18n,
   WithComponents,
   defaultReactionOptions,
   type ReactionOptions,
@@ -33,14 +36,31 @@ import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings/state.ts';
+import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
-import { PanelLayoutStyleSync, SidebarLayoutSync } from './ChatLayout/Resize.tsx';
+import {
+  ChatViewSelectorWidthSync,
+  PanelLayoutStyleSync,
+  SidebarLayoutSync,
+} from './ChatLayout/Resize.tsx';
 import {
   ChatStateSync,
   getSelectedChannelIdFromUrl,
   getSelectedChatViewFromUrl,
 } from './ChatLayout/Sync.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
+import {
+  CustomAttachmentActions,
+  CustomSystemMessage,
+  SegmentedReactionsList,
+  customReactionOptions,
+  customReactionOptionsUpvote,
+  getAttachmentActionsVariant,
+  getMessageUiComponent,
+  getMessageUiVariant,
+  getReactionsVariant,
+  getSystemMessageVariant,
+} from './CustomMessageUi/index.tsx';
 
 init({ data });
 
@@ -77,14 +97,19 @@ const newReactionOptions: ReactionOptions = {
 };
 
 const useUser = () => {
+  const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
+
   const userId = useMemo(() => {
     return (
-      new URLSearchParams(window.location.search).get('user_id') ||
+      searchParams.get('user_id') ||
       import.meta.env.VITE_USER_ID ||
       localStorage.getItem('user_id') ||
       humanId({ separator: '_', capitalize: false })
     );
   }, []);
+
+  const userImage = useMemo(() => searchParams.get('user_image') || undefined, []);
+  const userName = useMemo(() => searchParams.get('user_name') || undefined, []);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('user_id');
@@ -104,7 +129,7 @@ const useUser = () => {
           .then((data) => data.token as string);
   }, [userId]);
 
-  return { tokenProvider, userId };
+  return { tokenProvider, userId, userImage, userName };
 };
 
 const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList>) => {
@@ -137,8 +162,23 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
   return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
 };
 
+const language = new URLSearchParams(window.location.search).get('language');
+const i18nInstance = language ? new Streami18n({ language: language as any }) : undefined;
+
+const messageUiVariant = getMessageUiVariant();
+const MessageUiOverride = messageUiVariant
+  ? getMessageUiComponent(messageUiVariant)
+  : null;
+const systemMessageVariant = getSystemMessageVariant();
+const reactionsVariant = getReactionsVariant();
+const attachmentActionsVariant = getAttachmentActionsVariant();
+
+const CustomAttachmentWithActions = (props: AttachmentProps) => (
+  <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
+);
+
 const App = () => {
-  const { tokenProvider, userId } = useUser();
+  const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
@@ -148,7 +188,10 @@ const App = () => {
     [],
   );
   const initialNavOpen = useMemo(
-    () => !initialPanelLayout.leftPanel.collapsed,
+    () =>
+      typeof window !== 'undefined' && window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT
+        ? true
+        : !initialPanelLayout.leftPanel.collapsed,
     [initialPanelLayout.leftPanel.collapsed],
   );
   const appLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -156,7 +199,11 @@ const App = () => {
   const chatClient = useCreateChatClient({
     apiKey,
     tokenOrProvider: tokenProvider,
-    userData: { id: userId },
+    userData: {
+      id: userId,
+      ...(userImage && { image: userImage }),
+      ...(userName && { name: userName }),
+    },
   });
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;
@@ -245,6 +292,26 @@ const App = () => {
 
   if (!chatClient) return <>Loading...</>;
 
+  const messageUiOverrides: Record<string, unknown> = {};
+  if (MessageUiOverride) {
+    messageUiOverrides.Message = MessageUiOverride;
+  }
+  if (messageUiVariant === '8') {
+    messageUiOverrides.reactionOptions = customReactionOptions;
+  }
+  if (systemMessageVariant === 'custom') {
+    messageUiOverrides.MessageSystem = CustomSystemMessage;
+  }
+  if (reactionsVariant === 'custom-options') {
+    messageUiOverrides.reactionOptions = customReactionOptionsUpvote;
+  }
+  if (reactionsVariant === 'segmented') {
+    messageUiOverrides.ReactionsList = SegmentedReactionsList;
+  }
+  if (attachmentActionsVariant === 'custom') {
+    messageUiOverrides.Attachment = CustomAttachmentWithActions;
+  }
+
   return (
     <WithComponents
       overrides={{
@@ -255,17 +322,28 @@ const App = () => {
         ReactionsList: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
+        ...messageUiOverrides,
       }}
     >
       <Chat
         searchController={searchController}
         client={chatClient}
+        i18nInstance={i18nInstance}
         initialNavOpen={initialNavOpen}
         isMessageAIGenerated={isMessageAIGenerated}
         theme={chatTheme}
       >
-        <div className='app-chat-layout' ref={appLayoutRef} style={initialAppLayoutStyle}>
+        <div
+          className='app-chat-layout'
+          ref={appLayoutRef}
+          style={initialAppLayoutStyle}
+          data-variant={messageUiVariant ?? undefined}
+        >
           <PanelLayoutStyleSync layoutRef={appLayoutRef} />
+          <ChatViewSelectorWidthSync
+            iconOnly={chatView.iconOnly}
+            layoutRef={appLayoutRef}
+          />
           <ChatView>
             <ChatStateSync initialChatView={initialChatView} />
             <SidebarLayoutSync />

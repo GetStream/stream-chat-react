@@ -1,0 +1,21 @@
+.custom-system-message__actor {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.custom-system-message {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--str-chat__border-radius-md);
+  background: linear-gradient(
+    to right,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet
+  );
+}

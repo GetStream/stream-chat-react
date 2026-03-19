@@ -89,6 +89,23 @@ const setPanelWidthCssVariable = (
   appLayoutElement.style.setProperty(cssVariableName, `${width}px`);
 };
 
+const syncChatViewSelectorMobileWidth = (layoutElement: HTMLDivElement) => {
+  const selectorElement = layoutElement.querySelector<HTMLDivElement>(
+    '.str-chat__chat-view__selector',
+  );
+
+  if (!selectorElement) return;
+
+  const nextWidth = Math.ceil(
+    Math.max(selectorElement.getBoundingClientRect().width, selectorElement.scrollWidth),
+  );
+
+  layoutElement.style.setProperty(
+    '--str-chat__chat-view-selector-mobile-width',
+    `${nextWidth}px`,
+  );
+};
+
 export const PanelLayoutStyleSync = ({
   layoutRef,
 }: {
@@ -112,6 +129,50 @@ export const PanelLayoutStyleSync = ({
       panelLayout.threadPanel.width,
     );
   }, [layoutRef, panelLayout]);
+
+  return null;
+};
+
+export const ChatViewSelectorWidthSync = ({
+  iconOnly,
+  layoutRef,
+}: {
+  iconOnly: boolean;
+  layoutRef: RefObject<HTMLDivElement | null>;
+}) => {
+  useEffect(() => {
+    const layoutElement = layoutRef.current;
+
+    if (!layoutElement) return;
+
+    const selectorElement = layoutElement.querySelector<HTMLDivElement>(
+      '.str-chat__chat-view__selector',
+    );
+
+    if (!selectorElement) return;
+
+    const sync = () => {
+      syncChatViewSelectorMobileWidth(layoutElement);
+    };
+
+    sync();
+    window.addEventListener('resize', sync);
+
+    if (typeof ResizeObserver === 'undefined') {
+      return () => {
+        window.removeEventListener('resize', sync);
+      };
+    }
+
+    const resizeObserver = new ResizeObserver(sync);
+
+    resizeObserver.observe(selectorElement);
+
+    return () => {
+      window.removeEventListener('resize', sync);
+      resizeObserver.disconnect();
+    };
+  }, [iconOnly, layoutRef]);
 
   return null;
 };
