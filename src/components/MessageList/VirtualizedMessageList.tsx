@@ -46,7 +46,10 @@ import {
 } from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
-import { NotificationList, useNotificationTarget } from '../Notifications';
+import {
+  NotificationList as DefaultNotificationList,
+  useNotificationTarget,
+} from '../Notifications';
 
 import { DialogManagerProvider } from '../../context';
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
@@ -245,17 +248,14 @@ const VirtualizedMessageListWithContext = (
     DateSeparator = DefaultDateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageListMainPanel = DefaultMessageListMainPanel,
-    MessageListNotifications = undefined,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
-    NotificationList: NotificationListFromContext = NotificationList,
+    NotificationList = DefaultNotificationList,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext('VirtualizedMessageList');
-  const MessageListNotificationsComponent =
-    MessageListNotifications ?? NotificationListFromContext;
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
   const { client, customClasses } = useChatContext('VirtualizedMessageList');
@@ -596,7 +596,7 @@ const VirtualizedMessageListWithContext = (
               />
             </div>
           </DialogManagerProvider>
-          <MessageListNotificationsComponent panel={notificationTarget} />
+          <NotificationList panel={notificationTarget} />
         </MessageListMainPanel>
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
       </MessageTranslationViewProvider>
