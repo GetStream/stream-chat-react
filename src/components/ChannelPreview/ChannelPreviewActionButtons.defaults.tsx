@@ -1,8 +1,9 @@
 /* eslint-disable sort-keys */
 import { type ComponentPropsWithoutRef, useMemo, useState } from 'react';
+import { match, P } from 'ts-pattern';
 
 import { useChatContext, useTranslationContext } from '../../context';
-import { useChannelMembershipState } from '../ChannelList';
+import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
 import { useChannelPreviewContext } from './ChannelPreview';
 import { Button } from '../Button';
 import {
@@ -173,7 +174,6 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
     },
   },
   {
-    // TODO: finalize (add unban check & behavior)
     type: 'ban',
     placement: 'dropdown',
     Component() {
@@ -181,9 +181,16 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const { t } = useTranslationContext();
       const { channel } = useChannelPreviewContext();
       const [inProgress, setInProgress] = useState(false);
+      const members = useChannelMembersState(channel);
+      const isUserBanned = Object.values(members || {}).some(
+        (member) => member.user?.id !== client.userID && member.banned,
+      );
+
+      const title = isUserBanned ? t('Unblock User') : t('Block User');
 
       return (
         <ContextMenuButton
+          aria-label={title}
           disabled={inProgress}
           Icon={IconCircleBanSign}
           onClick={async () => {
@@ -196,14 +203,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
 
               if (!otherUserId) return;
 
-              await Promise.all([
-                channel.banUser(otherUserId, {}),
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                channel.removeMembers([client.userID!]),
-              ]);
+              if (isUserBanned) {
+                await channel.unbanUser(otherUserId);
+              } else {
+                await channel.banUser(otherUserId, {});
+              }
             } catch (error) {
               client.notifications.addError({
-                message: 'Failed to ban user',
+                message: 'Failed to block user',
                 origin: {
                   emitter: ChannelPreviewActionButtons.name,
                 },
@@ -219,7 +226,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             }
           }}
         >
-          {t('Block User')}
+          {title}
         </ContextMenuButton>
       );
     },
@@ -340,34 +347,59 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
   const ownCapabilities = channel.data?.own_capabilities;
 
   return useMemo(() => {
-    const filtered: ChannelActionItem[] = [];
-
-    for (const action of channelActionSet) {
-      if (action.type === 'archive') {
-        if (
-          (action.placement === 'dropdown' && isDirectMessageChannel) ||
-          (action.placement === 'quick' && !isDirectMessageChannel)
+    const filtered = channelActionSet.filter((action) =>
+      match({
+        action,
+        isDirectMessageChannel,
+        memberCount,
+        ownCapabilities,
+      })
+        .returnType<boolean>()
+        // only allow defined actions if they match these pre-defined conditions
+        .with(
+          {
+            action: { type: 'archive', placement: 'quick' },
+            isDirectMessageChannel: true,
+          },
+          {
+            action: { type: 'archive', placement: 'dropdown' },
+            isDirectMessageChannel: false,
+          },
+          {
+            action: { type: 'mute', placement: 'dropdown' },
+            isDirectMessageChannel: true,
+            ownCapabilities: P.when((capabilities) =>
+              capabilities?.includes('mute-channel'),
+            ),
+          },
+          {
+            action: { type: 'mute', placement: 'quick' },
+            isDirectMessageChannel: false,
+            ownCapabilities: P.when((capabilities) =>
+              capabilities?.includes('mute-channel'),
+            ),
+          },
+          {
+            action: { type: 'ban' },
+            ownCapabilities: P.when((capabilities) =>
+              capabilities?.includes('ban-channel-members'),
+            ),
+            memberCount: P.number.gt(0).and(P.number.lte(2)),
+          },
+          {
+            action: { type: 'leave' },
+            ownCapabilities: P.when((capabilities) =>
+              capabilities?.includes('leave-channel'),
+            ),
+          },
+          {
+            action: { type: 'pin' },
+            // TODO: add extra conditions once available
+          },
+          () => true,
         )
-          continue;
-        filtered.push(action);
-      } else if (action.type === 'mute') {
-        if (
-          (action.placement === 'dropdown' && !isDirectMessageChannel) ||
-          (action.placement === 'quick' && isDirectMessageChannel)
-        )
-          continue;
-        filtered.push(action);
-      } else if (action.type === 'ban') {
-        if (!ownCapabilities?.includes('ban-channel-members') || memberCount > 2)
-          continue;
-        filtered.push(action);
-      } else if (action.type === 'pin') {
-        filtered.push(action);
-      } else if (action.type === 'leave') {
-        if (!ownCapabilities?.includes('leave-channel')) continue;
-        filtered.push(action);
-      }
-    }
+        .otherwise(() => false),
+    );
 
     return filtered;
   }, [channelActionSet, isDirectMessageChannel, memberCount, ownCapabilities]);
