@@ -152,7 +152,7 @@ const CustomMessageUiMetadata = ({
     handleOpenThread,
     message,
     readBy = [],
-    threadList,
+    threadList = false,
   } = useMessageContext();
   const { client } = useChatContext();
   const {
@@ -238,22 +238,9 @@ export const CustomMessageUi_V5 = CustomMessageUi_V4;
 
 // ─── Actions Component ────────────────────────────────────────────
 
-const CustomMessageUiActions = ({
-  showReactions = false,
-}: {
-  showReactions?: boolean;
-}) => {
-  const {
-    handleDelete,
-    handleFlag,
-    handleOpenThread,
-    handlePin,
-    handleReaction,
-    message,
-    threadList,
-  } = useMessageContext();
-
-  const { reactionOptions = [] } = useComponentContext();
+const CustomMessageUiActions = () => {
+  const { handleDelete, handleFlag, handleOpenThread, handlePin, message, threadList } =
+    useMessageContext();
 
   if (threadList) return null;
 
@@ -263,29 +250,17 @@ const CustomMessageUiActions = ({
         <button onClick={handlePin} title={message.pinned ? 'Unpin' : 'Pin'}>
           {message.pinned ? '📍' : '📌'}
         </button>
-        <button onClick={handleDelete} title='Delete'>
+        <button onClick={() => handleDelete()} title='Delete'>
           🗑️
         </button>
         <button onClick={handleOpenThread} title='Open thread'>
           ↩️
         </button>
         <button onClick={handleFlag} title='Flag message'>
+          {' '}
           🚩
         </button>
       </div>
-      {showReactions && (
-        <div className='custom-message-ui__actions-group'>
-          {reactionOptions.map(({ Component, name, type }) => (
-            <button
-              key={type}
-              onClick={(e) => handleReaction(type, e)}
-              title={`React with: ${name}`}
-            >
-              <Component />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
@@ -384,7 +359,7 @@ export const CustomMessageUi_V8 = () => {
             <MessageText />
           </div>
           <CustomMessageUiMetadata showReplyCount />
-          <CustomMessageUiActions showReactions />
+          <CustomMessageUiActions />
           <ReactionsList />
         </>
       )}

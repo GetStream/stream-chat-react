@@ -1,10 +1,10 @@
-import { Avatar as DefaultAvatar } from 'stream-chat-react';
 import type { EventComponentProps } from 'stream-chat-react';
+import { Avatar } from 'stream-chat-react';
 
 import './system-message-variants.css';
 
 export const CustomSystemMessage = (props: EventComponentProps) => {
-  const { Avatar = DefaultAvatar, message } = props;
+  const { message } = props;
 
   const { created_at = '', text, user } = message;
   const date = created_at.toString();
