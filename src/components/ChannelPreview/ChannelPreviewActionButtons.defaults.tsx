@@ -14,6 +14,7 @@ import {
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { ContextMenuButton, useDialogOnNearestManager } from '../Dialog';
+import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import { ChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
 
 const useMuteActionButtonBehavior = () => {
@@ -22,6 +23,7 @@ const useMuteActionButtonBehavior = () => {
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
   const [inProgress, setInProgress] = useState(false);
+  const panel = useNotificationTarget();
 
   return {
     'aria-pressed': isMuted,
@@ -37,10 +39,12 @@ const useMuteActionButtonBehavior = () => {
         }
       } catch (error) {
         client.notifications.addError({
-          message: 'Failed to update channel mute status',
+          message: t('Failed to update channel mute status'),
           options: {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
+            tags: addNotificationTargetTag(panel),
+            type: 'channelPreview:mute:failed',
           },
           origin: {
             emitter: ChannelPreviewActionButtons.name,
@@ -60,6 +64,7 @@ const useArchiveActionButtonBehavior = () => {
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
   const [inProgress, setInProgress] = useState(false);
+  const panel = useNotificationTarget();
 
   return {
     'aria-pressed': typeof membership.archived_at === 'string',
@@ -75,10 +80,12 @@ const useArchiveActionButtonBehavior = () => {
         }
       } catch (error) {
         client.notifications.addError({
-          message: 'Failed to update channel archive status',
+          message: t('Failed to update channel archive status'),
           options: {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
+            tags: addNotificationTargetTag(panel),
+            type: 'channelPreview:archive:failed',
           },
           origin: {
             emitter: ChannelPreviewActionButtons.name,
@@ -179,6 +186,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const { channel } = useChannelPreviewContext();
       const [inProgress, setInProgress] = useState(false);
       const members = useChannelMembersState(channel);
+      const panel = useNotificationTarget();
       const isUserBanned = Object.values(members || {}).some(
         (member) => member.user?.id !== client.userID && member.banned,
       );
@@ -207,12 +215,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               }
             } catch (error) {
               client.notifications.addError({
-                message: 'Failed to block user',
+                message: t('Failed to block user'),
                 options: {
                   originalError:
                     error instanceof Error
                       ? error
                       : new Error('An unknown error occurred'),
+                  tags: addNotificationTargetTag(panel),
+                  type: 'channelPreview:ban:failed',
                 },
                 origin: {
                   emitter: ChannelPreviewActionButtons.name,
@@ -242,6 +252,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       );
       const { dialog } = useDialogOnNearestManager({ id: dialogId });
       const [inProgress, setInProgress] = useState(false);
+      const panel = useNotificationTarget();
 
       const title = membership.pinned_at ? t('Unpin') : t('Pin');
 
@@ -263,9 +274,11 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             } catch (e) {
               error = e instanceof Error ? e : new Error('An unknown error occurred');
               client.notifications.addError({
-                message: 'Failed to update channel pinned status',
+                message: t('Failed to update channel pinned status'),
                 options: {
                   originalError: error,
+                  tags: addNotificationTargetTag(panel),
+                  type: 'channelPreview:pin:failed',
                 },
                 origin: {
                   emitter: ChannelPreviewActionButtons.name,
@@ -291,6 +304,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const { channel } = useChannelPreviewContext();
       const { client } = useChatContext();
       const [inProgress, setInProgress] = useState(false);
+      const panel = useNotificationTarget();
 
       const title = t('Leave Channel');
 
@@ -307,12 +321,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               await channel.removeMembers([client.userID!]);
             } catch (error) {
               client.notifications.addError({
-                message: 'Failed to leave channel',
+                message: t('Failed to leave channel'),
                 options: {
                   originalError:
                     error instanceof Error
                       ? error
                       : new Error('An unknown error occurred'),
+                  tags: addNotificationTargetTag(panel),
+                  type: 'channelPreview:leave:failed',
                 },
                 origin: {
                   emitter: ChannelPreviewActionButtons.name,
