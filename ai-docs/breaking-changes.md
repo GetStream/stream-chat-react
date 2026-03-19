@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-17
+Last updated: 2026-03-19
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `35f8a5d4bc220d3d50462883cf84e37eb507ea51` (`35f8a5d4`, `2026-03-17`, `refactor!: remove deprecated useAudioController hook (#3016)`)
-- Future mining starting point: diff `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `1227617b0576c4d1f29e1dd00116ba43981c8139` (`1227617b`, `2026-03-18`, `refactor: remove initialNavOpenResponsive for redundancy (#3023)`)
+- Future mining starting point: diff `1227617b0576c4d1f29e1dd00116ba43981c8139..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -348,6 +348,7 @@ Only confirmed items should move from this file into the migration guide.
   - imports using `MessageNotificationProps` no longer compile
   - custom `MessageListNotifications` implementations built against the v13 prop contract no longer type-check
   - `MessageList` and `VirtualizedMessageList` now render the new notification and scroll controls directly instead of passing them through `MessageListNotifications`
+  - client-side `client.notifications` are now rendered through `NotificationList`, so message-list notification customization can need `NotificationList` / `panel` / `fallbackPanel` handling instead of only overriding `MessageListNotifications`
   - custom CSS targeting the old `ScrollToBottomButton` or `UnreadMessagesSeparator` markup and classnames no longer matches
   - `<UnreadMessagesSeparator unreadCount={...} />` now shows the unread count by default and renders a mark-read button unless you override that behavior
 - Old API:
@@ -361,6 +362,9 @@ Only confirmed items should move from this file into the migration guide.
   - `src/components/MessageList/index.ts:5` exports `NewMessageNotification`
   - `src/components/MessageList/index.ts:6` exports `ScrollToLatestMessageButton`
   - `src/components/MessageList/MessageListNotifications.tsx:29` now types `MessageListNotificationsProps` as notifications-only
+  - `src/components/Notifications/index.ts:3` exports `NotificationList`
+  - `src/components/Notifications/NotificationList.tsx:15` through `:33` define `NotificationListProps` around `className`, `enterFrom`, `filter`, `panel`, `fallbackPanel`, and `verticalAlignment`
+  - `src/components/MessageList/MessageList.tsx:100` through `:106` resolve `NotificationList` from `ComponentContext` and only fall back to `MessageListNotifications` when that override is explicitly supplied
   - `src/components/MessageList/MessageList.tsx:295` and `src/components/MessageList/VirtualizedMessageList.tsx:585` render `NewMessageNotification` directly
   - `src/components/MessageList/MessageList.tsx:299` and `src/components/MessageList/VirtualizedMessageList.tsx:589` render `ScrollToLatestMessageButton` directly
   - `src/components/MessageList/UnreadMessagesSeparator.tsx:20` defaults `showCount` to `true`
@@ -369,13 +373,16 @@ Only confirmed items should move from this file into the migration guide.
 - Replacement:
   - rename imports to `NewMessageNotification` and `ScrollToLatestMessageButton`
   - customize the notification UI through the `NewMessageNotification` override instead of the removed `MessageNotification`
-  - treat `MessageListNotifications` as the container for SDK/channel notifications only
+  - treat `MessageListNotifications` as the container for channel notifications plus `ConnectionStatus`
+  - use `NotificationList` when you need to customize client-side notifications or panel-scoped notification rendering
   - if you need the old unread-separator behavior, pass `showCount={false}` or provide a custom `UnreadMessagesSeparator`
   - audit custom CSS selectors and tests against the new unread-separator and scroll-button markup
 - Evidence:
   - v13 `MessageList` and `VirtualizedMessageList` passed `MessageNotification` into `MessageListNotifications`
   - current `MessageList` and `VirtualizedMessageList` render the renamed components outside `MessageListNotifications`
   - current `MessageListNotificationsProps` no longer includes the old scrolling/unread props
+  - current `MessageListNotifications` renders only channel notifications plus `ConnectionStatus`
+  - current `NotificationList` is the exported client-notification surface and is what `MessageList`, `VirtualizedMessageList`, `ChannelList`, and `ThreadList` now wire by default
   - current `UnreadMessagesSeparator` changed its default `showCount` behavior and adds a mark-read button wired to `markRead()`
   - current scroll button UI uses `Button` / `Badge` markup and different classnames from the v13 floating action button
   - commit `12d075bb feat: redesign floating indicators in message lists (#2966)` also calls out removed `--str-chat__jump-to-latest-message-*` CSS variables and markup changes
@@ -958,31 +965,30 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/06-attachment/02-image_gallery.md`
 - Example needed: yes
 
-### BC-027: `Chat` initial sidebar state no longer depends on `initialNavOpen` alone
+### BC-027: `Chat` sidebar behavior no longer matches the old always-close-on-selection flow
 
 - Status: confirmed
 - Area: chat layout behavior
 - User impact:
-  - apps that previously used `initialNavOpen={false}` to force a closed sidebar on first render can get different behavior in v14
-  - `initialNavOpen` is now ignored unless `initialNavOpenResponsive={false}`
+  - apps following earlier v14 RC docs that used `initialNavOpenResponsive` now fail to type-check because that prop was removed again before release
+  - omitting `initialNavOpen` no longer means “follow the v13 prop exactly”; current `Chat` falls back to the SDK default open state
   - channel selection no longer closes the sidebar on desktop-sized viewports
 - Old API:
   - `v13.14.2:src/components/Chat/Chat.tsx:30` exposed `initialNavOpen` as the only initial nav-state prop
   - `v13.14.2:src/components/Chat/hooks/useChat.ts:42` initialized `navOpen` from `initialNavOpen`
   - `v13.14.2:src/components/Chat/hooks/useChat.ts:135` always called `closeMobileNav()` in `setActiveChannel`
 - New API:
-  - `src/components/Chat/Chat.tsx:30` documents that `initialNavOpen` is ignored when `initialNavOpenResponsive` is true
-  - `src/components/Chat/Chat.tsx:33` adds `initialNavOpenResponsive?: boolean`
-  - `src/components/Chat/Chat.tsx:60` defaults `initialNavOpenResponsive` to `true`
-  - `src/components/Chat/hooks/useChat.ts:52` initializes `navOpen` from responsive mode first, then falls back to `initialNavOpen`
+  - `src/components/Chat/Chat.tsx:30` through `:33` now expose only `initialNavOpen?: boolean` again, with no `initialNavOpenResponsive`
+  - `src/components/Chat/hooks/useChat.ts:51` through `:54` initialize `navOpen` from `initialNavOpen` when it is provided, otherwise they fall back to the SDK default open state
   - `src/components/Chat/hooks/useChat.ts:148` through `:151` only closes the sidebar after channel selection on mobile-width viewports
 - Replacement:
-  - if you relied on the v13 `initialNavOpen` behavior, pass `initialNavOpenResponsive={false}` and then use `initialNavOpen`
+  - remove any `initialNavOpenResponsive` usage from app code and docs
+  - pass `initialNavOpen={false}` or `initialNavOpen={true}` when you need an explicit initial sidebar state
   - if you relied on channel selection always collapsing the sidebar, reintroduce that behavior explicitly in app-level layout code
 - Evidence:
-  - current `ChatProps` explicitly warns that `initialNavOpen` can be ignored
-  - current `useChat` contains new responsive-state initialization logic and viewport-guarded sidebar closing
-  - current v14 docs still document only `initialNavOpen`, which would mislead upgraders
+  - current `ChatProps` no longer include `initialNavOpenResponsive`
+  - current `useChat` still contains viewport-guarded sidebar closing for channel selection
+  - current v14 docs and migration guide still describe the removed `initialNavOpenResponsive` prop, which now misleads users
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`
@@ -1570,6 +1576,60 @@ Only confirmed items should move from this file into the migration guide.
 - Docs impact:
   - migration guide
 - Example needed: no
+
+### BC-047: `MessageEditedTimestamp` was removed in favor of `MessageEditedIndicator`
+
+- Status: confirmed
+- Area: message metadata
+- User impact:
+  - imports using `MessageEditedTimestamp` or `MessageEditedTimestampProps` no longer resolve
+  - custom message metadata UIs that relied on the old `open` prop or click-to-toggle behavior no longer work as before
+  - custom message UIs should move to `MessageEditedIndicator` or render their own `Timestamp`
+- Old API:
+  - `v13.14.2:src/components/Message/index.ts:7` exported `MessageEditedTimestamp`
+  - `v13.14.2:src/components/Message/MessageEditedTimestamp.tsx:14` through `:18` exported `MessageEditedTimestampProps`
+  - `v13.14.2:src/components/Message/MessageSimple.tsx:229` rendered `<MessageEditedTimestamp calendar open={isEditedTimestampOpen} />`
+- New API:
+  - `src/components/Message/index.ts:12` through `:13` export `MessageTimestamp` and `MessageEditedIndicator`, with no `MessageEditedTimestamp`
+  - `src/components/Message/MessageEditedIndicator.tsx:13` through `:18` define `MessageEditedIndicatorProps`
+  - `src/components/Message/MessageSimple.tsx:252` through `:253` render `<MessageEditedIndicator />` in the default message metadata
+  - `src/context/ComponentContext.tsx:199` through `:200` expose `MessageEditedIndicator` as the override surface
+- Replacement:
+  - replace `MessageEditedTimestamp` with `MessageEditedIndicator`
+  - if you need always-visible edited time or custom interaction, build that behavior explicitly with `Timestamp` and `message.message_text_updated_at`
+  - update custom metadata UIs and tests to expect the new hover-tooltip indicator instead of the removed toggleable timestamp component
+- Evidence:
+  - current source removed the `MessageEditedTimestamp` export and file
+  - current `MessageSimple` no longer manages edited-timestamp open state and instead renders `MessageEditedIndicator`
+  - commit `7cbe67e4 fix: remove MessageEditedTimestamp component` removed the old component, and `cfbe346b feat: add MessageEditedIndicator component` introduced the replacement
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/08-date-time-formatting.md`
+- Example needed: yes
+
+### BC-048: default `MessageTimestamp` formatting now shows time only
+
+- Status: confirmed
+- Area: timestamp formatting
+- User impact:
+  - the default per-message timestamp in v14 now shows only time by default instead of the older calendar-style date/time formatting
+  - visual snapshots and UIs that expected the old calendar wording can change even without custom timestamp code
+  - integrations that want the old behavior need to override `MessageTimestamp` formatting explicitly
+- Old API:
+  - `v13.14.2:src/i18n/en.json:227` set `"timestamp/MessageTimestamp"` to `{{ timestamp | timestampFormatter(calendar: true) }}`
+- New API:
+  - `src/i18n/en.json:390` sets `"timestamp/MessageTimestamp"` to `{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}`
+- Replacement:
+  - override `timestamp/MessageTimestamp` in your `Streami18n` configuration if you want the old calendar-style default back
+  - or provide a custom `MessageTimestamp` through `WithComponents` / `ComponentContext`
+- Evidence:
+  - current translation defaults changed `MessageTimestamp` from calendar formatting to `HH:mm`
+  - commit `da4aa922 feat: show only time in MessageTimestamp (#3021)` made the new default explicit in the i18n files and tests
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/08-date-time-formatting.md`
+- Example needed: yes
 
 ## Likely
 

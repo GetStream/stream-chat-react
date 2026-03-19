@@ -1,6 +1,6 @@
 # React v14 Docs Plan
 
-Last updated: 2026-03-17
+Last updated: 2026-03-19
 
 ## Goal
 
@@ -8,16 +8,16 @@ Produce a reliable v13 to v14 migration guide for `stream-chat-react` and keep t
 
 ## Current Phase
 
-- Phase: post-snapshot docs maintenance against audited head `35f8a5d4bc220d3d50462883cf84e37eb507ea51`
+- Phase: post-snapshot docs maintenance against audited head `1227617b0576c4d1f29e1dd00116ba43981c8139`
 - Constraint: keep `breaking-changes.md` as the source of truth for confirmed migration items, but treat this file as the execution tracker for the remaining v14 docs work
 - Migration-guide and sidebar work is already in flight on `docs-content#1080`; keep the guide aligned with new SDK changes until that PR is merged
-- New SDK changes after the audited head should be mined from `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD`, then folded back into both trackers before related docs edits are made
+- New SDK changes after the audited head should be mined from `1227617b0576c4d1f29e1dd00116ba43981c8139..HEAD`, then folded back into both trackers before related docs edits are made
 
 ## Working Baseline
 
 - Code baseline for analysis: `stream-chat-react` `v13.14.2..master`
-- Current audited SDK head: `35f8a5d4bc220d3d50462883cf84e37eb507ea51` (`35f8a5d4`, `2026-03-17`, `refactor!: remove deprecated useAudioController hook (#3016)`)
-- Future mining starting point: review `stream-chat-react` diff `35f8a5d4bc220d3d50462883cf84e37eb507ea51..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
+- Current audited SDK head: `1227617b0576c4d1f29e1dd00116ba43981c8139` (`1227617b`, `2026-03-18`, `refactor: remove initialNavOpenResponsive for redundancy (#3023)`)
+- Future mining starting point: review `stream-chat-react` diff `1227617b0576c4d1f29e1dd00116ba43981c8139..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
 - Docs content repo: `/docs/data/docs`
 - Docs content branch: `react-chat-v14`
 - Active migration-guide PR: `docs-content#1080` (`docs/react-v14-migration-guide` -> `react-chat-v14`)
@@ -254,8 +254,11 @@ Objective: merge the open docs PRs, run docs verification, and fix any markdown/
 
 Post-snapshot maintenance currently in scope:
 
-- Search was promoted to the stable entrypoint and `ChannelSearch` was removed, so the search reference, search cookbook, app-menu cookbook, ChannelList reference/context, migration guide, and sidebar labels all need a follow-up pass.
-- `useAudioController()` was removed after the last audited snapshot; the migration guide should keep pointing users to `useAudioPlayer()`.
+- `initialNavOpenResponsive` was removed again before release, so the `Chat` reference page and migration guide must stop teaching it.
+- `MessageEditedTimestamp` was removed and replaced by `MessageEditedIndicator`, so message UI docs and migration guidance need a follow-up pass.
+- client-side notifications now flow through `NotificationList`, so the notifications/read-state docs should prefer `NotificationList` and treat `MessageListNotifications` as the channel-notification container.
+- `MessageTimestamp` now defaults to time-only formatting, and the date/time docs should call that out explicitly.
+- `BaseImage` fallback behavior changed again: `showDownloadButtonOnError` now defaults to `false`, and `ImagePlaceholder` is the new low-level override point.
 
 ## Confirmed Docs Issues
 
@@ -665,10 +668,59 @@ Post-snapshot maintenance currently in scope:
   - the v14 sidebar still labels the search pages as `ChannelSearch`, `Channel Search`, and `Search` under the old pre-stable organization
 - Expected fix: add Search migration coverage to `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` and update `data/docs/_sidebars/[chat-sdk][react][v14-rc].json` titles to reflect the stable Search docs
 
+### 45. v14 `Chat` docs still describe the removed `initialNavOpenResponsive` prop
+
+- Status: resolved
+- Evidence:
+  - current `ChatProps` only expose `initialNavOpen`
+  - current `useChat()` initializes sidebar state from `initialNavOpen` when provided and otherwise falls back to the SDK default open state
+  - `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md` and `06-release-guides/01-upgrade-to-v14.md` still referenced `initialNavOpenResponsive`, which no longer exists in the public API
+- Expected fix: rewrite the `Chat` docs and migration guide to remove `initialNavOpenResponsive`, document `initialNavOpen` as the explicit initial-state prop, and keep the note that channel selection only auto-collapses the sidebar on mobile-width viewports
+
+### 46. v14 message UI docs still reference removed `MessageEditedTimestamp`
+
+- Status: resolved
+- Evidence:
+  - current `stream-chat-react` exports `MessageEditedIndicator` and no longer exports `MessageEditedTimestamp`
+  - current `MessageSimple` renders `MessageEditedIndicator` in message metadata
+  - `data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md` still linked to the deleted `MessageEditedTimestamp` file
+  - the migration guide did not yet call out the `MessageEditedTimestamp` -> `MessageEditedIndicator` replacement
+- Expected fix: update the message UI docs and migration guide so edited-message metadata points to `MessageEditedIndicator`, and explain how to rebuild always-visible edited timestamps manually when needed
+
+### 47. v14 notifications docs still treat `MessageListNotifications` as the client-notification surface
+
+- Status: resolved
+- Evidence:
+  - current `NotificationList` is the exported client-notification surface and is what `MessageList`, `VirtualizedMessageList`, `ChannelList`, and `ThreadList` use by default
+  - current `MessageListNotifications` only renders channel notifications plus `ConnectionStatus`
+  - `data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`, `04-guides/05-channel_read_state.md`, and `03-ui-cookbook/03-message-list/02-connection_status.md` still described the older `MessageListNotifications`-centric model
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md` did not list the newer `NotificationList` override key
+- Expected fix: rewrite the notifications/read-state docs around `NotificationList`, keep `MessageListNotifications` as the channel-notification container, and add the `NotificationList` override key to `ComponentContext`
+
+### 48. v14 hook and image-fallback reference pages lag the current public API
+
+- Status: resolved
+- Evidence:
+  - current message-input hooks export `useMessageContentIsEmpty`, not `useMessageCompositionIsEmpty`
+  - current `BaseImage` defaults `showDownloadButtonOnError` to `false`
+  - current `ComponentContext` exposes `ImagePlaceholder` as the low-level fallback override
+  - `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md` and `02-ui-components/08-message/09-base-image.md` still described the older names/defaults
+- Expected fix: update the hook table to `useMessageContentIsEmpty`, update `BaseImage` docs to the current default download-button behavior, and document `ImagePlaceholder` as the preferred fallback override point
+
+### 49. v14 date/time docs still imply the old default `MessageTimestamp` formatting
+
+- Status: resolved
+- Evidence:
+  - current translation defaults format `MessageTimestamp` as `HH:mm`
+  - `data/docs/chat-sdk/react/v14/04-guides/08-date-time-formatting.md` still described `MessageTimestamp` as calendar-formatted by default
+  - the migration guide did not yet call out the time-only default
+- Expected fix: update the date/time guide and migration guide so they describe the current `MessageTimestamp` default and show how to restore calendar formatting explicitly
+
 ## Docs Update Checklist
 
 - [x] Freeze the initial breaking-change inventory against audited snapshot `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a`
 - [x] Fold the post-snapshot Search and audio-hook changes from `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a..35f8a5d4bc220d3d50462883cf84e37eb507ea51` back into the trackers
+- [x] Fold the post-snapshot sidebar, edited-message, notifications, and timestamp changes from `35f8a5d4bc220d3d50462883cf84e37eb507ea51..1227617b0576c4d1f29e1dd00116ba43981c8139` back into the trackers
 - [x] Convert `ai-docs/docs-plan.md` from inventory mode into execution workstreams
 - [x] Draft the v13 to v14 migration guide content
 - [x] Prepare the v14 release-guide rename and sidebar update in `docs-content#1080`
@@ -680,7 +732,7 @@ Post-snapshot maintenance currently in scope:
 - [x] Update Channel docs for current `MessageActions`
 - [x] Update ComponentContext docs for `MessageAlsoSentInChannelIndicator`
 - [x] Sweep v14 docs for stale `MessageOptions`, `experimental/MessageActions`, renamed exports, and `Channel X={...}` examples
-- [ ] Run docs verification commands
+- [ ] Run docs verification commands for the current post-`1227617b` doc set
 
 ## Page Tracker
 
@@ -695,22 +747,22 @@ Post-snapshot maintenance currently in scope:
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/08-app_menu.md`                                       | Rewritten to a custom `SearchBar` composition example instead of the removed `ChannelSearch AppMenu` prop                                                 |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/08-advanced-search.md`              | Rewritten as a stable advanced Search guide using `SearchController`, restored filter-builder guidance, and stable `stream-chat-react` imports            |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/01-channel.md`                           | Now keeps `Channel` focused on current behavior/data props and points SDK UI overrides to `WithComponents`                                                |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`                 | Now reflects the current override-key surface and current `WithComponents` guidance                                                                       |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`                 | Now reflects the current override-key surface, including `NotificationList`, `ImagePlaceholder`, and current `WithComponents` guidance                    |
 | resolved | `data/docs/chat-sdk/react/v14/01-basics/02-installation.md`                                        | Now calls out the current `stream-chat` minimum and version-alignment guidance                                                                            |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`                     | Rewritten to the current deleted-message, message-status, message-text, and bounce-prompt surfaces                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`                     | Rewritten to the current deleted-message, message-status, edited-indicator, message-text, and bounce-prompt surfaces                                      |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/05-message_ui.md`                        | Rewritten around the current message UI composition without `FixedHeightMessage` or `MessageOptions`                                                      |
 | resolved | `data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`                      | Rewritten to the stable `MessageActions` model with `messageActionSet`, quick actions, and `ContextMenu`                                                  |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`                   | Rewritten to the current `MessageContext` contract and `handleDelete` signature                                                                           |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/02-message_input_context.md`       | Rewritten to the current `MessageInputContext` surface and dedicated cooldown helpers                                                                     |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md`         | Rewritten to the currently exported composer hooks                                                                                                        |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/09-message-input/03-message_input_hooks.md`         | Rewritten to the currently exported composer hooks, including `useMessageContentIsEmpty`                                                                  |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/01-input_ui.md`                      | Rewritten to current composer building blocks and `useCooldownRemaining()`                                                                                |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/04-message_hooks.md`                     | Rewritten without `useEditHandler` and aligned to the current edit flow                                                                                   |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/11-attachment/01-attachment.md`          | Rewritten to the current `Attachment` grouping, supported override points, and `Image` / `Media` / `ModalGallery` surfaces                                |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/10-poll.md`                              | Rewritten to the current poll override surface and quoted-message guidance                                                                                |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/12-reactions.md`                         | Rewritten to `MessageReactionsDetail`, the current selector surface, and the current markup expectations                                                  |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`                           | Rewritten to current `WithComponents`, `reactionOptions`, `ReactionSelector`, and `MessageReactionsDetail` patterns                                       |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`                                  | Rewritten to the current unread, new-message, and scroll-to-latest model                                                                                  |
-| resolved | `data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`                                       | Rewritten to the current `MessageListNotifications` contract and override path                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`                                  | Rewritten to the current unread, new-message, `NotificationList`, and scroll-to-latest model                                                              |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`                                       | Rewritten around `NotificationList`, panel-targeted client notifications, and the narrower `MessageListNotifications` contract                            |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`                            | Rewritten to current `Avatar` props, `ChannelAvatar`, and helper-based channel display image/title guidance                                               |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`           | Rewritten to current preview defaults, helpers, status guidance, `aria-pressed` semantics, and action-button behavior                                     |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md` | Rewritten to current channel-list selectors and explicit `options.limit` guidance                                                                         |
@@ -748,7 +800,10 @@ Post-snapshot maintenance currently in scope:
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`                              | Updated styling examples to current header selectors                                                                                                      |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`                    | Rewritten to the current default separator behavior and custom-separator guidance                                                                         |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`                                 | Rewritten to current custom-header patterns and `TypingIndicatorHeader` usage                                                                             |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to current sidebar-state props, including `initialNavOpenResponsive`                                                                            |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to the current sidebar-state behavior after `initialNavOpenResponsive` was removed                                                              |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/09-base-image.md`                        | Updated to the current `BaseImage` fallback behavior, `showDownloadButtonOnError` default, and `ImagePlaceholder` override path                           |
+| resolved | `data/docs/chat-sdk/react/v14/04-guides/08-date-time-formatting.md`                                | Updated to the current time-only `MessageTimestamp` default and the `MessageEditedIndicator`-based edited-time customization path                         |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/03-message-list/02-connection_status.md`              | Updated to the current notification-stack model so `ConnectionStatus` is documented alongside `NotificationList` / `MessageListNotifications` correctly   |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`                 | Updated to current explicit `options.limit` guidance for initial load and pagination                                                                      |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/12-indicators.md`                                   | Rewritten to the current `TypingIndicator` / `TypingIndicatorHeader` split and current prop contract                                                      |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/07-typing_indicator.md`              | Rewritten to the current custom typing-indicator contract and header typing guidance                                                                      |
