@@ -22,7 +22,7 @@ export type ReactionSelectorProps = {
 
 interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): JSX.Element;
-  getReactionSelectorDialogId: (_: {
+  getDialogId: (_: {
     messageId: string;
     threadList?: boolean;
   }) => `reaction-selector${'-thread' | ''}--${string}`;
@@ -43,7 +43,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     message,
     threadList,
   } = useMessageContext('ReactionSelector');
-  const dialogId = ReactionSelector.getReactionSelectorDialogId({
+  const dialogId = ReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
   });
@@ -148,7 +148,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   );
 };
 
-ReactionSelector.getReactionSelectorDialogId = (({ messageId, threadList }) => {
+ReactionSelector.getDialogId = (({ messageId, threadList }) => {
   const dialogIdNamespace = threadList ? '-thread' : '';
   return `reaction-selector${dialogIdNamespace}--${messageId}`;
-}) satisfies ReactionSelectorInterface['getReactionSelectorDialogId'];
+}) satisfies ReactionSelectorInterface['getDialogId'];

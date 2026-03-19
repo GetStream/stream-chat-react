@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import React, {
   type ComponentProps,
+  type ComponentPropsWithoutRef,
   type ComponentType,
   type ReactNode,
   useCallback,
@@ -24,6 +25,7 @@ export type BaseContextMenuButtonProps = {
   label?: ReactNode;
   Icon?: ComponentType<ComponentProps<'svg'>>;
   SubmenuIcon?: ComponentType<ComponentProps<'svg'>>;
+  variant?: 'destructive';
 } & ComponentProps<'button'>;
 
 export const BaseContextMenuButton = ({
@@ -34,13 +36,17 @@ export const BaseContextMenuButton = ({
   Icon,
   label,
   SubmenuIcon = IconChevronRight,
+  variant,
   ...props
 }: BaseContextMenuButtonProps) => (
   <button
     {...props}
     className={clsx(
       'str-chat__context-menu__button',
-      { 'str-chat__context-menu__button--with-submenu': hasSubMenu },
+      {
+        'str-chat__context-menu__button--with-submenu': hasSubMenu,
+        [`str-chat__context-menu__button--${variant}`]: typeof variant === 'string',
+      },
       className,
     )}
     type='button'
@@ -311,17 +317,9 @@ export const ContextMenuRoot = React.forwardRef<HTMLDivElement, ComponentProps<'
 export type ContextMenuHeaderComponent = ComponentType;
 export type ContextMenuSubmenu = ComponentType;
 
-export type ContextMenuOpenSubmenuParams = {
-  Submenu: ContextMenuSubmenu;
-  Header?: ContextMenuHeaderComponent;
-  ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
-  menuClassName?: string;
-};
+export type ContextMenuOpenSubmenuParams = Omit<ContextMenuLevel, 'items'>;
 
-export type ContextMenuItemProps = ComponentProps<'button'> & {
-  closeMenu: () => void;
-  openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
-};
+export type ContextMenuItemProps = ComponentProps<'button'>;
 
 export type ContextMenuItemComponent = ComponentType<ContextMenuItemProps>;
 
@@ -331,35 +329,27 @@ type ContextMenuContextValue = {
   returnToParentMenu: () => void;
 };
 
-const ContextMenuContext = React.createContext<ContextMenuContextValue | null>(null);
+const ContextMenuContext = React.createContext<ContextMenuContextValue | undefined>(
+  undefined,
+);
 
-export const useContextMenuContext = () => {
-  const context = useContext(ContextMenuContext);
-  if (!context) {
-    throw new Error(
-      'Context consumer hook useContextMenuContext must be used within ContextMenuContext',
-    );
-  }
-  return context;
-};
+export const useContextMenuContext = () =>
+  useContext(ContextMenuContext) as ContextMenuContextValue;
 
 type ContextMenuLevel = {
   items?: ContextMenuItemComponent[];
   Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
-  ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
+  ItemsWrapper?: ComponentType;
   menuClassName?: string;
 };
 
-type ContextMenuBaseProps = Omit<ComponentProps<'div'>, 'children'> & {
+type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
   backLabel?: ReactNode;
-  items: ContextMenuItemComponent[];
   Header?: ContextMenuHeaderComponent;
-  ItemsWrapper?: ComponentType<ComponentProps<'div'>>;
-  menuClassName?: string;
   onClose?: () => void;
   onMenuLevelChange?: (level: number) => void;
-};
+} & ContextMenuLevel;
 
 /** When provided, ContextMenu renders inside DialogAnchor and wires menu level for submenu alignment. */
 type ContextMenuAnchorProps = Partial<
@@ -380,6 +370,7 @@ export type ContextMenuProps = ContextMenuBaseProps & ContextMenuAnchorProps;
 
 function ContextMenuContent({
   backLabel = 'Back',
+  children,
   className,
   Header,
   items,
@@ -400,6 +391,8 @@ function ContextMenuContent({
   );
   const [menuStack, setMenuStack] = useState<ContextMenuLevel[]>(() => [rootLevel]);
   const activeMenu = menuStack[menuStack.length - 1];
+
+  const ActiveMenuItemsWrapper = activeMenu.ItemsWrapper ?? React.Fragment;
 
   const closeMenu = useCallback(() => {
     onClose?.();
@@ -456,24 +449,14 @@ function ContextMenuContent({
         <ContextMenuBody>
           {activeMenu.Submenu ? (
             <activeMenu.Submenu />
-          ) : activeMenu.ItemsWrapper ? (
-            <activeMenu.ItemsWrapper>
-              {activeMenu.items?.map((Item, index) => (
-                <Item
-                  closeMenu={closeMenu}
-                  key={`context-menu-item-${index}`}
-                  openSubmenu={openSubmenu}
-                />
-              ))}
-            </activeMenu.ItemsWrapper>
           ) : (
-            activeMenu.items?.map((Item, index) => (
-              <Item
-                closeMenu={closeMenu}
-                key={`context-menu-item-${index}`}
-                openSubmenu={openSubmenu}
-              />
-            ))
+            <ActiveMenuItemsWrapper>
+              {typeof children !== 'undefined'
+                ? children
+                : activeMenu.items?.map((Item, index) => (
+                    <Item key={`context-menu-item-${index}`} />
+                  ))}
+            </ActiveMenuItemsWrapper>
           )}
         </ContextMenuBody>
       </ContextMenuRoot>

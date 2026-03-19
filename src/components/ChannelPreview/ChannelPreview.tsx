@@ -1,5 +1,5 @@
 import throttle from 'lodash.throttle';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Channel, Event, LocalMessage } from 'stream-chat';
 
@@ -67,6 +67,12 @@ export type ChannelPreviewProps = {
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
+
+const ChannelPreviewContext = React.createContext<{ channel: Channel }>({
+  channel: null as unknown as Channel,
+});
+
+export const useChannelPreviewContext = () => useContext(ChannelPreviewContext);
 
 export const ChannelPreview = (props: ChannelPreviewProps) => {
   const {
@@ -185,22 +191,26 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
     isMessageAIGenerated,
   ]);
 
+  const channelPreviewContextValue = useMemo(() => ({ channel }), [channel]);
+
   if (!Preview) return null;
 
   return (
-    <Preview
-      {...props}
-      active={isActive}
-      displayImage={displayImage}
-      displayTitle={displayTitle}
-      groupChannelDisplayInfo={groupChannelDisplayInfo}
-      lastMessage={lastMessage}
-      latestMessage={latestMessagePreview}
-      latestMessagePreview={latestMessagePreview}
-      messageDeliveryStatus={messageDeliveryStatus}
-      muted={muted}
-      setActiveChannel={setActiveChannel}
-      unread={unread}
-    />
+    <ChannelPreviewContext.Provider value={channelPreviewContextValue}>
+      <Preview
+        {...props}
+        active={isActive}
+        displayImage={displayImage}
+        displayTitle={displayTitle}
+        groupChannelDisplayInfo={groupChannelDisplayInfo}
+        lastMessage={lastMessage}
+        latestMessage={latestMessagePreview}
+        latestMessagePreview={latestMessagePreview}
+        messageDeliveryStatus={messageDeliveryStatus}
+        muted={muted}
+        setActiveChannel={setActiveChannel}
+        unread={unread}
+      />
+    </ChannelPreviewContext.Provider>
   );
 };
