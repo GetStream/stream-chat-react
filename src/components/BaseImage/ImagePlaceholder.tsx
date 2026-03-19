@@ -8,7 +8,7 @@ export type ImagePlaceholderProps = {
 };
 
 export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
-  const { t } = useTranslationContext('ImagePlaceholder');
+  const { t } = useTranslationContext();
   return (
     <div
       aria-label={t('aria/Image failed to load')}

@@ -257,6 +257,7 @@
   "Local upload attachment missing local id": "로컬 업로드 첨부에 로컬 ID가 없습니다",
   "Location": "위치",
   "Location sharing ended": "위치 공유가 종료되었습니다",
+  "Location: {{ coordinates }}": "위치: {{ coordinates }}",
   "Mark as unread": "읽지 않음으로 표시",
   "Maximum number of votes (from 2 to 10)": "최대 투표 수 (2에서 10까지)",
   "Menu": "메뉴",

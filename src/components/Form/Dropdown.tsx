@@ -1,10 +1,18 @@
-import type { PropsWithChildren } from 'react';
-import { useRef } from 'react';
-import { useEffect } from 'react';
-import React, { useState } from 'react';
-import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
-import { DialogManagerProvider, useTranslationContext } from '../../context';
-import type { PopperLikePlacement } from '../Dialog';
+import { FocusScope } from '@react-aria/focus';
+import clsx from 'clsx';
+import type {
+  ComponentProps,
+  ComponentType,
+  PropsWithChildren,
+  ReactNode,
+  Ref,
+} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import {
+  type PopperLikePlacement,
+  usePopoverPosition,
+} from '../Dialog/hooks/usePopoverPosition';
 
 type DropdownContextValue = {
   close(): void;
@@ -25,86 +33,140 @@ const DropdownContextProvider = ({
 
 export const useDropdownContext = () => React.useContext(DropdownContext);
 
-export type DropdownProps = PropsWithChildren<{
-  className?: string;
-  openButtonProps?: React.HTMLAttributes<HTMLButtonElement>;
-  placement?: PopperLikePlacement;
-}>;
-
-export const Dropdown = (props: DropdownProps) => {
-  const dropdownDialogId = `dropdown`;
-
-  return (
-    <div className={'str-chat__dropdown'}>
-      <DialogManagerProvider id={dropdownDialogId}>
-        <DropdownInner {...props} dialogId={dropdownDialogId} />
-      </DialogManagerProvider>
-    </div>
-  );
+export type DropdownTriggerProps = Pick<
+  ComponentProps<'button'>,
+  'aria-expanded' | 'onClick'
+> & {
+  children?: ReactNode;
+  referenceRef?: Ref<HTMLElement>;
 };
 
-const DropdownInner = ({
+export type DropdownProps = PropsWithChildren<{
+  className?: string;
+  onClose?: () => void;
+  onOpen?: () => void;
+  placement?: PopperLikePlacement;
+  TriggerComponent?: ComponentType<DropdownTriggerProps>;
+  triggerProps?: Omit<DropdownTriggerProps, 'aria-expanded' | 'onClick' | 'referenceRef'>;
+  referenceElement?: HTMLElement | null;
+}>;
+
+export const Dropdown = ({
   children,
-  dialogId,
-  openButtonProps,
+  className,
+  onClose,
+  onOpen,
   placement = 'bottom',
-}: DropdownProps & { dialogId: string }) => {
-  const { t } = useTranslationContext();
-  const [openButton, setOpenButton] = useState<HTMLButtonElement | null>(null);
-  const [dropdownWidth, setDropdownWidth] = useState<string>('');
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const dialog = useDialog({ id: dialogId });
-  const dropdownDialogIsOpen = useDialogIsOpen(dialogId);
+  referenceElement,
+  TriggerComponent,
+  triggerProps,
+}: DropdownProps) => {
+  const [mountedReferenceElement, setMountedReferenceElement] =
+    useState<HTMLElement | null>(null);
+  const resolvedReferenceElement = TriggerComponent
+    ? mountedReferenceElement
+    : (referenceElement ?? null);
+  const [isOpen, setIsOpen] = useState(!TriggerComponent);
+  const [floatingElement, setFloatingElement] = useState<HTMLDivElement | null>(null);
+  const { refs, strategy, update, x, y } = usePopoverPosition({
+    placement,
+  });
 
   useEffect(() => {
-    if (!openButton || typeof ResizeObserver === 'undefined') return;
-    let timeout: ReturnType<typeof setTimeout>;
-    const observer = new ResizeObserver(([button]) => {
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        const width = button.target.getBoundingClientRect().width + 'px';
-        if (!dropdownRef.current) {
-          setDropdownWidth(width);
-          return;
-        }
-        dropdownRef.current.style.width = width;
-      }, 100);
-    });
-    observer.observe(openButton);
+    if (!TriggerComponent) return;
+    setIsOpen(false);
+  }, [TriggerComponent]);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    onClose?.();
+  }, [onClose]);
+
+  const open = useCallback(() => {
+    setIsOpen(true);
+    onOpen?.();
+  }, [onOpen]);
+
+  const toggle = useCallback(() => {
+    if (isOpen) {
+      close();
+      return;
+    }
+    open();
+  }, [close, isOpen, open]);
+
+  useEffect(() => {
+    refs.setReference(resolvedReferenceElement);
+  }, [refs, resolvedReferenceElement]);
+
+  useEffect(() => {
+    refs.setFloating(floatingElement);
+  }, [floatingElement, refs]);
+
+  useEffect(() => {
+    if (!isOpen || !floatingElement || !resolvedReferenceElement) return;
+    update?.();
+  }, [floatingElement, isOpen, resolvedReferenceElement, update]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target instanceof Node)) return;
+      if (floatingElement?.contains(event.target)) return;
+      if (resolvedReferenceElement?.contains(event.target)) return;
+      close();
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      close();
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keyup', handleEscape);
 
     return () => {
-      observer.disconnect();
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keyup', handleEscape);
     };
-  }, [openButton]);
+  }, [close, floatingElement, isOpen, resolvedReferenceElement]);
+
+  const DropdownTriggerComponent = TriggerComponent;
+
+  const trigger = DropdownTriggerComponent ? (
+    <DropdownTriggerComponent
+      aria-expanded={isOpen}
+      onClick={toggle}
+      referenceRef={setMountedReferenceElement}
+      {...triggerProps}
+    />
+  ) : null;
+
+  const content =
+    isOpen && resolvedReferenceElement ? (
+      <FocusScope autoFocus restoreFocus>
+        <DropdownContextProvider close={close}>
+          <div
+            className={clsx('str-chat__dropdown__items', className)}
+            onClick={close}
+            ref={setFloatingElement}
+            style={{
+              left: x ?? 0,
+              position: strategy,
+              top: y ?? 0,
+            }}
+          >
+            {children}
+          </div>
+        </DropdownContextProvider>
+      </FocusScope>
+    ) : null;
 
   return (
-    <DropdownContextProvider close={dialog.close}>
-      <button
-        aria-expanded={dropdownDialogIsOpen}
-        aria-haspopup='true'
-        aria-label={t('aria/Open Menu')}
-        className='str-chat__dropdown__open-button'
-        data-testid='dropdown-open-button'
-        {...openButtonProps}
-        onClick={() => dialog?.toggle()}
-        ref={setOpenButton}
-      />
-      <DialogAnchor
-        allowFlip={false}
-        id={dialogId}
-        placement={placement}
-        referenceElement={openButton}
-        tabIndex={-1}
-        trapFocus
-      >
-        <div
-          className='str-chat__dropdown__items'
-          ref={dropdownRef}
-          style={{ width: dropdownWidth }}
-        >
-          {children}
-        </div>
-      </DialogAnchor>
-    </DropdownContextProvider>
+    <>
+      {trigger}
+      {content}
+    </>
   );
 };

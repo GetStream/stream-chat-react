@@ -257,6 +257,7 @@
   "Local upload attachment missing local id": "ローカルアップロード添付にローカルIDがありません",
   "Location": "位置情報",
   "Location sharing ended": "位置情報の共有が終了しました",
+  "Location: {{ coordinates }}": "位置: {{ coordinates }}",
   "Mark as unread": "未読としてマーク",
   "Maximum number of votes (from 2 to 10)": "最大投票数（2から10まで）",
   "Menu": "メニュー",

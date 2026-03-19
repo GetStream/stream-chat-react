@@ -285,6 +285,7 @@
   "Local upload attachment missing local id": "У локального вложения нет локального id",
   "Location": "Местоположение",
   "Location sharing ended": "Обмен местоположением завершен",
+  "Location: {{ coordinates }}": "Местоположение: {{ coordinates }}",
   "Mark as unread": "Отметить как непрочитанное",
   "Maximum number of votes (from 2 to 10)": "Максимальное количество голосов (от 2 до 10)",
   "Menu": "Меню",

@@ -261,6 +261,7 @@
   "Local upload attachment missing local id": "Lokaler Upload-Anhang hat keine lokale ID",
   "Location": "Standort",
   "Location sharing ended": "Standortfreigabe beendet",
+  "Location: {{ coordinates }}": "Standort: {{ coordinates }}",
   "Mark as unread": "Als ungelesen markieren",
   "Maximum number of votes (from 2 to 10)": "Maximale Anzahl der Stimmen (von 2 bis 10)",
   "Menu": "Menü",

@@ -261,6 +261,7 @@
   "Local upload attachment missing local id": "Lokale uploadbijlage mist lokale id",
   "Location": "Locatie",
   "Location sharing ended": "Locatie delen beëindigd",
+  "Location: {{ coordinates }}": "Locatie: {{ coordinates }}",
   "Mark as unread": "Markeren als ongelezen",
   "Maximum number of votes (from 2 to 10)": "Maximaal aantal stemmen (van 2 tot 10)",
   "Menu": "Menu",

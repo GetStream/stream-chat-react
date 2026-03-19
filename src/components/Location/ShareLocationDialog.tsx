@@ -6,12 +6,19 @@ import React, {
   useState,
 } from 'react';
 import { useChatContext, useTranslationContext } from '../../context';
+import { ContextMenuBody, ContextMenuButton, ContextMenuRoot, Prompt } from '../Dialog';
+import {
+  Dropdown,
+  type DropdownTriggerProps,
+  useDropdownContext,
+} from '../Form/Dropdown';
+import { IconChevronDown } from '../Icons';
 import { useMessageComposer } from '../MessageInput';
-import { Prompt } from '../Dialog';
 import { SwitchField } from '../Form/SwitchField';
-import { Dropdown, useDropdownContext } from '../Form/Dropdown';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import type { Coords } from 'stream-chat';
+import { Button } from '../Button';
+import clsx from 'clsx';
 
 const MIN_LIVE_LOCATION_SHARE_DURATION = 60 * 1000; // 1 minute;
 
@@ -36,7 +43,24 @@ export type ShareLocationDialogProps = {
 
 const DefaultGeolocationMap = () => null;
 
-const ShareLocationDialog = ({
+const LiveLocationDurationTrigger = ({
+  children,
+  onClick,
+  referenceRef,
+  ...props
+}: DropdownTriggerProps) => (
+  <Button
+    {...props}
+    className='str-chat__live-location-sharing-duration-selector__button'
+    onClick={onClick}
+    ref={referenceRef as React.Ref<HTMLButtonElement>}
+    type='button'
+  >
+    {children}
+  </Button>
+);
+
+export const ShareLocationDialog = ({
   close,
   GeolocationMap = DefaultGeolocationMap,
   shareDurations = DEFAULT_SHARE_LOCATION_DURATIONS,
@@ -59,17 +83,26 @@ const ShareLocationDialog = ({
     [shareDurations],
   );
 
-  const openDropdownButtonProps = useMemo(
-    () => ({
-      children: (() => (
-        <div>
-          {t('duration/Share Location', {
+  const selectedDurationLabel = useMemo(
+    () =>
+      durations.length > 0
+        ? t('duration/Share Location', {
             milliseconds: selectedDuration ?? durations[0],
-          })}
-        </div>
-      ))(), // todo: make it a component
-    }),
+          })
+        : undefined,
     [durations, selectedDuration, t],
+  );
+
+  const durationTriggerProps = useMemo(
+    () => ({
+      children: selectedDurationLabel ? (
+        <>
+          <span>{selectedDurationLabel}</span>
+          <IconChevronDown />
+        </>
+      ) : null,
+    }),
+    [selectedDurationLabel],
   );
 
   const getPosition = useCallback(
@@ -112,6 +145,7 @@ const ShareLocationDialog = ({
 
   useEffect(() => setupPositionWatching(), [setupPositionWatching]);
 
+  const liveLocationSwitchEnabled = durations.length > 0;
   return (
     <Prompt.Root
       className='str-chat__share-location-dialog'
@@ -127,14 +161,18 @@ const ShareLocationDialog = ({
           restartLocationWatching={setupPositionWatching}
         />
         {validShareDurations.length > 0 && (
-          <div className='str-chat__live-location-activation'>
+          <div
+            className={clsx('str-chat__live-location-activation', {
+              'str-chat__live-location-activation--expanded': liveLocationSwitchEnabled,
+            })}
+          >
             <SwitchField
-              checked={durations.length > 0}
+              checked={liveLocationSwitchEnabled}
               data-testid='share-location-dialog-live-location-switch'
               disabled={!geolocationPosition}
               onChange={(e) => {
                 e.stopPropagation();
-                if (durations.length > 0) {
+                if (liveLocationSwitchEnabled) {
                   setDurations([]);
                   setSelectedDuration(undefined);
                 } else {
@@ -144,10 +182,11 @@ const ShareLocationDialog = ({
               }}
               title={t('Share live location for')}
             />
-            {durations.length > 0 && (
+            {liveLocationSwitchEnabled && selectedDurationLabel && (
               <Dropdown
-                openButtonProps={openDropdownButtonProps}
                 placement='bottom-start'
+                TriggerComponent={LiveLocationDurationTrigger}
+                triggerProps={durationTriggerProps}
               >
                 <DurationDropdownItems
                   durations={durations}
@@ -169,7 +208,7 @@ const ShareLocationDialog = ({
           >
             {t('Cancel')}
           </Prompt.FooterControlsButtonSecondary>
-          <Prompt.FooterControlsButtonPrimary
+          <Prompt.FooterControlsButtonSecondary
             className='str-chat__prompt__footer__controls-button--submit'
             disabled={!geolocationPosition}
             onClick={async () => {
@@ -189,8 +228,8 @@ const ShareLocationDialog = ({
             type='submit'
           >
             {t('Attach')}
-          </Prompt.FooterControlsButtonPrimary>
-          <Prompt.FooterControlsButtonSecondary
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
             className='str-chat__prompt__footer__controls-button--submit'
             disabled={!geolocationPosition}
             onClick={async () => {
@@ -238,13 +277,12 @@ const ShareLocationDialog = ({
             type='submit'
           >
             {t('Share')}
-          </Prompt.FooterControlsButtonSecondary>
+          </Prompt.FooterControlsButtonPrimary>
         </Prompt.FooterControls>
       </Prompt.Footer>
     </Prompt.Root>
   );
 };
-export default ShareLocationDialog;
 
 export type DurationDropdownItemsProps = {
   durations: number[];
@@ -256,17 +294,23 @@ const DurationDropdownItems = ({
 }: DurationDropdownItemsProps) => {
   const { t } = useTranslationContext();
   const { close } = useDropdownContext();
-  return durations.map((duration) => (
-    <button
-      className='str-chat__live-location-sharing-duration-option'
-      key={`duration-${duration}}`}
-      onClick={() => {
-        selectDuration(duration);
-        close();
-      }}
-      role='option'
-    >
-      {t('duration/Share Location', { milliseconds: duration })}
-    </button>
-  ));
+  return (
+    <ContextMenuRoot>
+      <ContextMenuBody>
+        {durations.map((duration) => (
+          <ContextMenuButton
+            className='str-chat__live-location-sharing-duration-option'
+            key={`duration-${duration}`}
+            onClick={() => {
+              selectDuration(duration);
+              close();
+            }}
+            role='option'
+          >
+            {t('duration/Share Location', { milliseconds: duration })}
+          </ContextMenuButton>
+        ))}
+      </ContextMenuBody>
+    </ContextMenuRoot>
+  );
 };

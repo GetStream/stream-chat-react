@@ -29,10 +29,12 @@ import {
   type AttachmentManagerState,
   LinkPreviewsManager,
   type LinkPreviewsManagerState,
+  type LocationComposerState,
   type MessageComposerState,
   type TextComposerState,
 } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
+import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
 
 const messageComposerStateSelector = ({
   editedMessage,
@@ -52,6 +54,10 @@ const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
       LinkPreviewsManager.previewIsLoaded(preview) ||
       LinkPreviewsManager.previewIsLoading(preview),
   ),
+});
+
+const locationComposerStateSelector = (state: LocationComposerState) => ({
+  location: state.location,
 });
 
 const textComposerCommandSelector = ({ command }: TextComposerState) => ({ command });
@@ -76,6 +82,11 @@ const MessageComposerPreviews = () => {
     attachmentManagerStateSelector,
   );
 
+  const { location } = useStateStore(
+    messageComposer.locationComposer.state,
+    locationComposerStateSelector,
+  );
+
   const { linkPreviewsManager } = messageComposer;
   const { linkPreviews } = useStateStore(
     linkPreviewsManager.state,
@@ -86,6 +97,7 @@ const MessageComposerPreviews = () => {
     !quotedMessage &&
     attachments.length === 0 &&
     linkPreviews.length === 0 &&
+    !location &&
     !editedMessage
   )
     return null;
@@ -108,6 +120,18 @@ const MessageComposerPreviews = () => {
       <VoiceRecordingPreviewSlot />
       <AttachmentPreviewList />
       <LinkPreviewList />
+      {location && (
+        <GeolocationPreview
+          location={location}
+          // It is not possible to nullify shared_location field so we do not show a preview when editing
+          // to prevent a user from wanting to remove the location
+          remove={
+            messageComposer.editedMessage
+              ? undefined
+              : messageComposer.locationComposer.initState
+          }
+        />
+      )}
     </div>
   );
 };
