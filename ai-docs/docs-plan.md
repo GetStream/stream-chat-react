@@ -254,7 +254,7 @@ Objective: merge the open docs PRs, run docs verification, and fix any markdown/
 
 Post-snapshot maintenance currently in scope:
 
-- `initialNavOpenResponsive` was removed again before release, so the `Chat` reference page and migration guide must stop teaching it.
+- the temporary responsive-nav prop was removed again before release, so the `Chat` reference page and migration guide must stop teaching it.
 - `MessageEditedTimestamp` was removed and replaced by `MessageEditedIndicator`, so message UI docs and migration guidance need a follow-up pass.
 - client-side notifications now flow through `NotificationList`, so the notifications/read-state docs should prefer `NotificationList` and treat `MessageListNotifications` as the channel-notification container.
 - `MessageTimestamp` now defaults to time-only formatting, and the date/time docs should call that out explicitly.
@@ -476,14 +476,14 @@ Post-snapshot maintenance currently in scope:
   - `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md` now renders a custom header against the current `ChannelHeader` patterns instead of stale livestream markup
 - Expected fix: rewrite CSS snippets and customization examples against the current header/composer/avatar markup and steer users toward the current styling/token layer
 
-### 25. v14 Chat docs still document `initialNavOpen` as the only initial sidebar-state control
+### 25. v14 Chat docs briefly documented an extra responsive sidebar-state prop during the RC cycle
 
 - Status: resolved
 - Evidence:
-  - current `ChatProps` added `initialNavOpenResponsive`
-  - current `Chat.tsx` explicitly says `initialNavOpen` is ignored when `initialNavOpenResponsive` is true
-  - `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md` now documents `initialNavOpenResponsive`, its default behavior, and how it interacts with `initialNavOpen`
-- Expected fix: document `initialNavOpenResponsive`, clarify its default behavior, and show how to preserve v13-style `initialNavOpen` control
+  - during the RC cycle, `ChatProps` briefly exposed a second responsive sidebar-state prop alongside `initialNavOpen`
+  - the docs temporarily reflected that RC-only behavior
+  - the final docs were later rewritten back to the current single-prop `initialNavOpen` API
+- Expected fix: keep the docs aligned with the final released `Chat` API and avoid documenting temporary RC-only sidebar-state props
 
 ### 26. v14 attachment docs do not cover the low-level attachment-container/export churn
 
@@ -668,14 +668,14 @@ Post-snapshot maintenance currently in scope:
   - the v14 sidebar still labels the search pages as `ChannelSearch`, `Channel Search`, and `Search` under the old pre-stable organization
 - Expected fix: add Search migration coverage to `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` and update `data/docs/_sidebars/[chat-sdk][react][v14-rc].json` titles to reflect the stable Search docs
 
-### 45. v14 `Chat` docs still describe the removed `initialNavOpenResponsive` prop
+### 45. v14 `Chat` docs still described a removed responsive-nav prop
 
 - Status: resolved
 - Evidence:
   - current `ChatProps` only expose `initialNavOpen`
   - current `useChat()` initializes sidebar state from `initialNavOpen` when provided and otherwise falls back to the SDK default open state
-  - `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md` and `06-release-guides/01-upgrade-to-v14.md` still referenced `initialNavOpenResponsive`, which no longer exists in the public API
-- Expected fix: rewrite the `Chat` docs and migration guide to remove `initialNavOpenResponsive`, document `initialNavOpen` as the explicit initial-state prop, and keep the note that channel selection only auto-collapses the sidebar on mobile-width viewports
+  - `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md` and `06-release-guides/01-upgrade-to-v14.md` still referenced a removed RC-only responsive-nav prop
+- Expected fix: rewrite the `Chat` docs and migration guide to document `initialNavOpen` as the explicit initial-state prop and keep the note that channel selection only auto-collapses the sidebar on mobile-width viewports
 
 ### 46. v14 message UI docs still reference removed `MessageEditedTimestamp`
 
@@ -839,7 +839,7 @@ Post-snapshot maintenance currently in scope:
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`                              | Updated styling examples to current header selectors                                                                                                                                        |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`                    | Rewritten to the current default separator behavior and custom-separator guidance                                                                                                           |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`                                 | Rewritten to current custom-header patterns and `TypingIndicatorHeader` usage                                                                                                               |
-| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to the current sidebar-state behavior after `initialNavOpenResponsive` was removed                                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Rewritten to the current sidebar-state behavior after the temporary RC-only responsive-nav prop was removed                                                                                 |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/09-base-image.md`                        | Updated to the current `BaseImage` fallback behavior, broader internal usage, `showDownloadButtonOnError` default, and `ImagePlaceholder` override path                                     |
 | resolved | `data/docs/chat-sdk/react/v14/04-guides/08-date-time-formatting.md`                                | Updated to the current time-only `MessageTimestamp` default and the `MessageEditedIndicator`-based edited-time customization path                                                           |
 | resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/03-message-list/02-connection_status.md`              | Updated to the current notification-stack model so `ConnectionStatus` is documented alongside `NotificationList` / `MessageListNotifications` correctly                                     |

@@ -970,7 +970,6 @@ Only confirmed items should move from this file into the migration guide.
 - Status: confirmed
 - Area: chat layout behavior
 - User impact:
-  - apps following earlier v14 RC docs that used `initialNavOpenResponsive` now fail to type-check because that prop was removed again before release
   - omitting `initialNavOpen` no longer means “follow the v13 prop exactly”; current `Chat` falls back to the SDK default open state
   - channel selection no longer closes the sidebar on desktop-sized viewports
 - Old API:
@@ -978,17 +977,16 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/Chat/hooks/useChat.ts:42` initialized `navOpen` from `initialNavOpen`
   - `v13.14.2:src/components/Chat/hooks/useChat.ts:135` always called `closeMobileNav()` in `setActiveChannel`
 - New API:
-  - `src/components/Chat/Chat.tsx:30` through `:33` now expose only `initialNavOpen?: boolean` again, with no `initialNavOpenResponsive`
+  - `src/components/Chat/Chat.tsx:30` through `:33` expose only `initialNavOpen?: boolean`
   - `src/components/Chat/hooks/useChat.ts:51` through `:54` initialize `navOpen` from `initialNavOpen` when it is provided, otherwise they fall back to the SDK default open state
   - `src/components/Chat/hooks/useChat.ts:148` through `:151` only closes the sidebar after channel selection on mobile-width viewports
 - Replacement:
-  - remove any `initialNavOpenResponsive` usage from app code and docs
   - pass `initialNavOpen={false}` or `initialNavOpen={true}` when you need an explicit initial sidebar state
   - if you relied on channel selection always collapsing the sidebar, reintroduce that behavior explicitly in app-level layout code
 - Evidence:
-  - current `ChatProps` no longer include `initialNavOpenResponsive`
+  - current `ChatProps` expose only `initialNavOpen` for initial sidebar state
   - current `useChat` still contains viewport-guarded sidebar closing for channel selection
-  - current v14 docs and migration guide still describe the removed `initialNavOpenResponsive` prop, which now misleads users
+  - current v14 docs and migration guide needed to stop describing the removed RC-only responsive-nav prop
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`
