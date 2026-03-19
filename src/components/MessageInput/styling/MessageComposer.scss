@@ -36,6 +36,32 @@
   --str-chat__cooldown-box-shadow: none;
   --str-chat__message-composer-max-width: 768px;
   --str-chat__message-composer-padding: var(--spacing-md);
+  --str-chat__message-composer-command-transition-duration: 280ms;
+  --str-chat__message-composer-command-ease: cubic-bezier(0.22, 1, 0.32, 1);
+
+  @keyframes str-chat-command-chip-enter-ltr {
+    from {
+      opacity: 0;
+      transform: translate3d(-0.75rem, 0, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes str-chat-command-chip-enter-rtl {
+    from {
+      opacity: 0;
+      transform: translate3d(0.75rem, 0, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
 
   .str-chat__message-composer-container {
     width: 100%;
@@ -59,12 +85,72 @@
     gap: var(--spacing-xs);
     min-width: 0;
     flex-shrink: 1;
+    transition: gap var(--str-chat__message-composer-command-transition-duration)
+      var(--str-chat__message-composer-command-ease);
+  }
+
+  /* Slot must be at least as wide as the + control (incl. border/outline) so the composer never overlaps it */
+  .str-chat__message-composer > .str-chat__attachment-selector {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: var(
+      --str-chat__message-composer-attachment-slot-width,
+      calc(var(--button-visual-height-lg) + 2 * var(--spacing-xxs))
+    );
+    max-width: var(
+      --str-chat__message-composer-attachment-slot-width,
+      calc(var(--button-visual-height-lg) + 2 * var(--spacing-xxs))
+    );
+    box-sizing: border-box;
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: center bottom;
+    transition:
+      width var(--str-chat__message-composer-command-transition-duration)
+        var(--str-chat__message-composer-command-ease),
+      max-width var(--str-chat__message-composer-command-transition-duration)
+        var(--str-chat__message-composer-command-ease),
+      opacity calc(var(--str-chat__message-composer-command-transition-duration) * 0.85)
+        ease-out,
+      transform var(--str-chat__message-composer-command-transition-duration)
+        var(--str-chat__message-composer-command-ease),
+      margin var(--str-chat__message-composer-command-transition-duration)
+        var(--str-chat__message-composer-command-ease);
+    overflow: hidden;
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .str-chat__message-composer--command-active {
+    gap: 0;
+  }
+
+  .str-chat__message-composer--command-active > .str-chat__attachment-selector {
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+    margin-inline-end: 0;
+    opacity: 0;
+    transform: scale(0.55);
+    pointer-events: none;
+  }
+
+  .str-chat__message-composer--command-active .str-chat__command-chip {
+    animation: str-chat-command-chip-enter-ltr
+      var(--str-chat__message-composer-command-transition-duration)
+      var(--str-chat__message-composer-command-ease) both;
+  }
+
+  [dir='rtl'] .str-chat__message-composer--command-active .str-chat__command-chip {
+    animation-name: str-chat-command-chip-enter-rtl;
   }
 
   .str-chat__message-composer-compose-area {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    flex: 1 1 0;
     min-width: 0;
     @include utils.component-layer-overrides('message-input');
   }
@@ -108,6 +194,19 @@
       height: $controls-containers-min-height;
       display: flex;
       align-items: center;
+    }
+
+    .str-chat__message-composer__additional-actions {
+      flex-shrink: 0;
+      min-width: 0;
+      max-width: 6rem;
+      opacity: 1;
+      transition:
+        max-width var(--str-chat__message-composer-command-transition-duration)
+          var(--str-chat__message-composer-command-ease),
+        opacity calc(var(--str-chat__message-composer-command-transition-duration) * 0.85)
+          ease-out;
+      overflow: hidden;
     }
 
     .str-chat__textarea {
@@ -177,6 +276,28 @@
       svg {
         transform: scale(-1, 1);
       }
+    }
+  }
+
+  .str-chat__message-composer--command-active
+    .str-chat__message-composer__additional-actions {
+    max-width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .str-chat__message-composer {
+      transition-duration: 0.01ms;
+    }
+
+    .str-chat__message-composer > .str-chat__attachment-selector,
+    .str-chat__message-composer-controls .str-chat__message-composer__additional-actions {
+      transition-duration: 0.01ms;
+    }
+
+    .str-chat__message-composer--command-active .str-chat__command-chip {
+      animation: none;
     }
   }
 

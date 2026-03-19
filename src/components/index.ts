@@ -3,6 +3,7 @@ export * from './Attachment';
 export * from './AudioPlayback';
 export * from './Avatar';
 export * from './Badge';
+export * from './BaseImage';
 export * from './Button';
 export * from './Channel';
 export * from './ChannelHeader';

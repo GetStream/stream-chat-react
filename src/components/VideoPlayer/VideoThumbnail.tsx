@@ -1,4 +1,4 @@
-import { BaseImage, type BaseImageProps } from '../Gallery';
+import { BaseImage, type BaseImageProps } from '../BaseImage';
 import { Button } from '../Button';
 import clsx from 'clsx';
 import { IconPlaySolid } from '../Icons';

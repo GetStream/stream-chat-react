@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { BaseImage } from './BaseImage';
+import { BaseImage } from '../BaseImage';
 import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';

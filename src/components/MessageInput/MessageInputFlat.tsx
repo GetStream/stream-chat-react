@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 import {
   AttachmentSelector as DefaultAttachmentSelector,
@@ -29,6 +30,7 @@ import {
   LinkPreviewsManager,
   type LinkPreviewsManagerState,
   type MessageComposerState,
+  type TextComposerState,
 } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 
@@ -51,6 +53,8 @@ const linkPreviewsManagerStateSelector = (state: LinkPreviewsManagerState) => ({
       LinkPreviewsManager.previewIsLoading(preview),
   ),
 });
+
+const textComposerCommandSelector = ({ command }: TextComposerState) => ({ command });
 
 const MessageComposerPreviews = () => {
   const {
@@ -111,6 +115,11 @@ const MessageComposerPreviews = () => {
 export const MessageInputFlat = () => {
   const { message } = useMessageContext();
   const { recordingController } = useMessageInputContext();
+  const messageComposer = useMessageComposer();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerCommandSelector,
+  );
 
   const {
     AdditionalMessageComposerActions = DefaultAdditionalMessageComposerActions,
@@ -126,7 +135,11 @@ export const MessageInputFlat = () => {
       className='str-chat__message-composer-container'
       component='div'
     >
-      <div className='str-chat__message-composer'>
+      <div
+        className={clsx('str-chat__message-composer', {
+          'str-chat__message-composer--command-active': !!command,
+        })}
+      >
         {recordingController.recordingState ? (
           <AudioRecorder />
         ) : (

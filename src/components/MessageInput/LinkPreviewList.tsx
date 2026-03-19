@@ -6,7 +6,7 @@ import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposer } from './hooks';
-import { BaseImage } from '../Gallery';
+import { BaseImage } from '../BaseImage';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import { IconChainLink } from '../Icons';
 

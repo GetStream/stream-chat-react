@@ -6,10 +6,10 @@ import type { GalleryItem } from '../Gallery/GalleryContext';
 export type ImageProps = GalleryItem;
 
 /**
- * Display image in with option to expand into modal gallery
+ * Display image with tap-to-expand modal gallery.
  */
-export const ImageComponent = (props: ImageProps) => {
+export const ImageComponent = (galleryItem: ImageProps) => {
   const { ModalGallery = DefaultModalGallery } = useComponentContext();
 
-  return <ModalGallery items={[props]} modalClassName='str-chat__image-modal' />;
+  return <ModalGallery items={[galleryItem]} modalClassName='str-chat__image-modal' />;
 };
