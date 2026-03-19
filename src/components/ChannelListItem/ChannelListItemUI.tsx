@@ -1,17 +1,17 @@
 import React, { useRef } from 'react';
 import clsx from 'clsx';
 
-import { ChannelPreviewActionButtons as DefaultChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
-import { ChannelPreviewTimestamp } from './ChannelPreviewTimestamp';
+import { ChannelListItemActionButtons as DefaultChannelListItemActionButtons } from './ChannelListItemActionButtons';
+import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute } from '../Icons';
 import { useComponentContext } from '../../context';
-import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
+import type { ChannelListItemUIProps } from './ChannelListItem';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 
-const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps) => {
+const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const {
     active,
     Avatar = DefaultChannelAvatar,
@@ -29,7 +29,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
     watchers,
   } = props;
 
-  const { ChannelPreviewActionButtons = DefaultChannelPreviewActionButtons } =
+  const { ChannelListItemActionButtons = DefaultChannelListItemActionButtons } =
     useComponentContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
@@ -50,7 +50,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
 
   return (
     <div className='str-chat__channel-preview-container'>
-      <ChannelPreviewActionButtons channel={channel} />
+      <ChannelListItemActionButtons />
       <button
         aria-label={`Select Channel: ${displayTitle || ''}`}
         aria-pressed={active}
@@ -79,7 +79,7 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
               {muted && <IconMute />}
             </div>
             <div className='str-chat__channel-preview-data__timestamp-and-badge'>
-              <ChannelPreviewTimestamp lastMessage={lastMessage} />
+              <ChannelListItemTimestamp lastMessage={lastMessage} />
               {typeof unread === 'number' && unread > 0 && (
                 <Badge data-testid='unread-badge' size='md' variant='primary'>
                   {unread}
@@ -102,6 +102,6 @@ const UnMemoizedChannelPreviewMessenger = (props: ChannelPreviewUIComponentProps
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  * Its best suited for messenger type chat.
  */
-export const ChannelPreviewMessenger = React.memo(
-  UnMemoizedChannelPreviewMessenger,
-) as typeof UnMemoizedChannelPreviewMessenger;
+export const ChannelListItemUI = React.memo(
+  UnMemoizedChannelListItemUI,
+) as typeof UnMemoizedChannelListItemUI;

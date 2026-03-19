@@ -23,8 +23,8 @@ import type { ChannelListMessengerProps } from './ChannelListMessenger';
 import { ChannelListMessenger } from './ChannelListMessenger';
 import type { ChannelAvatarProps } from '../Avatar';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import type { ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import { ChannelPreview } from '../ChannelPreview/ChannelPreview';
+import type { ChannelListItemUIProps } from '../ChannelListItem/ChannelListItem';
+import { ChannelListItem } from '../ChannelListItem/ChannelListItem';
 import { Search as DefaultSearch } from '../Search';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -141,7 +141,7 @@ export type ChannelListProps = {
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelPreviewUIComponentProps>;
+  Preview?: React.ComponentType<ChannelListItemUIProps>;
   /**
    * Custom interval during which the recovery channel list queries will be prevented.
    * This is to avoid firing unnecessary queries during internet connection fluctuation.
@@ -216,7 +216,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
   const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
-    useComponentContext(); // FIXME: use component context to retrieve ChannelPreview UI components too
+    useComponentContext(); // FIXME: use component context to retrieve ChannelListItemUI components too
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
 
@@ -344,7 +344,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       watchers,
     };
 
-    return <ChannelPreview key={item.cid} {...previewProps} />;
+    return <ChannelListItem key={item.cid} {...previewProps} />;
   };
 
   const baseClass = 'str-chat__channel-list';

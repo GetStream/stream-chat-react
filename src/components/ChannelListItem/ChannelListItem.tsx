@@ -3,20 +3,23 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Channel, Event, LocalMessage } from 'stream-chat';
 
-import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
+import { ChannelListItemUI as DefaultChannelListItemUI } from './ChannelListItemUI';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
-import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
-import type { ChatContextValue } from '../../context/ChatContext';
 import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
 import type { GroupChannelDisplayInfo } from './utils';
-import type { TranslationContextValue } from '../../context/TranslationContext';
+import {
+  type ChatContextValue,
+  type TranslationContextValue,
+  useChatContext,
+  useComponentContext,
+} from '../../context';
 
-export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
+export type ChannelListItemUIProps = ChannelListItemProps & {
   /** Image of Channel to display */
   displayImage?: string;
   /** Title of Channel to display */
@@ -37,7 +40,7 @@ export type ChannelPreviewUIComponentProps = ChannelPreviewProps & {
   unread?: number;
 };
 
-export type ChannelPreviewProps = {
+export type ChannelListItemProps = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel;
   /** If the component's channel is the active (selected) Channel */
@@ -50,7 +53,7 @@ export type ChannelPreviewProps = {
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
-  /** Custom function that generates the message preview in ChannelPreview component */
+  /** Custom function that generates the message preview in ChannelListItem component */
   getLatestMessagePreview?: (
     channel: Channel,
     t: TranslationContextValue['t'],
@@ -58,30 +61,28 @@ export type ChannelPreviewProps = {
     isMessageAIGenerated: ChatContextValue['isMessageAIGenerated'],
   ) => ReactNode;
   key?: string;
-  /** Custom ChannelPreview click handler function */
+  /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
-  /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelPreviewUIComponentProps>;
   /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue['setActiveChannel'];
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
 
-const ChannelPreviewContext = React.createContext<{ channel: Channel }>({
+const ChannelListItemContext = React.createContext<{ channel: Channel }>({
   channel: null as unknown as Channel,
 });
 
-export const useChannelPreviewContext = () => useContext(ChannelPreviewContext);
+export const useChannelListItemContext = () => useContext(ChannelListItemContext);
 
-export const ChannelPreview = (props: ChannelPreviewProps) => {
+export const ChannelListItem = (props: ChannelListItemProps) => {
   const {
     active,
     channel,
     channelUpdateCount,
     getLatestMessagePreview = defaultGetLatestMessagePreview,
-    Preview = ChannelPreviewMessenger,
   } = props;
+  const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
   const {
     channel: activeChannel,
     client,
@@ -193,11 +194,11 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
 
   const channelPreviewContextValue = useMemo(() => ({ channel }), [channel]);
 
-  if (!Preview) return null;
+  if (!ChannelListItemUI) return null;
 
   return (
-    <ChannelPreviewContext.Provider value={channelPreviewContextValue}>
-      <Preview
+    <ChannelListItemContext.Provider value={channelPreviewContextValue}>
+      <ChannelListItemUI
         {...props}
         active={isActive}
         displayImage={displayImage}
@@ -211,6 +212,6 @@ export const ChannelPreview = (props: ChannelPreviewProps) => {
         setActiveChannel={setActiveChannel}
         unread={unread}
       />
-    </ChannelPreviewContext.Provider>
+    </ChannelListItemContext.Provider>
   );
 };

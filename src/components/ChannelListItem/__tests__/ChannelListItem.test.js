@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChannelAvatar } from '../../Avatar';
-import { ChannelPreview } from '../ChannelPreview';
+import { ChannelPreview } from '../ChannelListItem';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
@@ -77,7 +77,7 @@ describe('ChannelPreview', () => {
           setActiveChannel: () => jest.fn(),
         }}
       >
-        <ChannelPreview Preview={PreviewUIComponent} {...props} />
+        <ChannelPreview ChannelListItemUI={PreviewUIComponent} {...props} />
       </ChatContext.Provider>,
     );
 

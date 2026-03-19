@@ -6,7 +6,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
-import { useChannelPreviewInfo } from '../../ChannelPreview';
+import { useChannelPreviewInfo } from '../../ChannelListItem';
 import { useChatContext, useTranslationContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';

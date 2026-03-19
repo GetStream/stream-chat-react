@@ -34,9 +34,9 @@ import {
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
 import {
+  ChannelListItemUI,
   ChannelPreviewCompact,
   ChannelPreviewLastMessage,
-  ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
 import {
@@ -449,7 +449,7 @@ describe('ChannelList', () => {
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-messenger'>Avatar</div>}
           List={ChannelListComponent}
-          Preview={ChannelPreviewMessenger}
+          Preview={ChannelListItemUI}
         />
       </Chat>,
     );

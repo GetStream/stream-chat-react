@@ -3,7 +3,7 @@ import React from 'react';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
-import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';

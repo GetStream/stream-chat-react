@@ -3,7 +3,7 @@ import { match, P } from 'ts-pattern';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
-import { useChannelPreviewContext } from './ChannelPreview';
+import { useChannelListItemContext } from './ChannelListItem';
 import { Button } from '../Button';
 import {
   IconArchive,
@@ -15,11 +15,11 @@ import {
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { ContextMenuButton, useDialogOnNearestManager } from '../Dialog';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
-import { ChannelPreviewActionButtons } from './ChannelPreviewActionButtons';
+import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
 const useMuteActionButtonBehavior = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelPreviewContext();
+  const { channel } = useChannelListItemContext();
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
   const [inProgress, setInProgress] = useState(false);
@@ -44,10 +44,10 @@ const useMuteActionButtonBehavior = () => {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
             tags: addNotificationTargetTag(panel),
-            type: 'channelPreview:mute:failed',
+            type: 'channelListItem:mute:failed',
           },
           origin: {
-            emitter: ChannelPreviewActionButtons.name,
+            emitter: ChannelListItemActionButtons.name,
           },
         });
       } finally {
@@ -59,7 +59,7 @@ const useMuteActionButtonBehavior = () => {
 };
 
 const useArchiveActionButtonBehavior = () => {
-  const { channel } = useChannelPreviewContext();
+  const { channel } = useChannelListItemContext();
   const { client } = useChatContext();
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
@@ -85,10 +85,10 @@ const useArchiveActionButtonBehavior = () => {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
             tags: addNotificationTargetTag(panel),
-            type: 'channelPreview:archive:failed',
+            type: 'channelListItem:archive:failed',
           },
           origin: {
-            emitter: ChannelPreviewActionButtons.name,
+            emitter: ChannelListItemActionButtons.name,
           },
         });
       } finally {
@@ -183,7 +183,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
     Component() {
       const { client } = useChatContext();
       const { t } = useTranslationContext();
-      const { channel } = useChannelPreviewContext();
+      const { channel } = useChannelListItemContext();
       const [inProgress, setInProgress] = useState(false);
       const members = useChannelMembersState(channel);
       const panel = useNotificationTarget();
@@ -222,10 +222,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
                       ? error
                       : new Error('An unknown error occurred'),
                   tags: addNotificationTargetTag(panel),
-                  type: 'channelPreview:ban:failed',
+                  type: 'channelListItem:ban:failed',
                 },
                 origin: {
-                  emitter: ChannelPreviewActionButtons.name,
+                  emitter: ChannelListItemActionButtons.name,
                 },
               });
             } finally {
@@ -244,9 +244,9 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
     Component() {
       const { t } = useTranslationContext();
       const { client } = useChatContext();
-      const { channel } = useChannelPreviewContext();
+      const { channel } = useChannelListItemContext();
       const membership = useChannelMembershipState(channel);
-      const dialogId = ChannelPreviewActionButtons.getDialogId(
+      const dialogId = ChannelListItemActionButtons.getDialogId(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         channel.id!,
       );
@@ -278,10 +278,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
                 options: {
                   originalError: error,
                   tags: addNotificationTargetTag(panel),
-                  type: 'channelPreview:pin:failed',
+                  type: 'channelListItem:pin:failed',
                 },
                 origin: {
-                  emitter: ChannelPreviewActionButtons.name,
+                  emitter: ChannelListItemActionButtons.name,
                 },
               });
             } finally {
@@ -301,7 +301,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
   {
     Component() {
       const { t } = useTranslationContext();
-      const { channel } = useChannelPreviewContext();
+      const { channel } = useChannelListItemContext();
       const { client } = useChatContext();
       const [inProgress, setInProgress] = useState(false);
       const panel = useNotificationTarget();
@@ -328,10 +328,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
                       ? error
                       : new Error('An unknown error occurred'),
                   tags: addNotificationTargetTag(panel),
-                  type: 'channelPreview:leave:failed',
+                  type: 'channelListItem:leave:failed',
                 },
                 origin: {
-                  emitter: ChannelPreviewActionButtons.name,
+                  emitter: ChannelListItemActionButtons.name,
                 },
               });
             } finally {
@@ -351,7 +351,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
 ];
 
 export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionItem[]) => {
-  const { channel } = useChannelPreviewContext();
+  const { channel } = useChannelListItemContext();
   const isDirectMessageChannel =
     channel.type === 'messaging' &&
     // assuming one of the users is current user

@@ -8,7 +8,7 @@ import {
   useTranslationContext,
 } from '../../../context';
 
-import type { MessageDeliveryStatus } from '../../ChannelPreview';
+import type { MessageDeliveryStatus } from '../../ChannelListItem';
 
 export type ChannelPreviewMessageType =
   | 'text'

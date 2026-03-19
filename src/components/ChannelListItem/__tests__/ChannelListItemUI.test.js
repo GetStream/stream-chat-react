@@ -11,7 +11,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
+import { ChannelListItemUI } from '../ChannelListItemUI';
 import { ChatProvider, ComponentProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
@@ -27,7 +27,7 @@ describe('ChannelPreviewMessenger', () => {
     <ChatProvider value={{ client: chatClient }}>
       <ComponentProvider value={componentOverrides}>
         <div aria-label='Select Channel' role='listbox'>
-          <ChannelPreviewMessenger
+          <ChannelListItemUI
             channel={channel}
             displayImage='https://randomimage.com/src.jpg'
             displayTitle='Channel name'

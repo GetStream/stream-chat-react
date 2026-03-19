@@ -4,7 +4,7 @@ import { IconLayoutAlignLeft } from '../Icons/icons';
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
-import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTypingContext } from '../../context/TypingContext';

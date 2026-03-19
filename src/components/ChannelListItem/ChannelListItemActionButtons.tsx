@@ -1,5 +1,4 @@
-import React, { type JSX } from 'react';
-import type { Channel } from 'stream-chat';
+import React, { type ComponentProps, type ComponentType, type JSX } from 'react';
 
 import { Button } from '../Button';
 import { IconDotGrid1x3Horizontal } from '../Icons';
@@ -9,25 +8,23 @@ import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dial
 import {
   defaultChannelActionSet,
   useBaseChannelActionSetFilter,
-} from './ChannelPreviewActionButtons.defaults';
+} from './ChannelListItemActionButtons.defaults';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
+import { useChannelListItemContext } from './ChannelListItem';
 
-export type ChannelPreviewActionButtonsProps = {
-  channel: Channel;
-};
+export type ChannelListItemActionButtonsProps = ComponentProps<ComponentType>; // hack to allow empty props
 
-interface ChannelPreviewActionButtonsInterface {
-  (props: ChannelPreviewActionButtonsProps): JSX.Element;
+interface ChannelListItemActionButtonsInterface {
+  (props: ChannelListItemActionButtonsProps): JSX.Element;
   getDialogId: (channelId: string) => string;
   name: string;
 }
 
-export const ChannelPreviewActionButtons: ChannelPreviewActionButtonsInterface = ({
-  channel,
-}) => {
+export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface = () => {
+  const { channel } = useChannelListItemContext();
   const [referenceElement, setReferenceElement] =
     React.useState<HTMLButtonElement | null>(null);
-  const dialogId = ChannelPreviewActionButtons.getDialogId(
+  const dialogId = ChannelListItemActionButtons.getDialogId(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     channel.id!,
   );
@@ -82,5 +79,5 @@ export const ChannelPreviewActionButtons: ChannelPreviewActionButtonsInterface =
   );
 };
 
-ChannelPreviewActionButtons.getDialogId = (channelId: string) =>
+ChannelListItemActionButtons.getDialogId = (channelId: string) =>
   `channel-action-buttons-${channelId}`;

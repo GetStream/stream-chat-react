@@ -4,13 +4,13 @@ import type { LocalMessage } from 'stream-chat';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString, isDate } from '../../i18n/utils';
 
-export type ChannelPreviewTimestampProps = {
+export type ChannelListItemTimestampProps = {
   /** The last message in the channel, used to extract the timestamp */
   lastMessage?: LocalMessage;
 };
 
-export function ChannelPreviewTimestamp({ lastMessage }: ChannelPreviewTimestampProps) {
-  const { t, tDateTimeParser } = useTranslationContext('ChannelPreviewTimestamp');
+export function ChannelListItemTimestamp({ lastMessage }: ChannelListItemTimestampProps) {
+  const { t, tDateTimeParser } = useTranslationContext('ChannelListItemTimestamp');
 
   const timestamp = lastMessage?.created_at;
   const normalizedTimestamp =
