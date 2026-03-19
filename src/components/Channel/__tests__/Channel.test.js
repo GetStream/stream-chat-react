@@ -39,6 +39,22 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
+
 const queryChannelWithNewMessages = (newMessages, channel) =>
   // generate new channel mock from existing channel with new messages added
   getOrCreateChannelApi(
@@ -142,6 +158,8 @@ const MockMessageList = () => {
       status !== 'failed' && <div key={id || nanoid()}>{text}</div>,
   );
 };
+
+const getMessageIds = (renderedMessages = []) => renderedMessages.map(({ id }) => id);
 
 describe('Channel', () => {
   const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
@@ -1507,6 +1525,251 @@ describe('Channel', () => {
           addErrorSpy.mockRestore();
         },
       );
+    });
+
+    describe('jumpToLatestMessage', () => {
+      it('applies the latest page messages and flags together', async () => {
+        const olderMessages = [
+          generateMessage({ id: 'older-1', text: 'older-1', user }),
+          generateMessage({ id: 'older-2', text: 'older-2', user }),
+        ];
+        const latestMessages = [
+          generateMessage({ id: 'latest-1', text: 'latest-1', user }),
+          generateMessage({ id: 'latest-2', text: 'latest-2', user }),
+        ];
+
+        let resolveLatestLoad;
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation(
+            () =>
+              new Promise((resolve) => {
+                resolveLatestLoad = () => {
+                  channel.state.messages = latestMessages;
+                  channel.state.messagePagination.hasPrev = true;
+                  channel.state.messagePagination.hasNext = false;
+                  resolve();
+                };
+              }),
+          );
+
+        const snapshots = [];
+        let phase = 'seed-older-set';
+
+        await renderComponent(
+          { channel, chatClient },
+          ({
+            dispatch,
+            hasMoreNewer,
+            jumpToLatestMessage,
+            messages: renderedMessages,
+          }) => {
+            snapshots.push({
+              hasMoreNewer,
+              messageIds: getMessageIds(renderedMessages),
+            });
+
+            if (phase === 'seed-older-set') {
+              phase = 'jump-latest';
+              dispatch({
+                hasMoreNewer: true,
+                messages: olderMessages,
+                type: 'loadMoreNewerFinished',
+              });
+              return;
+            }
+
+            if (
+              phase === 'jump-latest' &&
+              hasMoreNewer &&
+              getMessageIds(renderedMessages).join(':') ===
+                getMessageIds(olderMessages).join(':')
+            ) {
+              phase = 'waiting-for-latest';
+              void jumpToLatestMessage();
+            }
+          },
+        );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).toHaveBeenCalledWith('latest');
+        });
+
+        act(() => {
+          resolveLatestLoad();
+        });
+
+        await waitFor(() => {
+          expect(
+            snapshots.some(
+              ({ hasMoreNewer, messageIds }) =>
+                !hasMoreNewer &&
+                messageIds.join(':') === getMessageIds(latestMessages).join(':'),
+            ),
+          ).toBe(true);
+        });
+
+        expect(
+          snapshots.some(
+            ({ hasMoreNewer, messageIds }) =>
+              !hasMoreNewer &&
+              messageIds.join(':') === getMessageIds(olderMessages).join(':'),
+          ),
+        ).toBe(false);
+      });
+    });
+
+    describe('jumpToMessage', () => {
+      it('does not reuse older-page loading state while jumping to a highlighted message', async () => {
+        const targetMessages = [
+          generateMessage({ id: 'target-1', text: 'target-1', user }),
+          generateMessage({ id: 'target-2', text: 'target-2', user }),
+        ];
+
+        let resolveTargetLoad;
+        jest.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveTargetLoad = () => {
+                channel.state.messages = targetMessages;
+                channel.state.messagePagination.hasPrev = true;
+                channel.state.messagePagination.hasNext = true;
+                resolve();
+              };
+            }),
+        );
+
+        const loadingSnapshots = [];
+        let jumpToMessageRef;
+        let hasStartedJump = false;
+
+        await renderComponent(
+          { channel, chatClient },
+          ({ jumpToMessage, loadingMore, loadingMoreForJumpToChannelMessage }) => {
+            jumpToMessageRef = jumpToMessage;
+            loadingSnapshots.push({
+              loadingMore,
+              loadingMoreForJumpToChannelMessage,
+            });
+
+            if (!hasStartedJump && jumpToMessageRef) {
+              hasStartedJump = true;
+              void jumpToMessageRef('target-2');
+            }
+          },
+        );
+
+        await waitFor(() => {
+          expect(
+            loadingSnapshots.some(
+              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
+                !loadingMore && loadingMoreForJumpToChannelMessage,
+            ),
+          ).toBe(true);
+        });
+
+        act(() => {
+          resolveTargetLoad();
+        });
+
+        await waitFor(() => {
+          expect(
+            loadingSnapshots.some(
+              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
+                !loadingMore && !loadingMoreForJumpToChannelMessage,
+            ),
+          ).toBe(true);
+        });
+      });
+
+      it('applies the target message set and highlight without replaying stale loadMore state', async () => {
+        const olderMessages = [
+          generateMessage({ id: 'older-1', text: 'older-1', user }),
+          generateMessage({ id: 'older-2', text: 'older-2', user }),
+        ];
+        const targetMessages = [
+          generateMessage({ id: 'target-1', text: 'target-1', user }),
+          generateMessage({ id: 'target-2', text: 'target-2', user }),
+        ];
+
+        let resolveTargetLoad;
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation(
+            () =>
+              new Promise((resolve) => {
+                resolveTargetLoad = () => {
+                  channel.state.messages = targetMessages;
+                  channel.state.messagePagination.hasPrev = true;
+                  channel.state.messagePagination.hasNext = true;
+                  resolve();
+                };
+              }),
+          );
+
+        const snapshots = [];
+        let phase = 'seed-older-set';
+
+        await renderComponent(
+          { channel, chatClient },
+          ({
+            dispatch,
+            highlightedMessageId,
+            jumpToMessage,
+            messages: renderedMessages,
+          }) => {
+            snapshots.push({
+              highlightedMessageId,
+              messageIds: getMessageIds(renderedMessages),
+            });
+
+            if (phase === 'seed-older-set') {
+              phase = 'jump-target';
+              dispatch({
+                hasMoreNewer: true,
+                messages: olderMessages,
+                type: 'loadMoreNewerFinished',
+              });
+              return;
+            }
+
+            if (
+              phase === 'jump-target' &&
+              getMessageIds(renderedMessages).join(':') ===
+                getMessageIds(olderMessages).join(':')
+            ) {
+              phase = 'waiting-for-target';
+              void jumpToMessage('target-2');
+            }
+          },
+        );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).toHaveBeenCalledWith('target-2', undefined, 25);
+        });
+
+        act(() => {
+          resolveTargetLoad();
+        });
+
+        await waitFor(() => {
+          expect(
+            snapshots.some(
+              ({ highlightedMessageId, messageIds }) =>
+                highlightedMessageId === 'target-2' &&
+                messageIds.join(':') === getMessageIds(targetMessages).join(':'),
+            ),
+          ).toBe(true);
+        });
+
+        expect(
+          snapshots.some(
+            ({ highlightedMessageId, messageIds }) =>
+              highlightedMessageId === 'target-2' &&
+              messageIds.join(':') === getMessageIds(olderMessages).join(':'),
+          ),
+        ).toBe(false);
+      });
     });
 
     describe('Sending/removing/updating messages', () => {
