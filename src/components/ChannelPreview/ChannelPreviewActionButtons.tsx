@@ -10,7 +10,7 @@ import {
   defaultChannelActionSet,
   useBaseChannelActionSetFilter,
 } from './ChannelPreviewActionButtons.defaults';
-import { useSplitActionSet } from '../MessageActions';
+import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 
 export type ChannelPreviewActionButtonsProps = {
   channel: Channel;

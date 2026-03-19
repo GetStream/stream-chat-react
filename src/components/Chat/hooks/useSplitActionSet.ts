@@ -18,8 +18,3 @@ export const useSplitActionSet = <
 
     return { dropdownActionSet, quickActionSet } as const;
   }, [actionSet]);
-
-/**
- * @deprecated Use `useSplitActionSet` instead.
- */
-export const useSplitMessageActionSet = useSplitActionSet;

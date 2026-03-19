@@ -1,4 +1,3 @@
-/* eslint-disable sort-keys */
 import { type ComponentPropsWithoutRef, useMemo, useState } from 'react';
 import { match, P } from 'ts-pattern';
 
@@ -25,8 +24,8 @@ const useMuteActionButtonBehavior = () => {
   const [inProgress, setInProgress] = useState(false);
 
   return {
-    title: isMuted ? t('Unmute') : t('Mute'),
     'aria-pressed': isMuted,
+    disabled: inProgress,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       try {
@@ -39,19 +38,19 @@ const useMuteActionButtonBehavior = () => {
       } catch (error) {
         client.notifications.addError({
           message: 'Failed to update channel mute status',
-          origin: {
-            emitter: ChannelPreviewActionButtons.name,
-          },
           options: {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
+          },
+          origin: {
+            emitter: ChannelPreviewActionButtons.name,
           },
         });
       } finally {
         setInProgress(false);
       }
     },
-    disabled: inProgress,
+    title: isMuted ? t('Unmute') : t('Mute'),
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
@@ -63,8 +62,8 @@ const useArchiveActionButtonBehavior = () => {
   const [inProgress, setInProgress] = useState(false);
 
   return {
-    title: membership.archived_at ? t('Unarchive') : t('Archive'),
     'aria-pressed': typeof membership.archived_at === 'string',
+    disabled: inProgress,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       try {
@@ -77,19 +76,19 @@ const useArchiveActionButtonBehavior = () => {
       } catch (error) {
         client.notifications.addError({
           message: 'Failed to update channel archive status',
-          origin: {
-            emitter: ChannelPreviewActionButtons.name,
-          },
           options: {
             originalError:
               error instanceof Error ? error : new Error('An unknown error occurred'),
+          },
+          origin: {
+            emitter: ChannelPreviewActionButtons.name,
           },
         });
       } finally {
         setInProgress(false);
       }
     },
-    disabled: inProgress,
+    title: membership.archived_at ? t('Unarchive') : t('Archive'),
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
@@ -100,8 +99,6 @@ type ChannelActionItem = ({ placement: 'quick' } | { placement: 'dropdown' }) & 
 
 export const defaultChannelActionSet: ChannelActionItem[] = [
   {
-    type: 'archive',
-    placement: 'quick',
     Component() {
       const behaviorProps = useArchiveActionButtonBehavior();
 
@@ -118,10 +115,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </Button>
       );
     },
+    placement: 'quick',
+    type: 'archive',
   },
   {
-    type: 'mute',
-    placement: 'quick',
     Component() {
       const behaviorProps = useMuteActionButtonBehavior();
 
@@ -138,10 +135,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </Button>
       );
     },
+    placement: 'quick',
+    type: 'mute',
   },
   {
-    type: 'archive',
-    placement: 'dropdown',
     Component() {
       const behaviorProps = useArchiveActionButtonBehavior();
 
@@ -155,10 +152,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+    placement: 'dropdown',
+    type: 'archive',
   },
   {
-    type: 'mute',
-    placement: 'dropdown',
     Component() {
       const behaviorProps = useMuteActionButtonBehavior();
 
@@ -172,10 +169,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+    placement: 'dropdown',
+    type: 'mute',
   },
   {
-    type: 'ban',
-    placement: 'dropdown',
     Component() {
       const { client } = useChatContext();
       const { t } = useTranslationContext();
@@ -211,14 +208,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             } catch (error) {
               client.notifications.addError({
                 message: 'Failed to block user',
-                origin: {
-                  emitter: ChannelPreviewActionButtons.name,
-                },
                 options: {
                   originalError:
                     error instanceof Error
                       ? error
                       : new Error('An unknown error occurred'),
+                },
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
                 },
               });
             } finally {
@@ -230,10 +227,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+    placement: 'dropdown',
+    type: 'ban',
   },
   {
-    type: 'pin',
-    placement: 'dropdown',
     Component() {
       const { t } = useTranslationContext();
       const { client } = useChatContext();
@@ -267,11 +264,11 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               error = e instanceof Error ? e : new Error('An unknown error occurred');
               client.notifications.addError({
                 message: 'Failed to update channel pinned status',
-                origin: {
-                  emitter: ChannelPreviewActionButtons.name,
-                },
                 options: {
                   originalError: error,
+                },
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
                 },
               });
             } finally {
@@ -285,10 +282,10 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+    placement: 'dropdown',
+    type: 'pin',
   },
   {
-    type: 'leave',
-    placement: 'dropdown',
     Component() {
       const { t } = useTranslationContext();
       const { channel } = useChannelPreviewContext();
@@ -311,14 +308,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
             } catch (error) {
               client.notifications.addError({
                 message: 'Failed to leave channel',
-                origin: {
-                  emitter: ChannelPreviewActionButtons.name,
-                },
                 options: {
                   originalError:
                     error instanceof Error
                       ? error
                       : new Error('An unknown error occurred'),
+                },
+                origin: {
+                  emitter: ChannelPreviewActionButtons.name,
                 },
               });
             } finally {
@@ -332,6 +329,8 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+    placement: 'dropdown',
+    type: 'leave',
   },
 ];
 
@@ -358,22 +357,22 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
         // only allow defined actions if they match these pre-defined conditions
         .with(
           {
-            action: { type: 'archive', placement: 'quick' },
+            action: { placement: 'quick', type: 'archive' },
             isDirectMessageChannel: true,
           },
           {
-            action: { type: 'archive', placement: 'dropdown' },
+            action: { placement: 'dropdown', type: 'archive' },
             isDirectMessageChannel: false,
           },
           {
-            action: { type: 'mute', placement: 'dropdown' },
+            action: { placement: 'dropdown', type: 'mute' },
             isDirectMessageChannel: true,
             ownCapabilities: P.when((capabilities) =>
               capabilities?.includes('mute-channel'),
             ),
           },
           {
-            action: { type: 'mute', placement: 'quick' },
+            action: { placement: 'quick', type: 'mute' },
             isDirectMessageChannel: false,
             ownCapabilities: P.when((capabilities) =>
               capabilities?.includes('mute-channel'),
@@ -381,10 +380,10 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
           },
           {
             action: { type: 'ban' },
+            memberCount: P.number.gt(0).and(P.number.lte(2)),
             ownCapabilities: P.when((capabilities) =>
               capabilities?.includes('ban-channel-members'),
             ),
-            memberCount: P.number.gt(0).and(P.number.lte(2)),
           },
           {
             action: { type: 'leave' },
