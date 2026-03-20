@@ -27,16 +27,6 @@ export const EndPollAlert = () => {
       <Alert.Actions>
         <Button
           appearance='outline'
-          className='str-chat__end-poll-alert__cancel-button'
-          data-testid='end-poll-alert-cancel-button'
-          onClick={close}
-          size='md'
-          variant='secondary'
-        >
-          {t('Cancel')}
-        </Button>
-        <Button
-          appearance='outline'
           className='str-chat__end-poll-alert__end-vote-button'
           data-testid='end-poll-alert-end-vote-button'
           onClick={async () => {
@@ -67,6 +57,16 @@ export const EndPollAlert = () => {
           variant='danger'
         >
           {t('End poll')}
+        </Button>
+        <Button
+          appearance='outline'
+          className='str-chat__end-poll-alert__cancel-button'
+          data-testid='end-poll-alert-cancel-button'
+          onClick={close}
+          size='md'
+          variant='secondary'
+        >
+          {t('Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>
