@@ -625,10 +625,8 @@
     .str-chat__message-with-touch-support
   ) {
   /* This rule won't be applied in browsers that don't support :has() */
-  .str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)),
-  .str-chat__li:focus-within:not(
-      :has(.str-chat__reaction-list:focus-within, .str-chat__modal--open)
-    ),
+  .str-chat__li:hover:not(:has(.str-chat__modal--open)),
+  .str-chat__li:focus-within:not(:has(.str-chat__modal--open)),
   .str-chat__li:has(.str-chat__message-options--active) {
     .str-chat__message-options {
       display: flex;
