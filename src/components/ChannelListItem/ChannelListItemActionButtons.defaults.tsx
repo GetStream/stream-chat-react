@@ -352,12 +352,14 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
 
 export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionItem[]) => {
   const { channel } = useChannelListItemContext();
+  const membership = useChannelMembershipState(channel);
   const isDirectMessageChannel =
     channel.type === 'messaging' &&
     // assuming one of the users is current user
     channel.data?.member_count === 2 &&
     channel.id?.startsWith('!members-');
   const memberCount = channel.data?.member_count ?? 0;
+  const connectedUserIsMember = typeof membership.user !== 'undefined';
 
   const ownCapabilities = channel.data?.own_capabilities;
 
@@ -365,6 +367,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     const filtered = channelActionSet.filter((action) =>
       match({
         action,
+        connectedUserIsMember,
         isDirectMessageChannel,
         memberCount,
         ownCapabilities,
@@ -373,11 +376,15 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
         // only allow defined actions if they match these pre-defined conditions
         .with(
           {
-            action: { placement: 'quick', type: 'archive' },
+            action: { connectedUserIsMember: true, placement: 'quick', type: 'archive' },
             isDirectMessageChannel: true,
           },
           {
-            action: { placement: 'dropdown', type: 'archive' },
+            action: {
+              connectedUserIsMember: true,
+              placement: 'dropdown',
+              type: 'archive',
+            },
             isDirectMessageChannel: false,
           },
           {
@@ -408,8 +415,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
             ),
           },
           {
-            action: { type: 'pin' },
-            // TODO: add extra conditions once available
+            action: { connectedUserIsMember: true, type: 'pin' },
           },
           () => true,
         )
@@ -417,5 +423,11 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     );
 
     return filtered;
-  }, [channelActionSet, isDirectMessageChannel, memberCount, ownCapabilities]);
+  }, [
+    channelActionSet,
+    isDirectMessageChannel,
+    memberCount,
+    ownCapabilities,
+    connectedUserIsMember,
+  ]);
 };

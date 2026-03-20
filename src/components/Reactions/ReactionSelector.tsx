@@ -1,4 +1,4 @@
-import React, { type JSX, useMemo, useState } from 'react';
+import React, { type ReactNode, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useDialog } from '../Dialog';
@@ -21,11 +21,12 @@ export type ReactionSelectorProps = {
 };
 
 interface ReactionSelectorInterface {
-  (props: ReactionSelectorProps): JSX.Element;
+  (props: ReactionSelectorProps): ReactNode;
   getDialogId: (_: {
     messageId: string;
     threadList?: boolean;
   }) => `reaction-selector${'-thread' | ''}--${string}`;
+  displayName: string;
 }
 
 const stableOwnReactions: ReactionResponse[] = [];
@@ -152,3 +153,5 @@ ReactionSelector.getDialogId = (({ messageId, threadList }) => {
   const dialogIdNamespace = threadList ? '-thread' : '';
   return `reaction-selector${dialogIdNamespace}--${messageId}`;
 }) satisfies ReactionSelectorInterface['getDialogId'];
+
+ReactionSelector.displayName = 'ReactionSelector';

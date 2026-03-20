@@ -26,12 +26,12 @@ import {
   useMessageComposerController,
   useMessageReminder,
   useNotificationTarget,
-} from '../../components';
+} from '..';
 import {
   ReactionIcon as DefaultReactionIcon,
   ThreadIcon,
-} from '../../components/Message/icons';
-import { ReactionSelectorWithButton } from '../../components/Reactions/ReactionSelectorWithButton';
+} from '../Message/icons';
+import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
   useChannelActionContext,
   useChatContext,
@@ -42,8 +42,8 @@ import {
 import {
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
-} from '../../components/MessageActions/RemindMeSubmenu';
-import { ContextMenuButton, useContextMenuContext } from '../../components/Dialog';
+} from './RemindMeSubmenu';
+import { ContextMenuButton, useContextMenuContext } from '../Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
