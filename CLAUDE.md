@@ -15,13 +15,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Essential Commands
 
 ```bash
-# Development
-yarn install              # Setup (use Node version from .nvmrc)
-yarn build                # Full build
+# Development (requires Node 24 — see .nvmrc)
+yarn install              # Setup
+yarn build                # Full build (CSS, translations, Vite, types, SCSS)
 yarn test                 # Run Jest tests
-yarn test <pattern>       # Run specific test
-yarn lint-fix             # Fix all lint/format issues
-yarn types                # TypeScript type checking
+yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
+yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
+yarn types                # TypeScript type checking (noEmit mode)
+
+# E2E
+yarn e2e-fixtures         # Generate e2e test fixtures
+yarn e2e                  # Run Playwright tests
 
 # Before committing
 yarn lint-fix             # ALWAYS run this first
@@ -71,7 +75,7 @@ ChatContext               # Client, active channel, theme, navigation
 
 ### 2. WebSocket Event Processing
 
-**File:** `src/components/Channel/Channel.tsx` (lines 342-433)
+**File:** `src/components/Channel/Channel.tsx` (`handleEvent` function)
 
 ```ts
 // Events are THROTTLED to 500ms to prevent excessive re-renders
@@ -104,10 +108,10 @@ Messages are processed in order:
 
 ### 4. Virtualization Strategy
 
-**File:** `src/components/MessageList/VirtualizedMessageList.tsx`
+**Files:** `src/components/MessageList/VirtualizedMessageList.tsx` + `VirtualizedMessageListComponents.tsx`
 
 - Uses **react-virtuoso** with custom item sizing
-- **Offset trick:** Uses `PREPEND_OFFSET = 10^7` to handle prepended messages without Virtuoso knowing
+- **Offset trick:** `PREPEND_OFFSET = 10^7` in `VirtualizedMessageListComponents.tsx` handles prepended messages without Virtuoso knowing
 - Only visible items + overscan buffer rendered
 - `skipMessageDataMemoization` prop exists for channels with 1000s of messages
 
@@ -247,6 +251,108 @@ Closes #123
 - [ ] Screenshots for UI changes
 
 **Release:** Automated via semantic-release based on commit messages.
+
+### Deprecation Pattern
+
+When deprecating, use `@deprecated` JSDoc tag with reason and docs link. Commit under `deprecate` type. See `developers/DEPRECATIONS.md` for full process.
+
+## Build System
+
+The build runs 5 steps in parallel via `concurrently`:
+
+1. **`copy-css.sh`** — Copies pre-built CSS/SCSS/assets from `@stream-io/stream-chat-css` into `dist/`
+2. **`build-translations`** — Extracts `t()` calls from source via `i18next-cli`
+3. **`vite build`** — Bundles 3 entry points (index, emojis, mp3-encoder) as CJS + ESM, no minification
+4. **`tsc`** — Generates `.d.ts` type declarations only (`tsconfig.lib.json`)
+5. **`build-styling`** — Compiles `src/styling/index.scss` → `dist/css/index.css`
+
+All steps write to separate directories under `dist/` so they don't conflict.
+
+## Styling Architecture
+
+### Dual-Layer CSS System
+
+This repo has **two style sources**:
+
+1. **`@stream-io/stream-chat-css`** (external dep) — Base design system. Copied to `dist/css/v2/` and `dist/scss/v2/` at build time. Organized as `*-layout.scss` (structure) + `*-theme.scss` (colors/typography) per component.
+2. **`src/styling/`** (this repo) — Component styles, theme variables, animations. Compiled to `dist/css/index.css`.
+
+### CSS Layers (cascade order, low → high)
+
+```
+css-reset → stream (v2 base) → stream-new (compiled index.css) → stream-overrides → stream-app-overrides
+```
+
+See `examples/vite/src/index.scss` for reference implementation. Layers eliminate the need for `!important`.
+
+### Theming Variables (3 tiers)
+
+1. **Primitives** (`src/styling/variables.css`) — Figma-sourced: `--slate-50`, `--blue-500`, etc.
+2. **Semantic tokens** (`src/styling/_global-theme-variables.scss`) — `--str-chat__primary-color`, `--str-chat__text-color` with light/dark variants
+3. **Component tokens** (per-component SCSS) — `--str-chat__message-bubble-background-color`, etc.
+
+## i18n System
+
+- **12 languages**: de, en, es, fr, hi, it, ja, ko, nl, pt, ru, tr (JSON files in `src/i18n/`)
+- **Keys are English text**: `t('Mute')`, `t('{{ user }} is typing...')`
+- **Extraction**: `i18next-cli extract` scans `t()` calls in source → updates JSON files
+- **Validation**: `yarn lint` runs `scripts/validate-translations.js` — fails on any empty translation string (zero tolerance)
+- **Date/time**: `Streami18n` class wraps i18next + Dayjs with per-locale calendar formats
+- **When adding translatable strings**: Use `t()` from `useTranslationContext()`, then run `yarn build-translations` to update JSON files. All 12 language files must have non-empty values.
+
+## Styling Architecture
+
+### Dual-Layer CSS System
+
+Styles come from two sources:
+
+1. **`@stream-io/stream-chat-css`** — Base design system (copied to `dist/css/v2/` and `dist/scss/v2/` via `scripts/copy-css.sh`). Layout and theme SCSS split per component (`*-layout.scss` + `*-theme.scss`).
+2. **`src/styling/`** — SDK-specific styles compiled to `dist/css/index.css` via Sass. Master entry: `src/styling/index.scss`.
+
+Component styles live in `src/components/*/styling/index.scss` and are imported by the master stylesheet.
+
+### CSS Layers & Theming
+
+CSS layers control cascade order (no `!important` needed):
+
+```
+css-reset → stream (v2 base) → stream-new (compiled SDK CSS) → stream-overrides → stream-app-overrides
+```
+
+See `examples/vite/src/index.scss` for the reference layer setup.
+
+**Theming uses a 3-tier CSS variable hierarchy:**
+
+1. **Primitives** (`src/styling/variables.css`) — Figma-sourced color palette tokens
+2. **Semantic tokens** (`src/styling/_global-theme-variables.scss`) — Light/dark mode mappings (e.g., `--str-chat__primary-color`)
+3. **Component tokens** (per-component SCSS) — e.g., `--str-chat__message-bubble-background-color`
+
+### Build System
+
+`yarn build` runs 5 tasks in parallel via `concurrently`:
+
+1. `scripts/copy-css.sh` — Copies `stream-chat-css` assets into `dist/`
+2. `yarn build-translations` — Extracts `t()` calls via `i18next-cli`
+3. `vite build` — Bundles 3 entry points (index, emojis, mp3-encoder) as ESM + CJS
+4. `tsc --project tsconfig.lib.json` — Generates `.d.ts` type declarations only
+5. `yarn build-styling` — Compiles SCSS to `dist/css/index.css`
+
+**Library entry points** (from `package.json` exports):
+
+- `stream-chat-react` — Main SDK (all components, hooks, contexts)
+- `stream-chat-react/emojis` — Emoji picker plugin (`src/plugins/Emojis/`)
+- `stream-chat-react/mp3-encoder` — MP3 encoding for voice messages (`src/plugins/encoders/mp3.ts`)
+
+Vite config: no minification, sourcemaps enabled, all deps externalized. Target: ES2020.
+
+### i18n System
+
+- 12 languages in `src/i18n/*.json` — **Natural language keys** (English text = key)
+- `yarn build-translations` extracts `t()` calls from source via `i18next-cli extract`
+- `yarn validate-translations` (runs during `yarn lint`) — **zero-tolerance: any empty string value fails the build**
+- `Streami18n` class (`src/i18n/Streami18n.ts`) wraps i18next, integrates Dayjs for date/time formatting
+- Interpolation: `t('Failed to update {{ field }}', { field })`, Plurals: `_one`/`_other` suffixes
+- Access via `useTranslationContext()` hook — only works inside `<Chat>`
 
 ## Key Patterns for Development
 
