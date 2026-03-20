@@ -21,6 +21,7 @@
 @use '../components/Modal/styling' as Modal;
 
 // Specific components
+@use '../components/AIStateIndicator/styling' as AIStateIndicator;
 @use '../components/Attachment/styling' as Attachment;
 @use '../components/AudioPlayback/styling' as AudioPlayback;
 @use '../components/Avatar/styling/Avatar' as Avatar;
@@ -53,6 +54,7 @@
 @use '../components/Thread/styling' as Thread;
 @use '../components/Threads/styling' as Threads;
 @use '../components/Threads/ThreadList/styling' as ThreadList;
+@use '../components/Tooltip/styling' as Tooltip;
 @use '../components/TypingIndicator/styling' as TypingIndicator;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
 
