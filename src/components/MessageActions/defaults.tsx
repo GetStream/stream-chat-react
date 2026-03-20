@@ -43,8 +43,7 @@ import {
   RemindMeSubmenu,
   RemindMeSubmenuHeader,
 } from '../../components/MessageActions/RemindMeSubmenu';
-import type { ContextMenuItemProps } from '../../components/Dialog';
-import { ContextMenuButton } from '../../components/Dialog';
+import { ContextMenuButton, useContextMenuContext } from '../../components/Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
@@ -52,12 +51,11 @@ import { DeleteMessageAlert } from './DeleteMessageAlert';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
-const msgActionsBoxButtonClassNameDestructive =
-  'str-chat__message-actions-list-item-button--destructive' as const;
 
 const DefaultMessageActionComponents = {
   dropdown: {
-    ThreadReply({ closeMenu }: ContextMenuItemProps) {
+    ThreadReply() {
+      const { closeMenu } = useContextMenuContext();
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -76,7 +74,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Quote({ closeMenu }: ContextMenuItemProps) {
+    Quote() {
+      const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const messageComposer = useMessageComposer();
@@ -108,7 +107,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Pin({ closeMenu }: ContextMenuItemProps) {
+    Pin() {
+      const { closeMenu } = useContextMenuContext();
       const { handlePin, message } = useMessageContext();
       const { t } = useTranslationContext();
       const isPinned = !!message.pinned;
@@ -126,7 +126,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    CopyMessageText({ closeMenu }: ContextMenuItemProps) {
+    CopyMessageText() {
+      const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -144,7 +145,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Resend({ closeMenu }: ContextMenuItemProps) {
+    Resend() {
+      const { closeMenu } = useContextMenuContext();
       const { handleRetry, message } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -162,10 +164,11 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Edit({ closeMenu }: ContextMenuItemProps) {
+    Edit() {
       const messageComposer = useMessageComposer();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
+      const { closeMenu } = useContextMenuContext();
 
       return (
         <ContextMenuButton
@@ -181,7 +184,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    MarkUnread({ closeMenu }: ContextMenuItemProps) {
+    MarkUnread() {
+      const { closeMenu } = useContextMenuContext();
       const { handleMarkUnread } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -199,7 +203,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    RemindMe({ closeMenu, openSubmenu }: ContextMenuItemProps) {
+    RemindMe() {
+      const { closeMenu, openSubmenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { t } = useTranslationContext();
       const { message } = useMessageContext();
@@ -230,7 +235,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    SaveForLater({ closeMenu }: ContextMenuItemProps) {
+    SaveForLater() {
+      const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -256,7 +262,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Flag({ closeMenu }: ContextMenuItemProps) {
+    Flag() {
+      const { closeMenu } = useContextMenuContext();
       const { handleFlag } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -274,7 +281,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Mute({ closeMenu }: ContextMenuItemProps) {
+    Mute() {
+      const { closeMenu } = useContextMenuContext();
       const { handleMute, message } = useMessageContext();
       const { mutes } = useChatContext();
       const { t } = useTranslationContext();
@@ -294,7 +302,8 @@ const DefaultMessageActionComponents = {
         </ContextMenuButton>
       );
     },
-    Delete({ closeMenu }: ContextMenuItemProps) {
+    Delete() {
+      const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { Modal = GlobalModal } = useComponentContext();
       const { removeMessage } = useChannelActionContext();
@@ -307,14 +316,12 @@ const DefaultMessageActionComponents = {
         <>
           <ContextMenuButton
             aria-label={t('aria/Delete Message')}
-            className={clsx(
-              msgActionsBoxButtonClassName,
-              msgActionsBoxButtonClassNameDestructive,
-            )}
+            className={msgActionsBoxButtonClassName}
             Icon={IconTrashBin}
             onClick={() => {
               setOpenModal(true);
             }}
+            variant='destructive'
           >
             {t('Delete message')}
           </ContextMenuButton>
@@ -354,7 +361,8 @@ const DefaultMessageActionComponents = {
         </>
       );
     },
-    BlockUser({ closeMenu }: ContextMenuItemProps) {
+    BlockUser() {
+      const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();

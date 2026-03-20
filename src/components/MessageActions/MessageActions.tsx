@@ -9,14 +9,14 @@ import {
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../Dialog';
-import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
+import { useBaseMessageActionSetFilter } from './hooks';
 import { defaultMessageActionSet } from './defaults';
 import { ActionsIcon, type MESSAGE_ACTIONS } from '../Message';
 import { Button } from '../Button';
 import { ReactionSelector } from '../Reactions';
+import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 
 type BaseMessageActionSetItem = {
-  placement: 'quick' | 'dropdown';
   type: keyof typeof MESSAGE_ACTIONS | (string & {});
 };
 
@@ -60,12 +60,12 @@ export const MessageActions = ({
     disableBaseMessageActionSetFilter,
   );
 
-  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet(
+  const { dropdownActionSet, quickActionSet } = useSplitActionSet(
     filteredMessageActionSet,
   );
 
   const dropdownDialogId = `message-actions--${message.id}`;
-  const reactionSelectorDialogId = ReactionSelector.getReactionSelectorDialogId({
+  const reactionSelectorDialogId = ReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
   });

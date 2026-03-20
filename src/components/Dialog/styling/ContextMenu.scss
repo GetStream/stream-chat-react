@@ -119,6 +119,13 @@
       font-weight: var(--typography-font-weight-semi-bold);
       line-height: var(--typography-line-height-tight);
 
+      &.str-chat__context-menu__button--destructive {
+        .str-chat__context-menu__button__label,
+        .str-chat__icon {
+          color: var(--accent-error);
+        }
+      }
+
       &:hover:not(:disabled) {
         background-color: var(--str-chat__dialog-menu-button-hover-background-color);
       }
@@ -135,7 +142,7 @@
         background-color: var(--str-chat__dialog-menu-button-disabled-background-color);
       }
 
-      svg {
+      .str-chat__icon {
         height: var(--icon-size-sm);
         width: var(--icon-size-sm);
         color: var(--text-secondary);

@@ -228,6 +228,20 @@ body {
     .app-chat-resize-handle {
       display: none;
     }
+
+    .str-chat__chat-view__channels
+      .str-chat__container
+      > .app-chat-thread-panel:not(.app-chat-thread-panel--open) {
+      display: none;
+    }
+
+    .str-chat__chat-view__channels
+      .str-chat__container
+      > .app-chat-thread-panel.app-chat-thread-panel--open {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
   }
 
   /* Desktop (≥768px): persisted sidebar widths and resizable channel thread. */

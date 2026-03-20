@@ -24,6 +24,12 @@ export type ChannelStateReducerAction =
       type: 'copyStateFromChannelOnEvent';
     }
   | {
+      hasMore: boolean;
+      hasMoreNewer: boolean;
+      messages: LocalMessage[];
+      type: 'jumpToLatestMessageFinished';
+    }
+  | {
       channel: Channel;
       highlightedMessageId: string;
       type: 'jumpToMessageFinished';
@@ -62,6 +68,10 @@ export type ChannelStateReducerAction =
       type: 'setLoadingMore';
     }
   | {
+      loadingMoreForJumpToChannelMessage: boolean;
+      type: 'setLoadingMoreForJumpToChannelMessage';
+    }
+  | {
       loadingMoreNewer: boolean;
       type: 'setLoadingMoreNewer';
     }
@@ -80,9 +90,6 @@ export type ChannelStateReducerAction =
       channel: Channel;
       message: MessageResponse;
       type: 'updateThreadOnEvent';
-    }
-  | {
-      type: 'jumpToLatestMessage';
     };
 
 export const makeChannelReducer =
@@ -139,12 +146,15 @@ export const makeChannelReducer =
         };
       }
 
-      case 'jumpToLatestMessage': {
+      case 'jumpToLatestMessageFinished': {
+        const { hasMore, hasMoreNewer, messages } = action;
         return {
           ...state,
-          hasMoreNewer: false,
+          hasMore,
+          hasMoreNewer,
           highlightedMessageId: undefined,
           loading: false,
+          messages,
           suppressAutoscroll: false,
         };
       }
@@ -152,9 +162,13 @@ export const makeChannelReducer =
       case 'jumpToMessageFinished': {
         return {
           ...state,
+          hasMore: action.channel.state.messagePagination.hasPrev,
           hasMoreNewer: action.channel.state.messagePagination.hasNext,
           highlightedMessageId: action.highlightedMessageId,
+          loadingMore: false,
+          loadingMoreForJumpToChannelMessage: false,
           messages: action.channel.state.messages,
+          suppressAutoscroll: false,
         };
       }
 
@@ -220,6 +234,15 @@ export const makeChannelReducer =
         return { ...state, loadingMore, suppressAutoscroll: loadingMore };
       }
 
+      case 'setLoadingMoreForJumpToChannelMessage': {
+        const { loadingMoreForJumpToChannelMessage } = action;
+        return {
+          ...state,
+          loadingMoreForJumpToChannelMessage,
+          suppressAutoscroll: loadingMoreForJumpToChannelMessage,
+        };
+      }
+
       case 'setLoadingMoreNewer': {
         const { loadingMoreNewer } = action;
         return { ...state, loadingMoreNewer };
@@ -272,6 +295,7 @@ export const initialState = {
   hasMoreNewer: false,
   loading: true,
   loadingMore: false,
+  loadingMoreForJumpToChannelMessage: false,
   members: {},
   messages: [],
   pinnedMessages: [],

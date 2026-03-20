@@ -29,6 +29,7 @@ export type ChannelState = {
   highlightedMessageId?: string;
   loading?: boolean;
   loadingMore?: boolean;
+  loadingMoreForJumpToChannelMessage?: boolean;
   loadingMoreNewer?: boolean;
   members?: StreamChannelState['members'];
   messages?: LocalMessage[];

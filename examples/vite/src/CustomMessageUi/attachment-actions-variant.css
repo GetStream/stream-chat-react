@@ -1,0 +1,15 @@
+.action-button {
+  height: 40px;
+  width: 100px;
+  border-radius: 16px;
+  color: #ffffff;
+  background: red;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border: none;
+  cursor: pointer;
+}
+
+.action-button.love {
+  background-color: green;
+}

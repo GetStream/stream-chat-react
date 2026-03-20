@@ -12,3 +12,4 @@ export * from './useNotificationRemovedFromChannelListener';
 export * from './usePaginatedChannels';
 export * from './useUserPresenceChangedListener';
 export * from './useChannelMembershipState';
+export * from './useChannelMembersState';

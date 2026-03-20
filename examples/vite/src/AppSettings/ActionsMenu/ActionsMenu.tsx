@@ -6,6 +6,7 @@ import {
   ContextMenuButton,
   DialogManagerProvider,
   IconThunder,
+  useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
   type ContextMenuItemComponent,
@@ -61,6 +62,23 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => (
   </DialogManagerProvider>
 );
 
+function TriggerNotification() {
+  const { closeMenu } = useContextMenuContext();
+  const { dialog: notificationDialog } = useDialogOnNearestManager({
+    id: notificationPromptDialogId,
+  });
+
+  return (
+    <ContextMenuButton
+      label='Trigger Notification'
+      onClick={() => {
+        closeMenu();
+        notificationDialog.open();
+      }}
+    />
+  );
+}
+
 const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
@@ -68,27 +86,8 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   const { dialog: actionsMenuDialog, dialogManager } = useDialogOnNearestManager({
     id: actionsMenuDialogId,
   });
-  const { dialog: notificationDialog } = useDialogOnNearestManager({
-    id: notificationPromptDialogId,
-  });
-  const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
-  const rootMenuItems = useMemo<ContextMenuItemComponent[]>(
-    () => [
-      function TriggerNotification({ closeMenu }) {
-        return (
-          <ContextMenuButton
-            label='Trigger Notification'
-            onClick={() => {
-              closeMenu();
-              notificationDialog.open();
-            }}
-          />
-        );
-      },
-    ],
-    [notificationDialog],
-  );
+  const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
   return (
     <div className='app__actions-menu-anchor'>
@@ -103,13 +102,14 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
         className='app__actions-menu'
         dialogManagerId={dialogManager?.id}
         id={actionsMenuDialogId}
-        items={rootMenuItems}
         onClose={actionsMenuDialog.close}
         placement='right-start'
         referenceElement={menuButtonElement}
         tabIndex={-1}
         trapFocus
-      />
+      >
+        <TriggerNotification />
+      </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
     </div>
   );
