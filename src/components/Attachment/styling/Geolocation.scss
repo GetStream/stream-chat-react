@@ -87,13 +87,6 @@
       align-items: center;
       gap: 0.375rem;
 
-      //.str-chat__message-attachment-geolocation__stop-sharing-button {
-      //  color: var(--str-chat__danger-color);
-      //  @include utils.button-reset;
-      //  font: var(--str-chat__subtitle-medium-text);
-      //  cursor: pointer;
-      //}
-
       .str-chat__message-attachment-geolocation__status--active-status {
         color: var(--str-chat__info-color);
       }
