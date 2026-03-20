@@ -20,9 +20,9 @@ import {
   type LoadingErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
+  type MessageComposerProps,
   type MessageDeletedProps,
   type MessageEditedIndicatorProps,
-  type MessageInputProps,
   type MessageProps,
   type MessageReactionsDetailProps,
   type MessageReactionsProps,
@@ -66,9 +66,9 @@ import type {
 } from '../components/TextareaComposer';
 
 import type { PropsWithChildrenOnly } from '../types/types';
-import type { StopAIGenerationButtonProps } from '../components/MessageInput/StopAIGenerationButton';
+import type { StopAIGenerationButtonProps } from '../components/MessageComposer/StopAIGenerationButton';
 import type { VideoPlayerProps } from '../components/VideoPlayer';
-import type { EditedMessagePreviewProps } from '../components/MessageInput/EditedMessagePreview';
+import type { EditedMessagePreviewProps } from '../components/MessageComposer/EditedMessagePreview';
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
 
 export type ComponentContextValue = {
@@ -78,15 +78,15 @@ export type ComponentContextValue = {
   Attachment?: React.ComponentType<AttachmentProps>;
   /** Custom UI component for the file type icon shown on file attachments (e.g. PDF, doc). Accepts same props as [FileIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/FileIcon/FileIcon.tsx) (e.g. mimeType, size, sizeConfig). Use this to override dimensions or provide a custom icon. */
   AttachmentFileIcon?: React.ComponentType<FileIconProps>;
-  /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
+  /** Custom UI component to display an attachment previews in MessageComposer, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
-  /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
+  /** Custom UI component to control adding attachments to MessageComposer, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentSelector.tsx) */
   AttachmentSelector?: React.ComponentType;
-  /** Custom UI component for the dedicated voice recording preview slot above composer attachments (REACT-794), defaults to and accepts same props as: [VoiceRecordingPreviewSlot](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx) */
+  /** Custom UI component for the dedicated voice recording preview slot above composer attachments (REACT-794), defaults to and accepts same props as: [VoiceRecordingPreviewSlot](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx) */
   VoiceRecordingPreviewSlot?: React.ComponentType<VoiceRecordingPreviewSlotProps>;
   /** Custom UI component for contents of attachment selector initiation button */
   AttachmentSelectorInitiationButtonContents?: React.ComponentType;
-  /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
+  /** Custom UI component to display AudioRecorder in MessageComposer, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps>;
@@ -108,17 +108,17 @@ export type ComponentContextValue = {
   ChannelListItemUI?: React.ComponentType<ChannelListItemUIProps>;
   /** Custom UI component to display command chip, defaults to and accepts same props as: [CommandChip](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/CommandChip.tsx) */
   CommandChip?: React.ComponentType;
-  /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
+  /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
-  /** Custom UI component to display the contents on file drag-and-drop overlay, defaults to and accepts same props as: [FileDragAndDropContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/WithDragAndDropUpload.tsx) */
+  /** Custom UI component to display the contents on file drag-and-drop overlay, defaults to and accepts same props as: [FileDragAndDropContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/WithDragAndDropUpload.tsx) */
   FileDragAndDropContent?: React.ComponentType<FileDragAndDropContentProps>;
-  /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditedMessagePreview.tsx) */
+  /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
-  /** Custom UI component for rendering button with emoji picker in MessageInput */
+  /** Custom UI component for rendering button with emoji picker in MessageComposer */
   EmojiPicker?: React.ComponentType;
-  /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
   emojiSearchIndex?: EmojiSearchIndex;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
@@ -128,9 +128,9 @@ export type ComponentContextValue = {
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps>;
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: React.ComponentType;
-  /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
-  Input?: React.ComponentType<MessageInputProps>;
-  /** Custom component to render link previews in message input **/
+  /** Custom UI component handling how the message composer is rendered, defaults to and accepts the same props as [MessageComposerUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerUI.tsx) */
+  MessageComposerUI?: React.ComponentType<MessageComposerProps>;
+  /** Custom component to render link previews in message composer **/
   LinkPreviewList?: React.ComponentType;
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
@@ -181,7 +181,7 @@ export type ComponentContextValue = {
   PollOptionSelector?: React.ComponentType<PollOptionSelectorProps>;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
   QuotedMessage?: React.ComponentType;
-  /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
+  /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/QuotedMessagePreview.tsx) */
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps>;
   /** Custom reaction options to be applied to ReactionSelector, ReactionList and SimpleReactionList components */
   reactionOptions?: ReactionOptions;
@@ -220,9 +220,9 @@ export type ComponentContextValue = {
   SearchSourceResultsHeader?: React.ComponentType;
   /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceResultsLoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsLoadingIndicator.tsx) */
   SearchSourceResultsLoadingIndicator?: React.ComponentType;
-  /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
+  /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps>;
-  /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/SendToChannelCheckbox.tsx) */
+  /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/SendToChannelCheckbox.tsx) */
   SendToChannelCheckbox?: React.ComponentType;
   /** Custom UI component to render the location sharing dialog, defaults to and accepts same props as: [ShareLocationDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Location/ShareLocationDialog.tsx) */
   ShareLocationDialog?: React.ComponentType<ShareLocationDialogProps>;
@@ -236,7 +236,6 @@ export type ComponentContextValue = {
   ThreadHead?: React.ComponentType<MessageProps>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: React.ComponentType<ThreadHeaderProps>;
-  ThreadInput?: React.ComponentType<MessageInputProps>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;

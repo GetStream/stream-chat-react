@@ -1,14 +1,14 @@
-import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageInput';
+import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer';
 import { IconMicrophone, IconPause, IconTrashBin } from '../../Icons';
 import React from 'react';
-import { useMessageInputContext } from '../../../context';
+import { useMessageComposerContext } from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
 
 const ToggleRecordingButton = () => {
   const {
     recordingController: { recorder, recordingState },
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
 
   return (
     <Button
@@ -29,7 +29,7 @@ const ToggleRecordingButton = () => {
 export const AudioRecorderRecordingControls = () => {
   const {
     recordingController: { completeRecording, recorder, recording, recordingState },
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
   const isUploadingFile = recording?.localMetadata?.uploadState === 'uploading';
 
   if (!recorder) return null;

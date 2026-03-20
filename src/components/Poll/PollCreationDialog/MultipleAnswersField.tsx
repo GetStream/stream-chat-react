@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 
@@ -15,7 +15,7 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 
 export const MultipleAnswersField = () => {
   const { t } = useTranslationContext();
-  const { pollComposer } = useMessageComposer();
+  const { pollComposer } = useMessageComposerController();
   const { enforce_unique_vote, error, max_votes_allowed } = useStateStore(
     pollComposer.state,
     pollComposerStateSelector,

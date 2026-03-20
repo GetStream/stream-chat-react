@@ -3,14 +3,14 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import * as transcoder from '../../transcode';
 
-import { MessageInput, MessageInputFlat } from '../../../MessageInput';
+import { MessageComposer, MessageComposerUI } from '../../../MessageInput';
 import {
   ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  MessageInputContextProvider,
-  useMessageInputContext,
+  MessageComposerContextProvider,
+  useMessageComposerContext,
 } from '../../../../context';
 import {
   generateAudioAttachment,
@@ -97,7 +97,7 @@ const renderComponent = async ({
                 ...channelStateCtx,
               }}
             >
-              <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
+              <MessageComposer {...{ audioRecordingEnabled: true, ...props }} />
             </ChannelStateProvider>
           </ChannelActionProvider>
         </ComponentProvider>
@@ -306,7 +306,7 @@ describe('MessageInput', () => {
     let recorder;
     let recording;
     const MessageInputFlatWithContextCatcher = () => {
-      const ctx = useMessageInputContext();
+      const ctx = useMessageComposerContext();
 
       useEffect(() => {
         if (ctx.recordingController.recorder) {
@@ -317,7 +317,7 @@ describe('MessageInput', () => {
         }
       }, [ctx.recordingController.recorder, ctx.recordingController.recording]);
 
-      return <MessageInputFlat />;
+      return <MessageComposerUI />;
     };
     await renderComponent({
       channelActionCtx: { sendMessage },
@@ -370,7 +370,7 @@ describe('MessageInput', () => {
       .mockResolvedValue({ file: fileObjectURL });
     let recorder;
     const MessageInputFlatWithContextCatcher = () => {
-      const ctx = useMessageInputContext();
+      const ctx = useMessageComposerContext();
 
       useEffect(() => {
         if (ctx.recordingController.recorder) {
@@ -378,7 +378,7 @@ describe('MessageInput', () => {
         }
       }, [ctx.recordingController.recorder]);
 
-      return <MessageInputFlat />;
+      return <MessageComposerUI />;
     };
     await renderComponent({
       channelActionCtx: { sendMessage },
@@ -424,13 +424,13 @@ const renderAudioRecorder = (controller = {}) =>
   render(
     <ChannelActionProvider value={{}}>
       <WithAudioPlayback>
-        <MessageInputContextProvider
+        <MessageComposerContextProvider
           value={{
             recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
           }}
         >
           <AudioRecorder />
-        </MessageInputContextProvider>
+        </MessageComposerContextProvider>
       </WithAudioPlayback>
     </ChannelActionProvider>,
   );

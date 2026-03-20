@@ -79,7 +79,7 @@ import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
-  | 'additionalMessageInputProps'
+  | 'additionalMessageComposerProps'
   | 'formatDate'
   | 'messageActions'
   | 'openThread'
@@ -193,7 +193,7 @@ const VirtualizedMessageListWithContext = (
   props: VirtualizedMessageListWithContextProps,
 ) => {
   const {
-    additionalMessageInputProps,
+    additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
     channelUnreadUiState,
@@ -531,7 +531,7 @@ const VirtualizedMessageListWithContext = (
                 }}
                 computeItemKey={computeItemKey}
                 context={{
-                  additionalMessageInputProps,
+                  additionalMessageComposerProps,
                   closeReactionSelectorOnClick,
                   customClasses,
                   customMessageRenderer,
@@ -692,7 +692,7 @@ export type VirtualizedMessageListProps = Partial<
   };
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
-  /** If true, the Giphy preview will render as a separate component above the `MessageInput`, rather than inline with the other messages in the list */
+  /** If true, the Giphy preview will render as a separate component above the `MessageComposer`, rather than inline with the other messages in the list */
   separateGiphyPreview?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;

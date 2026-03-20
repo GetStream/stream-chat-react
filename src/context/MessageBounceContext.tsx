@@ -2,7 +2,7 @@ import type { ReactEventHandler } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
 import { useChannelActionContext } from './ChannelActionContext';
-import { isMessageBounced, useMessageComposer } from '../components';
+import { isMessageBounced, useMessageComposerController } from '../components';
 import type { LocalMessage } from 'stream-chat';
 import type { PropsWithChildrenOnly } from '../types/types';
 
@@ -32,7 +32,7 @@ export function useMessageBounceContext(componentName?: string) {
 }
 
 export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
-  const messageComposer = useMessageComposer();
+  const messageComposer = useMessageComposerController();
   const { handleRetry: doHandleRetry, message } = useMessageContext(
     'MessageBounceProvider',
   );

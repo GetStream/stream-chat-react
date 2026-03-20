@@ -13,7 +13,7 @@ import {
   useDropdownContext,
 } from '../Form/Dropdown';
 import { IconChevronDown } from '../Icons';
-import { useMessageComposer } from '../MessageInput';
+import { useMessageComposerController } from '../MessageComposer';
 import { SwitchField } from '../Form/SwitchField';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import type { Coords } from 'stream-chat';
@@ -68,7 +68,7 @@ export const ShareLocationDialog = ({
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const panel = useNotificationTarget();
-  const messageComposer = useMessageComposer();
+  const messageComposer = useMessageComposerController();
   const [durations, setDurations] = useState<number[]>([]);
   const [selectedDuration, setSelectedDuration] = useState<number | undefined>(undefined);
   const [geolocationPosition, setGeolocationPosition] =

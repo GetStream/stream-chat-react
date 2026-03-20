@@ -23,7 +23,7 @@ import {
   IconUnpin,
   IconVolumeFull,
   isUserMuted,
-  useMessageComposer,
+  useMessageComposerController,
   useMessageReminder,
   useNotificationTarget,
 } from '../../components';
@@ -78,7 +78,7 @@ const DefaultMessageActionComponents = {
       const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const messageComposer = useMessageComposer();
+      const messageComposer = useMessageComposerController();
 
       const handleQuote = () => {
         messageComposer.setQuotedMessage(message);
@@ -165,7 +165,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Edit() {
-      const messageComposer = useMessageComposer();
+      const messageComposer = useMessageComposerController();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const { closeMenu } = useContextMenuContext();

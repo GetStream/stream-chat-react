@@ -2,7 +2,7 @@ import React from 'react';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { QuotedMessagePreviewUI } from '../MessageInput';
+import { QuotedMessagePreviewUI } from '../MessageComposer';
 
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 

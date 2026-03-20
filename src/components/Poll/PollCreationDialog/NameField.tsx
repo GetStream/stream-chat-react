@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 
@@ -12,7 +12,7 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 
 export const NameField = () => {
   const { t } = useTranslationContext();
-  const { pollComposer } = useMessageComposer();
+  const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({

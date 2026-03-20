@@ -17,7 +17,7 @@ import {
 import type {
   EmojiSearchIndex,
   EmojiSearchIndexResult,
-} from '../../../components/MessageInput';
+} from '../../../components/MessageComposer';
 
 export type EmojiSuggestion<T extends EmojiSearchIndexResult = EmojiSearchIndexResult> =
   TextComposerSuggestion<T>;

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MediaRecorderController } from '../classes';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
-import type { MessageInputContextValue } from '../../../context';
+import type { MessageComposerContextValue } from '../../../context';
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -16,7 +16,7 @@ export type RecordingController = {
 };
 
 type UseMediaRecorderParams = Pick<
-  MessageInputContextValue,
+  MessageComposerContextValue,
   'asyncMessagesMultiSendEnabled' | 'handleSubmit'
 > & {
   enabled: boolean;
@@ -32,7 +32,7 @@ export const useMediaRecorder = ({
   recordingConfig,
 }: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
-  const messageComposer = useMessageComposer();
+  const messageComposer = useMessageComposerController();
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();

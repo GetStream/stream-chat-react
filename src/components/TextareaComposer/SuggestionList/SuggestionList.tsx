@@ -17,14 +17,14 @@ import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionLis
 import type { UserItemProps } from './UserItem';
 import { UserItem } from './UserItem';
 import { useComponentContext } from '../../../context/ComponentContext';
-import { useMessageInputContext } from '../../../context/MessageInputContext';
+import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
 import { ContextMenu } from '../../Dialog';
 import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import type {
   SearchSourceState,
   TextComposerState,
@@ -33,7 +33,7 @@ import type {
 import {
   CommandsMenuClassName,
   CommandsMenuHeader,
-} from '../../MessageInput/AttachmentSelector/CommandsMenu';
+} from '../../MessageComposer/AttachmentSelector/CommandsMenu';
 
 type SuggestionTrigger = '/' | ':' | '@' | string;
 
@@ -85,8 +85,8 @@ export const SuggestionList = ({
 }: SuggestionListProps) => {
   const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
     useComponentContext();
-  const { textareaRef } = useMessageInputContext();
-  const messageComposer = useMessageComposer();
+  const { textareaRef } = useMessageComposerContext();
+  const messageComposer = useMessageComposerController();
   const { textComposer } = messageComposer;
   const { selection, suggestions } = useStateStore(
     textComposer.state,

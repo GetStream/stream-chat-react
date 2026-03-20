@@ -1,6 +1,6 @@
 import React from 'react';
-import { useCanCreatePoll, useMessageComposer } from '../../MessageInput';
-import { useMessageInputContext, useTranslationContext } from '../../../context';
+import { useCanCreatePoll, useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import clsx from 'clsx';
 import { IconPaperPlane } from '../../Icons';
 import { Prompt } from '../../Dialog';
@@ -13,8 +13,8 @@ export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
   const { t } = useTranslationContext('PollCreationDialogControls');
-  const { handleSubmit: handleSubmitMessage } = useMessageInputContext();
-  const messageComposer = useMessageComposer();
+  const { handleSubmit: handleSubmitMessage } = useMessageComposerContext();
+  const messageComposer = useMessageComposerController();
   const canCreatePoll = useCanCreatePoll();
 
   return (

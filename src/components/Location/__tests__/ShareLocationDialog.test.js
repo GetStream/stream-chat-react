@@ -5,7 +5,7 @@ import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
 import ShareLocationDialog from '../ShareLocationDialog';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageInput';
 
 jest.mock('../../MessageInput/hooks/useMessageComposer', () => ({
   useMessageComposer: jest.fn().mockReturnValue({
@@ -158,7 +158,7 @@ describe('ShareLocationDialog', () => {
 
   it('closes the dialog', async () => {
     await renderComponent({ props: { close } });
-    const messageComposer = useMessageComposer();
+    const messageComposer = useMessageComposerController();
     await act(async () => {
       await fireEvent.click(screen.getByText('Cancel'));
     });
@@ -176,7 +176,7 @@ describe('ShareLocationDialog', () => {
     );
 
     const { justRerender } = await renderComponent({ props: { close } });
-    const messageComposer = useMessageComposer();
+    const messageComposer = useMessageComposerController();
     const coords = { latitude: 1, longitude: 10 };
     await act(() => {
       callbacks.onSuccess({ coords });
@@ -205,7 +205,7 @@ describe('ShareLocationDialog', () => {
     );
 
     const { justRerender } = await renderComponent({ props: { close } });
-    const messageComposer = useMessageComposer();
+    const messageComposer = useMessageComposerController();
     const coords = { latitude: 1, longitude: 10 };
     await act(() => {
       callbacks.onSuccess({ coords });

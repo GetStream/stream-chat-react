@@ -205,7 +205,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     channelUnreadUiState,
     enrichedMessages,
     internalMessageProps: {
-      additionalMessageInputProps: props.additionalMessageInputProps,
+      additionalMessageComposerProps: props.additionalMessageComposerProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
@@ -474,7 +474,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 };
 
 type PropsDrilledToMessage =
-  | 'additionalMessageInputProps'
+  | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'

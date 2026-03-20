@@ -28,7 +28,7 @@ export * from './MediaRecorder';
 export * from './Message';
 export * from './MessageActions';
 export * from './MessageBounce';
-export * from './MessageInput';
+export * from './MessageComposer';
 export * from './MessageList';
 export * from './Modal';
 export * from './Notifications';

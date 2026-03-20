@@ -1,12 +1,12 @@
 import clsx from 'clsx';
 import { type ComponentProps, useRef } from 'react';
 import React, { useCallback, useLayoutEffect } from 'react';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import type { TextComposerSuggestion } from 'stream-chat';
 import type { UserItemProps } from './UserItem';
 import type { CommandItemProps } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
-import { useMessageInputContext } from '../../../context';
+import { useMessageComposerContext } from '../../../context';
 
 export type DefaultSuggestionListItemEntity =
   | UserItemProps['entity']
@@ -34,8 +34,8 @@ export const SuggestionListItem = ({
   onMouseEnter,
   ...restProps
 }: SuggestionItemProps) => {
-  const { textComposer } = useMessageComposer();
-  const { textareaRef } = useMessageInputContext();
+  const { textComposer } = useMessageComposerController();
+  const { textareaRef } = useMessageComposerContext();
   const componentRef = useRef<HTMLButtonElement | null>(null);
 
   const handleSelect = useCallback(() => {
