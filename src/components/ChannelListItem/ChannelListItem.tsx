@@ -10,7 +10,6 @@ import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './uti
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
-import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
 import type { GroupChannelDisplayInfo } from './utils';
 import {
   type ChatContextValue,
@@ -47,8 +46,6 @@ export type ChannelListItemProps = {
   active?: boolean;
   /** Current selected channel object */
   activeChannel?: Channel;
-  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
-  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */

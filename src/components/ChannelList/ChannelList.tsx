@@ -19,16 +19,11 @@ import {
   usePrepareShapeHandlers,
 } from './hooks/useChannelListShape';
 import { useStateStore } from '../../store';
-import type { ChannelListMessengerProps } from './ChannelListMessenger';
-import { ChannelListMessenger } from './ChannelListMessenger';
-import type { ChannelAvatarProps } from '../Avatar';
-import { Avatar as DefaultAvatar } from '../Avatar';
-import type { ChannelListItemUIProps } from '../ChannelListItem/ChannelListItem';
+import { ChannelListUI as DefaultChannelListUI } from './ChannelListMessenger';
 import { ChannelListItem } from '../ChannelListItem/ChannelListItem';
 import { Search as DefaultSearch } from '../Search';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { LoadingChannels } from '../Loading/LoadingChannels';
 import type { LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { LoadMorePaginator } from '../LoadMore/LoadMorePaginator';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
@@ -39,7 +34,6 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
-import { NullComponent } from '../UtilityComponents';
 import { moveChannelUpwards } from './utils';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
@@ -63,8 +57,6 @@ export type ChannelListProps = {
    * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
-  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
-  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (channels: Array<Channel>) => Array<Channel>;
   // FIXME: how is this even legal (WHY IS IT STRING?!)
@@ -83,12 +75,6 @@ export type ChannelListProps = {
     userLanguage: TranslationContextValue['userLanguage'],
     isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
   ) => ReactNode;
-  /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
-  List?: React.ComponentType<ChannelListMessengerProps>;
-  /** Custom UI component to display the loading error indicator, defaults to component that renders null */
-  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-  /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
-  LoadingIndicator?: React.ComponentType;
   /** When true, channels won't dynamically sort by most recent message */
   lockChannelOrder?: boolean;
   /** Function to override the default behavior when a user is added to a channel, corresponds to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
@@ -140,8 +126,6 @@ export type ChannelListProps = {
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
-  /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelListItemUIProps>;
   /**
    * Custom interval during which the recovery channel list queries will be prevented.
    * This is to avoid firing unnecessary queries during internet connection fluctuation.
@@ -169,16 +153,12 @@ export type ChannelListProps = {
 const UnMemoizedChannelList = (props: ChannelListProps) => {
   const {
     allowNewMessagesFromUnfilteredChannels = true,
-    Avatar = DefaultAvatar,
     channelRenderFilterFn,
     customActiveChannel,
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters = {},
     getLatestMessagePreview,
-    List = ChannelListMessenger,
-    LoadingErrorIndicator = NullComponent,
-    LoadingIndicator = LoadingChannels,
     lockChannelOrder = false,
     onAddedToChannel,
     onChannelDeleted,
@@ -191,7 +171,6 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
-    Preview,
     recoveryThrottleIntervalMs,
     renderChannels,
     sendChannelsToList = false,
@@ -215,8 +194,12 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     theme,
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
-  const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
-    useComponentContext(); // FIXME: use component context to retrieve ChannelListItemUI components too
+  const {
+    ChannelListUI = DefaultChannelListUI,
+    NotificationList = DefaultNotificationList,
+    Search = DefaultSearch,
+  } = useComponentContext();
+
   const channelListRef = useRef<HTMLDivElement | null>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
 
@@ -334,12 +317,10 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   const renderChannel = (item: Channel) => {
     const previewProps = {
       activeChannel: channel,
-      Avatar,
       channel: item,
       // forces the update of preview component on channel update
       channelUpdateCount,
       getLatestMessagePreview,
-      Preview,
       setActiveChannel,
       watchers,
     };
@@ -351,7 +332,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   const className = clsx(
     customClasses?.chat ?? 'str-chat',
     theme,
-    customClasses?.channelList ?? `${baseClass} ${baseClass}-react`,
+    customClasses?.channelList ?? `${baseClass}`,
     {
       'str-chat--windows-flags':
         useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
@@ -369,15 +350,13 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
           <ChannelListHeader />
           {showChannelSearch && <Search />}
           {showChannelList && (
-            <List
+            <ChannelListUI
               error={channelsQueryState.error}
               loadedChannels={sendChannelsToList ? loadedChannels : undefined}
               loading={
                 !!channelsQueryState.queryInProgress &&
                 ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
               }
-              LoadingErrorIndicator={LoadingErrorIndicator}
-              LoadingIndicator={LoadingIndicator}
               setChannels={setChannels}
             >
               {!loadedChannels?.length ? (
@@ -393,7 +372,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
                     : loadedChannels.map((channel) => renderChannel(channel))}
                 </Paginator>
               )}
-            </List>
+            </ChannelListUI>
           )}
           <NotificationList panel='channel-list' />
         </div>

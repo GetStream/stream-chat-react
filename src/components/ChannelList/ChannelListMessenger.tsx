@@ -4,20 +4,15 @@ import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { NullComponent } from '../UtilityComponents';
-import { useTranslationContext } from '../../context';
-import type { LoadingErrorIndicatorProps } from '../Loading';
+import { useComponentContext, useTranslationContext } from '../../context';
 
-export type ChannelListMessengerProps = {
+export type ChannelListUIProps = {
   /** Whether the channel query request returned an errored response */
   error: ErrorFromResponse<APIErrorResponse> | null;
   /** The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true */
   loadedChannels?: Channel[];
   /** Whether the channels are currently loading */
   loading?: boolean;
-  /** Custom UI component to display the loading error indicator, defaults to component that renders null */
-  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-  /** Custom UI component to display a loading indicator, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
-  LoadingIndicator?: React.ComponentType;
   /** Local state hook that resets the currently loaded channels */
   setChannels?: React.Dispatch<React.SetStateAction<Channel[]>>;
 };
@@ -25,44 +20,24 @@ export type ChannelListMessengerProps = {
 /**
  * A preview list of channels, allowing you to select the channel you want to open
  */
-export const ChannelListMessenger = (
-  props: PropsWithChildren<ChannelListMessengerProps>,
-) => {
-  const {
-    children,
-    error = null,
-    loading,
-    LoadingErrorIndicator = NullComponent,
-    LoadingIndicator = LoadingChannels,
-  } = props;
-  const { t } = useTranslationContext('ChannelListMessenger');
+export const ChannelListUI = (props: PropsWithChildren<ChannelListUIProps>) => {
+  const { children, error = null, loading = false } = props;
+  const { LoadingErrorIndicator = NullComponent, LoadingIndicator = LoadingChannels } =
+    useComponentContext('ChannelListUI');
+  const { t } = useTranslationContext('ChannelListUI');
 
   if (error) {
     return <LoadingErrorIndicator error={error} />;
   }
 
-  if (loading) {
-    return (
-      <div className='str-chat__channel-list-messenger'>
-        <div
-          aria-label={t('aria/Channel list')}
-          className='str-chat__channel-list-messenger__main'
-          role='listbox'
-        >
-          <LoadingIndicator />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className='str-chat__channel-list-messenger'>
+    <div className='str-chat__channel-list-inner'>
       <div
         aria-label={t('aria/Channel list')}
-        className='str-chat__channel-list-messenger__main'
+        className='str-chat__channel-list-inner__main'
         role='listbox'
       >
-        {children}
+        {loading ? <LoadingIndicator /> : children}
       </div>
     </div>
   );

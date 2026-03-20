@@ -46,7 +46,7 @@ import {
   useChatContext,
   WithComponents,
 } from '../../../context';
-import { ChannelListMessenger } from '../ChannelListMessenger';
+import { ChannelListUI } from '../ChannelListMessenger';
 
 expect.extend(toHaveNoViolations);
 
@@ -391,7 +391,7 @@ describe('ChannelList', () => {
 
     const ChannelListMessengerPropsInterceptor = (props) => {
       channelListMessengerLoadingHistory.push(props.loading);
-      return <ChannelListMessenger {...props} />;
+      return <ChannelListUI {...props} />;
     };
 
     await render(
