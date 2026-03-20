@@ -1,14 +1,3 @@
 .str-chat__end-poll-alert {
   max-width: 300px;
-
-  .str-chat__end-poll-alert__actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--spacing-xs);
-
-    button {
-      width: auto;
-    }
-  }
 }

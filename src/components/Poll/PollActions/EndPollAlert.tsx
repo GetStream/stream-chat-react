@@ -24,7 +24,7 @@ export const EndPollAlert = () => {
         )}
         title={t('End this poll?')}
       ></Alert.Header>
-      <Alert.Actions className='str-chat__end-poll-alert__actions'>
+      <Alert.Actions>
         <Button
           appearance='outline'
           className='str-chat__end-poll-alert__cancel-button'
