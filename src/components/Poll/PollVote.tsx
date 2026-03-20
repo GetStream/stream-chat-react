@@ -41,21 +41,13 @@ type PollVoteAuthor = PollVoteProps;
 const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { handleEnter, handleLeave, tooltipVisible } =
-    useEnterLeaveHandlers<HTMLSpanElement>();
-  const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
   const displayName =
     client.user?.id && client.user.id === vote.user?.id
       ? t('You')
       : vote.user?.name || t('Anonymous');
 
   return (
-    <div
-      className='str-chat__poll-vote__author'
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      ref={setReferenceElement}
-    >
+    <div className='str-chat__poll-vote__author'>
       {vote.user && (
         <Avatar
           className='str-chat__avatar--poll-vote-author'
@@ -66,14 +58,6 @@ const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
         />
       )}
       <div className='str-chat__poll-vote__author__name'>{displayName}</div>
-      <PopperTooltip
-        offset={[0, 5]}
-        placement='bottom'
-        referenceElement={referenceElement}
-        visible={tooltipVisible}
-      >
-        {displayName}
-      </PopperTooltip>
     </div>
   );
 };

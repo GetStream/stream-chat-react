@@ -8,9 +8,8 @@ import { SuggestPollOptionPrompt as DefaultSuggestPollOptionForm } from './Sugge
 import { EndPollAlert as DefaultEndPollAlert } from './EndPollAlert';
 import type { PollAnswerListProps } from './PollAnswerList';
 import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
-import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollOptionsFullList';
 import { PollResults as DefaultPollResults } from './PollResults';
-import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
+import { MAX_POLL_OPTIONS } from '../constants';
 import {
   useChannelStateContext,
   useChatContext,
@@ -27,7 +26,6 @@ const COMMON_MODAL_CLASS = 'str-chat__poll-action-modal' as const;
 type ModalName =
   | 'suggest-option'
   | 'add-comment'
-  | 'view-all-options'
   | 'view-comments'
   | 'view-results'
   | 'end-vote';
@@ -47,7 +45,6 @@ export type PollActionsProps = {
   AddCommentPrompt?: React.ComponentType<AddCommentPromptProps>;
   EndPollAlert?: React.ComponentType;
   PollAnswerList?: React.ComponentType<PollAnswerListProps>;
-  PollOptionsFullList?: React.ComponentType;
   PollResults?: React.ComponentType;
   SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
@@ -56,7 +53,6 @@ export const PollActions = ({
   AddCommentPrompt = DefaultAddCommentPrompt,
   EndPollAlert = DefaultEndPollAlert,
   PollAnswerList = DefaultPollAnswerList,
-  PollOptionsFullList = DefaultPollOptionsFullList,
   PollResults = DefaultPollResults,
   SuggestPollOptionForm = DefaultSuggestPollOptionForm,
 }: PollActionsProps) => {
@@ -84,7 +80,6 @@ export const PollActions = ({
   const hasContents =
     (!is_closed && created_by_id === client.user?.id) ||
     !!voteCount ||
-    options.length > MAX_OPTIONS_DISPLAYED ||
     (canCastVote && allow_user_suggested_options && options.length < MAX_POLL_OPTIONS) ||
     (!is_closed && allow_answers) ||
     (answers_count > 0 && channelCapabilities['query-poll-votes']);
@@ -116,19 +111,6 @@ export const PollActions = ({
           <PollResults />
         </PollAction>
       )}
-      {options.length > MAX_OPTIONS_DISPLAYED && (
-        <PollAction
-          buttonText={t('See all options ({{count}})', {
-            count: options.length,
-          })}
-          closeModal={closeModal}
-          modalClassName={COMMON_MODAL_CLASS}
-          modalIsOpen={modalOpen === 'view-all-options'}
-          openModal={() => setModalOpen('view-all-options')}
-        >
-          <PollOptionsFullList />
-        </PollAction>
-      )}
 
       {canCastVote &&
         allow_user_suggested_options &&
@@ -144,7 +126,7 @@ export const PollActions = ({
             modalIsOpen={modalOpen === 'suggest-option'}
             openModal={() => setModalOpen('suggest-option')}
           >
-            <SuggestPollOptionForm messageId={message.id} />
+            <SuggestPollOptionForm />
           </PollAction>
         )}
 

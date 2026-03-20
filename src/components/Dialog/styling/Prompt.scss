@@ -36,7 +36,8 @@
   }
 
   .str-chat__prompt__body {
-    padding: 0 var(--spacing-xl);
+    /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
+    padding: var(--spacing-xxs) var(--spacing-xl);
     @include utils.scrollable-y;
 
     .str-chat__prompt__title {

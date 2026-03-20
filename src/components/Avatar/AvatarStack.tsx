@@ -1,4 +1,4 @@
-import { type ComponentProps, type ElementType } from 'react';
+import React, { type ComponentProps, type ElementType } from 'react';
 import { useComponentContext } from '../../context';
 import { type AvatarProps, Avatar as DefaultAvatar } from './Avatar';
 import clsx from 'clsx';

@@ -16,11 +16,9 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
   options: nextValue.options,
 });
 
-export type SuggestPollOptionFormProps = {
-  messageId: string;
-};
+export type SuggestPollOptionFormProps = Record<string, never>;
 
-export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProps) => {
+export const SuggestPollOptionPrompt = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
@@ -48,13 +46,12 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
 
   const onSubmit = useCallback(
     async (formValue: { optionText: string }) => {
-      const { poll_option } = await client.createPollOption(poll.id, {
+      await client.createPollOption(poll.id, {
         text: formValue.optionText,
       });
-      poll.castVote(poll_option.id, messageId);
       close();
     },
-    [client, poll, messageId, close],
+    [client, poll, close],
   );
 
   const { fieldErrors, handleSubmit, setFieldValue, value } = useFormState<{
@@ -77,14 +74,15 @@ export const SuggestPollOptionPrompt = ({ messageId }: SuggestPollOptionFormProp
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput
+            aria-label={t('Suggest an option')}
             error={!!fieldErrors.optionText}
             errorMessage={fieldErrors.optionText?.message}
             id='optionText'
             name='optionText'
             onChange={(e) => setFieldValue('optionText', e.target.value)}
+            placeholder={t('placeholder/PollOptionSuggestion')}
             ref={setInput}
             required
-            title={t('Suggest an option')}
             type='text'
             value={value.optionText}
           />
