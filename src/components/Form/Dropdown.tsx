@@ -164,9 +164,9 @@ export const Dropdown = ({
     ) : null;
 
   return (
-    <>
+    <div className='str-chat__dropdown'>
       {trigger}
       {content}
-    </>
+    </div>
   );
 };
