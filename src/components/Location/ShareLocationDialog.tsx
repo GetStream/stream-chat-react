@@ -183,16 +183,18 @@ export const ShareLocationDialog = ({
               title={t('Share live location for')}
             />
             {liveLocationSwitchEnabled && selectedDurationLabel && (
-              <Dropdown
-                placement='bottom-start'
-                TriggerComponent={LiveLocationDurationTrigger}
-                triggerProps={durationTriggerProps}
-              >
-                <DurationDropdownItems
-                  durations={durations}
-                  selectDuration={setSelectedDuration}
-                />
-              </Dropdown>
+              <div className='str-chat__live-location-sharing-duration-selector'>
+                <Dropdown
+                  placement='bottom-start'
+                  TriggerComponent={LiveLocationDurationTrigger}
+                  triggerProps={durationTriggerProps}
+                >
+                  <DurationDropdownItems
+                    durations={durations}
+                    selectDuration={setSelectedDuration}
+                  />
+                </Dropdown>
+              </div>
             )}
           </div>
         )}
