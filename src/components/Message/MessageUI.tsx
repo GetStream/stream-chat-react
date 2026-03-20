@@ -136,22 +136,22 @@ const MessageUIWithContext = ({
   const showReplyCountButton = !threadList && !!message.reply_count;
 
   const rootClassName = clsx(
-    'str-chat__message str-chat__message-simple',
+    'str-chat__message',
     `str-chat__message--${message.type}`,
     `str-chat__message--${message.status}`,
-    isMyMessage()
-      ? 'str-chat__message--me str-chat__message-simple--me'
-      : 'str-chat__message--other',
-    message.text ? 'str-chat__message--has-text' : 'str-chat__message--has-no-text',
-    textHasEmojisOnly
-      ? `str-chat__message--is-emoji-only-count-${countEmojis(message.text)}`
-      : '',
     {
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--has-giphy-attachment': hasGiphyAttachment,
+      'str-chat__message--has-no-text': !message.text,
+      'str-chat__message--has-text': !!message.text,
+      // eslint-disable-next-line sort-keys
       'str-chat__message--has-single-attachment': hasSingleAttachment,
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--is-emoji-only': textHasEmojisOnly,
+      [`str-chat__message--is-emoji-only-count-${countEmojis(message.text)}`]:
+        textHasEmojisOnly,
+      'str-chat__message--me': isMyMessage(),
+      'str-chat__message--other': !isMyMessage(),
       'str-chat__message--pinned': message.pinned,
       'str-chat__message--with-avatar': (() => {
         if (!message.user) return false;
@@ -201,7 +201,7 @@ const MessageUIWithContext = ({
         )}
         <div
           className={clsx('str-chat__message-inner', {
-            'str-chat__simple-message--error-failed': allowRetry || isBounced,
+            'str-chat__message-inner--error': allowRetry || isBounced,
           })}
           data-testid='message-inner'
           onClick={handleClick}
@@ -245,11 +245,11 @@ const MessageUIWithContext = ({
           <div className='str-chat__message-metadata'>
             <MessageStatus />
             {!isMyMessage() && !!message.user && memberCount > 2 && (
-              <span className='str-chat__message-simple-name'>
+              <span className='str-chat__message-metadata__name'>
                 {message.user.name || message.user.id}
               </span>
             )}
-            <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
+            <MessageTimestamp customClass='str-chat__message-metadata__timestamp' />
             {!isDeleted && isEdited && <MessageEditedIndicator />}
           </div>
         )}

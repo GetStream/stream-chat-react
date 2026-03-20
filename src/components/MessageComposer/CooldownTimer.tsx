@@ -5,7 +5,7 @@ export const CooldownTimer = () => {
   const secondsLeft = useCooldownRemaining();
 
   return (
-    <div className='str-chat__message-input-cooldown' data-testid='cooldown-timer'>
+    <div className='str-chat__message-composer-cooldown' data-testid='cooldown-timer'>
       {secondsLeft}
     </div>
   );

@@ -49,18 +49,18 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   };
 
   return (
-    <div className='str-chat__channel-preview-container'>
+    <div className='str-chat__channel-list-item-container'>
       <ChannelListItemActionButtons />
       <button
         aria-label={`Select Channel: ${displayTitle || ''}`}
         aria-pressed={active}
         className={clsx(
-          'str-chat__channel-preview',
-          typeof unread === 'number' && unread > 0 && 'str-chat__channel-preview--unread',
-          muted && 'str-chat__channel-preview--muted',
+          'str-chat__channel-list-item',
+          typeof unread === 'number' && unread > 0 && 'str-chat__channel-list-item--unread',
+          muted && 'str-chat__channel-list-item--muted',
           customClassName,
         )}
-        data-testid='channel-preview-button'
+        data-testid='channel-list-item-button'
         onClick={onSelectChannel}
         ref={channelPreviewButton}
         role='option'
@@ -72,13 +72,13 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
           size='xl'
           userName={avatarName}
         />
-        <div className='str-chat__channel-preview-data'>
-          <div className='str-chat__channel-preview-data__first-row'>
-            <div className='str-chat__channel-preview-data__title'>
+        <div className='str-chat__channel-list-item-data'>
+          <div className='str-chat__channel-list-item-data__first-row'>
+            <div className='str-chat__channel-list-item-data__title'>
               <span>{displayTitle || 'N/A'}</span>
               {muted && <IconMute />}
             </div>
-            <div className='str-chat__channel-preview-data__timestamp-and-badge'>
+            <div className='str-chat__channel-list-item-data__timestamp-and-badge'>
               <ChannelListItemTimestamp lastMessage={lastMessage} />
               {typeof unread === 'number' && unread > 0 && (
                 <Badge data-testid='unread-badge' size='md' variant='primary'>

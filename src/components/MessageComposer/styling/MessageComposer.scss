@@ -261,7 +261,7 @@
       border-width: 0;
     }
 
-    .str-chat__message-input-cooldown {
+    .str-chat__message-composer-cooldown {
       @include utils.component-layer-overrides('cooldown');
       display: flex;
       align-items: center;
