@@ -7,6 +7,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   MessageProvider,
+  ModalDialogManagerProvider,
   PollProvider,
   TranslationProvider,
 } from '../../../context';
@@ -16,14 +17,12 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { MAX_OPTIONS_DISPLAYED } from '../constants';
 
-const SEE_ALL_OPTIONS_ACTION_TEXT = 'See all options ({{count}})';
 const SUGGEST_OPTION_ACTION_TEXT = 'Suggest an option';
 const UPDATE_COMMENT_ACTION_TEXT = 'Update your comment';
 const VIEW_COMMENTS_ACTION_TEXT = 'View {{count}} comments';
 const VIEW_RESULTS_ACTION_TEXT = 'View results';
-const END_VOTE_ACTION_TEXT = 'End vote';
+const END_VOTE_ACTION_TEXT = 'End poll';
 
 const t = (v) => v;
 
@@ -45,17 +44,19 @@ const renderComponent = async ({
   const client = customClient ?? (await getTestClientWithUser());
   return render(
     <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
-        <ChannelStateProvider
-          value={{ ...defaultChannelStateContext, ...channelStateContext }}
-        >
-          <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-            <PollProvider poll={poll}>
-              <PollActions {...props} />
-            </PollProvider>
-          </MessageProvider>
-        </ChannelStateProvider>
-      </TranslationProvider>
+      <ModalDialogManagerProvider>
+        <TranslationProvider value={{ t }}>
+          <ChannelStateProvider
+            value={{ ...defaultChannelStateContext, ...channelStateContext }}
+          >
+            <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+              <PollProvider poll={poll}>
+                <PollActions {...props} />
+              </PollProvider>
+            </MessageProvider>
+          </ChannelStateProvider>
+        </TranslationProvider>
+      </ModalDialogManagerProvider>
     </ChatProvider>,
   );
 };
@@ -63,30 +64,6 @@ describe('PollActions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it('shows "See all options ({{count}})" action if option count is above MAX_OPTIONS_DISPLAYED', async () => {
-    const pollData = generatePoll({
-      options: Array.from({ length: MAX_OPTIONS_DISPLAYED + 1 }, (_, i) => ({
-        id: i.toString(),
-        text: i.toString(),
-      })),
-    });
-    const poll = new Poll({ client: {}, poll: pollData });
-    await renderComponent({ poll });
-    expect(screen.getByText(SEE_ALL_OPTIONS_ACTION_TEXT)).toBeInTheDocument();
-  });
-
-  it('hides "See all options ({{count}})" action if option count is below MAX_OPTIONS_DISPLAYED', async () => {
-    const pollData = generatePoll({
-      options: Array.from({ length: MAX_OPTIONS_DISPLAYED }, (_, i) => ({
-        id: i.toString(),
-        text: i.toString(),
-      })),
-    });
-    const poll = new Poll({ client: {}, poll: pollData });
-    await renderComponent({ poll });
-    expect(screen.queryByText(SEE_ALL_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
-  });
-
   it('does not show "Suggest an option" action if poll is not closed and suggestions are allowed but user does not have permission to cast vote', async () => {
     const pollData = generatePoll({
       allow_user_suggested_options: true,
@@ -182,7 +159,7 @@ describe('PollActions', () => {
     expect(screen.getByText(VIEW_RESULTS_ACTION_TEXT)).toBeInTheDocument();
   });
 
-  it('shows "End vote" action if not closed already and the poll is own', async () => {
+  it('shows "End poll" action if not closed already and the poll is own', async () => {
     const user = generateUser();
     const client = await getTestClientWithUser(user);
     const pollData = generatePoll({ created_by_id: user.id, is_closed: false });
@@ -191,7 +168,7 @@ describe('PollActions', () => {
     expect(screen.getByText(END_VOTE_ACTION_TEXT)).toBeInTheDocument();
   });
 
-  it('hides "End vote" action if poll is closed', async () => {
+  it('hides "End poll" action if poll is closed', async () => {
     const user = generateUser();
     const client = await getTestClientWithUser(user);
     const pollData = generatePoll({ created_by_id: user.id, is_closed: true });
@@ -200,7 +177,7 @@ describe('PollActions', () => {
     expect(screen.queryByText(END_VOTE_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
-  it('hides "End vote" action if the poll is not own', async () => {
+  it('hides "End poll" action if the poll is not own', async () => {
     const user = generateUser();
     const client = await getTestClientWithUser(user);
     const pollData = generatePoll({ is_closed: false });
@@ -218,39 +195,27 @@ describe('PollActions', () => {
       answers_count: 1,
       created_by_id: user.id,
       is_closed: false,
-      options: Array.from({ length: MAX_OPTIONS_DISPLAYED + 1 }, (_, i) => ({
-        id: i.toString(),
-        text: i.toString(),
-      })),
     });
     const poll = new Poll({ client, poll: pollData });
 
-    const PollOptionsFullList = () => <div data-testid='poll-options-full-list-custom' />;
     const SuggestPollOptionForm = () => (
       <div data-testid='suggest-poll-option-form-custom' />
     );
-    const AddCommentForm = () => <div data-testid='add-comment-form-custom' />;
+    const AddCommentPrompt = () => <div data-testid='add-comment-form-custom' />;
     const PollAnswerList = () => <div data-testid='poll-answer-list-custom' />;
     const PollResults = () => <div data-testid='poll-results-custom' />;
-    const EndPollDialog = () => <div data-testid='end-poll-dialog-custom' />;
+    const EndPollAlert = () => <div data-testid='end-poll-dialog-custom' />;
 
     await renderComponent({
       client,
       poll,
       props: {
-        AddCommentForm,
-        EndPollDialog,
+        AddCommentPrompt,
+        EndPollAlert,
         PollAnswerList,
-        PollOptionsFullList,
         PollResults,
         SuggestPollOptionForm,
       },
-    });
-    act(() => {
-      fireEvent.click(screen.getByText(SEE_ALL_OPTIONS_ACTION_TEXT));
-    });
-    await waitFor(() => {
-      expect(screen.getByTestId('poll-options-full-list-custom')).toBeInTheDocument();
     });
     act(() => {
       fireEvent.click(screen.getByText(SUGGEST_OPTION_ACTION_TEXT));

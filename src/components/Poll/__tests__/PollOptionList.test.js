@@ -1,11 +1,13 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollOptionList } from '../PollOptionList';
 import {
   ChannelStateProvider,
+  ChatProvider,
   MessageProvider,
+  ModalDialogManagerProvider,
   PollProvider,
   TranslationProvider,
 } from '../../../context';
@@ -23,6 +25,8 @@ const VOTABLE_OPTION_SELECTOR = '.str-chat__poll-option--votable';
 const CHECKMARK_SELECTOR = '.str-chat__checkmark';
 const CHECKMARK_CHECKED_SELECTOR = '.str-chat__checkmark--checked';
 const VOTE_COUNT_SELECTOR = '.str-chat__poll-option-vote-count';
+
+const MORE_OPTIONS_ACTION_TEXT = '+{{count}} more options';
 
 const pollWithNoVotes = generatePoll({
   answers_count: 1,
@@ -43,22 +47,37 @@ const defaultMessageContext = {
   message: generateMessage(),
 };
 
-const renderComponent = ({ channelStateContext, messageContext, poll }) =>
-  render(
-    <TranslationProvider value={{ t }}>
-      <ChannelStateProvider
-        value={{ ...defaultChannelStateContext, ...channelStateContext }}
-      >
-        <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-          <PollProvider poll={poll}>
-            <PollOptionList />
-          </PollProvider>
-        </MessageProvider>
-      </ChannelStateProvider>
-    </TranslationProvider>,
-  );
-
 describe('PollOptionList', () => {
+  let chatClient;
+
+  beforeAll(async () => {
+    chatClient = await getTestClientWithUser();
+  });
+
+  const renderComponent = ({
+    channelStateContext,
+    messageContext,
+    poll,
+    pollOptionListProps,
+  }) =>
+    render(
+      <ChatProvider value={{ client: chatClient }}>
+        <ModalDialogManagerProvider>
+          <TranslationProvider value={{ t }}>
+            <ChannelStateProvider
+              value={{ ...defaultChannelStateContext, ...channelStateContext }}
+            >
+              <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+                <PollProvider poll={poll}>
+                  <PollOptionList {...pollOptionListProps} />
+                </PollProvider>
+              </MessageProvider>
+            </ChannelStateProvider>
+          </TranslationProvider>
+        </ModalDialogManagerProvider>
+      </ChatProvider>,
+    );
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -69,6 +88,70 @@ describe('PollOptionList', () => {
       poll: new Poll({ client: {}, poll: pollData }),
     });
     expect(container.firstChild).toBeEmptyDOMElement();
+  });
+
+  it('shows "+{{count}} more options" when options exceed optionsDisplayCount', () => {
+    const pollData = generatePoll({
+      options: Array.from({ length: 6 }, (_, i) => ({
+        id: `opt-${i}`,
+        text: `Option ${i}`,
+      })),
+    });
+    renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+      pollOptionListProps: { optionsDisplayCount: 3 },
+    });
+    expect(screen.getByText(MORE_OPTIONS_ACTION_TEXT)).toBeInTheDocument();
+  });
+
+  it('hides "+{{count}} more options" when options fit within optionsDisplayCount', () => {
+    const pollData = generatePoll({
+      options: Array.from({ length: 3 }, (_, i) => ({
+        id: `opt-${i}`,
+        text: `Option ${i}`,
+      })),
+    });
+    renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+      pollOptionListProps: { optionsDisplayCount: 3 },
+    });
+    expect(screen.queryByText(MORE_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
+  });
+
+  it('hides "+{{count}} more options" when optionsDisplayCount is undefined', () => {
+    const pollData = generatePoll({
+      options: Array.from({ length: 10 }, (_, i) => ({
+        id: `opt-${i}`,
+        text: `Option ${i}`,
+      })),
+    });
+    renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+    });
+    expect(screen.queryByText(MORE_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
+  });
+
+  it('allows custom PollOptionsFullList override in the modal', async () => {
+    const pollData = generatePoll({
+      options: Array.from({ length: 6 }, (_, i) => ({
+        id: `opt-${i}`,
+        text: `Option ${i}`,
+      })),
+    });
+    const PollOptionsFullList = () => <div data-testid='poll-options-full-list-custom' />;
+    renderComponent({
+      poll: new Poll({ client: {}, poll: pollData }),
+      pollOptionListProps: {
+        optionsDisplayCount: 3,
+        PollOptionsFullList,
+      },
+    });
+    act(() => {
+      fireEvent.click(screen.getByText(MORE_OPTIONS_ACTION_TEXT));
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('poll-options-full-list-custom')).toBeInTheDocument();
+    });
   });
 
   it('renders votable poll option selectors', () => {
