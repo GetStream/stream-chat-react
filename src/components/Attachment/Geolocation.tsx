@@ -4,7 +4,9 @@ import { useRef, useState } from 'react';
 import React from 'react';
 import type { Coords, SharedLocationResponse } from 'stream-chat';
 import { useChatContext, useTranslationContext } from '../../context';
-import { ExternalLinkIcon, GeolocationIcon } from './icons';
+import { ExternalLinkIcon } from './icons';
+import { IconMapPin } from '../Icons';
+import { Button } from '../Button';
 
 export type GeolocationMapProps = Coords;
 
@@ -57,13 +59,15 @@ export const Geolocation = ({
             t('Location sharing ended')
           ) : isMyLocation ? (
             <div className='str-chat__message-attachment-geolocation__status--active'>
-              <button
+              <Button
+                appearance='outline'
                 className='str-chat__message-attachment-geolocation__stop-sharing-button'
                 onClick={() => channel?.stopLiveLocationSharing(location)}
-                type='button'
+                size='sm'
+                variant='secondary'
               >
                 {t('Stop sharing')}
-              </button>
+              </Button>
               <div className='str-chat__message-attachment-geolocation__status--active-until'>
                 {t('Live until {{ timestamp }}', {
                   timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
@@ -101,7 +105,7 @@ const DefaultGeolocationAttachmentMapPlaceholder = ({
     className='str-chat__message-attachment-geolocation__placeholder'
     data-testid='geolocation-attachment-map-placeholder'
   >
-    <GeolocationIcon />
+    <IconMapPin />
     <a
       className='str-chat__message-attachment-geolocation__placeholder-link'
       href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}

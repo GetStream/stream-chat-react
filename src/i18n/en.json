@@ -267,6 +267,7 @@
   "Local upload attachment missing local id": "Local upload attachment missing local id",
   "Location": "Location",
   "Location sharing ended": "Location sharing ended",
+  "Location: {{ coordinates }}": "Location: {{ coordinates }}",
   "Mark as unread": "Mark as unread",
   "Maximum number of votes (from 2 to 10)": "Maximum number of votes (from 2 to 10)",
   "Menu": "Menu",

@@ -277,6 +277,7 @@
   "Local upload attachment missing local id": "Allegato di caricamento locale senza id locale",
   "Location": "Posizione",
   "Location sharing ended": "Condivisione posizione terminata",
+  "Location: {{ coordinates }}": "Posizione: {{ coordinates }}",
   "Mark as unread": "Contrassegna come non letto",
   "Maximum number of votes (from 2 to 10)": "Numero massimo di voti (da 2 a 10)",
   "Menu": "Menù",

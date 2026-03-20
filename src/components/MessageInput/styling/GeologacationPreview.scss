@@ -1,0 +1,51 @@
+@use '../../../styling/utils';
+
+.str-chat__location-preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  justify-content: space-around;
+  gap: var(--spacing-xs);
+  padding-inline: var(--spacing-xs) var(--spacing-sm);
+  padding-block: var(--spacing-xs);
+  background-color: var(--chat-bg-outgoing);
+  border-radius: var(--message-bubble-radius-attachment);
+
+  .str-chat__location-preview-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-core-overlay-light);
+    width: 40px;
+    height: 40px;
+
+    .str-chat__icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .str-chat__location-preview__data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+    height: 100%;
+
+    .str-chat__location-preview__data__title,
+    .str-chat__location-preview__data__subtitle {
+      @include utils.ellipsis-text();
+    }
+
+    .str-chat__location-preview__data__title {
+      font: var(--str-chat__metadata-emphasis-text);
+    }
+    .str-chat__location-preview__data__subtitle,
+    .str-chat__location-preview__data__sharing-duration {
+      font: var(--str-chat__metadata-default-text);
+    }
+  }
+}

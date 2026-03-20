@@ -21,10 +21,6 @@ import { type AudioAttachmentPreviewProps } from './AudioAttachmentPreview';
 import { type ImageAttachmentPreviewProps } from './ImageAttachmentPreview';
 import { useAttachmentsForPreview, useMessageComposer } from '../hooks';
 import {
-  GeolocationPreview as DefaultGeolocationPreview,
-  type GeolocationPreviewProps,
-} from './GeolocationPreview';
-import {
   MediaAttachmentPreview,
   type MediaAttachmentPreviewProps,
 } from './MediaAttachmentPreview';
@@ -34,7 +30,6 @@ export type AttachmentPreviewListProps = {
     | ComponentType<AudioAttachmentPreviewProps>
     | ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
-  GeolocationPreview?: ComponentType<GeolocationPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
   UnsupportedAttachmentPreview?: ComponentType<UnsupportedAttachmentPreviewProps>;
   VideoAttachmentPreview?: ComponentType<MediaAttachmentPreviewProps>;
@@ -43,39 +38,25 @@ export type AttachmentPreviewListProps = {
 export const AttachmentPreviewList = ({
   AudioAttachmentPreview = DefaultFileAttachmentPreview,
   FileAttachmentPreview = DefaultFileAttachmentPreview,
-  GeolocationPreview = DefaultGeolocationPreview,
   ImageAttachmentPreview = MediaAttachmentPreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VideoAttachmentPreview = MediaAttachmentPreview,
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposer();
 
-  // todo: we could also allow to attach poll to a message composition
-  const { attachments, location } = useAttachmentsForPreview();
+  const { attachments } = useAttachmentsForPreview();
   const filteredAttachments = useMemo(
     () => attachments.filter((a) => !isVoiceRecordingAttachment(a)),
     [attachments],
   );
 
-  if (!filteredAttachments.length && !location) return null;
+  if (!filteredAttachments.length) return null;
 
   return (
     <div
       className='str-chat__attachment-preview-list'
       data-testid='attachment-preview-list'
     >
-      {location && (
-        <GeolocationPreview
-          location={location}
-          // It is not possible to nullify shared_location field so we do not show a preview when editing
-          // to prevent a user from wanting to remove the location
-          remove={
-            messageComposer.editedMessage
-              ? undefined
-              : messageComposer.locationComposer.initState
-          }
-        />
-      )}
       {attachments.map((attachment) => {
         if (isScrapedContent(attachment)) return null;
         // Voice recordings are rendered in the dedicated slot above (VoiceRecordingPreviewSlot)

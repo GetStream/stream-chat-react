@@ -58,6 +58,7 @@ export const SwitchField = ({
         <SwitchFieldLabel
           description={description}
           htmlFor={id}
+          onClick={() => inputRef.current?.click()}
           title={title}
         ></SwitchFieldLabel>
       ) : (

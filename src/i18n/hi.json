@@ -268,6 +268,7 @@
   "Local upload attachment missing local id": "लोकल अपलोड अटैचमेंट में लोकल आईडी नहीं है",
   "Location": "स्थान",
   "Location sharing ended": "स्थान साझा करना समाप्त",
+  "Location: {{ coordinates }}": "स्थान: {{ coordinates }}",
   "Mark as unread": "अपठित चिह्नित करें",
   "Maximum number of votes (from 2 to 10)": "अधिकतम वोटों की संख्या (2 से 10)",
   "Menu": "मेन्यू",

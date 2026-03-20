@@ -50,7 +50,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
-  const { image_url, thumb_url, title } = linkPreview;
+  const { image_url, thumb_url, title, title_link } = linkPreview;
 
   if (
     !LinkPreviewsManager.previewIsLoaded(linkPreview) &&
@@ -58,6 +58,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   )
     return null;
 
+  const previewImageSrc = title_link || image_url || thumb_url;
   return (
     <div
       className={clsx('str-chat__link-preview-card', {
@@ -77,11 +78,11 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
         {linkPreview.og_scrape_url}
       </PopperTooltip>
 
-      {(image_url || thumb_url) && (
+      {previewImageSrc && (
         <BaseImage
           alt={title}
           className='str-chat__attachment-preview__thumbnail'
-          src={thumb_url ?? image_url}
+          src={previewImageSrc}
           title={title}
         />
       )}

@@ -277,6 +277,7 @@
   "Local upload attachment missing local id": "Pièce jointe locale sans identifiant local",
   "Location": "Emplacement",
   "Location sharing ended": "Partage d'emplacement terminé",
+  "Location: {{ coordinates }}": "Emplacement : {{ coordinates }}",
   "Mark as unread": "Marquer comme non lu",
   "Maximum number of votes (from 2 to 10)": "Nombre maximum de votes (de 2 à 10)",
   "Menu": "Menu",

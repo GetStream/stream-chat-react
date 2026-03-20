@@ -1,6 +1,55 @@
+@use '../../../styling/utils';
+
 .str-chat__share-location-dialog {
   width: 100%;
   max-width: 520px;
-  //height: 100%;
-  //max-height: 340px;
+
+  .str-chat__prompt__body {
+    height: 65px;
+  }
+
+  .str-chat__live-location-activation {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--str-chat__switch-field-background-color);
+    border-radius: var(--str-chat__switch-field-border-radius);
+    box-sizing: border-box;
+
+    &.str-chat__live-location-activation--expanded {
+      .str-chat__form__switch-field {
+        padding-bottom: var(--spacing-xxs);
+      }
+    }
+
+    .str-chat__form__switch-field__label__text {
+      font: var(--str-chat__caption-emphasis-text);
+    }
+  }
+
+  .str-chat__live-location-sharing-duration-selector {
+    padding-inline: calc(var(--spacing-md) - var(--spacing-xs));
+    padding-bottom: var(--spacing-xs);
+    --str-chat__duration-selector-min-width: 120px;
+
+    .str-chat__live-location-sharing-duration-selector__button {
+      @include utils.button-reset;
+      align-items: center;
+      background: transparent;
+      padding-inline: var(--spacing-xs);
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      min-width: var(--str-chat__duration-selector-min-width);
+      font: var(--str-chat__caption-default-text);
+    }
+
+    .str-chat__context-menu {
+      min-width: var(--str-chat__duration-selector-min-width);
+    }
+    .str-chat__live-location-sharing-duration-option {
+      width: 100%;
+    }
+  }
 }

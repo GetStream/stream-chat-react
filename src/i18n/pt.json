@@ -277,6 +277,7 @@
   "Local upload attachment missing local id": "Anexo de envio local sem id local",
   "Location": "Localização",
   "Location sharing ended": "Compartilhamento de localização encerrado",
+  "Location: {{ coordinates }}": "Localização: {{ coordinates }}",
   "Mark as unread": "Marcar como não lida",
   "Maximum number of votes (from 2 to 10)": "Número máximo de votos (de 2 a 10)",
   "Menu": "Menu",
