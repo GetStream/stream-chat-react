@@ -510,7 +510,7 @@
       font: var(--str-chat__metadata-default-text);
     }
 
-    .str-chat__message-simple-name {
+    .str-chat__message-metadata__name {
       @include utils.prevent-glitch-text-overflow;
       margin-inline-end: var(--spacing-xxs);
     }
@@ -559,7 +559,7 @@
     }
   }
 
-  .str-chat__simple-message--error-failed {
+  .str-chat__message-inner--error {
     cursor: pointer;
   }
 

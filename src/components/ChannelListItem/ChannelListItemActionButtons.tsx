@@ -44,8 +44,8 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
 
   return (
     <div
-      className={clsx('str-chat__channel-preview__action-buttons', {
-        'str-chat__channel-preview__action-buttons--active': dialogIsOpen,
+      className={clsx('str-chat__channel-list-item__action-buttons', {
+        'str-chat__channel-list-item__action-buttons--active': dialogIsOpen,
       })}
     >
       {splitActionSet.dropdownActionSet.length > 0 && (
@@ -70,7 +70,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         <Component key={type} />
       ))}
       <ContextMenu
-        className='str-chat__channel-preview__action-buttons-context-menu'
+        className='str-chat__channel-list-item__action-buttons-context-menu'
         dialogManagerId={dialogManager?.id}
         id={dialog.id}
         onClose={dialog?.close}
