@@ -19,7 +19,6 @@ import {
   Chat,
   ChatView,
   MessageReactions,
-  MessageInput,
   type NotificationListProps,
   NotificationList,
   Streami18n,

@@ -3,7 +3,7 @@ import type { LocalMessage, UserResponse } from 'stream-chat';
 import {
   Avatar,
   MessageText,
-  ReactionsList,
+  MessageReactions,
   useMessageContext,
   useChatContext,
   useComponentContext,
@@ -360,7 +360,7 @@ export const CustomMessageUi_V8 = () => {
           </div>
           <CustomMessageUiMetadata showReplyCount />
           <CustomMessageUiActions />
-          <ReactionsList />
+          <MessageReactions />
         </>
       )}
     </div>
