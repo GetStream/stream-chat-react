@@ -335,6 +335,8 @@
   "Pin": "Закрепить",
   "Pinned by {{ name }}": "Закреплено: {{ name }}",
   "Pinned by You": "Закреплено вами",
+  "placeholder/PollComment": "Ваш комментарий",
+  "placeholder/PollOptionSuggestion": "Введите новый вариант",
   "Play video": "Воспроизвести видео",
   "Poll": "Опрос",
   "Poll comments": "Комментарии к опросу",

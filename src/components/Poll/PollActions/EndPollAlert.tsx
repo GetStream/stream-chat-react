@@ -24,7 +24,17 @@ export const EndPollAlert = () => {
         )}
         title={t('End this poll?')}
       ></Alert.Header>
-      <Alert.Actions>
+      <Alert.Actions className='str-chat__end-poll-alert__actions'>
+        <Button
+          appearance='outline'
+          className='str-chat__end-poll-alert__cancel-button'
+          data-testid='end-poll-alert-cancel-button'
+          onClick={close}
+          size='md'
+          variant='secondary'
+        >
+          {t('Cancel')}
+        </Button>
         <Button
           appearance='outline'
           className='str-chat__end-poll-alert__end-vote-button'
@@ -57,16 +67,6 @@ export const EndPollAlert = () => {
           variant='danger'
         >
           {t('End poll')}
-        </Button>
-        <Button
-          appearance='outline'
-          className='str-chat__end-poll-alert__cancel-button'
-          data-testid='end-poll-alert-cancel-button'
-          onClick={close}
-          size='md'
-          variant='secondary'
-        >
-          {t('Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>

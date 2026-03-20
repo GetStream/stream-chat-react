@@ -321,6 +321,8 @@
   "Pin": "Appunta",
   "Pinned by {{ name }}": "Appuntato da {{ name }}",
   "Pinned by You": "Fissato da te",
+  "placeholder/PollComment": "Il tuo commento",
+  "placeholder/PollOptionSuggestion": "Inserisci una nuova opzione",
   "Play video": "Riproduci video",
   "Poll": "Sondaggio",
   "Poll comments": "Commenti del sondaggio",

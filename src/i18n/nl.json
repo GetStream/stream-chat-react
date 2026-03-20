@@ -311,6 +311,8 @@
   "Pin": "Vastmaken",
   "Pinned by {{ name }}": "Vastgemaakt door {{ name }}",
   "Pinned by You": "Door jou vastgezet",
+  "placeholder/PollComment": "Jouw reactie",
+  "placeholder/PollOptionSuggestion": "Voer een nieuwe optie in",
   "Play video": "Video afspelen",
   "Poll": "Peiling",
   "Poll comments": "Peiling opmerkingen",

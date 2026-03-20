@@ -74,14 +74,15 @@ export const SuggestPollOptionPrompt = () => {
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput
+            aria-label={t('Suggest an option')}
             error={!!fieldErrors.optionText}
             errorMessage={fieldErrors.optionText?.message}
             id='optionText'
             name='optionText'
             onChange={(e) => setFieldValue('optionText', e.target.value)}
+            placeholder={t('placeholder/PollOptionSuggestion')}
             ref={setInput}
             required
-            title={t('Suggest an option')}
             type='text'
             value={value.optionText}
           />

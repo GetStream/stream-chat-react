@@ -307,6 +307,8 @@
   "Pin": "ピン",
   "Pinned by {{ name }}": "{{ name }}がピンしました",
   "Pinned by You": "あなたがピン留めしました",
+  "placeholder/PollComment": "コメント",
+  "placeholder/PollOptionSuggestion": "新しい選択肢を入力",
   "Play video": "動画を再生",
   "Poll": "投票",
   "Poll comments": "投票コメント",

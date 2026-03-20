@@ -7,24 +7,33 @@ import { generateUser, initClientWithChannels } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-const NAME_FIELD_PLACEHOLDER = 'Ask a question';
-const OPTION_FIELD_PLACEHOLDER = 'Add an option';
-const MAX_VOTES_FIELD_PLACEHOLDER = 'Maximum number of votes (from 2 to 10)';
-const MULTIPLE_ANSWERS_FIELD_LABEL = 'Multiple answers';
-const VOTING_VISIBILITY_FIELD_LABEL = 'Anonymous poll';
-const OPTION_SUGGESTION_FIELD_LABEL = 'Allow option suggestion';
-const ALLOW_COMMENTS_FIELD_LABEL = 'Allow comments';
+const NAME_FIELD_PLACEHOLDER = 'Ask a Question';
+const OPTION_FIELD_PLACEHOLDER = 'Add an Option';
 const CANCEL_BUTTON_TEXT = 'Cancel';
-const CREATE_BUTTON_TEXT = 'Create';
+
+const getPollSwitch = (id) => {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`missing #${id}`);
+  return el;
+};
+
+const getVoteLimitSwitch = () => {
+  const el = document.querySelector(
+    '.str-chat__multiple-answers-field__votes-limit-field .str-chat__form__switch-field__switch',
+  );
+  if (!el) throw new Error('missing vote limit switch');
+  return el;
+};
+
+const getMaxVoteCountInput = () => document.getElementById('max_votes_allowed');
 const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_INPUT_FIELD_ERROR_TEST_ID = 'poll-option-input-field-error';
-const MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID =
-  'poll-max-votes-allowed-input-field-error';
 const DUPLICATE_OPTION_FIELD_ERROR_TEXT = 'Option already exists';
 const MAX_VOTE_COUNT_FIELD_ERROR_TEXT = 'Type a number from 2 to 10';
 
 const getNameInput = () => screen.getByPlaceholderText(NAME_FIELD_PLACEHOLDER);
 const getOptionInput = () => screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
+const getSubmitPollButton = () => screen.getByRole('button', { name: /send poll/i });
 
 const close = jest.fn();
 const handleSubmit = jest.fn();
@@ -66,15 +75,13 @@ describe('PollCreationDialog', () => {
     ).length;
     expect(optionFieldCount).toBe(1);
     expect(getOptionInput()).toHaveValue('');
-    expect(screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL)).not.toBeChecked();
-    expect(
-      screen.queryByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER),
-    ).not.toBeInTheDocument();
-    expect(screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL)).not.toBeChecked();
-    expect(screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL)).not.toBeChecked();
-    expect(screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL)).not.toBeChecked();
+    expect(getPollSwitch('enforce_unique_vote')).not.toBeChecked();
+    expect(getMaxVoteCountInput()).toBeNull();
+    expect(getPollSwitch('voting_visibility')).not.toBeChecked();
+    expect(getPollSwitch('allow_user_suggested_options')).not.toBeChecked();
+    expect(getPollSwitch('allow_answers')).not.toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('updates name field', async () => {
@@ -86,13 +93,13 @@ describe('PollCreationDialog', () => {
     });
     expect(nameInput).toHaveValue(text);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('registers name field error and prevents submission', async () => {
     await renderComponent();
     const nameInput = getNameInput();
-    expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
+    expect(screen.queryByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toBeInTheDocument();
     await act(async () => {
       await fireEvent.focus(nameInput);
     });
@@ -104,14 +111,14 @@ describe('PollCreationDialog', () => {
     );
     expect(nameInput).toHaveValue('');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('removes name field error when the field is filled', async () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
-    expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
+    expect(screen.queryByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toBeInTheDocument();
     await act(async () => {
       await fireEvent.focus(nameInput);
     });
@@ -124,7 +131,7 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.blur(nameInput);
     });
-    expect(screen.getByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toHaveTextContent();
+    expect(screen.queryByTestId(NAME_INPUT_FIELD_ERROR_TEST_ID)).not.toBeInTheDocument();
     expect(nameInput).toHaveValue(text);
   });
 
@@ -140,7 +147,7 @@ describe('PollCreationDialog', () => {
     expect(optionFields[0]).toHaveValue(text);
     expect(optionFields[1]).toHaveValue('');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('allows submission with at least one option and name', async () => {
@@ -155,7 +162,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(optionInput, { target: { value: text } });
     });
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeEnabled();
+    expect(getSubmitPollButton()).toBeEnabled();
   });
 
   it('registers duplicate option error and prevents submission', async () => {
@@ -180,10 +187,10 @@ describe('PollCreationDialog', () => {
     });
     const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
 
-    expect(optionErrors).toHaveLength(3);
-    expect(optionErrors[1]).toHaveTextContent(DUPLICATE_OPTION_FIELD_ERROR_TEXT);
+    expect(optionErrors).toHaveLength(1);
+    expect(optionErrors[0]).toHaveTextContent(DUPLICATE_OPTION_FIELD_ERROR_TEXT);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('removes the duplicate option error if duplicate text removed', async () => {
@@ -208,14 +215,9 @@ describe('PollCreationDialog', () => {
     expect(optionFields[0]).toHaveValue('a');
     expect(optionFields[1]).toHaveValue(text);
     expect(optionFields[2]).toHaveValue('');
-    const optionErrors = screen.getAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID);
-
-    expect(optionErrors).toHaveLength(3);
-    expect(optionErrors[0]).not.toHaveTextContent();
-    expect(optionErrors[1]).not.toHaveTextContent();
-    expect(optionErrors[2]).not.toHaveTextContent();
+    expect(screen.queryAllByTestId(OPTION_INPUT_FIELD_ERROR_TEST_ID)).toHaveLength(0);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('removes the last option if any previous option has been cleared', async () => {
@@ -237,19 +239,22 @@ describe('PollCreationDialog', () => {
 
     expect(optionFields).toHaveLength(1);
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('shows max vote count input on max vote count enabling', async () => {
     await renderComponent();
-    const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
+    const enforceUniqueToggle = getPollSwitch('enforce_unique_vote');
     await act(async () => {
       await fireEvent.click(enforceUniqueToggle);
     });
     expect(enforceUniqueToggle).toBeChecked();
-    expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('');
+    await act(async () => {
+      await fireEvent.click(getVoteLimitSwitch());
+    });
+    expect(getMaxVoteCountInput()?.value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('updates max vote count field', async () => {
@@ -263,17 +268,20 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.change(optionInput, { target: { value: text } });
     });
-    const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
+    const enforceUniqueToggle = getPollSwitch('enforce_unique_vote');
     await act(async () => {
       await fireEvent.click(enforceUniqueToggle);
     });
-    const maxVoteCountInput = screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER);
+    await act(async () => {
+      await fireEvent.click(getVoteLimitSwitch());
+    });
+    const maxVoteCountInput = getMaxVoteCountInput();
     await act(async () => {
       await fireEvent.change(maxVoteCountInput, { target: { value: '2' } });
     });
-    expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('2');
+    expect(getMaxVoteCountInput().value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeEnabled();
+    expect(getSubmitPollButton()).toBeEnabled();
   });
 
   it('registers max vote count field error and prevents submission', async () => {
@@ -287,57 +295,58 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.change(optionInput, { target: { value: text } });
     });
-    const enforceUniqueToggle = screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL);
+    const enforceUniqueToggle = getPollSwitch('enforce_unique_vote');
     await act(async () => {
       await fireEvent.click(enforceUniqueToggle);
     });
-    const maxVoteCountInput = screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER);
     await act(async () => {
-      await fireEvent.change(maxVoteCountInput, { target: { value: '11' } });
+      await fireEvent.click(getVoteLimitSwitch());
+    });
+    const maxVoteCountInput = getMaxVoteCountInput();
+    await act(async () => {
+      await fireEvent.change(maxVoteCountInput, { target: { value: '1' } });
+    });
+    await act(async () => {
+      await fireEvent.blur(maxVoteCountInput);
     });
 
-    const maxVoteCountErrors = screen.getAllByTestId(
-      MAX_VOTE_COUT_INPUT_FIELD_ERROR_TEST_ID,
-    );
-
-    expect(maxVoteCountErrors).toHaveLength(1);
-    expect(maxVoteCountErrors[0]).toHaveTextContent(MAX_VOTE_COUNT_FIELD_ERROR_TEXT);
-    expect(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER).value).toBe('11');
+    expect(getMaxVoteCountInput().value).toBe('1');
+    expect(screen.getByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).toBeInTheDocument();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('toggles voting visibility', async () => {
     await renderComponent();
-    const votingVisibilityToggle = screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL);
+    const votingVisibilityToggle = getPollSwitch('voting_visibility');
     await act(async () => {
       await fireEvent.click(votingVisibilityToggle);
     });
     expect(votingVisibilityToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('toggles allowing user suggested options', async () => {
     await renderComponent();
-    const suggestOptionToggle = screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL);
+    const suggestOptionToggle = getPollSwitch('allow_user_suggested_options');
     await act(async () => {
       await fireEvent.click(suggestOptionToggle);
     });
     expect(suggestOptionToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('toggles allowing user comments', async () => {
     await renderComponent();
-    const allowCommentsToggle = screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL);
+    const allowCommentsToggle = getPollSwitch('allow_answers');
     await act(async () => {
       await fireEvent.click(allowCommentsToggle);
     });
     expect(allowCommentsToggle).toBeChecked();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(screen.getByText(CREATE_BUTTON_TEXT)).toBeDisabled();
+    expect(getSubmitPollButton()).toBeDisabled();
   });
 
   it('submits the form', async () => {
@@ -382,24 +391,27 @@ describe('PollCreationDialog', () => {
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByLabelText(MULTIPLE_ANSWERS_FIELD_LABEL));
+      await fireEvent.click(getPollSwitch('enforce_unique_vote'));
     });
     await act(async () => {
-      await fireEvent.change(screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER), {
+      await fireEvent.click(getVoteLimitSwitch());
+    });
+    await act(async () => {
+      await fireEvent.change(getMaxVoteCountInput(), {
         target: { value: formState.max_votes_allowed },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByLabelText(VOTING_VISIBILITY_FIELD_LABEL));
+      await fireEvent.click(getPollSwitch('voting_visibility'));
     });
     await act(async () => {
-      await fireEvent.click(screen.getByLabelText(OPTION_SUGGESTION_FIELD_LABEL));
+      await fireEvent.click(getPollSwitch('allow_user_suggested_options'));
     });
     await act(async () => {
-      await fireEvent.click(screen.getByLabelText(ALLOW_COMMENTS_FIELD_LABEL));
+      await fireEvent.click(getPollSwitch('allow_answers'));
     });
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    const submitButton = screen.getByText(CREATE_BUTTON_TEXT);
+    const submitButton = getSubmitPollButton();
     expect(submitButton).toBeEnabled();
     await act(async () => {
       await fireEvent.click(submitButton);

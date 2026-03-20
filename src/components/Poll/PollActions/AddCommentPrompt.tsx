@@ -65,14 +65,15 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput
+            aria-label={title}
             error={!!fieldErrors.comment}
             errorMessage={fieldErrors.comment?.message}
             id='comment'
             name='comment'
             onChange={(e) => setFieldValue('comment', e.target.value)}
+            placeholder={t('placeholder/PollComment')}
             ref={setInput}
             required
-            title={title}
             type='text'
             value={value.comment}
           />

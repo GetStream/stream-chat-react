@@ -312,6 +312,8 @@
   "Pin": "पिन",
   "Pinned by {{ name }}": "{{ name }} द्वारा पिन किया गया",
   "Pinned by You": "आपके द्वारा पिन किया गया",
+  "placeholder/PollComment": "आपकी टिप्पणी",
+  "placeholder/PollOptionSuggestion": "नया विकल्प दर्ज करें",
   "Play video": "वीडियो चलाएं",
   "Poll": "मतदान",
   "Poll comments": "मतदान टिप्पणियाँ",

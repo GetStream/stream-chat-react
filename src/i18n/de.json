@@ -311,6 +311,8 @@
   "Pin": "Anheften",
   "Pinned by {{ name }}": "Angeheftet von {{ name }}",
   "Pinned by You": "Von Ihnen angeheftet",
+  "placeholder/PollComment": "Ihr Kommentar",
+  "placeholder/PollOptionSuggestion": "Neue Option eingeben",
   "Play video": "Video abspielen",
   "Poll": "Umfrage",
   "Poll comments": "Umfragekommentare",

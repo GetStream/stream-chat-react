@@ -32,7 +32,7 @@ describe('AddCommentPrompt', () => {
     expect(input).toHaveValue(poll.data.ownAnswer.text);
     const submitButton = container.querySelector('button[type="submit"]');
     expect(submitButton).toBeDisabled();
-    expect(submitButton).toHaveTextContent('Send');
+    expect(submitButton).toHaveTextContent('Update');
 
     act(() => {
       fireEvent.change(input, { target: { value: newlyTypedValue } });
@@ -40,7 +40,7 @@ describe('AddCommentPrompt', () => {
 
     await waitFor(() => {
       expect(submitButton).toBeEnabled();
-      expect(submitButton).toHaveTextContent('Send');
+      expect(submitButton).toHaveTextContent('Update');
     });
 
     act(() => {

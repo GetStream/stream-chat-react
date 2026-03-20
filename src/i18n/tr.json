@@ -311,6 +311,8 @@
   "Pin": "Sabitle",
   "Pinned by {{ name }}": "{{ name }} sabitledi",
   "Pinned by You": "Sizin sabitlediğiniz",
+  "placeholder/PollComment": "Yorumunuz",
+  "placeholder/PollOptionSuggestion": "Yeni bir seçenek girin",
   "Play video": "Videoyu oynat",
   "Poll": "Anket",
   "Poll comments": "Anket yorumları",
