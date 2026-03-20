@@ -63,14 +63,20 @@ export const ChannelsPanels = ({
         })}
         ref={channelsLayoutRef}
       >
-        <ChannelList
-          Avatar={ChannelAvatar}
-          customActiveChannel={initialChannelId}
-          filters={filters}
-          options={options}
-          sort={sort}
-          showChannelSearch
-        />
+        <WithComponents
+          overrides={{
+            // @ts-expect-error TODO: adjust the sizing
+            Avatar: ChannelAvatar,
+          }}
+        >
+          <ChannelList
+            customActiveChannel={initialChannelId}
+            filters={filters}
+            options={options}
+            sort={sort}
+            showChannelSearch
+          />
+        </WithComponents>
         <SidebarResizeHandle layoutRef={channelsLayoutRef} />
         <WithComponents overrides={{ TypingIndicator }}>
           <Channel>
