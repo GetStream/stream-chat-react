@@ -37,7 +37,6 @@ import {
 import { moveChannelUpwards } from './utils';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
-import type { LoadingErrorIndicatorProps } from '../Loading';
 import { ChannelListHeader } from './ChannelListHeader';
 import { useStableId } from '../UtilityComponents/useStableId';
 

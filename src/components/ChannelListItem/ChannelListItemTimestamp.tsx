@@ -30,7 +30,10 @@ export function ChannelListItemTimestamp({ lastMessage }: ChannelListItemTimesta
   if (!when) return null;
 
   return (
-    <time className='str-chat__channel-list-item-timestamp' dateTime={normalizedTimestamp}>
+    <time
+      className='str-chat__channel-list-item-timestamp'
+      dateTime={normalizedTimestamp}
+    >
       {when}
     </time>
   );
