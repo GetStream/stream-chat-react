@@ -20,7 +20,7 @@ import {
 } from '../../../mock-builders';
 
 import { Message as MessageMock } from '../../Message/Message';
-import { MessageInput as MessageInputMock } from '../../MessageInput/MessageInput';
+import { MessageComposer as MessageInputMock } from '../../MessageInput/MessageComposer';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
 

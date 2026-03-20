@@ -3,18 +3,17 @@ import { useCallback, useMemo } from 'react';
 import { useComponentContext, useMessageContext } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 
-import type { ReactionsListProps } from '../ReactionsList';
-
+import type { MessageReactionsProps } from '../MessageReactions';
 import type { ReactionsComparator, ReactionSummary } from '../types';
 
-type SharedReactionListProps =
+type UseProcessReactionsParams = Pick<
+  MessageReactionsProps,
   | 'own_reactions'
   | 'reaction_counts'
   | 'reaction_groups'
   | 'reactionOptions'
-  | 'reactions';
-
-type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> & {
+  | 'reactions'
+> & {
   sortReactions?: ReactionsComparator;
 };
 

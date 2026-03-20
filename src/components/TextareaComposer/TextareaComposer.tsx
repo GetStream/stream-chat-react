@@ -7,7 +7,7 @@ import type {
 } from 'react';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
-import { useCooldownRemaining, useMessageComposer } from '../MessageInput';
+import { useCooldownRemaining, useMessageComposerController } from '../MessageComposer';
 import type {
   AttachmentManagerState,
   MessageComposerConfig,
@@ -15,7 +15,7 @@ import type {
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
-import { useComponentContext, useMessageInputContext } from '../../context';
+import { useComponentContext, useMessageComposerContext } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
@@ -90,7 +90,7 @@ export const TextareaComposer = ({
     onPaste,
     shouldSubmit: shouldSubmitContext,
     textareaRef,
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
   const cooldownRemaining = useCooldownRemaining();
 
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
@@ -100,7 +100,7 @@ export const TextareaComposer = ({
 
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
-  const messageComposer = useMessageComposer();
+  const messageComposer = useMessageComposerController();
   const { textComposer } = messageComposer;
   const { selection, suggestions, text } = useStateStore(
     textComposer.state,

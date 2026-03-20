@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useCallback, useMemo } from 'react';
 import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 import { IconCircleMinus, IconDotGrid2x3 } from '../../Icons';
@@ -15,7 +15,7 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 });
 
 export const OptionFieldSet = () => {
-  const { pollComposer } = useMessageComposer();
+  const { pollComposer } = useMessageComposerController();
   const { errors, options } = useStateStore(
     pollComposer.state,
     pollComposerStateSelector,

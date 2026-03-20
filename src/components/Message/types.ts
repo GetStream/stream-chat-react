@@ -4,7 +4,7 @@ import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
-import type { MessageInputProps } from '../MessageInput/MessageInput';
+import type { MessageComposerProps } from '../MessageComposer';
 import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
@@ -16,8 +16,8 @@ export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<voi
 export type MessageProps = {
   /** The message object */
   message: LocalMessage;
-  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps;
+  /** Additional props for underlying MessageComposer component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_composer/#props) */
+  additionalMessageComposerProps?: MessageComposerProps;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */

@@ -5,7 +5,7 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
-import { ChannelPreview } from '../../../components/ChannelPreview';
+import { ChannelListItem } from '../../../components/ChannelListItem';
 import { useChannelListContext, useChatContext } from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 import { Timestamp } from '../../../components/Message/Timestamp';
@@ -24,7 +24,7 @@ export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) 
   }, [item, setActiveChannel, setChannels]);
 
   return (
-    <ChannelPreview
+    <ChannelListItem
       channel={item}
       className='str-chat__search-result'
       onSelect={onSelect}
@@ -73,7 +73,7 @@ export const MessageSearchResultItem = ({
   if (!channel) return;
 
   return (
-    <ChannelPreview
+    <ChannelListItem
       active={
         channel.cid === activeChannel?.cid &&
         item.id === searchController._internalState.getLatestValue().focusedMessage?.id

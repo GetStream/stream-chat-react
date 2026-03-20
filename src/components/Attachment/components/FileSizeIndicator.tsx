@@ -1,5 +1,5 @@
 import React from 'react';
-import { prettifyFileSize } from '../../MessageInput/hooks/utils';
+import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 
 type FileSizeIndicatorProps = {
   /** file size in byte */

@@ -4,10 +4,10 @@ import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
-import { useMessageInputContext, useTranslationContext } from '../../context';
-import { useMessageComposer } from '../MessageInput';
-import { useAttachmentManagerState } from '../MessageInput/hooks/useAttachmentManagerState';
-import { useIsCooldownActive } from '../MessageInput/hooks/useIsCooldownActive';
+import { useMessageComposerContext, useTranslationContext } from '../../context';
+import { useMessageComposerController } from '../MessageComposer';
+import { useAttachmentManagerState } from '../MessageComposer/hooks/useAttachmentManagerState';
+import { useIsCooldownActive } from '../MessageComposer/hooks/useIsCooldownActive';
 import { useStateStore } from '../../store';
 import type { MessageComposerConfig } from 'stream-chat';
 import type { PartialSelected } from '../../types/types';
@@ -51,8 +51,8 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { t } = useTranslationContext('UploadFileInput');
-  const { textareaRef } = useMessageInputContext();
-  const messageComposer = useMessageComposer();
+  const { textareaRef } = useMessageComposerContext();
+  const messageComposer = useMessageComposerController();
   const { attachmentManager } = messageComposer;
   const { isUploadEnabled } = useAttachmentManagerState();
   const { acceptedFiles, maxNumberOfFilesPerMessage } = useStateStore(

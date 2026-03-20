@@ -107,7 +107,7 @@ export const messageRenderer = (
   virtuosoContext: VirtuosoContext,
 ) => {
   const {
-    additionalMessageInputProps,
+    additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     customMessageRenderer,
     DateSeparator,
@@ -176,7 +176,7 @@ export const messageRenderer = (
         </div>
       )}
       <Message
-        additionalMessageInputProps={additionalMessageInputProps}
+        additionalMessageComposerProps={additionalMessageComposerProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}

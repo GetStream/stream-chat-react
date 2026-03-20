@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Picker from '@emoji-mart/react';
 
-import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useMessageComposerContext, useTranslationContext } from '../../context';
 import {
   Button,
   IconEmojiSmile,
   type PopperLikePlacement,
-  useMessageComposer,
+  useMessageComposerController,
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
-import { useIsCooldownActive } from '../../components/MessageInput/hooks/useIsCooldownActive';
+import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -46,8 +46,8 @@ const classNames: Pick<
 
 export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageInputContext('EmojiPicker');
-  const { textComposer } = useMessageComposer();
+  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(

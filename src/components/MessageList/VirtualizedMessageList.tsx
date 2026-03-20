@@ -28,7 +28,7 @@ import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageLi
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import { getGroupStyles, getLastReceived, processMessages } from './utils';
 import type { MessageProps, MessageUIComponentProps } from '../Message';
-import { MessageSimple } from '../Message';
+import { MessageUI } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
   calculateFirstItemIndex,
@@ -79,7 +79,7 @@ import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
-  | 'additionalMessageInputProps'
+  | 'additionalMessageComposerProps'
   | 'formatDate'
   | 'messageActions'
   | 'openThread'
@@ -193,7 +193,7 @@ const VirtualizedMessageListWithContext = (
   props: VirtualizedMessageListWithContextProps,
 ) => {
   const {
-    additionalMessageInputProps,
+    additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
     channelUnreadUiState,
@@ -254,7 +254,7 @@ const VirtualizedMessageListWithContext = (
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
-    VirtualMessage: MessageUIComponentFromContext = MessageSimple,
+    VirtualMessage: MessageUIComponentFromContext = MessageUI,
   } = useComponentContext('VirtualizedMessageList');
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
@@ -531,7 +531,7 @@ const VirtualizedMessageListWithContext = (
                 }}
                 computeItemKey={computeItemKey}
                 context={{
-                  additionalMessageInputProps,
+                  additionalMessageComposerProps,
                   closeReactionSelectorOnClick,
                   customClasses,
                   customMessageRenderer,
@@ -656,7 +656,7 @@ export type VirtualizedMessageListProps = Partial<
   loadMoreNewer?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
-  /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  /** Custom UI component to display a message, defaults to and accepts same props as [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
@@ -692,7 +692,7 @@ export type VirtualizedMessageListProps = Partial<
   };
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
-  /** If true, the Giphy preview will render as a separate component above the `MessageInput`, rather than inline with the other messages in the list */
+  /** If true, the Giphy preview will render as a separate component above the `MessageComposer`, rather than inline with the other messages in the list */
   separateGiphyPreview?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;

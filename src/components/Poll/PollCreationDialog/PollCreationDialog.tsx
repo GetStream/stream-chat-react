@@ -7,7 +7,7 @@ import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
 import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
-import { useMessageComposer } from '../../MessageInput';
+import { useMessageComposerController } from '../../MessageComposer';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -23,7 +23,7 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 
 export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   const { t } = useTranslationContext();
-  const { pollComposer } = useMessageComposer();
+  const { pollComposer } = useMessageComposerController();
   const { allow_answers, allow_user_suggested_options, voting_visibility } =
     useStateStore(pollComposer.state, pollComposerStateSelector);
 

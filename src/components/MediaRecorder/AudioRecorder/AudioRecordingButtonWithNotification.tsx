@@ -1,8 +1,8 @@
 import { RecordingAttachmentType, RecordingPermission } from '../classes';
 import { RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification } from '../RecordingPermissionDeniedNotification';
 import React, { forwardRef, useRef } from 'react';
-import { useAttachmentManagerState } from '../../MessageInput';
-import { useComponentContext, useMessageInputContext } from '../../../context';
+import { useAttachmentManagerState } from '../../MessageComposer';
+import { useComponentContext, useMessageComposerContext } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
 import { IconMicrophone } from '../../Icons';
@@ -14,7 +14,8 @@ export const AudioRecordingButtonWithNotification = () => {
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     StartRecordingAudioButton = DefaultStartRecordingAudioButton,
   } = useComponentContext();
-  const { asyncMessagesMultiSendEnabled, recordingController } = useMessageInputContext();
+  const { asyncMessagesMultiSendEnabled, recordingController } =
+    useMessageComposerContext();
   const { attachments } = useAttachmentManagerState();
 
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTimeElapsed } from './hooks/useTimeElapsed';
-import { useMessageInputContext } from '../../../context';
+import { useMessageComposerContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
 import { IconMicrophone } from '../../Icons';
 
@@ -11,7 +11,7 @@ type WaveformProps = {
 const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => {
   const {
     recordingController: { recorder },
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
 
   const [amplitudes, setAmplitudes] = useState<number[]>([]);
 
@@ -49,7 +49,7 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => 
 export const AudioRecordingPreview = () => {
   const {
     recordingController: { recorder },
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
 
   const initialSeconds = recorder?.durationMs ? recorder.durationMs / 1000 : 0;
   const { secondsElapsed, startCounter, stopCounter } = useTimeElapsed({

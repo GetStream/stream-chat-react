@@ -8,7 +8,7 @@ import {
   ChannelHeader,
   ChannelList,
   ChatView,
-  MessageInput,
+  MessageComposer,
   MessageList,
   Thread,
   ThreadList,
@@ -79,7 +79,7 @@ export const ChannelsPanels = ({
                 <ChannelHeader Avatar={ChannelAvatar} />
                 <MessageList returnAllReadData />
                 <AIStateIndicator />
-                <MessageInput
+                <MessageComposer
                   focus
                   audioRecordingEnabled
                   maxRows={10}

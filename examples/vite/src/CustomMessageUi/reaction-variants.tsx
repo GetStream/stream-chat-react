@@ -1,4 +1,8 @@
-import { ReactionSelector, ReactionsList, type ReactionOptions } from 'stream-chat-react';
+import {
+  ReactionSelector,
+  MessageReactions,
+  type ReactionOptions,
+} from 'stream-chat-react';
 
 // ─── Custom Reaction Options (upvote/downvote) ───────────────────
 
@@ -32,8 +36,8 @@ export const customReactionOptionsUpvote: ReactionOptions = {
 // ─── Segmented ReactionsList ─────────────────────────────────────
 
 export const SegmentedReactionsList = (
-  props: React.ComponentProps<typeof ReactionsList>,
-) => <ReactionsList {...props} visualStyle='segmented' />;
+  props: React.ComponentProps<typeof MessageReactions>,
+) => <MessageReactions {...props} visualStyle='segmented' />;
 
 // ─── Passthrough ReactionSelector (for custom handler demo) ──────
 

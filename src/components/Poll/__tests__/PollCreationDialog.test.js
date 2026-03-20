@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollCreationDialog } from '../PollCreationDialog';
-import { MessageInputContextProvider } from '../../../context';
+import { MessageComposerContextProvider } from '../../../context';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -43,9 +43,9 @@ const renderComponent = async ({ channel: customChannel, client: customClient } 
     result = render(
       <Chat client={client}>
         <Channel channel={channel}>
-          <MessageInputContextProvider value={{ handleSubmit }}>
+          <MessageComposerContextProvider value={{ handleSubmit }}>
             <PollCreationDialog close={close} />
-          </MessageInputContextProvider>
+          </MessageComposerContextProvider>
         </Channel>
       </Chat>,
     );

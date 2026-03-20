@@ -6,7 +6,7 @@ export * from './ComponentContext';
 export * from './DialogManagerContext';
 export * from './MessageContext';
 export * from './MessageBounceContext';
-export * from './MessageInputContext';
+export * from './MessageComposerContext';
 export * from './MessageListContext';
 export * from './MessageTranslationViewContext';
 export * from './ModalContext';

@@ -25,7 +25,7 @@ import {
 import { Attachment } from '../../Attachment';
 import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
-import { MessageSimple } from '../MessageSimple';
+import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
 
 expect.extend(toHaveNoViolations);
@@ -85,7 +85,7 @@ async function renderMessageText({
               value={{
                 Attachment,
 
-                Message: () => <MessageSimple channelConfig={channelConfig} />,
+                Message: () => <MessageUI channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
             >

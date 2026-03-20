@@ -20,7 +20,7 @@ import {
 } from '../../../mock-builders';
 
 import { Message } from '../Message';
-import { MessageSimple } from '../MessageSimple';
+import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 
 expect.extend(toHaveNoViolations);
@@ -67,7 +67,7 @@ async function renderQuotedMessage({
               value={{
                 Attachment,
                 Message() {
-                  return <MessageSimple channelConfig={channelConfig} />;
+                  return <MessageUI channelConfig={channelConfig} />;
                 },
                 ...componentContext,
               }}

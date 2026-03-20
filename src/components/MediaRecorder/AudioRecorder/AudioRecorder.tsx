@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { AudioRecordingPlayback } from './AudioRecordingPlayback';
 import { AudioRecordingPreview } from './AudioRecordingPreview';
 import { MediaRecordingState } from '../classes';
-import { useMessageInputContext } from '../../../context/MessageInputContext';
+import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { AudioRecorderRecordingControls } from './AudioRecorderRecordingControls';
 import { isStopped } from './recordingStateIdentity';
 
 export const AudioRecorder = () => {
   const {
     recordingController: { recorder, recording, recordingState },
-  } = useMessageInputContext();
+  } = useMessageComposerContext();
 
   const state = useMemo(
     () => ({

@@ -18,8 +18,7 @@ import {
   type AttachmentProps,
   Chat,
   ChatView,
-  ReactionsList,
-  MessageInput,
+  MessageReactions,
   type NotificationListProps,
   NotificationList,
   Streami18n,
@@ -132,12 +131,12 @@ const useUser = () => {
   return { tokenProvider, userId, userImage, userName };
 };
 
-const CustomMessageReactions = (props: React.ComponentProps<typeof ReactionsList>) => {
+const CustomMessageReactions = (props: React.ComponentProps<typeof MessageReactions>) => {
   const { visualStyle, verticalPosition, flipHorizontalPosition } =
     useAppSettingsSelector((state) => state.reactions);
 
   return (
-    <ReactionsList
+    <MessageReactions
       {...props}
       flipHorizontalPosition={flipHorizontalPosition}
       verticalPosition={verticalPosition}
@@ -318,7 +317,7 @@ const App = () => {
         emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
-        ReactionsList: CustomMessageReactions,
+        MessageReactions: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
         ...messageUiOverrides,
