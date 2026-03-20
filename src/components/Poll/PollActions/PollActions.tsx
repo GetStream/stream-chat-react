@@ -144,7 +144,7 @@ export const PollActions = ({
             modalIsOpen={modalOpen === 'suggest-option'}
             openModal={() => setModalOpen('suggest-option')}
           >
-            <SuggestPollOptionForm messageId={message.id} />
+            <SuggestPollOptionForm />
           </PollAction>
         )}
 

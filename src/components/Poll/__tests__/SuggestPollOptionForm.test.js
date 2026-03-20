@@ -8,8 +8,6 @@ import { generatePoll } from '../../../mock-builders';
 
 const SUBMIT_BUTTON_TEXT = 'Send';
 
-const close = jest.fn();
-const messageId = 'messageId';
 const newlyTypedValue = 'XX';
 
 const t = (v) => v;
@@ -19,7 +17,7 @@ const renderComponent = ({ client, poll, props }) =>
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t }}>
         <PollProvider poll={poll}>
-          <SuggestPollOptionPrompt close={close} messageId={messageId} {...props} />
+          <SuggestPollOptionPrompt {...props} />
         </PollProvider>
       </TranslationProvider>
     </ChatProvider>,
@@ -29,16 +27,14 @@ describe('SuggestPollOptionPrompt', () => {
   afterEach(jest.resetAllMocks);
 
   it('renders with empty input that is updated and submitted', async () => {
-    const createdPollOptionId = 'new-poll-option-id';
     const createPollOptionSpy = jest
       .fn()
-      .mockResolvedValue({ poll_option: { id: createdPollOptionId } });
+      .mockResolvedValue({ poll_option: { id: 'new-poll-option-id' } });
     const client = { createPollOption: createPollOptionSpy };
     const poll = new Poll({
       client,
       poll: generatePoll(),
     });
-    const castVoteSpy = jest.spyOn(poll, 'castVote').mockImplementation();
     const { container } = renderComponent({ client, poll });
     const input = container.querySelector('input');
     expect(input).toHaveValue('');
@@ -63,7 +59,6 @@ describe('SuggestPollOptionPrompt', () => {
       expect(createPollOptionSpy).toHaveBeenCalledWith(poll.id, {
         text: newlyTypedValue,
       });
-      expect(castVoteSpy).toHaveBeenCalledWith(createdPollOptionId, messageId);
     });
   });
 });
