@@ -54,9 +54,6 @@
       ],
       "mp3-encoder": [
         "./dist/types/plugins/encoders/mp3.d.ts"
-      ],
-      "experimental": [
-        "./dist/types/experimental/index.d.ts"
       ]
     }
   },
