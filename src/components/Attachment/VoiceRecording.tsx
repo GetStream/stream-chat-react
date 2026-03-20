@@ -9,9 +9,9 @@ import {
   type AudioPlayerState,
   DurationDisplay,
   PlaybackRateButton,
-  useAudioPlayer,
   WaveProgressBar,
 } from '../AudioPlayback';
+import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { PlayButton } from '../Button';
 

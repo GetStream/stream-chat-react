@@ -317,7 +317,6 @@ const App = () => {
       overrides={{
         emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
-        MessageListNotifications: ConfigurableNotificationList,
         NotificationList: ConfigurableNotificationList,
         ReactionsList: CustomMessageReactions,
         reactionOptions: newReactionOptions,
