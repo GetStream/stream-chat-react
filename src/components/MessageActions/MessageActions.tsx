@@ -10,7 +10,7 @@ import {
   useDialogOnNearestManager,
 } from '../Dialog';
 import { useBaseMessageActionSetFilter } from './hooks';
-import { defaultMessageActionSet } from './defaults';
+import { defaultMessageActionSet } from './MessageActions.defaults';
 import { ActionsIcon, type MESSAGE_ACTIONS } from '../Message';
 import { Button } from '../Button';
 import { ReactionSelector } from '../Reactions';

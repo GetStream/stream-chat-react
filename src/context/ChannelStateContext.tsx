@@ -74,13 +74,18 @@ export const ChannelStateProvider = ({
   </ChannelStateContext.Provider>
 );
 
+let remainingWarningCount = 1;
+
 export const useChannelStateContext = (componentName?: string) => {
   const contextValue = useContext(ChannelStateContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
-    );
+    if (componentName && remainingWarningCount > 0) {
+      console.warn(
+        `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
+      );
+      remainingWarningCount -= 1;
+    }
 
     return {} as ChannelStateContextValue;
   }

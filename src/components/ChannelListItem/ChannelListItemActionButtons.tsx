@@ -1,4 +1,4 @@
-import React, { type ComponentProps, type ComponentType, type JSX } from 'react';
+import React, { type ComponentProps, type ComponentType, type ReactNode } from 'react';
 
 import { Button } from '../Button';
 import { IconDotGrid1x3Horizontal } from '../Icons';
@@ -15,9 +15,9 @@ import { useChannelListItemContext } from './ChannelListItem';
 export type ChannelListItemActionButtonsProps = ComponentProps<ComponentType>; // hack to allow empty props
 
 interface ChannelListItemActionButtonsInterface {
-  (props: ChannelListItemActionButtonsProps): JSX.Element;
+  (props: ChannelListItemActionButtonsProps): ReactNode;
   getDialogId: (channelId: string) => string;
-  name: string;
+  displayName: string;
 }
 
 export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface = () => {
@@ -33,6 +33,14 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
 
   const filteredActionSet = useBaseChannelActionSetFilter(defaultChannelActionSet);
   const splitActionSet = useSplitActionSet(filteredActionSet);
+
+  if (
+    splitActionSet.quickActionSet.length + splitActionSet.dropdownActionSet.length ===
+    0
+  ) {
+    // no buttons to render, omit rendering wrapper
+    return null;
+  }
 
   return (
     <div
@@ -81,3 +89,5 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
 
 ChannelListItemActionButtons.getDialogId = (channelId: string) =>
   `channel-action-buttons-${channelId}`;
+
+ChannelListItemActionButtons.displayName = 'ChannelListItemActionButtons';
