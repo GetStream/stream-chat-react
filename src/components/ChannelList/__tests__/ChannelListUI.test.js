@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { ChannelListUI } from '../ChannelListMessenger';
+import { ChannelListUI } from '../ChannelListUI';
 import { TranslationProvider } from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 

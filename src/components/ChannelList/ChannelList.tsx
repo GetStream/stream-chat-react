@@ -19,7 +19,7 @@ import {
   usePrepareShapeHandlers,
 } from './hooks/useChannelListShape';
 import { useStateStore } from '../../store';
-import { ChannelListUI as DefaultChannelListUI } from './ChannelListMessenger';
+import { ChannelListUI as DefaultChannelListUI } from './ChannelListUI';
 import { ChannelListItem } from '../ChannelListItem/ChannelListItem';
 import { Search as DefaultSearch } from '../Search';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';

@@ -46,7 +46,7 @@ import {
   useChatContext,
   WithComponents,
 } from '../../../context';
-import { ChannelListUI } from '../ChannelListMessenger';
+import { ChannelListUI } from '../ChannelListUI';
 
 expect.extend(toHaveNoViolations);
 
