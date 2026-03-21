@@ -1,9 +1,10 @@
 {
   "branches": [
+    "release-v13",
     {
       "name": "master",
-      "channel": "canary",
-      "prerelease": "canary"
+      "channel": "beta",
+      "prerelease": "beta"
     }
   ],
   "plugins": [
