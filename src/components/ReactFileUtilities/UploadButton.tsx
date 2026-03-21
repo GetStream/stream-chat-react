@@ -5,7 +5,7 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 
 import { useHandleFileChangeWrapper } from './utils';
 import { useMessageComposerContext, useTranslationContext } from '../../context';
-import { useMessageComposerController } from '../MessageComposer';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useAttachmentManagerState } from '../MessageComposer/hooks/useAttachmentManagerState';
 import { useIsCooldownActive } from '../MessageComposer/hooks/useIsCooldownActive';
 import { useStateStore } from '../../store';

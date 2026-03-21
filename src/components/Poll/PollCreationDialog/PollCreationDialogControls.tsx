@@ -1,5 +1,6 @@
 import React from 'react';
-import { useCanCreatePoll, useMessageComposerController } from '../../MessageComposer';
+import { useCanCreatePoll } from '../../MessageComposer/hooks/useCanCreatePoll';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import clsx from 'clsx';
 import { IconPaperPlane } from '../../Icons';

@@ -13,7 +13,7 @@ import {
   useDropdownContext,
 } from '../Form/Dropdown';
 import { IconChevronDown } from '../Icons';
-import { useMessageComposerController } from '../MessageComposer';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { SwitchField } from '../Form/SwitchField';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import type { Coords } from 'stream-chat';

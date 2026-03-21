@@ -56,7 +56,9 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         aria-pressed={active}
         className={clsx(
           'str-chat__channel-list-item',
-          typeof unread === 'number' && unread > 0 && 'str-chat__channel-list-item--unread',
+          typeof unread === 'number' &&
+            unread > 0 &&
+            'str-chat__channel-list-item--unread',
           muted && 'str-chat__channel-list-item--muted',
           customClassName,
         )}

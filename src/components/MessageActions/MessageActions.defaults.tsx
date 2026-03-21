@@ -1,9 +1,8 @@
 /* eslint-disable sort-keys */
 import React, { useState } from 'react';
 
+import { GlobalModal } from '../Modal';
 import {
-  addNotificationTargetTag,
-  GlobalModal,
   IconArrowRotateClockwise,
   IconBellNotification,
   IconBellOff,
@@ -22,15 +21,12 @@ import {
   IconTrashBin,
   IconUnpin,
   IconVolumeFull,
-  isUserMuted,
-  useMessageComposerController,
-  useMessageReminder,
-  useNotificationTarget,
-} from '..';
-import {
-  ReactionIcon as DefaultReactionIcon,
-  ThreadIcon,
-} from '../Message/icons';
+} from '../Icons';
+import { isUserMuted } from '../Message/utils';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useMessageReminder } from '../Message/hooks/useMessageReminder';
+import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../Message/icons';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
   useChannelActionContext,
@@ -39,10 +35,7 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import {
-  RemindMeSubmenu,
-  RemindMeSubmenuHeader,
-} from './RemindMeSubmenu';
+import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
 import { ContextMenuButton, useContextMenuContext } from '../Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';

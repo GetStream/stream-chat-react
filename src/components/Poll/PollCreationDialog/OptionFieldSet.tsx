@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useCallback, useMemo } from 'react';
 import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 import { IconCircleMinus, IconDotGrid2x3 } from '../../Icons';
