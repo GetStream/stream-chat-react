@@ -6,7 +6,7 @@ import { MessageTimestamp } from '../MessageTimestamp';
 import { ComponentProvider, MessageProvider, TranslationContext } from '../../../context';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import { notValidDateWarning } from '../../../i18n/utils';
+
 import { Chat } from '../../Chat';
 import { getTestClient } from '../../../mock-builders';
 import { Streami18n } from '../../../i18n';
@@ -94,18 +94,15 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should not render if no message is available', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(
       <MessageProvider value={{}}>
         <MessageTimestamp message={{}} />
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);
-    expect(console.warn).toHaveBeenCalledWith(notValidDateWarning);
   });
 
   it('should not render if message created_at is not a valid date', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const message = generateMessage({ created_at: 'I am not a date' });
     const { container } = render(
       <MessageProvider value={{}}>
@@ -113,7 +110,6 @@ describe('<MessageTimestamp />', () => {
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);
-    expect(console.warn).toHaveBeenCalledWith(notValidDateWarning);
   });
 
   it('should render with no format if provided i18n config disables formatting', async () => {

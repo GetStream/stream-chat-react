@@ -104,30 +104,6 @@ describe('ChannelPreview utils', () => {
     });
   });
 
-  describe('getDisplayTitle', () => {
-    it('should return channel name, if it exists', async () => {
-      const name = nanoid();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({ channel: { name } }),
-      );
-
-      expect(channel.getDisplayName()).toBe(name);
-    });
-
-    it('should return name of other member of conversation if only 2 members and channel name doesnot exist', async () => {
-      const otherUser = generateUser();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({
-          members: [
-            generateMember({ user: otherUser }),
-            generateMember({ user: clientUser }),
-          ],
-        }),
-      );
-      expect(channel.getDisplayName()).toBe(otherUser.name);
-    });
-  });
-
   describe('getChannelDisplayImage (utils)', () => {
     it('returns channel.data.image when set', async () => {
       const image = nanoid();

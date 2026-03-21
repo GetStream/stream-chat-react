@@ -94,9 +94,10 @@ describe('SearchResultsHeader', () => {
       useStateStore.mockReturnValue({ isActive: true });
       render(<SearchResultsHeader />);
 
-      const button = screen.getByText(
+      const label = screen.getByText(
         'search-results-header-filter-source-button-label--messages',
       );
+      const button = label.closest('button');
       expect(button).toHaveClass(
         'str-chat__search-results-header__filter-source-button--active',
       );
@@ -106,9 +107,10 @@ describe('SearchResultsHeader', () => {
       useStateStore.mockReturnValue({ isActive: false });
       render(<SearchResultsHeader />);
 
-      const button = screen.getByText(
+      const label = screen.getByText(
         'search-results-header-filter-source-button-label--messages',
       );
+      const button = label.closest('button');
       expect(button).not.toHaveClass(
         'str-chat__search-results-header__filter-source-button--active',
       );

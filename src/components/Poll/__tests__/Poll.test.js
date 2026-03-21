@@ -8,6 +8,7 @@ import {
   ChatProvider,
   ComponentProvider,
   MessageProvider,
+  ModalDialogManagerProvider,
   TranslationProvider,
 } from '../../../context';
 import {
@@ -40,17 +41,19 @@ const renderComponent = async ({
   const client = customClient ?? (await getTestClientWithUser());
   return render(
     <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
-        <ComponentProvider value={componentContext ?? {}}>
-          <ChannelStateProvider
-            value={{ ...defaultChannelStateContext, ...channelStateContext }}
-          >
-            <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
-              <Poll {...props} />
-            </MessageProvider>
-          </ChannelStateProvider>
-        </ComponentProvider>
-      </TranslationProvider>
+      <ModalDialogManagerProvider>
+        <TranslationProvider value={{ t }}>
+          <ComponentProvider value={componentContext ?? {}}>
+            <ChannelStateProvider
+              value={{ ...defaultChannelStateContext, ...channelStateContext }}
+            >
+              <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+                <Poll {...props} />
+              </MessageProvider>
+            </ChannelStateProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </ModalDialogManagerProvider>
     </ChatProvider>,
   );
 };

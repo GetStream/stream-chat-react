@@ -161,14 +161,16 @@ describe('useChannelPreviewInfo', () => {
         channel: { image: imageUrl },
       });
 
+      const onSpy = jest.spyOn(client, 'on');
+
       const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),
       });
 
       expect(result.current.displayImage).toBe(imageUrl);
-      expect(client.on).toHaveBeenCalledWith('user.updated', expect.any(Function));
+      expect(onSpy).toHaveBeenCalledWith('user.updated', expect.any(Function));
 
-      const updateInfo = client.on.mock.calls.find((c) => c[0] === 'user.updated')?.[1];
+      const updateInfo = onSpy.mock.calls.find((c) => c[0] === 'user.updated')?.[1];
       expect(updateInfo).toBeDefined();
 
       act(() => {
@@ -176,34 +178,51 @@ describe('useChannelPreviewInfo', () => {
       });
 
       expect(result.current.displayImage).toBe(imageUrl);
+
+      onSpy.mockRestore();
     });
 
-    it('does not subscribe to user.updated when overrideImage is set', async () => {
+    it('does not subscribe to user.updated for image when overrideImage is set', async () => {
       const { channel, client } = await getClientAndChannel({
         channel: { image: 'https://channel.jpg' },
       });
+
+      const onSpy = jest.spyOn(client, 'on');
 
       renderHook(
         () => useChannelPreviewInfo({ channel, overrideImage: 'https://override.jpg' }),
         { wrapper: createWrapper(client) },
       );
 
-      expect(client.on).not.toHaveBeenCalled();
+      // useChannelDisplayName always subscribes to user.updated (updateDisplayName),
+      // but the image-related subscription (updateInfo) from useChannelPreviewInfo should not be present.
+      const userUpdatedCalls = onSpy.mock.calls.filter((c) => c[0] === 'user.updated');
+      // Only the useChannelDisplayName subscription should be present
+      expect(userUpdatedCalls).toHaveLength(1);
+      expect(userUpdatedCalls[0][1].name).toBe('updateDisplayName');
+
+      onSpy.mockRestore();
     });
 
     it('unsubscribes from user.updated on unmount', async () => {
       const { channel, client } = await getClientAndChannel();
 
+      const onSpy = jest.spyOn(client, 'on');
+      const offSpy = jest.spyOn(client, 'off');
+
       const { unmount } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),
       });
 
-      expect(client.on).toHaveBeenCalledWith('user.updated', expect.any(Function));
-      const updateInfo = client.on.mock.calls[0][1];
+      expect(onSpy).toHaveBeenCalledWith('user.updated', expect.any(Function));
+      const updateInfo = onSpy.mock.calls.find((c) => c[0] === 'user.updated')?.[1];
 
       unmount();
 
-      expect(client.off).toHaveBeenCalledWith('user.updated', updateInfo);
+      expect(offSpy).toHaveBeenCalledWith('user.updated', updateInfo);
+
+      onSpy.mockRestore();
+      offSpy.mockRestore();
     });
   });
 });

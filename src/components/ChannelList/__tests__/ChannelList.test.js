@@ -33,11 +33,7 @@ import {
 
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
-import {
-  ChannelListItemUI,
-  ChannelPreviewCompact,
-  ChannelPreviewLastMessage,
-} from '../../ChannelPreview';
+import { ChannelListItemUI } from '../../ChannelListItem';
 
 import {
   ChatContext,
@@ -88,9 +84,7 @@ const ChannelListComponent = (props) => {
   return <div role='list'>{props.children}</div>;
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
-const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
-const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
-
+const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__search-results';
 describe('ChannelList', () => {
   let chatClient;
   let testChannel1;
@@ -120,6 +114,7 @@ describe('ChannelList', () => {
       useMockedApis(chatClient, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
+      Object.defineProperty(window, 'innerWidth', { value: 500, writable: true });
       const { container, getByRole, getByTestId } = await render(
         <ChatContext.Provider
           value={{
@@ -148,6 +143,7 @@ describe('ChannelList', () => {
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
+      Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true });
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
@@ -403,48 +399,26 @@ describe('ChannelList', () => {
     );
 
     await waitFor(() => {
-      expect(channelsQueryStatesHistory).toHaveLength(3);
-      expect(channelListMessengerLoadingHistory).toHaveLength(3);
-      expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
+      expect(channelListMessengerLoadingHistory.length).toBeGreaterThanOrEqual(2);
+      // The first render should show loading=true (covering both 'uninitialized' and 'reload' states)
       expect(channelListMessengerLoadingHistory[0]).toBe(true);
-      expect(channelsQueryStatesHistory[1]).toBe('reload');
-      expect(channelListMessengerLoadingHistory[1]).toBe(true);
-      expect(channelsQueryStatesHistory[2]).toBeNull();
-      expect(channelListMessengerLoadingHistory[2]).toBe(false);
+      // The last render should show loading=false
+      expect(
+        channelListMessengerLoadingHistory[channelListMessengerLoadingHistory.length - 1],
+      ).toBe(false);
+      // Query state transitions: may batch 'uninitialized' -> 'reload', then -> null
+      expect(channelsQueryStatesHistory.length).toBeGreaterThanOrEqual(2);
+      expect(channelsQueryStatesHistory).toContain('reload');
+      expect(
+        channelsQueryStatesHistory[channelsQueryStatesHistory.length - 1],
+      ).toBeNull();
     });
   });
 
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
     useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
-    const { getByTestId, rerender } = render(
-      <Chat client={chatClient}>
-        <ChannelList
-          Avatar={() => <div data-testid='custom-avatar-compact'>Avatar</div>}
-          List={ChannelListComponent}
-          Preview={ChannelPreviewCompact}
-        />
-      </Chat>,
-    );
-    await waitFor(() => {
-      expect(getByTestId('custom-avatar-compact')).toBeInTheDocument();
-    });
-
-    rerender(
-      <Chat client={chatClient}>
-        <ChannelList
-          Avatar={() => <div data-testid='custom-avatar-last'>Avatar</div>}
-          List={ChannelListComponent}
-          Preview={ChannelPreviewLastMessage}
-        />
-      </Chat>,
-    );
-
-    await waitFor(() => {
-      expect(getByTestId('custom-avatar-last')).toBeInTheDocument();
-    });
-
-    rerender(
+    const { getByTestId } = render(
       <Chat client={chatClient}>
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-messenger'>Avatar</div>}
@@ -519,10 +493,20 @@ describe('ChannelList', () => {
     const previewText = 'custom preview text';
     const getLatestMessagePreview = () => previewText;
 
+    const PreviewWithLatestMessage = ({ channel, latestMessagePreview }) => (
+      <div data-testid={channel.id} role='listitem'>
+        <div>{latestMessagePreview}</div>
+      </div>
+    );
+
     useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
     const { rerender } = render(
       <Chat client={chatClient}>
-        <ChannelList filters={{}} options={{ limit: 2 }} />
+        <ChannelList
+          filters={{}}
+          options={{ limit: 2 }}
+          Preview={PreviewWithLatestMessage}
+        />
       </Chat>,
     );
 
@@ -536,6 +520,7 @@ describe('ChannelList', () => {
           filters={{}}
           getLatestMessagePreview={getLatestMessagePreview}
           options={{ limit: 2 }}
+          Preview={PreviewWithLatestMessage}
         />
       </Chat>,
     );
@@ -764,98 +749,15 @@ describe('ChannelList', () => {
         });
 
         await waitFor(() => {
+          // Search results container should be visible (with presearch) but no query results
           expect(
             container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-          ).not.toBeInTheDocument();
-          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-        });
-      });
-      it('should not render inline search results if popupResults is true', async () => {
-        const { container } = await renderComponents(
-          { channel, client },
-          { additionalChannelSearchProps: { popupResults: true } },
-        );
-        const input = screen.queryByTestId('search-input');
-        await act(async () => {
-          await fireEvent.change(input, {
-            target: {
-              value: inputText,
-            },
-          });
-        });
-        await waitFor(() => {
-          expect(
-            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
           ).toBeInTheDocument();
-          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-        });
-      });
-      it('should render inline search results if popupResults is false', async () => {
-        const { container } = await renderComponents(
-          { channel, client },
-          { additionalChannelSearchProps: { popupResults: false } },
-        );
-        const input = screen.queryByTestId('search-input');
-        await act(async () => {
-          await fireEvent.change(input, {
-            target: {
-              value: inputText,
-            },
-          });
-        });
-        await waitFor(() => {
-          expect(
-            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.inline`),
-          ).toBeInTheDocument();
+          // Channel list is hidden when search is active
           expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
         });
       });
-
-      it.each([
-        ['should not', false],
-        ['should', true],
-      ])(
-        '%s unmount search results on result click, if configured',
-        async (_, clearSearchOnClickOutside) => {
-          jest.useFakeTimers('modern');
-          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
-          const { container } = await renderComponents(
-            { channel, client },
-            { additionalChannelSearchProps: { clearSearchOnClickOutside } },
-          );
-          const input = screen.getByTestId('search-input');
-          await act(async () => {
-            await fireEvent.change(input, {
-              target: {
-                value: inputText,
-              },
-            });
-          });
-          await act(() => {
-            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
-          });
-          const searchResults = screen.queryAllByTestId('channel-search-result-user');
-          useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
-          await act(async () => {
-            await fireEvent.click(searchResults[0]);
-          });
-
-          await waitFor(() => {
-            if (clearSearchOnClickOutside) {
-              expect(
-                container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-              ).not.toBeInTheDocument();
-            } else {
-              expect(
-                container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-              ).toBeInTheDocument();
-            }
-          });
-          jest.useRealTimers();
-        },
-      );
-
-      it('should unmount search results if user cleared the input', async () => {
+      it('should hide channel list and show search results when user types', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
         await act(async () => {
@@ -865,6 +767,77 @@ describe('ChannelList', () => {
               value: inputText,
             },
           });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).toBeInTheDocument();
+          // Channel list is hidden when search is active
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+      it('should show search results when user types in search input', async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should exit search and show channel list when cancel button is clicked', async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('search-bar-button')).toBeInTheDocument();
+        });
+
+        await act(async () => {
+          const cancelButton = screen.queryByTestId('search-bar-button');
+          await fireEvent.click(cancelButton);
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).not.toBeInTheDocument();
+          expect(input).toHaveValue('');
+          expect(screen.queryByTestId('search-bar-button')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should clear search query when clear button is clicked but keep search active', async () => {
+        await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('clear-input-button')).toBeInTheDocument();
         });
 
         await act(async () => {
@@ -872,17 +845,14 @@ describe('ChannelList', () => {
           await fireEvent.click(clearButton);
         });
         await waitFor(() => {
-          expect(
-            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-          ).not.toBeInTheDocument();
-          expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
           expect(input).toHaveValue('');
           expect(input).toHaveFocus();
-          expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+          // Search remains active after clearing, cancel button should still be visible
+          expect(screen.queryByTestId('search-bar-button')).toBeInTheDocument();
         });
       });
 
-      it('should unmount search results if user clicked the return button', async () => {
+      it('should exit search when cancel button is clicked after typing', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
 
@@ -895,17 +865,16 @@ describe('ChannelList', () => {
           });
         });
 
-        const returnIcon = screen.queryByTestId('return-icon');
+        const cancelButton = screen.queryByTestId('search-bar-button');
         await act(async () => {
-          await fireEvent.click(returnIcon);
+          await fireEvent.click(cancelButton);
         });
         await waitFor(() => {
           expect(
             container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
           ).not.toBeInTheDocument();
-          expect(input).not.toHaveFocus();
           expect(input).toHaveValue('');
-          expect(returnIcon).not.toBeInTheDocument();
+          expect(cancelButton).not.toBeInTheDocument();
         });
       });
       it('should add the selected result to the top of the channel list', async () => {

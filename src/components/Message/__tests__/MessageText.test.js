@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import { axe } from '../../../../axe-helper';
@@ -27,6 +27,21 @@ import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
+
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
 
 expect.extend(toHaveNoViolations);
 
@@ -136,7 +151,7 @@ describe('<MessageText />', () => {
       customProps: { message },
     });
     expect(getByTestId(messageTextTestId)).toHaveClass(
-      'str-chat__message-simple-text--has-attachment',
+      'str-chat__message-text-inner--has-attachment',
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -260,7 +275,9 @@ describe('<MessageText />', () => {
       container = result.container;
     });
 
-    await waitFor(() => expect(screen.getByTestId('reaction-list')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(container.querySelector('.str-chat__message-reactions')).toBeInTheDocument(),
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -273,12 +290,12 @@ describe('<MessageText />', () => {
       reaction_counts: countReactions(reactions),
       reaction_groups: groupReactions(reactions),
     });
-    const { container, queryByTestId } = await renderMessageText({
+    const { container } = await renderMessageText({
       channelCapabilitiesOverrides: { 'send-reaction': false },
       customProps: { message },
     });
 
-    expect(queryByTestId('reaction-list')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__message-reactions')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

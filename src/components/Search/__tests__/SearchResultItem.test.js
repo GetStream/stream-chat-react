@@ -9,7 +9,11 @@ import {
   UserSearchResultItem,
 } from '../SearchResults';
 import { SearchContextProvider } from '../SearchContext';
-import { ChannelListContextProvider, ChatProvider } from '../../../context';
+import {
+  ChannelListContextProvider,
+  ChatProvider,
+  DialogManagerProvider,
+} from '../../../context';
 import {
   generateChannel,
   generateMessage,
@@ -18,7 +22,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 
-const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-preview-button';
+const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
 const mockSetActiveChannel = jest.fn().mockImplementation();
 const mockSetChannels = jest.fn().mockImplementation();
@@ -62,11 +66,13 @@ const renderComponent = async ({
         ...chatContext,
       }}
     >
-      <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
-        <SearchContextProvider value={{ directMessagingChannelType }}>
-          <SearchResultItemComponent item={item} />
-        </SearchContextProvider>
-      </ChannelListContextProvider>
+      <DialogManagerProvider>
+        <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
+          <SearchContextProvider value={{ directMessagingChannelType }}>
+            <SearchResultItemComponent item={item} />
+          </SearchContextProvider>
+        </ChannelListContextProvider>
+      </DialogManagerProvider>
     </ChatProvider>,
   );
 };

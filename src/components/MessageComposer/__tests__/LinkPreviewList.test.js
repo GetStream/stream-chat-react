@@ -37,24 +37,23 @@ const mockedChannelData = generateChannel({
   thread: [threadMessage],
 });
 
-const renderComponent = async ({ channelProps = {}, client } = {}) => {
+const renderComponent = async ({
+  channelProps = {},
+  client,
+  linkPreviewListProps = {},
+} = {}) => {
   let renderResult;
   await act(() => {
     renderResult = render(
       <Chat client={client}>
         <Channel {...channelProps}>
-          <LinkPreviewList />
+          <LinkPreviewList {...linkPreviewListProps} />
         </Channel>
       </Chat>,
     );
   });
-  const submit = async () => {
-    const submitButton =
-      renderResult.findByText('Send') || renderResult.findByTitle('Send');
-    fireEvent.click(await submitButton);
-  };
 
-  return { submit, ...renderResult };
+  return { ...renderResult };
 };
 
 const setup = async () => {
@@ -85,13 +84,14 @@ describe('LinkPreviewList', () => {
     await renderComponent({
       channelProps: { channel },
       client,
+      linkPreviewListProps: { displayLinkCount: previews.size },
     });
     await act(() => {
       channel.messageComposer.linkPreviewsManager.state.next({ previews });
     });
     const linkPreviewCards = screen.getAllByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviewCards).toHaveLength(previews.size);
-    previews.values().forEach((p, i) => {
+    Array.from(previews.values()).forEach((p, i) => {
       expect(linkPreviewCards[i]).toHaveTextContent(p.title);
     });
   });
@@ -109,7 +109,7 @@ describe('LinkPreviewList', () => {
     expect(linkPreviewCards).toHaveLength(0);
   });
 
-  it('does not render if quoting a message', async () => {
+  it('still renders link previews when quoting a message', async () => {
     const { channel, client } = await setup();
     await renderComponent({
       channelProps: { channel },
@@ -120,7 +120,7 @@ describe('LinkPreviewList', () => {
       channel.messageComposer.state.next({ quotedMessage: generateMessage() });
     });
     const linkPreviewCards = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
-    expect(linkPreviewCards).toHaveLength(0);
+    expect(linkPreviewCards).toHaveLength(1);
   });
 });
 
@@ -140,7 +140,7 @@ const renderLinkPreviewCard = async ({ channel, client, linkPreview }) => {
 describe('LinPreviewCard', () => {
   it('renders for loaded preview', async () => {
     const { channel, client } = await setup();
-    const { container } = await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({
@@ -150,11 +150,14 @@ describe('LinPreviewCard', () => {
         title: 'title',
       }),
     });
-    expect(container).toMatchSnapshot();
+    expect(screen.getByTestId(LINK_PREVIEW_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByText('title')).toBeInTheDocument();
+    expect(screen.getByText('text')).toBeInTheDocument();
+    expect(screen.getByTestId('link-preview-card-dismiss-btn')).toBeInTheDocument();
   });
   it('renders for loading preview', async () => {
     const { channel, client } = await setup();
-    const { container } = await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({
@@ -164,11 +167,13 @@ describe('LinPreviewCard', () => {
         title: 'title',
       }),
     });
-    expect(container).toMatchSnapshot();
+    const card = screen.getByTestId(LINK_PREVIEW_TEST_ID);
+    expect(card).toBeInTheDocument();
+    expect(card).toHaveClass('str-chat__link-preview-card--loading');
   });
   it('does not render dismissed preview', async () => {
     const { channel, client } = await setup();
-    const { container } = await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({
@@ -178,11 +183,11 @@ describe('LinPreviewCard', () => {
         title: 'title',
       }),
     });
-    expect(container).toMatchSnapshot();
+    expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
   it('does not render failed preview', async () => {
     const { channel, client } = await setup();
-    const { container } = await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({
@@ -192,11 +197,11 @@ describe('LinPreviewCard', () => {
         title: 'title',
       }),
     });
-    expect(container).toMatchSnapshot();
+    expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
   it('does not render pending preview', async () => {
     const { channel, client } = await setup();
-    const { container } = await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({
@@ -206,7 +211,7 @@ describe('LinPreviewCard', () => {
         title: 'title',
       }),
     });
-    expect(container).toMatchSnapshot();
+    expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
   it('allows to dismiss a preview', async () => {
     const { channel, client } = await setup();
@@ -214,7 +219,7 @@ describe('LinPreviewCard', () => {
       channel.messageComposer.linkPreviewsManager,
       'dismissPreview',
     );
-    await await renderLinkPreviewCard({
+    await renderLinkPreviewCard({
       channel,
       client,
       linkPreview: generateScrapedImageAttachment({ status: LinkPreviewStatus.LOADED }),

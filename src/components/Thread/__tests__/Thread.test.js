@@ -20,7 +20,7 @@ import {
 } from '../../../mock-builders';
 
 import { Message as MessageMock } from '../../Message/Message';
-import { MessageComposer as MessageInputMock } from '../../MessageInput/MessageComposer';
+import { MessageComposer as MessageInputMock } from '../../MessageComposer/MessageComposer';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
 
@@ -33,8 +33,17 @@ jest.mock('../../MessageList/MessageList', () => ({
 jest.mock('../../MessageList/VirtualizedMessageList', () => ({
   VirtualizedMessageList: jest.fn(() => <div />),
 }));
-jest.mock('../../MessageInput/MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
+jest.mock('../../MessageComposer/MessageComposer', () => ({
+  MessageComposer: jest.fn(() => <div />),
+}));
+jest.mock('../../Threads', () => ({
+  useThreadContext: jest.fn(() => undefined),
+}));
+jest.mock('../../ChatView', () => ({
+  useChatViewContext: jest.fn(() => ({
+    activeChatView: 'channels',
+    setActiveChatView: jest.fn(),
+  })),
 }));
 
 let chatClient;
@@ -45,6 +54,7 @@ const reply1 = generateMessage({ parent_id: parentMessage.id, user: bob });
 const reply2 = generateMessage({ parent_id: parentMessage.id, user: alice });
 
 const mockedChannel = {
+  getClient: () => ({ userID: alice.id }),
   off: jest.fn(),
   state: {
     members: {},
@@ -174,9 +184,9 @@ describe('Thread', () => {
     );
   });
 
-  it('should render the default MessageInput if nothing was passed into the prop', () => {
+  it('should render the MessageComposer with correct default props', () => {
     const props = {
-      additionalMessageInputProps: { propName: 'value' },
+      additionalMessageComposerProps: { propName: 'value' },
       autoFocus: true,
     };
     renderComponent({
@@ -187,47 +197,16 @@ describe('Thread', () => {
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         focus: props.autoFocus,
-        Input: expect.any(Function),
         parent: expect.objectContaining(parentMessage),
-        ...props.additionalMessageInputProps,
+        ...props.additionalMessageComposerProps,
       }),
       undefined,
     );
   });
 
-  it('should render a custom MessageInput if it is passed as a prop', () => {
-    const CustomMessageInputMock = jest.fn();
-    const CustomMessageInputMockAdditional = jest.fn();
+  it('should pass additionalMessageComposerProps to MessageComposer', () => {
     const props = {
-      additionalMessageInputProps: {
-        Input: CustomMessageInputMockAdditional,
-        propName: 'value',
-      },
-      autoFocus: true,
-      Input: CustomMessageInputMock,
-    };
-
-    renderComponent({
-      chatClient,
-      threadProps: props,
-    });
-
-    expect(MessageInputMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        focus: props.autoFocus,
-        Input: CustomMessageInputMock,
-        parent: expect.objectContaining(parentMessage),
-        ...props.additionalMessageInputProps,
-      }),
-      undefined,
-    );
-  });
-
-  it('should render a custom MessageInput from additional props', () => {
-    const CustomMessageInputMockAdditional = jest.fn();
-    const props = {
-      additionalMessageInputProps: {
-        Input: CustomMessageInputMockAdditional,
+      additionalMessageComposerProps: {
         propName: 'value',
       },
       autoFocus: true,
@@ -241,9 +220,8 @@ describe('Thread', () => {
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         focus: props.autoFocus,
-        Input: CustomMessageInputMockAdditional,
         parent: expect.objectContaining(parentMessage),
-        ...props.additionalMessageInputProps,
+        ...props.additionalMessageComposerProps,
       }),
       undefined,
     );
@@ -272,7 +250,7 @@ describe('Thread', () => {
   it('should call the closeThread callback if the button is pressed', () => {
     const { getByTestId } = renderComponent({ chatClient });
 
-    fireEvent.click(getByTestId('close-button'));
+    fireEvent.click(getByTestId('close-thread-button'));
 
     expect(channelActionContextMock.closeThread).toHaveBeenCalledTimes(1);
   });

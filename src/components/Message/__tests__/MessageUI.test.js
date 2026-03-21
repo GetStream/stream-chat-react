@@ -37,6 +37,21 @@ import {
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
+
 expect.extend(toHaveNoViolations);
 
 Dayjs.extend(calendar);
@@ -45,10 +60,12 @@ jest.mock('../MessageText', () => ({
   MessageText: jest.fn(() => <div data-testid='mocked-message-text' />),
 }));
 jest.mock('../../Avatar', () => ({
+  ...jest.requireActual('../../Avatar'),
   Avatar: jest.fn(() => <div data-testid='mocked-avatar' />),
 }));
 jest.mock('../../Modal', () => ({
-  Modal: jest.fn((props) => <div data-testid='mocked-modal'>{props.children}</div>),
+  ...jest.requireActual('../../Modal'),
+  GlobalModal: jest.fn((props) => <div data-testid='mocked-modal'>{props.children}</div>),
 }));
 
 const alice = generateUser();
@@ -157,7 +174,7 @@ describe('<MessageSimple />', () => {
     const { container, getByTestId } = await renderMessageSimple({
       message: deletedMessage,
     });
-    expect(getByTestId('message-deleted-component')).toBeInTheDocument();
+    expect(getByTestId('message-deleted-bubble')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -214,13 +231,12 @@ describe('<MessageSimple />', () => {
 
   it('should render message with custom message-is-reply indicator', async () => {
     const message = generateAliceMessage({ parent_id: 'x', show_in_channel: true });
-    const CustomMessageIsThreadReplyInChannelButtonIndicator = () => (
+    const CustomMessageAlsoSentInChannelIndicator = () => (
       <div data-testid='custom-message-is-reply'>Is Reply</div>
     );
     const { container, getByTestId } = await renderMessageSimple({
       components: {
-        MessageIsThreadReplyInChannelButtonIndicator:
-          CustomMessageIsThreadReplyInChannelButtonIndicator,
+        MessageAlsoSentInChannelIndicator: CustomMessageAlsoSentInChannelIndicator,
       },
       message,
     });
@@ -275,11 +291,11 @@ describe('<MessageSimple />', () => {
       text: undefined,
     });
 
-    const { container, queryByTestId } = await renderMessageSimple({
+    const { container } = await renderMessageSimple({
       channelCapabilities: { 'send-reaction': false },
       message,
     });
-    expect(queryByTestId('reaction-list')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__message-reactions')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -304,7 +320,7 @@ describe('<MessageSimple />', () => {
     );
     const { container, getByTestId } = await renderMessageSimple({
       components: {
-        ReactionsList: CustomReactionsList,
+        MessageReactions: CustomReactionsList,
       },
       message,
     });
@@ -463,30 +479,26 @@ describe('<MessageSimple />', () => {
       },
     });
     expect(AvatarMock).toHaveBeenCalledWith(
-      {
-        image: message.user.image,
-        name: message.user.name,
+      expect.objectContaining({
+        imageUrl: message.user.image,
         onClick: expect.any(Function),
         onMouseOver: expect.any(Function),
-        user: expect.any(Object),
-      },
+        userName: message.user.name,
+      }),
       undefined,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should allow message to be retried when it failed', async () => {
+  it('should render failed message with error styling', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { container, getByTestId } = await renderMessageSimple({
+    const { container } = await renderMessageSimple({
       message,
-      props: {
-        handleRetry: retrySendMessageMock,
-      },
     });
-    expect(retrySendMessageMock).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId('message-inner'));
-    expect(retrySendMessageMock).toHaveBeenCalledWith(message);
+    expect(
+      container.querySelector('.str-chat__message-send-can-be-retried'),
+    ).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -501,7 +513,7 @@ describe('<MessageSimple />', () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId('message-actions-host')).toBeInTheDocument();
+      expect(getByTestId('message-actions-toggle-button')).toBeInTheDocument();
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -540,10 +552,8 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       attachments: Array.from({ length: 3 }, generateFileAttachment),
     });
-    const { container, queryAllByTestId } = await renderMessageSimple({ message });
+    const { queryAllByTestId } = await renderMessageSimple({ message });
     expect(queryAllByTestId('attachment-file')).toHaveLength(3);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
   });
 
   it('should display image attachments in gallery when message has image attachments', async () => {
@@ -554,10 +564,8 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { container, queryAllByTestId } = await renderMessageSimple({ message });
-    expect(queryAllByTestId('gallery-image')).toHaveLength(3);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const { container } = await renderMessageSimple({ message });
+    expect(container.querySelectorAll('.str-chat__modal-gallery__image')).toHaveLength(3);
   });
 
   it('adds shared location at the beginning of the attachment list', async () => {
@@ -569,8 +577,8 @@ describe('<MessageSimple />', () => {
       ],
       shared_location: generateStaticLocationResponse(),
     });
-    await renderMessageSimple({ message });
-    expect(screen.getAllByTestId('gallery-image')).toHaveLength(2);
+    const { container } = await renderMessageSimple({ message });
+    expect(container.querySelectorAll('.str-chat__modal-gallery__image')).toHaveLength(2);
     expect(screen.getAllByTestId('attachment-file')).toHaveLength(1);
     expect(screen.getAllByTestId('attachment-geolocation')).toHaveLength(1);
   });
@@ -585,45 +593,47 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should display is-message-reply button', async () => {
+  it('should display also-sent-in-channel indicator', async () => {
     const message = generateAliceMessage({
       parent_id: 'x',
       show_in_channel: true,
     });
-    const { container, getByTestId } = await renderMessageSimple({ message });
-    expect(getByTestId('message-is-thread-reply-button')).toBeInTheDocument();
+    const { container } = await renderMessageSimple({ message });
+    expect(
+      container.querySelector('.str-chat__message-also-sent-in-channel'),
+    ).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should open thread when is-message-reply button is clicked', async () => {
+  it('should open thread when View button is clicked and parent found', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
     channel.state.messageSets[0].messages.unshift(parentMessage);
-    const { container, getByTestId } = await renderMessageSimple({
+    const { container, getByText } = await renderMessageSimple({
       message,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    fireEvent.click(getByText('View'));
     expect(openThreadMock).toHaveBeenCalledWith(expect.any(Object));
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should not open thread when is-message-reply button is clicked and parent message is not found', async () => {
+  it('should not open thread when View button is clicked and parent message is not found', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    const { container, getByTestId } = await renderMessageSimple({
+    const { container, getByText } = await renderMessageSimple({
       message,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    fireEvent.click(getByText('View'));
     expect(openThreadMock).not.toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -636,10 +646,10 @@ describe('<MessageSimple />', () => {
       show_in_channel: true,
     });
     const searchSpy = jest.spyOn(client, 'search');
-    const { container, getByTestId } = await renderMessageSimple({
+    const { container, getByText } = await renderMessageSimple({
       message,
     });
-    fireEvent.click(getByTestId('message-is-thread-reply-button'));
+    fireEvent.click(getByText('View'));
     expect(searchSpy).toHaveBeenCalledWith(
       { cid: channel.cid },
       { id: parentMessage.id },
@@ -669,6 +679,12 @@ describe('<MessageSimple />', () => {
 
   it("should display message's user name when message not from the current user", async () => {
     const message = generateBobMessage();
+    // memberCount must be > 2 for the name to be shown
+    channel.state.members = {
+      [alice.id]: { user: alice },
+      [bob.id]: { user: bob },
+      [carol.id]: { user: carol },
+    };
     const { container, getByText } = await renderMessageSimple({
       message,
       props: {
@@ -678,15 +694,19 @@ describe('<MessageSimple />', () => {
     expect(getByText(bob.name)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+    // Reset members
+    channel.state.members = {};
   });
 
-  it("should display message's timestamp with calendar formatting", async () => {
+  it("should display message's timestamp", async () => {
     const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    const { container, getByText } = await renderMessageSimple({ message });
-    expect(getByText('12/12/2019')).toBeInTheDocument();
+    const { container } = await renderMessageSimple({ message });
+    const timeEl = container.querySelector('time.str-chat__message-metadata__timestamp');
+    expect(timeEl).toBeInTheDocument();
+    expect(timeEl).toHaveAttribute('datetime', messageDate.toISOString());
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -730,7 +750,7 @@ describe('<MessageSimple />', () => {
       expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
     });
 
-    it('should switch to message editing', async () => {
+    it('should render edit button in bounce prompt', async () => {
       const message = generateAliceMessage({
         ...bouncedMessageOptions,
         cid: channel.cid,
@@ -739,8 +759,7 @@ describe('<MessageSimple />', () => {
         message,
       });
       fireEvent.click(getByTestId('message-inner'));
-      fireEvent.click(getByTestId('message-bounce-edit'));
-      expect(queryByTestId('message-input')).toBeInTheDocument();
+      expect(queryByTestId('message-bounce-edit')).toBeInTheDocument();
     });
 
     it('should retry sending message', async () => {

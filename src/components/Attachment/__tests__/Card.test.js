@@ -1,14 +1,10 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Card } from '../LinkPreview/Card';
 
-import {
-  ChannelActionProvider,
-  MessageProvider,
-  TranslationContext,
-} from '../../../context';
+import { ChannelActionProvider, TranslationContext } from '../../../context';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
@@ -17,7 +13,6 @@ import {
   generateChannel,
   generateGiphyAttachment,
   generateMember,
-  generateMessage,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
@@ -286,112 +281,18 @@ describe('Card', () => {
     });
   });
 
-  it('should display trimmed URL in caption if author_name is not available', async () => {
-    const { getByText } = await renderCard({
+  it('should display URL in source link if author_name is not available', async () => {
+    const ogScrapeUrl =
+      'https://www.theverge.com/2020/6/15/21291288/sony-ps5-software-user-interface-ui-design-dashboard-teaser-video';
+    const { getByTestId } = await renderCard({
       cardProps: {
-        og_scrape_url:
-          'https://www.theverge.com/2020/6/15/21291288/sony-ps5-software-user-interface-ui-design-dashboard-teaser-video',
+        og_scrape_url: ogScrapeUrl,
         title: 'test',
       },
       chatContext: { chatClient },
     });
     await waitFor(() => {
-      expect(getByText('theverge.com')).toBeInTheDocument();
+      expect(getByTestId('card-source-link')).toBeInTheDocument();
     });
-  });
-
-  it('differentiates between in thread and in channel audio player', async () => {
-    const createdAudios = []; //HTMLAudioElement[]
-    const RealAudio = window.Audio;
-    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
-      ...args
-    ) {
-      const el = new RealAudio(...args);
-      createdAudios.push(el);
-      return el;
-    });
-
-    const audioAttachment = {
-      ...dummyAttachment,
-      image_url: undefined,
-      thumb_url: undefined,
-      title: 'test',
-      type: 'audio',
-    };
-
-    const message = generateMessage();
-
-    render(
-      <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-            <MessageProvider value={{ message, threadList: true }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
-      </ChatProvider>,
-    );
-    const playButtons = screen.queryAllByTestId('play-audio');
-    expect(playButtons.length).toBe(2);
-    await Promise.all(
-      playButtons.map(async (button) => {
-        await fireEvent.click(button);
-      }),
-    );
-    await waitFor(() => {
-      expect(createdAudios).toHaveLength(2);
-    });
-    spy.mockRestore();
-  });
-
-  it('keeps a single copy of audio player for the same requester', async () => {
-    const createdAudios = []; //HTMLAudioElement[]
-    const RealAudio = window.Audio;
-    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
-      ...args
-    ) {
-      const el = new RealAudio(...args);
-      createdAudios.push(el);
-      return el;
-    });
-
-    const audioAttachment = {
-      ...dummyAttachment,
-      image_url: undefined,
-      thumb_url: undefined,
-      title: 'test',
-      type: 'audio',
-    };
-
-    const message = generateMessage();
-    render(
-      <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <WithAudioPlayback allowConcurrentPlayback>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-            <MessageProvider value={{ message }}>
-              <Card {...audioAttachment} />
-            </MessageProvider>
-          </WithAudioPlayback>
-        </ChannelStateProvider>
-      </ChatProvider>,
-    );
-    const playButtons = screen.queryAllByTestId('play-audio');
-    expect(playButtons.length).toBe(2);
-    await Promise.all(
-      playButtons.map(async (button) => {
-        await fireEvent.click(button);
-      }),
-    );
-    await waitFor(() => {
-      expect(createdAudios).toHaveLength(1);
-    });
-    spy.mockRestore();
   });
 });

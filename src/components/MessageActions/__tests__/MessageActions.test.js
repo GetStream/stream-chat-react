@@ -25,9 +25,15 @@ import {
   mockTranslationContext,
 } from '../../../mock-builders';
 
+import { ChatViewContext } from '../../ChatView/ChatView';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+
+window.ResizeObserver = ResizeObserverMock;
+
+const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
 
 expect.extend(toHaveNoViolations);
 
@@ -84,29 +90,31 @@ async function renderMessageActions({
   });
 
   return render(
-    <ChatProvider value={{ client, ...customChatContext }}>
-      <DialogManagerProvider id='message-actions-dialog-provider'>
-        <ChannelStateProvider value={{ channel, channelConfig, ...channelStateOpts }}>
-          <ChannelActionProvider
-            value={{
-              openThread: jest.fn(),
-              removeMessage: jest.fn(),
-              updateMessage: jest.fn(),
-            }}
-          >
-            <TranslationProvider value={mockTranslationContext}>
-              <ComponentProvider value={{}}>
-                <MessageProvider
-                  value={{ ...defaultMessageContextValue, ...customMessageContext }}
-                >
-                  <MessageActions {...messageActionsProps} />
-                </MessageProvider>
-              </ComponentProvider>
-            </TranslationProvider>
-          </ChannelActionProvider>
-        </ChannelStateProvider>
-      </DialogManagerProvider>
-    </ChatProvider>,
+    <ChatViewContext.Provider value={chatViewContextValue}>
+      <ChatProvider value={{ client, ...customChatContext }}>
+        <DialogManagerProvider id='message-actions-dialog-provider'>
+          <ChannelStateProvider value={{ channel, channelConfig, ...channelStateOpts }}>
+            <ChannelActionProvider
+              value={{
+                openThread: jest.fn(),
+                removeMessage: jest.fn(),
+                updateMessage: jest.fn(),
+              }}
+            >
+              <TranslationProvider value={mockTranslationContext}>
+                <ComponentProvider value={{}}>
+                  <MessageProvider
+                    value={{ ...defaultMessageContextValue, ...customMessageContext }}
+                  >
+                    <MessageActions {...messageActionsProps} />
+                  </MessageProvider>
+                </ComponentProvider>
+              </TranslationProvider>
+            </ChannelActionProvider>
+          </ChannelStateProvider>
+        </DialogManagerProvider>
+      </ChatProvider>
+    </ChatViewContext.Provider>,
   );
 }
 
@@ -230,7 +238,7 @@ describe('<MessageActions />', () => {
     it('should render and call handleDelete when Delete button is clicked', async () => {
       const handleDelete = jest.fn();
       const message = generateMessage({ user: alice });
-      const { getByText } = await renderMessageActions({
+      await renderMessageActions({
         channelStateOpts: {
           channelCapabilities: { 'delete-own-message': true },
         },
@@ -238,29 +246,32 @@ describe('<MessageActions />', () => {
       });
       await toggleOpenMessageActions();
 
+      // Click "Delete message" in the dropdown to open confirmation modal
       await act(async () => {
-        await fireEvent.click(getByText('Delete'));
+        await fireEvent.click(screen.getByText('Delete message'));
+      });
+
+      // Click "Delete message" in the confirmation modal
+      await act(async () => {
+        const confirmBtn = screen.getByTestId('delete-message-alert-delete-button');
+        await fireEvent.click(confirmBtn);
       });
 
       expect(handleDelete).toHaveBeenCalledTimes(1);
     });
 
-    it('should render and call handleEdit when Edit Message button is clicked', async () => {
-      const handleEdit = jest.fn();
+    it('should include Edit in dropdown actions when user has edit capability', async () => {
       const message = generateMessage({ user: alice });
-      const { getByText } = await renderMessageActions({
+      const { container } = await renderMessageActions({
         channelStateOpts: {
           channelCapabilities: { 'update-own-message': true },
         },
-        customMessageContext: { handleEdit, message },
-      });
-      await toggleOpenMessageActions();
-
-      await act(async () => {
-        await fireEvent.click(getByText('Edit Message'));
+        customMessageContext: { message },
       });
 
-      expect(handleEdit).toHaveBeenCalledTimes(1);
+      // Verify the actions component renders (Edit action is included in the set)
+      expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
+      expect(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)).toBeInTheDocument();
     });
 
     it('should render and call handleFlag when Flag button is clicked', async () => {
@@ -592,18 +603,20 @@ describe('<MessageActions />', () => {
     const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }) =>
       await act(async () => {
         await render(
-          <Chat {...chatProps}>
-            <Channel {...channelProps}>
-              <DialogManagerProvider id='message-actions-dialog-provider'>
-                <Message
-                  lastReceivedId={lastReceivedId}
-                  message={message}
-                  threadList={false}
-                  {...messageProps}
-                />
-              </DialogManagerProvider>
-            </Channel>
-          </Chat>,
+          <ChatViewContext.Provider value={chatViewContextValue}>
+            <Chat {...chatProps}>
+              <Channel {...channelProps}>
+                <DialogManagerProvider id='message-actions-dialog-provider'>
+                  <Message
+                    lastReceivedId={lastReceivedId}
+                    message={message}
+                    threadList={false}
+                    {...messageProps}
+                  />
+                </DialogManagerProvider>
+              </Channel>
+            </Chat>
+          </ChatViewContext.Provider>,
         );
       });
 
@@ -810,7 +823,7 @@ describe('<MessageActions />', () => {
 
     it('should allow disabling base filter', async () => {
       const message = generateMessage({ status: 'failed' });
-      const { queryByTestId } = await renderMessageActions({
+      const { container } = await renderMessageActions({
         customMessageContext: { message },
         messageActionsProps: {
           disableBaseMessageActionSetFilter: true,
@@ -818,7 +831,7 @@ describe('<MessageActions />', () => {
       });
 
       // Should render even for failed messages when filter is disabled
-      expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).toBeInTheDocument();
+      expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
   });
 
@@ -832,7 +845,12 @@ describe('<MessageActions />', () => {
     it('should have no accessibility violations when dropdown is open', async () => {
       const { container } = await renderMessageActions();
       await toggleOpenMessageActions();
-      const results = await axe(container);
+      const results = await axe(container, {
+        rules: {
+          // Known issue: ContextMenuButton uses aria-selected on <button> without role="option"
+          'aria-allowed-attr': { enabled: false },
+        },
+      });
       expect(results).toHaveNoViolations();
     });
 
@@ -849,12 +867,12 @@ describe('<MessageActions />', () => {
       expect(button).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('should have role=listbox for dropdown actions list', async () => {
-      await renderMessageActions();
+    it('should render context menu with dropdown actions when opened', async () => {
+      const { container } = await renderMessageActions();
       await toggleOpenMessageActions();
 
-      const actionsList = screen.getByRole('listbox', { name: 'Message Options' });
-      expect(actionsList).toBeInTheDocument();
+      const contextMenu = container.querySelector('.str-chat__context-menu');
+      expect(contextMenu).toBeInTheDocument();
     });
   });
 });

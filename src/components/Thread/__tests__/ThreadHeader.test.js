@@ -7,7 +7,7 @@ import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import { ThreadHeader } from '../ThreadHeader';
 
-jest.mock('../../ChannelPreview/hooks/useChannelPreviewInfo', () => ({
+jest.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: jest.fn(() => ({ displayTitle: undefined })),
 }));
 
@@ -39,7 +39,7 @@ jest.mock('../../ChatView', () => ({
 
 const {
   useChannelPreviewInfo,
-} = require('../../ChannelPreview/hooks/useChannelPreviewInfo');
+} = require('../../ChannelListItem/hooks/useChannelPreviewInfo');
 const { useChatViewContext } = require('../../ChatView');
 const { useThreadContext } = require('../../Threads');
 

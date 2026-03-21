@@ -29,6 +29,7 @@ describe('SearchBar', () => {
   const defaultProps = {
     disabled: false,
     exitSearchOnInputBlur: false,
+    filterButtonsContainerRef: { current: null },
     placeholder: 'Custom placeholder',
     searchController: mockSearchController,
   };

@@ -6,17 +6,17 @@ exports[`LoadingChannels should render component with default props 1`] = `
     class="str-chat__loading-channels"
   >
     <div
-      class="str-chat__channel-preview-container"
+      class="str-chat__channel-list-item-container"
     >
       <div
         aria-hidden="true"
-        class="str-chat__channel-preview str-chat__channel-preview--loading"
+        class="str-chat__channel-list-item str-chat__channel-list-item--loading"
       >
         <div
           class="str-chat__loading-channels-avatar"
         />
         <div
-          class="str-chat__channel-preview-data str-chat__channel-preview-data--loading"
+          class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
         >
           <div
             class="str-chat__loading-channels-username"
@@ -28,17 +28,17 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__channel-preview-container"
+      class="str-chat__channel-list-item-container"
     >
       <div
         aria-hidden="true"
-        class="str-chat__channel-preview str-chat__channel-preview--loading"
+        class="str-chat__channel-list-item str-chat__channel-list-item--loading"
       >
         <div
           class="str-chat__loading-channels-avatar"
         />
         <div
-          class="str-chat__channel-preview-data str-chat__channel-preview-data--loading"
+          class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
         >
           <div
             class="str-chat__loading-channels-username"
@@ -50,17 +50,17 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__channel-preview-container"
+      class="str-chat__channel-list-item-container"
     >
       <div
         aria-hidden="true"
-        class="str-chat__channel-preview str-chat__channel-preview--loading"
+        class="str-chat__channel-list-item str-chat__channel-list-item--loading"
       >
         <div
           class="str-chat__loading-channels-avatar"
         />
         <div
-          class="str-chat__channel-preview-data str-chat__channel-preview-data--loading"
+          class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
         >
           <div
             class="str-chat__loading-channels-username"
@@ -72,17 +72,17 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__channel-preview-container"
+      class="str-chat__channel-list-item-container"
     >
       <div
         aria-hidden="true"
-        class="str-chat__channel-preview str-chat__channel-preview--loading"
+        class="str-chat__channel-list-item str-chat__channel-list-item--loading"
       >
         <div
           class="str-chat__loading-channels-avatar"
         />
         <div
-          class="str-chat__channel-preview-data str-chat__channel-preview-data--loading"
+          class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
         >
           <div
             class="str-chat__loading-channels-username"
@@ -94,17 +94,17 @@ exports[`LoadingChannels should render component with default props 1`] = `
       </div>
     </div>
     <div
-      class="str-chat__channel-preview-container"
+      class="str-chat__channel-list-item-container"
     >
       <div
         aria-hidden="true"
-        class="str-chat__channel-preview str-chat__channel-preview--loading"
+        class="str-chat__channel-list-item str-chat__channel-list-item--loading"
       >
         <div
           class="str-chat__loading-channels-avatar"
         />
         <div
-          class="str-chat__channel-preview-data str-chat__channel-preview-data--loading"
+          class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
         >
           <div
             class="str-chat__loading-channels-username"

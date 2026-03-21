@@ -284,7 +284,7 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeEnabled();
   });
 
-  it('registers max vote count field error and prevents submission', async () => {
+  it('clamps max vote count field value to valid range', async () => {
     const text = 'Abc';
     await renderComponent();
     const nameInput = getNameInput();
@@ -304,16 +304,17 @@ describe('PollCreationDialog', () => {
     });
     const maxVoteCountInput = getMaxVoteCountInput();
     await act(async () => {
-      await fireEvent.change(maxVoteCountInput, { target: { value: '1' } });
+      await fireEvent.change(maxVoteCountInput, { target: { value: '11' } });
     });
     await act(async () => {
       await fireEvent.blur(maxVoteCountInput);
     });
 
-    expect(getMaxVoteCountInput().value).toBe('1');
-    expect(screen.getByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).toBeInTheDocument();
+    // SDK clamps max_votes_allowed to valid range [2, 10]
+    expect(getMaxVoteCountInput().value).toBe('10');
+    expect(screen.queryByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).not.toBeInTheDocument();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
-    expect(getSubmitPollButton()).toBeDisabled();
+    expect(getSubmitPollButton()).toBeEnabled();
   });
 
   it('toggles voting visibility', async () => {
