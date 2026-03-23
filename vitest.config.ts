@@ -47,8 +47,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'lcov'],
-      include: ['src/**'],
-      exclude: ['src/**/__tests__/**', 'src/mock-builders/**'],
+      include: ['src/**/*.{ts,tsx,js,jsx}'],
+      exclude: ['src/**/__tests__/**', 'src/mock-builders/**', 'src/@types/**'],
     },
   },
 });
