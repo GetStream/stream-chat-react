@@ -7,7 +7,6 @@ import importPlugin from 'eslint-plugin-import';
 import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys';
 import reactPlugin from 'eslint-plugin-react';
 import vitestPlugin from '@vitest/eslint-plugin';
-import jestDOMPlugin from 'eslint-plugin-jest-dom';
 
 export default tseslint.config(
   {
@@ -118,7 +117,7 @@ export default tseslint.config(
   {
     name: 'vitest',
     files: ['src/**/__tests__/**'],
-    plugins: { vitest: vitestPlugin, 'jest-dom': jestDOMPlugin },
+    plugins: { vitest: vitestPlugin },
     languageOptions: {
       globals: vitestPlugin.environments.env.globals,
     },
@@ -130,8 +129,6 @@ export default tseslint.config(
       'vitest/prefer-expect-assertions': 'off',
       'vitest/no-hooks': 'off',
       'vitest/prefer-spy-on': 'warn',
-      'jest-dom/prefer-in-document': 'warn',
-      'jest-dom/prefer-to-have-class': 'warn',
       '@typescript-eslint/no-empty-function': 'off', // explicitly disable for tests
     },
   },
