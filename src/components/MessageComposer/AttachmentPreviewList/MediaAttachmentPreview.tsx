@@ -84,7 +84,7 @@ export const MediaAttachmentPreview = ({
       })}
       data-testid='attachment-preview-media'
       onPressed={hasRetriableError ? retry : undefined}
-      openPreview={openPreview}
+      openPreview={!isUploading && !hasUploadError ? openPreview : undefined}
     >
       <div className='str-chat__attachment-preview-media__thumbnail-wrapper'>
         {thumbnail.url && (

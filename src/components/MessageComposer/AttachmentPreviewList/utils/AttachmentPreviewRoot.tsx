@@ -50,7 +50,7 @@ export const AttachmentPreviewRoot = ({
   tabIndex = 0,
   ...props
 }: AttachmentPreviewRootProps) => {
-  const { t } = useTranslationContext('FilePreview');
+  const { t } = useTranslationContext();
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const url =
     attachment.asset_url || attachment.image_url || attachment.localMetadata.previewUri;
@@ -81,21 +81,28 @@ export const AttachmentPreviewRoot = ({
     }
   };
 
+  const isInteractive = canPreviewAttachment || canDownloadAttachment;
+
   return (
     <div
-      aria-label={t(
-        canPreviewAttachment ? 'aria/Show preview' : 'aria/Download attachment',
-      )}
+      aria-label={
+        isInteractive
+          ? t(canPreviewAttachment ? 'aria/Show preview' : 'aria/Download attachment')
+          : undefined
+      }
       {...props}
       onClick={handlePressed}
-      onKeyDown={(e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        handlePressed(e);
-      }}
+      onKeyDown={
+        isInteractive
+          ? (e) => {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              e.preventDefault();
+              handlePressed(e);
+            }
+          : undefined
+      }
       ref={setRoot}
-      role={canPreviewAttachment ? 'button' : canDownloadAttachment ? 'link' : props.role}
-      tabIndex={canPreviewAttachment || canDownloadAttachment ? tabIndex : -1}
+      tabIndex={isInteractive ? tabIndex : -1}
     >
       {props.children}
     </div>

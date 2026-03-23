@@ -46,7 +46,8 @@ describe('Gallery', () => {
   it('should render default GalleryUI when no GalleryUI is provided', () => {
     const items = [makeImageItem()];
     render(<Gallery items={items} />);
-    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Previous image' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next image' })).toBeInTheDocument();
   });
 
   it('should render context GalleryUI when GalleryUI prop is not provided', () => {
