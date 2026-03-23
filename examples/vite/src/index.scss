@@ -1,7 +1,4 @@
-@layer stream, stream-new, stream-overrides, stream-app-overrides;
-
-@import url('./stream-imports-theme.scss') layer(stream);
-@import url('./stream-imports-layout.scss') layer(stream);
+@layer stream-new, stream-overrides, stream-app-overrides;
 
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
