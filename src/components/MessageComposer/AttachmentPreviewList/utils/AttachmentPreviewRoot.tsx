@@ -4,17 +4,20 @@ import React, {
   type MouseEvent,
   useState,
 } from 'react';
-import { useComponentContext, useTranslationContext } from '../../../../context';
+import { useTranslationContext } from '../../../../context';
 import {
   isImageAttachment,
   isVideoAttachment,
   type LocalUploadAttachment,
 } from 'stream-chat';
-import { GlobalModal } from '../../../Modal';
-import { Gallery } from '../../../Gallery';
 
 type AttachmentPreviewRootProps = Omit<ComponentProps<'div'>, 'onClick' | 'onKeyDown'> & {
   attachment: LocalUploadAttachment;
+  /**
+   * Called when the attachment preview is pressed and can be previewed.
+   * The parent is responsible for opening the gallery at the correct index.
+   */
+  openPreview?: () => void;
   /**
    * Returns boolean value to signal whether the event handling should be terminated immediately (return false)
    *  or default logic can be executed next (return true)
@@ -43,12 +46,11 @@ function hasInteractiveAncestorBeforeRoot(
 export const AttachmentPreviewRoot = ({
   attachment,
   onPressed,
+  openPreview,
   tabIndex = 0,
   ...props
 }: AttachmentPreviewRootProps) => {
   const { t } = useTranslationContext('FilePreview');
-  const { Modal = GlobalModal } = useComponentContext();
-  const [showPreview, setShowPreview] = useState(false);
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const url =
     attachment.asset_url || attachment.image_url || attachment.localMetadata.previewUri;
@@ -56,7 +58,8 @@ export const AttachmentPreviewRoot = ({
   const canDownloadAttachment = false; //!!url;
 
   const canPreviewAttachment =
-    (!!url && isImageAttachment(attachment)) || isVideoAttachment(attachment);
+    !!openPreview &&
+    ((!!url && isImageAttachment(attachment)) || isVideoAttachment(attachment));
 
   const handlePressed = (e: MouseEvent<Element> | KeyboardEvent<Element>) => {
     if (e.defaultPrevented) return;
@@ -69,7 +72,7 @@ export const AttachmentPreviewRoot = ({
     }
 
     if (canPreviewAttachment) {
-      setShowPreview(true);
+      openPreview();
       return;
     }
 
@@ -80,7 +83,9 @@ export const AttachmentPreviewRoot = ({
 
   return (
     <div
-      aria-label={t(showPreview ? 'aria/Show preview' : 'aria/Download attachment')}
+      aria-label={t(
+        canPreviewAttachment ? 'aria/Show preview' : 'aria/Download attachment',
+      )}
       {...props}
       onClick={handlePressed}
       onKeyDown={(e) => {
@@ -89,22 +94,10 @@ export const AttachmentPreviewRoot = ({
         handlePressed(e);
       }}
       ref={setRoot}
-      role={showPreview ? 'button' : canDownloadAttachment ? 'link' : props.role}
-      tabIndex={showPreview || canDownloadAttachment ? tabIndex : -1}
+      role={canPreviewAttachment ? 'button' : canDownloadAttachment ? 'link' : props.role}
+      tabIndex={canPreviewAttachment || canDownloadAttachment ? tabIndex : -1}
     >
       {props.children}
-      <Modal
-        className='str-chat__gallery-modal'
-        onClose={(e) => {
-          e.stopPropagation();
-          setShowPreview(false);
-        }}
-        open={showPreview && canPreviewAttachment}
-      >
-        {isImageAttachment(attachment) || isVideoAttachment(attachment) ? (
-          <Gallery items={[attachment]} />
-        ) : null}
-      </Modal>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { GalleryContext } from './GalleryContext';
+import { GalleryUI as DefaultGalleryUI } from './GalleryUI';
+import { useComponentContext } from '../../context';
 
 import type { GalleryContextValue, GalleryItem } from './GalleryContext';
 
@@ -27,6 +29,8 @@ export const Gallery = ({
   onIndexChange,
   onRequestClose,
 }: GalleryProps) => {
+  const { GalleryUI: ContextGalleryUI } = useComponentContext();
+  const ResolvedGalleryUI = GalleryUI ?? ContextGalleryUI ?? DefaultGalleryUI;
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const itemCount = items.length;
@@ -87,7 +91,7 @@ export const Gallery = ({
 
   return (
     <GalleryContext.Provider value={contextValue}>
-      {GalleryUI ? <GalleryUI /> : null}
+      <ResolvedGalleryUI />
     </GalleryContext.Provider>
   );
 };

@@ -125,8 +125,10 @@ export type ComponentContextValue = {
   emojiSearchIndex?: EmojiSearchIndex;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-  /** Custom UI component to display media items in a carousel, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
+  /** Custom component that provides gallery state (current index, navigation) via GalleryContext and renders GalleryUI. Override this to control the gallery's data/navigation logic. Defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
   Gallery?: React.ComponentType<GalleryProps>;
+  /** Custom UI component to render the gallery's visual interface (slides, navigation buttons, header). Override this to change the gallery's appearance without altering navigation logic. Defaults to and accepts same props as: [GalleryUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/GalleryUI.tsx) */
+  GalleryUI?: React.ComponentType;
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps>;
   /** Custom UI component to render at the top of the `MessageList` */

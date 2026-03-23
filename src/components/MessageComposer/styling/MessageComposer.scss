@@ -206,7 +206,6 @@
           var(--str-chat__message-composer-command-ease),
         opacity calc(var(--str-chat__message-composer-command-transition-duration) * 0.85)
           ease-out;
-      overflow: hidden;
     }
 
     .str-chat__textarea {

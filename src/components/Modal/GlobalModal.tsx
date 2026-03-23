@@ -61,9 +61,9 @@ export const GlobalModal = ({
     (source: ModalCloseSource, event: ModalCloseEvent) => {
       const allow = onCloseAttempt?.(source, event);
       if (allow !== false) {
-        onClose?.(event);
         dialog.close();
         closingRef.current = true;
+        onClose?.(event);
       }
     },
     [dialog, onClose, onCloseAttempt],

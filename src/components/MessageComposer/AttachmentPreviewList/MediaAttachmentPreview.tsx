@@ -27,11 +27,14 @@ import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
     LocalVideoAttachment<CustomLocalMetadata> | LocalImageAttachment<CustomLocalMetadata>
-  >;
+  > & {
+    openPreview?: () => void;
+  };
 
 export const MediaAttachmentPreview = ({
   attachment,
   handleRetry,
+  openPreview,
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
@@ -81,6 +84,7 @@ export const MediaAttachmentPreview = ({
       })}
       data-testid='attachment-preview-media'
       onPressed={hasRetriableError ? retry : undefined}
+      openPreview={openPreview}
     >
       <div className='str-chat__attachment-preview-media__thumbnail-wrapper'>
         {thumbnail.url && (
