@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-20
+Last updated: 2026-03-23
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `7c978a9e559f2cb8581d65365a4eb5e932db573d` (`7c978a9e`, `2026-03-20`, `fix: change class names to reflect component renames (#3035)`)
-- Future mining starting point: diff `7c978a9e559f2cb8581d65365a4eb5e932db573d..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `d251338327cdfe72042894c62c523bd9164c104f` (`d2513383`, `2026-03-23`, `fix: rename ChannelListMessenger to ChannelListUI (#3036)`)
+- Future mining starting point: diff `d251338327cdfe72042894c62c523bd9164c104f..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -1757,6 +1757,54 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+### BC-052: `ChannelListMessenger` was renamed to `ChannelListUI`, and direct channel-list UI override props were removed
+
+- Status: confirmed
+- Area: channel-list container and row customization
+- User impact:
+  - imports using `ChannelListMessenger` or `ChannelListMessengerProps` no longer compile
+  - `ChannelList` no longer accepts `Avatar`, `List`, `LoadingErrorIndicator`, `LoadingIndicator`, or `Preview`
+  - `ChannelListItem` no longer accepts `Avatar`
+  - custom CSS targeting `.str-chat__channel-list-messenger*` or `.str-chat__channel-list-react` no longer matches the default markup
+- Old API:
+  - `v13.14.2:src/components/ChannelList/index.ts:2` exported `ChannelListMessenger`
+  - `v13.14.2:src/components/ChannelList/ChannelListMessenger.tsx:10` through `:22` defined `ChannelListMessengerProps`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:65` through `:66` exposed `Avatar?: React.ComponentType<ChannelAvatarProps>`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:87` through `:92` exposed `List`, `LoadingErrorIndicator`, and `LoadingIndicator`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:144` through `:145` exposed `Preview?: React.ComponentType<ChannelPreviewUIComponentProps>`
+  - `7c978a9e:src/components/ChannelListItem/ChannelListItem.tsx:43` through `:51` still exposed `Avatar?: React.ComponentType<ChannelAvatarProps>` on `ChannelListItemProps`
+  - `v13.14.2:src/components/ChannelList/ChannelListMessenger.tsx:49` through `:52` used `str-chat__channel-list-messenger`, `str-chat__channel-list-messenger-react`, and `str-chat__channel-list-messenger-react__main`
+  - `v13.14.2:src/components/ChannelList/ChannelList.tsx:367` through `:372` added `str-chat__channel-list-react` to the root class list
+- New API:
+  - `src/components/ChannelList/index.ts:2` exports `ChannelListUI`
+  - `src/components/ChannelList/ChannelListUI.tsx:9` through `:17` define `ChannelListUIProps`
+  - `src/context/ComponentContext.tsx:106` through `:111` expose `ChannelListUI`, `ChannelListItemActionButtons`, and `ChannelListItemUI`
+  - `src/components/ChannelList/ChannelList.tsx:58` through `:67` and `:125` through `:149` no longer define `Avatar`, `List`, `LoadingErrorIndicator`, `LoadingIndicator`, or `Preview` on `ChannelListProps`
+  - `src/components/ChannelList/ChannelList.tsx:197` through `:200` source `ChannelListUI`, `NotificationList`, and `Search` from `ComponentContext`
+  - `src/components/ChannelList/ChannelList.tsx:352` through `:374` render `<ChannelListUI ...>` directly
+  - `src/components/ChannelListItem/ChannelListItem.tsx:42` through `:66` no longer define `Avatar` on `ChannelListItemProps`
+  - `src/components/ChannelList/ChannelListUI.tsx:34` through `:40` use `str-chat__channel-list-inner` and `str-chat__channel-list-inner__main`
+  - `src/components/ChannelList/ChannelList.tsx:330` through `:339` no longer append `str-chat__channel-list-react` to the root class list
+- Replacement:
+  - rename `ChannelListMessenger` to `ChannelListUI`
+  - move list-container customization from `ChannelList List={...}` to `WithComponents` / `ComponentContext` via `ChannelListUI`
+  - move loading and error indicator customization to `WithComponents` / `ComponentContext` via `LoadingIndicator` and `LoadingErrorIndicator`
+  - move avatar and row customization to `WithComponents` / `ComponentContext` via `Avatar` and `ChannelListItemUI`
+  - update custom CSS selectors from `str-chat__channel-list-messenger*` to `str-chat__channel-list-inner*`, and stop relying on the removed `str-chat__channel-list-react` class
+- Evidence:
+  - commit `d2513383 fix: rename ChannelListMessenger to ChannelListUI (#3036)` renamed the component and its props type, removed direct `ChannelList` override props, removed `ChannelListItem.Avatar`, added the `ComponentContext.ChannelListUI` slot, and changed the default class names
+  - current source no longer has `src/components/ChannelList/ChannelListMessenger.tsx`
+  - current `ChannelList` and `ChannelListItem` signatures no longer expose the removed override props
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/01-channel_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/02-channel_list_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
 - Example needed: yes
 
