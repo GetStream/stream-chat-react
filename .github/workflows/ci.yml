@@ -26,12 +26,15 @@ jobs:
         run: yarn build
 
       - name: 🧪 Lint and test with Node ${{ env.NODE_VERSION }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           yarn lint
           yarn coverage
           yarn validate-translations
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 🧪 Validate CommonJS bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-cjs
