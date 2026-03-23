@@ -1,4 +1,4 @@
 export * from './ChannelList';
-export * from './ChannelListMessenger';
+export * from './ChannelListUI';
 export * from './hooks';
 export * from './utils';

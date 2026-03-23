@@ -9,6 +9,7 @@ import {
   type BaseImageProps,
   type CalloutDialogProps,
   type ChannelListItemUIProps,
+  type ChannelListUIProps,
   type DateSeparatorProps,
   type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
@@ -102,7 +103,9 @@ export type ComponentContextValue = {
   CalloutDialog?: React.ComponentType<CalloutDialogProps>;
   /** Custom UI component shown instead of the image when it fails to load, defaults to and accepts same props as: [ImagePlaceholder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/BaseImage/ImagePlaceholder.tsx) */
   ImagePlaceholder?: React.ComponentType<ImagePlaceholderProps>;
-  /** Custom UI component to display set of action buttons within `ChannelPreviewMessenger` component, accepts same props as: [ChannelListItemActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListItemActionButtons.tsx) */
+  /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListUI.tsx) */
+  ChannelListUI?: React.ComponentType<ChannelListUIProps>;
+  /** Custom UI component to display set of action buttons within `ChannelListItemUI` component, accepts same props as: [ChannelListItemActionButtons](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListItemActionButtons.tsx) */
   ChannelListItemActionButtons?: React.ComponentType;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelListItemUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelListItemUI.tsx) */
   ChannelListItemUI?: React.ComponentType<ChannelListItemUIProps>;

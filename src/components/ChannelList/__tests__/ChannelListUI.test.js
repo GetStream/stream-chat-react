@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { ChannelListMessenger } from '../ChannelListMessenger';
+import { ChannelListUI } from '../ChannelListUI';
 import { TranslationProvider } from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 
@@ -12,7 +12,7 @@ console.warn = () => null;
 
 const Component = ({ error = false, loading = false }) => (
   <TranslationProvider value={mockTranslationContext}>
-    <ChannelListMessenger
+    <ChannelListUI
       error={error}
       loading={loading}
       LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
@@ -20,7 +20,7 @@ const Component = ({ error = false, loading = false }) => (
     >
       <div>children 1</div>
       <div>children 2</div>
-    </ChannelListMessenger>
+    </ChannelListUI>
   </TranslationProvider>
 );
 
