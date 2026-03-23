@@ -121,7 +121,7 @@ describe('MessageStatus', () => {
         returnAllReadData: true,
       },
     });
-    expect(screen.getByTestId('message-sent-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('message-status-sent')).toBeInTheDocument();
   });
 
   it('renders custom sent message UI (returnAllReadData=true)', async () => {
@@ -139,7 +139,6 @@ describe('MessageStatus', () => {
       props: { MessageSentStatus },
     });
     expect(screen.getByText(text)).toBeInTheDocument();
-    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
   });
 
   it('renders default sent message UI (returnAllReadData=false)', async () => {
@@ -153,7 +152,7 @@ describe('MessageStatus', () => {
         readBy: [user],
       },
     });
-    expect(screen.getByTestId('message-sent-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('message-status-sent')).toBeInTheDocument();
   });
 
   it('renders custom sent message UI (returnAllReadData=false)', async () => {
@@ -171,7 +170,6 @@ describe('MessageStatus', () => {
       props: { MessageSentStatus },
     });
     expect(screen.getByText(text)).toBeInTheDocument();
-    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
   });
 
   it('does not render default sent message UI (returnAllReadData=false) if the message is not the last own', async () => {
@@ -185,7 +183,7 @@ describe('MessageStatus', () => {
         readBy: [user],
       },
     });
-    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('message-status-sent')).not.toBeInTheDocument();
   });
 
   it('does not render custom sent message UI (returnAllReadData=false) if the message is not the last own', async () => {
@@ -203,7 +201,7 @@ describe('MessageStatus', () => {
       props: { MessageSentStatus },
     });
     expect(screen.queryByText(text)).not.toBeInTheDocument();
-    expect(screen.queryByTestId('message-sent-icon')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('message-status-sent')).not.toBeInTheDocument();
   });
 
   it('renders default delivered UI for the last message', async () => {
@@ -255,9 +253,7 @@ describe('MessageStatus', () => {
     expect(screen.getByText(text)).toBeInTheDocument();
   });
 
-  it('renders custom Avatar in default read status', async () => {
-    const text = 'CustomAvatar';
-    const Avatar = () => <div>{text}</div>;
+  it('renders default read status without Avatar', async () => {
     const client = await getTestClientWithUser(user);
     renderComponent({
       chatCtx: { client },
@@ -266,9 +262,8 @@ describe('MessageStatus', () => {
         message: sentMsg,
         readBy: readByOthers,
       },
-      props: { Avatar },
     });
-    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByTestId(MESSAGE_STATUS_READ_TEST_ID)).toBeInTheDocument();
     expect(screen.queryByTestId('avatar')).not.toBeInTheDocument();
   });
 

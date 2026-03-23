@@ -24,7 +24,7 @@ import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialo
 import { ContextMenu } from '../../Dialog';
 import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import type {
   SearchSourceState,
   TextComposerState,

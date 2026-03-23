@@ -13,20 +13,20 @@ import {
 } from '../../../context';
 import { generateMessage, initClientWithChannels } from '../../../mock-builders';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
-import { AttachmentSelector } from '../AttachmentSelector';
+import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
+import { ChatViewContext } from '../../ChatView/ChatView';
 
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
 
-const ATTACHMENT_SELECTOR_CLASS = 'str-chat__attachment-selector';
 const UPLOAD_FILE_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__upload-file-button';
 const CREATE_POLL_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__create-poll-button';
 const SHARE_LOCATION_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__add-location-button';
-const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'file-upload-button';
+const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = {
@@ -93,33 +93,37 @@ const renderComponent = async ({
   let result;
   await act(() => {
     result = render(
-      <Chat client={client}>
-        <ComponentProvider value={{ ...componentContext }}>
-          <TranslationProvider value={translationContext}>
-            <TypingProvider value={{}}>
-              <ChannelActionProvider value={{}}>
-                <ChannelStateProvider
-                  value={{
-                    ...defaultChannelStateContext,
-                    channel,
-                    ...channelStateContext,
-                  }}
-                >
-                  <div id={CHANNEL_CONTAINER_ID}>
-                    {message ? (
-                      <MessageProvider value={{ message }}>
+      <ChatViewContext.Provider
+        value={{ activeChatView: 'channels', setActiveChatView: jest.fn() }}
+      >
+        <Chat client={client}>
+          <ComponentProvider value={{ ...componentContext }}>
+            <TranslationProvider value={translationContext}>
+              <TypingProvider value={{}}>
+                <ChannelActionProvider value={{}}>
+                  <ChannelStateProvider
+                    value={{
+                      ...defaultChannelStateContext,
+                      channel,
+                      ...channelStateContext,
+                    }}
+                  >
+                    <div id={CHANNEL_CONTAINER_ID}>
+                      {message ? (
+                        <MessageProvider value={{ message }}>
+                          <ThreadOrChannel />
+                        </MessageProvider>
+                      ) : (
                         <ThreadOrChannel />
-                      </MessageProvider>
-                    ) : (
-                      <ThreadOrChannel />
-                    )}
-                  </div>
-                </ChannelStateProvider>
-              </ChannelActionProvider>
-            </TypingProvider>
-          </TranslationProvider>
-        </ComponentProvider>
-      </Chat>,
+                      )}
+                    </div>
+                  </ChannelStateProvider>
+                </ChannelActionProvider>
+              </TypingProvider>
+            </TranslationProvider>
+          </ComponentProvider>
+        </Chat>
+      </ChatViewContext.Provider>,
     );
   });
   return result;
@@ -182,6 +186,7 @@ describe('AttachmentSelector', () => {
             ...defaultChannelData,
             cid: 'type:id',
             config: {
+              commands: [],
               polls: false,
               shared_locations: false,
               uploads: false,
@@ -249,6 +254,7 @@ describe('AttachmentSelector', () => {
             ...defaultChannelData,
             cid: 'type:id',
             config: {
+              commands: [],
               polls: false,
               shared_locations: false,
               uploads: true,
@@ -259,13 +265,14 @@ describe('AttachmentSelector', () => {
         },
       ],
     });
-    const { container } = await renderComponent({
+    await renderComponent({
       channelStateContext: { channelCapabilities: { 'upload-file': true } },
       customChannel,
       customClient,
     });
+    // When only file uploads are enabled, the full context menu is not rendered; only the simple button
     expect(
-      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
+      screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
@@ -281,6 +288,7 @@ describe('AttachmentSelector', () => {
             ...defaultChannelData,
             cid: 'type:id',
             config: {
+              commands: [],
               polls: false,
               shared_locations: false,
               uploads: false,
@@ -316,6 +324,7 @@ describe('AttachmentSelector', () => {
             ...defaultChannelData,
             cid: 'type:id',
             config: {
+              commands: [],
               polls: false,
               shared_locations: false,
               uploads: true,
@@ -326,7 +335,7 @@ describe('AttachmentSelector', () => {
         },
       ],
     });
-    const { container } = await renderComponent({
+    await renderComponent({
       channelStateContext: {
         channelCapabilities: { 'upload-file': true },
         thread: generateMessage({ cid: customChannel.cid }),
@@ -334,8 +343,9 @@ describe('AttachmentSelector', () => {
       customChannel,
       customClient,
     });
+    // In a thread, the full AttachmentSelector context menu is not used; only the simple button is rendered
     expect(
-      container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`),
+      screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
@@ -427,11 +437,10 @@ describe('AttachmentSelector', () => {
   it('renders custom modal content if provided', async () => {
     const buttonText = 'Custom text';
     const modalText = 'Modal text';
-    const ActionButton = ({ closeMenu, openModalForAction }) => (
+    const ActionButton = ({ openModalForAction }) => (
       <div
         onClick={() => {
           openModalForAction('custom');
-          closeMenu();
         }}
       >
         {buttonText}
@@ -460,9 +469,6 @@ describe('AttachmentSelector', () => {
 
     await waitFor(() => {
       expect(screen.queryByText(modalText)).not.toBeInTheDocument();
-      expect(
-        screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
-      ).not.toBeInTheDocument();
     });
   });
 
@@ -528,8 +534,8 @@ const AttachmentSelectorInitiationButtonContents = () => (
 );
 const FileUploadIcon = () => <div data-testid={'customFileUploadIcon'} />;
 
-const getSimpleAttachmentSelectorInvokeElement = (container) =>
-  container.querySelector('.str-chat__file-input-label');
+const getSimpleAttachmentSelectorInvokeElement = () =>
+  screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID);
 
 describe('SimpleAttachmentSelector', () => {
   const message = generateMessage();
@@ -552,10 +558,10 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('opens on Space key up', async () => {
-    const { container } = await renderComponent({ message });
+    await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
-    const label = getSimpleAttachmentSelectorInvokeElement(container);
+    const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {
       code: 'Enter',
@@ -566,10 +572,10 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('opens on Space key up', async () => {
-    const { container } = await renderComponent({ message });
+    await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
-    const label = getSimpleAttachmentSelectorInvokeElement(container);
+    const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {
       code: 'Space',
@@ -580,10 +586,10 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('does not open on other key up', async () => {
-    const { container } = await renderComponent({ message });
+    await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
-    const label = getSimpleAttachmentSelectorInvokeElement(container);
+    const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {
       key: 'A',
@@ -602,12 +608,13 @@ describe('SimpleAttachmentSelector', () => {
     ).toBeInTheDocument();
   });
 
-  it('render custom FileUploadIcon', async () => {
+  it('does not render FileUploadIcon (deprecated, use AttachmentSelectorInitiationButtonContents)', async () => {
     await renderComponent({
       componentContext: { FileUploadIcon },
       message,
     });
-    expect(screen.getByTestId('customFileUploadIcon')).toBeInTheDocument();
+    // FileUploadIcon is no longer used by SimpleAttachmentSelector
+    expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
 
   it('renders AttachmentSelectorInitiationButtonContents but not FileUploadIcon', async () => {

@@ -1,7 +1,7 @@
 import { RecordingAttachmentType, RecordingPermission } from '../classes';
 import { RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification } from '../RecordingPermissionDeniedNotification';
 import React, { forwardRef, useRef } from 'react';
-import { useAttachmentManagerState } from '../../MessageComposer';
+import { useAttachmentManagerState } from '../../MessageComposer/hooks/useAttachmentManagerState';
 import { useComponentContext, useMessageComposerContext } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';

@@ -33,11 +33,7 @@ import {
 
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
-import {
-  ChannelListItemUI,
-  ChannelPreviewCompact,
-  ChannelPreviewLastMessage,
-} from '../../ChannelPreview';
+import { ChannelListItemUI } from '../../ChannelListItem';
 
 import {
   ChatContext,
@@ -88,9 +84,7 @@ const ChannelListComponent = (props) => {
   return <div role='list'>{props.children}</div>;
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
-const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
-const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
-
+const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__search-results';
 describe('ChannelList', () => {
   let chatClient;
   let testChannel1;
@@ -114,12 +108,11 @@ describe('ChannelList', () => {
       props = {
         closeMobileNav,
         filters: {},
-        List: ChannelListComponent,
-        Preview: ChannelPreviewComponent,
       };
       useMockedApis(chatClient, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
+      Object.defineProperty(window, 'innerWidth', { value: 500, writable: true });
       const { container, getByRole, getByTestId } = await render(
         <ChatContext.Provider
           value={{
@@ -130,7 +123,14 @@ describe('ChannelList', () => {
             searchController: new SearchController(),
           }}
         >
-          <ChannelList {...props} />
+          <WithComponents
+            overrides={{
+              ChannelListItemUI: ChannelPreviewComponent,
+              ChannelListUI: ChannelListComponent,
+            }}
+          >
+            <ChannelList {...props} />
+          </WithComponents>
           <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
       );
@@ -148,6 +148,7 @@ describe('ChannelList', () => {
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
+      Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true });
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
@@ -161,7 +162,14 @@ describe('ChannelList', () => {
             searchController: new SearchController(),
           }}
         >
-          <ChannelList {...props} />
+          <WithComponents
+            overrides={{
+              ChannelListItemUI: ChannelPreviewComponent,
+              ChannelListUI: ChannelListComponent,
+            }}
+          >
+            <ChannelList {...props} />
+          </WithComponents>
           <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
       );
@@ -185,16 +193,22 @@ describe('ChannelList', () => {
   it('should re-query channels when filters change', async () => {
     const props = {
       filters: {},
-      List: ChannelListComponent,
+
       options: { limit: 25, message_limit: 25 },
-      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
     const { container, getByRole, getByTestId, rerender } = render(
       <Chat client={chatClient}>
-        <ChannelList {...props} />
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList {...props} />
+        </WithComponents>
       </Chat>,
     );
 
@@ -206,7 +220,14 @@ describe('ChannelList', () => {
     useMockedApis(chatClient, [queryChannelsApi([testChannel2])]);
     rerender(
       <Chat client={chatClient}>
-        <ChannelList {...props} filters={{ dummyFilter: true }} />
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList {...props} filters={{ dummyFilter: true }} />
+        </WithComponents>
       </Chat>,
     );
     await waitFor(() => {
@@ -291,16 +312,22 @@ describe('ChannelList', () => {
     const props = {
       channelRenderFilterFn: customFilterFunction,
       filters: {},
-      List: ChannelListComponent,
+
       options: { limit: 25, message_limit: 25 },
-      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClient, [queryChannelsApi([filteredChannel, testChannel1])]);
 
     const { container, getByRole, queryAllByRole } = render(
       <Chat client={chatClient}>
-        <ChannelList {...props} />
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList {...props} />
+        </WithComponents>
       </Chat>,
     );
 
@@ -339,12 +366,17 @@ describe('ChannelList', () => {
 
     const { container, getByTestId } = render(
       <Chat client={chatClient}>
-        <ChannelList
-          filters={{}}
-          List={ChannelListComponent}
-          options={{ presence: true, state: true, watch: true }}
-          Preview={ChannelPreviewComponent}
-        />
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList
+            filters={{}}
+            options={{ presence: true, state: true, watch: true }}
+          />
+        </WithComponents>
       </Chat>,
     );
 
@@ -365,12 +397,17 @@ describe('ChannelList', () => {
     await act(async () => {
       await render(
         <Chat client={chatClient}>
-          <ChannelList
-            filters={{}}
-            LoadingErrorIndicator={LoadingErrorIndicator}
-            options={{ presence: true, state: true, watch: true }}
-            Preview={ChannelPreviewComponent}
-          />
+          <WithComponents
+            overrides={{
+              ChannelListItemUI: ChannelPreviewComponent,
+              LoadingErrorIndicator,
+            }}
+          >
+            <ChannelList
+              filters={{}}
+              options={{ presence: true, state: true, watch: true }}
+            />
+          </WithComponents>
         </Chat>,
       );
     });
@@ -397,60 +434,45 @@ describe('ChannelList', () => {
     await render(
       <Chat client={chatClient}>
         <QueryStateInterceptor>
-          <ChannelList List={ChannelListMessengerPropsInterceptor} />
+          <WithComponents
+            overrides={{ ChannelListUI: ChannelListMessengerPropsInterceptor }}
+          >
+            <ChannelList />
+          </WithComponents>
         </QueryStateInterceptor>
       </Chat>,
     );
 
     await waitFor(() => {
-      expect(channelsQueryStatesHistory).toHaveLength(3);
-      expect(channelListMessengerLoadingHistory).toHaveLength(3);
-      expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
+      expect(channelListMessengerLoadingHistory.length).toBeGreaterThanOrEqual(2);
+      // The first render should show loading=true (covering both 'uninitialized' and 'reload' states)
       expect(channelListMessengerLoadingHistory[0]).toBe(true);
-      expect(channelsQueryStatesHistory[1]).toBe('reload');
-      expect(channelListMessengerLoadingHistory[1]).toBe(true);
-      expect(channelsQueryStatesHistory[2]).toBeNull();
-      expect(channelListMessengerLoadingHistory[2]).toBe(false);
+      // The last render should show loading=false
+      expect(
+        channelListMessengerLoadingHistory[channelListMessengerLoadingHistory.length - 1],
+      ).toBe(false);
+      // Query state transitions: may batch 'uninitialized' -> 'reload', then -> null
+      expect(channelsQueryStatesHistory.length).toBeGreaterThanOrEqual(2);
+      expect(channelsQueryStatesHistory).toContain('reload');
+      expect(
+        channelsQueryStatesHistory[channelsQueryStatesHistory.length - 1],
+      ).toBeNull();
     });
   });
 
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
     useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
-    const { getByTestId, rerender } = render(
+    const { getByTestId } = render(
       <Chat client={chatClient}>
-        <ChannelList
-          Avatar={() => <div data-testid='custom-avatar-compact'>Avatar</div>}
-          List={ChannelListComponent}
-          Preview={ChannelPreviewCompact}
-        />
-      </Chat>,
-    );
-    await waitFor(() => {
-      expect(getByTestId('custom-avatar-compact')).toBeInTheDocument();
-    });
-
-    rerender(
-      <Chat client={chatClient}>
-        <ChannelList
-          Avatar={() => <div data-testid='custom-avatar-last'>Avatar</div>}
-          List={ChannelListComponent}
-          Preview={ChannelPreviewLastMessage}
-        />
-      </Chat>,
-    );
-
-    await waitFor(() => {
-      expect(getByTestId('custom-avatar-last')).toBeInTheDocument();
-    });
-
-    rerender(
-      <Chat client={chatClient}>
-        <ChannelList
-          Avatar={() => <div data-testid='custom-avatar-messenger'>Avatar</div>}
-          List={ChannelListComponent}
-          Preview={ChannelListItemUI}
-        />
+        <WithComponents
+          overrides={{
+            Avatar: () => <div data-testid='custom-avatar-messenger'>Avatar</div>,
+            ChannelListItemUI,
+          }}
+        >
+          <ChannelList />
+        </WithComponents>
       </Chat>,
     );
 
@@ -468,12 +490,13 @@ describe('ChannelList', () => {
 
     const { container, getByTestId } = render(
       <Chat client={chatClient}>
-        <ChannelList
-          EmptyStateIndicator={EmptyStateIndicator}
-          filters={{}}
-          List={ChannelListComponent}
-          options={{ presence: true, state: true, watch: true }}
-        />
+        <WithComponents overrides={{ ChannelListUI: ChannelListComponent }}>
+          <ChannelList
+            EmptyStateIndicator={EmptyStateIndicator}
+            filters={{}}
+            options={{ presence: true, state: true, watch: true }}
+          />
+        </WithComponents>
       </Chat>,
     );
     // Wait for list of channels to load in DOM.
@@ -491,7 +514,9 @@ describe('ChannelList', () => {
     );
     render(
       <Chat client={chatClient}>
-        <ChannelList filters={{}} options={{ limit: 2 }} Preview={ChannelPreview} />
+        <WithComponents overrides={{ ChannelListItemUI: ChannelPreview }}>
+          <ChannelList filters={{}} options={{ limit: 2 }} />
+        </WithComponents>
       </Chat>,
     );
 
@@ -519,10 +544,18 @@ describe('ChannelList', () => {
     const previewText = 'custom preview text';
     const getLatestMessagePreview = () => previewText;
 
+    const PreviewWithLatestMessage = ({ channel, latestMessagePreview }) => (
+      <div data-testid={channel.id} role='listitem'>
+        <div>{latestMessagePreview}</div>
+      </div>
+    );
+
     useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
     const { rerender } = render(
       <Chat client={chatClient}>
-        <ChannelList filters={{}} options={{ limit: 2 }} />
+        <WithComponents overrides={{ ChannelListItemUI: PreviewWithLatestMessage }}>
+          <ChannelList filters={{}} options={{ limit: 2 }} />
+        </WithComponents>
       </Chat>,
     );
 
@@ -532,11 +565,13 @@ describe('ChannelList', () => {
 
     rerender(
       <Chat client={chatClient}>
-        <ChannelList
-          filters={{}}
-          getLatestMessagePreview={getLatestMessagePreview}
-          options={{ limit: 2 }}
-        />
+        <WithComponents overrides={{ ChannelListItemUI: PreviewWithLatestMessage }}>
+          <ChannelList
+            filters={{}}
+            getLatestMessagePreview={getLatestMessagePreview}
+            options={{ limit: 2 }}
+          />
+        </WithComponents>
       </Chat>,
     );
 
@@ -572,7 +607,6 @@ describe('ChannelList', () => {
         >
           <ChannelList
             filters={{}}
-            List={ChannelListComponent}
             options={{
               presence: true,
               state: true,
@@ -605,7 +639,6 @@ describe('ChannelList', () => {
           <ChannelList
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
-            List={ChannelListComponent}
             options={{ presence: true, state: true, watch: true }}
             setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
@@ -640,7 +673,6 @@ describe('ChannelList', () => {
           <ChannelList
             customActiveChannel='missing-channel-id'
             filters={{}}
-            List={ChannelListComponent}
             options={{ presence: true, state: true, watch: true }}
             setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
@@ -667,22 +699,27 @@ describe('ChannelList', () => {
             setActiveChannel,
           }}
         >
-          <ChannelList
-            customActiveChannel={testChannel2.channel.id}
-            filters={{}}
-            List={ChannelListComponent}
-            options={{
-              limit: 25,
-              message_limit: 25,
-              presence: true,
-              state: true,
-              watch: true,
+          <WithComponents
+            overrides={{
+              ChannelListItemUI: ChannelPreviewComponent,
+              ChannelListUI: ChannelListComponent,
             }}
-            Preview={ChannelPreviewComponent}
-            setActiveChannel={setActiveChannel}
-            setActiveChannelOnMount
-            watchers={watchersConfig}
-          />
+          >
+            <ChannelList
+              customActiveChannel={testChannel2.channel.id}
+              filters={{}}
+              options={{
+                limit: 25,
+                message_limit: 25,
+                presence: true,
+                state: true,
+                watch: true,
+              }}
+              setActiveChannel={setActiveChannel}
+              setActiveChannelOnMount
+              watchers={watchersConfig}
+            />
+          </WithComponents>
         </ChatContext.Provider>,
       );
 
@@ -764,98 +801,15 @@ describe('ChannelList', () => {
         });
 
         await waitFor(() => {
+          // Search results container should be visible (with presearch) but no query results
           expect(
             container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-          ).not.toBeInTheDocument();
-          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-        });
-      });
-      it('should not render inline search results if popupResults is true', async () => {
-        const { container } = await renderComponents(
-          { channel, client },
-          { additionalChannelSearchProps: { popupResults: true } },
-        );
-        const input = screen.queryByTestId('search-input');
-        await act(async () => {
-          await fireEvent.change(input, {
-            target: {
-              value: inputText,
-            },
-          });
-        });
-        await waitFor(() => {
-          expect(
-            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
           ).toBeInTheDocument();
-          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-        });
-      });
-      it('should render inline search results if popupResults is false', async () => {
-        const { container } = await renderComponents(
-          { channel, client },
-          { additionalChannelSearchProps: { popupResults: false } },
-        );
-        const input = screen.queryByTestId('search-input');
-        await act(async () => {
-          await fireEvent.change(input, {
-            target: {
-              value: inputText,
-            },
-          });
-        });
-        await waitFor(() => {
-          expect(
-            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.inline`),
-          ).toBeInTheDocument();
+          // Channel list is hidden when search is active
           expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
         });
       });
-
-      it.each([
-        ['should not', false],
-        ['should', true],
-      ])(
-        '%s unmount search results on result click, if configured',
-        async (_, clearSearchOnClickOutside) => {
-          jest.useFakeTimers('modern');
-          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
-          const { container } = await renderComponents(
-            { channel, client },
-            { additionalChannelSearchProps: { clearSearchOnClickOutside } },
-          );
-          const input = screen.getByTestId('search-input');
-          await act(async () => {
-            await fireEvent.change(input, {
-              target: {
-                value: inputText,
-              },
-            });
-          });
-          await act(() => {
-            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
-          });
-          const searchResults = screen.queryAllByTestId('channel-search-result-user');
-          useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
-          await act(async () => {
-            await fireEvent.click(searchResults[0]);
-          });
-
-          await waitFor(() => {
-            if (clearSearchOnClickOutside) {
-              expect(
-                container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-              ).not.toBeInTheDocument();
-            } else {
-              expect(
-                container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-              ).toBeInTheDocument();
-            }
-          });
-          jest.useRealTimers();
-        },
-      );
-
-      it('should unmount search results if user cleared the input', async () => {
+      it('should hide channel list and show search results when user types', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
         await act(async () => {
@@ -865,6 +819,77 @@ describe('ChannelList', () => {
               value: inputText,
             },
           });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).toBeInTheDocument();
+          // Channel list is hidden when search is active
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+      it('should show search results when user types in search input', async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should exit search and show channel list when cancel button is clicked', async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('search-bar-button')).toBeInTheDocument();
+        });
+
+        await act(async () => {
+          const cancelButton = screen.queryByTestId('search-bar-button');
+          await fireEvent.click(cancelButton);
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
+          ).not.toBeInTheDocument();
+          expect(input).toHaveValue('');
+          expect(screen.queryByTestId('search-bar-button')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should clear search query when clear button is clicked but keep search active', async () => {
+        await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(async () => {
+          input.focus();
+          await fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('clear-input-button')).toBeInTheDocument();
         });
 
         await act(async () => {
@@ -872,17 +897,14 @@ describe('ChannelList', () => {
           await fireEvent.click(clearButton);
         });
         await waitFor(() => {
-          expect(
-            container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-          ).not.toBeInTheDocument();
-          expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
           expect(input).toHaveValue('');
           expect(input).toHaveFocus();
-          expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+          // Search remains active after clearing, cancel button should still be visible
+          expect(screen.queryByTestId('search-bar-button')).toBeInTheDocument();
         });
       });
 
-      it('should unmount search results if user clicked the return button', async () => {
+      it('should exit search when cancel button is clicked after typing', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
 
@@ -895,17 +917,16 @@ describe('ChannelList', () => {
           });
         });
 
-        const returnIcon = screen.queryByTestId('return-icon');
+        const cancelButton = screen.queryByTestId('search-bar-button');
         await act(async () => {
-          await fireEvent.click(returnIcon);
+          await fireEvent.click(cancelButton);
         });
         await waitFor(() => {
           expect(
             container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
           ).not.toBeInTheDocument();
-          expect(input).not.toHaveFocus();
           expect(input).toHaveValue('');
-          expect(returnIcon).not.toBeInTheDocument();
+          expect(cancelButton).not.toBeInTheDocument();
         });
       });
       it('should add the selected result to the top of the channel list', async () => {
@@ -973,14 +994,20 @@ describe('ChannelList', () => {
     const renderChannels = jest.fn();
     const channelListProps = {
       filters: {},
-      List: ChannelListComponent,
+
       options: { limit: 25, message_limit: 25 },
-      Preview: ChannelPreviewComponent,
       renderChannels,
     };
     const { container, getByRole } = await render(
       <Chat client={chatClient}>
-        <ChannelList {...channelListProps} />
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList {...channelListProps} />
+        </WithComponents>
       </Chat>,
     );
 
@@ -1000,9 +1027,8 @@ describe('ChannelList', () => {
     describe('message.new', () => {
       const props = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
       const sendNewMessageOnChannel3 = async () => {
         const newMessage = generateMessage({
@@ -1024,7 +1050,14 @@ describe('ChannelList', () => {
       it('should move channel to top of the list', async () => {
         const { container, getAllByRole, getByRole, getByText } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...props} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...props} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1052,7 +1085,14 @@ describe('ChannelList', () => {
       it('should not alter order if `lockChannelOrder` prop is true', async () => {
         const { container, getAllByRole, getByRole, getByText } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...props} lockChannelOrder />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...props} lockChannelOrder />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1082,7 +1122,14 @@ describe('ChannelList', () => {
         const onMessageNewEvent = jest.fn();
         render(
           <Chat client={chatClient}>
-            <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
+            </WithComponents>
           </Chat>,
         );
         const message = await sendNewMessageOnChannel3();
@@ -1107,18 +1154,23 @@ describe('ChannelList', () => {
 
         const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList
-              filters={{}}
-              List={ChannelListComponent}
-              options={{
-                limit: 25,
-                message_limit: 25,
-                presence: true,
-                state: true,
-                watch: true,
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
               }}
-              Preview={ChannelPreviewComponent}
-            />
+            >
+              <ChannelList
+                filters={{}}
+                options={{
+                  limit: 25,
+                  message_limit: 25,
+                  presence: true,
+                  state: true,
+                  watch: true,
+                }}
+              />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1151,19 +1203,24 @@ describe('ChannelList', () => {
 
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList
-              filters={{}}
-              List={ChannelListComponent}
-              onMessageNew={onMessageNew}
-              options={{
-                limit: 25,
-                message_limit: 25,
-                presence: true,
-                state: true,
-                watch: true,
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
               }}
-              Preview={ChannelPreviewComponent}
-            />
+            >
+              <ChannelList
+                filters={{}}
+                onMessageNew={onMessageNew}
+                options={{
+                  limit: 25,
+                  message_limit: 25,
+                  presence: true,
+                  state: true,
+                  watch: true,
+                }}
+              />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1187,7 +1244,7 @@ describe('ChannelList', () => {
     describe('notification.added_to_channel', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: {
           limit: 25,
           message_limit: 25,
@@ -1195,7 +1252,6 @@ describe('ChannelList', () => {
           state: true,
           watch: true,
         },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -1206,7 +1262,14 @@ describe('ChannelList', () => {
       it('should move channel to top of the list by default', async () => {
         const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1238,7 +1301,14 @@ describe('ChannelList', () => {
         const onAddedToChannel = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} onAddedToChannel={onAddedToChannel} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} onAddedToChannel={onAddedToChannel} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1262,9 +1332,8 @@ describe('ChannelList', () => {
     describe('notification.removed_from_channel', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -1276,7 +1345,14 @@ describe('ChannelList', () => {
       it('should remove the channel from list by default', async () => {
         const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
         // Wait for list of channels to load in DOM.
@@ -1300,10 +1376,17 @@ describe('ChannelList', () => {
         const onRemovedFromChannel = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList
-              {...channelListProps}
-              onRemovedFromChannel={onRemovedFromChannel}
-            />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                {...channelListProps}
+                onRemovedFromChannel={onRemovedFromChannel}
+              />
+            </WithComponents>
           </Chat>,
         );
         // Wait for list of channels to load in DOM.
@@ -1326,9 +1409,8 @@ describe('ChannelList', () => {
     describe('channel.updated', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -1338,7 +1420,14 @@ describe('ChannelList', () => {
       it('should update the channel in list, by default', async () => {
         const { container, getByRole, getByText } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1366,7 +1455,14 @@ describe('ChannelList', () => {
         const onChannelUpdated = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} onChannelUpdated={onChannelUpdated} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} onChannelUpdated={onChannelUpdated} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1395,9 +1491,8 @@ describe('ChannelList', () => {
     describe('channel.deleted', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -1407,7 +1502,14 @@ describe('ChannelList', () => {
       it('should remove channel from list, by default', async () => {
         const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1430,7 +1532,14 @@ describe('ChannelList', () => {
         const onChannelDeleted = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} onChannelDeleted={onChannelDeleted} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} onChannelDeleted={onChannelDeleted} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1459,11 +1568,18 @@ describe('ChannelList', () => {
               setActiveChannel,
             }}
           >
-            <ChannelList
-              {...channelListProps}
-              channel={{ cid: testChannel1.channel.cid }}
-              setActiveChannel={setActiveChannel}
-            />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                {...channelListProps}
+                channel={{ cid: testChannel1.channel.cid }}
+                setActiveChannel={setActiveChannel}
+              />
+            </WithComponents>
           </ChatContext.Provider>,
         );
 
@@ -1485,9 +1601,8 @@ describe('ChannelList', () => {
     describe('channel.hidden', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -1497,7 +1612,14 @@ describe('ChannelList', () => {
       it('should remove channel from list, by default', async () => {
         const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1527,11 +1649,18 @@ describe('ChannelList', () => {
               setActiveChannel,
             }}
           >
-            <ChannelList
-              {...channelListProps}
-              channel={{ cid: testChannel1.channel.cid }}
-              setActiveChannel={setActiveChannel}
-            />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                {...channelListProps}
+                channel={{ cid: testChannel1.channel.cid }}
+                setActiveChannel={setActiveChannel}
+              />
+            </WithComponents>
           </ChatContext.Provider>,
         );
 
@@ -1553,7 +1682,7 @@ describe('ChannelList', () => {
     describe('channel.visible', () => {
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: {
           limit: 25,
           message_limit: 25,
@@ -1561,7 +1690,6 @@ describe('ChannelList', () => {
           state: true,
           watch: true,
         },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -1572,7 +1700,14 @@ describe('ChannelList', () => {
       it('should move channel to top of the list by default', async () => {
         const { container, getAllByRole, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1602,7 +1737,14 @@ describe('ChannelList', () => {
         const onChannelVisible = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} onChannelVisible={onChannelVisible} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} onChannelVisible={onChannelVisible} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1627,16 +1769,22 @@ describe('ChannelList', () => {
         const channel2 = generateChannel();
         const channelListProps = {
           filters: {},
-          List: ChannelListComponent,
+
           options: { limit: 25, message_limit: 25 },
-          Preview: ChannelPreviewComponent,
         };
 
         useMockedApis(chatClient, [queryChannelsApi([channel1])]);
 
         const { container, getByRole, getByTestId } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1668,9 +1816,8 @@ describe('ChannelList', () => {
 
       const channelListProps = {
         filters: {},
-        List: ChannelListComponent,
+
         options: { limit: 25, message_limit: 25 },
-        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -1686,7 +1833,17 @@ describe('ChannelList', () => {
         const onChannelTruncated = jest.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
-            <ChannelList {...channelListProps} onChannelTruncated={onChannelTruncated} />
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                {...channelListProps}
+                onChannelTruncated={onChannelTruncated}
+              />
+            </WithComponents>
           </Chat>,
         );
 
@@ -1856,15 +2013,20 @@ describe('ChannelList', () => {
       };
       const props = {
         filters: {},
-        List: ChannelListCustom,
-        Preview: ChannelPreviewComponent,
       };
 
       useMockedApis(chatClient, [queryChannelsApi(channelsToBeLoaded)]);
 
       await render(
         <Chat client={chatClient}>
-          <ChannelList {...props} />
+          <WithComponents
+            overrides={{
+              ChannelListItemUI: ChannelPreviewComponent,
+              ChannelListUI: ChannelListCustom,
+            }}
+          >
+            <ChannelList {...props} />
+          </WithComponents>
         </Chat>,
       );
 

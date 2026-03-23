@@ -14,6 +14,17 @@ import { SearchController } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+  };
+});
+
 const sendMessageMock = jest.fn();
 const fileUploadUrl = 'http://www.getstream.io';
 const cid = 'messaging:general';
@@ -69,6 +80,7 @@ const setup = async ({ channelData } = {}) => {
   const getDraftSpy = jest
     .spyOn(customChannel, 'getDraft')
     .mockResolvedValue({ draft: { message: { id: 'x' } } });
+  jest.spyOn(customChannel, 'deleteDraft').mockResolvedValue({});
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
@@ -103,6 +115,7 @@ const renderComponent = async ({
     });
     channel = result.channels[0];
     client = result.client;
+    jest.spyOn(channel, 'deleteDraft').mockResolvedValue({});
   }
   let renderResult;
 

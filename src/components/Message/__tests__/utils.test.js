@@ -7,7 +7,6 @@ import {
 } from '../../../mock-builders';
 import {
   areMessagePropsEqual,
-  areMessageUIPropsEqual,
   getImages,
   getMessageActions,
   getNonImageAttachments,
@@ -273,18 +272,6 @@ describe('Message utils', () => {
       const nextProps = { lastReceivedId: nextLastReceivedId, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
       const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
-      expect(arePropsEqual).toBe(false);
-      expect(shouldUpdate).toBe(true);
-    });
-
-    it('should update if editing state changes', () => {
-      const message = generateMessage();
-      const currentEditing = true;
-      const currentProps = { editing: currentEditing, message };
-      const nextEditing = false;
-      const nextProps = { editing: nextEditing, message };
-      const arePropsEqual = areMessageUIPropsEqual(nextProps, currentProps);
-      const shouldUpdate = !areMessageUIPropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });

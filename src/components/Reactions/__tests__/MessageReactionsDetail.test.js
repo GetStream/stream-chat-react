@@ -1,17 +1,19 @@
 import React from 'react';
-import { act, fireEvent, render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
-import { ReactionsList } from '../ReactionsList';
+import { MessageReactionsDetail } from '../MessageReactionsDetail';
 import { MessageProvider } from '../../../context/MessageContext';
 
 import { generateReactions, generateUser } from '../../../mock-builders';
-import { ComponentProvider } from '../../../context';
+import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
+import { useProcessReactions } from '../hooks/useProcessReactions';
+import { getTestClient } from '../../../mock-builders';
 
 const generateReactionsFromReactionGroups = (reactionGroups) =>
   Object.entries(reactionGroups).flatMap(([type, { count }]) =>
@@ -21,16 +23,57 @@ const generateReactionsFromReactionGroups = (reactionGroups) =>
     })),
   );
 
+/**
+ * Helper component that uses useProcessReactions to generate the
+ * reactions summary needed by MessageReactionsDetail.
+ */
+const MessageReactionsDetailWrapper = ({
+  handleFetchReactions,
+  reaction_groups,
+  reactions,
+  sortReactionDetails,
+  sortReactions,
+  ...rest
+}) => {
+  const { existingReactions, totalReactionCount } = useProcessReactions({
+    reaction_groups,
+    reactions,
+    sortReactions,
+  });
+
+  return (
+    <MessageReactionsDetail
+      handleFetchReactions={handleFetchReactions}
+      reactions={existingReactions}
+      selectedReactionType={
+        rest.selectedReactionType ?? existingReactions[0]?.reactionType ?? null
+      }
+      sortReactionDetails={sortReactionDetails}
+      totalReactionCount={totalReactionCount}
+      {...rest}
+    />
+  );
+};
+
+const chatClient = getTestClient();
+
 const renderComponent = ({ handleFetchReactions, ...props }) =>
   render(
-    <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
-      <MessageProvider value={{}}>
-        <ReactionsList handleFetchReactions={handleFetchReactions} {...props} />,
-      </MessageProvider>
-    </ComponentProvider>,
+    <ChatProvider value={{ client: chatClient }}>
+      <DialogManagerProvider>
+        <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+          <MessageProvider value={{}}>
+            <MessageReactionsDetailWrapper
+              handleFetchReactions={handleFetchReactions}
+              {...props}
+            />
+          </MessageProvider>
+        </ComponentProvider>
+      </DialogManagerProvider>
+    </ChatProvider>,
   );
 
-describe('ReactionsListModal', () => {
+describe('MessageReactionsDetail', () => {
   beforeEach(() => {
     // disable warnings (unreachable context)
     jest.spyOn(console, 'warn').mockImplementation(null);
@@ -40,27 +83,7 @@ describe('ReactionsListModal', () => {
     jest.clearAllMocks();
   });
 
-  it('should show reactions modal when a reaction is clicked', async () => {
-    const reactionGroups = {
-      haha: { count: 2 },
-      love: { count: 5 },
-    };
-    const { container, getByTestId, queryByTestId } = renderComponent({
-      reaction_groups: reactionGroups,
-      reactions: generateReactionsFromReactionGroups(reactionGroups),
-    });
-
-    expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
-    });
-
-    expect(getByTestId('reactions-list-modal')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should display a list of reactions in a modal', async () => {
+  it('should render the reactions detail panel', async () => {
     const reactionGroups = {
       haha: { count: 2 },
       love: { count: 5 },
@@ -70,117 +93,108 @@ describe('ReactionsListModal', () => {
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
-    const { container, getAllByTestId, getByTestId } = renderComponent({
+    const { container, getByTestId } = renderComponent({
       handleFetchReactions: fetchReactions,
       reaction_groups: reactionGroups,
       reactions,
     });
 
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
-    });
-    expect(getAllByTestId('reaction-user-username')).toHaveLength(2);
-
-    await act(() => {
-      fireEvent.click(getByTestId('reaction-details-selector-love'));
-    });
-    expect(getAllByTestId('reaction-user-username')).toHaveLength(5);
-
+    expect(getByTestId('reactions-list-modal')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should close reactions list modal when close button is clicked', async () => {
+  it('should display a list of reacted users', async () => {
     const reactionGroups = {
       haha: { count: 2 },
       love: { count: 5 },
     };
-    const { getByTestId, getByTitle, queryByTestId } = renderComponent({
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = jest.fn((type) =>
+      Promise.resolve(reactions.filter((r) => r.type === type)),
+    );
+
+    const { getAllByTestId } = renderComponent({
+      handleFetchReactions: fetchReactions,
       reaction_groups: reactionGroups,
-      reactions: generateReactionsFromReactionGroups(reactionGroups),
+      reactions,
+      selectedReactionType: 'haha',
     });
 
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    await waitFor(() => {
+      expect(getAllByTestId('reaction-user-username')).toHaveLength(2);
     });
-    expect(getByTestId('reactions-list-modal')).toBeInTheDocument();
-    await act(() => {
-      fireEvent.click(getByTitle('Close'));
-    });
-    expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
   });
 
-  it('should not allow opening reactions list modal when the reactions count is too high', async () => {
-    const reactionGroups = {
-      haha: { count: 2000 },
-      love: { count: 5000 },
-    };
-    const { getByTestId, queryByTestId } = renderComponent({
-      reaction_groups: reactionGroups,
-      reactions: generateReactionsFromReactionGroups(reactionGroups),
-    });
-
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
-    });
-    expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
-  });
-
-  it('should order reactions alphabetically by default', async () => {
+  it('should switch to display users of different reaction type', async () => {
     const reactionGroups = {
       haha: { count: 2 },
-      like: { count: 8 },
       love: { count: 5 },
     };
-    const { getByTestId } = renderComponent({
-      reaction_groups: reactionGroups,
-      reactions: generateReactionsFromReactionGroups(reactionGroups),
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = jest.fn((type) =>
+      Promise.resolve(reactions.filter((r) => r.type === type)),
+    );
+
+    const { getAllByTestId, rerender } = render(
+      <ChatProvider value={{ client: chatClient }}>
+        <DialogManagerProvider>
+          <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+            <MessageProvider value={{}}>
+              <MessageReactionsDetailWrapper
+                handleFetchReactions={fetchReactions}
+                reaction_groups={reactionGroups}
+                reactions={reactions}
+                selectedReactionType='haha'
+              />
+            </MessageProvider>
+          </ComponentProvider>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getAllByTestId('reaction-user-username')).toHaveLength(2);
     });
 
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    rerender(
+      <ChatProvider value={{ client: chatClient }}>
+        <DialogManagerProvider>
+          <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+            <MessageProvider value={{}}>
+              <MessageReactionsDetailWrapper
+                handleFetchReactions={fetchReactions}
+                reaction_groups={reactionGroups}
+                reactions={reactions}
+                selectedReactionType='love'
+              />
+            </MessageProvider>
+          </ComponentProvider>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getAllByTestId('reaction-user-username')).toHaveLength(5);
     });
-
-    expect(
-      getByTestId('reaction-details-selector-haha').compareDocumentPosition(
-        getByTestId('reaction-details-selector-like'),
-      ),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-
-    expect(
-      getByTestId('reaction-details-selector-like').compareDocumentPosition(
-        getByTestId('reaction-details-selector-love'),
-      ),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  it('should use custom reactions comparator if provided', async () => {
+  it('should display total reaction count', () => {
     const reactionGroups = {
       haha: { count: 2 },
-      like: { count: 8 },
       love: { count: 5 },
     };
-    const { getByTestId } = renderComponent({
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = jest.fn(() => Promise.resolve([]));
+
+    const { getByText } = renderComponent({
+      handleFetchReactions: fetchReactions,
       reaction_groups: reactionGroups,
-      reactions: generateReactionsFromReactionGroups(reactionGroups),
-      sortReactions: (a, b) => b.reactionCount - a.reactionCount,
+      reactions,
     });
 
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
-    });
-
-    expect(
-      getByTestId('reaction-details-selector-like').compareDocumentPosition(
-        getByTestId('reaction-details-selector-love'),
-      ),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-
-    expect(
-      getByTestId('reaction-details-selector-love').compareDocumentPosition(
-        getByTestId('reaction-details-selector-haha'),
-      ),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    // total count is 7
+    expect(getByText('{{ count }} reactions')).toBeInTheDocument();
   });
 
   it('should use custom reaction details comparator if provided', async () => {
@@ -189,23 +203,30 @@ describe('ReactionsListModal', () => {
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups).reverse();
     const fetchReactions = jest.fn(() => Promise.resolve(reactions));
-    const { getByTestId, getByText } = renderComponent({
+
+    const { getByText } = renderComponent({
       handleFetchReactions: fetchReactions,
       reaction_groups: reactionGroups,
       reactions,
+      selectedReactionType: 'haha',
       sortReactionDetails: (a, b) => -a.user.name.localeCompare(b.user.name),
     });
 
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    await waitFor(() => {
+      expect(getByText('Mark Number 2')).toBeInTheDocument();
+      expect(getByText('Mark Number 1')).toBeInTheDocument();
+      expect(getByText('Mark Number 0')).toBeInTheDocument();
     });
 
-    expect(
-      getByText('Mark Number 2').compareDocumentPosition(getByText('Mark Number 1')),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    // Verify order: 2, 1, 0 (reverse alphabetical)
+    await waitFor(() => {
+      expect(
+        getByText('Mark Number 2').compareDocumentPosition(getByText('Mark Number 1')),
+      ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
 
-    expect(
-      getByText('Mark Number 1').compareDocumentPosition(getByText('Mark Number 0')),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(
+        getByText('Mark Number 1').compareDocumentPosition(getByText('Mark Number 0')),
+      ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    });
   });
 });

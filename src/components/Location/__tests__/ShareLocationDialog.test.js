@@ -4,11 +4,11 @@ import '@testing-library/jest-dom';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
-import ShareLocationDialog from '../ShareLocationDialog';
-import { useMessageComposerController } from '../../MessageInput';
+import { ShareLocationDialog } from '../ShareLocationDialog';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 
-jest.mock('../../MessageInput/hooks/useMessageComposer', () => ({
-  useMessageComposer: jest.fn().mockReturnValue({
+jest.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
+  useMessageComposerController: jest.fn().mockReturnValue({
     locationComposer: {
       initState: jest.fn(),
       setData: jest.fn(),
@@ -17,7 +17,12 @@ jest.mock('../../MessageInput/hooks/useMessageComposer', () => ({
   }),
 }));
 
-const DROPDOWN_OPEN_BTN_TEST_ID = 'dropdown-open-button';
+jest.mock('../../Notifications', () => ({
+  addNotificationTargetTag: jest.fn((panel) => ({ panel })),
+  useNotificationTarget: jest.fn().mockReturnValue('channel'),
+}));
+
+const DROPDOWN_SELECTOR = '.str-chat__live-location-sharing-duration-selector__button';
 const SHARE_LIVE_LOCATION_SWITCH_TEST_ID = 'share-location-dialog-live-location-switch';
 const GEOLOCATION_MAP_TEST_ID = 'geolocation-map';
 
@@ -78,15 +83,31 @@ window.navigator.geolocation = {
 describe('ShareLocationDialog', () => {
   afterEach(jest.clearAllMocks);
   it('renders dropdown with default durations', async () => {
-    // check send button is enabled after selection
-    await renderComponent();
-    expect(screen.queryByTestId(DROPDOWN_OPEN_BTN_TEST_ID)).not.toBeInTheDocument();
+    // The switch is disabled until a geolocation position is available
+    const callbacks = {};
+    window.navigator.geolocation.watchPosition.mockImplementation(
+      (onSuccess, onError) => {
+        callbacks.onSuccess = onSuccess;
+        callbacks.onError = onError;
+      },
+    );
+
+    const { justRerender } = await renderComponent();
+    const coords = { latitude: 1, longitude: 10 };
+    await act(() => {
+      callbacks.onSuccess({ coords });
+      justRerender();
+    });
+
+    expect(document.querySelector(DROPDOWN_SELECTOR)).toBeNull();
     await act(async () => {
       await fireEvent.click(screen.getByTestId(SHARE_LIVE_LOCATION_SWITCH_TEST_ID));
     });
 
+    const dropdownTrigger = document.querySelector(DROPDOWN_SELECTOR);
+    expect(dropdownTrigger).not.toBeNull();
     await act(async () => {
-      await fireEvent.click(screen.getByTestId(DROPDOWN_OPEN_BTN_TEST_ID));
+      await fireEvent.click(dropdownTrigger);
     });
     expect(screen.getAllByText('15 minutes')).toHaveLength(2);
     expect(screen.queryByText('an hour')).toBeInTheDocument();
@@ -94,17 +115,33 @@ describe('ShareLocationDialog', () => {
   });
 
   it('renders dropdown with custom durations', async () => {
-    // check send button is enabled after selection
-    await renderComponent({
+    // The switch is disabled until a geolocation position is available
+    const callbacks = {};
+    window.navigator.geolocation.watchPosition.mockImplementation(
+      (onSuccess, onError) => {
+        callbacks.onSuccess = onSuccess;
+        callbacks.onError = onError;
+      },
+    );
+
+    const { justRerender } = await renderComponent({
       props: { shareDurations: [2 * 60 * 1000, 3 * 60 * 60 * 1000, 10 * 60 * 60 * 1000] },
     });
-    expect(screen.queryByTestId(DROPDOWN_OPEN_BTN_TEST_ID)).not.toBeInTheDocument();
+    const coords = { latitude: 1, longitude: 10 };
+    await act(() => {
+      callbacks.onSuccess({ coords });
+      justRerender();
+    });
+
+    expect(document.querySelector(DROPDOWN_SELECTOR)).toBeNull();
     await act(async () => {
       await fireEvent.click(screen.getByTestId(SHARE_LIVE_LOCATION_SWITCH_TEST_ID));
     });
 
+    const dropdownTrigger = document.querySelector(DROPDOWN_SELECTOR);
+    expect(dropdownTrigger).not.toBeNull();
     await act(async () => {
-      await fireEvent.click(screen.getByTestId(DROPDOWN_OPEN_BTN_TEST_ID));
+      await fireEvent.click(dropdownTrigger);
     });
     expect(screen.getAllByText('2 minutes')).toHaveLength(2);
     expect(screen.queryByText('3 hours')).toBeInTheDocument();

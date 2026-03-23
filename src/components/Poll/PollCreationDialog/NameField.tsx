@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 

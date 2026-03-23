@@ -382,10 +382,13 @@ describe('MediaRecorderController', () => {
   });
 
   describe('stop', () => {
-    it('returns existing recording', async () => {
+    it('returns existing recording when mediaRecorder is inactive', async () => {
       const controller = new MediaRecorderController();
       const existingRecording = generateVoiceRecordingAttachment();
       controller.recording.next(existingRecording);
+      // stop() now requires mediaRecorder.state === 'inactive' to return existing recording
+      await controller.start();
+      controller.mediaRecorder.state = 'inactive';
       expect(await controller.stop()).toStrictEqual(
         expect.objectContaining(existingRecording),
       );

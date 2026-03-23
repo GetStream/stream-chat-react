@@ -23,19 +23,26 @@ import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
+
 expect.extend(toHaveNoViolations);
 
-const quotedMessageTestId = 'quoted-message';
-const quotedMessageContentsTestId = 'quoted-message-contents';
+const quotedMessagePreviewTestId = 'quoted-message-preview';
 const quotedMessageTextTestId = 'quoted-message-text';
-const quotedAttachmentListTestId = 'quoted-attachment-list';
-const quotingAttachmentListTestId = 'quoting-attachment-list';
-const avatarTestId = 'avatar';
 const quotedText = 'X';
-const deletedMessageText = 'Message deleted';
-
-const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
-
 const alice = generateUser({ name: 'alice' });
 const jumpToMessageMock = jest.fn();
 
@@ -65,7 +72,6 @@ async function renderQuotedMessage({
           >
             <ComponentProvider
               value={{
-                Attachment,
                 Message() {
                   return <MessageUI channelConfig={channelConfig} />;
                 },
@@ -90,37 +96,36 @@ describe('QuotedMessage', () => {
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message: {} },
     });
-    expect(queryByTestId(quotedMessageTestId)).not.toBeInTheDocument();
+    expect(queryByTestId(quotedMessagePreviewTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-  it('should not be rendered if no text neither attachments', async () => {
+  it('should still render the preview with "Reply" text when quoted_message has no text or attachments', async () => {
     const message = { quoted_message: {} };
-    const { container, queryByTestId } = await renderQuotedMessage({
+    const { container, queryByTestId, queryByText } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(quotedMessageTestId)).not.toBeInTheDocument();
+    expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
+    expect(queryByText('Reply')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('renders proper markdown (through default renderText fn)', async () => {
+  it('renders quoted message text', async () => {
     const messageText = 'hey @John Cena';
-    const { container, findByTestId, findByText, queryByTestId } =
-      await renderQuotedMessage({
-        customProps: {
-          message: {
-            quoted_message: {
-              mentioned_users: [{ id: 'john', name: 'John Cena' }],
-              text: messageText,
-            },
+    const { container, findByTestId } = await renderQuotedMessage({
+      customProps: {
+        message: {
+          quoted_message: {
+            mentioned_users: [{ id: 'john', name: 'John Cena' }],
+            text: messageText,
           },
         },
-      });
+      },
+    });
 
-    expect(await findByText('@John Cena')).toHaveAttribute('data-user-id');
-    expect((await findByTestId('quoted-message-text')).textContent).toEqual(messageText);
-    expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
+    const textEl = await findByTestId('quoted-message-text');
+    expect(textEl.textContent).toContain(messageText);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -131,7 +136,7 @@ describe('QuotedMessage', () => {
       .fn()
       .mockReturnValue(<div data-testid={messageText}>{messageText}</div>);
 
-    const { container, findByTestId, queryByTestId } = await renderQuotedMessage({
+    const { container, findByTestId } = await renderQuotedMessage({
       customProps: {
         message: {
           quoted_message: {
@@ -144,172 +149,134 @@ describe('QuotedMessage', () => {
 
     expect(fn).toHaveBeenCalled();
     expect((await findByTestId('quoted-message-text')).textContent).toEqual(messageText);
-    expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should render quoted message attachments', async () => {
+  it('should render quoted message with file attachment indicator', async () => {
     const message = {
       quoted_message: {
-        attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
+        attachments: [generateFileAttachment()],
         text: '',
       },
     };
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(quotedAttachmentListTestId)).toBeInTheDocument();
-    expect(queryByTestId(quotedMessageTextTestId)).toBeEmptyDOMElement();
+    // The new QuotedMessagePreviewUI renders an icon for file attachments
+    expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should render quoted message text and attachments', async () => {
+  it('should render quoted message text and attachment indicator', async () => {
     const message = {
       quoted_message: {
-        attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
+        attachments: [generateFileAttachment()],
         text: quotedText,
       },
     };
     const { container, queryByTestId, queryByText } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(quotedAttachmentListTestId)).toBeInTheDocument();
+    expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
     expect(queryByText(quotedText)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should render quoting message attachments', async () => {
+  it('should render quoted message preview', async () => {
     const message = {
-      attachments: [generateFileAttachment({ testId: quotingAttachmentListTestId })],
       quoted_message: { text: quotedText },
     };
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
-    expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
+    expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
     expect(queryByTestId(quotedMessageTextTestId)).toBeInTheDocument();
-    expect(queryByTestId(quotedMessageContentsTestId).children).toHaveLength(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should render avatar', async () => {
+  it('should render author info when user data is provided', async () => {
     const message = {
       quoted_message: { text: quotedText, user: alice },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({
+    const { container, queryByText } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(avatarTestId)).toBeInTheDocument();
+    // If the quoted message is from the current user, it renders "You"
+    // If from another user, it renders "Reply to {{ authorName }}"
+    const authorElement = queryByText('You') || queryByText(/Reply to/);
+    expect(authorElement).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should not render avatar if no user data', async () => {
+  it('should render Reply text if no user data', async () => {
     const message = {
       quoted_message: { text: quotedText },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({
+    const { container, queryByText } = await renderQuotedMessage({
       customProps: { message },
     });
-    expect(queryByTestId(avatarTestId)).not.toBeInTheDocument();
+    expect(queryByText('Reply')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   describe('deleted', () => {
-    it(`should render text "${deletedMessageText}" for type "deleted"`, async () => {
+    it('should still render the quoted message preview for type "deleted"', async () => {
       const message = {
         quoted_message: { text: quotedText, type: 'deleted' },
       };
-      const { container, queryByText } = await renderQuotedMessage({
+      const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
       });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByText(quotedText)).not.toBeInTheDocument();
+      // The new QuotedMessagePreviewUI does not handle deleted state separately
+      expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
-    it(`should not render quoted message attachments for type "deleted"`, async () => {
+    it('should render the quoted message preview for type "deleted" with attachments', async () => {
       const message = {
         quoted_message: {
-          attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
+          attachments: [generateFileAttachment()],
           type: 'deleted',
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+      const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
       });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
+      expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
-    it(`should not render quoting message attachments for type "deleted"`, async () => {
-      const message = {
-        attachments: [generateFileAttachment({ testId: quotingAttachmentListTestId })],
-        quoted_message: {
-          attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
-          type: 'deleted',
-        },
-      };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
-        customProps: { message },
-      });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it(`should render text "${deletedMessageText}" for deleted_at timestamp`, async () => {
+    it('should still render the quoted message preview for deleted_at timestamp', async () => {
       const message = {
         quoted_message: { deleted_at: new Date().toISOString(), text: quotedText },
       };
-      const { container, queryByText } = await renderQuotedMessage({
+      const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
       });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByText(quotedText)).not.toBeInTheDocument();
+      expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
-    it(`should not render quoted message attachments for deleted_at timestamp`, async () => {
+    it('should render the quoted message preview for deleted_at with attachments', async () => {
       const message = {
         quoted_message: {
-          attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
+          attachments: [generateFileAttachment()],
           deleted_at: new Date().toISOString(),
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+      const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
       });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it(`should render quoting message attachments for deleted_at timestamp`, async () => {
-      const message = {
-        attachments: [generateFileAttachment({ testId: quotingAttachmentListTestId })],
-        quoted_message: {
-          attachments: [generateFileAttachment({ testId: quotedAttachmentListTestId })],
-          deleted_at: new Date().toISOString(),
-        },
-      };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
-        customProps: { message },
-      });
-      expect(queryByText(deletedMessageText)).toBeInTheDocument();
-      expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
+      expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });

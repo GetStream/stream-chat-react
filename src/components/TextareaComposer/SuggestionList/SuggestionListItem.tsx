@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { type ComponentProps, useRef } from 'react';
 import React, { useCallback, useLayoutEffect } from 'react';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import type { TextComposerSuggestion } from 'stream-chat';
 import type { UserItemProps } from './UserItem';
 import type { CommandItemProps } from './CommandItem';

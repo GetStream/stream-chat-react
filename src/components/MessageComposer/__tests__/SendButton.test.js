@@ -17,7 +17,7 @@ describe('SendButton', () => {
       client,
     } = await initClientWithChannels();
     channel.messageComposer.textComposer.setText('Enable the button');
-    const { container, getByTitle } = render(
+    const { container, getByTestId } = render(
       <Chat client={client}>
         <Channel channel={channel}>
           <SendButton sendMessage={mock} />
@@ -26,7 +26,7 @@ describe('SendButton', () => {
     );
     channel.messageComposer.textComposer.setText('X');
     await act(async () => {
-      await fireEvent.click(getByTitle('Send'));
+      await fireEvent.click(getByTestId('send-button'));
     });
     expect(mock).toHaveBeenCalledTimes(1);
     const results = await axe(container);

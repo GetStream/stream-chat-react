@@ -109,9 +109,9 @@ describe('NotificationTranslationTopic', () => {
   it.each([
     ['api:location:create:failed', 'Failed to share location'],
     ['api:location:share:failed', 'Failed to share location'],
-    ['api:message:search:not-found', 'Thread has not been found'],
+    ['api:reply:search:failed', 'Thread has not been found'],
     ['api:poll:end:success', 'Poll ended'],
-    ['browser-api:location:get:failed', 'Failed to retrieve location'],
+    ['browser:location:get:failed', 'Failed to retrieve location'],
     ['channel:jumpToFirstUnread:failed', 'Failed to jump to the first unread message'],
     ['validation:attachment:file:missing', 'File is required for upload attachment'],
     ['validation:attachment:id:missing', 'Local upload attachment missing local id'],

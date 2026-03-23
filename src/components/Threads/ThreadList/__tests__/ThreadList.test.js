@@ -38,13 +38,25 @@ jest.mock('../ThreadListUnseenThreadsBanner', () => ({
   ThreadListUnseenThreadsBanner: () => <div data-testid='thread-list-unseen-banner' />,
 }));
 
+jest.mock('../../../Notifications', () => ({
+  NotificationList: () => null,
+}));
+
 describe('ThreadList', () => {
   const mockClient = {
+    notifications: {
+      store: {
+        getLatestValue: jest.fn(() => ({ notifications: [] })),
+        subscribeWithSelector: jest.fn(() => jest.fn()),
+      },
+    },
     threads: {
       activate: jest.fn(),
       deactivate: jest.fn(),
       loadNextPage: jest.fn(),
-      state: {},
+      state: {
+        subscribeWithSelector: jest.fn(() => jest.fn()),
+      },
     },
   };
 

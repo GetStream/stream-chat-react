@@ -3,10 +3,12 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChannelAvatar } from '../../Avatar';
-import { ChannelPreview } from '../ChannelListItem';
+import { ChannelListItem } from '../ChannelListItem';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
+import { ComponentProvider, WithComponents } from '../../../context';
+import { TranslationProvider } from '../../../context/TranslationContext';
 
 import {
   dispatchChannelTruncatedEvent,
@@ -68,7 +70,11 @@ describe('ChannelPreview', () => {
   let client;
   let c0;
   let c1;
-  const renderComponent = (props, renderer) =>
+  const renderComponent = (
+    props,
+    renderer,
+    { ChannelListItemUI = PreviewUIComponent } = {},
+  ) =>
     renderer(
       <ChatContext.Provider
         value={{
@@ -77,7 +83,11 @@ describe('ChannelPreview', () => {
           setActiveChannel: () => jest.fn(),
         }}
       >
-        <ChannelPreview ChannelListItemUI={PreviewUIComponent} {...props} />
+        <TranslationProvider value={{ t: (key) => key, userLanguage: 'en' }}>
+          <ComponentProvider value={{ ChannelListItemUI }}>
+            <ChannelListItem {...props} />
+          </ComponentProvider>
+        </TranslationProvider>
       </ChatContext.Provider>,
     );
 
@@ -164,9 +174,9 @@ describe('ChannelPreview', () => {
         activeChannel: c0,
         channel: c0,
         getLatestMessagePreview,
-        Preview: PreviewUIComponentWithLatestMessagePreview,
       },
       render,
+      { ChannelListItemUI: PreviewUIComponentWithLatestMessagePreview },
     );
 
     await expectLastEventMessageToBe(getByTestId, c0.data.name);
@@ -181,9 +191,9 @@ describe('ChannelPreview', () => {
       {
         activeChannel: c1,
         channel: c0,
-        Preview: ChannelPreviewUI,
       },
       render,
+      { ChannelListItemUI: ChannelPreviewUI },
     );
     const previewUI = screen.getByTestId(previewUITestId);
     expect(previewUI).toBeInTheDocument();
@@ -194,9 +204,9 @@ describe('ChannelPreview', () => {
         active: true,
         activeChannel: c1,
         channel: c0,
-        Preview: ChannelPreviewUI,
       },
       rerender,
+      { ChannelListItemUI: ChannelPreviewUI },
     );
     expect(previewUI).toBeInTheDocument();
     expect(previewUI).toHaveAttribute('data-isactive', 'true');
@@ -397,16 +407,10 @@ describe('ChannelPreview', () => {
       });
 
       const { container } = render(
-        <ChatContext.Provider
-          value={{
-            channel: c0,
-            client,
-            setActiveChannel: () => jest.fn(),
-          }}
-        >
-          <ChannelPreview channel={c0} />
-          <ChannelPreview channel={c1} />
-        </ChatContext.Provider>,
+        <Chat client={client}>
+          <ChannelListItem channel={c0} />
+          <ChannelListItem channel={c1} />
+        </Chat>,
       );
 
       await act(() => {
@@ -418,7 +422,7 @@ describe('ChannelPreview', () => {
 
       await waitFor(() => {
         const lastMessagePreviews = container.querySelectorAll(
-          '.str-chat__channel-preview-messenger--last-message',
+          '.str-chat__summarized-message-preview__text',
         );
         expect(lastMessagePreviews.length).toBe(2);
         lastMessagePreviews.forEach((preview) => {
@@ -456,16 +460,10 @@ describe('ChannelPreview', () => {
       });
 
       const { container } = render(
-        <ChatContext.Provider
-          value={{
-            channel: c0,
-            client,
-            setActiveChannel: () => jest.fn(),
-          }}
-        >
-          <ChannelPreview channel={c0} />
-          <ChannelPreview channel={c1} />
-        </ChatContext.Provider>,
+        <Chat client={client}>
+          <ChannelListItem channel={c0} />
+          <ChannelListItem channel={c1} />
+        </Chat>,
       );
 
       await act(() => {
@@ -478,7 +476,7 @@ describe('ChannelPreview', () => {
 
       await waitFor(() => {
         const lastMessagePreviews = container.querySelectorAll(
-          '.str-chat__channel-preview-messenger--last-message',
+          '.str-chat__summarized-message-preview__text',
         );
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
@@ -647,12 +645,14 @@ describe('ChannelPreview', () => {
   });
 
   describe('user.updated', () => {
-    const renderComponent = async ({ channel, channelPreviewProps, client }) => {
+    const renderComponent = async ({ channel, client, componentOverrides }) => {
       let result;
       await act(() => {
         result = render(
           <Chat client={client}>
-            <ChannelPreview {...channelPreviewProps} channel={channel} />
+            <WithComponents overrides={componentOverrides}>
+              <ChannelListItem channel={channel} />
+            </WithComponents>
           </Chat>,
         );
       });
@@ -671,14 +671,14 @@ describe('ChannelPreview', () => {
 
     const channelState = getChannelState(2);
 
-    const MockAvatar = ({ image, name }) => (
+    const MockAvatar = ({ imageUrl, userName }) => (
       <>
-        <div className='avatar-name'>{name}</div>
-        <div className='avatar-image'>{image}</div>
+        <div className='avatar-name'>{userName}</div>
+        <div className='avatar-image'>{imageUrl}</div>
       </>
     );
 
-    const channelPreviewProps = {
+    const componentOverrides = {
       Avatar: MockAvatar,
     };
 
@@ -719,7 +719,7 @@ describe('ChannelPreview', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { image: 'new-image' };
-      await renderComponent({ channel, channelPreviewProps, client });
+      await renderComponent({ channel, client, componentOverrides });
 
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.image)).not.toBeInTheDocument(),
@@ -743,7 +743,7 @@ describe('ChannelPreview', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { custom: 'new-custom' };
-      await renderComponent({ channel, channelPreviewProps, client });
+      await renderComponent({ channel, client, componentOverrides });
 
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
@@ -757,14 +757,13 @@ describe('ChannelPreview', () => {
     });
 
     describe('group channel', () => {
-      const channelPreviewProps = {
+      const componentOverrides = {
         Avatar: ChannelAvatar,
-        watchers: { limit: 10 },
       };
       const channelName = 'channel-name';
       const channelState = getChannelState(3, { channel: { name: channelName } });
 
-      it('renders max 4 avatars in channel avatar', async () => {
+      it('renders 2 avatars and overflow badge in channel avatar for 5-member channel', async () => {
         const channelState = getChannelState(5);
         const ownUser = channelState.members[0].user;
         const {
@@ -774,11 +773,12 @@ describe('ChannelPreview', () => {
           channelsData: [channelState],
           customUser: ownUser,
         });
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
-          expect(avatarImages).toHaveLength(4);
-          avatarImages.slice(0, 4).forEach((img, i) => {
+          // With overflowCount set (5 members > 4), GroupAvatar shows 2 avatars + "+N" badge
+          expect(avatarImages).toHaveLength(2);
+          avatarImages.forEach((img, i) => {
             expect(img).toHaveAttribute('src', channelState.members[i].user.image);
           });
         });
@@ -795,7 +795,7 @@ describe('ChannelPreview', () => {
             client,
           } = await initClientWithChannels({ channelsData: [channelState] });
           const updatedAttribute = { name: 'new-name' };
-          await renderComponent({ channel, channelPreviewProps, client });
+          await renderComponent({ channel, client, componentOverrides });
 
           await waitFor(() => {
             expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -821,7 +821,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -865,7 +865,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -906,14 +906,14 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
           expect(screen.getByText(channelName)).toBeInTheDocument();
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           avatarImages.forEach((img, i) => {
-            expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+            expect(img).toHaveAttribute('src', channelState.members[i].user.image);
           });
         });
 
@@ -926,7 +926,7 @@ describe('ChannelPreview', () => {
           expect(screen.getByText(channelName)).toBeInTheDocument();
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           avatarImages.forEach((img, i) => {
-            expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+            expect(img).toHaveAttribute('src', channelState.members[i].user.image);
           });
         });
       });
@@ -941,14 +941,14 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
           expect(screen.getByText(channelName)).toBeInTheDocument();
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           avatarImages.forEach((img, i) => {
-            expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+            expect(img).toHaveAttribute('src', channelState.members[i].user.image);
           });
         });
 
@@ -961,7 +961,7 @@ describe('ChannelPreview', () => {
           expect(screen.getByText(channelName)).toBeInTheDocument();
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           avatarImages.forEach((img, i) => {
-            expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+            expect(img).toHaveAttribute('src', channelState.members[i].user.image);
           });
         });
       });

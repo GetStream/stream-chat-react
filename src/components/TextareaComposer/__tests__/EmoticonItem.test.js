@@ -27,32 +27,19 @@ describe('EmoticonItem', () => {
     });
 
     const { container } = render(Component);
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__emoji-item"
-        >
-          <span
-            class="str-chat__emoji-item--entity"
-          >
-            native
-          </span>
-          <span
-            class="str-chat__emoji-item--name"
-          >
-            <span
-              class="str-chat__emoji-item--highlight"
-            >
-              n
-            </span>
-            <span
-              class="str-chat__emoji-item--part"
-            >
-              ame
-            </span>
-          </span>
-        </div>
-      </div>
-    `);
+    // Component now renders via EmojiContextMenuButton (a <button>)
+    const button = container.querySelector('button.str-chat__emoji-item');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('str-chat__context-menu__button');
+    expect(button).toHaveClass('str-chat__emoji-context-menu__button');
+    expect(container.querySelector('.str-chat__emoji-item--entity')).toHaveTextContent(
+      'native',
+    );
+    expect(container.querySelector('.str-chat__emoji-item--highlight')).toHaveTextContent(
+      'n',
+    );
+    expect(container.querySelector('.str-chat__emoji-item--part')).toHaveTextContent(
+      'ame',
+    );
   });
 });

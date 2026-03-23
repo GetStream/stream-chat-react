@@ -10,18 +10,28 @@ exports[`AttachmentActions should render AttachmentActions component 1`] = `
     >
       <span />
       <button
-        class="str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
+        class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
         data-testid="action 1 name"
         data-value="action 1"
+        type="button"
       >
-        action 1 text
+        <div
+          class="str-chat__button__content"
+        >
+          action 1 text
+        </div>
       </button>
       <button
-        class="str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
+        class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
         data-testid="action 2 name"
         data-value="action 2"
+        type="button"
       >
-        action 2 text
+        <div
+          class="str-chat__button__content"
+        >
+          action 2 text
+        </div>
       </button>
     </div>
   </div>

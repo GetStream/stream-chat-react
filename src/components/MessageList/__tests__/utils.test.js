@@ -549,6 +549,7 @@ describe('getGroupStyles', () => {
       );
     });
 
+    // deleted_at no longer affects grouping in v14
     it('is deleted', () => {
       if (position === 'bottom') {
         nextMessage = { ...nextMessage, deleted_at: new Date() };
@@ -556,8 +557,9 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, deleted_at: new Date() };
       }
+      // deleted_at on adjacent messages does not break groups anymore
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
-        position,
+        'middle',
       );
     });
   });
@@ -651,10 +653,11 @@ describe('getGroupStyles', () => {
     );
   });
 
-  it('marks message as single if not being top, neither bottom message being deleted', () => {
+  // deleted_at on the message itself no longer forces 'single' in v14
+  it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
     message = { ...message, deleted_at: new Date() };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
-      'single',
+      'middle',
     );
   });
 
@@ -665,11 +668,12 @@ describe('getGroupStyles', () => {
     );
   });
 
-  it('marks message at the bottom as single being deleted message', () => {
+  // deleted_at no longer forces 'single'; at the bottom position it's just 'bottom'
+  it('marks message at the bottom as bottom even when deleted', () => {
     message = { ...message, deleted_at: new Date() };
     nextMessage = undefined;
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
-      'single',
+      'bottom',
     );
   });
 

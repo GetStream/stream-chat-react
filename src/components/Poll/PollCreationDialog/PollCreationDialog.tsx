@@ -7,7 +7,7 @@ import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
 import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 

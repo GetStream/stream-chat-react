@@ -12,11 +12,16 @@ import {
 } from 'mock-builders';
 
 import { ChannelListItemUI } from '../ChannelListItemUI';
-import { ChatProvider, ComponentProvider } from '../../../context';
+import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
-const PREVIEW_TEST_ID = 'channel-preview-button';
+const PREVIEW_TEST_ID = 'channel-list-item-button';
+
+// Stub out ChannelListItemActionButtons to avoid needing ChannelListItemContext and DialogManager
+const NoopActionButtons = () => null;
+NoopActionButtons.getDialogId = () => '';
+NoopActionButtons.displayName = 'ChannelListItemActionButtons';
 
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
@@ -25,19 +30,26 @@ describe('ChannelPreviewMessenger', () => {
   let channel;
   const renderComponent = (props, componentOverrides = {}) => (
     <ChatProvider value={{ client: chatClient }}>
-      <ComponentProvider value={componentOverrides}>
-        <div aria-label='Select Channel' role='listbox'>
-          <ChannelListItemUI
-            channel={channel}
-            displayImage='https://randomimage.com/src.jpg'
-            displayTitle='Channel name'
-            latestMessagePreview='Latest message!'
-            setActiveChannel={jest.fn()}
-            unread={10}
-            {...props}
-          />
-        </div>
-      </ComponentProvider>
+      <DialogManagerProvider>
+        <ComponentProvider
+          value={{
+            ChannelListItemActionButtons: NoopActionButtons,
+            ...componentOverrides,
+          }}
+        >
+          <div aria-label='Select Channel' role='listbox'>
+            <ChannelListItemUI
+              channel={channel}
+              displayImage='https://randomimage.com/src.jpg'
+              displayTitle='Channel name'
+              latestMessagePreview='Latest message!'
+              setActiveChannel={jest.fn()}
+              unread={10}
+              {...props}
+            />
+          </div>
+        </ComponentProvider>
+      </DialogManagerProvider>
     </ChatProvider>
   );
 

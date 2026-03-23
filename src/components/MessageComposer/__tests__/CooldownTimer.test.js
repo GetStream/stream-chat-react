@@ -1,67 +1,62 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { CooldownTimer } from '../CooldownTimer';
+import { Chat } from '../../Chat';
+import { Channel } from '../../Channel';
+import { initClientWithChannels } from '../../../mock-builders';
 import '@testing-library/jest-dom';
 
-jest.useFakeTimers();
-
 const TIMER_TEST_ID = 'cooldown-timer';
-const remainingProp = 'cooldownInterval';
+
+const renderComponent = async ({ channelData = {} } = {}) => {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({
+    channelsData: [{ channel: channelData }],
+  });
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={client}>
+        <Channel channel={channel}>
+          <CooldownTimer />
+        </Channel>
+      </Chat>,
+    );
+  });
+  return { channel, ...result };
+};
+
 describe('CooldownTimer', () => {
-  it('renders CooldownTimer component', () => {
-    render(<CooldownTimer />);
+  it('renders CooldownTimer component with 0 when no cooldown active', async () => {
+    await renderComponent();
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('0');
   });
 
-  it('initializes with correct state based on cooldownRemaining prop', () => {
-    const props = { [remainingProp]: 10 };
-    render(<CooldownTimer {...props} />);
+  it('renders the cooldown remaining value from channel state', async () => {
+    const { channel } = await renderComponent();
+    await act(() => {
+      channel.cooldownTimer.state.next({ cooldownRemaining: 10 });
+    });
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('10');
   });
 
-  it('updates countdown logic correctly', () => {
-    const cooldownRemaining = 5;
-    const props = { [remainingProp]: cooldownRemaining };
-    render(<CooldownTimer {...props} />);
-
-    for (let countDown = cooldownRemaining; countDown >= 0; countDown--) {
-      expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent(countDown.toString());
-      act(() => {
-        jest.runAllTimers();
-      });
-    }
-    expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('0');
-  });
-
-  it('resets countdown when cooldownRemaining prop changes', () => {
-    const cooldownRemaining1 = 5;
-    const cooldownRemaining2 = 10;
-    const props1 = { [remainingProp]: cooldownRemaining1 };
-    const props2 = { [remainingProp]: cooldownRemaining2 };
-    const timeElapsedBeforeUpdate = 2;
-
-    const { rerender } = render(<CooldownTimer {...props1} />);
-
-    for (let round = timeElapsedBeforeUpdate; round > 0; round--) {
-      act(() => {
-        jest.runAllTimers();
-      });
-    }
-
-    expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent(
-      (cooldownRemaining1 - timeElapsedBeforeUpdate).toString(),
-    );
-
-    rerender(<CooldownTimer {...props2} />);
-
-    expect(screen.queryByTestId(TIMER_TEST_ID)).toHaveTextContent(
-      cooldownRemaining2.toString(),
-    );
-    act(() => {
-      jest.runAllTimers();
+  it('updates when cooldown remaining changes', async () => {
+    const { channel } = await renderComponent();
+    await act(() => {
+      channel.cooldownTimer.state.next({ cooldownRemaining: 5 });
     });
-    expect(screen.queryByTestId(TIMER_TEST_ID)).toHaveTextContent(
-      (cooldownRemaining2 - 1).toString(),
-    );
+    expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('5');
+
+    await act(() => {
+      channel.cooldownTimer.state.next({ cooldownRemaining: 3 });
+    });
+    expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('3');
+
+    await act(() => {
+      channel.cooldownTimer.state.next({ cooldownRemaining: 0 });
+    });
+    expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('0');
   });
 });

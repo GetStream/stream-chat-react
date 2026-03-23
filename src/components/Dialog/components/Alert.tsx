@@ -1,4 +1,4 @@
-import { type ComponentProps, type ComponentType, forwardRef } from 'react';
+import React, { type ComponentProps, type ComponentType, forwardRef } from 'react';
 import clsx from 'clsx';
 
 export const Root = forwardRef<HTMLDivElement, ComponentProps<'div'>>(function AlertRoot(

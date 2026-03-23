@@ -2,10 +2,8 @@ import { useMemo } from 'react';
 import type { TextComposerState } from 'stream-chat';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import {
-  useCooldownRemaining,
-  useMessageComposerController,
-} from '../../MessageComposer';
+import { useCooldownRemaining } from '../../MessageComposer/hooks/useCooldownRemaining';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 
 type UseTextareaPlaceholderProps = {
   placeholder?: string;
