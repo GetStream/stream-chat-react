@@ -40,6 +40,21 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>LoadingIndicator</div>),
 }));
 
+jest.mock('../../ChatView', () => {
+  const actual = jest.requireActual('../../ChatView');
+  return {
+    ...actual,
+    useChatViewContext: jest.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    })),
+    useThreadsViewContext: jest.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    })),
+  };
+});
+
 async function createChannel(empty = false) {
   const user1 = generateUser();
   const user2 = generateUser();

@@ -30,9 +30,10 @@ const Media = (props) => <div data-testid='media-attachment'>{props.customTestId
 const AttachmentActions = () => <div data-testid='attachment-actions'></div>;
 const Image = (props) => <div data-testid='image-attachment'>{props.customTestId}</div>;
 const File = (props) => <div data-testid='file-attachment'>{props.customTestId}</div>;
-const Gallery = (props) => (
+const ModalGallery = (props) => (
   <div data-testid='gallery-attachment'>{props.customTestId}</div>
 );
+const Giphy = (props) => <div data-testid='giphy-attachment'>{props.customTestId}</div>;
 const Geolocation = (props) => (
   <div data-testid={'geolocation-attachment'}>{props.customTestId}</div>
 );
@@ -62,10 +63,11 @@ const renderComponent = (props) =>
         Audio={Audio}
         Card={Card}
         File={File}
-        Gallery={Gallery}
         Geolocation={Geolocation}
+        Giphy={Giphy}
         Image={Image}
         Media={Media}
+        ModalGallery={ModalGallery}
         {...props}
       />
     </ChannelStateProvider>,
@@ -142,14 +144,10 @@ describe('attachment', () => {
       expect(screen.getByTestId(UNSUPPORTED_ATTACHMENT_TEST_ID)).toBeInTheDocument();
     });
 
-    const cases = [
+    const cardCases = [
       {
         attachments: [ATTACHMENTS.scraped.unrecognized],
         case: 'not recognized, but has title_link or og_scrape_url',
-      },
-      {
-        attachments: [ATTACHMENTS.scraped.giphy],
-        case: 'giphy',
       },
       {
         attachments: [ATTACHMENTS.scraped.image],
@@ -165,16 +163,22 @@ describe('attachment', () => {
       },
     ];
     it.each`
-      attachments             | case
-      ${cases[0].attachments} | ${cases[0].case}
-      ${cases[1].attachments} | ${cases[1].case}
-      ${cases[2].attachments} | ${cases[2].case}
-      ${cases[3].attachments} | ${cases[3].case}
-      ${cases[4].attachments} | ${cases[4].case}
+      attachments                 | case
+      ${cardCases[0].attachments} | ${cardCases[0].case}
+      ${cardCases[1].attachments} | ${cardCases[1].case}
+      ${cardCases[2].attachments} | ${cardCases[2].case}
+      ${cardCases[3].attachments} | ${cardCases[3].case}
     `('should render Card if attachment type is $case', async ({ attachments }) => {
       renderComponent({ attachments });
       await waitFor(() => {
         expect(screen.getByTestId('card-attachment')).toBeInTheDocument();
+      });
+    });
+
+    it('should render Giphy if attachment type is giphy', async () => {
+      renderComponent({ attachments: [ATTACHMENTS.scraped.giphy] });
+      await waitFor(() => {
+        expect(screen.getByTestId('giphy-attachment')).toBeInTheDocument();
       });
     });
   });

@@ -8,26 +8,10 @@ import { CommandItem } from '../SuggestionList';
 afterEach(cleanup);
 
 describe('commandItem', () => {
-  it('should render component with empty entity', () => {
+  it('should render nothing with empty entity (no name)', () => {
     const { container } = render(<CommandItem entity={{}} />);
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__slash-command"
-        >
-          <span
-            class="str-chat__slash-command-header"
-          >
-            <strong />
-             
-          </span>
-          <br />
-          <span
-            class="str-chat__slash-command-description"
-          />
-        </div>
-      </div>
-    `);
+    // CommandItem returns null when entity.name is falsy
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render component with custom entity prop', () => {
@@ -35,33 +19,21 @@ describe('commandItem', () => {
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);
+    // Component now renders via CommandContextMenuItem (ContextMenuButton)
+    // name appears as label, args combined with name as details ("/name args")
     expect(getByText(entity.name)).toBeInTheDocument();
-    expect(getByText(entity.args)).toBeInTheDocument();
-    expect(getByText(entity.description)).toBeInTheDocument();
 
     const { container } = render(Component);
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__slash-command"
-        >
-          <span
-            class="str-chat__slash-command-header"
-          >
-            <strong>
-              name
-            </strong>
-             
-            args
-          </span>
-          <br />
-          <span
-            class="str-chat__slash-command-description"
-          >
-            description
-          </span>
-        </div>
-      </div>
-    `);
+    const button = container.querySelector(
+      'button.str-chat__context-menu__button--command',
+    );
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('title', `${entity.description} ${entity.args}`);
+    expect(
+      container.querySelector('.str-chat__context-menu__button__label'),
+    ).toHaveTextContent(entity.name);
+    expect(
+      container.querySelector('.str-chat__context-menu__button__details'),
+    ).toHaveTextContent(`/${entity.name} ${entity.args}`);
   });
 });

@@ -1,7 +1,9 @@
 # Official React SDK for [Stream Chat](https://getstream.io/chat/sdk/react/)
 
 <p align="center">
-  <a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" width="60%" /></a>
+  <a href="https://getstream.io/chat/sdk/react/tutorial/">
+    <img src=".readme-assets/stream-chat-react-cover.png" alt="Stream React Chat SDK" />
+  </a>
 </p>
 
 > The official React components for Stream Chat, a service for

@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
-import { useMessageComposerController } from '../../MessageComposer';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
 

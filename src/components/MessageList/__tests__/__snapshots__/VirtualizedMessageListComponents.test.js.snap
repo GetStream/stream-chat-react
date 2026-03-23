@@ -26,16 +26,17 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render for main me
     class="str-chat__empty-channel"
   >
     <svg
-      data-testid="chat-bubble"
-      fill="none"
-      height="96"
-      viewBox="0 0 136 136"
-      width="96"
+      class="str-chat__icon str-chat__icon--bubble-2-chat-message"
+      viewBox="0 0 16 16"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M106 24.5H30C24.775 24.5 20.5 28.775 20.5 34V119.5L39.5 100.5H106C111.225 100.5 115.5 96.225 115.5 91V34C115.5 28.775 111.225 24.5 106 24.5ZM106 91H39.5L30 100.5V34H106V91Z"
-        fill="#B4B7BB"
+        d="M3.16799 2.5H12.8347C13.571 2.5 14.168 3.09695 14.168 3.83333V10.8333C14.168 11.5697 13.571 12.1667 12.8347 12.1667H8.00136L4.66799 14V12.1667H3.16799C2.43161 12.1667 1.83466 11.5697 1.83466 10.8333V3.83333C1.83466 3.09695 2.43161 2.5 3.16799 2.5Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.2"
       />
     </svg>
     <p
@@ -56,46 +57,26 @@ exports[`VirtualizedMessageComponents Header should not render custom head in He
   <div
     class="str-chat__virtual-list__loading"
   >
-    <div
-      class="str-chat__loading-indicator"
-      data-testid="loading-indicator-wrapper"
-      style="height: 20px; width: 20px;"
+    <svg
+      class="str-chat__icon str-chat__icon--loading-circle str-chat__loading-indicator"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <svg
-        height="20"
-        viewBox="0 0 30 30"
-        width="20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <lineargradient
-            id="a"
-            x1="50%"
-            x2="50%"
-            y1="0%"
-            y2="100%"
-          >
-            <stop
-              offset="0%"
-              stop-color="#FFF"
-              stop-opacity="0"
-            />
-            <stop
-              data-testid="loading-indicator-circle"
-              offset="100%"
-              stop-color="#006CFF"
-              stop-opacity="1"
-              style="stop-color: rgb(0, 108, 255);"
-            />
-          </lineargradient>
-        </defs>
-        <path
-          d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-          fill="url(#a)"
-          fill-rule="evenodd"
-        />
-      </svg>
-    </div>
+      <path
+        d="M17.5 10C17.5 14.1422 14.1422 17.5 10 17.5C5.85787 17.5 2.5 14.1422 2.5 10C2.5 5.85787 5.85787 2.5 10 2.5C14.1422 2.5 17.5 5.85787 17.5 10Z"
+        fill="none"
+        opacity="0.25"
+        stroke="currentColor"
+        stroke-width="1.5"
+      />
+      <path
+        d="M17.4542 10.8333C17.0698 14.3096 14.3096 17.0698 10.8333 17.4542"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.5"
+      />
+    </svg>
   </div>
 </div>
 `;
@@ -105,46 +86,26 @@ exports[`VirtualizedMessageComponents Header should render LoadingIndicator in H
   <div
     class="str-chat__virtual-list__loading"
   >
-    <div
-      class="str-chat__loading-indicator"
-      data-testid="loading-indicator-wrapper"
-      style="height: 20px; width: 20px;"
+    <svg
+      class="str-chat__icon str-chat__icon--loading-circle str-chat__loading-indicator"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <svg
-        height="20"
-        viewBox="0 0 30 30"
-        width="20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <lineargradient
-            id="a"
-            x1="50%"
-            x2="50%"
-            y1="0%"
-            y2="100%"
-          >
-            <stop
-              offset="0%"
-              stop-color="#FFF"
-              stop-opacity="0"
-            />
-            <stop
-              data-testid="loading-indicator-circle"
-              offset="100%"
-              stop-color="#006CFF"
-              stop-opacity="1"
-              style="stop-color: rgb(0, 108, 255);"
-            />
-          </lineargradient>
-        </defs>
-        <path
-          d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-          fill="url(#a)"
-          fill-rule="evenodd"
-        />
-      </svg>
-    </div>
+      <path
+        d="M17.5 10C17.5 14.1422 14.1422 17.5 10 17.5C5.85787 17.5 2.5 14.1422 2.5 10C2.5 5.85787 5.85787 2.5 10 2.5C14.1422 2.5 17.5 5.85787 17.5 10Z"
+        fill="none"
+        opacity="0.25"
+        stroke="currentColor"
+        stroke-width="1.5"
+      />
+      <path
+        d="M17.4542 10.8333C17.0698 14.3096 14.3096 17.0698 10.8333 17.4542"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.5"
+      />
+    </svg>
   </div>
 </div>
 `;

@@ -6,15 +6,8 @@ import '@testing-library/jest-dom';
 import { EventComponent } from '../EventComponent';
 import { Chat } from '../../Chat';
 import { getTestClient } from '../../../mock-builders';
-import { Streami18n } from '../../../i18n';
 
 const SYSTEM_MSG_TEST_ID = 'message-system';
-
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(({ image = '', name = '' }) => (
-    <img data-testid='avatar' name={name} src={image} />
-  )),
-}));
 
 describe('EventComponent', () => {
   afterEach(cleanup);
@@ -41,151 +34,67 @@ describe('EventComponent', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('should render system events', async () => {
-    const { container } = await renderComponent({
-      props: { message: { ...message, text: 'system event' } },
-    });
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__message--system"
-          data-testid="message-system"
-        >
-          <div
-            class="str-chat__message--system__text"
-          >
-            <div
-              class="str-chat__message--system__line"
-            />
-            <p>
-              system event
-            </p>
-            <div
-              class="str-chat__message--system__line"
-            />
-          </div>
-          <div
-            class="str-chat__message--system__date"
-          >
-            <strong>
-              Friday 03/13/2020
-            </strong>
-          </div>
-        </div>
-      </div>
-    `);
+  it('should render null for non-system message types', () => {
+    const { container } = render(<EventComponent message={{ type: 'channel.event' }} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
-  describe('timestamp formatting', () => {
-    it('should format date with default formatting rules provided by i18n service', async () => {
-      await renderComponent();
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
-        'Friday 03/13/2020',
-      );
+  it('should render system events', async () => {
+    await renderComponent({
+      props: { message: { ...message, text: 'system event' } },
     });
+    const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
+    expect(systemMsg).toBeInTheDocument();
+    expect(systemMsg).toHaveClass('str-chat__message--system');
 
-    it('should format date with custom formatting rules provided by i18n service', async () => {
-      await renderComponent({
-        chatProps: {
-          i18nInstance: new Streami18n({
-            translationsForLanguage: {
-              'timestamp/SystemMessage':
-                '{{ timestamp | timestampFormatter(format: "YYYY") }}',
-            },
-          }),
-        },
-      });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('2020');
-    });
+    const textDiv = systemMsg.querySelector('.str-chat__message--system__text');
+    expect(textDiv).toBeInTheDocument();
 
-    it('should combine the custom date formatting rules from i18n service with custom formatting props', async () => {
-      await renderComponent({
-        chatProps: {
-          i18nInstance: new Streami18n({
-            translationsForLanguage: {
-              'timestamp/SystemMessage':
-                '{{ timestamp | timestampFormatter(calendar: true) }}',
-            },
-          }),
-        },
-        props: {
-          calendarFormats: {
-            lastDay: 'A YYYY',
-            lastWeek: 'B YYYY',
-            nextDay: 'C YYYY',
-            nextWeek: 'D YYYY',
-            sameDay: 'E YYYY',
-            sameElse: 'F YYYY',
-          },
-        },
-      });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('F 2020');
-    });
+    const span = textDiv.querySelector('span');
+    expect(span).toBeInTheDocument();
+    expect(span).toHaveTextContent('system event');
 
-    it('should override the default date formatting rules from i18n service with custom formatting props', async () => {
-      await renderComponent({
-        props: {
-          calendar: true,
-          calendarFormats: {
-            lastDay: 'A YYYY',
-            lastWeek: 'B YYYY',
-            nextDay: 'C YYYY',
-            nextWeek: 'D YYYY',
-            sameDay: 'E YYYY',
-            sameElse: 'F YYYY',
-          },
-        },
-      });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('F 2020');
-    });
+    // No line dividers or date section in the new structure
+    expect(
+      systemMsg.querySelector('.str-chat__message--system__line'),
+    ).not.toBeInTheDocument();
+    expect(
+      systemMsg.querySelector('.str-chat__message--system__date'),
+    ).not.toBeInTheDocument();
+  });
 
-    it('should override the custom date formatting rules from i18n service with custom formatting props', async () => {
-      await renderComponent({
-        chatProps: {
-          i18nInstance: new Streami18n({
-            translationsForLanguage: {
-              'timestamp/SystemMessage':
-                '{{ timestamp | timestampFormatter(calendar: false) }}',
-            },
-          }),
+  it('should render system event with unsafe HTML when unsafeHTML is true', async () => {
+    await renderComponent({
+      props: {
+        message: {
+          ...message,
+          html: '<strong>html event</strong>',
+          text: 'system event',
         },
-        props: {
-          calendar: true,
-          calendarFormats: {
-            lastDay: 'A YYYY',
-            lastWeek: 'B YYYY',
-            nextDay: 'C YYYY',
-            nextWeek: 'D YYYY',
-            sameDay: 'E YYYY',
-            sameElse: 'F YYYY',
-          },
-        },
-      });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent('F 2020');
+        unsafeHTML: true,
+      },
     });
+    const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
+    const unsafeDiv = systemMsg.querySelector('[data-unsafe-inner-html]');
+    expect(unsafeDiv).toBeInTheDocument();
+    expect(unsafeDiv.innerHTML).toBe('<strong>html event</strong>');
+  });
 
-    it('ignores calendarFormats if calendar is not enabled', async () => {
-      await renderComponent({
-        props: {
-          calendarFormats: {
-            lastDay: 'A YYYY',
-            lastWeek: 'B YYYY',
-            nextDay: 'C YYYY',
-            nextWeek: 'D YYYY',
-            sameDay: 'E YYYY',
-            sameElse: 'F YYYY',
-          },
-        },
-      });
-      expect(screen.getByTestId(SYSTEM_MSG_TEST_ID)).toHaveTextContent(
-        'Friday 03/13/2020',
-      );
+  it('should render system event text content (no timestamp displayed)', async () => {
+    await renderComponent({
+      props: { message: { ...message, text: 'a system message' } },
     });
+    const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
+    expect(systemMsg).toHaveTextContent('a system message');
+    // Component no longer renders timestamps
+    expect(
+      systemMsg.querySelector('.str-chat__message--system__date'),
+    ).not.toBeInTheDocument();
   });
 
   describe('Channel events', () => {
-    it('should render message for member add event', () => {
-      const message = {
+    it('should render null for member add event (channel events no longer rendered)', () => {
+      const msg = {
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.added',
@@ -194,38 +103,12 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const { container } = render(<EventComponent message={message} />);
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__event-component__channel-event"
-          >
-            <img
-              data-testid="avatar"
-              name="user_id"
-              src="image_url"
-            />
-            <div
-              class="str-chat__event-component__channel-event__content"
-            >
-              <em
-                class="str-chat__event-component__channel-event__sentence"
-              >
-                user_id has joined the chat
-              </em>
-              <div
-                class="str-chat__event-component__channel-event__date"
-              >
-                6:18 PM
-              </div>
-            </div>
-          </div>
-        </div>
-      `);
+      const { container } = render(<EventComponent message={msg} />);
+      expect(container).toBeEmptyDOMElement();
     });
 
-    it('should render message for member remove event', () => {
-      const message = {
+    it('should render null for member remove event (channel events no longer rendered)', () => {
+      const msg = {
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.removed',
@@ -234,34 +117,8 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const { container } = render(<EventComponent message={message} />);
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__event-component__channel-event"
-          >
-            <img
-              data-testid="avatar"
-              name="user_id"
-              src="image_url"
-            />
-            <div
-              class="str-chat__event-component__channel-event__content"
-            >
-              <em
-                class="str-chat__event-component__channel-event__sentence"
-              >
-                user_id was removed from the chat
-              </em>
-              <div
-                class="str-chat__event-component__channel-event__date"
-              >
-                6:18 PM
-              </div>
-            </div>
-          </div>
-        </div>
-      `);
+      const { container } = render(<EventComponent message={msg} />);
+      expect(container).toBeEmptyDOMElement();
     });
   });
 });

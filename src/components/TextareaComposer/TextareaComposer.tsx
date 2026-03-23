@@ -7,7 +7,8 @@ import type {
 } from 'react';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
-import { useCooldownRemaining, useMessageComposerController } from '../MessageComposer';
+import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import type {
   AttachmentManagerState,
   MessageComposerConfig,

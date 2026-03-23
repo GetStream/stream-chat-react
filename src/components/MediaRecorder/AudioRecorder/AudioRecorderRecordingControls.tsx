@@ -1,4 +1,4 @@
-import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer';
+import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer/icons';
 import { IconMicrophone, IconPause, IconTrashBin } from '../../Icons';
 import React from 'react';
 import { useMessageComposerContext } from '../../../context';

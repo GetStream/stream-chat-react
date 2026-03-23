@@ -20,6 +20,12 @@ jest.mock('../../../context', () => {
   };
 });
 
+// mock useNotificationTarget (called by useAudioPlayer)
+jest.mock('../../Notifications', () => ({
+  ...jest.requireActual('../../Notifications'),
+  useNotificationTarget: () => 'channel',
+}));
+
 // make throttle a no-op (so seek/time-related stuff runs synchronously)
 jest.mock('lodash.throttle', () => (fn) => fn);
 

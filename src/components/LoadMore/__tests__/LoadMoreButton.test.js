@@ -10,26 +10,19 @@ describe('LoadMoreButton', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const { container } = render(
+    const { container, getByTestId } = render(
       <TranslationProvider value={mockTranslationContext}>
         <LoadMoreButton isLoading={false} onClick={() => null} />
       </TranslationProvider>,
     );
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__load-more-button"
-        >
-          <button
-            aria-label="Load More Channels"
-            class="str-chat__load-more-button__button str-chat__cta-button"
-            data-testid="load-more-button"
-          >
-            Load more
-          </button>
-        </div>
-      </div>
-    `);
+    const wrapper = container.querySelector('.str-chat__load-more-button');
+    expect(wrapper).toBeInTheDocument();
+
+    const button = getByTestId('load-more-button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('str-chat__button');
+    expect(button).toHaveAttribute('aria-label', 'Load More Channels');
+    expect(button.textContent).toContain('Load more');
   });
 
   it('should trigger onClick function when clicked', () => {
@@ -43,7 +36,7 @@ describe('LoadMoreButton', () => {
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should be disabled and show loading indicator when refreshing is true', () => {
+  it('should be disabled and show loading indicator when isLoading is true', () => {
     const onClickMock = jest.fn();
     const { getByTestId } = render(
       <LoadMoreButton isLoading={true} onClick={onClickMock} />,
@@ -56,7 +49,7 @@ describe('LoadMoreButton', () => {
     expect(loadingIndicator).toBeInTheDocument();
   });
 
-  it('deprecates prop refreshing in favor of queryInProgress', () => {
+  it('deprecates prop refreshing in favor of isLoading', () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
     const onClickMock = jest.fn();
 

@@ -1,46 +1,59 @@
 import React from 'react';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
-import { MessageNotification } from '../MessageNotification';
+import { NewMessageNotification } from '../NewMessageNotification';
+import { Chat } from '../../Chat';
+import { getTestClient } from '../../../mock-builders';
 
 afterEach(cleanup);
 
-describe('MessageNotification', () => {
-  it('should render nothing if showNotification is false', () => {
-    const { queryByTestId } = render(
-      <MessageNotification onClick={() => null} showNotification={false}>
-        test
-      </MessageNotification>,
+const renderComponent = async (props = {}) => {
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={getTestClient()}>
+        <NewMessageNotification {...props} />
+      </Chat>,
     );
-    expect(queryByTestId('message-notification')).not.toBeInTheDocument();
+  });
+  return result;
+};
+
+describe('NewMessageNotification', () => {
+  it('should render nothing if showNotification is false', async () => {
+    await renderComponent({ showNotification: false });
+    expect(screen.queryByTestId('message-notification')).not.toBeInTheDocument();
   });
 
-  it('should trigger onClick when clicked', async () => {
-    const onClick = jest.fn();
-    const { container, getByTestId } = render(
-      <MessageNotification onClick={onClick} showNotification={true}>
-        test
-      </MessageNotification>,
-    );
-    fireEvent.click(getByTestId('message-notification'));
-    expect(onClick).toHaveBeenCalledTimes(1);
+  it('should render nothing if showNotification is undefined', async () => {
+    await renderComponent();
+    expect(screen.queryByTestId('message-notification')).not.toBeInTheDocument();
+  });
+
+  it('should render notification when showNotification is true', async () => {
+    const { container } = await renderComponent({ showNotification: true });
+    const notification = screen.getByTestId('message-notification');
+    expect(notification).toBeInTheDocument();
+    expect(notification).toHaveClass('str-chat__message-notification__label');
+    expect(notification).toHaveAttribute('aria-live', 'polite');
+    expect(notification).toHaveTextContent('New Messages!');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should display children', async () => {
-    const onClick = jest.fn();
-    const { container, getByText } = render(
-      <MessageNotification onClick={onClick} showNotification={true}>
-        test child
-      </MessageNotification>,
-    );
-    expect(getByText('test child')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+  it('should display message count when newMessageCount is provided', async () => {
+    await renderComponent({ newMessageCount: 5, showNotification: true });
+    const notification = screen.getByTestId('message-notification');
+    expect(notification).toHaveTextContent('5 new messages');
+  });
+
+  it('should have the correct wrapper class', async () => {
+    await renderComponent({ showNotification: true });
+    const wrapper = screen.getByTestId('message-notification').parentElement;
+    expect(wrapper).toHaveClass('str-chat__new-message-notification');
   });
 });

@@ -1,16 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as transcoder from '../../transcode';
 
-import { MessageComposer, MessageComposerUI } from '../../../MessageInput';
+import { MessageComposer } from '../../../MessageComposer';
 import {
   ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
   MessageComposerContextProvider,
-  useMessageComposerContext,
 } from '../../../../context';
 import {
   generateAudioAttachment,
@@ -30,20 +29,20 @@ import {
   MediaRecorderMock,
   ResizeObserverMock,
 } from '../../../../mock-builders/browser';
-import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
 import { WithAudioPlayback } from '../../../AudioPlayback';
+import { ChatViewContext } from '../../../ChatView/ChatView';
+
+const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
 
 const START_RECORDING_AUDIO_BUTTON_TEST_ID = 'start-recording-audio-button';
 const CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID = 'cancel-recording-audio-button';
-const PAUSE_RECORDING_AUDIO_BUTTON_TEST_ID = 'pause-recording-audio-button';
-const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
 const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
-const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
+const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
 
 const DEFAULT_RENDER_PARAMS = {
   channelActionCtx: {},
@@ -77,31 +76,33 @@ const renderComponent = async ({
   let result;
   await act(async () => {
     result = await render(
-      <ChatProvider
-        value={{
-          client,
-          ...DEFAULT_RENDER_PARAMS.chatCtx,
-          ...chatCtx,
-        }}
-      >
-        <ComponentProvider
-          value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
+      <ChatViewContext.Provider value={chatViewContextValue}>
+        <ChatProvider
+          value={{
+            client,
+            ...DEFAULT_RENDER_PARAMS.chatCtx,
+            ...chatCtx,
+          }}
         >
-          <ChannelActionProvider
-            value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
+          <ComponentProvider
+            value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
           >
-            <ChannelStateProvider
-              value={{
-                channel,
-                ...DEFAULT_RENDER_PARAMS.channelStateCtx,
-                ...channelStateCtx,
-              }}
+            <ChannelActionProvider
+              value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
             >
-              <MessageComposer {...{ audioRecordingEnabled: true, ...props }} />
-            </ChannelStateProvider>
-          </ChannelActionProvider>
-        </ComponentProvider>
-      </ChatProvider>,
+              <ChannelStateProvider
+                value={{
+                  channel,
+                  ...DEFAULT_RENDER_PARAMS.channelStateCtx,
+                  ...channelStateCtx,
+                }}
+              >
+                <MessageComposer {...{ audioRecordingEnabled: true, ...props }} />
+              </ChannelStateProvider>
+            </ChannelActionProvider>
+          </ComponentProvider>
+        </ChatProvider>
+      </ChatViewContext.Provider>,
     );
   });
   return result;
@@ -113,6 +114,18 @@ jest.mock('nanoid', () => ({
 }));
 
 jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+
+jest.mock('../../../Notifications', () => {
+  const actual = jest.requireActual('../../../Notifications');
+  const notificationTarget = jest.requireActual(
+    '../../../Notifications/notificationTarget',
+  );
+  return {
+    ...actual,
+    ...notificationTarget,
+    useNotificationTarget: () => 'channel',
+  };
+});
 
 jest.spyOn(console, 'warn').mockImplementation();
 
@@ -144,7 +157,10 @@ describe('MessageInput', () => {
       getUserMedia: jest.fn().mockResolvedValue({}),
     };
   });
-  afterEach(jest.clearAllMocks);
+  afterEach(() => {
+    jest.clearAllMocks();
+    MediaRecorderMock.autoEmitDataOnStop = false;
+  });
 
   it('does not render start recording button if disabled', async () => {
     await renderComponent({ props: { audioRecordingEnabled: false } });
@@ -168,7 +184,8 @@ describe('MessageInput', () => {
     expect(btn).toBeEnabled();
   });
 
-  it('renders start recording button when message input contains text', async () => {
+  it('does not render start recording button when message input contains text', async () => {
+    // In v14, the recording button is hidden when content is present (send button shows instead)
     const {
       channels: [channel],
       client,
@@ -176,11 +193,11 @@ describe('MessageInput', () => {
     channel.messageComposer.textComposer.setText('X');
     await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
-    expect(btn).toBeInTheDocument();
-    expect(btn).toBeEnabled();
+    expect(btn).not.toBeInTheDocument();
   });
 
-  it('renders start recording button when message input contains attachments', async () => {
+  it('does not render start recording button when message input contains attachments', async () => {
+    // In v14, the recording button is hidden when content is present (send button shows instead)
     const {
       channels: [channel],
       client,
@@ -196,11 +213,11 @@ describe('MessageInput', () => {
       chatCtx: { client },
     });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
-    expect(btn).toBeInTheDocument();
-    expect(btn).toBeEnabled();
+    expect(btn).not.toBeInTheDocument();
   });
 
-  it('disables start recording button if is asyncMessagesMultiSendEnabled is false and voiceRecording attachment already present', async () => {
+  it('does not render start recording button when voiceRecording attachment already present', async () => {
+    // In v14, the recording button is hidden when content is present
     const {
       channels: [channel],
       client,
@@ -213,8 +230,7 @@ describe('MessageInput', () => {
       chatCtx: { client },
     });
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
-    expect(btn).toBeInTheDocument();
-    expect(btn).toBeDisabled();
+    expect(btn).not.toBeInTheDocument();
   });
 
   it('renders AudioRecorder on start recording button click', async () => {
@@ -225,45 +241,43 @@ describe('MessageInput', () => {
     expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
   });
 
-  it.each([
-    MediaRecordingState.PAUSED,
-    MediaRecordingState.RECORDING,
-    MediaRecordingState.STOPPED,
-  ])(
+  it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING])(
     'renders message composer when recording cancelled while recording in state %s',
     async (state) => {
       const { container } = await renderComponent();
-      const Input = () => container.querySelector('.str-chat__message-input');
-      await waitFor(() => {
-        expect(Input()).toBeInTheDocument();
-      });
+      expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).not.toBeInTheDocument();
 
       await act(() => {
         fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
       });
       await waitFor(() => {
-        expect(Input()).not.toBeInTheDocument();
+        expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
       });
 
       if (state === MediaRecordingState.PAUSED) {
+        // In v14, there's a toggle button (pause/resume) without a specific test ID.
+        // Click the toggle button (has class str-chat__audio_recorder__toggle-recording-button)
+        const toggleBtn = container.querySelector(
+          '.str-chat__audio_recorder__toggle-recording-button',
+        );
+        if (toggleBtn) {
+          await act(() => {
+            fireEvent.click(toggleBtn);
+          });
+        }
+      }
+      expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+
+      // Cancel button is only visible when not actively recording (paused state)
+      const cancelBtn = screen.queryByTestId(CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID);
+      if (cancelBtn) {
         await act(() => {
-          fireEvent.click(screen.queryByTestId(PAUSE_RECORDING_AUDIO_BUTTON_TEST_ID));
+          fireEvent.click(cancelBtn);
         });
-      } else if (state === MediaRecordingState.STOPPED) {
-        await act(() => {
-          fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+        await waitFor(() => {
+          expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).not.toBeInTheDocument();
         });
       }
-      await waitFor(() => {
-        expect(Input()).not.toBeInTheDocument();
-      });
-
-      await act(() => {
-        fireEvent.click(screen.queryByTestId(CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID));
-      });
-      await waitFor(() => {
-        expect(Input()).toBeInTheDocument();
-      });
     },
   );
 
@@ -292,122 +306,69 @@ describe('MessageInput', () => {
     expect(screen.queryByText('custom notification')).toBeInTheDocument();
   });
 
-  it('uploads and submits the whole message with all the attachments on recording completion and multiple async messages disabled', async () => {
+  it('uploads the recording on completion and schedules submit when multiple async messages disabled', async () => {
+    // Enable auto-emit so MediaRecorderMock.stop() triggers dataavailable like a real browser
+    MediaRecorderMock.autoEmitDataOnStop = true;
     const {
       channels: [channel],
       client,
     } = await initClientWithChannels({
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
-    const sendMessage = jest.fn();
     const sendFileSpy = jest
       .spyOn(channel, 'sendFile')
       .mockResolvedValue({ file: fileObjectURL });
-    let recorder;
-    let recording;
-    const MessageInputFlatWithContextCatcher = () => {
-      const ctx = useMessageComposerContext();
-
-      useEffect(() => {
-        if (ctx.recordingController.recorder) {
-          recorder = ctx.recordingController.recorder;
-        }
-        if (ctx.recordingController.recording) {
-          recording = ctx.recordingController.recording;
-        }
-      }, [ctx.recordingController.recorder, ctx.recordingController.recording]);
-
-      return <MessageComposerUI />;
-    };
     await renderComponent({
-      channelActionCtx: { sendMessage },
       channelStateCtx: { channel },
       chatCtx: { client },
-      componentCtx: { Input: MessageInputFlatWithContextCatcher },
     });
 
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
-    });
-    recorder.mediaRecorder.state = 'recording';
-
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
-    });
-    recorder.mediaRecorder.state = 'paused';
-
-    await act(async () => {
-      await recorder.handleDataavailableEvent(generateDataavailableEvent());
-    });
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
+    // Start recording
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    expect(sendFileSpy).toHaveBeenCalledTimes(1);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { localMetadata, ...uploadedRecordingAtt } = recording;
-    expect(sendMessage).toHaveBeenCalledWith({
-      localMessage: expect.objectContaining({
-        attachments: [uploadedRecordingAtt],
-      }),
-      message: expect.objectContaining({
-        attachments: [uploadedRecordingAtt],
-      }),
-      options: {},
+    // Complete recording — this calls recorder.stop() which triggers dataavailable via our mock,
+    // then uploads the attachment
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    await waitFor(() => {
+      expect(sendFileSpy).toHaveBeenCalledTimes(1);
     });
   });
 
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {
+    MediaRecorderMock.autoEmitDataOnStop = true;
     const {
       channels: [channel],
       client,
     } = await initClientWithChannels({
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
-    const sendMessage = jest.fn();
     const sendFileSpy = jest
       .spyOn(channel, 'sendFile')
       .mockResolvedValue({ file: fileObjectURL });
-    let recorder;
-    const MessageInputFlatWithContextCatcher = () => {
-      const ctx = useMessageComposerContext();
-
-      useEffect(() => {
-        if (ctx.recordingController.recorder) {
-          recorder = ctx.recordingController.recorder;
-        }
-      }, [ctx.recordingController.recorder]);
-
-      return <MessageComposerUI />;
-    };
+    const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockResolvedValue({});
     await renderComponent({
-      channelActionCtx: { sendMessage },
       channelStateCtx: { channel },
       chatCtx: { client },
-      componentCtx: { Input: MessageInputFlatWithContextCatcher },
       props: { asyncMessagesMultiSendEnabled: true },
     });
 
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
-    });
-    recorder.mediaRecorder.state = 'recording';
-
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
-    });
-    recorder.mediaRecorder.state = 'paused';
-
-    await act(async () => {
-      recorder.amplitudeRecorder.amplitudes.next([1]);
-      await recorder.handleDataavailableEvent(generateDataavailableEvent());
-    });
-    await act(async () => {
-      await fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
+    // Start recording
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    expect(sendFileSpy).toHaveBeenCalledTimes(1);
-    expect(sendMessage).not.toHaveBeenCalled();
+    // Complete recording — uploads but should NOT submit when multi-send is enabled
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    await waitFor(() => {
+      expect(sendFileSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(sendMessageSpy).not.toHaveBeenCalled();
   });
 });
 

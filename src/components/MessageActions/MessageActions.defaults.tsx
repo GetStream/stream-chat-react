@@ -1,9 +1,8 @@
 /* eslint-disable sort-keys */
 import React, { useState } from 'react';
 
+import { GlobalModal } from '../Modal';
 import {
-  addNotificationTargetTag,
-  GlobalModal,
   IconArrowRotateClockwise,
   IconBellNotification,
   IconBellOff,
@@ -22,11 +21,11 @@ import {
   IconTrashBin,
   IconUnpin,
   IconVolumeFull,
-  isUserMuted,
-  useMessageComposerController,
-  useMessageReminder,
-  useNotificationTarget,
-} from '..';
+} from '../Icons';
+import { isUserMuted } from '../Message/utils';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useMessageReminder } from '../Message/hooks/useMessageReminder';
 import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../Message/icons';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {

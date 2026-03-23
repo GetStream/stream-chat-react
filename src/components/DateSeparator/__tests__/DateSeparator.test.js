@@ -1,7 +1,5 @@
 import React from 'react';
 
-import Dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -9,8 +7,6 @@ import { Chat } from '../../Chat';
 import { DateSeparator } from '../DateSeparator';
 import { getTestClient } from '../../../mock-builders';
 import { Streami18n } from '../../../i18n';
-
-Dayjs.extend(calendar);
 
 afterEach(cleanup);
 
@@ -32,9 +28,16 @@ const renderComponent = async ({ chatProps, props }) => {
 };
 
 describe('DateSeparator', () => {
-  it('should use the default formatting with calendar', async () => {
+  it('should render the date separator with default formatting', async () => {
     await renderComponent({ props: { date } });
-    expect(screen.queryByText(Dayjs(date.toISOString()).calendar())).toBeInTheDocument();
+    const separator = screen.getByTestId(DATE_SEPARATOR_TEST_ID);
+    expect(separator).toBeInTheDocument();
+    expect(separator).toHaveClass('str-chat__date-separator');
+    expect(separator).toHaveAttribute('data-date', date.toISOString());
+    // The formatted date should be displayed inside a child div
+    const dateDiv = separator.querySelector('.str-chat__date-separator-date');
+    expect(dateDiv).toBeInTheDocument();
+    expect(dateDiv.textContent).toBeTruthy();
   });
 
   it('should apply custom formatting options from i18n service', async () => {
@@ -155,26 +158,15 @@ describe('DateSeparator', () => {
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(dateMock);
   });
 
-  it('should render New text if unread prop is true', async () => {
-    const { container } = await renderComponent({ props: { date, unread: true } });
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="str-chat__date-separator"
-          data-testid="date-separator"
-        >
-          <hr
-            class="str-chat__date-separator-line"
-          />
-          <div
-            class="str-chat__date-separator-date"
-          >
-            New - 03/30/2020
-          </div>
-        </div>
-      </div>
-    `);
-    expect(screen.getByText('New - 03/30/2020')).toBeInTheDocument();
+  it('should render with unread prop (unread no longer changes output)', async () => {
+    await renderComponent({ props: { date, unread: true } });
+    const separator = screen.getByTestId(DATE_SEPARATOR_TEST_ID);
+    expect(separator).toBeInTheDocument();
+    expect(separator).toHaveClass('str-chat__date-separator');
+    expect(separator).toHaveAttribute('data-date', date.toISOString());
+    const dateDiv = separator.querySelector('.str-chat__date-separator-date');
+    expect(dateDiv).toBeInTheDocument();
+    expect(dateDiv.textContent).toBeTruthy();
   });
 
   describe('Position prop', () => {
@@ -182,87 +174,31 @@ describe('DateSeparator', () => {
       <DateSeparator date={date} formatDate={formatDate} position={position} />
     );
 
-    it('should render correctly with position==="right", and it should match the default', () => {
-      const { container } = render(renderWithPosition('right'));
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__date-separator"
-            data-testid="date-separator"
-          >
-            <hr
-              class="str-chat__date-separator-line"
-            />
-            <div
-              class="str-chat__date-separator-date"
-            >
-              the date
-            </div>
-          </div>
-        </div>
-      `);
-      expect(render(renderWithPosition()).container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__date-separator"
-            data-testid="date-separator"
-          >
-            <hr
-              class="str-chat__date-separator-line"
-            />
-            <div
-              class="str-chat__date-separator-date"
-            >
-              the date
-            </div>
-          </div>
-        </div>
-      `);
-    });
+    it('should render the same structure regardless of position prop', () => {
+      const { container: rightContainer } = render(renderWithPosition('right'));
+      const { container: leftContainer } = render(renderWithPosition('left'));
+      const { container: centerContainer } = render(renderWithPosition('center'));
+      const { container: defaultContainer } = render(renderWithPosition());
 
-    it('should render correctly with position==="left"', () => {
-      const { container } = render(renderWithPosition('left'));
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__date-separator"
-            data-testid="date-separator"
-          >
-            <div
-              class="str-chat__date-separator-date"
-            >
-              the date
-            </div>
-            <hr
-              class="str-chat__date-separator-line"
-            />
-          </div>
-        </div>
-      `);
-    });
+      // All positions now render the same simplified structure
+      for (const container of [
+        rightContainer,
+        leftContainer,
+        centerContainer,
+        defaultContainer,
+      ]) {
+        const separator = container.querySelector('.str-chat__date-separator');
+        expect(separator).toBeInTheDocument();
+        expect(separator).toHaveAttribute('data-date', date.toISOString());
+        expect(separator).toHaveAttribute('data-testid', DATE_SEPARATOR_TEST_ID);
 
-    it('should render correctly with position==="center"', () => {
-      const { container } = render(renderWithPosition('center'));
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__date-separator"
-            data-testid="date-separator"
-          >
-            <hr
-              class="str-chat__date-separator-line"
-            />
-            <div
-              class="str-chat__date-separator-date"
-            >
-              the date
-            </div>
-            <hr
-              class="str-chat__date-separator-line"
-            />
-          </div>
-        </div>
-      `);
+        const dateDiv = separator.querySelector('.str-chat__date-separator-date');
+        expect(dateDiv).toBeInTheDocument();
+        expect(dateDiv).toHaveTextContent(dateMock);
+
+        // No <hr> elements in the new structure
+        expect(separator.querySelector('hr')).not.toBeInTheDocument();
+      }
     });
   });
 });

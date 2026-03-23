@@ -3,7 +3,7 @@
 exports[`<MessageText /> should render with a custom inner class when one is set 1`] = `
 <div>
   <div
-    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
+    class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"
   >
     <div
       class="str-chat__message-inner"
@@ -13,9 +13,6 @@ exports[`<MessageText /> should render with a custom inner class when one is set
         data-testid="mocked-message-actions"
       />
       <div
-        class="str-chat__message-reactions-host"
-      />
-      <div
         class="str-chat__message-bubble"
       >
         <div
@@ -23,7 +20,7 @@ exports[`<MessageText /> should render with a custom inner class when one is set
           tabindex="0"
         >
           <div
-            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            class=""
             data-testid="message-text-inner-wrapper"
           >
             <div>
@@ -33,28 +30,31 @@ exports[`<MessageText /> should render with a custom inner class when one is set
             </div>
           </div>
         </div>
-        <div
-          class="str-chat__message-error-icon"
+      </div>
+      <div
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-error-icon"
+      >
+        <svg
+          data-testid="error"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            data-testid="error"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-              fill="black"
-              id="background"
-            />
-            <path
-              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-              fill="white"
-            />
-          </svg>
-        </div>
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+            fill="black"
+            id="background"
+          />
+          <path
+            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+            fill="white"
+          />
+        </svg>
       </div>
     </div>
     <div
@@ -67,7 +67,7 @@ exports[`<MessageText /> should render with a custom inner class when one is set
 exports[`<MessageText /> should render with a custom wrapper class when one is set 1`] = `
 <div>
   <div
-    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
+    class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"
   >
     <div
       class="str-chat__message-inner"
@@ -77,9 +77,6 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
         data-testid="mocked-message-actions"
       />
       <div
-        class="str-chat__message-reactions-host"
-      />
-      <div
         class="str-chat__message-bubble"
       >
         <div
@@ -87,7 +84,7 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
           tabindex="0"
         >
           <div
-            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            class=""
             data-testid="message-text-inner-wrapper"
           >
             <div>
@@ -97,28 +94,31 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
             </div>
           </div>
         </div>
-        <div
-          class="str-chat__message-error-icon"
+      </div>
+      <div
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-error-icon"
+      >
+        <svg
+          data-testid="error"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            data-testid="error"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-              fill="black"
-              id="background"
-            />
-            <path
-              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-              fill="white"
-            />
-          </svg>
-        </div>
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+            fill="black"
+            id="background"
+          />
+          <path
+            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+            fill="white"
+          />
+        </svg>
       </div>
     </div>
     <div
@@ -131,7 +131,7 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
 exports[`<MessageText /> should render with custom theme identifier in generated css classes when theme is set 1`] = `
 <div>
   <div
-    class="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
+    class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"
   >
     <div
       class="str-chat__message-inner"
@@ -141,9 +141,6 @@ exports[`<MessageText /> should render with custom theme identifier in generated
         data-testid="mocked-message-actions"
       />
       <div
-        class="str-chat__message-reactions-host"
-      />
-      <div
         class="str-chat__message-bubble"
       >
         <div
@@ -151,7 +148,7 @@ exports[`<MessageText /> should render with custom theme identifier in generated
           tabindex="0"
         >
           <div
-            class="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            class=""
             data-testid="message-text-inner-wrapper"
           >
             <div>
@@ -161,28 +158,31 @@ exports[`<MessageText /> should render with custom theme identifier in generated
             </div>
           </div>
         </div>
-        <div
-          class="str-chat__message-error-icon"
+      </div>
+      <div
+        class="str-chat__message-reactions-host"
+      />
+      <div
+        class="str-chat__message-error-icon"
+      >
+        <svg
+          data-testid="error"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            data-testid="error"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-              fill="black"
-              id="background"
-            />
-            <path
-              d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-              fill="white"
-            />
-          </svg>
-        </div>
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+            fill="black"
+            id="background"
+          />
+          <path
+            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+            fill="white"
+          />
+        </svg>
       </div>
     </div>
     <div

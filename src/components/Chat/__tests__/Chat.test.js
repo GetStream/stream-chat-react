@@ -169,6 +169,13 @@ describe('Chat', () => {
     });
 
     it('setActiveChannel closes the nav', async () => {
+      const originalInnerWidth = window.innerWidth;
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: 500,
+        writable: true,
+      });
+
       let context;
       render(
         <Chat client={chatClient}>
@@ -183,6 +190,12 @@ describe('Chat', () => {
       await waitFor(() => expect(context.navOpen).toBe(true));
       await act(() => context.setActiveChannel());
       await waitFor(() => expect(context.navOpen).toBe(false));
+
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: originalInnerWidth,
+        writable: true,
+      });
     });
   });
 

@@ -5,6 +5,7 @@ import {
   AttachmentPreviewList,
   VoiceRecordingPreviewSlot,
 } from '../AttachmentPreviewList';
+import { GeolocationPreview } from '../AttachmentPreviewList/GeolocationPreview';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 
@@ -13,8 +14,6 @@ import {
   generateFileAttachment,
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
-  generateMessage,
-  generateStaticLocationResponse,
   generateVideoAttachment,
   generateVoiceRecordingAttachment,
   initClientWithChannels,
@@ -27,7 +26,7 @@ const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
 const ATTACHMENT_PREVIEW_TEST_IDS = {
   audio: {
-    delete: 'audio-preview-item-delete-button',
+    delete: 'file-preview-item-delete-button',
     retry: 'file-preview-item-retry-button',
   },
   file: {
@@ -343,32 +342,44 @@ describe('AttachmentPreviewList', () => {
   });
 
   describe('shared location', () => {
-    it('should be rendered with location preview', async () => {
-      await renderComponent({
-        attachments: [],
-        coords: { latitude: 2, longitude: 2 },
+    const renderLocationPreview = async ({ customPreview, location, remove } = {}) => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+      const PreviewComponent = customPreview || GeolocationPreview;
+      let result;
+      await act(() => {
+        result = render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <PreviewComponent
+                location={location || { latitude: 2, longitude: 2 }}
+                remove={remove}
+              />
+            </Channel>
+          </Chat>,
+        );
       });
+      return { channel, ...result };
+    };
+
+    it('should be rendered with location preview', async () => {
+      await renderLocationPreview({ remove: jest.fn() });
       expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
     });
     it('should be rendered with custom location preview', async () => {
-      const GeolocationPreview = () => <div data-testid='geolocation-preview-custom' />;
-      await renderComponent({
-        attachments: [],
-        coords: { latitude: 2, longitude: 2 },
-        props: { GeolocationPreview },
-      });
+      const CustomGeolocationPreview = () => (
+        <div data-testid='geolocation-preview-custom' />
+      );
+      await renderLocationPreview({ customPreview: CustomGeolocationPreview });
       expect(screen.queryByTestId('location-preview')).not.toBeInTheDocument();
       expect(screen.queryByTestId('geolocation-preview-custom')).toBeInTheDocument();
     });
 
     it('should render location preview without possibility to remove it when editing a message', async () => {
-      await renderComponent({
-        attachments: [],
-        coords: { latitude: 2, longitude: 2 },
-        editedMessage: generateMessage({
-          shared_location: generateStaticLocationResponse(),
-        }),
-      });
+      // When editing, no remove callback is provided, so the remove button is absent
+      await renderLocationPreview();
       expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
       expect(
         screen.queryByTestId('location-preview-item-delete-button'),

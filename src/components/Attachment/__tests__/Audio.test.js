@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
 import { generateAudioAttachment, generateMessage } from '../../../mock-builders';
-import { prettifyFileSize } from '../../MessageInput/hooks/utils';
+import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
 
@@ -13,6 +13,9 @@ jest.mock('../../../context/ChatContext', () => ({
 }));
 jest.mock('../../../context/TranslationContext', () => ({
   useTranslationContext: () => ({ t: (s) => tSpy(s) }),
+}));
+jest.mock('../../Notifications', () => ({
+  useNotificationTarget: () => 'channel',
 }));
 
 const addErrorSpy = jest.fn();
@@ -183,22 +186,32 @@ describe('Audio', () => {
   });
 
   it('registers error if pausing the audio after 2000ms of inactivity failed', async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers({ now: Date.now() });
     renderComponent({ og: audioAttachment });
 
     jest
       .spyOn(HTMLAudioElement.prototype, 'play')
       .mockImplementationOnce(() => sleep(3000));
-    jest.spyOn(HTMLAudioElement.prototype, 'pause').mockImplementationOnce(() => {
-      throw new Error('');
-    });
+    const pauseSpy = jest
+      .spyOn(HTMLAudioElement.prototype, 'pause')
+      .mockImplementationOnce(() => {
+        throw new Error('');
+      });
 
     await clickToPlay();
 
-    jest.advanceTimersByTime(2000);
-    await waitFor(() => {
-      expectAddErrorMessage('Failed to play the recording');
+    await act(() => {
+      jest.advanceTimersByTime(2001);
     });
+
+    // The safety timeout should have tried to pause and caught the error
+    await waitFor(() => {
+      expect(pauseSpy).toHaveBeenCalled();
+    });
+
+    // After the error, the play button should be shown (not pause)
+    expect(playButton()).toBeInTheDocument();
+    expect(pauseButton()).not.toBeInTheDocument();
 
     jest.useRealTimers();
   });

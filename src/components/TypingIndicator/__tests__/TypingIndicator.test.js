@@ -19,9 +19,14 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
+jest.mock('../../Threads', () => ({
+  useThreadContext: jest.fn(() => undefined),
+}));
+
 expect.extend(toHaveNoViolations);
 
 const me = generateUser();
+const scrollToBottom = jest.fn();
 
 async function renderComponent(
   typing = {},
@@ -36,7 +41,11 @@ async function renderComponent(
       <ChannelStateProvider value={{ ...value }}>
         <ComponentProvider value={{}}>
           <TypingProvider value={{ typing }}>
-            <TypingIndicator threadList={threadList} {...typingIndicatorProps} />
+            <TypingIndicator
+              scrollToBottom={scrollToBottom}
+              threadList={threadList}
+              {...typingIndicatorProps}
+            />
           </TypingProvider>
         </ComponentProvider>
       </ChannelStateProvider>
@@ -45,7 +54,10 @@ async function renderComponent(
 }
 
 describe('TypingIndicator', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    scrollToBottom.mockClear();
+  });
 
   it('should render null without proper context values', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
@@ -53,7 +65,7 @@ describe('TypingIndicator', () => {
       <ChatProvider value={{}}>
         <ChannelStateProvider value={{}}>
           <ComponentProvider value={{}}>
-            <TypingIndicator />
+            <TypingIndicator scrollToBottom={scrollToBottom} />
           </ComponentProvider>
         </ChannelStateProvider>
       </ChatProvider>,
@@ -68,7 +80,7 @@ describe('TypingIndicator', () => {
         <ChannelStateProvider value={{}}>
           <ComponentProvider value={{}}>
             <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
+              <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>
         </ChannelStateProvider>
@@ -85,7 +97,7 @@ describe('TypingIndicator', () => {
 
   it('should render TypingIndicator when someone else is typing', async () => {
     const { container } = await renderComponent({
-      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg', name: 'Jessica' } },
     });
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
@@ -95,7 +107,7 @@ describe('TypingIndicator', () => {
   });
 
   it('should render TypingIndicator when you and someone else are typing', async () => {
-    const otherUser = { user: { id: 'jessica', image: 'jessica.jpg' } };
+    const otherUser = { user: { id: 'jessica', image: 'jessica.jpg', name: 'Jessica' } };
     const { container } = await renderComponent({
       alice: { user: me },
       jessica: otherUser,
@@ -110,9 +122,9 @@ describe('TypingIndicator', () => {
   it('should render TypingIndicator when multiple users are typing', async () => {
     const { container } = await renderComponent({
       alice: { user: me },
-      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
-      joris: { user: { id: 'joris', image: 'joris.jpg' } },
-      margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg', name: 'Jessica' } },
+      joris: { user: { id: 'joris', image: 'joris.jpg', name: 'Joris' } },
+      margriet: { user: { id: 'margriet', image: 'margriet.jpg', name: 'Margriet' } },
     });
     expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
@@ -122,10 +134,10 @@ describe('TypingIndicator', () => {
   it('should render TypingIndicator when larger amount of users are typing', async () => {
     const { container } = await renderComponent({
       alice: { user: me },
-      axel: { user: { id: 'axel', image: 'axel.jpg' } },
-      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
-      joris: { user: { id: 'joris', image: 'joris.jpg' } },
-      margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
+      axel: { user: { id: 'axel', image: 'axel.jpg', name: 'Axel' } },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg', name: 'Jessica' } },
+      joris: { user: { id: 'joris', image: 'joris.jpg', name: 'Joris' } },
+      margriet: { user: { id: 'margriet', image: 'margriet.jpg', name: 'Margriet' } },
     });
     expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     const results = await axe(container);
@@ -134,7 +146,7 @@ describe('TypingIndicator', () => {
 
   it('should render null when isMessageListScrolledToBottom is false', async () => {
     const { container } = await renderComponent(
-      { jessica: { user: { id: 'jessica', image: 'jessica.jpg' } } },
+      { jessica: { user: { id: 'jessica', image: 'jessica.jpg', name: 'Jessica' } } },
       false,
       {},
       { isMessageListScrolledToBottom: false },
@@ -155,7 +167,7 @@ describe('TypingIndicator', () => {
         <ChannelStateProvider value={{ channel, channelConfig }}>
           <ComponentProvider value={{}}>
             <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
+              <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>
         </ChannelStateProvider>
@@ -184,7 +196,7 @@ describe('TypingIndicator', () => {
 
     it('should render TypingIndicator if user is typing in thread', async () => {
       const { container } = await renderComponent(
-        { [otherUserId]: { parent_id, user: otherUserId } },
+        { [otherUserId]: { parent_id, user: { id: otherUserId } } },
         true,
         {
           channel,
@@ -198,7 +210,7 @@ describe('TypingIndicator', () => {
 
     it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
       const { container } = await renderComponent(
-        { [otherUserId]: { parent_id, user: otherUserId } },
+        { [otherUserId]: { parent_id, user: { id: otherUserId } } },
         false,
         {
           channel,
@@ -212,7 +224,7 @@ describe('TypingIndicator', () => {
 
     it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
       const { container } = await renderComponent(
-        { [otherUserId]: { user: otherUserId } },
+        { [otherUserId]: { user: { id: otherUserId } } },
         true,
         {
           channel,
@@ -226,7 +238,7 @@ describe('TypingIndicator', () => {
 
     it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
       const { container } = await renderComponent(
-        { example: { parent_id: 'sample-thread-2', user: otherUserId } },
+        { example: { parent_id: 'sample-thread-2', user: { id: otherUserId } } },
         true,
         {
           channel,

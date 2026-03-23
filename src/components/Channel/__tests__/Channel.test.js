@@ -55,6 +55,8 @@ jest.mock('../../ChatView', () => {
   };
 });
 
+const { useChatViewContext, useThreadsViewContext } = require('../../ChatView');
+
 const queryChannelWithNewMessages = (newMessages, channel) =>
   // generate new channel mock from existing channel with new messages added
   getOrCreateChannelApi(
@@ -68,9 +70,9 @@ const queryChannelWithNewMessages = (newMessages, channel) =>
     }),
   );
 
-const MockAvatar = ({ name }) => (
+const MockAvatar = ({ userName }) => (
   <div className='avatar' data-testid='custom-avatar'>
-    {name}
+    {userName}
   </div>
 );
 
@@ -170,6 +172,16 @@ describe('Channel', () => {
   let messages;
 
   beforeEach(async () => {
+    // Re-establish ChatView mock implementations (may be cleared by jest.resetAllMocks in nested describe blocks)
+    useChatViewContext.mockImplementation(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: jest.fn(),
+    }));
+    useThreadsViewContext.mockImplementation(() => ({
+      activeThread: undefined,
+      setActiveThread: jest.fn(),
+    }));
+
     channelId = nanoid();
 
     // create a full message state so that we can properly test `loadMore`

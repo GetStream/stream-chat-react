@@ -31,16 +31,17 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
                 class="str-chat__empty-channel"
               >
                 <svg
-                  data-testid="chat-bubble"
-                  fill="none"
-                  height="96"
-                  viewBox="0 0 136 136"
-                  width="96"
+                  class="str-chat__icon str-chat__icon--bubble-2-chat-message"
+                  viewBox="0 0 16 16"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    d="M106 24.5H30C24.775 24.5 20.5 28.775 20.5 34V119.5L39.5 100.5H106C111.225 100.5 115.5 96.225 115.5 91V34C115.5 28.775 111.225 24.5 106 24.5ZM106 91H39.5L30 100.5V34H106V91Z"
-                    fill="#B4B7BB"
+                    d="M3.16799 2.5H12.8347C13.571 2.5 14.168 3.09695 14.168 3.83333V10.8333C14.168 11.5697 13.571 12.1667 12.8347 12.1667H8.00136L4.66799 14V12.1667H3.16799C2.43161 12.1667 1.83466 11.5697 1.83466 10.8333V3.83333C1.83466 3.09695 2.43161 2.5 3.16799 2.5Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.2"
                   />
                 </svg>
                 <p
@@ -54,9 +55,6 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           </div>
         </div>
       </div>
-      <div
-        class="str-chat__list-notifications"
-      />
     </div>
   </div>
 </div>

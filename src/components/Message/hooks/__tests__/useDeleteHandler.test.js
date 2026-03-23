@@ -24,9 +24,6 @@ const testMessage = generateMessage();
 const deleteMessage = jest.fn(() => Promise.resolve(testMessage));
 const removeMessage = jest.fn();
 const updateMessage = jest.fn();
-const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
-};
 
 const ChannelActionContextOverrider = ({ children }) => {
   const context = useChannelActionContext();
@@ -70,17 +67,17 @@ describe('useDeleteHandler custom hook', () => {
     expect(typeof handleDelete).toBe('function');
   });
 
-  it('should prevent default mouse click event from bubbling', async () => {
+  it('should delete a message without options', async () => {
     const handleDelete = await renderUseDeleteHandler();
-    await handleDelete(mouseEventMock);
-    expect(mouseEventMock.preventDefault).toHaveBeenCalledWith();
+    await handleDelete();
+    expect(deleteMessage).toHaveBeenCalledWith(testMessage, undefined);
   });
 
-  it('should delete a message by its id', async () => {
+  it('should delete a message by its id with options', async () => {
     const message = generateMessage();
     const deleteMessageOptions = { deleteForMe: true, hard: false };
     const handleDelete = await renderUseDeleteHandler(message);
-    await handleDelete(mouseEventMock, deleteMessageOptions);
+    await handleDelete(deleteMessageOptions);
     expect(deleteMessage).toHaveBeenCalledWith(message, deleteMessageOptions);
   });
 
@@ -89,7 +86,7 @@ describe('useDeleteHandler custom hook', () => {
     deleteMessage.mockImplementationOnce(() => Promise.resolve(deleteMessageResponse));
     const handleDelete = await renderUseDeleteHandler(testMessage);
     await act(async () => {
-      await handleDelete(mouseEventMock);
+      await handleDelete();
     });
     expect(updateMessage).toHaveBeenCalledWith(deleteMessageResponse);
   });
