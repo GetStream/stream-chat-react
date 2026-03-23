@@ -485,6 +485,7 @@
   "View translation": "Показать перевод",
   "Voice message": "Голосовое сообщение",
   "Voice message {{ duration }}": "Голосовое сообщение {{ duration }}",
+  "Voice message deleted": "Голосовое сообщение удалено",
   "voiceMessageCount_one": "{{ count }} голосовое сообщение",
   "voiceMessageCount_few": "{{ count }} голосовых сообщения",
   "voiceMessageCount_many": "{{ count }} голосовых сообщений",

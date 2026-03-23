@@ -463,6 +463,7 @@
   "View translation": "Voir la traduction",
   "Voice message": "Message vocal",
   "Voice message {{ duration }}": "Message vocal {{ duration }}",
+  "Voice message deleted": "Message vocal supprimé",
   "voiceMessageCount_one": "Mémo vocal",
   "voiceMessageCount_many": "{{ count }} mémos vocaux",
   "voiceMessageCount_other": "{{ count }} mémos vocaux",

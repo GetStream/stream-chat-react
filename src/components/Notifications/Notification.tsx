@@ -6,7 +6,6 @@ import { type Notification as NotificationType } from 'stream-chat';
 import {
   IconArrowRotateRightLeftRepeatRefresh,
   IconCheckmark2,
-  IconCircleInfoTooltip,
   IconCrossMedium,
   IconExclamationCircle,
   IconExclamationTriangle,
@@ -22,9 +21,9 @@ export type NotificationIconProps = {
   notification: NotificationType;
 };
 
-const IconsBySeverity: Record<NotificationSeverity, ComponentType> = {
+const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
   error: IconExclamationCircle,
-  info: IconCircleInfoTooltip,
+  info: null, // IconCircleInfoTooltip,
   loading: IconArrowRotateRightLeftRepeatRefresh,
   success: IconCheckmark2,
   warning: IconExclamationTriangle,
@@ -34,7 +33,13 @@ const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {
   if (!notification.severity) return null;
 
   const Icon = IconsBySeverity[notification.severity] ?? null;
-  return Icon && <Icon />;
+  return (
+    Icon && (
+      <div className='str-chat__notification-icon'>
+        <Icon />
+      </div>
+    )
+  );
 };
 
 export type NotificationProps = {
@@ -104,11 +109,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         ref={ref}
       >
         <div className='str-chat__notification-content'>
-          {Icon && (
-            <div className='str-chat__notification-icon'>
-              <Icon notification={notification} />
-            </div>
-          )}
+          {Icon && <Icon notification={notification} />}
           <div className='str-chat__notification-message'>{displayMessage}</div>
         </div>
         {notification.actions && notification.actions.length > 0 && (

@@ -438,6 +438,7 @@
   "View translation": "翻訳を表示",
   "Voice message": "ボイスメッセージ",
   "Voice message {{ duration }}": "ボイスメッセージ {{ duration }}",
+  "Voice message deleted": "ボイスメッセージが削除されました",
   "voiceMessageCount_other": "{{ count }}件のボイスメッセージ",
   "Vote ended": "投票が終了しました",
   "Votes": "投票",
