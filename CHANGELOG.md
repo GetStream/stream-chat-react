@@ -1,3 +1,327 @@
+## [14.0.0-beta.1](https://github.com/GetStream/stream-chat-react/compare/v13.13.1...v14.0.0-beta.1) (2026-03-23)
+
+### ⚠ BREAKING CHANGES
+
+* All `str-chat__channel-preview*` CSS classes have been
+renamed to `str-chat__channel-list-item*` (e.g.
+`.str-chat__channel-preview-container` →
+`.str-chat__channel-list-item-container`);
+`.str-chat__message-input-cooldown` has been renamed to
+`.str-chat__message-composer-cooldown`; `.str-chat__message-simple-name`
+has been renamed to `.str-chat__message-metadata__name`;
+`.str-chat__simple-message--error-failed` has been renamed to
+`.str-chat__message-inner--error`; `.str-chat__message-simple-timestamp`
+has been renamed to `.str-chat__message-metadata__timestamp`. Removed
+`.str-chat__message-simple` and `.str-chat__message-simple--me` root
+class names from `MessageUI` and `MessageBlocked` components. Component
+`MessageActionsWrapper` has been dropped.
+* replace MessageListNotifications with NotificationList
+* remove PauseIcon, PlayTriangleIcon, GeolocationIcon
+* replace openButtonProps with TriggerComponent in
+DropdownProps
+* remove dialogId from DropdownProps
+* the BaseImage component uses ImageFallback component instead of CSS masl to display fallback on error
+* replaced addNotification from ChannelStateContenxt with
+client.notifications API
+* NotificationList was moved with new parent now being MessageListMainPanel
+* rename MessageListNotificationsProps to NotificationListProps
+* `useAudioController` has been removed from the public
+API. Migrate custom audio playback code to `useAudioPlayer`.
+
+### 🛠 Implementation details
+
+- delete `src/components/Attachment/hooks/useAudioController.ts`
+- remove the public export from `src/components/Attachment/index.ts`
+- decouple `WaveProgressBar` from the deleted hook file by giving it its
+own UI-level seek callback type
+- keep the current audio playback components compatible with
+`audioPlayer.seek`
+- validated with `yarn types`
+
+### 🎨 UI Changes
+
+None.
+* ChannelSearch component set has been dropped, use
+Search instead.
+* useChannelPreviewInfo now always returns a defined
+`groupChannelDisplayInfo` (object with `members` and `overflowCount`).
+For 1:1 or ≤2 members it returns `{ members: [], overflowCount:
+undefined }`. Code that treated `groupChannelDisplayInfo == null` as
+“not a group” should use e.g. `groupChannelDisplayInfo.members.length >=
+2` instead.
+* close modals from within modal contents using
+ModalContextValue.close
+* removed Modal component and kept only GlobalModal
+component
+* removed div with class str-chat_modal-inner
+* remove support for "live" label
+* remove support for displaying channel.data.subtitle
+under the title
+* replace str-chat__channel-header-end with
+str-chat__channel-header__data
+* remove MessageIsThreadReplyInChannelButtonIndicator
+from ComponentContext
+* replace MessageIsThreadReplyInChannelButtonIndicator
+with MessageAlsoSentInChannelIndicator
+* remove CSS variables for
+--str-chat__jump-to-latest-message-*
+* rename MessageNotification to NewMessageNotification
+* rename ScrollToBottomButton to
+ScrollToLatestMessageButton
+* introduce ScrollToLatestMessageButton by default into
+message list
+* change the markup of ScrollToLatestMessageButton
+* change the markup of UnreadMessagesSeparator
+* `MessageReactionsDetail`'s (formerly
+`ReactionsListModal`) composition (markup) has changed, class names have
+been renamed or removed (see table bellow). It no longer renders in a
+modal but rather in a dialog - this change required a container-agnostic
+rename.
+| Change Type | Old Class Name | New Class Name |
+| -------------------- |
+------------------------------------------------------------- |
+* replaced isOnlyEmojis util function with
+messageTextHasEmojisOnly
+* replaced component MessageDeleted with
+MessageDeletedBubble.
+* in Message, the MessageDeleted does not have default
+component. Instead, message deleted is now rendered within message
+bubble using MessageDeletedBubble. Thus the default deleted message UI
+now shows message annotations, metadata and replies button.
+* remove FixedHeightMessage component
+* change props for VirtualMessage in ComponentContext
+from FixedHeightMessageProps to MessageUIComponentProps
+* Remove legacy high-order context wrappers
+(`with*Context`) from `stream-chat-react` since the docs and internal
+usage are hook-based (`use*Context`).
+
+### 🛠 Implementation details
+
+- Removed the following exported HOCs from context modules:
+  - `withChannelActionContext`
+  - `withChannelStateContext`
+  - `withChatContext`
+  - `withComponentContext`
+  - `withMessageContext`
+  - `withTranslationContext`
+  - `withTypingContext`
+- Kept provider/hook APIs intact (`*Provider` and `use*Context`).
+- Removed now-unused imports/types tied to HOC implementations
+(including `UnknownType` usages in these files).
+- Deleted now-unused helper `src/context/utils/getDisplayName.ts`.
+
+### 🎨 UI Changes
+
+N/A (no UI changes).
+* change the signature of MessageContextValue['handleDelete']
+* remove props endOfGroup, firstOfGroup and groupedByUser
+from MessageProps as their purpose is unknown and message grouping
+should be done by Message prop groupStyles
+* order of actions in MessageActions has changed
+* removed CSS variables --str-chat__message-bounce-*
+* remove RemindMeActionButton and RemindMeActionButtonProps
+* remove QuotedPoll component and isQuoted prop from Poll
+* str-chat__message-composer-container now wraps the
+message composer
+* date separator does not contain separation lines
+* 1 or more images and giphy attachment are now rendered
+with ModalGallery component
+* ModalGallery component is now user to render the image
+preview in message bubble and Gallery in full-screen mode if clicked on
+the attachment in the bubble
+* Assets rendered in Gallery have to be of a new type
+GalleryItem
+* Overriding ModalGallery in ComponentContext means
+overriding the attachment preview as well as the Gallery on Modal view
+* Overriding Gallery in ComponentContext means overriding
+a component that renders media assets in slideshow and provides the
+slideshow navigation API
+* `GroupAvatar` component now renders a singular `Avatar`
+component without any wrappers if the `groupChannelDisplayInfo` contains
+only a single entry. Some class names have been removed, see the table
+bellow:
+| Change Type | Old Class Name                       | New Class Name |
+| ----------- | ------------------------------------ | -------------- |
+| Removed     | `str-chat__avatar--single`           | -              |
+| Removed     | `str-chat__avatar-group--three-part` | -              |
+* Certain element classes have been renamed, some have
+been removed, see the table of the actual changes bellow:
+| Change Type | Old Class Name | New Class Name |
+| ----------- | --------------------------------------- |
+--------------------------------------------------- |
+| Changed | `str-chat__reaction-list` | `str-chat__message-reactions` |
+| Removed | `str-chat__message-reactions-container` | - |
+| Removed | `str-chat__reaction-list--reverse` | - |
+| Changed | `str-chat__message-reactions` |
+`str-chat__message-reactions__list` |
+| Changed | `str-chat__message-reaction` |
+`str-chat__message-reactions__list-item` |
+| Removed | `str-chat__message-reaction-own` | - |
+| Changed | `str-chat__message-reaction-emoji` |
+`str-chat__message-reactions__item-icon` |
+| Changed | `str-chat__message-reaction-count` |
+`str-chat__message-reactions__item-count` |
+| Changed | `str-chat__reaction-list--counter` |
+`str-chat__message-reactions__total-count` |
+* replace specific components in MessageActions with
+general purpose ContextMenu components
+* MessageOptions, CustomMessageActions,
+CustomMessageActionsList, MessageActionsBox are no longer available, use
+MessageActions functionality instead.
+* suggestion list and suggestion list items were
+re-implemented with new ContextMenu API.
+* the suggestion list and suggestion list items have
+changed the markup
+* `Avatar` component no longer takes `user` prop, prop
+`image` has been renamed to `imageUrl` and prop `name` has been renamed
+to `userName`.
+* Props `Avatar`, `detailedView`, `latest_reactions`,
+`reaction_counts`, `reaction_groups`, `reactionOptions` & `reverse` have
+been removed from `ReactionSelector` component. The reason is that some
+of them were deprecated and some of them weren't being used in a way the
+component was set up by default. The component's class names have also
+changed, see table.
+
+| Change Type | Old Class Name | New Class Name |
+| ----------- |
+* `Channel` component no longer supports component
+overrides, use `WithComponents` instead.
+
+### chore
+
+* remove with*Context HOC wrappers ([#2962](https://github.com/GetStream/stream-chat-react/issues/2962)) ([e0cd4f2](https://github.com/GetStream/stream-chat-react/commit/e0cd4f25429170b2485016a1a8f34af4281338ff))
+
+### Bug Fixes
+
+* add integration guide md file to help AI assistant's work ([8441f5b](https://github.com/GetStream/stream-chat-react/commit/8441f5b10884f52d520c14a570eebd706a4f0d9a))
+* add integration guide md file to help AI assistant's work ([#2911](https://github.com/GetStream/stream-chat-react/issues/2911)) ([2efd30e](https://github.com/GetStream/stream-chat-react/commit/2efd30e59daab6b70671a215f4a7e7246953e4be))
+* add temporarily CSS v2 palette-variables ([#3040](https://github.com/GetStream/stream-chat-react/issues/3040)) ([48d4647](https://github.com/GetStream/stream-chat-react/commit/48d46471955500e4c357c339b3d40c746520b7fb))
+* adjust ChatView.Selector buttons styles ([#2990](https://github.com/GetStream/stream-chat-react/issues/2990)) ([7907f51](https://github.com/GetStream/stream-chat-react/commit/7907f51f2b0e912ee591a0a52904067be213a11a))
+* **ai:** stop typewriter animation on `ai_indicator.stop` ([#2918](https://github.com/GetStream/stream-chat-react/issues/2918)) ([7777721](https://github.com/GetStream/stream-chat-react/commit/7777721b2d42f5e8c16f90c4ff1a809ca7027325))
+* align chat view sidebars and attachment preview remove icon ([#3004](https://github.com/GetStream/stream-chat-react/issues/3004)) ([08dc4b6](https://github.com/GetStream/stream-chat-react/commit/08dc4b6daa11365fb5d115e0810d43c829474f37))
+* align message list width constraints ([#2965](https://github.com/GetStream/stream-chat-react/issues/2965)) ([02c9b8d](https://github.com/GetStream/stream-chat-react/commit/02c9b8d51884cb2abc5894b644162d1733de61dc))
+* allow forwarding `unsafeHTML` to system messages (`EventComponent`) ([#2973](https://github.com/GetStream/stream-chat-react/issues/2973)) ([99c3960](https://github.com/GetStream/stream-chat-react/commit/99c3960deca5776626fe6cee2f9586fdb8a4344f))
+* change class names to reflect component renames ([#3035](https://github.com/GetStream/stream-chat-react/issues/3035)) ([7c978a9](https://github.com/GetStream/stream-chat-react/commit/7c978a9e559f2cb8581d65365a4eb5e932db573d))
+* component renames ([#3030](https://github.com/GetStream/stream-chat-react/issues/3030)) ([a563248](https://github.com/GetStream/stream-chat-react/commit/a5632481745fb2943e1ae2a0fae84b26829b7a94))
+* **demo:** remove archived filter param ([46da3f8](https://github.com/GetStream/stream-chat-react/commit/46da3f8c645c98e8ea19829ccd6ba1dd472c9725))
+* **demo:** remove pinned_at sort param ([0bc9ed6](https://github.com/GetStream/stream-chat-react/commit/0bc9ed616a9f3bc33b4309c910aadaae50f35c90))
+* don't expose giphy arg in quoted message preview and channel preview ([21b905c](https://github.com/GetStream/stream-chat-react/commit/21b905ceec072b75618543f4846128f73432227a))
+* exit search on blur [REACT-855] ([#3013](https://github.com/GetStream/stream-chat-react/issues/3013)) ([97f485d](https://github.com/GetStream/stream-chat-react/commit/97f485d0910b574770b34278816585f66c140a8e))
+* focus outline visual glitch for input ([212e449](https://github.com/GetStream/stream-chat-react/commit/212e449dacff89bfa9ab8a1cb73ee38291ae6fea))
+* giphy and command ui fixes ([#3025](https://github.com/GetStream/stream-chat-react/issues/3025)) ([aa36a4d](https://github.com/GetStream/stream-chat-react/commit/aa36a4dd65c74481fac6c8b0dd058be3ca6a45ba))
+* hide buttons in message input if a command is selected ([22d32d4](https://github.com/GetStream/stream-chat-react/commit/22d32d4696f60d7e834dc5b4877dfcc255b9cd4f))
+* improve md file to guide AI assistants used by our integrators ([7339614](https://github.com/GetStream/stream-chat-react/commit/7339614a70f0bb8d7c3d07c1251e1ac89b60879d))
+* improve md file to guide AI assistants used by our integrators ([#2912](https://github.com/GetStream/stream-chat-react/issues/2912)) ([c249ef7](https://github.com/GetStream/stream-chat-react/commit/c249ef7cd549da2dfbe5066610edc668412fd685))
+* isDayjs import usage for ESM ([#2924](https://github.com/GetStream/stream-chat-react/issues/2924)) ([73f8767](https://github.com/GetStream/stream-chat-react/commit/73f876710863867bde7d0becb293ad8519c2b1b8))
+* make poll forms submitable ([#2989](https://github.com/GetStream/stream-chat-react/issues/2989)) ([7dc82ca](https://github.com/GetStream/stream-chat-react/commit/7dc82ca535aa1a230912f76791f766bf7d67ac49))
+* make the full option list container take the available height ([da77bf3](https://github.com/GetStream/stream-chat-react/commit/da77bf334ab9a87bc45d13885829b3f814d5a15b))
+* make vite example channel selection bookmarkable ([#2997](https://github.com/GetStream/stream-chat-react/issues/2997)) ([1fbbfd1](https://github.com/GetStream/stream-chat-react/commit/1fbbfd1821da2ab9368e56a5be889f6fa7472fc2))
+* move show all options button to PollOptionList component ([e75ca3a](https://github.com/GetStream/stream-chat-react/commit/e75ca3acb92bb7fb38c83b3d6909888773f03d24))
+* only categorize giphy type as giphy attachment ([f032187](https://github.com/GetStream/stream-chat-react/commit/f032187a2817469421cd72ad45cd4facf85f40de))
+* poll UI fixes ([#3034](https://github.com/GetStream/stream-chat-react/issues/3034)) ([885b7a6](https://github.com/GetStream/stream-chat-react/commit/885b7a64c18d7ebde3deadf9f32ccc23df4427d5))
+* prevent increasing unread count by useMarkRead hook if read-events are disabled ([#2925](https://github.com/GetStream/stream-chat-react/issues/2925)) ([d0e7b5f](https://github.com/GetStream/stream-chat-react/commit/d0e7b5f7033ec4a05cb95e2f0beaf1665b110f39))
+* prevent mobile sidebar overlays from shifting chat content ([#2995](https://github.com/GetStream/stream-chat-react/issues/2995)) ([35f4282](https://github.com/GetStream/stream-chat-react/commit/35f4282e96cfd7afc227d165f63a5feb92401a84))
+* recert interactive flag, make Giphy use BaseImage ([59163cc](https://github.com/GetStream/stream-chat-react/commit/59163cc8380d5328c8e322bcd712cb2b8d0b37da))
+* remove Channel component propagation ([#2904](https://github.com/GetStream/stream-chat-react/issues/2904)) ([cd6001f](https://github.com/GetStream/stream-chat-react/commit/cd6001fd9e7d56028cceaec458ea21d9aa229248))
+* remove customMessageData from handleSubmit type declaration ([#2950](https://github.com/GetStream/stream-chat-react/issues/2950)) ([fc547be](https://github.com/GetStream/stream-chat-react/commit/fc547be57622c80a789a5ef5004cc342f94c73ec))
+* remove MessageEditedTimestamp component ([7cbe67e](https://github.com/GetStream/stream-chat-react/commit/7cbe67e4c72f1c8553342078496caed1f8785d90))
+* remove the tooltip from PollVote ([ca11f90](https://github.com/GetStream/stream-chat-react/commit/ca11f908ddabecbc93ad8f8a8d8e179545944a0a))
+* remove unnecessary CSS ([3fc6f3f](https://github.com/GetStream/stream-chat-react/commit/3fc6f3fc9a65685bc569bd5e583fec681fda1b9f))
+* rename ChannelListMessenger to ChannelListUI ([#3036](https://github.com/GetStream/stream-chat-react/issues/3036)) ([d251338](https://github.com/GetStream/stream-chat-react/commit/d251338327cdfe72042894c62c523bd9164c104f))
+* revert changes to EndPollAlert ([c364b0b](https://github.com/GetStream/stream-chat-react/commit/c364b0b92b832251ccddc3e895b33f21f20e7617))
+* show ToggleSidebarButton in threads view's ThreadHeader ([#3020](https://github.com/GetStream/stream-chat-react/issues/3020)) ([53d5639](https://github.com/GetStream/stream-chat-react/commit/53d5639aa471cf47c8352926aac3a97174752af0))
+* single checkmark color in dark mode ([283fad8](https://github.com/GetStream/stream-chat-react/commit/283fad8b1f781cfb8f2d9100318117deb5258160))
+* single checkmark color in dark mode ([#3032](https://github.com/GetStream/stream-chat-react/issues/3032)) ([b3858c8](https://github.com/GetStream/stream-chat-react/commit/b3858c89c3c1607a658b0b793070310efd487ef0))
+* sort command menus consistently ([#2967](https://github.com/GetStream/stream-chat-react/issues/2967)) ([64fd76b](https://github.com/GetStream/stream-chat-react/commit/64fd76b57dc0dbd8fe5e8525a08507ae0d6218f2))
+* stabilize all test suites after v14 breaking changes ([#3039](https://github.com/GetStream/stream-chat-react/issues/3039)) ([91c1602](https://github.com/GetStream/stream-chat-react/commit/91c1602b35fe06a5b02c78afc51b27d746125a2f))
+* suggesting a poll option shouldn't vote for it ([e0659f3](https://github.com/GetStream/stream-chat-react/commit/e0659f3ff5edcced4ebd9c42ac1720ecf610c7e5))
+* turn off interactions for giphy ([d403eee](https://github.com/GetStream/stream-chat-react/commit/d403eee081fa6ee8d427c0b353bb2a56a4abee55))
+* unified SummarizedMessagePreview, cover more cases ([#2977](https://github.com/GetStream/stream-chat-react/issues/2977)) ([1589481](https://github.com/GetStream/stream-chat-react/commit/158948154a5de3fe3cbf0bbc129e1de123430f58))
+* unify poll modal: title casing for EN; placeholders; button placement ([33fed1e](https://github.com/GetStream/stream-chat-react/commit/33fed1e40cc57063337627ce1b5fc73101597691))
+* update ChatView selector icons ([#2985](https://github.com/GetStream/stream-chat-react/issues/2985)) ([ea814c3](https://github.com/GetStream/stream-chat-react/commit/ea814c362d7042677aecdcc9f80a3a925798e4c4))
+* voice recorder button not shown when quoting a message ([3a5dcdd](https://github.com/GetStream/stream-chat-react/commit/3a5dcddc6633bb43126093751f9b7a6a3ea65856))
+* voice recorder button not shown when quoting a message ([#3015](https://github.com/GetStream/stream-chat-react/issues/3015)) ([dbd6648](https://github.com/GetStream/stream-chat-react/commit/dbd6648b2be0d7356736f903933e486c71c03fa3))
+* wrap attachment previews in message composer ([#2994](https://github.com/GetStream/stream-chat-react/issues/2994)) ([a401978](https://github.com/GetStream/stream-chat-react/commit/a40197873c73393e110729201bf34eeee9a96c36))
+
+### Features
+
+* add AvatarStack component + message replies button redesign ([#2938](https://github.com/GetStream/stream-chat-react/issues/2938)) ([f7ad774](https://github.com/GetStream/stream-chat-react/commit/f7ad77400bc28937ae3d7081cc8685fdf11e2c52)), closes [#2937](https://github.com/GetStream/stream-chat-react/issues/2937)
+* add Button component and styles ([#2914](https://github.com/GetStream/stream-chat-react/issues/2914)) ([f4675c6](https://github.com/GetStream/stream-chat-react/commit/f4675c6c7479d694920b2bcda1bef24a350c94a2))
+* add CSS variables ([#2913](https://github.com/GetStream/stream-chat-react/issues/2913)) ([4bc9ac4](https://github.com/GetStream/stream-chat-react/commit/4bc9ac47b141b1586a4486d5a541d1e6b0be9d3d))
+* add dark theme support to stream-chat-react ([#3002](https://github.com/GetStream/stream-chat-react/issues/3002)) ([fbe28d0](https://github.com/GetStream/stream-chat-react/commit/fbe28d0fbfb782fb095041dc869c61bc71570f6b))
+* add EventComponent (system message) redesign ([#3007](https://github.com/GetStream/stream-chat-react/issues/3007)) ([c17fc99](https://github.com/GetStream/stream-chat-react/commit/c17fc99c6e904345d2775db1fe18aedad5b6fb4a))
+* add message translation indicator ([#2958](https://github.com/GetStream/stream-chat-react/issues/2958)) ([5c3a996](https://github.com/GetStream/stream-chat-react/commit/5c3a996a2947093d89729e4f3d59613eadb0a9d9))
+* add MessageEditedIndicator component ([cfbe346](https://github.com/GetStream/stream-chat-react/commit/cfbe346b1b6c7cd9fe47424551300819c167e667))
+* add MessageEditedIndicator component ([#3019](https://github.com/GetStream/stream-chat-react/issues/3019)) ([7e9637a](https://github.com/GetStream/stream-chat-react/commit/7e9637ae9e683d379160f923c1795e1f74d91fa7))
+* add new giphy and audio attachment widget designs and attachment grouping redesign  ([#2934](https://github.com/GetStream/stream-chat-react/issues/2934)) ([e990c06](https://github.com/GetStream/stream-chat-react/commit/e990c0605b0150d9483d1ab0a9d428153ce5ec23))
+* add ReactionSelector styling + cleanup   ([#2916](https://github.com/GetStream/stream-chat-react/issues/2916)) ([24a1169](https://github.com/GetStream/stream-chat-react/commit/24a11690f65a54a61a7902466f2d1eef6a0adc6c))
+* add sidebar display control ([#2978](https://github.com/GetStream/stream-chat-react/issues/2978)) ([b77d995](https://github.com/GetStream/stream-chat-react/commit/b77d9956e8661fc69042262569ed5aaa26c1e625))
+* add smooth scrolling to MessageList ([#3027](https://github.com/GetStream/stream-chat-react/issues/3027)) ([cdf35d2](https://github.com/GetStream/stream-chat-react/commit/cdf35d29350a445a6e3ae1ebef410e0a01267b4d))
+* adjust media gallery viewer ([#3006](https://github.com/GetStream/stream-chat-react/issues/3006)) ([6ea7a78](https://github.com/GetStream/stream-chat-react/commit/6ea7a78e4184fce6066f7318f9ebd57a5ff1474a))
+* adjust vertical and horizontal message spacing ([#2954](https://github.com/GetStream/stream-chat-react/issues/2954)) ([ba65752](https://github.com/GetStream/stream-chat-react/commit/ba65752b94036dd29d37701003ddbbbac008b3f1))
+* align iconOnly API and unread badge styling ([#2982](https://github.com/GetStream/stream-chat-react/issues/2982)) ([c28b8ff](https://github.com/GetStream/stream-chat-react/commit/c28b8ffdba9a56232f88fa0bec45d0e17ad1e1e4))
+* align web sidebar nav icons with mobile tab bar ([#2979](https://github.com/GetStream/stream-chat-react/issues/2979)) ([370caea](https://github.com/GetStream/stream-chat-react/commit/370caea4a470c6c027cb948016630a0ac0e697c6))
+* channel preview redesign ([#2974](https://github.com/GetStream/stream-chat-react/issues/2974)) ([5ef9027](https://github.com/GetStream/stream-chat-react/commit/5ef90271e654ab3cfb8647dd533c02820813e09a))
+* convert ChatView into a general purpose sidebar ([#2939](https://github.com/GetStream/stream-chat-react/issues/2939)) ([cd7a030](https://github.com/GetStream/stream-chat-react/commit/cd7a030121e9e933f0b0c6b3e52e7287dd88041b))
+* extended reaction selector ([#2972](https://github.com/GetStream/stream-chat-react/issues/2972)) ([80c14e5](https://github.com/GetStream/stream-chat-react/commit/80c14e5160b64724306c6953500266ba626ca0ff))
+* implement pinned message redesign ([#2952](https://github.com/GetStream/stream-chat-react/issues/2952)) ([3af135f](https://github.com/GetStream/stream-chat-react/commit/3af135f36257efb53114911076a3ad2fc42c016e))
+* import all the icons that belong to Stream design system ([#2949](https://github.com/GetStream/stream-chat-react/issues/2949)) ([55c9a1a](https://github.com/GetStream/stream-chat-react/commit/55c9a1a226cc8f99419b61cfa7fae94603c27d03))
+* introduce button variant props ([#2969](https://github.com/GetStream/stream-chat-react/issues/2969)) ([2a4eabd](https://github.com/GetStream/stream-chat-react/commit/2a4eabd02d7ca1807046ecb402857fc5f44250b1))
+* introduce channelActionSet ([#3026](https://github.com/GetStream/stream-chat-react/issues/3026)) ([199797e](https://github.com/GetStream/stream-chat-react/commit/199797ed3e6bbdd0d386a100ae598f17d9217c63))
+* introduce Search component redesign ([#2981](https://github.com/GetStream/stream-chat-react/issues/2981)) ([c0b6230](https://github.com/GetStream/stream-chat-react/commit/c0b623069967da71aac577a1b9f9edc8ac3ad2df))
+* introduce thread preview redesign ([#2975](https://github.com/GetStream/stream-chat-react/issues/2975)) ([90fdfe5](https://github.com/GetStream/stream-chat-react/commit/90fdfe5dfe120f5d5d9ce6db0db983fddae223ca))
+* message reactions (`ReactionsList`) redesign  ([#2933](https://github.com/GetStream/stream-chat-react/issues/2933)) ([ce087fa](https://github.com/GetStream/stream-chat-react/commit/ce087fa6f1a0a1c326eefad33dfa42a4d2529733))
+* message reactions detail redesign ([#2963](https://github.com/GetStream/stream-chat-react/issues/2963)) ([a941ed2](https://github.com/GetStream/stream-chat-react/commit/a941ed2583bdeb5178d9f2487cacbb0f6517578d))
+* migrate MessageActions to use ContextMenu ([#2932](https://github.com/GetStream/stream-chat-react/issues/2932)) ([1d28279](https://github.com/GetStream/stream-chat-react/commit/1d28279ceaa681fc00e586e97b6f247ba2d48d85))
+* new Avatar component design & adjustments ([#2926](https://github.com/GetStream/stream-chat-react/issues/2926)) ([2eb04ee](https://github.com/GetStream/stream-chat-react/commit/2eb04ee718d3224c4bc74c106d8039ec2b136a79))
+* new GroupAvatar component design & adjustments  ([#2930](https://github.com/GetStream/stream-chat-react/issues/2930)) ([e307882](https://github.com/GetStream/stream-chat-react/commit/e3078829991e8c0013640fa3cbd6ee0051254071))
+* poll actions modals adjustments ([#2993](https://github.com/GetStream/stream-chat-react/issues/2993)) ([cc44c3f](https://github.com/GetStream/stream-chat-react/commit/cc44c3f6b18b1ab74491798b861011b880f2768f))
+* promote experimental `MessageActions` to stable ([#2908](https://github.com/GetStream/stream-chat-react/issues/2908)) ([1467b5c](https://github.com/GetStream/stream-chat-react/commit/1467b5c51af4c5a624b4ace0de77030c50d87d61))
+* promote Search to stable, drop ChannelSearch [REACT-894] ([#3014](https://github.com/GetStream/stream-chat-react/issues/3014)) ([9a7b7a2](https://github.com/GetStream/stream-chat-react/commit/9a7b7a2b4e81601de3617f6c498381a38ebe448d))
+* redesign ChannelHeader ([#2970](https://github.com/GetStream/stream-chat-react/issues/2970)) ([57f8a91](https://github.com/GetStream/stream-chat-react/commit/57f8a9176843a1b8ca58d637951f51ca6a4fa8e2))
+* redesign ChannelList loading skeletons ([#2988](https://github.com/GetStream/stream-chat-react/issues/2988)) ([e5b3b8e](https://github.com/GetStream/stream-chat-react/commit/e5b3b8e85404ecb5f2f8558a0111851133b003e1))
+* redesign deleted message ([#2964](https://github.com/GetStream/stream-chat-react/issues/2964)) ([446de99](https://github.com/GetStream/stream-chat-react/commit/446de99a5b47e094fe91699e81c5769b1459cb0b))
+* redesign EmptyStateIndicator for channel message list ([#2960](https://github.com/GetStream/stream-chat-react/issues/2960)) ([e745d69](https://github.com/GetStream/stream-chat-react/commit/e745d6957c27a0ca8d8a7dcf4abefb342161e483))
+* redesign file drag-and-drop overlay ([#2959](https://github.com/GetStream/stream-chat-react/issues/2959)) ([d2a72b5](https://github.com/GetStream/stream-chat-react/commit/d2a72b54fd71fb1811814cf5d0dc20c2275c12e7))
+* redesign floating indicators in message lists ([#2966](https://github.com/GetStream/stream-chat-react/issues/2966)) ([12d075b](https://github.com/GetStream/stream-chat-react/commit/12d075bb580fa24c7321b9d3fae4e0e292359067))
+* redesign image loading and error placeholders ([#3000](https://github.com/GetStream/stream-chat-react/issues/3000)) ([3539020](https://github.com/GetStream/stream-chat-react/commit/3539020ec756815f432c4e4ddfca07a56841a6ab))
+* redesign image placeholder ([#3024](https://github.com/GetStream/stream-chat-react/issues/3024)) ([d34a0b8](https://github.com/GetStream/stream-chat-react/commit/d34a0b844e804c6cbf5c69b70fd0eb306e8ddfdc))
+* redesign location sharing components & port the missing component CSS ([#3031](https://github.com/GetStream/stream-chat-react/issues/3031)) ([b72deda](https://github.com/GetStream/stream-chat-react/commit/b72dedaec912a093683916b48611636365e5c4a2))
+* redesign message annotations ([#2956](https://github.com/GetStream/stream-chat-react/issues/2956)) ([5702090](https://github.com/GetStream/stream-chat-react/commit/57020903e4608b8b7fb09f28a91064bb3409fb8e))
+* redesign message composer commands, mentions and emoji suggestion lists ([#2931](https://github.com/GetStream/stream-chat-react/issues/2931)) ([f151abc](https://github.com/GetStream/stream-chat-react/commit/f151abcd1fe43f227dd42f3e9d3e88da1a2e3f91))
+* redesign message composer for thread and allow to grow to 10 lines ([#2983](https://github.com/GetStream/stream-chat-react/issues/2983)) ([6b0310a](https://github.com/GetStream/stream-chat-react/commit/6b0310a5f3b48435179164f4e2ddacb3b0f0f363))
+* redesign message list elements spacing ([#2937](https://github.com/GetStream/stream-chat-react/issues/2937)) ([1bf815f](https://github.com/GetStream/stream-chat-react/commit/1bf815f30ce29c488eb44413f13fcaa7548313b4))
+* redesign MessageActions ([#2951](https://github.com/GetStream/stream-chat-react/issues/2951)) ([256d862](https://github.com/GetStream/stream-chat-react/commit/256d862e0390ff6fd4a1e428d9356cb80d01a66a))
+* redesign notification system ([#3018](https://github.com/GetStream/stream-chat-react/issues/3018)) ([83dec93](https://github.com/GetStream/stream-chat-react/commit/83dec93aa216f79d6ef4508f423a70208bcbcced))
+* redesign poll actions modals ([#2986](https://github.com/GetStream/stream-chat-react/issues/2986)) ([861d7de](https://github.com/GetStream/stream-chat-react/commit/861d7deb84d9975a2f7f097e0d19a1986ef62cdc))
+* redesign poll in message and poll creation dialog ([#2944](https://github.com/GetStream/stream-chat-react/issues/2944)) ([c8adac4](https://github.com/GetStream/stream-chat-react/commit/c8adac44cee8de1408df811ba6da05907e70fc49))
+* redesign SendToChannelCheckbox ([#2971](https://github.com/GetStream/stream-chat-react/issues/2971)) ([1695a85](https://github.com/GetStream/stream-chat-react/commit/1695a858346cae704da616400b8710cc9b6359f2))
+* redesign the LoadingChannel component ([#2991](https://github.com/GetStream/stream-chat-react/issues/2991)) ([790df17](https://github.com/GetStream/stream-chat-react/commit/790df172ab949d5ec4b4fc3bcd73b60871fe25f6))
+* redesign ThreadHeader and ThreadHead ([#2987](https://github.com/GetStream/stream-chat-react/issues/2987)) ([059ae6a](https://github.com/GetStream/stream-chat-react/commit/059ae6a8b7edc0a19622de971567a60934036487))
+* redesign typing indicator ([#3005](https://github.com/GetStream/stream-chat-react/issues/3005)) ([d6c08ca](https://github.com/GetStream/stream-chat-react/commit/d6c08ca8ee61a7ef776dd4ab21a7b7b5d3170add))
+* refresh Message design ([#2927](https://github.com/GetStream/stream-chat-react/issues/2927)) ([40525f3](https://github.com/GetStream/stream-chat-react/commit/40525f32c7c02f1605ba10f1e8fb5d453916c87c))
+* refresh MessageComposer design ([#2919](https://github.com/GetStream/stream-chat-react/issues/2919)) ([87e89f7](https://github.com/GetStream/stream-chat-react/commit/87e89f7f3706840c098ff0ef05e523e2f14af7fe))
+* remove MessageListNotifications component ([#3028](https://github.com/GetStream/stream-chat-react/issues/3028)) ([e06ec62](https://github.com/GetStream/stream-chat-react/commit/e06ec6219f5f883db11134d4ab3acd513e3ec382))
+* render voice recording preview in a dedicated slot ([#2957](https://github.com/GetStream/stream-chat-react/issues/2957)) ([2859c76](https://github.com/GetStream/stream-chat-react/commit/2859c76947190bf30829481e2e04f178cd1bf6b2))
+* replace MessageIsThreadReplyInChannelButtonIndicator with MessageAlsoSentInChannelIndicator ([#2968](https://github.com/GetStream/stream-chat-react/issues/2968)) ([b198029](https://github.com/GetStream/stream-chat-react/commit/b19802907f276634a445b232aebdd869f657085e))
+* replace react-image-gallery with proprietary Gallery component ([#2936](https://github.com/GetStream/stream-chat-react/issues/2936)) ([a52de09](https://github.com/GetStream/stream-chat-react/commit/a52de095d5dcecbecffb73c82704fe585c6cb724))
+* return modal's close button ([#2948](https://github.com/GetStream/stream-chat-react/issues/2948)) ([62a27e8](https://github.com/GetStream/stream-chat-react/commit/62a27e8db6e3f009a53c593efc77031158a9a0d3))
+* return ProgressBar to Audio attachment component ([#3022](https://github.com/GetStream/stream-chat-react/issues/3022)) ([d3d1e19](https://github.com/GetStream/stream-chat-react/commit/d3d1e19bd3e876e952b921c81da52cb8bcf7efea))
+* reuse channel list loading skeletons for thread list ([#2992](https://github.com/GetStream/stream-chat-react/issues/2992)) ([3d7a3a3](https://github.com/GetStream/stream-chat-react/commit/3d7a3a3eb0833df70a85c1dd73dfe4c864e5adff))
+* show only time in MessageTimestamp ([#3021](https://github.com/GetStream/stream-chat-react/issues/3021)) ([da4aa92](https://github.com/GetStream/stream-chat-react/commit/da4aa9220940311dec821d773ff0b0f4d9aa11aa))
+* unify channel and thread display titles ([#2998](https://github.com/GetStream/stream-chat-react/issues/2998)) ([29bb396](https://github.com/GetStream/stream-chat-react/commit/29bb396bcd163b0b3e4cb26365f242ae0f525b55))
+* unify dialog UI system ([#2955](https://github.com/GetStream/stream-chat-react/issues/2955)) ([44e2eaf](https://github.com/GetStream/stream-chat-react/commit/44e2eaf401761b66cbfcbdf259fb20b057426154))
+* update empty states across chat views ([#2976](https://github.com/GetStream/stream-chat-react/issues/2976)) ([7eacfb7](https://github.com/GetStream/stream-chat-react/commit/7eacfb7242b9dfc6ebe77197dde3400c5628e0a0))
+* use server-defined default limits for channel and channel lists ([#2943](https://github.com/GetStream/stream-chat-react/issues/2943)) ([6302c96](https://github.com/GetStream/stream-chat-react/commit/6302c967dc648614e6d6c5b4e0f3beefc777b3ef)), closes [#2940](https://github.com/GetStream/stream-chat-react/issues/2940)
+* **vite-example:** add custom message UI showcase ([#3029](https://github.com/GetStream/stream-chat-react/issues/3029)) ([629e49f](https://github.com/GetStream/stream-chat-react/commit/629e49f10c1d551cbec3a519c9e78a58a76cc8ef))
+* **vite-example:** add resizable chat panels ([#3009](https://github.com/GetStream/stream-chat-react/issues/3009)) ([0e34114](https://github.com/GetStream/stream-chat-react/commit/0e341140bb26b0646ab5695be0daa006baf0b731))
+
+### Refactors
+
+* move BaseImage out of gallery ([dfe9d77](https://github.com/GetStream/stream-chat-react/commit/dfe9d77ff347d8a40020b2617727445b0877593f))
+* remove deprecated useAudioController hook ([#3016](https://github.com/GetStream/stream-chat-react/issues/3016)) ([35f8a5d](https://github.com/GetStream/stream-chat-react/commit/35f8a5d4bc220d3d50462883cf84e37eb507ea51))
+* remove initialNavOpenResponsive for redundancy ([#3023](https://github.com/GetStream/stream-chat-react/issues/3023)) ([1227617](https://github.com/GetStream/stream-chat-react/commit/1227617b0576c4d1f29e1dd00116ba43981c8139))
+
 ## [13.13.1](https://github.com/GetStream/stream-chat-react/compare/v13.13.0...v13.13.1) (2025-12-19)
 
 ### Chores
