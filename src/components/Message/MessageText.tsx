@@ -5,7 +5,6 @@ import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
 import type { MessageContextValue } from '../../context';
 import { useMessageContext, useTranslationContext } from '../../context';
 import { renderText as defaultRenderText } from './renderText';
-import { MessageErrorText } from './MessageErrorText';
 
 import type { LocalMessage } from 'stream-chat';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
@@ -69,7 +68,6 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
         onClick={onMentionsClickMessage}
         onMouseOver={onMentionsHoverMessage}
       >
-        <MessageErrorText message={message} />
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (

@@ -22,6 +22,7 @@ let channel;
 let client;
 const testMessage = generateMessage();
 const deleteMessage = jest.fn(() => Promise.resolve(testMessage));
+const removeMessage = jest.fn();
 const updateMessage = jest.fn();
 const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
@@ -30,7 +31,9 @@ const mouseEventMock = {
 const ChannelActionContextOverrider = ({ children }) => {
   const context = useChannelActionContext();
   return (
-    <ChannelActionProvider value={{ ...context, deleteMessage, updateMessage }}>
+    <ChannelActionProvider
+      value={{ ...context, deleteMessage, removeMessage, updateMessage }}
+    >
       {children}
     </ChannelActionProvider>
   );
@@ -89,5 +92,42 @@ describe('useDeleteHandler custom hook', () => {
       await handleDelete(mouseEventMock);
     });
     expect(updateMessage).toHaveBeenCalledWith(deleteMessageResponse);
+  });
+
+  it('should remove local network-failed message without server delete call', async () => {
+    const networkFailedMessage = generateMessage({
+      error: { status: 0 },
+      status: 'failed',
+    });
+
+    const handleDelete = await renderUseDeleteHandler(networkFailedMessage);
+
+    await act(async () => {
+      await handleDelete(mouseEventMock);
+    });
+
+    expect(removeMessage).toHaveBeenCalledWith(networkFailedMessage);
+    expect(deleteMessage).not.toHaveBeenCalled();
+  });
+
+  it('should reject after notifying when server delete fails', async () => {
+    const notify = jest.fn();
+    const error = new Error('delete failed');
+    deleteMessage.mockRejectedValueOnce(error);
+
+    const wrapper = ({ children }) => (
+      <Chat client={client}>
+        <Channel channel={channel}>
+          <ChannelActionContextOverrider>{children}</ChannelActionContextOverrider>
+        </Channel>
+      </Chat>
+    );
+
+    const { result } = renderHook(() => useDeleteHandler(testMessage, { notify }), {
+      wrapper,
+    });
+
+    await expect(result.current()).rejects.toThrow('delete failed');
+    expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');
   });
 });

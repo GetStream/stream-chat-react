@@ -30,7 +30,6 @@ import {
 import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../Message/icons';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
-  useChannelActionContext,
   useChatContext,
   useComponentContext,
   useMessageContext,
@@ -300,8 +299,7 @@ const DefaultMessageActionComponents = {
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { Modal = GlobalModal } = useComponentContext();
-      const { removeMessage } = useChannelActionContext();
-      const { handleDelete, message } = useMessageContext();
+      const { handleDelete } = useMessageContext();
       const panel = useNotificationTarget();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
@@ -326,29 +324,21 @@ const DefaultMessageActionComponents = {
                 closeMenu();
               }}
               onDelete={async () => {
-                if (message.type === 'error') removeMessage(message);
-                else {
-                  try {
-                    await handleDelete();
-                    client.notifications.addSuccess({
-                      message: t('Message deleted'),
-                      options: {
-                        tags: addNotificationTargetTag(panel),
-                      },
-                      origin: { emitter: 'MessageActions' },
-                    });
-                  } catch (error) {
-                    client.notifications.addError({
-                      message: t('Failed to delete the message'),
-                      options: {
-                        tags: addNotificationTargetTag(panel),
-                      },
-                      origin: { emitter: 'MessageActions' },
-                    });
-                  }
+                try {
+                  await handleDelete();
+                  client.notifications.addSuccess({
+                    message: t('Message deleted'),
+                    options: {
+                      tags: addNotificationTargetTag(panel),
+                    },
+                    origin: { emitter: 'MessageActions' },
+                  });
+                } catch {
+                  // Error notification is handled by useDeleteHandler.
+                } finally {
+                  setOpenModal(false);
+                  closeMenu();
                 }
-                setOpenModal(false);
-                closeMenu();
               }}
             />
           </Modal>

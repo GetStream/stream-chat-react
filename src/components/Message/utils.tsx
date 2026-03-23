@@ -445,6 +445,9 @@ export const messageTextHasEmojisOnly = (message: LocalMessage) => {
 export const isMessageErrorRetryable = (message: LocalMessage) =>
   message.status === 'failed' && message.error?.status !== 403;
 
+export const isNetworkSendFailure = (message: Pick<LocalMessage, 'error' | 'status'>) =>
+  message.status === 'failed' && message.error?.status === 0;
+
 export const isMessageBounced = (
   message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
 ) =>
