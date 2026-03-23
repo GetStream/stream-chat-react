@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -7,41 +6,39 @@ import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import { ThreadHeader } from '../ThreadHeader';
 
-jest.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
-  useChannelPreviewInfo: jest.fn(() => ({ displayTitle: undefined })),
+vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
+  useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
 }));
 
-jest.mock('../../../store', () => ({
-  useStateStore: jest.fn(() => undefined),
+vi.mock('../../../store', () => ({
+  useStateStore: vi.fn(() => undefined),
 }));
 
-jest.mock('../../../context/TypingContext', () => ({
-  useTypingContext: jest.fn(() => ({ typing: {} })),
+vi.mock('../../../context/TypingContext', () => ({
+  useTypingContext: vi.fn(() => ({ typing: {} })),
 }));
 
-jest.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
+vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
   TypingIndicatorHeader: () => <div>Typing...</div>,
 }));
 
-jest.mock('../../Button/ToggleSidebarButton', () => ({
+vi.mock('../../Button/ToggleSidebarButton', () => ({
   ToggleSidebarButton: ({ children }) => (
     <div data-testid='toggle-sidebar-button'>{children}</div>
   ),
 }));
 
-jest.mock('../../Threads', () => ({
-  useThreadContext: jest.fn(() => undefined),
+vi.mock('../../Threads', () => ({
+  useThreadContext: vi.fn(() => undefined),
 }));
 
-jest.mock('../../ChatView', () => ({
-  useChatViewContext: jest.fn(() => ({ activeChatView: 'channels' })),
+vi.mock('../../ChatView', () => ({
+  useChatViewContext: vi.fn(() => ({ activeChatView: 'channels' })),
 }));
 
-const {
-  useChannelPreviewInfo,
-} = require('../../ChannelListItem/hooks/useChannelPreviewInfo');
-const { useChatViewContext } = require('../../ChatView');
-const { useThreadContext } = require('../../Threads');
+import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';
+import { useChatViewContext } from '../../ChatView';
+import { useThreadContext } from '../../Threads';
 
 const alice = { id: 'alice', name: 'Alice' };
 const bob = { id: 'bob', name: 'Bob' };
@@ -70,13 +67,13 @@ const renderComponent = ({
   props = {},
   threadContext = undefined,
 } = {}) => {
-  const client = { off: jest.fn(), on: jest.fn(), user: alice, userID: alice.id };
+  const client = { off: vi.fn(), on: vi.fn(), user: alice, userID: alice.id };
   const thread = createThread(alice);
   const channel = createChannel(channelOverrides);
 
   useChatViewContext.mockReturnValue({
     activeChatView,
-    setActiveChatView: jest.fn(),
+    setActiveChatView: vi.fn(),
   });
   useThreadContext.mockReturnValue(threadContext);
 
@@ -84,10 +81,10 @@ const renderComponent = ({
     <ChatProvider
       value={{
         client,
-        closeMobileNav: jest.fn(),
+        closeMobileNav: vi.fn(),
         latestMessageDatesByChannels: {},
         navOpen: false,
-        openMobileNav: jest.fn(),
+        openMobileNav: vi.fn(),
       }}
     >
       <ChannelStateProvider value={{ channel, thread }}>
@@ -102,7 +99,7 @@ const renderComponent = ({
             },
           }}
         >
-          <ThreadHeader closeThread={jest.fn()} thread={thread} {...props} />
+          <ThreadHeader closeThread={vi.fn()} thread={thread} {...props} />
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
@@ -112,7 +109,7 @@ const renderComponent = ({
 describe('ThreadHeader', () => {
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the channel display title in the subtitle', () => {

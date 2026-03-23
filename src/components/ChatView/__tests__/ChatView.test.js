@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import React, { useEffect } from 'react';
 
@@ -6,8 +5,8 @@ import { ChatProvider, TranslationProvider } from '../../../context';
 import { getTestClientWithUser } from '../../../mock-builders';
 import { ChatView, useChatViewContext } from '../ChatView';
 
-jest.mock('../../Threads', () => {
-  const React = require('react');
+vi.mock('../../Threads', async () => {
+  const React = await import('react');
 
   return {
     ThreadProvider: ({ children }) => <div data-testid='thread-provider'>{children}</div>,
@@ -42,13 +41,13 @@ const renderComponent = async (threadManagerState) => {
       value={{
         channelsQueryState: {},
         client,
-        closeMobileNav: jest.fn(),
-        getAppSettings: jest.fn(),
+        closeMobileNav: vi.fn(),
+        getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
-        openMobileNav: jest.fn(),
+        openMobileNav: vi.fn(),
         searchController: {},
-        setActiveChannel: jest.fn(),
+        setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
       }}
@@ -56,7 +55,7 @@ const renderComponent = async (threadManagerState) => {
       <TranslationProvider
         value={{
           t: (key) => key,
-          tDateTimeParser: jest.fn(),
+          tDateTimeParser: vi.fn(),
           userLanguage: 'en',
         }}
       >
@@ -82,13 +81,13 @@ const renderSelector = async (selectorProps) => {
       value={{
         channelsQueryState: {},
         client,
-        closeMobileNav: jest.fn(),
-        getAppSettings: jest.fn(),
+        closeMobileNav: vi.fn(),
+        getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
-        openMobileNav: jest.fn(),
+        openMobileNav: vi.fn(),
         searchController: {},
-        setActiveChannel: jest.fn(),
+        setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
       }}
@@ -96,7 +95,7 @@ const renderSelector = async (selectorProps) => {
       <TranslationProvider
         value={{
           t: (key) => key,
-          tDateTimeParser: jest.fn(),
+          tDateTimeParser: vi.fn(),
           userLanguage: 'en',
         }}
       >
@@ -111,7 +110,7 @@ const renderSelector = async (selectorProps) => {
 describe('ChatView.ThreadAdapter', () => {
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the empty message state when no thread is selected after loading completes', async () => {
@@ -159,7 +158,7 @@ describe('ChatView.ThreadAdapter', () => {
 describe('ChatView.Selector', () => {
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders tooltips instead of inline labels by default', async () => {

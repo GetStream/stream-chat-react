@@ -4,20 +4,20 @@ import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
 import { ChannelStateProvider, TranslationProvider } from '../../../../context';
 import { generateMessage } from '../../../../mock-builders';
 
-jest.spyOn(console, 'warn').mockImplementation(() => null);
+vi.spyOn(console, 'warn').mockImplementation(() => null);
 
 const customSuccessString = 'Custom Success';
 const customErrorString = 'Custom Error';
 const noop = () => null;
 const generateSuccessString = () => customSuccessString;
 const generateErrorString = () => customErrorString;
-const event = { preventDefault: jest.fn() };
+const event = { preventDefault: vi.fn() };
 const t = (str) => str;
 const message = generateMessage();
 const notifications = {
-  notify: jest.fn(),
+  notify: vi.fn(),
 };
-const channel = { markUnread: jest.fn() };
+const channel = { markUnread: vi.fn() };
 function renderUseMarkUnreadHandlerHook({ message, notifications } = {}) {
   const wrapper = ({ children }) => (
     <TranslationProvider value={{ t }}>
@@ -36,7 +36,7 @@ function renderUseMarkUnreadHandlerHook({ message, notifications } = {}) {
   return result.current;
 }
 describe('useMarkUnreadHandler', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('does not call channel.markUnread if no message is provided', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook();
     await handleMarkUnread(event);
@@ -72,7 +72,7 @@ describe('useMarkUnreadHandler', () => {
   it('registers the success notification if getSuccessNotification generates one', async () => {
     const notificationsWithSuccess = {
       getSuccessNotification: generateSuccessString,
-      notify: jest.fn(),
+      notify: vi.fn(),
     };
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message,
@@ -101,7 +101,7 @@ describe('useMarkUnreadHandler', () => {
     channel.markUnread.mockRejectedValueOnce();
     const notificationsWithError = {
       getErrorNotification: generateErrorString,
-      notify: jest.fn(),
+      notify: vi.fn(),
     };
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message,
@@ -118,7 +118,7 @@ describe('useMarkUnreadHandler', () => {
     channel.markUnread.mockRejectedValueOnce();
     const notificationsWithError = {
       getErrorNotification: noop,
-      notify: jest.fn(),
+      notify: vi.fn(),
     };
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message,

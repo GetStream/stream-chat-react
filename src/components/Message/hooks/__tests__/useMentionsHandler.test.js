@@ -6,10 +6,10 @@ import { useMentionsHandler } from '../useMentionsHandler';
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { generateMessage, generateUser } from '../../../../mock-builders';
 
-const onMentionsClickMock = jest.fn();
-const onMentionsHoverMock = jest.fn();
+const onMentionsClickMock = vi.fn();
+const onMentionsHoverMock = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 function generateHookHandler(hook) {
@@ -34,7 +34,7 @@ function generateHookHandler(hook) {
 const renderUseMentionsHandlerHook = generateHookHandler(useMentionsHandler);
 
 describe('useMentionsHandler custom hooks', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should return a function', () => {
     const handleMentions = renderUseMentionsHandlerHook();
     expect(handleMentions).toStrictEqual({
@@ -106,7 +106,7 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [bob];
     const message = generateMessage({ mentioned_users });
-    const onMentionsHoverHandler = jest.fn();
+    const onMentionsHoverHandler = vi.fn();
     const { onMentionsHover } = renderUseMentionsHandlerHook(message, {
       onMentionsHover: onMentionsHoverHandler,
     });
@@ -118,7 +118,7 @@ describe('useMentionsHandler custom hooks', () => {
     const bob = generateUser();
     const mentioned_users = [bob];
     const message = generateMessage({ mentioned_users });
-    const onMentionsClickHandler = jest.fn();
+    const onMentionsClickHandler = vi.fn();
     const { onMentionsClick } = renderUseMentionsHandlerHook(message, {
       onMentionsClick: onMentionsClickHandler,
     });

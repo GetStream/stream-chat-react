@@ -5,28 +5,28 @@ import { useChannelStateContext } from '../../../../context';
 import { useNotificationTarget } from '../useNotificationTarget';
 import { useThreadContext } from '../../../Threads/ThreadContext';
 
-jest.mock('../../../ChatView', () => ({
-  useChatViewContext: jest.fn(),
+vi.mock('../../../ChatView', () => ({
+  useChatViewContext: vi.fn(),
 }));
 
-jest.mock('../../../../context', () => ({
-  useChannelStateContext: jest.fn(),
+vi.mock('../../../../context', () => ({
+  useChannelStateContext: vi.fn(),
 }));
 
-jest.mock('../../../Threads/ThreadContext', () => ({
-  useThreadContext: jest.fn(),
+vi.mock('../../../Threads/ThreadContext', () => ({
+  useThreadContext: vi.fn(),
 }));
 
-const mockedUseChannelStateContext = jest.mocked(useChannelStateContext);
-const mockedUseChatViewContext = jest.mocked(useChatViewContext);
-const mockedUseThreadContext = jest.mocked(useThreadContext);
+const mockedUseChannelStateContext = vi.mocked(useChannelStateContext);
+const mockedUseChatViewContext = vi.mocked(useChatViewContext);
+const mockedUseThreadContext = vi.mocked(useThreadContext);
 
 describe('useNotificationTarget', () => {
   beforeEach(() => {
     mockedUseChannelStateContext.mockReturnValue({});
     mockedUseChatViewContext.mockReturnValue({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     });
     mockedUseThreadContext.mockReturnValue(undefined);
   });
@@ -56,7 +56,7 @@ describe('useNotificationTarget', () => {
   it('returns channel-list for channels view without thread or channel context', () => {
     mockedUseChatViewContext.mockReturnValue({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     });
 
     const { result } = renderHook(() => useNotificationTarget());
@@ -67,7 +67,7 @@ describe('useNotificationTarget', () => {
   it('returns thread-list for threads view without thread or channel context', () => {
     mockedUseChatViewContext.mockReturnValue({
       activeChatView: 'threads',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     });
 
     const { result } = renderHook(() => useNotificationTarget());

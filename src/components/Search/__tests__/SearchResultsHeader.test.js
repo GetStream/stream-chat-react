@@ -1,5 +1,4 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchResultsHeader } from '../SearchResults';
@@ -7,20 +6,20 @@ import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-jest.mock('../SearchContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
+vi.mock('../SearchContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
 
 describe('SearchResultsHeader', () => {
   const mockSources = {
-    channels: { items: [], search: jest.fn(), state: {}, type: 'channels' },
-    messages: { items: ['message1'], search: jest.fn(), state: {}, type: 'messages' },
-    users: { items: [], search: jest.fn(), state: {}, type: 'users' },
+    channels: { items: [], search: vi.fn(), state: {}, type: 'channels' },
+    messages: { items: ['message1'], search: vi.fn(), state: {}, type: 'messages' },
+    users: { items: [], search: vi.fn(), state: {}, type: 'users' },
   };
 
   const mockSearchController = {
-    activateSource: jest.fn(),
-    deactivateSource: jest.fn(),
+    activateSource: vi.fn(),
+    deactivateSource: vi.fn(),
     searchQuery: 'test query',
     get sources() {
       return Object.entries(mockSources).map(([type, source]) => ({
@@ -31,7 +30,7 @@ describe('SearchResultsHeader', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Reset mock sources
     Object.values(mockSources).forEach((source) => {

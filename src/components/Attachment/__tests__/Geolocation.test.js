@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { Geolocation } from '../Geolocation';

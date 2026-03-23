@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import {
   EmptyPlaceholder,
@@ -252,7 +251,7 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should allow to execute custom item rendering logic instead of the default', () => {
-      const customMessageRenderer = jest.fn();
+      const customMessageRenderer = vi.fn();
       const virtuosoContext = {
         customMessageRenderer,
         numItemsPrepended,

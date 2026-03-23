@@ -1,8 +1,6 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 
-import '@testing-library/jest-dom';
-
 import { GlobalModal } from '../GlobalModal';
 import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
 
@@ -50,7 +48,7 @@ describe('GlobalModal', () => {
   });
 
   it('should call the onClose prop function if the escape key is pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     renderComponent({
       props: { children: <ModalContent text='content' />, onClose, open: true },
     });
@@ -66,7 +64,7 @@ describe('GlobalModal', () => {
   });
 
   it('should remove the escape keydown event handler on unmount', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { unmount } = renderComponent({
       props: { children: <ModalContent text='content' />, onClose, open: true },
     });
@@ -83,7 +81,7 @@ describe('GlobalModal', () => {
   });
 
   it('should not call onClose if the inside of the modal was clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     renderComponent({
       props: {
         children: <ModalContent text={textContent} />,
@@ -99,7 +97,7 @@ describe('GlobalModal', () => {
   });
 
   it('should call onClose if the modal overlay is clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { container } = renderComponent({
       props: {
         children: <ModalContent text={textContent} />,
@@ -116,7 +114,7 @@ describe('GlobalModal', () => {
   });
 
   it('should call onClose if onCloseAttempt returns true and Escape pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const onCloseAttempt = () => true;
     renderComponent({
       props: {
@@ -138,7 +136,7 @@ describe('GlobalModal', () => {
   });
 
   it('should call onClose if onCloseAttempt returns true and overlay clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const onCloseAttempt = () => true;
     const { container } = renderComponent({
       props: {
@@ -155,7 +153,7 @@ describe('GlobalModal', () => {
   });
 
   it('should not call onClose if onCloseAttempt returns false and Escape pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const onCloseAttempt = () => false;
     renderComponent({
       props: {
@@ -177,7 +175,7 @@ describe('GlobalModal', () => {
   });
 
   it('should not call onClose if onCloseAttempt returns false and overlay clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const onCloseAttempt = () => false;
     const { container } = renderComponent({
       props: {

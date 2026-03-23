@@ -1,14 +1,12 @@
 // WithAudioPlayback.test.js
 import React, { useEffect } from 'react';
-import '@testing-library/jest-dom';
 import { act, cleanup, render } from '@testing-library/react';
 
 import { useAudioPlayer, WithAudioPlayback } from '../WithAudioPlayback';
-import * as audioModule from '../AudioPlayer'; // to spy on defaultRegisterAudioPlayerError
 
 // mock context used by WithAudioPlayback
-jest.mock('../../../context', () => {
-  const mockAddError = jest.fn();
+vi.mock('../../../context', () => {
+  const mockAddError = vi.fn();
   const mockClient = { notifications: { addError: mockAddError } };
   const t = (s) => s;
   return {
@@ -21,22 +19,20 @@ jest.mock('../../../context', () => {
 });
 
 // mock useNotificationTarget (called by useAudioPlayer)
-jest.mock('../../Notifications', () => ({
-  ...jest.requireActual('../../Notifications'),
+vi.mock('../../Notifications', async (importOriginal) => ({
+  ...(await importOriginal()),
   useNotificationTarget: () => 'channel',
 }));
 
 // make throttle a no-op (so seek/time-related stuff runs synchronously)
-jest.mock('lodash.throttle', () => (fn) => fn);
+vi.mock('lodash.throttle', () => ({ default: (fn) => fn }));
 
 // ------------------ imports FROM mocks ------------------
 
 import { mockAddError as addErrorSpy } from '../../../context';
 
-const defaultRegisterSpy = jest.spyOn(audioModule, 'defaultRegisterAudioPlayerError');
-
-// silence console.error in tests
-jest.spyOn(console, 'error').mockImplementation(() => {});
+// silence console.error in tests but capture calls for assertions
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 // ------------------ window.Audio + media stubs ------------------
 
@@ -44,7 +40,7 @@ const createdAudios = [];
 
 beforeEach(() => {
   // Return a real <audio> so it has addEventListener/removeEventListener
-  jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
+  vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
     const el = document.createElement('audio');
     if (args[0]) {
       el.src = args[0];
@@ -54,20 +50,20 @@ beforeEach(() => {
     return el;
   });
 
-  jest.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
-  jest
-    .spyOn(HTMLMediaElement.prototype, 'play')
-    .mockImplementation(() => Promise.resolve());
-  jest.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
+  vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+    Promise.resolve(),
+  );
+  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
 
-  jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
-  jest.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
-  jest.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
+  vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
+  vi.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
+  vi.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
 });
 
 afterEach(() => {
   cleanup();
-  jest.resetAllMocks();
+  vi.resetAllMocks();
   createdAudios.length = 0;
   // addErrorSpy.mockReset();
   // defaultRegisterSpy.mockClear();
@@ -176,8 +172,8 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         player.play();
 
         const audio = createdAudios[1];
-        jest.spyOn(audio, 'duration', 'get').mockReturnValue(200);
-        jest.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
+        vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
+        vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
 
         act(() => {
           audio.dispatchEvent(new Event('timeupdate'));
@@ -206,8 +202,8 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         const audio = createdAudios[1];
 
         player.state.partialNext({ isPlaying: true });
-        jest.spyOn(audio, 'duration', 'get').mockReturnValue(200);
-        jest.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
+        vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
+        vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
 
         act(() => {
           audio.dispatchEvent(new Event('timeupdate'));
@@ -250,11 +246,16 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         expect(st.isPlaying).toBe(false);
         expect(st.canPlayRecord).toBe(false);
 
-        expect(defaultRegisterSpy).toHaveBeenCalledTimes(1);
-        const arg = defaultRegisterSpy.mock.calls[0][0];
-        expect(arg.error).toBeInstanceOf(Error);
-        expect(arg.error.message).toMatch('MEDIA_ERR_SRC_NOT_SUPPORTED');
-        expect(arg.error.message).toMatch('https://example.com/a.mp3');
+        // defaultRegisterAudioPlayerError calls console.error('[AUDIO PLAYER]', error)
+        // vi.spyOn on ESM namespace doesn't intercept internal calls, so assert via console.error
+        const audioPlayerErrorCall = consoleErrorSpy.mock.calls.find(
+          (c) => c[0] === '[AUDIO PLAYER]',
+        );
+        expect(audioPlayerErrorCall).toBeTruthy();
+        const error = audioPlayerErrorCall[1];
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toMatch('MEDIA_ERR_SRC_NOT_SUPPORTED');
+        expect(error.message).toMatch('https://example.com/a.mp3');
       });
 
       it('registerError mapping: failed-to-start -> translated message and notification', () => {
@@ -340,7 +341,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         });
 
         player.play();
-        const loadSpy = jest.spyOn(player.elementRef, 'load');
+        const loadSpy = vi.spyOn(player.elementRef, 'load');
         expect(player.elementRef.src).toBe('https://example.com/a.mp3');
 
         unmount();
@@ -364,8 +365,8 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         player.play();
         const audio = createdAudios[1];
 
-        const removeSpy = jest.spyOn(audio, 'removeEventListener');
-        const pauseSpy = jest.spyOn(audio, 'pause');
+        const removeSpy = vi.spyOn(audio, 'removeEventListener');
+        const pauseSpy = vi.spyOn(audio, 'pause');
 
         // Unmount provider -> audioPlayers.clear() -> unsubscribe() -> removeEventListener + pause
         unmount();
@@ -464,7 +465,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     const shared = p1.elementRef;
     expect(createdAudios.length).toBe(3);
     // timeupdate with 0 should not regress progress on the paused player (anti-flicker)
-    const sharedCurrentTimeSpy = jest
+    const sharedCurrentTimeSpy = vi
       .spyOn(shared, 'currentTime', 'get')
       .mockReturnValue(40);
     act(() => {

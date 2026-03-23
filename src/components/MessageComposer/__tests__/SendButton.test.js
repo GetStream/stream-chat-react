@@ -1,17 +1,14 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { SendButton } from '../SendButton';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 describe('SendButton', () => {
   it('should call whatever callback was passed into the sendMessage prop when the button is pressed', async () => {
-    const mock = jest.fn();
+    const mock = vi.fn();
     const {
       channels: [channel],
       client,

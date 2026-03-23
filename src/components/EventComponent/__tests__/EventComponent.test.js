@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { act, cleanup, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { EventComponent } from '../EventComponent';
 import { Chat } from '../../Chat';

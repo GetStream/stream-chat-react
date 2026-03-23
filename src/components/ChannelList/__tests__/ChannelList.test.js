@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -44,13 +42,11 @@ import {
 } from '../../../context';
 import { ChannelListUI } from '../ChannelListUI';
 
-expect.extend(toHaveNoViolations);
-
 const channelsQueryStateMock = {
   error: null,
   queryInProgress: null,
-  setError: jest.fn(),
-  setQueryInProgress: jest.fn(),
+  setError: vi.fn(),
+  setQueryInProgress: vi.fn(),
 };
 
 /**
@@ -98,13 +94,17 @@ describe('ChannelList', () => {
     testChannel3 = generateChannel();
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   describe('mobile navigation', () => {
     let closeMobileNav;
     let props;
     beforeEach(() => {
-      closeMobileNav = jest.fn();
+      closeMobileNav = vi.fn();
       props = {
         closeMobileNav,
         filters: {},
@@ -242,7 +242,7 @@ describe('ChannelList', () => {
       channelsData: [testChannel1],
     });
     const props = {
-      customQueryChannels: jest
+      customQueryChannels: vi
         .fn()
         .mockImplementationOnce(({ currentChannels, setChannels, setHasNextPage }) => {
           if (!currentChannels.length) setChannels([channels[0]]);
@@ -250,9 +250,7 @@ describe('ChannelList', () => {
         }),
       filters: {},
     };
-    const queryChannelsMock = jest
-      .spyOn(client, 'queryChannels')
-      .mockImplementationOnce();
+    const queryChannelsMock = vi.spyOn(client, 'queryChannels').mockImplementationOnce();
 
     const { rerender } = render(
       <Chat client={client}>
@@ -362,7 +360,7 @@ describe('ChannelList', () => {
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
     useMockedApis(chatClient, [erroredPostApi()]);
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const { container, getByTestId } = render(
       <Chat client={chatClient}>
@@ -390,7 +388,7 @@ describe('ChannelList', () => {
 
   it('provides the error object to LoadingErrorIndicator', async () => {
     useMockedApis(chatClient, [erroredPostApi()]);
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const LoadingErrorIndicator = (props) => <div>{props.error.message}</div>;
 
@@ -591,7 +589,7 @@ describe('ChannelList', () => {
       });
 
     beforeEach(() => {
-      setActiveChannel = jest.fn();
+      setActiveChannel = vi.fn();
       useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
     });
 
@@ -930,8 +928,8 @@ describe('ChannelList', () => {
         });
       });
       it('should add the selected result to the top of the channel list', async () => {
-        jest.useFakeTimers('modern');
-        jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        vi.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
         await act(async () => {
           await render(
             <Chat client={client}>
@@ -969,7 +967,7 @@ describe('ChannelList', () => {
           });
         });
         await act(() => {
-          jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+          vi.advanceTimersByTime(defaultSearchDebounceInterval + 1);
         });
 
         const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
@@ -984,14 +982,14 @@ describe('ChannelList', () => {
           ).toBeInTheDocument();
           expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
         });
-        jest.useRealTimers();
+        vi.useRealTimers();
       });
     });
   });
 
   it('should call `renderChannels` function prop, if provided', async () => {
     useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
-    const renderChannels = jest.fn();
+    const renderChannels = vi.fn();
     const channelListProps = {
       filters: {},
 
@@ -1119,7 +1117,7 @@ describe('ChannelList', () => {
       });
 
       it('should execute custom event handler', async () => {
-        const onMessageNewEvent = jest.fn();
+        const onMessageNewEvent = vi.fn();
         render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1197,7 +1195,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onMessageNew` function prop, if provided', async () => {
-        const onMessageNew = jest.fn();
+        const onMessageNew = vi.fn();
 
         useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
@@ -1298,7 +1296,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onAddedToChannel` function prop, if provided', async () => {
-        const onAddedToChannel = jest.fn();
+        const onAddedToChannel = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1373,7 +1371,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onRemovedFromChannel` function prop, if provided', async () => {
-        const onRemovedFromChannel = jest.fn();
+        const onRemovedFromChannel = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1452,7 +1450,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onChannelUpdated` function prop, if provided', async () => {
-        const onChannelUpdated = jest.fn();
+        const onChannelUpdated = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1529,7 +1527,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onChannelDeleted` function prop, if provided', async () => {
-        const onChannelDeleted = jest.fn();
+        const onChannelDeleted = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1558,7 +1556,7 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was deleted', async () => {
-        const setActiveChannel = jest.fn();
+        const setActiveChannel = vi.fn();
         const { container, getByRole } = await render(
           <ChatContext.Provider
             value={{
@@ -1639,7 +1637,7 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was hidden', async () => {
-        const setActiveChannel = jest.fn();
+        const setActiveChannel = vi.fn();
         const { container, getByRole } = await render(
           <ChatContext.Provider
             value={{
@@ -1734,7 +1732,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onChannelVisible` function prop, if provided', async () => {
-        const onChannelVisible = jest.fn();
+        const onChannelVisible = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1830,7 +1828,7 @@ describe('ChannelList', () => {
       });
 
       it('should call `onChannelTruncated` function prop, if provided', async () => {
-        const onChannelTruncated = jest.fn();
+        const onChannelTruncated = vi.fn();
         const { container, getByRole } = await render(
           <Chat client={chatClient}>
             <WithComponents
@@ -1869,7 +1867,7 @@ describe('ChannelList', () => {
 
     beforeEach(() => {
       chatClient.recoverStateOnReconnect = false;
-      queryChannelsMock = jest.spyOn(chatClient, 'queryChannels');
+      queryChannelsMock = vi.spyOn(chatClient, 'queryChannels');
     });
 
     afterEach(() => {
@@ -1922,7 +1920,7 @@ describe('ChannelList', () => {
       renderUI(chatClient);
       expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
 
-      const dateNowSpy = jest
+      const dateNowSpy = vi
         .spyOn(Date, 'now')
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
@@ -1960,9 +1958,9 @@ describe('ChannelList', () => {
       renderUI(chatClient);
       expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
 
-      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+      vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
       queryChannelsMock.mockRejectedValueOnce(new Error());
-      const dateNowSpy = jest
+      const dateNowSpy = vi
         .spyOn(Date, 'now')
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);

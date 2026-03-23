@@ -1,4 +1,4 @@
 export class AnalyserNodeMock {
-  disconnect = jest.fn();
-  getByteFrequencyData = jest.fn();
+  disconnect = vi.fn();
+  getByteFrequencyData = vi.fn();
 }

@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 
 import { act, cleanup, render } from '@testing-library/react';
 
-import '@testing-library/jest-dom';
-
 import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';

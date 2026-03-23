@@ -1,10 +1,9 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 
-jest.spyOn(console, 'warn').mockImplementation();
+vi.spyOn(console, 'warn').mockImplementation();
 const originalSample = Array.from({ length: 10 }, (_, i) => i);
 
 const BAR_ROOT_TEST_ID = 'wave-progress-bar-track';
@@ -12,7 +11,7 @@ const PROGRESS_INDICATOR_TEST_ID = 'wave-progress-bar-progress-indicator';
 const AMPLITUDE_BAR_TEST_ID = 'amplitude-bar';
 window.ResizeObserver = ResizeObserverMock;
 
-const getBoundingClientRect = jest
+const getBoundingClientRect = vi
   .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
   .mockReturnValue({ width: 120, x: 0 });
 
@@ -23,7 +22,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('is not rendered if waveform data is missing', () => {
-    render(<WaveProgressBar seek={jest.fn()} waveformData={[]} />);
+    render(<WaveProgressBar seek={vi.fn()} waveformData={[]} />);
     expect(screen.queryByTestId(BAR_ROOT_TEST_ID)).not.toBeInTheDocument();
   });
 
@@ -32,7 +31,7 @@ describe('WaveProgressBar', () => {
     render(
       <WaveProgressBar
         amplitudesCount={5}
-        seek={jest.fn()}
+        seek={vi.fn()}
         waveformData={originalSample}
       />,
     );
@@ -41,7 +40,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('renders with default number of bars', () => {
-    render(<WaveProgressBar seek={jest.fn()} waveformData={originalSample} />);
+    render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
     expect(
       root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width'),
@@ -62,7 +61,7 @@ describe('WaveProgressBar', () => {
       <WaveProgressBar
         relativeAmplitudeBarWidth={3}
         relativeAmplitudeGap={5}
-        seek={jest.fn()}
+        seek={vi.fn()}
         waveformData={originalSample}
       />,
     );
@@ -82,7 +81,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('recalculates the number of bars on root resize', async () => {
-    render(<WaveProgressBar seek={jest.fn()} waveformData={originalSample} />);
+    render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(ResizeObserverMock.observers).toHaveLength(1);
     const activeObserver = ResizeObserver.observers[0];
     expect(activeObserver.active).toBeTruthy();
@@ -106,7 +105,7 @@ describe('WaveProgressBar', () => {
 
   it('does not recalculate the number of bars on root resize if ResizeObserver is unsupported', () => {
     window.ResizeObserver = undefined;
-    render(<WaveProgressBar seek={jest.fn()} waveformData={originalSample} />);
+    render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(ResizeObserverMock.observers).toHaveLength(0);
     window.ResizeObserver = ResizeObserverMock;
   });
@@ -115,7 +114,7 @@ describe('WaveProgressBar', () => {
     render(
       <WaveProgressBar
         amplitudesCount={5}
-        seek={jest.fn()}
+        seek={vi.fn()}
         waveformData={originalSample}
       />,
     );
@@ -129,7 +128,7 @@ describe('WaveProgressBar', () => {
       <WaveProgressBar
         amplitudesCount={5}
         progress={20}
-        seek={jest.fn()}
+        seek={vi.fn()}
         waveformData={originalSample}
       />,
     );

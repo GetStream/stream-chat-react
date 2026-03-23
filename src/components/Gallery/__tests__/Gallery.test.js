@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Gallery } from '../Gallery';
 import { useGalleryContext } from '../GalleryContext';
@@ -149,7 +148,7 @@ describe('Gallery', () => {
   });
 
   it('should call onIndexChange when index changes', () => {
-    const onIndexChange = jest.fn();
+    const onIndexChange = vi.fn();
     const items = [makeImageItem(), makeImageItem()];
 
     render(

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { PollActions } from '../PollActions';
 import {
   ChannelStateProvider,
@@ -62,7 +61,7 @@ const renderComponent = async ({
 };
 describe('PollActions', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   it('does not show "Suggest an option" action if poll is not closed and suggestions are allowed but user does not have permission to cast vote', async () => {
     const pollData = generatePoll({

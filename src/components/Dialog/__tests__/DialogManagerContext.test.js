@@ -5,7 +5,6 @@ import {
   useDialogManager,
 } from '../../../context/DialogManagerContext';
 
-import '@testing-library/jest-dom';
 import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
 
 const TEST_IDS = {

@@ -1,17 +1,14 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import * as sanitizeUrl from '@braintree/sanitize-url';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import { SafeAnchor } from '../SafeAnchor';
 
 describe('SafeAnchor', () => {
   it('should sanitize urls', async () => {
     const mockSanitizedUrl = 'http://very.clean/';
-    const sanitizeUrlSpy = jest
+    const sanitizeUrlSpy = vi
       .spyOn(sanitizeUrl, 'sanitizeUrl')
       .mockImplementation(() => mockSanitizedUrl);
     const href = 'something';

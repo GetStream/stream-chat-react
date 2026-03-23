@@ -1,6 +1,5 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { BaseImage } from '../BaseImage';
 import { TranslationProvider } from '../../../context';
@@ -101,7 +100,7 @@ describe('BaseImage', () => {
   });
 
   it('should execute a custom onError callback on load error', () => {
-    const onError = jest.fn();
+    const onError = vi.fn();
     renderComponent({ ...props, onError });
 
     fireEvent.error(getImage());

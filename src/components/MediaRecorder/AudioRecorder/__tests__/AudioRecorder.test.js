@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import * as transcoder from '../../transcode';
 
 import { MessageComposer } from '../../../MessageComposer';
@@ -50,7 +49,7 @@ const DEFAULT_RENDER_PARAMS = {
     channelCapabilities: [],
   },
   chatCtx: {
-    getAppSettings: jest.fn().mockReturnValue({}),
+    getAppSettings: vi.fn().mockReturnValue({}),
     latestMessageDatesByChannels: {},
   },
   componentCtx: {},
@@ -58,9 +57,9 @@ const DEFAULT_RENDER_PARAMS = {
 
 window.ResizeObserver = ResizeObserverMock;
 
-jest
-  .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: 120 });
+vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
+  width: 120,
+});
 
 const renderComponent = async ({
   channelActionCtx,
@@ -109,17 +108,15 @@ const renderComponent = async ({
 };
 
 const nanoidMockValue = 'randomNanoId';
-jest.mock('nanoid', () => ({
+vi.mock('nanoid', () => ({
   nanoid: () => nanoidMockValue,
 }));
 
-jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+vi.mock('fix-webm-duration', () => ({ default: vi.fn((blob) => blob) }));
 
-jest.mock('../../../Notifications', () => {
-  const actual = jest.requireActual('../../../Notifications');
-  const notificationTarget = jest.requireActual(
-    '../../../Notifications/notificationTarget',
-  );
+vi.mock('../../../Notifications', async (importOriginal) => {
+  const actual = await importOriginal();
+  const notificationTarget = await import('../../../Notifications/notificationTarget');
   return {
     ...actual,
     ...notificationTarget,
@@ -127,16 +124,14 @@ jest.mock('../../../Notifications', () => {
   };
 });
 
-jest.spyOn(console, 'warn').mockImplementation();
+vi.spyOn(console, 'warn').mockImplementation();
 
-jest
-  .spyOn(transcoder, 'transcode')
-  .mockImplementation((opts) =>
-    Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
-  );
+vi.spyOn(transcoder, 'transcode').mockImplementation((opts) =>
+  Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
+);
 
 window.navigator.permissions = {
-  query: jest.fn(),
+  query: vi.fn(),
 };
 
 window.MediaRecorder = MediaRecorderMock;
@@ -147,18 +142,18 @@ window.AnalyserNode = AnalyserNodeMock;
 
 const fileObjectURL = 'fileObjectURL';
 // eslint-disable-next-line
-window.URL.createObjectURL = jest.fn(() => fileObjectURL);
+window.URL.createObjectURL = vi.fn(() => fileObjectURL);
 // eslint-disable-next-line
-window.URL.revokeObjectURL = jest.fn();
+window.URL.revokeObjectURL = vi.fn();
 
 describe('MessageInput', () => {
   beforeEach(() => {
     window.navigator.mediaDevices = {
-      getUserMedia: jest.fn().mockResolvedValue({}),
+      getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     MediaRecorderMock.autoEmitDataOnStop = false;
   });
 
@@ -315,7 +310,9 @@ describe('MessageInput', () => {
     } = await initClientWithChannels({
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
-    const sendFileSpy = jest
+    // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue({});
+    const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
       .mockResolvedValue({ file: fileObjectURL });
     await renderComponent({
@@ -346,10 +343,12 @@ describe('MessageInput', () => {
     } = await initClientWithChannels({
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
-    const sendFileSpy = jest
+    // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue({});
+    const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
       .mockResolvedValue({ file: fileObjectURL });
-    const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockResolvedValue({});
+    const sendMessageSpy = vi.spyOn(channel, 'sendMessage').mockResolvedValue({});
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
@@ -375,7 +374,7 @@ describe('MessageInput', () => {
 const recorderMock = {};
 
 const DEFAULT_RECORDING_CONTROLLER = {
-  completeRecording: jest.fn(),
+  completeRecording: vi.fn(),
   recorder: recorderMock,
   recording: undefined,
   recordingState: undefined,

@@ -1,9 +1,13 @@
-/* eslint-disable no-undef */
-const crypto = require('crypto');
+import '@testing-library/jest-dom/vitest';
+import * as vitestAxeMatchers from 'vitest-axe/matchers';
+
+expect.extend(vitestAxeMatchers);
+
+process.env.TZ = 'UTC';
 
 Object.defineProperty(globalThis, 'crypto', {
   value: {
-    getRandomValues: (arr) => {
+    getRandomValues: (arr: Uint8Array) => {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * 256);
       }
@@ -13,50 +17,53 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 Object.defineProperty(globalThis, 'structuredClone', {
-  value: (val) => {
-    return JSON.parse(JSON.stringify(val));
-  },
+  value: (val: unknown) => JSON.parse(JSON.stringify(val)),
 });
 
 // Mock proper File API behavior
 if (typeof File === 'undefined') {
-  class File extends Blob {
-    constructor(bits, name, options = {}) {
+  class FilePoly extends Blob {
+    name: string;
+    lastModified: number;
+    constructor(bits: BlobPart[], name: string, options: FilePropertyBag = {}) {
       super(bits, options);
       this.name = name;
       this.lastModified = options.lastModified || Date.now();
     }
   }
-  global.File = File;
+  // @ts-expect-error polyfill
+  globalThis.File = FilePoly;
 }
 
 // Ensure FileReader is available
 if (typeof FileReader === 'undefined') {
-  class FileReader {
-    readAsDataURL(blob) {
-      const result = `data:${blob.type};base64,${Buffer.from(blob).toString('base64')}`;
+  class FileReaderPoly {
+    result: string | null = null;
+    onload: (() => void) | null = null;
+    readAsDataURL(blob: Blob) {
+      const result = `data:${blob.type};base64,${Buffer.from(blob as unknown as ArrayBuffer).toString('base64')}`;
       setTimeout(() => {
         this.result = result;
         this.onload?.();
       }, 0);
     }
   }
-  global.FileReader = FileReader;
+  // @ts-expect-error polyfill
+  globalThis.FileReader = FileReaderPoly;
 }
 
 // Mock URL.createObjectURL
 if (typeof URL.createObjectURL === 'undefined') {
-  URL.createObjectURL = (file) => `blob:${file.name}`;
+  URL.createObjectURL = (file: Blob) => `blob:${(file as File).name}`;
 }
-// Mock URL.createObjectURL
 if (typeof URL.revokeObjectURL === 'undefined') {
-  URL.revokeObjectURL = () => null;
+  URL.revokeObjectURL = () => {};
 }
 
 if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: (query) => ({
+    value: (query: string) => ({
       addEventListener: () => null,
       addListener: () => null,
       dispatchEvent: () => false,
@@ -68,3 +75,6 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
     }),
   });
 }
+
+// Mock HTMLCanvasElement.getContext for vitest-axe/axe-core
+HTMLCanvasElement.prototype.getContext = (() => null) as any;

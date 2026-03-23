@@ -1,32 +1,31 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
 import { ShareLocationDialog } from '../ShareLocationDialog';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 
-jest.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
-  useMessageComposerController: jest.fn().mockReturnValue({
+vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
+  useMessageComposerController: vi.fn().mockReturnValue({
     locationComposer: {
-      initState: jest.fn(),
-      setData: jest.fn(),
+      initState: vi.fn(),
+      setData: vi.fn(),
     },
-    sendLocation: jest.fn(),
+    sendLocation: vi.fn(),
   }),
 }));
 
-jest.mock('../../Notifications', () => ({
-  addNotificationTargetTag: jest.fn((panel) => ({ panel })),
-  useNotificationTarget: jest.fn().mockReturnValue('channel'),
+vi.mock('../../Notifications', () => ({
+  addNotificationTargetTag: vi.fn((panel) => ({ panel })),
+  useNotificationTarget: vi.fn().mockReturnValue('channel'),
 }));
 
 const DROPDOWN_SELECTOR = '.str-chat__live-location-sharing-duration-selector__button';
 const SHARE_LIVE_LOCATION_SWITCH_TEST_ID = 'share-location-dialog-live-location-switch';
 const GEOLOCATION_MAP_TEST_ID = 'geolocation-map';
 
-const close = jest.fn().mockImplementation();
+const close = vi.fn().mockImplementation();
 const user = { id: 'user-id' };
 const GeolocationMapComponent = (props) => (
   <div
@@ -71,17 +70,17 @@ const renderComponent = async ({ channel, client, props } = {}) => {
   return { channel: defaultChannel, client: defaultClient, justRerender, ...result };
 };
 
-const getCurrentPosition = jest.fn().mockImplementation(() => ({}));
-const watchPosition = jest.fn().mockImplementation(() => ({}));
+const getCurrentPosition = vi.fn().mockImplementation(() => ({}));
+const watchPosition = vi.fn().mockImplementation(() => ({}));
 
 window.navigator.geolocation = {
-  clearWatch: jest.fn().mockImplementation(() => ({})),
+  clearWatch: vi.fn().mockImplementation(() => ({})),
   getCurrentPosition,
   watchPosition,
 };
 
 describe('ShareLocationDialog', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('renders dropdown with default durations', async () => {
     // The switch is disabled until a geolocation position is available
     const callbacks = {};

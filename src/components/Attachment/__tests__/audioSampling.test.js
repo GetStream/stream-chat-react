@@ -1,11 +1,11 @@
 import { downSample, upSample } from '../audioSampling';
 
-jest.spyOn(console, 'warn').mockImplementation();
+vi.spyOn(console, 'warn').mockImplementation();
 const originalSample = Array.from({ length: 10 }, (_, i) => i);
 
 describe('amplitude sampling', () => {
   describe('upSample', () => {
-    afterEach(jest.restoreAllMocks);
+    afterEach(vi.restoreAllMocks);
     it('should return original values if target size is smaller than the original sample size', () => {
       expect(upSample(originalSample, 5)).toHaveLength(originalSample.length);
     });

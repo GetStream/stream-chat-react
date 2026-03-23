@@ -1,7 +1,6 @@
 import React from 'react';
 import { Poll as PollClass } from 'stream-chat';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { Poll } from '../Poll';
 import {
   ChannelStateProvider,

@@ -16,8 +16,8 @@ import {
 import { act } from 'react';
 
 const visibilityChangeScenario = 'visibilitychange event';
-const markRead = jest.fn();
-const setChannelUnreadUiState = jest.fn();
+const markRead = vi.fn();
+const setChannelUnreadUiState = vi.fn();
 
 const render = ({ channel, client, params }) => {
   const wrapper = ({ children }) => (
@@ -95,7 +95,7 @@ describe('useMarkRead', () => {
     wasMarkedUnread: false,
   };
 
-  beforeEach(jest.clearAllMocks);
+  beforeEach(vi.clearAllMocks);
 
   describe.each([[visibilityChangeScenario], ['render']])('on %s', (scenario) => {
     it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread with unread messages', async () => {
@@ -586,7 +586,7 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest
+        const docHiddenSpy = vi
           .spyOn(document, 'hidden', 'get')
           .mockReturnValueOnce(true);
         await act(() => {
@@ -700,7 +700,7 @@ describe('useMarkRead', () => {
           params: shouldMarkReadParams,
         });
 
-        const docHiddenSpy = jest
+        const docHiddenSpy = vi
           .spyOn(document, 'hidden', 'get')
           .mockReturnValueOnce(true);
         await act(async () => {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { ModalGallery } from '../../Attachment/ModalGallery';
 import { TranslationProvider } from '../../../context';

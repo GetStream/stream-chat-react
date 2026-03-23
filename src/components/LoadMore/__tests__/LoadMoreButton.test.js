@@ -1,6 +1,5 @@
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { LoadMoreButton } from '../LoadMoreButton';
 import { TranslationProvider } from '../../../context';
@@ -26,7 +25,7 @@ describe('LoadMoreButton', () => {
   });
 
   it('should trigger onClick function when clicked', () => {
-    const onClickMock = jest.fn();
+    const onClickMock = vi.fn();
     const { getByTestId } = render(
       <LoadMoreButton isLoading={false} onClick={onClickMock} />,
     );
@@ -37,7 +36,7 @@ describe('LoadMoreButton', () => {
   });
 
   it('should be disabled and show loading indicator when isLoading is true', () => {
-    const onClickMock = jest.fn();
+    const onClickMock = vi.fn();
     const { getByTestId } = render(
       <LoadMoreButton isLoading={true} onClick={onClickMock} />,
     );
@@ -50,8 +49,8 @@ describe('LoadMoreButton', () => {
   });
 
   it('deprecates prop refreshing in favor of isLoading', () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
-    const onClickMock = jest.fn();
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
+    const onClickMock = vi.fn();
 
     const { getByTestId } = render(
       <LoadMoreButton isLoading={false} onClick={onClickMock} refreshing={true} />,

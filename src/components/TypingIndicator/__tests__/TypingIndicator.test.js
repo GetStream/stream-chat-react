@@ -1,8 +1,6 @@
 import React from 'react';
 
 import { cleanup, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { TypingIndicator } from '../TypingIndicator';
 
@@ -19,14 +17,12 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-jest.mock('../../Threads', () => ({
-  useThreadContext: jest.fn(() => undefined),
+vi.mock('../../Threads', () => ({
+  useThreadContext: vi.fn(() => undefined),
 }));
 
-expect.extend(toHaveNoViolations);
-
 const me = generateUser();
-const scrollToBottom = jest.fn();
+const scrollToBottom = vi.fn();
 
 async function renderComponent(
   typing = {},
@@ -60,7 +56,7 @@ describe('TypingIndicator', () => {
   });
 
   it('should render null without proper context values', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(
       <ChatProvider value={{}}>
         <ChannelStateProvider value={{}}>

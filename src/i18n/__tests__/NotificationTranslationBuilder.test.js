@@ -1,7 +1,7 @@
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
 
-const mockI18Next = { id: 'mockI18Next', use: jest.fn() };
+const mockI18Next = { id: 'mockI18Next', use: vi.fn() };
 describe('NotificationTranslationTopic', () => {
   it('gets initiated with defaults', () => {
     const builder = new NotificationTranslationTopic({ i18next: mockI18Next });
@@ -13,8 +13,8 @@ describe('NotificationTranslationTopic', () => {
 
   it('gets initiated with custom translators', () => {
     const translators = {
-      test: jest.fn(),
-      'validation:attachment:upload:blocked': jest.fn(),
+      test: vi.fn(),
+      'validation:attachment:upload:blocked': vi.fn(),
     };
     const builder = new NotificationTranslationTopic({
       i18next: mockI18Next,
@@ -30,8 +30,8 @@ describe('NotificationTranslationTopic', () => {
   });
   it('builds the translation', () => {
     const translators = {
-      'api:attachment:upload:failed': jest.fn().mockReturnValue('failed'),
-      'validation:attachment:upload:blocked': jest.fn().mockReturnValue('blocked'),
+      'api:attachment:upload:failed': vi.fn().mockReturnValue('failed'),
+      'validation:attachment:upload:blocked': vi.fn().mockReturnValue('blocked'),
     };
     const builder = new NotificationTranslationTopic({
       i18next: mockI18Next,
@@ -55,7 +55,7 @@ describe('NotificationTranslationTopic', () => {
   it('falls back to translating notification.message when type has no translator', () => {
     const i18next = {
       ...mockI18Next,
-      t: jest.fn((key) =>
+      t: vi.fn((key) =>
         key === 'File is required for upload attachment'
           ? 'translated/file-required'
           : key,
@@ -81,7 +81,7 @@ describe('NotificationTranslationTopic', () => {
   it('passes notification metadata to i18next for message interpolation fallback', () => {
     const i18next = {
       ...mockI18Next,
-      t: jest.fn((key, options) =>
+      t: vi.fn((key, options) =>
         key === 'Attachment upload failed due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
@@ -126,7 +126,7 @@ describe('NotificationTranslationTopic', () => {
   ])('translates known notification type %s', (type, translationKey) => {
     const i18next = {
       ...mockI18Next,
-      t: jest.fn((key) => `translated:${key}`),
+      t: vi.fn((key) => `translated:${key}`),
     };
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -143,7 +143,7 @@ describe('NotificationTranslationTopic', () => {
   it('normalizes reason metadata in poll creation failure translation', () => {
     const i18next = {
       ...mockI18Next,
-      t: jest.fn((key, options) =>
+      t: vi.fn((key, options) =>
         key === 'Failed to create the poll due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
@@ -162,7 +162,7 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('prefers exact translator over default type-registry fallback', () => {
-    const customTranslator = jest.fn().mockReturnValue('custom/location-failed');
+    const customTranslator = vi.fn().mockReturnValue('custom/location-failed');
     const builder = new NotificationTranslationTopic({
       i18next: mockI18Next,
       translators: { 'api:location:create:failed': customTranslator },

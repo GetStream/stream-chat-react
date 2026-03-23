@@ -1,6 +1,5 @@
 import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import {
   AttachmentPreviewList,
   VoiceRecordingPreviewSlot,
@@ -20,7 +19,7 @@ import {
 } from '../../../mock-builders';
 import { WithComponents } from '../../../context';
 
-jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
 
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
@@ -97,7 +96,7 @@ const renderComponent = async ({
   return { channel, ...result };
 };
 
-jest.mock('nanoid', () => ({
+vi.mock('nanoid', () => ({
   nanoid: () => 'randomNanoId',
 }));
 
@@ -209,7 +208,7 @@ describe('AttachmentPreviewList', () => {
           channels: [channel],
           client,
         } = await initClientWithChannels();
-        const uploadAttachmentSpy = jest.spyOn(
+        const uploadAttachmentSpy = vi.spyOn(
           channel.messageComposer.attachmentManager,
           'uploadAttachment',
         );
@@ -286,7 +285,7 @@ describe('AttachmentPreviewList', () => {
           channels: [channel],
           client,
         } = await initClientWithChannels();
-        const removeAttachmentsSpy = jest.spyOn(
+        const removeAttachmentsSpy = vi.spyOn(
           channel.messageComposer.attachmentManager,
           'removeAttachments',
         );
@@ -365,7 +364,7 @@ describe('AttachmentPreviewList', () => {
     };
 
     it('should be rendered with location preview', async () => {
-      await renderLocationPreview({ remove: jest.fn() });
+      await renderLocationPreview({ remove: vi.fn() });
       expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
     });
     it('should be rendered with custom location preview', async () => {

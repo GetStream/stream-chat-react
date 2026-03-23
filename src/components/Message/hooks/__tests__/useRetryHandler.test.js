@@ -6,7 +6,7 @@ import { useRetryHandler } from '../useRetryHandler';
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { generateMessage } from '../../../../mock-builders';
 
-const retrySendMessage = jest.fn();
+const retrySendMessage = vi.fn();
 
 function renderUseRetryHandlerHook(customRetrySendMessage) {
   const wrapper = ({ children }) => (
@@ -21,7 +21,7 @@ function renderUseRetryHandlerHook(customRetrySendMessage) {
 }
 
 describe('useReactionHandler custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should generate a function that handles retrying a failed message', () => {
     const handleRetry = renderUseRetryHandlerHook();
     expect(typeof handleRetry).toBe('function');
@@ -35,7 +35,7 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should retry send message with custom retry send message handler when one is set', () => {
-    const customRetrySendMessage = jest.fn();
+    const customRetrySendMessage = vi.fn();
     const handleRetry = renderUseRetryHandlerHook(customRetrySendMessage);
     const message = generateMessage();
     handleRetry(message);

@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import {
   generateChannel,
   generateMember,
@@ -14,18 +13,18 @@ import { SearchController } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
   };
 });
 
-const sendMessageMock = jest.fn();
+const sendMessageMock = vi.fn();
 const fileUploadUrl = 'http://www.getstream.io';
 const cid = 'messaging:general';
 const userId = 'userId';
@@ -57,7 +56,7 @@ const mockedChannelData = generateChannel({
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
-  getAppSettings: jest.fn(),
+  getAppSettings: vi.fn(),
   latestMessageDatesByChannels: {},
   mutes: [],
   searchController: new SearchController(),
@@ -71,16 +70,16 @@ const setup = async ({ channelData } = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = jest.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
-  const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
-  const getDraftSpy = jest
+  const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')
     .mockResolvedValue({ draft: { message: { id: 'x' } } });
-  jest.spyOn(customChannel, 'deleteDraft').mockResolvedValue({});
+  vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue({});
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
@@ -115,7 +114,7 @@ const renderComponent = async ({
     });
     channel = result.channels[0];
     client = result.client;
-    jest.spyOn(channel, 'deleteDraft').mockResolvedValue({});
+    vi.spyOn(channel, 'deleteDraft').mockResolvedValue({});
   }
   let renderResult;
 

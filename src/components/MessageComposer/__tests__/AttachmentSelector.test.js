@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
 import {
@@ -75,7 +74,7 @@ const renderComponent = async ({
     channel = res.channels[0];
     client = res.client;
   }
-  jest.spyOn(channel, 'getDraft').mockImplementation();
+  vi.spyOn(channel, 'getDraft').mockImplementation();
 
   const ThreadOrChannel = () =>
     channelStateContext?.thread ? (
@@ -94,7 +93,7 @@ const renderComponent = async ({
   await act(() => {
     result = render(
       <ChatViewContext.Provider
-        value={{ activeChatView: 'channels', setActiveChatView: jest.fn() }}
+        value={{ activeChatView: 'channels', setActiveChatView: vi.fn() }}
       >
         <Chat client={client}>
           <ComponentProvider value={{ ...componentContext }}>
@@ -473,7 +472,7 @@ describe('AttachmentSelector', () => {
   });
 
   it('allows to customize the portal destination', async () => {
-    const getModalPortalDestination = jest.fn();
+    const getModalPortalDestination = vi.fn();
     const CustomAttachmentSelector = () => (
       <AttachmentSelector getModalPortalDestination={getModalPortalDestination} />
     );
@@ -560,7 +559,7 @@ describe('SimpleAttachmentSelector', () => {
   it('opens on Space key up', async () => {
     await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
-    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {
@@ -574,7 +573,7 @@ describe('SimpleAttachmentSelector', () => {
   it('opens on Space key up', async () => {
     await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
-    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {
@@ -588,7 +587,7 @@ describe('SimpleAttachmentSelector', () => {
   it('does not open on other key up', async () => {
     await renderComponent({ message });
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
-    const inputClickSpy = jest.spyOn(inputElement, 'click').mockReturnValue();
+    const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
 
     fireEvent.keyUp(label, {

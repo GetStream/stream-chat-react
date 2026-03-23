@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { PollCreationDialog } from '../PollCreationDialog';
 import { MessageComposerContextProvider } from '../../../context';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
@@ -35,8 +34,8 @@ const getNameInput = () => screen.getByPlaceholderText(NAME_FIELD_PLACEHOLDER);
 const getOptionInput = () => screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
 const getSubmitPollButton = () => screen.getByRole('button', { name: /send poll/i });
 
-const close = jest.fn();
-const handleSubmit = jest.fn();
+const close = vi.fn();
+const handleSubmit = vi.fn();
 const user = generateUser();
 
 const renderComponent = async ({ channel: customChannel, client: customClient } = {}) => {
@@ -64,7 +63,7 @@ const renderComponent = async ({ channel: customChannel, client: customClient } 
 
 describe('PollCreationDialog', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('initiates with default state', async () => {
@@ -370,10 +369,10 @@ describe('PollCreationDialog', () => {
       client,
     } = await initClientWithChannels({ customUser: user });
     await renderComponent({ channel, client });
-    const createPollSpy = jest
+    const createPollSpy = vi
       .spyOn(client, 'createPoll')
       .mockImplementationOnce(() => Promise.resolve({ poll }));
-    const initPollStateSpy = jest
+    const initPollStateSpy = vi
       .spyOn(channel.messageComposer.pollComposer, 'initState')
       .mockImplementation();
 
@@ -432,7 +431,7 @@ describe('PollCreationDialog', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels({ customUser: user });
-    const initPollStateSpy = jest
+    const initPollStateSpy = vi
       .spyOn(channel.messageComposer.pollComposer, 'initState')
       .mockImplementation();
 

@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 
@@ -24,25 +23,25 @@ import { MessageComposer as MessageInputMock } from '../../MessageComposer/Messa
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
 
-jest.mock('../../Message/Message', () => ({
-  Message: jest.fn(() => <div />),
+vi.mock('../../Message/Message', () => ({
+  Message: vi.fn(() => <div />),
 }));
-jest.mock('../../MessageList/MessageList', () => ({
-  MessageList: jest.fn(() => <div />),
+vi.mock('../../MessageList/MessageList', () => ({
+  MessageList: vi.fn(() => <div />),
 }));
-jest.mock('../../MessageList/VirtualizedMessageList', () => ({
-  VirtualizedMessageList: jest.fn(() => <div />),
+vi.mock('../../MessageList/VirtualizedMessageList', () => ({
+  VirtualizedMessageList: vi.fn(() => <div />),
 }));
-jest.mock('../../MessageComposer/MessageComposer', () => ({
-  MessageComposer: jest.fn(() => <div />),
+vi.mock('../../MessageComposer/MessageComposer', () => ({
+  MessageComposer: vi.fn(() => <div />),
 }));
-jest.mock('../../Threads', () => ({
-  useThreadContext: jest.fn(() => undefined),
+vi.mock('../../Threads', () => ({
+  useThreadContext: vi.fn(() => undefined),
 }));
-jest.mock('../../ChatView', () => ({
-  useChatViewContext: jest.fn(() => ({
+vi.mock('../../ChatView', () => ({
+  useChatViewContext: vi.fn(() => ({
     activeChatView: 'channels',
-    setActiveChatView: jest.fn(),
+    setActiveChatView: vi.fn(),
   })),
 }));
 
@@ -55,7 +54,7 @@ const reply2 = generateMessage({ parent_id: parentMessage.id, user: alice });
 
 const mockedChannel = {
   getClient: () => ({ userID: alice.id }),
-  off: jest.fn(),
+  off: vi.fn(),
   state: {
     members: {},
   },
@@ -69,11 +68,11 @@ const channelStateContextMock = {
 };
 
 const channelActionContextMock = {
-  closeThread: jest.fn(),
-  loadMoreThread: jest.fn(() => Promise.resolve()),
+  closeThread: vi.fn(),
+  loadMoreThread: vi.fn(() => Promise.resolve()),
 };
 
-const i18nMock = jest.fn((key, props) => {
+const i18nMock = vi.fn((key, props) => {
   if (key === 'replyCount' && props.count === 1) return '1 reply';
   else if (key === 'replyCount' && props.count > 1) return '2 replies';
   return key;
@@ -114,7 +113,7 @@ describe('Thread', () => {
 
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the MessageList component with the correct props without date separators', () => {
@@ -228,7 +227,7 @@ describe('Thread', () => {
   });
 
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {
-    const CustomThreadHeader = jest.fn(() => <div data-testid='custom-thread-header' />);
+    const CustomThreadHeader = vi.fn(() => <div data-testid='custom-thread-header' />);
 
     const { getByTestId } = renderComponent({
       chatClient,

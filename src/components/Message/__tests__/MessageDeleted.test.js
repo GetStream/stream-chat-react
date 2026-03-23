@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { MessageDeletedBubble } from '../MessageDeletedBubble';
 
@@ -9,7 +8,7 @@ import { TranslationProvider } from '../../../context/TranslationContext';
 const messageDeletedTestId = 'message-deleted-bubble';
 
 function renderComponent() {
-  const t = jest.fn((key) => key);
+  const t = vi.fn((key) => key);
 
   return render(
     <TranslationProvider value={{ t }}>

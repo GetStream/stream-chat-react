@@ -1,10 +1,7 @@
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import { UserItem } from '../SuggestionList';
 

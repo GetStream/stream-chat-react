@@ -29,7 +29,7 @@ function renderUseReactionsFetcherHook(client = getTestClient(), notificationOpt
 }
 
 describe('useReactionsFetcher custom hook', () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => vi.clearAllMocks());
 
   it('should generate a function', () => {
     const fetchReactions = renderUseReactionsFetcherHook();
@@ -37,7 +37,7 @@ describe('useReactionsFetcher custom hook', () => {
   });
 
   it('generated function should make a request to fetch reactions', async () => {
-    const queryReactionsMock = jest.fn(() => Promise.resolve({ reactions: [] }));
+    const queryReactionsMock = vi.fn(() => Promise.resolve({ reactions: [] }));
     const client = getTestClient({ queryReactions: queryReactionsMock });
     const fetchReactions = renderUseReactionsFetcherHook(client);
     await fetchReactions();
@@ -45,7 +45,7 @@ describe('useReactionsFetcher custom hook', () => {
   });
 
   it('generated function should make paged requests to fetch reactions', async () => {
-    const queryReactionsMock = jest
+    const queryReactionsMock = vi
       .fn()
       .mockImplementationOnce(() => Promise.resolve({ next: '42', reactions: Array(20) }))
       .mockImplementationOnce(() => Promise.resolve({ reactions: Array(20) }));
@@ -56,10 +56,10 @@ describe('useReactionsFetcher custom hook', () => {
   });
 
   it('generated function should notify about errors', async () => {
-    const queryReactionsMock = jest.fn(() => Promise.reject());
+    const queryReactionsMock = vi.fn(() => Promise.reject());
     const client = getTestClient({ queryReactions: queryReactionsMock });
-    const getErrorNotificationMock = jest.fn(() => 'Error message');
-    const notifyMock = jest.fn();
+    const getErrorNotificationMock = vi.fn(() => 'Error message');
+    const notifyMock = vi.fn();
     const fetchReactions = renderUseReactionsFetcherHook(client, {
       getErrorNotification: getErrorNotificationMock,
       notify: notifyMock,

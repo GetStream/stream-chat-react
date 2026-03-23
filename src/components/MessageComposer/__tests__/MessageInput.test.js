@@ -1,8 +1,6 @@
 import React from 'react';
 import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { nanoid } from 'nanoid';
 
@@ -25,22 +23,20 @@ import {
 } from '../../../mock-builders';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
-
-expect.extend(toHaveNoViolations);
 
 const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-media';
 const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
@@ -80,7 +76,7 @@ const mockedChannelData = generateChannel({
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
-  getAppSettings: jest.fn(),
+  getAppSettings: vi.fn(),
   latestMessageDatesByChannels: {},
   mutes: [],
   searchController: new SearchController(),
@@ -112,11 +108,25 @@ if (typeof globalThis.DOMRect === 'undefined') {
   };
 }
 
-const sendMessageMock = jest.fn();
-const mockAddNotification = jest.fn();
+// Patch getComputedStyle to return an iterable CSSStyleDeclaration (jsdom lacks Symbol.iterator)
+const origGetComputedStyle = window.getComputedStyle;
+window.getComputedStyle = function (...args) {
+  const style = origGetComputedStyle.apply(this, args);
+  if (!style[Symbol.iterator]) {
+    style[Symbol.iterator] = function* () {
+      for (let i = 0; i < this.length; i++) {
+        yield this[i];
+      }
+    };
+  }
+  return style;
+};
 
-jest.mock('../../Channel/utils', () => ({
-  ...jest.requireActual('../../Channel/utils'),
+const sendMessageMock = vi.fn();
+const mockAddNotification = vi.fn();
+
+vi.mock('../../Channel/utils', async (importOriginal) => ({
+  ...(await importOriginal()),
   makeAddNotifications: () => mockAddNotification,
 }));
 
@@ -228,7 +238,7 @@ const renderComponent = async ({
 
 const tearDown = () => {
   cleanup();
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 };
 
 function axeNoViolations(container) {
@@ -246,10 +256,10 @@ const setup = async ({ channelData } = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = jest.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
-  const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
   });
   customChannel.initialized = true;
@@ -265,10 +275,8 @@ const setupUploadRejected = async (error) => {
     channelsData: [mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = jest
-    .spyOn(customChannel, 'sendImage')
-    .mockRejectedValueOnce(error);
-  const sendFileSpy = jest.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockRejectedValueOnce(error);
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
 };
@@ -724,7 +732,7 @@ describe(`MessageInputFlat`, () => {
         customClient,
       });
 
-      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+      vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getFile();
 
@@ -865,7 +873,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should use overrideSubmitHandler prop if it is defined', async () => {
-      const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
+      const overrideMock = vi.fn().mockImplementation(() => Promise.resolve());
       const { customChannel, customClient } = await setup();
       const customMessageData = { customX: 'customX' };
       customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
@@ -1082,8 +1090,8 @@ describe(`MessageInputFlat`, () => {
 
   it('should list all the available users to mention if only @ is typed', async () => {
     const scrollIntoView = Element.prototype.scrollIntoView;
-    // eslint-disable-next-line jest/prefer-spy-on
-    Element.prototype.scrollIntoView = jest.fn();
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
     await renderComponent({
       customChannel,
@@ -1113,8 +1121,8 @@ describe(`MessageInputFlat`, () => {
 
   it('should add a mentioned user if @ is typed and a user is selected', async () => {
     const scrollIntoView = Element.prototype.scrollIntoView;
-    // eslint-disable-next-line jest/prefer-spy-on
-    Element.prototype.scrollIntoView = jest.fn();
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
     const { container, submit } = await renderComponent({
       customChannel,
@@ -1214,7 +1222,7 @@ describe(`MessageInputFlat`, () => {
         text: nanoid(),
         user,
       });
-      const fn = jest.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
+      const fn = vi.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
       await renderComponent({
         components: {
           QuotedMessagePreview: (props) => (

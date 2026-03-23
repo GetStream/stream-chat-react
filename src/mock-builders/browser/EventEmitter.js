@@ -1,12 +1,12 @@
 export class EventEmitterMock {
   _listeners = {};
 
-  addEventListener = jest.fn((event, handler) => {
+  addEventListener = vi.fn((event, handler) => {
     if (!this._listeners[event]) this._listeners[event] = [];
     this._listeners[event].push(handler);
   });
 
-  removeEventListener = jest.fn((event, handler) => {
+  removeEventListener = vi.fn((event, handler) => {
     if (!this._listeners[event]) return;
     this._listeners[event] = this._listeners[event].filter((h) => h !== handler);
   });

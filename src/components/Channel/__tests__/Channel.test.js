@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { SearchController } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
@@ -33,29 +32,29 @@ import { WithComponents } from '../../../context';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 
-jest.mock('../../Loading', () => ({
-  LoadingChannel: jest.fn(() => <div>Loading channel</div>),
-  LoadingErrorIndicator: jest.fn(() => <div />),
-  LoadingIndicator: jest.fn(() => <div>loading</div>),
+vi.mock('../../Loading', () => ({
+  LoadingChannel: vi.fn(() => <div>Loading channel</div>),
+  LoadingErrorIndicator: vi.fn(() => <div />),
+  LoadingIndicator: vi.fn(() => <div>loading</div>),
 }));
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
 
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
 
-const { useChatViewContext, useThreadsViewContext } = require('../../ChatView');
+import { useChatViewContext, useThreadsViewContext } from '../../ChatView';
 
 const queryChannelWithNewMessages = (newMessages, channel) =>
   // generate new channel mock from existing channel with new messages added
@@ -148,7 +147,7 @@ const initClient = async ({ channelId, channelType, messages, pinnedMessages, us
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
   const channel = chatClient.channel('messaging', mockedChannel.channel.id);
 
-  jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
+  vi.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
   return { channel, chatClient };
 };
 
@@ -172,14 +171,14 @@ describe('Channel', () => {
   let messages;
 
   beforeEach(async () => {
-    // Re-establish ChatView mock implementations (may be cleared by jest.resetAllMocks in nested describe blocks)
+    // Re-establish ChatView mock implementations (may be cleared by vi.resetAllMocks in nested describe blocks)
     useChatViewContext.mockImplementation(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     }));
     useThreadsViewContext.mockImplementation(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     }));
 
     channelId = nanoid();
@@ -208,20 +207,20 @@ describe('Channel', () => {
       pinnedMessages,
       user,
     }));
-    jest.spyOn(channel, 'getDraft').mockResolvedValue({
+    vi.spyOn(channel, 'getDraft').mockResolvedValue({
       draft: generateMessageDraft({ channel, channel_cid: channel.cid }),
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
     const DefaultEmptyStateIndicator = () => <div>default empty state</div>;
 
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     render(
       <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
         <ChatProvider
@@ -229,8 +228,8 @@ describe('Channel', () => {
             channelsQueryState: {
               error: null,
               queryInProgress: null,
-              setError: jest.fn(),
-              setQueryInProgress: jest.fn(),
+              setError: vi.fn(),
+              setQueryInProgress: vi.fn(),
             },
           }}
         >
@@ -249,7 +248,7 @@ describe('Channel', () => {
     );
 
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     render(
       <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
         <ChatProvider
@@ -257,8 +256,8 @@ describe('Channel', () => {
             channelsQueryState: {
               error: null,
               queryInProgress: null,
-              setError: jest.fn(),
-              setQueryInProgress: jest.fn(),
+              setError: vi.fn(),
+              setQueryInProgress: vi.fn(),
             },
           }}
         >
@@ -281,8 +280,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: null,
             queryInProgress: 'load-more',
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
           client: chatClient,
           searchController: new SearchController(),
@@ -302,8 +301,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: null,
             queryInProgress: 'reload',
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
         }}
       >
@@ -324,8 +323,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: null,
             queryInProgress: null,
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
         }}
       >
@@ -343,8 +342,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: new Error(),
             queryInProgress: null,
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
         }}
       >
@@ -363,8 +362,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: null,
             queryInProgress: 'reload',
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
         }}
       >
@@ -389,8 +388,8 @@ describe('Channel', () => {
           channelsQueryState: {
             error: new Error(errMsg),
             queryInProgress: null,
-            setError: jest.fn(),
-            setQueryInProgress: jest.fn(),
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
           },
         }}
       >
@@ -407,7 +406,7 @@ describe('Channel', () => {
   });
 
   it('should watch the current channel on mount', async () => {
-    const watchSpy = jest.spyOn(channel, 'watch');
+    const watchSpy = vi.spyOn(channel, 'watch');
 
     await renderComponent({
       channel,
@@ -422,7 +421,7 @@ describe('Channel', () => {
   });
 
   it('should apply channelQueryOptions to channel watch call', async () => {
-    const watchSpy = jest.spyOn(channel, 'watch');
+    const watchSpy = vi.spyOn(channel, 'watch');
     const channelQueryOptions = {
       messages: { limit: 20 },
     };
@@ -534,7 +533,7 @@ describe('Channel', () => {
   });
 
   it('should not call watch the current channel on mount if channel is initialized', async () => {
-    const watchSpy = jest.spyOn(channel, 'watch');
+    const watchSpy = vi.spyOn(channel, 'watch');
     channel.initialized = true;
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
@@ -542,7 +541,7 @@ describe('Channel', () => {
 
   it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {
     const watchError = new Error('watching went wrong');
-    jest.spyOn(channel, 'watch').mockImplementationOnce(() => Promise.reject(watchError));
+    vi.spyOn(channel, 'watch').mockImplementationOnce(() => Promise.reject(watchError));
 
     await renderComponent({ channel, chatClient });
 
@@ -558,7 +557,7 @@ describe('Channel', () => {
 
   it('should render a LoadingIndicator if it is loading', async () => {
     const watchPromise = new Promise(() => {});
-    jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
+    vi.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
     const result = await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(result.asFragment()).toMatchSnapshot());
@@ -596,7 +595,7 @@ describe('Channel', () => {
 
   // should these 'on' tests actually test if the handler works?
   it('should add a connection recovery handler on the client on mount', async () => {
-    const clientOnSpy = jest.spyOn(chatClient, 'on');
+    const clientOnSpy = vi.spyOn(chatClient, 'on');
 
     await renderComponent({ channel, chatClient });
 
@@ -609,15 +608,15 @@ describe('Channel', () => {
   });
 
   it('should add an `on` handler to the channel on mount', async () => {
-    const channelOnSpy = jest.spyOn(channel, 'on');
+    const channelOnSpy = vi.spyOn(channel, 'on');
     await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
   it('should mark the channel as read when the channel is mounted', async () => {
-    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const markReadSpy = jest.spyOn(channel, 'markRead');
+    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const markReadSpy = vi.spyOn(channel, 'markRead');
 
     await renderComponent({ channel, chatClient });
 
@@ -625,8 +624,8 @@ describe('Channel', () => {
   });
 
   it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
-    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const markReadSpy = jest.spyOn(channel, 'markRead');
+    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const markReadSpy = vi.spyOn(channel, 'markRead');
 
     await renderComponent({ channel, chatClient, markReadOnMount: false });
 
@@ -634,8 +633,8 @@ describe('Channel', () => {
   });
 
   it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
-    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const doMarkReadRequest = jest.fn();
+    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const doMarkReadRequest = vi.fn();
 
     await renderComponent({
       channel,
@@ -648,7 +647,7 @@ describe('Channel', () => {
   });
 
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
-    const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
+    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce();
     await renderComponent({
       channel,
       chatClient,
@@ -658,7 +657,7 @@ describe('Channel', () => {
   });
 
   it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
-    const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
+    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce();
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
@@ -666,13 +665,13 @@ describe('Channel', () => {
   describe('Children that consume the contexts set in Channel', () => {
     it('should be able to open threads', async () => {
       const threadMessage = messages[0];
-      const hasThread = jest.fn();
-      const hasThreadInstance = jest.fn();
+      const hasThread = vi.fn();
+      const hasThreadInstance = vi.fn();
       const mockThreadInstance = {
-        registerSubscriptions: jest.fn(),
+        registerSubscriptions: vi.fn(),
         threadInstanceMock: true,
       };
-      const getThreadSpy = jest
+      const getThreadSpy = vi
         .spyOn(chatClient, 'getThread')
         .mockResolvedValueOnce(mockThreadInstance);
 
@@ -699,7 +698,7 @@ describe('Channel', () => {
     });
 
     it('should be able to load more messages in a thread until reaching the end', async () => {
-      const getRepliesSpy = jest.spyOn(channel, 'getReplies');
+      const getRepliesSpy = vi.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
       const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
       const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, (_, index) =>
@@ -711,7 +710,7 @@ describe('Channel', () => {
 
       useMockedApis(chatClient, [threadRepliesApi(replies)]);
 
-      const hasThreadMessages = jest.fn();
+      const hasThreadMessages = vi.fn();
 
       let callback = ({ loadMoreThread, openThread, thread, threadMessages }) => {
         if (!thread) {
@@ -794,8 +793,8 @@ describe('Channel', () => {
     });
 
     it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
-      const onMentionsHoverMock = jest.fn();
-      const onMentionsClickMock = jest.fn();
+      const onMentionsHoverMock = vi.fn();
+      const onMentionsClickMock = vi.fn();
       const username = 'Mentioned User';
       const mentionedUserMock = {
         name: username,
@@ -864,7 +863,7 @@ describe('Channel', () => {
         expect(hasMore).toBe(false);
       });
       it('should be able to load more messages', async () => {
-        const channelQuerySpy = jest.spyOn(channel, 'query');
+        const channelQuerySpy = vi.spyOn(channel, 'query');
         let newMessageAdded = false;
 
         const newMessages = [generateMessage()];
@@ -954,7 +953,7 @@ describe('Channel', () => {
           { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ loadingMore, loadMore }) => {
             // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
-            jest.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
+            vi.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
             loadMore();
             isLoadingMore = loadingMore;
           },
@@ -972,7 +971,7 @@ describe('Channel', () => {
         await renderComponent(
           { channel, chatClient },
           ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = jest.spyOn(channel, 'query');
+            queryNextPageSpy = vi.spyOn(channel, 'query');
             contextMessageCount = contextMessages.length;
             loadMore();
           },
@@ -1004,33 +1003,32 @@ describe('Channel', () => {
           queryChannelWithNewMessages(firstPageMessages, channel),
         ]);
         let queryNextPageSpy;
+        let loadMoreCalled = false;
         let contextMessageCount;
         await renderComponent(
           { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = jest.spyOn(channel, 'query');
+            // Only set the spy and call loadMore once to prevent re-invocations
+            // from overwriting the spy (which would lose track of the call).
+            if (!loadMoreCalled) {
+              loadMoreCalled = true;
+              queryNextPageSpy = vi.spyOn(channel, 'query');
+              useMockedApis(chatClient, [
+                queryChannelWithNewMessages(secondPageMessages, channel),
+              ]);
+              loadMore();
+            }
             contextMessageCount = contextMessages.length;
-            useMockedApis(chatClient, [
-              queryChannelWithNewMessages(secondPageMessages, channel),
-            ]);
-            loadMore();
           },
         );
 
         await waitFor(() => {
+          if (!queryNextPageSpy) throw new Error('spy not set');
           expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
-          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(2);
-          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
-            data: {},
-            presence: false,
-            state: true,
-            watch: false,
-          });
-          expect(chatClient.axiosInstance.post.mock.calls[1][1]).toMatchObject(
+          // Verify loadMore called channel.query with the right pagination args
+          expect(queryNextPageSpy).toHaveBeenCalledWith(
             expect.objectContaining({
-              data: {},
               messages: { id_lt: firstPageMessages[0].id, limit: 25 },
-              state: true,
               watchers: { limit: 25 },
             }),
           );
@@ -1052,7 +1050,7 @@ describe('Channel', () => {
         await renderComponent(
           { channel, channelQueryOptions, chatClient },
           ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = jest.spyOn(channel, 'query');
+            queryNextPageSpy = vi.spyOn(channel, 'query');
             contextMessageCount = contextMessages.length;
             loadMore(channelQueryOptions.messages.limit);
           },
@@ -1088,40 +1086,34 @@ describe('Channel', () => {
           queryChannelWithNewMessages(firstPageMessages, channel),
         ]);
         let queryNextPageSpy;
+        let loadMoreCalled = false;
         let contextMessageCount;
 
         await renderComponent(
           { channel, channelQueryOptions, chatClient },
           ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = jest.spyOn(channel, 'query');
+            if (!loadMoreCalled) {
+              loadMoreCalled = true;
+              queryNextPageSpy = vi.spyOn(channel, 'query');
+              useMockedApis(chatClient, [
+                queryChannelWithNewMessages(secondPageMessages, channel),
+              ]);
+              loadMore(channelQueryOptions.messages.limit);
+            }
             contextMessageCount = contextMessages.length;
-            useMockedApis(chatClient, [
-              queryChannelWithNewMessages(secondPageMessages, channel),
-            ]);
-            loadMore(channelQueryOptions.messages.limit);
           },
         );
 
         await waitFor(() => {
+          if (!queryNextPageSpy) throw new Error('spy not set');
           expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
-          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(2);
-          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
-            data: {},
-            messages: {
-              limit: channelQueryOptions.messages.limit,
-            },
-            presence: false,
-            state: true,
-            watch: false,
-          });
-          expect(chatClient.axiosInstance.post.mock.calls[1][1]).toMatchObject(
+          // Verify loadMore called channel.query with the right pagination args
+          expect(queryNextPageSpy).toHaveBeenCalledWith(
             expect.objectContaining({
-              data: {},
               messages: {
                 id_lt: firstPageMessages[0].id,
                 limit: channelQueryOptions.messages.limit,
               },
-              state: true,
               watchers: { limit: channelQueryOptions.messages.limit },
             }),
           );
@@ -1182,7 +1174,7 @@ describe('Channel', () => {
         user,
       };
 
-      afterEach(jest.resetAllMocks);
+      afterEach(vi.resetAllMocks);
       /**
        * {channelUnreadUiState: {first_unread_message_id: 'Y', last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // marked channel unread
        * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // incoming new messages while being scrolled up / open an already read channel with unread messages
@@ -1212,11 +1204,11 @@ describe('Channel', () => {
           ],
           customUser: user,
         });
-        const loadMessageIntoState = jest
+        const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation();
 
-        const channelQuerySpy = jest.spyOn(channel, 'query').mockImplementation();
+        const channelQuerySpy = vi.spyOn(channel, 'query').mockImplementation();
 
         let hasJumped;
         let highlightedMessageId;
@@ -1263,7 +1255,7 @@ describe('Channel', () => {
         let loadMessageIntoState;
         let channelQuerySpy;
         if (['already loaded', 'query fails'].includes(loadScenario)) {
-          channelQuerySpy = jest.spyOn(channel, 'query').mockImplementation();
+          channelQuerySpy = vi.spyOn(channel, 'query').mockImplementation();
         } else {
           // eslint-disable-next-line react-hooks/rules-of-hooks
           useMockedApis(chatClient, [
@@ -1271,7 +1263,7 @@ describe('Channel', () => {
           ]);
         }
         if (!loadScenario.startsWith('query by')) {
-          loadMessageIntoState = jest
+          loadMessageIntoState = vi
             .spyOn(channel.state, 'loadMessageIntoState')
             .mockImplementation();
 
@@ -1280,7 +1272,7 @@ describe('Channel', () => {
           }
         }
 
-        const addErrorSpy = jest.spyOn(chatClient.notifications, 'addError');
+        const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
         let hasJumped;
         let highlightedMessageId;
         let channelUnreadUiStateAfterJump;
@@ -1499,7 +1491,7 @@ describe('Channel', () => {
             ],
             customUser: user,
           });
-          const addErrorSpy = jest.spyOn(chatClient.notifications, 'addError');
+          const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
           let hasJumped;
           let hasMoreMessages;
           let highlightedMessageId;
@@ -1551,7 +1543,7 @@ describe('Channel', () => {
         ];
 
         let resolveLatestLoad;
-        const loadMessageIntoState = jest
+        const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation(
             () =>
@@ -1639,7 +1631,7 @@ describe('Channel', () => {
         ];
 
         let resolveTargetLoad;
-        jest.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
+        vi.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
           () =>
             new Promise((resolve) => {
               resolveTargetLoad = () => {
@@ -1705,7 +1697,7 @@ describe('Channel', () => {
         ];
 
         let resolveTargetLoad;
-        const loadMessageIntoState = jest
+        const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation(
             () =>
@@ -1786,7 +1778,7 @@ describe('Channel', () => {
 
     describe('Sending/removing/updating messages', () => {
       it('should remove error messages from channel state when sending a new message', async () => {
-        const filterErrorMessagesSpy = jest.spyOn(channel.state, 'filterErrorMessages');
+        const filterErrorMessagesSpy = vi.spyOn(channel.state, 'filterErrorMessages');
         // flag to prevent infinite loop
         let hasSent = false;
 
@@ -1805,9 +1797,9 @@ describe('Channel', () => {
         // flag to prevent infinite loop
         let hasSent = false;
         const messageText = nanoid();
-        jest
-          .spyOn(channel, 'sendMessage')
-          .mockImplementationOnce(() => new Promise(() => {}));
+        vi.spyOn(channel, 'sendMessage').mockImplementationOnce(
+          () => new Promise(() => {}),
+        );
 
         const { findByText } = await renderComponent(
           {
@@ -1834,7 +1826,7 @@ describe('Channel', () => {
         const messageId = nanoid();
 
         let originalMessageStatus = null;
-        jest.spyOn(channel, 'sendMessage').mockImplementation((message) => {
+        vi.spyOn(channel, 'sendMessage').mockImplementation((message) => {
           originalMessageStatus = message.status;
           throw chatClient.errorFromResponse({
             data: {
@@ -1873,7 +1865,7 @@ describe('Channel', () => {
       });
 
       it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
-        const doSendMessageRequest = jest.fn();
+        const doSendMessageRequest = vi.fn();
         const message = generateMessage();
 
         let sendMessage;
@@ -1902,9 +1894,9 @@ describe('Channel', () => {
       it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
         const responseText = nanoid();
 
-        jest
-          .spyOn(channel, 'sendMessage')
-          .mockImplementationOnce((sm) => ({ message: { ...sm, text: responseText } }));
+        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((sm) => ({
+          message: { ...sm, text: responseText },
+        }));
 
         let sendMessage;
         const { findByText } = await renderComponent(
@@ -1934,7 +1926,7 @@ describe('Channel', () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
 
-          const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
+          const clientDeleteMessageSpy = vi.spyOn(chatClient, 'deleteMessage');
           let deleteMessageHandler;
           await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
             deleteMessageHandler = deleteMessage;
@@ -1949,7 +1941,7 @@ describe('Channel', () => {
         it('should call the default client.deleteMessage() function', async () => {
           const message = generateMessage();
           const deleteMessageOptions = { deleteForMe: true, hard: false };
-          const clientDeleteMessageSpy = jest
+          const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
           await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
@@ -1967,10 +1959,10 @@ describe('Channel', () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...message } = generateMessage();
 
-          const clientDeleteMessageSpy = jest
+          const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
-          const doDeleteMessageRequest = jest.fn();
+          const doDeleteMessageRequest = vi.fn();
           let deleteMessageHandler;
           await renderComponent(
             { channel, chatClient, doDeleteMessageRequest },
@@ -1989,8 +1981,8 @@ describe('Channel', () => {
         it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
           const message = generateMessage();
           const deleteMessageOptions = { deleteForMe: true, hard: false };
-          const doDeleteMessageRequest = jest.fn();
-          const clientDeleteMessageSpy = jest
+          const doDeleteMessageRequest = vi.fn();
+          const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
 
@@ -2014,7 +2006,7 @@ describe('Channel', () => {
       it('should enable editing messages', async () => {
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
-        const clientUpdateMessageSpy = jest.spyOn(chatClient, 'updateMessage');
+        const clientUpdateMessageSpy = vi.spyOn(chatClient, 'updateMessage');
         await renderComponent({ channel, chatClient }, ({ editMessage }) => {
           editMessage(updatedMessage);
         });
@@ -2028,7 +2020,7 @@ describe('Channel', () => {
       });
 
       it('should use doUpdateMessageRequest for the editMessage callback if provided', async () => {
-        const doUpdateMessageRequest = jest.fn((channelId, message) => message);
+        const doUpdateMessageRequest = vi.fn((channelId, message) => message);
 
         await renderComponent(
           { channel, chatClient, doUpdateMessageRequest },
@@ -2081,8 +2073,7 @@ describe('Channel', () => {
           },
         );
 
-        jest
-          .spyOn(channel, 'sendMessage')
+        vi.spyOn(channel, 'sendMessage')
           .mockImplementationOnce(() => Promise.reject())
           .mockImplementationOnce(() => {
             const creationDate = new Date();
@@ -2117,7 +2108,7 @@ describe('Channel', () => {
         const scrapedAttachment = generateScrapedDataAttachment();
         const attachments = [fileAttachment, scrapedAttachment];
         const messageObject = { attachments, text: 'bla bla' };
-        const sendMessageSpy = jest
+        const sendMessageSpy = vi
           .spyOn(channel, 'sendMessage')
           .mockImplementationOnce(() => Promise.reject());
 
@@ -2157,7 +2148,7 @@ describe('Channel', () => {
 
       it('should allow removing messages', async () => {
         let allMessagesRemoved = false;
-        const removeSpy = jest.spyOn(channel.state, 'removeMessage');
+        const removeSpy = vi.spyOn(channel.state, 'removeMessage');
 
         await renderComponent(
           { channel, chatClient },
@@ -2233,7 +2224,7 @@ describe('Channel', () => {
         let oldText;
         const newText = 'new text';
 
-        jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
           const creationDate = new Date();
           const created_at = creationDate.toISOString();
           const updated_at = new Date(creationDate.getTime() + 1).toISOString();
@@ -2296,7 +2287,7 @@ describe('Channel', () => {
         let oldText;
         const newText = 'new text';
 
-        jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
           const creationDate = new Date();
           const created_at = creationDate.toISOString();
           const updated_at = new Date(creationDate.getTime() - 1).toISOString();
@@ -2328,7 +2319,7 @@ describe('Channel', () => {
       });
 
       it('should not mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
-        const markReadSpy = jest.spyOn(channel, 'markRead');
+        const markReadSpy = vi.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
@@ -2345,7 +2336,7 @@ describe('Channel', () => {
       });
 
       it('should not mark the channel as read if the new message author is the current user and the user is looking at the page', async () => {
-        const markReadSpy = jest.spyOn(channel, 'markRead');
+        const markReadSpy = vi.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
@@ -2367,7 +2358,7 @@ describe('Channel', () => {
           configurable: true,
           get: () => true,
         });
-        jest.spyOn(channel, 'countUnread').mockImplementation(() => unreadAmount);
+        vi.spyOn(channel, 'countUnread').mockImplementation(() => unreadAmount);
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },

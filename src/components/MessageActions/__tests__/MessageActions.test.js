@@ -1,7 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 
 import { MessageActions } from '../MessageActions';
@@ -35,8 +33,6 @@ window.ResizeObserver = ResizeObserverMock;
 
 const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
 
-expect.extend(toHaveNoViolations);
-
 const alice = generateUser({ name: 'alice' });
 const TOGGLE_ACTIONS_BUTTON_TEST_ID = 'message-actions-toggle-button';
 const MESSAGE_ACTIONS_HOST_TEST_ID = 'message-actions-host';
@@ -56,13 +52,13 @@ const defaultMessageContextValue = {
     'react',
     'reply',
   ],
-  handleDelete: jest.fn(),
-  handleEdit: jest.fn(),
-  handleFlag: jest.fn(),
-  handleMarkUnread: jest.fn(),
-  handleMute: jest.fn(),
-  handleOpenThread: jest.fn(),
-  handlePin: jest.fn(),
+  handleDelete: vi.fn(),
+  handleEdit: vi.fn(),
+  handleFlag: vi.fn(),
+  handleMarkUnread: vi.fn(),
+  handleMute: vi.fn(),
+  handleOpenThread: vi.fn(),
+  handlePin: vi.fn(),
   isMyMessage: () => false,
   message: generateMessage(),
 };
@@ -96,9 +92,9 @@ async function renderMessageActions({
           <ChannelStateProvider value={{ channel, channelConfig, ...channelStateOpts }}>
             <ChannelActionProvider
               value={{
-                openThread: jest.fn(),
-                removeMessage: jest.fn(),
-                updateMessage: jest.fn(),
+                openThread: vi.fn(),
+                removeMessage: vi.fn(),
+                updateMessage: vi.fn(),
               }}
             >
               <TranslationProvider value={mockTranslationContext}>
@@ -119,7 +115,7 @@ async function renderMessageActions({
 }
 
 describe('<MessageActions />', () => {
-  beforeEach(jest.clearAllMocks);
+  beforeEach(vi.clearAllMocks);
 
   describe('Rendering and visibility', () => {
     it('should not render when there are no actions available', async () => {
@@ -236,7 +232,7 @@ describe('<MessageActions />', () => {
 
   describe('Dropdown action buttons', () => {
     it('should render and call handleDelete when Delete button is clicked', async () => {
-      const handleDelete = jest.fn();
+      const handleDelete = vi.fn();
       const message = generateMessage({ user: alice });
       await renderMessageActions({
         channelStateOpts: {
@@ -275,7 +271,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should render and call handleFlag when Flag button is clicked', async () => {
-      const handleFlag = jest.fn();
+      const handleFlag = vi.fn();
       const otherUser = generateUser();
       const message = generateMessage({ user: otherUser });
       const { getByText } = await renderMessageActions({
@@ -294,7 +290,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should render and call handleMute when Mute button is clicked', async () => {
-      const handleMute = jest.fn();
+      const handleMute = vi.fn();
       const otherUser = generateUser();
       const message = generateMessage({ user: otherUser });
       const { getByText } = await renderMessageActions({
@@ -315,7 +311,7 @@ describe('<MessageActions />', () => {
     it('should show Unmute text when user is muted', async () => {
       const otherUser = generateUser();
       const message = generateMessage({ user: otherUser });
-      const handleMute = jest.fn();
+      const handleMute = vi.fn();
       const chatClient = await getTestClientWithUser(alice);
       const mutes = [{ target: otherUser, user: alice }];
 
@@ -333,7 +329,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should render and call handlePin when Pin button is clicked', async () => {
-      const handlePin = jest.fn();
+      const handlePin = vi.fn();
       const message = generateMessage({ pinned: false });
       const { getByText } = await renderMessageActions({
         channelStateOpts: {
@@ -369,7 +365,7 @@ describe('<MessageActions />', () => {
         client,
       } = await initClientWithChannels();
       const message = generateMessage({ user: client.user });
-      const setQuotedMessageSpy = jest.spyOn(channel.messageComposer, 'setQuotedMessage');
+      const setQuotedMessageSpy = vi.spyOn(channel.messageComposer, 'setQuotedMessage');
 
       await act(async () => {
         await render(
@@ -383,9 +379,9 @@ describe('<MessageActions />', () => {
               >
                 <ChannelActionProvider
                   value={{
-                    openThread: jest.fn(),
-                    removeMessage: jest.fn(),
-                    updateMessage: jest.fn(),
+                    openThread: vi.fn(),
+                    removeMessage: vi.fn(),
+                    updateMessage: vi.fn(),
                   }}
                 >
                   <TranslationProvider value={mockTranslationContext}>
@@ -455,7 +451,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should call handleOpenThread when Reply button is clicked', async () => {
-      const handleOpenThread = jest.fn();
+      const handleOpenThread = vi.fn();
       const { getByTestId } = await renderMessageActions({
         channelStateOpts: {
           channelCapabilities: { 'send-reply': true },
@@ -620,7 +616,7 @@ describe('<MessageActions />', () => {
         );
       });
 
-    afterEach(jest.restoreAllMocks);
+    afterEach(vi.restoreAllMocks);
 
     it('should not be displayed without "read-events" capability', async () => {
       const {
@@ -705,7 +701,7 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
       });
-      jest.spyOn(channel, 'markUnread');
+      vi.spyOn(channel, 'markUnread');
 
       await renderMarkUnreadUI({
         channelProps: { channel },
@@ -724,7 +720,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should call custom success notification on successful mark unread', async () => {
-      const getMarkMessageUnreadSuccessNotification = jest.fn();
+      const getMarkMessageUnreadSuccessNotification = vi.fn();
       const {
         channels: [channel],
         client,
@@ -750,7 +746,7 @@ describe('<MessageActions />', () => {
     });
 
     it('should call custom error notification on failed mark unread', async () => {
-      const getMarkMessageUnreadErrorNotification = jest.fn();
+      const getMarkMessageUnreadErrorNotification = vi.fn();
       const {
         channels: [channel],
         client,
@@ -758,7 +754,7 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
       });
-      jest.spyOn(channel, 'markUnread').mockRejectedValueOnce();
+      vi.spyOn(channel, 'markUnread').mockRejectedValueOnce();
 
       await renderMarkUnreadUI({
         channelProps: { channel },

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ReminderNotification displays text for bookmark notifications (saved for later) 1`] = `
+exports[`ReminderNotification > displays text for bookmark notifications (saved for later) 1`] = `
 <div>
   <p
     class="str-chat__message-saved-for-later"
@@ -25,7 +25,7 @@ exports[`ReminderNotification displays text for bookmark notifications (saved fo
 </div>
 `;
 
-exports[`ReminderNotification displays text for reminder deadline if trespassed the refresh boundary 1`] = `
+exports[`ReminderNotification > displays text for reminder deadline if trespassed the refresh boundary 1`] = `
 <div>
   <p
     class="str-chat__message-reminder"
@@ -58,7 +58,7 @@ exports[`ReminderNotification displays text for reminder deadline if trespassed 
 </div>
 `;
 
-exports[`ReminderNotification displays text for time due in case of timed reminders (remind me) 1`] = `
+exports[`ReminderNotification > displays text for time due in case of timed reminders (remind me) 1`] = `
 <div>
   <p
     class="str-chat__message-reminder"

@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`htmlToTextPlugin absent does not keep HTML in text 1`] = `<div />`;
+exports[`htmlToTextPlugin > absent does not keep HTML in text 1`] = `<div />`;
 
-exports[`htmlToTextPlugin present keeps HTML in text 1`] = `
+exports[`htmlToTextPlugin > present keeps HTML in text 1`] = `
 <div>
   &lt;div&gt;
 &lt;script&gt;console.error('This error should not be logged from renderText.test.js!')&lt;/script&gt;
@@ -10,7 +10,7 @@ exports[`htmlToTextPlugin present keeps HTML in text 1`] = `
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks around a blockquote 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks around a blockquote 1`] = `
 <div>
   <p>
     a
@@ -34,7 +34,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a blockquo
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks around a code block 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks around a code block 1`] = `
 <div>
   <p>
     a
@@ -54,7 +54,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a code blo
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks around a horizontal rule 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks around a horizontal rule 1`] = `
 <div>
   <p>
     a
@@ -69,7 +69,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a horizont
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks around a strikethrough 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks around a strikethrough 1`] = `
 <div>
   <p>
     a
@@ -87,7 +87,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a striketh
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks around a table 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks around a table 1`] = `
 <div>
   <p>
     a
@@ -107,7 +107,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks around a table 1`
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks between paragraphs 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks between paragraphs 1`] = `
 <div>
   <p>
     a
@@ -125,7 +125,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks between paragraph
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an ordered list 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks between the items in an ordered list 1`] = `
 <div>
   <ol>
     
@@ -167,7 +167,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks between the items
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an unordered list 1`] = `
+exports[`keepLineBreaksPlugin > absent > does not keep line breaks between the items in an unordered list 1`] = `
 <div>
   <ul>
     
@@ -209,7 +209,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks between the items
 </div>
 `;
 
-exports[`keepLineBreaksPlugin absent keeps line breaks natively under a heading 1`] = `
+exports[`keepLineBreaksPlugin > absent > keeps line breaks natively under a heading 1`] = `
 <div>
   <h2>
     Heading
@@ -222,7 +222,7 @@ exports[`keepLineBreaksPlugin absent keeps line breaks natively under a heading 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line between lines with strong text 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line between lines with strong text 1`] = `
 <div>
   <p>
     This is 
@@ -242,7 +242,7 @@ exports[`keepLineBreaksPlugin present keeps line between lines with strong text 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks around a blockquote 1`] = `
 <div>
   <p>
     a
@@ -278,7 +278,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks around a code block 1`] = `
 <div>
   <p>
     a
@@ -310,7 +310,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks around a horizontal rule 1`] = `
 <div>
   <p>
     a
@@ -337,7 +337,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks around a strikethrough 1`] = `
 <div>
   <p>
     a
@@ -367,7 +367,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks around a table 1`] = `
 <div>
   <p>
     a
@@ -399,7 +399,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks between paragraphs 1`] = `
 <div>
   <p>
     a
@@ -429,7 +429,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] =
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks between the items in an ordered list 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks between the items in an ordered list 1`] = `
 <div>
   <ol>
     
@@ -483,7 +483,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks between the items in an unordered list 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks between the items in an unordered list 1`] = `
 <div>
   <ul>
     
@@ -537,7 +537,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
 </div>
 `;
 
-exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
+exports[`keepLineBreaksPlugin > present > keeps line breaks under a heading 1`] = `
 <div>
   <h2>
     Heading
@@ -556,7 +556,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
 </div>
 `;
 
-exports[`renderText handles the special case where there are pronouns in the name 1`] = `
+exports[`renderText > handles the special case where there are pronouns in the name 1`] = `
 <div>
   <p>
     hey, 
@@ -571,7 +571,7 @@ exports[`renderText handles the special case where there are pronouns in the nam
 </div>
 `;
 
-exports[`renderText handles the special case where there is a backslash in the name 1`] = `
+exports[`renderText > handles the special case where there is a backslash in the name 1`] = `
 <div>
   <p>
     hey, 
@@ -586,7 +586,7 @@ exports[`renderText handles the special case where there is a backslash in the n
 </div>
 `;
 
-exports[`renderText handles the special case where there is a forward slash in the name 1`] = `
+exports[`renderText > handles the special case where there is a forward slash in the name 1`] = `
 <div>
   <p>
     hey, 
@@ -601,7 +601,7 @@ exports[`renderText handles the special case where there is a forward slash in t
 </div>
 `;
 
-exports[`renderText handles the special case where there's at least one mention and @ symbol at the end 1`] = `
+exports[`renderText > handles the special case where there's at least one mention and @ symbol at the end 1`] = `
 <div>
   <p>
     <span
@@ -615,7 +615,7 @@ exports[`renderText handles the special case where there's at least one mention 
 </div>
 `;
 
-exports[`renderText handles the special case where user name matches to an e-mail pattern - 1 1`] = `
+exports[`renderText > handles the special case where user name matches to an e-mail pattern - 1 1`] = `
 <div>
   <p>
     Hello 
@@ -639,7 +639,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </div>
 `;
 
-exports[`renderText handles the special case where user name matches to an e-mail pattern - 2 1`] = `
+exports[`renderText > handles the special case where user name matches to an e-mail pattern - 2 1`] = `
 <div>
   <p>
     <a
@@ -662,7 +662,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </div>
 `;
 
-exports[`renderText handles the special case where user name matches to an e-mail pattern - 3 1`] = `
+exports[`renderText > handles the special case where user name matches to an e-mail pattern - 3 1`] = `
 <div>
   <p>
     <span
@@ -696,7 +696,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </div>
 `;
 
-exports[`renderText handles the special case where user name matches to an e-mail pattern - 4 1`] = `
+exports[`renderText > handles the special case where user name matches to an e-mail pattern - 4 1`] = `
 <div>
   <p>
     <span
@@ -732,7 +732,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </div>
 `;
 
-exports[`renderText parses correctly text with markdown links 1`] = `
+exports[`renderText > parses correctly text with markdown links 1`] = `
 <div>
   <p>
     a 
@@ -748,7 +748,7 @@ exports[`renderText parses correctly text with markdown links 1`] = `
 </div>
 `;
 
-exports[`renderText renders custom mention 1`] = `
+exports[`renderText > renders custom mention 1`] = `
 <div>
   <p>
     <span
@@ -784,7 +784,7 @@ exports[`renderText renders custom mention 1`] = `
 </div>
 `;
 
-exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
+exports[`renderText > renders remark-gfm list and strikethrough correctly 1`] = `
 <div>
   <p>
     Pick a time to meet:
@@ -820,7 +820,7 @@ exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
 </div>
 `;
 
-exports[`renderText renders standard markdown text 1`] = `
+exports[`renderText > renders standard markdown text 1`] = `
 <div>
   <p>
     Hi, shall we meet on 
@@ -832,7 +832,7 @@ exports[`renderText renders standard markdown text 1`] = `
 </div>
 `;
 
-exports[`renderText wraps every link entirely even though the link roots are the same 1`] = `
+exports[`renderText > wraps every link entirely even though the link roots are the same 1`] = `
 <div>
   <p>
     <a

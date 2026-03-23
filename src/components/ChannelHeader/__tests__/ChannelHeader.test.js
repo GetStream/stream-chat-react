@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { ChannelHeader } from '../ChannelHeader';
 
@@ -18,11 +17,8 @@ import {
   initClientWithChannels,
   useMockedApis,
 } from '../../../mock-builders';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
-
-expect.extend(toHaveNoViolations);
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
@@ -36,7 +32,7 @@ const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
 
-const t = jest.fn((key) => key);
+const t = vi.fn((key) => key);
 
 const renderComponentBase = ({ channel, client, props }) =>
   render(

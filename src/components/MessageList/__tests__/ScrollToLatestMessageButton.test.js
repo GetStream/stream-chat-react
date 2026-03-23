@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
 import { ChannelStateProvider, ChatProvider } from '../../../context';
@@ -25,7 +24,7 @@ let anotherUser;
 let channelStateContext;
 let parentMsg;
 
-const onClick = jest.fn();
+const onClick = vi.fn();
 
 const dispatchMessageEvents = ({ channel, client, newMessage, parentMsg, user }) => {
   if (containerIsThread) {
@@ -58,7 +57,7 @@ describe.each([
     };
   });
 
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it(`is not rendered if ${containerMsgList} scrolled to the bottom`, () => {
     const { container } = render(

@@ -1,6 +1,5 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { useMessageListScrollManager } from '../';
 
@@ -34,7 +33,7 @@ describe('useMessageListScrollManager', () => {
   afterEach(cleanup);
 
   it('does not emit scroll to bottom on mount', () => {
-    const scrollToBottom = jest.fn();
+    const scrollToBottom = vi.fn();
     const Comp = () => {
       useMessageListScrollManager({
         ...defaultInputs,
@@ -59,7 +58,7 @@ describe('useMessageListScrollManager', () => {
   });
 
   it('emits scrollTop delta when messages are prepended', () => {
-    const onScrollBy = jest.fn();
+    const onScrollBy = vi.fn();
     const Comp = (props) => {
       useMessageListScrollManager({
         ...defaultInputs,
@@ -91,7 +90,7 @@ describe('useMessageListScrollManager', () => {
   });
 
   it('emits scroll to bottom when new messages arrive', () => {
-    const scrollToBottom = jest.fn();
+    const scrollToBottom = vi.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
@@ -125,7 +124,7 @@ describe('useMessageListScrollManager', () => {
   });
 
   it('does not emit scroll to bottom when new messages arrive and user has scrolled up', () => {
-    const showNewMessages = jest.fn();
+    const showNewMessages = vi.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
@@ -171,7 +170,7 @@ describe('useMessageListScrollManager', () => {
   });
 
   it('emits scroll to bottom when new own message is posted, regardless of scroll position', () => {
-    const scrollToBottom = jest.fn();
+    const scrollToBottom = vi.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,

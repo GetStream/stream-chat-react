@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<MessageText /> should render with a custom inner class when one is set 1`] = `
+exports[`<MessageText /> > should render with a custom inner class when one is set 1`] = `
 <div>
   <div
     class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"
@@ -64,7 +64,7 @@ exports[`<MessageText /> should render with a custom inner class when one is set
 </div>
 `;
 
-exports[`<MessageText /> should render with a custom wrapper class when one is set 1`] = `
+exports[`<MessageText /> > should render with a custom wrapper class when one is set 1`] = `
 <div>
   <div
     class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"
@@ -128,7 +128,7 @@ exports[`<MessageText /> should render with a custom wrapper class when one is s
 </div>
 `;
 
-exports[`<MessageText /> should render with custom theme identifier in generated css classes when theme is set 1`] = `
+exports[`<MessageText /> > should render with custom theme identifier in generated css classes when theme is set 1`] = `
 <div>
   <div
     class="str-chat__message str-chat__message--regular str-chat__message--received str-chat__message--has-text str-chat__message--other"

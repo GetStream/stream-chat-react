@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { useDebouncedTypingActive } from '../useDebouncedTypingActive';
 
-jest.useFakeTimers();
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 const entry = (id, name = `User ${id}`) => ({
   user: { id, image: undefined, name },
@@ -32,12 +32,12 @@ describe('useDebouncedTypingActive', () => {
     expect(result.current.displayUsers).toHaveLength(1);
 
     act(() => {
-      jest.advanceTimersByTime(1999);
+      vi.advanceTimersByTime(1999);
     });
     expect(result.current.displayUsers).toHaveLength(1);
 
     act(() => {
-      jest.advanceTimersByTime(1);
+      vi.advanceTimersByTime(1);
     });
     expect(result.current.displayUsers).toEqual([]);
   });
@@ -49,12 +49,12 @@ describe('useDebouncedTypingActive', () => {
     );
     rerender({ typingUsers: [] });
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
     });
     rerender({ typingUsers: [entry('1'), entry('2')] });
     expect(result.current.displayUsers).toHaveLength(2);
     act(() => {
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
     });
     expect(result.current.displayUsers).toHaveLength(2);
   });

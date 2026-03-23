@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { PollHeader } from '../PollHeader';
 import { PollProvider, TranslationProvider } from '../../../context';
 import { Poll } from 'stream-chat';

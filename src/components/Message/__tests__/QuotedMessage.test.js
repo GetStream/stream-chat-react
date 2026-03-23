@@ -1,6 +1,4 @@
-import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
-import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
@@ -23,28 +21,26 @@ import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
-
-expect.extend(toHaveNoViolations);
 
 const quotedMessagePreviewTestId = 'quoted-message-preview';
 const quotedMessageTextTestId = 'quoted-message-text';
 const quotedText = 'X';
 const alice = generateUser({ name: 'alice' });
-const jumpToMessageMock = jest.fn();
+const jumpToMessageMock = vi.fn();
 
 async function renderQuotedMessage({
   componentContext,
@@ -57,7 +53,7 @@ async function renderQuotedMessage({
     client,
   } = await initClientWithChannels({ customUser: alice });
   const channelConfig = (customChannel ?? channel).getConfig();
-  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
     <ChatProvider value={{ client: customClient ?? client }}>
@@ -132,7 +128,7 @@ describe('QuotedMessage', () => {
 
   it('uses custom renderText fn if provided', async () => {
     const messageText = nanoid();
-    const fn = jest
+    const fn = vi
       .fn()
       .mockReturnValue(<div data-testid={messageText}>{messageText}</div>);
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`attachment combines scraped & uploaded content should render all uploaded attachments 1`] = `
+exports[`attachment > combines scraped & uploaded content > should render all uploaded attachments 1`] = `
 <div>
   <div
     class="str-chat__attachment-list"
@@ -52,7 +52,7 @@ exports[`attachment combines scraped & uploaded content should render all upload
 </div>
 `;
 
-exports[`attachment combines scraped & uploaded content should render attachments in default order 1`] = `
+exports[`attachment > combines scraped & uploaded content > should render attachments in default order 1`] = `
 <div>
   <div
     class="str-chat__attachment-list"

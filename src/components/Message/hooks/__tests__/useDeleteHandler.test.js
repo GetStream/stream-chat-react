@@ -21,8 +21,8 @@ import { act } from '@testing-library/react';
 let channel;
 let client;
 const testMessage = generateMessage();
-const deleteMessage = jest.fn(() => Promise.resolve(testMessage));
-const updateMessage = jest.fn();
+const deleteMessage = vi.fn(() => Promise.resolve(testMessage));
+const updateMessage = vi.fn();
 
 const ChannelActionContextOverrider = ({ children }) => {
   const context = useChannelActionContext();
@@ -57,7 +57,7 @@ describe('useDeleteHandler custom hook', () => {
     channel = client.channel('messaging', channelData.channel.id);
   });
 
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it('should generate function that handles message deletion', async () => {
     const handleDelete = await renderUseDeleteHandler();

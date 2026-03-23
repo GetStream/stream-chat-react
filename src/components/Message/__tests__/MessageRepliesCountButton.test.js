@@ -1,10 +1,9 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
 import { ChannelStateProvider, TranslationProvider } from '../../../context';
 
-const onClickMock = jest.fn();
+const onClickMock = vi.fn();
 const defaultSingularText = '1 reply';
 const defaultPluralText = '2 replies';
 
@@ -24,7 +23,7 @@ const renderComponent = (props, channelStateCtx) =>
 
 describe('MessageRepliesCountButton', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     cleanup();
   });
 

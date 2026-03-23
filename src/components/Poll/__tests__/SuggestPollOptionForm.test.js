@@ -1,7 +1,6 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { SuggestPollOptionPrompt } from '../PollActions';
 import { ChatProvider, PollProvider, TranslationProvider } from '../../../context';
 import { generatePoll } from '../../../mock-builders';
@@ -24,10 +23,10 @@ const renderComponent = ({ client, poll, props }) =>
   );
 
 describe('SuggestPollOptionPrompt', () => {
-  afterEach(jest.resetAllMocks);
+  afterEach(vi.resetAllMocks);
 
   it('renders with empty input that is updated and submitted', async () => {
-    const createPollOptionSpy = jest
+    const createPollOptionSpy = vi
       .fn()
       .mockResolvedValue({ poll_option: { id: 'new-poll-option-id' } });
     const client = { createPollOption: createPollOptionSpy };

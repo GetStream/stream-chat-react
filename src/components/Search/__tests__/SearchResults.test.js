@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchResults } from '../SearchResults';
@@ -7,9 +6,9 @@ import { useSearchContext } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-jest.mock('../SearchContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
+vi.mock('../SearchContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
 
 const SOURCE_RESULTS_TEST_ID = 'default-source-results';
 const SEARCH_RESULTS_HEADER_TEST_ID = 'default-header';
@@ -46,7 +45,7 @@ describe('SearchResults', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     useSearchContext.mockReturnValue({
       searchController: mockSearchController,

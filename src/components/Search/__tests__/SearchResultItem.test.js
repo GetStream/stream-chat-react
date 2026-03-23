@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 import { SearchController } from 'stream-chat';
 
@@ -24,8 +23,8 @@ import {
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
-const mockSetActiveChannel = jest.fn().mockImplementation();
-const mockSetChannels = jest.fn().mockImplementation();
+const mockSetActiveChannel = vi.fn().mockImplementation();
+const mockSetChannels = vi.fn().mockImplementation();
 const directMessagingChannelType = 'X';
 
 const renderComponent = async ({
@@ -81,7 +80,7 @@ describe('SearchResultItem Components', () => {
   describe('ChannelSearchResultItem', () => {
     const SearchResultItemComponent = ChannelSearchResultItem;
 
-    afterEach(jest.clearAllMocks);
+    afterEach(vi.clearAllMocks);
 
     it('renders channel preview', async () => {
       await renderComponent({
@@ -106,7 +105,7 @@ describe('SearchResultItem Components', () => {
   describe('MessageSearchResultItem', () => {
     const SearchResultItemComponent = MessageSearchResultItem;
 
-    afterEach(jest.clearAllMocks);
+    afterEach(vi.clearAllMocks);
 
     it('renders message preview', async () => {
       await renderComponent({
@@ -159,7 +158,7 @@ describe('SearchResultItem Components', () => {
     const SearchResultItemComponent = UserSearchResultItem;
     const user = generateUser();
 
-    afterEach(jest.clearAllMocks);
+    afterEach(vi.clearAllMocks);
 
     it('renders user avatar and name', async () => {
       await renderComponent({ SearchResultItemComponent, userData: user });

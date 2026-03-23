@@ -6,9 +6,9 @@ import { useOpenThreadHandler } from '../useOpenThreadHandler';
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { generateMessage } from '../../../../mock-builders';
 
-const openThreadMock = jest.fn();
+const openThreadMock = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 function renderUseOpenThreadHandlerHook(
@@ -25,7 +25,7 @@ function renderUseOpenThreadHandlerHook(
 }
 
 describe('useOpenThreadHandler custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should return a function', () => {
     const handleOpenThread = renderUseOpenThreadHandlerHook();
     expect(typeof handleOpenThread).toBe('function');
@@ -39,14 +39,14 @@ describe('useOpenThreadHandler custom hook', () => {
   });
 
   it('should warn user if it is called without a message', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => {});
     const handleOpenThread = renderUseOpenThreadHandlerHook(null);
     handleOpenThread(mouseEventMock);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
 
   it('should warn user if it open thread is not defined in the channel context', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => {});
     const handleOpenThread = renderUseOpenThreadHandlerHook(generateMessage(), null);
     handleOpenThread(mouseEventMock);
     expect(console.warn).toHaveBeenCalledTimes(1);
@@ -54,7 +54,7 @@ describe('useOpenThreadHandler custom hook', () => {
 
   it('should allow user to open a thread with a custom thread handler if one is set', () => {
     const message = generateMessage();
-    const customThreadHandler = jest.fn();
+    const customThreadHandler = vi.fn();
     const handleOpenThread = renderUseOpenThreadHandlerHook(message, customThreadHandler);
     handleOpenThread(mouseEventMock);
     expect(customThreadHandler).toHaveBeenCalledWith(message, mouseEventMock);

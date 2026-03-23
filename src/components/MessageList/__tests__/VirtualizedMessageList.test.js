@@ -1,8 +1,6 @@
 import React, { act } from 'react';
 import { cleanup, render } from '@testing-library/react';
-import * as nanoid from 'nanoid';
-
-import '@testing-library/jest-dom';
+import { nanoid } from 'nanoid';
 
 import {
   generateChannel,
@@ -20,9 +18,9 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-jest.mock('react-virtuoso', () => {
-  const { Virtuoso } = jest.requireActual('react-virtuoso');
-  const { forwardRef } = jest.requireActual('react');
+vi.mock('react-virtuoso', async () => {
+  const { Virtuoso } = await import('react-virtuoso');
+  const { forwardRef } = await import('react');
   return {
     Virtuoso: forwardRef((props, ref) => (
       <Virtuoso
@@ -36,24 +34,29 @@ jest.mock('react-virtuoso', () => {
   };
 });
 
-jest.mock('../../Loading', () => ({
-  LoadingIndicator: jest.fn(() => <div>LoadingIndicator</div>),
+vi.mock('../../Loading', async (importOriginal) => ({
+  ...(await importOriginal()),
+  LoadingIndicator: vi.fn(() => <div>LoadingIndicator</div>),
 }));
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
+
+vi.mock('nanoid', () => ({
+  nanoid: vi.fn(),
+}));
 
 async function createChannel(empty = false) {
   const user1 = generateUser();
@@ -78,11 +81,11 @@ async function createChannel(empty = false) {
 // simple test since Virtuoso heavily relies on document height and jsdom doesn't support it
 describe('VirtualizedMessageList', () => {
   afterEach(cleanup);
-  beforeEach(jest.clearAllMocks);
+  beforeEach(vi.clearAllMocks);
 
   it('should render the list without any message', async () => {
     const { channel, client } = await createChannel(true);
-    jest.spyOn(nanoid, 'nanoid').mockReturnValue('mockedId');
+    vi.mocked(nanoid).mockReturnValue('mockedId');
 
     let result;
     await act(() => {

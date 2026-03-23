@@ -13,9 +13,9 @@ import {
 } from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
-const flagMessage = jest.fn();
+const flagMessage = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 async function renderUseHandleFlagHook(
@@ -44,14 +44,14 @@ async function renderUseHandleFlagHook(
   return result.current;
 }
 describe('useHandleFlag custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should generate function that handles mutes', async () => {
     const handleFlag = await renderUseHandleFlagHook();
     expect(typeof handleFlag).toBe('function');
   });
 
   it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleFlag = await renderUseHandleFlagHook(undefined);
     await handleFlag(mouseEventMock);
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
@@ -59,10 +59,10 @@ describe('useHandleFlag custom hook', () => {
 
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
     const message = generateMessage();
-    const notify = jest.fn();
+    const notify = vi.fn();
     flagMessage.mockImplementationOnce(() => Promise.resolve());
     const messageFlaggedNotification = 'Message flagged!';
-    const getSuccessNotification = jest.fn(() => messageFlaggedNotification);
+    const getSuccessNotification = vi.fn(() => messageFlaggedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
       getSuccessNotification,
       notify,
@@ -74,7 +74,7 @@ describe('useHandleFlag custom hook', () => {
 
   it('should allow to flag a message and notify with default success notification when it is successful', async () => {
     const message = generateMessage();
-    const notify = jest.fn();
+    const notify = vi.fn();
     flagMessage.mockImplementationOnce(() => Promise.resolve());
     const defaultSuccessNotification = 'Message has been successfully flagged';
     const handleFlag = await renderUseHandleFlagHook(message, {
@@ -87,10 +87,10 @@ describe('useHandleFlag custom hook', () => {
 
   it('should allow to flag a message and notify with custom error message when it fails', async () => {
     const message = generateMessage();
-    const notify = jest.fn();
+    const notify = vi.fn();
     flagMessage.mockImplementationOnce(() => Promise.reject());
     const messageFlagFailedNotification = 'Message flagged failed!';
-    const getErrorNotification = jest.fn(() => messageFlagFailedNotification);
+    const getErrorNotification = vi.fn(() => messageFlagFailedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
       getErrorNotification,
       notify,
@@ -102,7 +102,7 @@ describe('useHandleFlag custom hook', () => {
 
   it('should allow to flag a user and notify with default error message when it fails', async () => {
     const message = generateMessage();
-    const notify = jest.fn();
+    const notify = vi.fn();
     flagMessage.mockImplementationOnce(() => Promise.reject());
     const defaultFlagMessageFailedNotification = 'Error adding flag';
     const handleFlag = await renderUseHandleFlagHook(message, {

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Avatar } from '../Avatar';
 
@@ -57,7 +56,7 @@ describe('Avatar', () => {
   });
 
   it('should call onClick prop on user click', () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
 
     const { getByTestId } = render(<Avatar onClick={onClick} size='md' />);
 
@@ -67,7 +66,7 @@ describe('Avatar', () => {
   });
 
   it('should call onMouseOver prop on user hover', () => {
-    const onMouseOver = jest.fn();
+    const onMouseOver = vi.fn();
 
     const { getByTestId } = render(<Avatar onMouseOver={onMouseOver} size='md' />);
 

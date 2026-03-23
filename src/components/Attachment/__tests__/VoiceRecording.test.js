@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import {
   generateMessage,
@@ -11,7 +10,7 @@ import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
 
-jest.mock('../../Notifications', () => ({
+vi.mock('../../Notifications', () => ({
   useNotificationTarget: () => 'channel',
 }));
 
@@ -22,9 +21,9 @@ const attachment = generateVoiceRecordingAttachment();
 
 window.ResizeObserver = ResizeObserverMock;
 
-jest
-  .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: 120 });
+vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
+  width: 120,
+});
 
 const clickPlay = async () => {
   await act(async () => {
@@ -32,8 +31,8 @@ const clickPlay = async () => {
   });
 };
 
-jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
-jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
@@ -58,9 +57,7 @@ describe('VoiceRecording', () => {
   it('differentiates between in thread and in channel audio player', () => {
     const createdAudios = []; //HTMLAudioElement[]
     const RealAudio = window.Audio;
-    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
-      ...args
-    ) {
+    const spy = vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
       const el = new RealAudio(...args);
       createdAudios.push(el);
       return el;
@@ -83,9 +80,7 @@ describe('VoiceRecording', () => {
   it('keeps a single copy of audio player for the same requester', () => {
     const createdAudios = []; //HTMLAudioElement[]
     const RealAudio = window.Audio;
-    const spy = jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(
-      ...args
-    ) {
+    const spy = vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
       const el = new RealAudio(...args);
       createdAudios.push(el);
       return el;
@@ -111,11 +106,11 @@ describe('VoiceRecording', () => {
 
 describe('VoiceRecordingPlayer', () => {
   beforeAll(() => {
-    jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-    jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
-    jest.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+    vi.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });
-  afterAll(jest.clearAllMocks);
+  afterAll(vi.clearAllMocks);
 
   it('should not render the component if asset_url is missing', () => {
     const { container } = renderComponent({
@@ -186,7 +181,7 @@ describe('VoiceRecordingPlayer', () => {
     const createdAudios = []; // HTMLAudioElement[]
 
     const RealAudio = window.Audio;
-    const constructorSpy = jest
+    const constructorSpy = vi
       .spyOn(window, 'Audio')
       .mockImplementation(function AudioMock(...args) {
         const el = new RealAudio(...args);
@@ -199,8 +194,8 @@ describe('VoiceRecordingPlayer', () => {
 
     // Find the actual playing audio element (last created)
     const actualPlayingAudio = createdAudios[createdAudios.length - 1];
-    jest.spyOn(actualPlayingAudio, 'duration', 'get').mockReturnValue(100);
-    jest.spyOn(actualPlayingAudio, 'currentTime', 'get').mockReturnValue(50);
+    vi.spyOn(actualPlayingAudio, 'duration', 'get').mockReturnValue(100);
+    vi.spyOn(actualPlayingAudio, 'currentTime', 'get').mockReturnValue(50);
     fireEvent.timeUpdate(actualPlayingAudio);
 
     await waitFor(() => {

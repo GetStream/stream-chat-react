@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`LoadingIndicator should render with default props 1`] = `
+exports[`LoadingIndicator > should render with default props 1`] = `
 <div>
   <svg
     class="str-chat__icon str-chat__icon--loading-circle str-chat__loading-indicator"

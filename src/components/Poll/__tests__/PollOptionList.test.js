@@ -1,7 +1,6 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { PollOptionList } from '../PollOptionList';
 import {
   ChannelStateProvider,
@@ -79,7 +78,7 @@ describe('PollOptionList', () => {
     );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders empty container if no options', () => {
@@ -169,8 +168,8 @@ describe('PollOptionList', () => {
   it('renders non-votable poll option selectors if poll is closed and does nothing on option click', () => {
     const pollData = generatePoll({ is_closed: true });
     const poll = new Poll({ client: {}, poll: pollData });
-    const castVoteSpy = jest.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = jest.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
     const { container } = renderComponent({ poll });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     const options = container.querySelectorAll(OPTION_SELECTOR);
@@ -191,8 +190,8 @@ describe('PollOptionList', () => {
   it('renders non-votable poll option selectors if missing voting permission and does nothing on option click', () => {
     const pollData = generatePoll();
     const poll = new Poll({ client: {}, poll: pollData });
-    const castVoteSpy = jest.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = jest.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
     const { container } = renderComponent({
       channelStateContext: { channelCapabilities: { 'cast-poll-vote': false } },
       poll,
@@ -246,8 +245,8 @@ describe('PollOptionList', () => {
       client: {},
       poll: pollWithNoVotes,
     });
-    const castVoteSpy = jest.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = jest.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
     const { container } = renderComponent({ poll });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
 

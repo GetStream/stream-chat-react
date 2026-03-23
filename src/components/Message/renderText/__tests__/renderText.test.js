@@ -10,7 +10,6 @@ import {
   remarkIgnoreMarkdown,
 } from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
-import '@testing-library/jest-dom';
 
 const strikeThroughText = '~~xxx~~';
 

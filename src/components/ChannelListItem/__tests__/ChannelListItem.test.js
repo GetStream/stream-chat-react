@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { ChannelAvatar } from '../../Avatar';
 import { ChannelListItem } from '../ChannelListItem';
@@ -80,7 +79,7 @@ describe('ChannelPreview', () => {
         value={{
           channel: props.activeChannel,
           client,
-          setActiveChannel: () => jest.fn(),
+          setActiveChannel: () => vi.fn(),
         }}
       >
         <TranslationProvider value={{ t: (key) => key, userLanguage: 'en' }}>
@@ -137,8 +136,7 @@ describe('ChannelPreview', () => {
   it('should refresh unread counts on forced update', async () => {
     const originalUnreadCount = 100;
     const newUnreadCount = 200;
-    jest
-      .spyOn(c0, 'countUnread')
+    vi.spyOn(c0, 'countUnread')
       .mockImplementation()
       .mockImplementationOnce(() => originalUnreadCount)
       .mockImplementationOnce(() => newUnreadCount);
@@ -270,7 +268,7 @@ describe('ChannelPreview', () => {
 
     it("should reflect client's unreadCount in case of active channel", async () => {
       let unreadCount = 0;
-      const countUnreadSpy = jest.spyOn(c0, 'countUnread');
+      const countUnreadSpy = vi.spyOn(c0, 'countUnread');
       countUnreadSpy.mockReturnValueOnce(unreadCount);
       const { getByTestId } = renderComponent(
         {
@@ -293,7 +291,7 @@ describe('ChannelPreview', () => {
     });
 
     it('should set unreadCount to 0, in case of muted channel', async () => {
-      const channelMuteSpy = jest
+      const channelMuteSpy = vi
         .spyOn(c0, 'muteStatus')
         .mockImplementation(() => ({ muted: true }));
 

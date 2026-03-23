@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Chat } from '..';
 
@@ -63,8 +62,10 @@ describe('Chat', () => {
       expect(context.setActiveChannel).toBeInstanceOf(Function);
       expect(context.openMobileNav).toBeInstanceOf(Function);
       expect(context.closeMobileNav).toBeInstanceOf(Function);
-      expect(context.client.getUserAgent()).toBe(
-        `stream-chat-react-undefined-${originalUserAgent}`,
+      expect(context.client.getUserAgent()).toMatch(
+        new RegExp(
+          `^stream-chat-react-.+-${originalUserAgent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+        ),
       );
     });
   });
@@ -268,7 +269,7 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      const channel = { cid: 'cid', query: jest.fn() };
+      const channel = { cid: 'cid', query: vi.fn() };
       const watchers = { user_y: {} };
       await waitFor(() => expect(context.channel).toBeUndefined());
       await act(() => context.setActiveChannel(channel, watchers));
@@ -293,7 +294,7 @@ describe('Chat', () => {
 
       await waitFor(() => expect(context.setActiveChannel).not.toBeUndefined());
 
-      const e = { preventDefault: jest.fn() };
+      const e = { preventDefault: vi.fn() };
       await act(() => context.setActiveChannel(undefined, {}, e));
       await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
     });

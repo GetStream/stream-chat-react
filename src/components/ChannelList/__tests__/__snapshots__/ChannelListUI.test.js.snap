@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ChannelListMessenger by default, children should be rendered 1`] = `
+exports[`ChannelListMessenger > by default, children should be rendered 1`] = `
 <div>
   <div
     class="str-chat__channel-list-inner"
@@ -21,9 +21,9 @@ exports[`ChannelListMessenger by default, children should be rendered 1`] = `
 </div>
 `;
 
-exports[`ChannelListMessenger when \`error\` prop is true, \`LoadingErrorIndicator\` should be rendered 1`] = `<div />`;
+exports[`ChannelListMessenger > when \`error\` prop is true, \`LoadingErrorIndicator\` should be rendered 1`] = `<div />`;
 
-exports[`ChannelListMessenger when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
+exports[`ChannelListMessenger > when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
 <div>
   <div
     class="str-chat__channel-list-inner"

@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import { cleanup, render, screen } from '@testing-library/react';
 
 import { ThreadStart } from '../ThreadStart';
@@ -15,14 +14,14 @@ import { generateMessage, getTestClientWithUser } from '../../../mock-builders';
 let client;
 
 const mockedChannel = {
-  off: jest.fn(),
+  off: vi.fn(),
   state: {
     members: {},
   },
 };
 
 const i18nMock = {
-  t: jest.fn((key, props) => {
+  t: vi.fn((key, props) => {
     if (key === 'replyCount' && props.count === 1) return '1 reply';
     else if (key === 'replyCount' && props.count > 1) return '2 replies';
     return key;

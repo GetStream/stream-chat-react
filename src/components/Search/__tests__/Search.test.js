@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { Search } from '../Search';
@@ -11,9 +10,9 @@ import {
 } from '../../../context';
 import { useStateStore } from '../../../store';
 
-// jest.mock('../SearchContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
+// vi.mock('../SearchContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
 
 const SEARCH_TEST_ID = 'search';
 const SEARCH_BAR_TEST_ID = 'search-bar';
@@ -39,10 +38,10 @@ describe('Search', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     useComponentContext.mockReturnValue({
-      SearchResultsHeader: jest.fn(),
+      SearchResultsHeader: vi.fn(),
     });
 
     useTranslationContext.mockReturnValue({
@@ -107,11 +106,10 @@ describe('Search', () => {
     );
   });
 
-  it('provides search context to children', () => {
+  it('provides search context to children', async () => {
+    const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(
-        jest.requireActual('../SearchContext').SearchContext,
-      );
+      const context = React.useContext(SearchContext);
       return <div data-testid='context-consumer'>{context.placeholder}</div>;
     };
 
@@ -131,7 +129,7 @@ describe('Search', () => {
     expect(screen.getByTestId('context-consumer')).toHaveTextContent('Search');
   });
 
-  it('passes all props through context', () => {
+  it('passes all props through context', async () => {
     const customProps = {
       ...defaultProps,
       disabled: true,
@@ -139,10 +137,9 @@ describe('Search', () => {
       placeholder: 'Custom placeholder',
     };
 
+    const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(
-        jest.requireActual('../SearchContext').SearchContext,
-      );
+      const context = React.useContext(SearchContext);
       return (
         <div data-testid='context-consumer'>
           <div data-testid='disabled'>{String(context.disabled)}</div>
@@ -194,14 +191,13 @@ describe('Search', () => {
     expect(screen.getByTestId(SEARCH_TEST_ID)).toHaveClass('str-chat__search--active');
   });
 
-  it('uses default directMessagingChannelType when not provided', () => {
+  it('uses default directMessagingChannelType when not provided', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { directMessagingChannelType, ...propsWithoutChannelType } = defaultProps;
 
+    const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(
-        jest.requireActual('../SearchContext').SearchContext,
-      );
+      const context = React.useContext(SearchContext);
       return <div data-testid='channel-type'>{context.directMessagingChannelType}</div>;
     };
     const SearchBar = () => <ContextConsumer />;

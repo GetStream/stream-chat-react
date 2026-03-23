@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { nanoid } from 'nanoid';
@@ -23,7 +22,7 @@ describe('AttachmentActions', () => {
   it('should render AttachmentActions component', () => {
     const { container } = render(
       getComponent({
-        actionHandler: jest.fn(),
+        actionHandler: vi.fn(),
         actions,
         id: nanoid(),
       }),
@@ -31,7 +30,7 @@ describe('AttachmentActions', () => {
     expect(container).toMatchSnapshot();
   });
   it('should call actionHandler on click', async () => {
-    const actionHandler = jest.fn();
+    const actionHandler = vi.fn();
     const { getByTestId } = render(
       getComponent({
         actionHandler,

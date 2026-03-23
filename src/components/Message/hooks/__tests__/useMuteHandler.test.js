@@ -14,10 +14,10 @@ import {
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
-const muteUser = jest.fn();
-const unmuteUser = jest.fn();
+const muteUser = vi.fn();
+const unmuteUser = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 async function renderUseHandleMuteHook(
@@ -50,14 +50,14 @@ async function renderUseHandleMuteHook(
 }
 
 describe('useHandleMute custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should generate function that handles mutes', async () => {
     const handleMute = await renderUseHandleMuteHook();
     expect(typeof handleMute).toBe('function');
   });
 
   it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleMute = await renderUseHandleMuteHook(undefined);
     await handleMute(mouseEventMock);
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseMuteHandlerParamsWarning);
@@ -65,9 +65,9 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     const userMutedNotification = 'User muted!';
-    const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
+    const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
       getSuccessNotification: getMuteUserSuccessNotification,
       notify,
@@ -81,7 +81,7 @@ describe('useHandleMute custom hook', () => {
     const message = generateMessage({ user: bob });
     // The key for the default success message, defined in the implementation
     const defaultSuccessMessage = '{{ user }} has been muted';
-    const notify = jest.fn();
+    const notify = vi.fn();
     const handleMute = await renderUseHandleMuteHook(message, { notify });
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -90,10 +90,10 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     muteUser.mockImplementationOnce(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
-    const getErrorNotification = jest.fn(() => userMutedFailNotification);
+    const getErrorNotification = vi.fn(() => userMutedFailNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
       getErrorNotification,
       notify,
@@ -105,7 +105,7 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     muteUser.mockImplementationOnce(() => Promise.reject());
     // Defined in the implementation
     const defaultFailNotification = 'Error muting a user ...';
@@ -119,10 +119,10 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     unmuteUser.mockImplementationOnce(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
-    const getSuccessNotification = jest.fn(() => userUnmutedNotification);
+    const getSuccessNotification = vi.fn(() => userUnmutedNotification);
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
@@ -138,7 +138,7 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     unmuteUser.mockImplementationOnce(() => Promise.resolve());
     // Defined in the implementation
     const defaultSuccessNotification = '{{ user }} has been unmuted';
@@ -156,10 +156,10 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to unmute a user and notify with custom error message when it fails', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     unmuteUser.mockImplementationOnce(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
-    const getErrorNotification = jest.fn(() => userMutedFailNotification);
+    const getErrorNotification = vi.fn(() => userMutedFailNotification);
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
@@ -176,7 +176,7 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to unmute a user and notify with default error message when it fails', async () => {
     const message = generateMessage({ user: bob });
-    const notify = jest.fn();
+    const notify = vi.fn();
     unmuteUser.mockImplementationOnce(() => Promise.reject());
     // Defined in the implementation
     const defaultFailNotification = 'Error unmuting a user ...';

@@ -24,7 +24,7 @@ describe('getChannel', () => {
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
   });
 
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it('throws an error if neither channel nor channel type are provided', () =>
     expect(getChannel({ client, id: 'id', members: ['members'] })).rejects.toThrow(
@@ -54,14 +54,14 @@ describe('getChannel', () => {
 
   it('calls channel.watch for a given channel type and id if channel query not already in progress', async () => {
     const channel = client.channel('messaging', channelData.channel.id);
-    jest.spyOn(channel, 'watch').mockResolvedValueOnce();
+    vi.spyOn(channel, 'watch').mockResolvedValueOnce();
     await getChannel({ client, id: channel.id, type: channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel type and id if channel query already in progress', () => {
     const channel = client.channel('messaging', channelData.channel.id);
-    jest.spyOn(channel, 'watch').mockResolvedValue();
+    vi.spyOn(channel, 'watch').mockResolvedValue();
     getChannel({ client, id: channel.id, type: channel.type });
     getChannel({ client, id: channel.id, type: channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
@@ -69,14 +69,14 @@ describe('getChannel', () => {
 
   it('calls channel.watch for a given channel type and members array if channel query not already in progress', async () => {
     const channel = client.channel('messaging', { members: memberIds });
-    jest.spyOn(channel, 'watch').mockResolvedValueOnce();
+    vi.spyOn(channel, 'watch').mockResolvedValueOnce();
     await getChannel({ client, members: memberIds, type: channelData.channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel type and members array if channel query already in progress', () => {
     const channel = client.channel('messaging', { members: memberIds });
-    jest.spyOn(channel, 'watch').mockResolvedValue();
+    vi.spyOn(channel, 'watch').mockResolvedValue();
     getChannel({ client, members: memberIds, type: channelData.channel.type });
     getChannel({ client, members: memberIds, type: channelData.channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
@@ -84,14 +84,14 @@ describe('getChannel', () => {
 
   it('calls channel.watch for a given channel object with id and type if channel query not already in progress', async () => {
     const channel = client.channel('messaging', 'id');
-    jest.spyOn(channel, 'watch').mockResolvedValueOnce();
+    vi.spyOn(channel, 'watch').mockResolvedValueOnce();
     await getChannel({ channel, client });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel object with id and type if channel query already in progress', () => {
     const channel = client.channel('messaging', 'id');
-    jest.spyOn(channel, 'watch').mockResolvedValue();
+    vi.spyOn(channel, 'watch').mockResolvedValue();
     getChannel({ channel, client });
     getChannel({ channel, client });
     expect(channel.watch).toHaveBeenCalledTimes(1);
@@ -99,14 +99,14 @@ describe('getChannel', () => {
 
   it('calls channel.watch for a given channel object with type and members array if channel query not already in progress', async () => {
     const channel = client.channel('messaging', undefined);
-    jest.spyOn(channel, 'watch').mockResolvedValueOnce();
+    vi.spyOn(channel, 'watch').mockResolvedValueOnce();
     await getChannel({ channel, client, members: memberIds });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel object with type and members array if channel query already in progress', () => {
     const channel = client.channel('messaging', undefined);
-    jest.spyOn(channel, 'watch').mockResolvedValue();
+    vi.spyOn(channel, 'watch').mockResolvedValue();
     getChannel({ channel, client, members: memberIds });
     getChannel({ channel, client, members: memberIds });
     expect(channel.watch).toHaveBeenCalledTimes(1);

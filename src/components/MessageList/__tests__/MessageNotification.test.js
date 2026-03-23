@@ -1,9 +1,6 @@
 import React from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import { NewMessageNotification } from '../NewMessageNotification';
 import { Chat } from '../../Chat';

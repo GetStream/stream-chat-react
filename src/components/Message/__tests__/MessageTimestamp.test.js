@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import { act, cleanup, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import { MessageTimestamp } from '../MessageTimestamp';

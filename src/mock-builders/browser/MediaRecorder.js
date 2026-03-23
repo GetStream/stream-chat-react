@@ -4,16 +4,16 @@ export class MediaRecorderMock extends EventEmitterMock {
   constructor() {
     super();
     this.state = 'inactive';
-    this.start = jest.fn(() => {
+    this.start = vi.fn(() => {
       this.state = 'recording';
     });
-    this.pause = jest.fn(() => {
+    this.pause = vi.fn(() => {
       this.state = 'paused';
     });
-    this.resume = jest.fn(() => {
+    this.resume = vi.fn(() => {
       this.state = 'recording';
     });
-    this.stop = jest.fn(() => {
+    this.stop = vi.fn(() => {
       this.state = 'inactive';
       // When enabled, simulate the browser behavior where stop triggers dataavailable.
       // Off by default to not break unit tests that manually control the data flow.
@@ -28,9 +28,9 @@ export class MediaRecorderMock extends EventEmitterMock {
         });
       }
     });
-    this.requestData = jest.fn();
+    this.requestData = vi.fn();
   }
 
   static autoEmitDataOnStop = false;
-  static isTypeSupported = jest.fn().mockReturnValue(true);
+  static isTypeSupported = vi.fn().mockReturnValue(true);
 }

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`File should render File component 1`] = `
+exports[`File > should render File component 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-file--item"

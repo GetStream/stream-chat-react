@@ -1,10 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import { MessageReactions } from '../MessageReactions';
 import { MessageProvider } from '../../../context/MessageContext';
@@ -40,10 +37,10 @@ const renderComponent = ({ reaction_groups = {}, ...props } = {}) => {
 };
 
 describe('MessageReactions', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   // disable warnings (unreachable context)
-  jest.spyOn(console, 'warn').mockImplementation(null);
+  vi.spyOn(console, 'warn').mockImplementation(null);
 
   it('should render the total reaction count in clustered mode', async () => {
     const { container } = renderComponent({

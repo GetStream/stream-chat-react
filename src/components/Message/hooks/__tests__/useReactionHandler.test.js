@@ -14,11 +14,11 @@ import {
   getTestClientWithUser,
 } from '../../../../mock-builders';
 
-const getConfig = jest.fn();
-const sendAction = jest.fn();
-const sendReaction = jest.fn();
-const deleteReaction = jest.fn();
-const updateMessage = jest.fn();
+const getConfig = vi.fn();
+const sendAction = vi.fn();
+const sendReaction = vi.fn();
+const deleteReaction = vi.fn();
+const updateMessage = vi.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
@@ -59,21 +59,21 @@ async function renderUseReactionHandlerHook(params = {}) {
 }
 
 describe('useReactionHandler custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should generate function that handles reactions', async () => {
     const handleReaction = await renderUseReactionHandlerHook();
     expect(typeof handleReaction).toBe('function');
   });
 
   it('should warn user if the hooks was not initialized with a defined message', async () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleReaction = await renderUseReactionHandlerHook({ message: null });
     await handleReaction();
     expect(console.warn).toHaveBeenCalledWith(reactionHandlerWarning);
   });
 
   it("should warn if message's own reactions contain a reaction from a different user then the currently active one", async () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
     const handleReaction = await renderUseReactionHandlerHook({ message });

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { cleanup, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 
@@ -9,7 +8,7 @@ afterEach(cleanup);
 
 describe('EmptyStateIndicator', () => {
   it('should render with default props', () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'error').mockImplementationOnce(() => null);
     const { container } = render(<EmptyStateIndicator />);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -50,7 +49,7 @@ describe('EmptyStateIndicator', () => {
   });
 
   it('should display correct text when no listType is provided', () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'error').mockImplementationOnce(() => null);
     render(<EmptyStateIndicator />);
     expect(screen.getByText('No items exist')).toBeInTheDocument();
   });

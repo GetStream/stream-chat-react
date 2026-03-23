@@ -1,8 +1,5 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
-expect.extend(toHaveNoViolations);
 
 import { ReactionSelector } from '../ReactionSelector';
 import { defaultReactionOptions } from '../reactionOptions';
@@ -13,7 +10,7 @@ import { DialogManagerProvider } from '../../../context';
 
 import { generateMessage, generateReaction } from '../../../mock-builders';
 
-const handleReactionMock = jest.fn();
+const handleReactionMock = vi.fn();
 
 const renderComponent = ({ reactionOptions, ...props } = {}) =>
   render(
@@ -30,7 +27,7 @@ const renderComponent = ({ reactionOptions, ...props } = {}) =>
 
 describe('ReactionSelector', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render each of the default quick reaction options as buttons', () => {
@@ -43,8 +40,8 @@ describe('ReactionSelector', () => {
 
   it('should render each of reactionOptions if specified as an array (legacy format)', () => {
     const reactionOptions = [
-      { Component: jest.fn(() => <span>test1</span>), type: 'test1' },
-      { Component: jest.fn(() => <span>test2</span>), type: 'test2' },
+      { Component: vi.fn(() => <span>test1</span>), type: 'test1' },
+      { Component: vi.fn(() => <span>test2</span>), type: 'test2' },
     ];
     const { getAllByTestId } = renderComponent({ reactionOptions });
 

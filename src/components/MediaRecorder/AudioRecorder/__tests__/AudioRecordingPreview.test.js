@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import '@testing-library/jest-dom';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AudioRecordingPlayback } from '../AudioRecordingPlayback';
 import { useAudioPlayer, WithAudioPlayback } from '../../../AudioPlayback';
@@ -27,39 +26,40 @@ const defaultProps = {
   waveformData: [0.1, 0.2, 0.3, 0.4, 0.5],
 };
 
-const addErrorSpy = jest.fn();
+const addErrorSpy = vi.fn();
 const mockClient = { notifications: { addError: addErrorSpy } };
 const tSpy = (s) => s;
 
-jest.mock('../../../../context', () => ({
+vi.mock('../../../../context', () => ({
   useChatContext: () => ({ client: mockClient }),
   useTranslationContext: () => ({ t: tSpy }),
 }));
 
-jest.mock('../../../Notifications', () => ({
-  ...jest.requireActual('../../../Notifications'),
+vi.mock('../../../Notifications', async (importOriginal) => ({
+  ...(await importOriginal()),
   useNotificationTarget: () => 'channel',
 }));
 
 const createdAudios = []; // HTMLAudioElement[]
 
 const RealAudio = window.Audio;
-jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
+vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
   const el = new RealAudio(...args);
   createdAudios.push(el);
   return el;
 });
 
-jest.spyOn(console, 'warn').mockImplementation(() => {});
-jest
-  .spyOn(window.HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: defaultProps.waveformData.length, x: 0 });
-jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
-jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
-jest
-  .spyOn(window.HTMLMediaElement.prototype, 'duration', 'get')
-  .mockReturnValue(defaultProps.durationSeconds);
+vi.spyOn(console, 'warn').mockImplementation(() => {});
+vi.spyOn(window.HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
+  width: defaultProps.waveformData.length,
+  x: 0,
+});
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(
+  defaultProps.durationSeconds,
+);
 
 class PointerEventMock extends Event {
   constructor(type, { overrides, ...opts }) {
@@ -95,7 +95,7 @@ const renderComponent = ({ getPlayer = () => null, ...props } = {}) => {
 describe('AudioRecordingPlayback', () => {
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     createdAudios.length = 0;
   });
 
@@ -106,7 +106,7 @@ describe('AudioRecordingPlayback', () => {
 
   it('toggles the playback', async () => {
     const { container } = renderComponent();
-    const audioPausedMock = jest.spyOn(HTMLAudioElement.prototype, 'paused', 'get');
+    const audioPausedMock = vi.spyOn(HTMLAudioElement.prototype, 'paused', 'get');
 
     expect(container.querySelector(`.${PLAY_ICON_CLASS}`)).toBeInTheDocument();
     await togglePlay();
@@ -145,7 +145,7 @@ describe('AudioRecordingPlayback', () => {
       });
     });
     // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
-    jest.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
+    vi.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));
     });
@@ -175,7 +175,7 @@ describe('AudioRecordingPlayback', () => {
       });
     });
     // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
-    jest.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
+    vi.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));
     });

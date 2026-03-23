@@ -11,7 +11,6 @@ import React from 'react';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import '@testing-library/jest-dom';
 import { LinkPreviewStatus } from 'stream-chat';
 import { LinkPreviewCard, LinkPreviewList } from '../LinkPreviewList';
 
@@ -69,7 +68,7 @@ const setup = async () => {
 describe('LinkPreviewList', () => {
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const previews = Array.from({ length: 4 })
@@ -215,7 +214,7 @@ describe('LinPreviewCard', () => {
   });
   it('allows to dismiss a preview', async () => {
     const { channel, client } = await setup();
-    const dismissPreviewMock = jest.spyOn(
+    const dismissPreviewMock = vi.spyOn(
       channel.messageComposer.linkPreviewsManager,
       'dismissPreview',
     );

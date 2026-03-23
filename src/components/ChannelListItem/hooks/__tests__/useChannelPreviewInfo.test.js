@@ -51,7 +51,7 @@ const createWrapper = (client) =>
 describe('useChannelPreviewInfo', () => {
   describe('without channel', () => {
     it('returns undefined displayTitle and displayImage, empty groupChannelDisplayInfo', () => {
-      const client = { off: jest.fn(), on: jest.fn() };
+      const client = { off: vi.fn(), on: vi.fn() };
       const { result } = renderHook(() => useChannelPreviewInfo({}), {
         wrapper: createWrapper(client),
       });
@@ -161,7 +161,7 @@ describe('useChannelPreviewInfo', () => {
         channel: { image: imageUrl },
       });
 
-      const onSpy = jest.spyOn(client, 'on');
+      const onSpy = vi.spyOn(client, 'on');
 
       const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),
@@ -187,7 +187,7 @@ describe('useChannelPreviewInfo', () => {
         channel: { image: 'https://channel.jpg' },
       });
 
-      const onSpy = jest.spyOn(client, 'on');
+      const onSpy = vi.spyOn(client, 'on');
 
       renderHook(
         () => useChannelPreviewInfo({ channel, overrideImage: 'https://override.jpg' }),
@@ -207,8 +207,8 @@ describe('useChannelPreviewInfo', () => {
     it('unsubscribes from user.updated on unmount', async () => {
       const { channel, client } = await getClientAndChannel();
 
-      const onSpy = jest.spyOn(client, 'on');
-      const offSpy = jest.spyOn(client, 'off');
+      const onSpy = vi.spyOn(client, 'on');
+      const offSpy = vi.spyOn(client, 'off');
 
       const { unmount } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),

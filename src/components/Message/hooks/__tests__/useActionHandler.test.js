@@ -14,11 +14,11 @@ import {
 } from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
-const sendAction = jest.fn();
-const removeMessage = jest.fn();
-const updateMessage = jest.fn();
+const sendAction = vi.fn();
+const removeMessage = vi.fn();
+const updateMessage = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 async function renderUseHandleActionHook(message = generateMessage()) {
@@ -40,14 +40,14 @@ async function renderUseHandleActionHook(message = generateMessage()) {
 }
 
 describe('useHandleAction custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should return function that handles actions', async () => {
     const handleAction = await renderUseHandleActionHook();
     expect(typeof handleAction).toBe('function');
   });
 
   it('should warn user if the hooks was not initialized with a defined message', async () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleAction = await renderUseHandleActionHook(null);
     await handleAction('action', 'value', mouseEventMock);
     expect(console.warn).toHaveBeenCalledWith(handleActionWarning);

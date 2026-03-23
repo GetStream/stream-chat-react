@@ -1,10 +1,9 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { InfiniteScroll } from '../';
 
-const loadPreviousPage = jest.fn().mockImplementation(() => Promise.resolve());
+const loadPreviousPage = vi.fn().mockImplementation(() => Promise.resolve());
 
 // Note: testing actual infinite scroll behavior is very tricky / pointless because Jest does not
 // really implement offsetHeight / offsetTop / offsetParent etc. This means we'd have to mock basically everything,
@@ -12,15 +11,15 @@ const loadPreviousPage = jest.fn().mockImplementation(() => Promise.resolve());
 
 describe('InfiniteScroll', () => {
   // not sure if there is a more 'narrow' way of capturing event listeners being added
-  const divAddEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
+  const divAddEventListenerSpy = vi.spyOn(EventTarget.prototype, 'addEventListener');
 
-  const divRemoveEventListenerSpy = jest.spyOn(
-    HTMLDivElement.prototype,
-    'addEventListener',
+  const divRemoveEventListenerSpy = vi.spyOn(
+    EventTarget.prototype,
+    'removeEventListener',
   );
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const renderComponent = (props) => {
@@ -76,9 +75,11 @@ describe('InfiniteScroll', () => {
         expect.any(Function),
         useCapture,
       );
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function), {
-        passive: false,
-      });
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        'wheel',
+        expect.any(Function),
+        useCapture,
+      );
       expect(removeEventListenerSpy).toHaveBeenCalledWith(
         'resize',
         expect.any(Function),
@@ -93,9 +94,9 @@ describe('InfiniteScroll', () => {
   ])(
     'deprecates %s and %s in favor of %s and %s',
     (deprecatedFlag, deprecatedLoader, newFlag, newLoader) => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
-      const oldLoaderSpy = jest.fn();
-      const newLoaderSpy = jest.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
+      const oldLoaderSpy = vi.fn();
+      const newLoaderSpy = vi.fn();
 
       const { scrollParent } = renderComponent({
         [deprecatedFlag]: false,

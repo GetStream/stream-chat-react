@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`VirtualizedMessageList should render the list without any message 1`] = `
+exports[`VirtualizedMessageList > should render the list without any message 1`] = `
 <div>
   <div
     class="str-chat messaging light str-chat__channel"

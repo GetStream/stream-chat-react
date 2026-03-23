@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchSourceResultList } from '../SearchResults';
@@ -7,10 +6,10 @@ import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-jest.mock('../SearchSourceResultsContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
-jest.mock('../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator', () => {
+vi.mock('../SearchSourceResultsContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
+vi.mock('../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator', () => {
   const InfiniteScrollPaginator = ({
     children,
     loadNextDebounceMs,
@@ -40,7 +39,7 @@ describe('SearchSourceResultList', () => {
   ];
 
   const mockSearchSource = {
-    search: jest.fn(),
+    search: vi.fn(),
     state: {},
     type: 'users',
   };
@@ -58,7 +57,7 @@ describe('SearchSourceResultList', () => {
   const MockFooter = () => <div data-testid='mock-footer'>Footer</div>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     useSearchSourceResultsContext.mockReturnValue({
       searchSource: mockSearchSource,

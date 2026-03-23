@@ -55,12 +55,12 @@ export const initChannelFromData = async ({
     mockedChannelData.channel.id,
   );
   await channel.watch();
-  jest
-    .spyOn(channel, 'getConfig')
-    .mockImplementation(() => mockedChannelData.channel.config);
-  jest
-    .spyOn(channel, 'getDraft')
-    .mockImplementation(() => generateMessageDraft({ channel_cid: channel.cid }));
+  vi.spyOn(channel, 'getConfig').mockImplementation(
+    () => mockedChannelData.channel.config,
+  );
+  vi.spyOn(channel, 'getDraft').mockImplementation(() =>
+    generateMessageDraft({ channel_cid: channel.cid }),
+  );
   return channel;
 };
 

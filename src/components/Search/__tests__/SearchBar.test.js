@@ -1,28 +1,28 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { SearchBar } from '../SearchBar';
 import { useSearchContext } from '../SearchContext';
+import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 // Mock the hooks
-jest.mock('../SearchContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
-jest.mock('../hooks', () => ({
-  useSearchQueriesInProgress: jest.fn().mockReturnValue([]),
+vi.mock('../SearchContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
+vi.mock('../hooks', () => ({
+  useSearchQueriesInProgress: vi.fn().mockReturnValue([]),
 }));
 
 const INPUT_TEST_ID = 'search-input';
 
 describe('SearchBar', () => {
   const mockSearchController = {
-    activate: jest.fn(),
-    clear: jest.fn(),
-    exit: jest.fn(),
-    search: jest.fn(),
+    activate: vi.fn(),
+    clear: vi.fn(),
+    exit: vi.fn(),
+    search: vi.fn(),
     state: { value: { isActive: false, searchQuery: '' } },
   };
 
@@ -35,7 +35,7 @@ describe('SearchBar', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useSearchContext.mockReturnValue(defaultProps);
     useTranslationContext.mockReturnValue({ t: (key) => key });
     useStateStore.mockReturnValue({
@@ -185,7 +185,7 @@ describe('SearchBar', () => {
     const { rerender } = render(<SearchBar />);
 
     // Mock queries in progress
-    jest.requireMock('../hooks').useSearchQueriesInProgress.mockReturnValue(['users']);
+    vi.mocked(useSearchQueriesInProgress).mockReturnValue(['users']);
 
     useStateStore.mockReturnValue({
       input: null,

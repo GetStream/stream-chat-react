@@ -1,13 +1,12 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchSourceResults } from '../SearchResults';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-jest.mock('../../../context');
-jest.mock('../../../store');
+vi.mock('../../../context');
+vi.mock('../../../store');
 
 describe('SearchSourceResults', () => {
   const mockSearchSource = {
@@ -28,7 +27,7 @@ describe('SearchSourceResults', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     useComponentContext.mockReturnValue({
       SearchSourceResultList: DefaultSearchSourceResultList,
@@ -128,11 +127,12 @@ describe('SearchSourceResults', () => {
     expect(screen.queryByTestId('custom-empty')).not.toBeInTheDocument();
   });
 
-  it('provides searchSource context to children', () => {
+  it('provides searchSource context to children', async () => {
+    const { SearchSourceResultsContext } = await vi.importActual(
+      '../SearchSourceResultsContext',
+    );
     const ContextConsumer = () => {
-      const context = React.useContext(
-        jest.requireActual('../SearchSourceResultsContext').SearchSourceResultsContext,
-      );
+      const context = React.useContext(SearchSourceResultsContext);
       return <div data-testid='context-consumer'>{context.searchSource.type}</div>;
     };
 

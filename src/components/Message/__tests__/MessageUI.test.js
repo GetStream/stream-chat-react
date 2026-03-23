@@ -1,9 +1,7 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
@@ -37,43 +35,41 @@ import {
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
 
-expect.extend(toHaveNoViolations);
-
 Dayjs.extend(calendar);
 
-jest.mock('../MessageText', () => ({
-  MessageText: jest.fn(() => <div data-testid='mocked-message-text' />),
+vi.mock('../MessageText', () => ({
+  MessageText: vi.fn(() => <div data-testid='mocked-message-text' />),
 }));
-jest.mock('../../Avatar', () => ({
-  ...jest.requireActual('../../Avatar'),
-  Avatar: jest.fn(() => <div data-testid='mocked-avatar' />),
+vi.mock('../../Avatar', async (importOriginal) => ({
+  ...(await importOriginal()),
+  Avatar: vi.fn(() => <div data-testid='mocked-avatar' />),
 }));
-jest.mock('../../Modal', () => ({
-  ...jest.requireActual('../../Modal'),
-  GlobalModal: jest.fn((props) => <div data-testid='mocked-modal'>{props.children}</div>),
+vi.mock('../../Modal', async (importOriginal) => ({
+  ...(await importOriginal()),
+  GlobalModal: vi.fn((props) => <div data-testid='mocked-modal'>{props.children}</div>),
 }));
 
 const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
-const openThreadMock = jest.fn();
-const retrySendMessageMock = jest.fn();
-const removeMessageMock = jest.fn();
+const openThreadMock = vi.fn();
+const retrySendMessageMock = vi.fn();
+const removeMessageMock = vi.fn();
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
@@ -145,7 +141,7 @@ describe('<MessageSimple />', () => {
 
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeEach(async () => {
@@ -474,8 +470,8 @@ describe('<MessageSimple />', () => {
     const { container } = await renderMessageSimple({
       message,
       props: {
-        onUserClick: jest.fn(),
-        onUserHover: jest.fn(),
+        onUserClick: vi.fn(),
+        onUserHover: vi.fn(),
       },
     });
     expect(AvatarMock).toHaveBeenCalledWith(
@@ -508,7 +504,7 @@ describe('<MessageSimple />', () => {
     const { container, getByTestId } = await renderMessageSimple({
       message,
       props: {
-        handleOpenThread: jest.fn(),
+        handleOpenThread: vi.fn(),
       },
     });
 
@@ -645,7 +641,7 @@ describe('<MessageSimple />', () => {
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    const searchSpy = jest.spyOn(client, 'search');
+    const searchSpy = vi.spyOn(client, 'search');
     const { container, getByText } = await renderMessageSimple({
       message,
     });

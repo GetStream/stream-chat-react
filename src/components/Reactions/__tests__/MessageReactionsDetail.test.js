@@ -1,10 +1,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import { MessageReactionsDetail } from '../MessageReactionsDetail';
 import { MessageProvider } from '../../../context/MessageContext';
@@ -76,11 +73,11 @@ const renderComponent = ({ handleFetchReactions, ...props }) =>
 describe('MessageReactionsDetail', () => {
   beforeEach(() => {
     // disable warnings (unreachable context)
-    jest.spyOn(console, 'warn').mockImplementation(null);
+    vi.spyOn(console, 'warn').mockImplementation(null);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the reactions detail panel', async () => {
@@ -89,7 +86,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = jest.fn((type) =>
+    const fetchReactions = vi.fn((type) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
@@ -110,7 +107,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = jest.fn((type) =>
+    const fetchReactions = vi.fn((type) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
@@ -132,7 +129,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = jest.fn((type) =>
+    const fetchReactions = vi.fn((type) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
@@ -185,7 +182,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = jest.fn(() => Promise.resolve([]));
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
 
     const { getByText } = renderComponent({
       handleFetchReactions: fetchReactions,
@@ -202,7 +199,7 @@ describe('MessageReactionsDetail', () => {
       haha: { count: 3 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups).reverse();
-    const fetchReactions = jest.fn(() => Promise.resolve(reactions));
+    const fetchReactions = vi.fn(() => Promise.resolve(reactions));
 
     const { getByText } = renderComponent({
       handleFetchReactions: fetchReactions,

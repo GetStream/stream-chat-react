@@ -1,7 +1,5 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import {
   generateChannel,
@@ -13,8 +11,6 @@ import {
 
 import { ChannelListItemUI } from '../ChannelListItemUI';
 import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
-
-expect.extend(toHaveNoViolations);
 
 const PREVIEW_TEST_ID = 'channel-list-item-button';
 
@@ -43,7 +39,7 @@ describe('ChannelPreviewMessenger', () => {
               displayImage='https://randomimage.com/src.jpg'
               displayTitle='Channel name'
               latestMessagePreview='Latest message!'
-              setActiveChannel={jest.fn()}
+              setActiveChannel={vi.fn()}
               unread={10}
               {...props}
             />
@@ -73,7 +69,7 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   it('should call setActiveChannel on click', async () => {
-    const setActiveChannel = jest.fn();
+    const setActiveChannel = vi.fn();
     const { container, getByTestId } = render(
       renderComponent({
         setActiveChannel,
@@ -104,7 +100,7 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   it('should call custom onSelect function', () => {
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     render(renderComponent({ onSelect }));
     const previewButton = screen.queryByTestId(PREVIEW_TEST_ID);
     fireEvent.click(previewButton);

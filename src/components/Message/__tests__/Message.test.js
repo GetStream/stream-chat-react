@@ -1,6 +1,5 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
@@ -19,17 +18,17 @@ import {
 } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
@@ -37,14 +36,14 @@ jest.mock('../../ChatView', () => {
 const alice = generateUser({ id: 'alice', image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 
-const sendAction = jest.fn();
-const sendReaction = jest.fn();
-const deleteReaction = jest.fn();
+const sendAction = vi.fn();
+const sendReaction = vi.fn();
+const deleteReaction = vi.fn();
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
-const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
+const CustomMessageUIComponent = vi.fn(({ contextCallback }) => {
   const messageContext = useMessageContext();
   contextCallback(messageContext);
   return <div>Message</div>;
@@ -82,9 +81,9 @@ async function renderComponent({
       >
         <ChannelActionProvider
           value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
+            openThread: vi.fn(),
+            removeMessage: vi.fn(),
+            updateMessage: vi.fn(),
             ...channelActionOpts,
           }}
         >
@@ -116,7 +115,7 @@ function renderComponentWithMessage(
 }
 
 describe('<Message /> component', () => {
-  beforeEach(jest.clearAllMocks);
+  beforeEach(vi.clearAllMocks);
   afterEach(cleanup);
 
   it('should not pass custom props to its Message child component', async () => {
@@ -151,7 +150,7 @@ describe('<Message /> component', () => {
     const message = generateMessage({ own_reactions: [reaction] });
     let context;
 
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -216,7 +215,7 @@ describe('<Message /> component', () => {
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    const updateMessage = jest.fn();
+    const updateMessage = vi.fn();
     let context;
 
     await renderComponent({
@@ -234,7 +233,7 @@ describe('<Message /> component', () => {
   });
 
   it('should update message after an action', async () => {
-    const updateMessage = jest.fn();
+    const updateMessage = vi.fn();
     const currentMessage = generateMessage();
     const updatedMessage = generateMessage();
     const action = { name: 'action', value: 'value' };
@@ -259,7 +258,7 @@ describe('<Message /> component', () => {
   });
 
   it('should fallback to original message after an action fails', async () => {
-    const removeMessage = jest.fn();
+    const removeMessage = vi.fn();
     const currentMessage = generateMessage({ user: bob });
     const action = { name: 'action', value: 'value' };
     let context;
@@ -284,7 +283,7 @@ describe('<Message /> component', () => {
 
   it('should handle retry', async () => {
     const message = generateMessage();
-    const retrySendMessage = jest.fn(() => Promise.resolve());
+    const retrySendMessage = vi.fn(() => Promise.resolve());
     let context;
 
     await renderComponent({
@@ -301,7 +300,7 @@ describe('<Message /> component', () => {
 
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
-    const onMentionsClick = jest.fn(() => {});
+    const onMentionsClick = vi.fn(() => {});
     let context;
 
     await renderComponent({
@@ -318,7 +317,7 @@ describe('<Message /> component', () => {
 
   it('should trigger channel mentions hover on mentions hover', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
-    const onMentionsHover = jest.fn(() => {});
+    const onMentionsHover = vi.fn(() => {});
     let context;
 
     await renderComponent({
@@ -335,7 +334,7 @@ describe('<Message /> component', () => {
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
     const message = generateMessage({ user: bob });
-    const onUserClickMock = jest.fn(() => {});
+    const onUserClickMock = vi.fn(() => {});
     let context;
 
     await renderComponent({
@@ -352,7 +351,7 @@ describe('<Message /> component', () => {
 
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });
-    const onUserHoverMock = jest.fn(() => {});
+    const onUserHoverMock = vi.fn(() => {});
     let context;
 
     await renderComponent({
@@ -370,10 +369,10 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const muteUser = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const muteUser = vi.fn(() => Promise.resolve());
     const userMutedNotification = 'User muted!';
-    const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
+    const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
     client.muteUser = muteUser;
     let context;
 
@@ -400,8 +399,8 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: bob });
     const defaultSuccessMessage = '{{ user }} has been muted';
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const muteUser = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const muteUser = vi.fn(() => Promise.resolve());
     client.muteUser = muteUser;
     let context;
 
@@ -427,10 +426,10 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const muteUser = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const muteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
-    const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
+    const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
     client.muteUser = muteUser;
     let context;
 
@@ -457,8 +456,8 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const muteUser = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const muteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     client.muteUser = muteUser;
     let context;
@@ -485,10 +484,10 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const unmuteUser = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const unmuteUser = vi.fn(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
-    const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
+    const getMuteUserSuccessNotification = vi.fn(() => userUnmutedNotification);
     client.unmuteUser = unmuteUser;
     let context;
 
@@ -515,8 +514,8 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const unmuteUser = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const unmuteUser = vi.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     client.unmuteUser = unmuteUser;
     let context;
@@ -543,10 +542,10 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with custom error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const unmuteUser = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const unmuteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
-    const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
+    const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
     client.unmuteUser = unmuteUser;
     let context;
 
@@ -573,8 +572,8 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with default error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const unmuteUser = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const unmuteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     client.unmuteUser = unmuteUser;
     let context;
@@ -766,11 +765,11 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const flagMessage = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const flagMessage = vi.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const messageFlaggedNotification = 'Message flagged!';
-    const getFlagMessageSuccessNotification = jest.fn(() => messageFlaggedNotification);
+    const getFlagMessageSuccessNotification = vi.fn(() => messageFlaggedNotification);
     let context;
 
     await renderComponent({
@@ -795,8 +794,8 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with default success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = jest.spyOn(client.notifications, 'addSuccess');
-    const flagMessage = jest.fn(() => Promise.resolve());
+    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const flagMessage = vi.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const defaultSuccessNotification = 'Message has been successfully flagged';
     let context;
@@ -822,11 +821,11 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with custom error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const flagMessage = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const flagMessage = vi.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
     const messageFlagFailedNotification = 'Message flagged failed!';
-    const getFlagMessageErrorNotification = jest.fn(() => messageFlagFailedNotification);
+    const getFlagMessageErrorNotification = vi.fn(() => messageFlagFailedNotification);
     let context;
 
     await renderComponent({
@@ -851,8 +850,8 @@ describe('<Message /> component', () => {
   it('should allow to flag a user and notify with default error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = jest.spyOn(client.notifications, 'addError');
-    const flagMessage = jest.fn(() => Promise.reject());
+    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const flagMessage = vi.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
     const defaultFlagMessageFailedNotification = 'Error adding flag';
     let context;
@@ -915,7 +914,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to retry sending a message', async () => {
     const message = generateMessage();
-    const retrySendMessage = jest.fn(() => Promise.resolve());
+    const retrySendMessage = vi.fn(() => Promise.resolve());
     let context;
 
     await renderComponent({
@@ -932,7 +931,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to open a thread', async () => {
     const message = generateMessage();
-    const openThread = jest.fn();
+    const openThread = vi.fn();
     let context;
 
     await renderComponent({
@@ -982,7 +981,7 @@ describe('<Message /> component', () => {
 
   it('should rerender if message changes', async () => {
     const message = generateMessage({ text: 'Hello!', user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
+    const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
       components: { Message: UIMock },
@@ -1004,7 +1003,7 @@ describe('<Message /> component', () => {
 
   it('should rerender if readBy changes', async () => {
     const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
+    const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
       components: { Message: UIMock },
@@ -1026,7 +1025,7 @@ describe('<Message /> component', () => {
 
   it('should rerender if groupStyles change', async () => {
     const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
+    const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
       components: { Message: UIMock },
@@ -1049,7 +1048,7 @@ describe('<Message /> component', () => {
 
   it('should last received id changes', async () => {
     const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
+    const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
       components: { Message: UIMock },
@@ -1072,7 +1071,7 @@ describe('<Message /> component', () => {
 
   it('should rerender if message list changes position', async () => {
     const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
+    const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
       components: { Message: UIMock },

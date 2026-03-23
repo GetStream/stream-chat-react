@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Channel should render a LoadingIndicator if it is loading 1`] = `
+exports[`Channel > should render a LoadingIndicator if it is loading 1`] = `
 <DocumentFragment>
   <div
     class="str-chat messaging light str-chat__channel"
@@ -13,7 +13,7 @@ exports[`Channel should render a LoadingIndicator if it is loading 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Channel should render default loading indicator if channels query is in progress 1`] = `
+exports[`Channel > should render default loading indicator if channels query is in progress 1`] = `
 <DocumentFragment>
   <div
     class="str-chat str-chat__channel"
@@ -26,7 +26,7 @@ exports[`Channel should render default loading indicator if channels query is in
 </DocumentFragment>
 `;
 
-exports[`Channel should render empty channel container if channel does not have cid and EmptyPlaceholder is null 1`] = `
+exports[`Channel > should render empty channel container if channel does not have cid and EmptyPlaceholder is null 1`] = `
 <DocumentFragment>
   <div
     class="str-chat str-chat__channel"
@@ -35,7 +35,7 @@ exports[`Channel should render empty channel container if channel does not have 
 </DocumentFragment>
 `;
 
-exports[`Channel should render empty channel container if channels query failed 1`] = `
+exports[`Channel > should render empty channel container if channels query failed 1`] = `
 <DocumentFragment>
   <div
     class="str-chat str-chat__channel"

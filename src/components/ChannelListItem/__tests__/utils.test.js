@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import '@testing-library/jest-dom';
 import { nanoid } from 'nanoid';
 
 import {

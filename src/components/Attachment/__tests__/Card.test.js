@@ -1,6 +1,5 @@
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Card } from '../LinkPreview/Card';
 
@@ -25,9 +24,9 @@ let chatClient;
 let channel;
 const user = generateUser({ id: 'userId', name: 'username' });
 
-jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
-jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
-jest.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
 const channelActionContext = {};
 
 const mockedChannel = generateChannel({

@@ -4,7 +4,6 @@ import { CooldownTimer } from '../CooldownTimer';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import { initClientWithChannels } from '../../../mock-builders';
-import '@testing-library/jest-dom';
 
 const TIMER_TEST_ID = 'cooldown-timer';
 

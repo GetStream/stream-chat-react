@@ -25,27 +25,27 @@ const fileMock = { name: 'fileName' };
 
 const recordedChunkCount = 10;
 const dataPoints = Array.from({ length: recordedChunkCount }, (_, i) => i);
-jest.mock('nanoid', () => ({
+vi.mock('nanoid', () => ({
   nanoid: () => nanoidMockValue,
 }));
 
-jest
-  .spyOn(wavTranscoder, 'encodeToWaw')
-  .mockImplementation((file) => Promise.resolve(new Blob([file], { type: 'audio/wav' })));
+vi.spyOn(wavTranscoder, 'encodeToWaw').mockImplementation((file) =>
+  Promise.resolve(new Blob([file], { type: 'audio/wav' })),
+);
 
-const mp3EncoderMock = jest.fn((file) =>
+const mp3EncoderMock = vi.fn((file) =>
   Promise.resolve(new Blob([file], { type: 'audio/mp3' })),
 );
 
-jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+vi.mock('fix-webm-duration', () => ({ default: vi.fn((blob) => blob) }));
 
-jest.spyOn(audioSampling, 'resampleWaveformData').mockReturnValue(dataPoints);
+vi.spyOn(audioSampling, 'resampleWaveformData').mockReturnValue(dataPoints);
 
-const createFileFromBlobsSpy = jest
+const createFileFromBlobsSpy = vi
   .spyOn(reactFileUtils, 'createFileFromBlobs')
   .mockReturnValue(fileMock);
 
-const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 const expectRegistersError = async ({
   action,
   controller,
@@ -80,17 +80,17 @@ window.MediaRecorder = MediaRecorderMock;
 window.AudioContext = AudioContextMock;
 
 // eslint-disable-next-line
-window.URL.createObjectURL = jest.fn(() => fileObjectURL);
+window.URL.createObjectURL = vi.fn(() => fileObjectURL);
 // eslint-disable-next-line
-window.URL.revokeObjectURL = jest.fn();
+window.URL.revokeObjectURL = vi.fn();
 
 describe('MediaRecorderController', () => {
   beforeEach(() => {
     window.navigator.mediaDevices = {
-      getUserMedia: jest.fn().mockResolvedValue({}),
+      getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it('provides defaults on initiation (non-Safari)', () => {
     const controller = new MediaRecorderController();
@@ -142,8 +142,8 @@ describe('MediaRecorderController', () => {
         targetMimeType: 'audio/wav',
       },
     };
-    const generateRecordingTitle = jest.fn();
-    const t = jest.fn();
+    const generateRecordingTitle = vi.fn();
+    const t = vi.fn();
     const controller = new MediaRecorderController({
       config,
       generateRecordingTitle,
@@ -164,7 +164,7 @@ describe('MediaRecorderController', () => {
   });
 
   it('overrides the defaults on initiation partially', () => {
-    const generateRecordingTitle = jest.fn();
+    const generateRecordingTitle = vi.fn();
     const controller = new MediaRecorderController({ generateRecordingTitle });
     expect(controller.customGenerateRecordingTitle).toStrictEqual(generateRecordingTitle);
     expect(controller.mediaRecorderConfig).toStrictEqual(
@@ -199,7 +199,7 @@ describe('MediaRecorderController', () => {
     it('checks device permission if unknown', async () => {
       const controller = new MediaRecorderController();
       controller.permission.state.next(undefined);
-      const permissionCheckSpy = jest
+      const permissionCheckSpy = vi
         .spyOn(controller.permission, 'check')
         .mockImplementation();
       await controller.start();
@@ -256,7 +256,7 @@ describe('MediaRecorderController', () => {
             it('does not check device permission', async () => {
               const controller = new MediaRecorderController();
               controller.permission.state.next(permission);
-              const permissionCheckSpy = jest
+              const permissionCheckSpy = vi
                 .spyOn(controller.permission, 'check')
                 .mockImplementation();
               await controller.start();
@@ -444,7 +444,7 @@ describe('MediaRecorderController', () => {
     it('handles error', () => {
       const errorMsg = 'Error making voice recording';
       const controller = new MediaRecorderController();
-      const makeVoiceRecordingSpy = jest
+      const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockRejectedValue(new Error(errorMsg));
       expectRegistersError({
@@ -458,7 +458,7 @@ describe('MediaRecorderController', () => {
 
     it('does not emit recording if generation was unsuccessful', async () => {
       const controller = new MediaRecorderController();
-      const makeVoiceRecordingSpy = jest
+      const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(undefined);
       await controller.handleDataavailableEvent(generateDataavailableEvent());
@@ -469,7 +469,7 @@ describe('MediaRecorderController', () => {
     it('emits recording if generation was successful', async () => {
       const controller = new MediaRecorderController();
       const voiceRecording = generateVoiceRecordingAttachment();
-      const makeVoiceRecordingSpy = jest
+      const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(voiceRecording);
       await controller.handleDataavailableEvent(generateDataavailableEvent());
@@ -517,7 +517,7 @@ describe('MediaRecorderController', () => {
       ['transcodes', 'audio/webm'],
       ['transcodes', 'audio/ogg'],
     ])('%s recording of MIME type %s', async (_, mimeType) => {
-      const transcodeSpy = jest
+      const transcodeSpy = vi
         .spyOn(transcoder, 'transcode')
         .mockImplementation((opts) =>
           Promise.resolve(new Blob([opts.blob], { type: 'audio/wav' })),

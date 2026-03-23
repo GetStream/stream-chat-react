@@ -13,13 +13,13 @@ import { Channel } from '../../../Channel';
 
 window.MediaRecorder = MediaRecorderMock;
 
-const handleSubmit = jest.fn();
+const handleSubmit = vi.fn();
 
 const defaultMockPermissionState = 'prompt';
 const status = new EventEmitterMock();
 status.state = defaultMockPermissionState;
 window.navigator.permissions = {
-  query: jest.fn().mockResolvedValue(status),
+  query: vi.fn().mockResolvedValue(status),
 };
 
 const render = async (params = {}) => {
@@ -42,7 +42,7 @@ const render = async (params = {}) => {
 };
 
 describe('useMediaRecorder', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it('subscribes to MediaRecorderController state updates', async () => {
     const {
@@ -116,7 +116,7 @@ describe('useMediaRecorder', () => {
           current: { completeRecording },
         },
       } = await render({ enabled: false, handleSubmit });
-      const uploadAttachmentSpy = jest.spyOn(
+      const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
       );
@@ -132,12 +132,12 @@ describe('useMediaRecorder', () => {
           current: { completeRecording, recorder },
         },
       } = await render({ handleSubmit });
-      const uploadAttachmentSpy = jest.spyOn(
+      const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
       );
-      const recorderStopSpy = jest.spyOn(recorder, 'stop').mockResolvedValue(undefined);
-      const recorderCleanUpSpy = jest
+      const recorderStopSpy = vi.spyOn(recorder, 'stop').mockResolvedValue(undefined);
+      const recorderCleanUpSpy = vi
         .spyOn(recorder, 'cleanUp')
         .mockResolvedValue(undefined);
       await completeRecording();
@@ -155,12 +155,12 @@ describe('useMediaRecorder', () => {
           current: { completeRecording, recorder },
         },
       } = await render({ handleSubmit });
-      const uploadAttachmentSpy = jest.spyOn(
+      const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
       );
-      jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest
+      vi.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
+      const recorderCleanUpSpy = vi
         .spyOn(recorder, 'cleanUp')
         .mockResolvedValue(undefined);
       await act(() => {
@@ -182,12 +182,12 @@ describe('useMediaRecorder', () => {
         asyncMessagesMultiSendEnabled: true,
         handleSubmit,
       });
-      const uploadAttachmentSpy = jest.spyOn(
+      const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
       );
-      jest.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = jest
+      vi.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
+      const recorderCleanUpSpy = vi
         .spyOn(recorder, 'cleanUp')
         .mockResolvedValue(undefined);
       await act(() => {

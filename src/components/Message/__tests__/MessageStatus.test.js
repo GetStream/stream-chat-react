@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import {
   ChatProvider,
@@ -43,10 +42,10 @@ const sendingMsg = { ...foreignMsg, status: 'sending', user };
 const sentMsg = { ...foreignMsg, user };
 const deliveredTo = [otherUser, user];
 const readByOthers = [otherUser, user];
-const t = jest.fn((s) => s);
+const t = vi.fn((s) => s);
 
 const defaultMsgCtx = {
-  isMyMessage: jest.fn().mockReturnValue(true),
+  isMyMessage: vi.fn().mockReturnValue(true),
 };
 
 const renderComponent = ({ chatCtx, componentCtx, messageCtx, props } = {}) =>

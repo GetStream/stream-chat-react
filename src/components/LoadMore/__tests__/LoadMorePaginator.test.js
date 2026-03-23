@@ -1,13 +1,12 @@
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { LoadMorePaginator } from '../LoadMorePaginator';
 
-jest.mock('../LoadMoreButton', () => ({
+vi.mock('../LoadMoreButton', () => ({
   __esModule: true,
-  LoadMoreButton: jest.fn(() => <div data-testid='load-more-button' />),
+  LoadMoreButton: vi.fn(() => <div data-testid='load-more-button' />),
 }));
 
 describe('LoadMorePaginator', () => {
@@ -15,7 +14,7 @@ describe('LoadMorePaginator', () => {
 
   it('should render component with default props', () => {
     const { container } = render(
-      <LoadMorePaginator loadNextPage={jest.fn()}>children</LoadMorePaginator>,
+      <LoadMorePaginator loadNextPage={vi.fn()}>children</LoadMorePaginator>,
     );
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -26,7 +25,7 @@ describe('LoadMorePaginator', () => {
 
   it('should render default LoadMoreButton when hasNextPage', () => {
     const { container } = render(
-      <LoadMorePaginator hasNextPage loadNextPage={jest.fn()}>
+      <LoadMorePaginator hasNextPage loadNextPage={vi.fn()}>
         children
       </LoadMorePaginator>,
     );
@@ -45,7 +44,7 @@ describe('LoadMorePaginator', () => {
       <LoadMorePaginator
         hasNextPage
         LoadMoreButton={() => <div>custom load more button</div>}
-        loadNextPage={jest.fn()}
+        loadNextPage={vi.fn()}
       >
         children
       </LoadMorePaginator>,
@@ -65,7 +64,7 @@ describe('LoadMorePaginator', () => {
       <LoadMorePaginator
         hasNextPage
         LoadMoreButton={() => <div>load more button</div>}
-        loadNextPage={jest.fn()}
+        loadNextPage={vi.fn()}
       >
         children
       </LoadMorePaginator>,
@@ -85,7 +84,7 @@ describe('LoadMorePaginator', () => {
       <LoadMorePaginator
         hasNextPage
         LoadMoreButton={() => <div>load more button</div>}
-        loadNextPage={jest.fn()}
+        loadNextPage={vi.fn()}
         reverse
       >
         children
@@ -102,7 +101,7 @@ describe('LoadMorePaginator', () => {
   });
 
   it('should pass undefined props to LoadMoreButton if missing', async () => {
-    const LoadMoreButton = jest.fn(() => <div />);
+    const LoadMoreButton = vi.fn(() => <div />);
 
     render(
       <LoadMorePaginator hasNextPage LoadMoreButton={LoadMoreButton}>
@@ -119,9 +118,9 @@ describe('LoadMorePaginator', () => {
   });
 
   it('should pass proper props to LoadMoreButton', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
-    const LoadMoreButton = jest.fn(() => <div />);
-    const loadNextPage = jest.fn();
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
+    const LoadMoreButton = vi.fn(() => <div />);
+    const loadNextPage = vi.fn();
 
     render(
       <LoadMorePaginator

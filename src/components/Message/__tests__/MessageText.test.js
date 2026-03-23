@@ -1,6 +1,4 @@
-import '@testing-library/jest-dom';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import { axe } from '../../../../axe-helper';
 
@@ -28,31 +26,29 @@ import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
 
-expect.extend(toHaveNoViolations);
-
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn(() => <div data-testid='mocked-message-actions' />),
+vi.mock('../../MessageActions', () => ({
+  MessageActions: vi.fn(() => <div data-testid='mocked-message-actions' />),
 }));
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
-const onMentionsHoverMock = jest.fn();
-const onMentionsClickMock = jest.fn();
+const onMentionsHoverMock = vi.fn();
+const onMentionsClickMock = vi.fn();
 const defaultProps = {
   initialMessage: false,
   message: generateMessage(),
@@ -78,7 +74,7 @@ async function renderMessageText({
   });
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
   const channelConfig = channel.getConfig();
-  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
     <ChatProvider value={{ client }}>
@@ -120,7 +116,7 @@ async function renderMessageText({
 const messageTextTestId = 'message-text-inner-wrapper';
 
 describe('<MessageText />', () => {
-  beforeEach(jest.clearAllMocks);
+  beforeEach(vi.clearAllMocks);
   it('should not render anything if message is not set', async () => {
     const { container, queryByTestId } = await renderMessageText({
       customProps: { message: {} },

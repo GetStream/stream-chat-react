@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MessageStatus renders default sending UI 1`] = `
+exports[`MessageStatus > renders default sending UI 1`] = `
 <span
   class="str-chat__message-simple-status str-chat__message-status str-chat__message-status-sending"
   data-testid="message-status-sending"

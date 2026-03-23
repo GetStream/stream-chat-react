@@ -12,7 +12,7 @@ import {
   getTestClientWithUser,
 } from '../../../../mock-builders';
 
-const getConfig = jest.fn();
+const getConfig = vi.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
@@ -47,7 +47,7 @@ async function renderUserRoleHook({
 }
 
 describe('useUserRole custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it.each([
     ['belongs', alice, true],

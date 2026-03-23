@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 import {
   dispatchMessageNewEvent,
@@ -29,24 +27,22 @@ import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyState
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
 
-expect.extend(toHaveNoViolations);
-
-jest.mock('../../EmptyStateIndicator', () => ({
-  EmptyStateIndicator: jest.fn(),
+vi.mock('../../EmptyStateIndicator', () => ({
+  EmptyStateIndicator: vi.fn(),
 }));
 
-jest.mock('../../ChatView', () => {
-  const actual = jest.requireActual('../../ChatView');
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal();
 
   return {
     ...actual,
-    useChatViewContext: jest.fn(() => ({
+    useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
-      setActiveChatView: jest.fn(),
+      setActiveChatView: vi.fn(),
     })),
-    useThreadsViewContext: jest.fn(() => ({
+    useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
-      setActiveThread: jest.fn(),
+      setActiveThread: vi.fn(),
     })),
   };
 });
@@ -96,14 +92,12 @@ describe('MessageList', () => {
     channel = chatClient.channel('messaging', mockedChannelData.id);
     await channel.watch();
 
-    markReadMock = jest
-      .spyOn(channel, 'markRead')
-      .mockResolvedValue(markReadApi(channel));
+    markReadMock = vi.spyOn(channel, 'markRead').mockResolvedValue(markReadApi(channel));
   });
 
   afterEach(() => {
     cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     markReadMock.mockRestore();
   });
 
@@ -328,7 +322,7 @@ describe('MessageList', () => {
   it('forwards and executes reviewProcessedMessage function for each message', async () => {
     const msgCount = 3;
     const messages = Array.from({ length: msgCount }, generateMessage);
-    const reviewProcessedMessage = jest.fn();
+    const reviewProcessedMessage = vi.fn();
 
     await act(async () => {
       await renderComponent({
@@ -385,8 +379,8 @@ describe('MessageList', () => {
 
       window.IntersectionObserver = IntersectionObserverMock;
     });
-    afterEach(jest.clearAllMocks);
-    afterAll(jest.restoreAllMocks);
+    afterEach(vi.clearAllMocks);
+    afterAll(vi.restoreAllMocks);
 
     it('should display unread messages separator when a channel is marked unread and remove it when marked read by markRead()', async () => {
       const markReadBtnTestId = 'test-mark-read';
@@ -486,7 +480,7 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = jest.spyOn(channel, 'markRead').mockResolvedValue(false);
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
 
       await act(() => {
         renderComponent({
@@ -527,7 +521,7 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = jest.spyOn(channel, 'markRead').mockResolvedValue(false);
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
 
       await act(() => {
         renderComponent({
@@ -886,7 +880,7 @@ describe('MessageList', () => {
           generateMessage({ id: 'latest-2', text: 'latest-2', user: user2 }),
         ];
         const jumpDeferred = createDeferred();
-        const scrollToMock = jest.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
@@ -977,12 +971,12 @@ describe('MessageList', () => {
           generateMessage({ id: 'target-2', text: 'target-2', user: user2 }),
         ];
         const jumpDeferred = createDeferred();
-        const scrollToMock = jest.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
         });
-        const scrollIntoViewMock = jest.fn();
+        const scrollIntoViewMock = vi.fn();
         const originalScrollTo = HTMLElement.prototype.scrollTo;
         const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
         Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
@@ -993,7 +987,7 @@ describe('MessageList', () => {
           configurable: true,
           value: scrollIntoViewMock,
         });
-        const requestAnimationFrameSpy = jest
+        const requestAnimationFrameSpy = vi
           .spyOn(window, 'requestAnimationFrame')
           .mockImplementation((callback) => {
             callback(0);
@@ -1102,7 +1096,7 @@ describe('MessageList', () => {
             }),
           ),
         ];
-        const scrollToMock = jest.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
@@ -1188,7 +1182,7 @@ describe('MessageList', () => {
           ),
           ...currentMessages,
         ];
-        const scrollByMock = jest.fn(function scrollBy(options) {
+        const scrollByMock = vi.fn(function scrollBy(options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop += options.top;
           }
@@ -1333,12 +1327,12 @@ describe('MessageList', () => {
       ['getMarkMessageUnreadErrorNotification'],
       ['getMarkMessageUnreadSuccessNotification'],
     ])('calls %s', async (funcName) => {
-      const markUnreadSpy = jest.spyOn(channel, 'markUnread');
+      const markUnreadSpy = vi.spyOn(channel, 'markUnread');
       if (funcName === 'getMarkMessageUnreadErrorNotification')
         markUnreadSpy.mockRejectedValueOnce();
 
       const message = generateMessage();
-      const notificationFunc = jest.fn();
+      const notificationFunc = vi.fn();
       const Message = () => {
         const { handleMarkUnread } = useMessageContext();
         useEffect(() => {

@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
 
 import { SearchSourceResultListFooter } from '../SearchResults';
@@ -7,9 +6,9 @@ import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-jest.mock('../SearchSourceResultsContext');
-jest.mock('../../../context');
-jest.mock('../../../store');
+vi.mock('../SearchSourceResultsContext');
+vi.mock('../../../context');
+vi.mock('../../../store');
 
 const SEARCH_FOOTER_TEST_ID = 'search-footer';
 
@@ -23,7 +22,7 @@ describe('SearchSourceResultListFooter', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     useSearchSourceResultsContext.mockReturnValue({
       searchSource: mockSearchSource,
@@ -101,7 +100,7 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('translates "All results loaded" message', () => {
-    const mockTranslate = jest.fn((key) => `Translated ${key}`);
+    const mockTranslate = vi.fn((key) => `Translated ${key}`);
     useTranslationContext.mockReturnValue({ t: mockTranslate });
 
     useStateStore.mockReturnValue({
