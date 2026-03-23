@@ -7,7 +7,7 @@ import { ChannelListItem } from '../ChannelListItem';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
-import { ComponentProvider } from '../../../context';
+import { ComponentProvider, WithComponents } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 
 import {
@@ -645,12 +645,14 @@ describe('ChannelPreview', () => {
   });
 
   describe('user.updated', () => {
-    const renderComponent = async ({ channel, channelPreviewProps, client }) => {
+    const renderComponent = async ({ channel, client, componentOverrides }) => {
       let result;
       await act(() => {
         result = render(
           <Chat client={client}>
-            <ChannelListItem {...channelPreviewProps} channel={channel} />
+            <WithComponents overrides={componentOverrides}>
+              <ChannelListItem channel={channel} />
+            </WithComponents>
           </Chat>,
         );
       });
@@ -676,7 +678,7 @@ describe('ChannelPreview', () => {
       </>
     );
 
-    const channelPreviewProps = {
+    const componentOverrides = {
       Avatar: MockAvatar,
     };
 
@@ -717,7 +719,7 @@ describe('ChannelPreview', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { image: 'new-image' };
-      await renderComponent({ channel, channelPreviewProps, client });
+      await renderComponent({ channel, client, componentOverrides });
 
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.image)).not.toBeInTheDocument(),
@@ -741,7 +743,7 @@ describe('ChannelPreview', () => {
         customUser: ownUser,
       });
       const updatedAttribute = { custom: 'new-custom' };
-      await renderComponent({ channel, channelPreviewProps, client });
+      await renderComponent({ channel, client, componentOverrides });
 
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
@@ -755,9 +757,8 @@ describe('ChannelPreview', () => {
     });
 
     describe('group channel', () => {
-      const channelPreviewProps = {
+      const componentOverrides = {
         Avatar: ChannelAvatar,
-        watchers: { limit: 10 },
       };
       const channelName = 'channel-name';
       const channelState = getChannelState(3, { channel: { name: channelName } });
@@ -772,7 +773,7 @@ describe('ChannelPreview', () => {
           channelsData: [channelState],
           customUser: ownUser,
         });
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           // With overflowCount set (5 members > 4), GroupAvatar shows 2 avatars + "+N" badge
@@ -794,7 +795,7 @@ describe('ChannelPreview', () => {
             client,
           } = await initClientWithChannels({ channelsData: [channelState] });
           const updatedAttribute = { name: 'new-name' };
-          await renderComponent({ channel, channelPreviewProps, client });
+          await renderComponent({ channel, client, componentOverrides });
 
           await waitFor(() => {
             expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -820,7 +821,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -864,7 +865,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { image: 'new-image' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
           expect(avatarImages).toHaveLength(3);
@@ -905,7 +906,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
@@ -940,7 +941,7 @@ describe('ChannelPreview', () => {
           customUser: ownUser,
         });
         const updatedAttribute = { custom: 'new-custom' };
-        await renderComponent({ channel, channelPreviewProps, client });
+        await renderComponent({ channel, client, componentOverrides });
 
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();

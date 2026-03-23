@@ -60,8 +60,6 @@ export type ChannelListItemProps = {
   key?: string;
   /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
-  /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelListItemUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListItem/ChannelListItemUI.tsx) */
-  Preview?: React.ComponentType<ChannelListItemUIProps>;
   /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue['setActiveChannel'];
   /** Object containing watcher parameters */
@@ -80,11 +78,8 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
     channel,
     channelUpdateCount,
     getLatestMessagePreview = defaultGetLatestMessagePreview,
-    Preview,
   } = props;
-  const { ChannelListItemUI: ContextChannelListItemUI = DefaultChannelListItemUI } =
-    useComponentContext();
-  const ChannelListItemUI = Preview ?? ContextChannelListItemUI;
+  const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
   const {
     channel: activeChannel,
     client,
