@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths-ignore:
-      - '**.test.js'
+      - '**.test.*'
       - '**.md'
 env:
   NODE_OPTIONS: --max_old_space_size=4096
@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: preactjs/compressed-size-action@v2
         env:
           NODE_OPTIONS: --max_old_space_size=4096

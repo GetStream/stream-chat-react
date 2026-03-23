@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     name: TypeScript
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
 
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint & test with Node
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
 
@@ -48,7 +48,7 @@ jobs:
       VITE_STREAM_API_KEY: ${{ vars.VITE_STREAM_API_KEY }}
       NODE_ENV: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
         env:
