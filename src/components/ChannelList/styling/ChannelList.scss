@@ -123,12 +123,12 @@
   @include utils.scrollable-y;
   @include utils.component-layer-overrides('channel-list');
 
-  .str-chat__channel-list-messenger {
+  .str-chat__channel-list-inner {
     height: 100%;
     overflow: hidden;
     padding-bottom: var(--str-chat__spacing-2_5);
 
-    .str-chat__channel-list-messenger__main {
+    .str-chat__channel-list-inner__main {
       height: 100%;
       overflow-y: auto;
 

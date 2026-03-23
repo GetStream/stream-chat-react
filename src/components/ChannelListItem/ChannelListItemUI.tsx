@@ -14,7 +14,6 @@ import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const {
     active,
-    Avatar = DefaultChannelAvatar,
     channel,
     className: customClassName = '',
     displayImage,
@@ -29,8 +28,10 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     watchers,
   } = props;
 
-  const { ChannelListItemActionButtons = DefaultChannelListItemActionButtons } =
-    useComponentContext();
+  const {
+    Avatar = DefaultChannelAvatar,
+    ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
+  } = useComponentContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -56,7 +57,9 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         aria-pressed={active}
         className={clsx(
           'str-chat__channel-list-item',
-          typeof unread === 'number' && unread > 0 && 'str-chat__channel-list-item--unread',
+          typeof unread === 'number' &&
+            unread > 0 &&
+            'str-chat__channel-list-item--unread',
           muted && 'str-chat__channel-list-item--muted',
           customClassName,
         )}

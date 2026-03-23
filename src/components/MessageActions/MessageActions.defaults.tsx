@@ -27,10 +27,7 @@ import {
   useMessageReminder,
   useNotificationTarget,
 } from '..';
-import {
-  ReactionIcon as DefaultReactionIcon,
-  ThreadIcon,
-} from '../Message/icons';
+import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../Message/icons';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
   useChannelActionContext,
@@ -39,10 +36,7 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import {
-  RemindMeSubmenu,
-  RemindMeSubmenuHeader,
-} from './RemindMeSubmenu';
+import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
 import { ContextMenuButton, useContextMenuContext } from '../Dialog';
 import type { MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
