@@ -25,7 +25,7 @@ describe('AddCommentPrompt', () => {
 
   it('renders update form for existing comment and submits it', async () => {
     const poll = new Poll({ client: {}, poll: generatePoll() });
-    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockImplementation();
+    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue();
     const { container } = renderComponent({ poll });
     const input = container.querySelector('input');
     expect(input).toHaveValue(poll.data.ownAnswer.text);
@@ -53,7 +53,7 @@ describe('AddCommentPrompt', () => {
 
   it('renders form to add a new answer and submits it', async () => {
     const poll = new Poll({ client: {}, poll: generatePoll({ own_votes: [] }) });
-    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockImplementation();
+    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue();
     const { container } = renderComponent({ poll });
     const input = container.querySelector('input');
     expect(input).toHaveValue('');
