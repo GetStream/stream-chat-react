@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import type { Channel, StreamChat } from 'stream-chat';
 import { useMarkRead } from '../useMarkRead';
 import {
   ChannelActionProvider,
@@ -22,8 +23,16 @@ const visibilityChangeScenario = 'visibilitychange event';
 const markRead = vi.fn();
 const setChannelUnreadUiState = vi.fn();
 
-const render = ({ channel, client, params }: any) => {
-  const wrapper = ({ children }: any) => (
+const render = ({
+  channel,
+  client,
+  params,
+}: {
+  channel: Channel;
+  client: StreamChat;
+  params: Parameters<typeof useMarkRead>[0];
+}) => {
+  const wrapper = ({ children }: React.PropsWithChildren) => (
     <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider value={mockChannelStateContext({ channel })}>
         <ChannelActionProvider
@@ -95,7 +104,6 @@ const emptyChannelData = () => {
 describe('useMarkRead', () => {
   const shouldMarkReadParams = {
     isMessageListScrolledToBottom: true,
-    markReadOnScrolledToBottom: true,
     messageListIsThread: false,
     wasMarkedUnread: false,
   };
@@ -252,7 +260,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(markRead).toHaveBeenCalledTimes(2);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
@@ -278,7 +286,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(
           client,
           generateMessage({ user: channelData.read[0].user }),
-          channel as any,
+          channel,
         );
       });
 
@@ -303,7 +311,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(markRead).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
@@ -326,7 +334,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(markRead).toHaveBeenCalledTimes(1);
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
@@ -356,7 +364,7 @@ describe('useMarkRead', () => {
         (cb) => (channelUnreadUiStateCb = cb),
       );
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
       const channelUnreadUiState = channelUnreadUiStateCb();
@@ -388,7 +396,7 @@ describe('useMarkRead', () => {
         (cb) => (channelUnreadUiStateCb = cb),
       );
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
       const channelUnreadUiState = channelUnreadUiStateCb();
@@ -419,7 +427,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).toHaveBeenCalledTimes(0);
       expect(markRead).not.toHaveBeenCalled();
@@ -444,7 +452,7 @@ describe('useMarkRead', () => {
         },
       });
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), channel as any);
+        dispatchMessageNewEvent(client, generateMessage(), channel);
       });
       expect(setChannelUnreadUiState).not.toHaveBeenCalled();
       expect(markRead).not.toHaveBeenCalled();
@@ -487,11 +495,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(
-          client,
-          generateMessage({ parent_id: 'X' }),
-          channel as any,
-        );
+        dispatchMessageNewEvent(client, generateMessage({ parent_id: 'X' }), channel);
       });
 
       expect(markRead).not.toHaveBeenCalled();
@@ -514,7 +518,7 @@ describe('useMarkRead', () => {
         dispatchMessageNewEvent(
           client,
           generateMessage({ parent_id: 'X', show_in_channel: true }),
-          channel as any,
+          channel,
         );
       });
 
@@ -543,7 +547,7 @@ describe('useMarkRead', () => {
         });
 
         await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
@@ -571,7 +575,7 @@ describe('useMarkRead', () => {
         });
 
         await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
@@ -599,7 +603,7 @@ describe('useMarkRead', () => {
           .spyOn(document, 'hidden', 'get')
           .mockReturnValueOnce(true);
         await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
@@ -635,7 +639,7 @@ describe('useMarkRead', () => {
         });
 
         await act(() => {
-          dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         const prevLastRead = 'X';
@@ -643,11 +647,11 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[1].created_at as any).getTime(),
+          (channelsData[0].messages[1].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb();
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[1].created_at as any).getTime(),
+          (channelsData[0].messages[1].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
@@ -674,7 +678,7 @@ describe('useMarkRead', () => {
         });
 
         await act(async () => {
-          await dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          await dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         const prevLastRead = 'X';
@@ -682,11 +686,11 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[0].created_at as any).getTime(),
+          (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb();
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[0].created_at as any).getTime(),
+          (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
@@ -713,7 +717,7 @@ describe('useMarkRead', () => {
           .spyOn(document, 'hidden', 'get')
           .mockReturnValueOnce(true);
         await act(async () => {
-          await dispatchMessageNewEvent(client, generateMessage(), channel as any);
+          await dispatchMessageNewEvent(client, generateMessage(), channel);
         });
 
         const prevLastRead = 'X';
@@ -721,11 +725,11 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[0].created_at as any).getTime(),
+          (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb();
         expect(channelUnreadUiState.last_read.getTime()).toBe(
-          (channelsData[0].messages[0].created_at as any).getTime(),
+          (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);

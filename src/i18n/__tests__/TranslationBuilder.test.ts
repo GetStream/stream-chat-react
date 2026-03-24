@@ -1,6 +1,9 @@
 import { NotificationTranslationTopic, TranslationBuilder } from '../TranslationBuilder';
+import type { TranslationTopicConstructor } from '../TranslationBuilder';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { i18n } from 'i18next';
 
-const mockI18Next = { id: 'mockI18Next', use: vi.fn() } as any;
+const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
 describe('TranslationBuilder and TranslationTopic', () => {
   it('gets initiated', () => {
     const manager = new TranslationBuilder(mockI18Next);
@@ -84,9 +87,9 @@ describe('TranslationBuilder and TranslationTopic', () => {
         this.id = Math.random().toString();
       }
     }
-    manager.registerTopic('custom', Topic as any);
+    manager.registerTopic('custom', Topic as unknown as TranslationTopicConstructor);
     const firstRegistrationId = (manager.getTopic('custom') as any).id;
-    manager.registerTopic('custom', Topic as any);
+    manager.registerTopic('custom', Topic as unknown as TranslationTopicConstructor);
     const secondRegistrationId = (manager.getTopic('custom') as any).id;
     expect(firstRegistrationId).toBe(secondRegistrationId);
   });

@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
+import type { Streami18nOptions } from '../Streami18n';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
@@ -7,6 +8,7 @@ import { nlTranslations, frTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
+import type { TranslationTopicConstructor } from '../TranslationBuilder';
 Dayjs.extend(localeData);
 
 const customDayjsLocaleConfig = {
@@ -144,10 +146,10 @@ describe('Streami18n instance - with built-in langauge', () => {
   });
 
   describe('custom momentjs locale config', () => {
-    const streami18nOptions = {
+    const streami18nOptions: Streami18nOptions = {
       language: 'nl',
-      dayjsLocaleConfigForLanguage: customDayjsLocaleConfig,
-    } as any;
+      dayjsLocaleConfigForLanguage: customDayjsLocaleConfig as any,
+    };
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide moment with given custom locale config', async () => {
@@ -177,10 +179,10 @@ describe('Streami18n instance - with custom translations', () => {
       [textKey1]: textValue1,
       [textKey2]: textValue2,
     };
+    // Note: original test had typo 'langauge' instead of 'language'
     const streami18nOptions = {
-      langauge: 'zh',
-      translationsForLanguage: translations,
-    } as any;
+      translationsForLanguage: translations as any,
+    } satisfies Streami18nOptions;
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide given (chinese in this case) translator', async () => {
@@ -212,8 +214,9 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   };
   streami18n.registerTranslation(
     languageCode,
-    translations as any,
-    customDayjsLocaleConfig as any,
+    // @ts-expect-error partial translations for testing
+    translations,
+    customDayjsLocaleConfig,
   );
 
   streami18n.setLanguage('mr');
@@ -313,7 +316,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
-          formatters: { timestampFormatter: (s: any) => () => 'custom' },
+          formatters: { timestampFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | timestampFormatter }}' } as any,
         });
         await i18n.init();
@@ -321,7 +324,7 @@ describe('Streami18n timezone', () => {
       });
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
-          formatters: { customFormatter: (s: any) => () => 'custom' },
+          formatters: { customFormatter: () => () => 'custom' },
           translationsForLanguage: { abc: '{{ value | customFormatter }}' } as any,
         });
         await i18n.init();
@@ -353,8 +356,10 @@ describe('Streami18n translationBuilder', () => {
     }
     const streami18n = new Streami18n({
       ...streami18nOptions,
-      translationBuilderTopics: { test: CustomTopic },
-    } as any);
+      translationBuilderTopics: {
+        test: CustomTopic as unknown as TranslationTopicConstructor,
+      },
+    });
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
     expect((streami18n.translationBuilder as any).topics.size).toBe(2);
@@ -370,8 +375,11 @@ describe('Streami18n translationBuilder', () => {
     }
     const streami18n = new Streami18n({
       ...streami18nOptions,
-      translationBuilderTopics: { notification: CustomNotificationTranslationTopic },
-    } as any);
+      translationBuilderTopics: {
+        notification:
+          CustomNotificationTranslationTopic as unknown as TranslationTopicConstructor,
+      },
+    });
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
     expect((streami18n.translationBuilder as any).topics.size).toBe(1);

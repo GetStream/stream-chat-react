@@ -1,7 +1,9 @@
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { i18n } from 'i18next';
 
-const mockI18Next = { id: 'mockI18Next', use: vi.fn() } as any;
+const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
 describe('NotificationTranslationTopic', () => {
   it('gets initiated with defaults', () => {
     const builder = new NotificationTranslationTopic({ i18next: mockI18Next });
@@ -41,19 +43,15 @@ describe('NotificationTranslationTopic', () => {
     const key = '';
 
     let notification = undefined;
-    expect(builder.translate(translatedString, key, { notification } as any)).toBe(
+    expect(builder.translate(translatedString, key, { notification })).toBe(
       translatedString,
     );
 
     notification = { type: 'validation:attachment:upload:blocked' };
-    expect(builder.translate(translatedString, key, { notification } as any)).toBe(
-      'blocked',
-    );
+    expect(builder.translate(translatedString, key, { notification })).toBe('blocked');
 
     notification = { type: 'api:attachment:upload:failed' };
-    expect(builder.translate(translatedString, key, { notification } as any)).toBe(
-      'failed',
-    );
+    expect(builder.translate(translatedString, key, { notification })).toBe('failed');
   });
 
   it('falls back to translating notification.message when type has no translator', () => {
@@ -64,16 +62,16 @@ describe('NotificationTranslationTopic', () => {
           ? 'translated/file-required'
           : key,
       ),
-    };
+    } as any;
     const builder = new NotificationTranslationTopic({
       i18next,
     });
 
-    const output = (builder as any).translate('XXX', '', {
+    const output = builder.translate('XXX', '', {
       notification: {
         message: 'File is required for upload attachment',
         type: 'unknown:type',
-      },
+      } as any,
     });
 
     expect(output).toBe('translated/file-required');
@@ -90,17 +88,17 @@ describe('NotificationTranslationTopic', () => {
           ? `translated/reason:${options.reason}`
           : key,
       ),
-    };
+    } as any;
     const builder = new NotificationTranslationTopic({
       i18next,
     });
 
-    const output = (builder as any).translate('XXX', '', {
+    const output = builder.translate('XXX', '', {
       notification: {
         message: 'Attachment upload failed due to {{reason}}',
         metadata: { reason: 'network error' },
         type: 'unknown:type',
-      },
+      } as any,
     });
 
     expect(output).toBe('translated/reason:network error');
@@ -131,13 +129,13 @@ describe('NotificationTranslationTopic', () => {
     const i18next = {
       ...mockI18Next,
       t: vi.fn((key) => `translated:${key}`),
-    };
+    } as any;
     const builder = new NotificationTranslationTopic({ i18next });
 
-    const output = (builder as any).translate('XXX', '', {
+    const output = builder.translate('XXX', '', {
       notification: {
         type,
-      },
+      } as any,
     });
 
     expect(output).toBe(`translated:${translationKey}`);
@@ -152,14 +150,14 @@ describe('NotificationTranslationTopic', () => {
           ? `translated/reason:${options.reason}`
           : key,
       ),
-    };
+    } as any;
     const builder = new NotificationTranslationTopic({ i18next });
 
-    const output = (builder as any).translate('XXX', '', {
+    const output = builder.translate('XXX', '', {
       notification: {
         metadata: { reason: 'NETWORK' },
         type: 'api:poll:create:failed',
-      },
+      } as any,
     });
 
     expect(output).toBe('translated/reason:network');
@@ -172,10 +170,10 @@ describe('NotificationTranslationTopic', () => {
       translators: { 'api:location:create:failed': customTranslator },
     });
 
-    const output = (builder as any).translate('XXX', '', {
+    const output = builder.translate('XXX', '', {
       notification: {
         type: 'api:location:create:failed',
-      },
+      } as any,
     });
 
     expect(output).toBe('custom/location-failed');

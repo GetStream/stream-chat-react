@@ -1,4 +1,5 @@
-import type { ChannelResponse, StreamChat, UserResponse } from 'stream-chat';
+import type { StreamChat, UserResponse } from 'stream-chat';
+import { type ChannelOrResponse, toChannelResponse } from './utils';
 
 export default ({
   channel,
@@ -6,33 +7,33 @@ export default ({
   hardDelete,
   user,
 }: {
-  channel: ChannelResponse & { name?: string }; // mock-builders are excluded in tsconfig.json
   client: StreamChat;
+  channel?: ChannelOrResponse;
   hardDelete?: boolean;
-  user: UserResponse;
+  user: Partial<UserResponse>;
 }) => {
   if (channel) {
-    const [channel_id, channel_type] = channel.cid.split(':');
+    const data = toChannelResponse(channel);
+    const [channel_id, channel_type] = data.cid.split(':');
     client.dispatchEvent({
       channel_custom: {
-        // archived: false,
-        name: channel.name,
+        name: (data as any).name as string | undefined,
       },
       channel_id,
       channel_member_count: 2,
       channel_type,
-      cid: channel.cid,
+      cid: data.cid,
       created_at: new Date().toISOString(),
       hard_delete: !!hardDelete,
       type: 'user.messages.deleted',
-      user,
+      user: user as UserResponse,
     });
   } else {
     client.dispatchEvent({
       created_at: new Date().toISOString(),
       hard_delete: !!hardDelete,
       type: 'user.messages.deleted',
-      user,
+      user: user as UserResponse,
     });
   }
 };

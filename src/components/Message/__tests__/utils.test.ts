@@ -1,4 +1,6 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { ChannelConfigWithInfo, Mute } from 'stream-chat';
 import {
   countReactions,
   getTestClientWithUser,
@@ -19,27 +21,30 @@ import {
   OPTIONAL_MESSAGE_ACTIONS,
   validateAndGetMessage,
 } from '../utils';
+import type { MessageProps } from '../types';
 
-const alice = generateUser({ name: 'alice' }) as any;
-const bob = generateUser({ name: 'bob' }) as any;
+const alice = generateUser({ name: 'alice' });
+const bob = generateUser({ name: 'bob' });
 
 describe('Message utils', () => {
   describe('validateAndGetMessage function', () => {
     it('should return null if called without a function as the first parameter', () => {
-      const result = validateAndGetMessage({} as any, 'Message' as any);
+      // @ts-expect-error testing runtime guard with invalid input
+      const result = validateAndGetMessage({}, 'Message');
       expect(result).toBeNull();
     });
 
     it('should return null if result of function call is not a string', () => {
       const fn = () => null;
-      const result = validateAndGetMessage(fn, 'something' as any);
+      // @ts-expect-error testing runtime guard with non-array args
+      const result = validateAndGetMessage(fn, 'something');
       expect(result).toBeNull();
     });
 
     it('should return the result of the function call when it is a string', () => {
-      const fn = (msg: any) => msg;
+      const fn = (msg: string) => msg;
       const message = 'message';
-      const result = validateAndGetMessage(fn, [message] as any);
+      const result = validateAndGetMessage(fn, [message]);
       expect(result).toBe(message);
     });
   });
@@ -47,32 +52,34 @@ describe('Message utils', () => {
   describe('isUserMuted function', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
-        {
-          created_at: new Date('2019-03-30T13:24:10'),
+        fromPartial<Mute>({
+          created_at: new Date('2019-03-30T13:24:10') as any,
           target: bob,
           user: alice,
-        },
+        }),
       ];
-      const result = isUserMuted(undefined, mutes as any);
+      const result = isUserMuted(undefined, mutes);
       expect(result).toBe(false);
     });
 
     it('should return false if mutes is not defined', () => {
-      const message = generateMessage() as any;
+      const message = generateMessage();
+      // @ts-expect-error testing runtime guard with message that may lack required fields
       const result = isUserMuted(message, undefined);
       expect(result).toBe(false);
     });
 
     it('should return true if user was muted', () => {
       const mutes = [
-        {
-          created_at: new Date('2019-03-30T13:24:10'),
+        fromPartial<Mute>({
+          created_at: new Date('2019-03-30T13:24:10') as any,
           target: bob,
           user: alice,
-        },
+        }),
       ];
-      const message = generateMessage({ user: bob }) as any;
-      const result = isUserMuted(message, mutes as any);
+      const message = generateMessage({ user: bob });
+      // @ts-expect-error MessageResponse is not exactly LocalMessage
+      const result = isUserMuted(message, mutes);
       expect(result).toBe(true);
     });
   });
@@ -113,21 +120,21 @@ describe('Message utils', () => {
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['remindMe'], defaultCapabilities, {
         user_message_reminders: true,
-      } as any);
+      } as ChannelConfigWithInfo);
       expect(result).toStrictEqual(['remindMe']);
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['saveForLater'], defaultCapabilities, {
         user_message_reminders: true,
-      } as any);
+      } as ChannelConfigWithInfo);
       expect(result).toStrictEqual(['saveForLater']);
     });
 
     it('should include reminder actions if enabled in channel config', () => {
       const result = getMessageActions(true, defaultCapabilities, {
         user_message_reminders: true,
-      } as any);
+      } as ChannelConfigWithInfo);
       expect(result).toEqual(actions);
     });
 
@@ -167,18 +174,18 @@ describe('Message utils', () => {
   describe('shouldMessageComponentUpdate', () => {
     it('should not update if rendered with the same message props', () => {
       const message = generateMessage();
-      const currentProps = { message };
-      const nextProps = { message };
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const currentProps = fromPartial<MessageProps>({ message });
+      const nextProps = fromPartial<MessageProps>({ message });
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(shouldUpdate).toBe(false);
     });
 
     it('should update if rendered with a different message', () => {
       const message1 = generateMessage({ id: 'message-1' });
       const message2 = generateMessage({ id: 'message-2' });
-      const currentProps = { message: message1 };
-      const nextProps = { message: message2 };
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const currentProps = fromPartial<MessageProps>({ message: message1 });
+      const nextProps = fromPartial<MessageProps>({ message: message2 });
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(shouldUpdate).toBe(true);
     });
 
@@ -203,39 +210,39 @@ describe('Message utils', () => {
       const quotedMessage = generateMessage();
       cases.forEach(([key, prevVal, nextVal]) => {
         const shouldUpdate = !areMessagePropsEqual(
-          {
+          fromPartial<MessageProps>({
             message: {
               ...message,
-              quoted_message: { ...quotedMessage, [key as any]: prevVal },
+              quoted_message: { ...quotedMessage, [key as string]: prevVal },
               quoted_message_id: quotedMessage.id,
             },
-          } as any,
-          {
+          }),
+          fromPartial<MessageProps>({
             message: {
               ...message,
-              quoted_message: { ...quotedMessage, [key as any]: nextVal },
+              quoted_message: { ...quotedMessage, [key as string]: nextVal },
               quoted_message_id: quotedMessage.id,
             },
-          } as any,
+          }),
         );
         expect(shouldUpdate).toBe(true);
       });
       expect(
         !areMessagePropsEqual(
-          {
+          fromPartial<MessageProps>({
             message: {
               ...message,
               quoted_message: undefined,
               quoted_message_id: undefined,
             },
-          } as any,
-          {
+          }),
+          fromPartial<MessageProps>({
             message: {
               ...message,
               quoted_message: quotedMessage,
               quoted_message_id: quotedMessage.id,
             },
-          } as any,
+          }),
         ),
       ).toBe(true);
     });
@@ -243,23 +250,29 @@ describe('Message utils', () => {
     it('should update if rendered with a different message is read by other users', () => {
       const message = generateMessage();
       const currentReadBy = [alice];
-      const currentProps = { message, readBy: currentReadBy };
+      const currentProps = fromPartial<MessageProps>({ message, readBy: currentReadBy });
       const nextReadBy = [alice, bob];
-      const nextProps = { message, readBy: nextReadBy };
-      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const nextProps = fromPartial<MessageProps>({ message, readBy: nextReadBy });
+      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
 
     it('should update if rendered with different groupStyles', () => {
       const message = generateMessage();
-      const currentGroupStyles = ['top'];
-      const currentProps = { groupStyles: currentGroupStyles, message };
-      const nextGroupStyles = ['bottom', 'right'];
-      const nextProps = { groupStyles: nextGroupStyles, message };
-      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const currentGroupStyles = ['top'] as any;
+      const currentProps = fromPartial<MessageProps>({
+        groupStyles: currentGroupStyles,
+        message,
+      });
+      const nextGroupStyles = ['bottom', 'right'] as any;
+      const nextProps = fromPartial<MessageProps>({
+        groupStyles: nextGroupStyles,
+        message,
+      });
+      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -267,11 +280,17 @@ describe('Message utils', () => {
     it('should update if last received message in the channel changes', () => {
       const message = generateMessage();
       const currentLastReceivedId = 'some-message';
-      const currentProps = { lastReceivedId: currentLastReceivedId, message };
+      const currentProps = fromPartial<MessageProps>({
+        lastReceivedId: currentLastReceivedId,
+        message,
+      });
       const nextLastReceivedId = 'some-other-message';
-      const nextProps = { lastReceivedId: nextLastReceivedId, message };
-      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const nextProps = fromPartial<MessageProps>({
+        lastReceivedId: nextLastReceivedId,
+        message,
+      });
+      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -279,11 +298,17 @@ describe('Message utils', () => {
     it('should update if wrapper layout changes', () => {
       const message = generateMessage();
       const currentMessageListRect = { height: 100, width: 100, x: 0, y: 0 };
-      const currentProps = { message, messageListRect: currentMessageListRect };
+      const currentProps = fromPartial<MessageProps>({
+        message,
+        messageListRect: currentMessageListRect,
+      });
       const nextMessageListRect = { height: 200, width: 200, x: 20, y: 20 };
-      const nextProps = { message, messageListRect: nextMessageListRect };
-      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
-      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
+      const nextProps = fromPartial<MessageProps>({
+        message,
+        messageListRect: nextMessageListRect,
+      });
+      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -293,8 +318,8 @@ describe('Message utils', () => {
       const prevMessageActions = ['edit', 'delete'];
       const nextMessageActions = ['edit', 'delete', 'reply'];
       const shouldUpdate = !areMessagePropsEqual(
-        { message, messageActions: prevMessageActions } as any,
-        { message, messageActions: nextMessageActions } as any,
+        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
+        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
       );
       expect(shouldUpdate).toBe(true);
     });
@@ -304,8 +329,8 @@ describe('Message utils', () => {
       const prevMessageActions = ['edit', 'delete'];
       const nextMessageActions = ['edit', 'delete'];
       const shouldUpdate = !areMessagePropsEqual(
-        { message, messageActions: prevMessageActions } as any,
-        { message, messageActions: nextMessageActions } as any,
+        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
+        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
       );
       expect(shouldUpdate).toBe(false);
     });
@@ -319,7 +344,8 @@ describe('Message utils', () => {
       const message = generateMessage({
         latest_reactions: [],
       });
-      expect(messageHasReactions(message as any)).toBe(false);
+      // @ts-expect-error MessageResponse is not exactly LocalMessage
+      expect(messageHasReactions(message)).toBe(false);
     });
     it('should return true if message has reactions', () => {
       const reactions = [generateReaction()];
@@ -328,7 +354,8 @@ describe('Message utils', () => {
         reaction_counts: countReactions(reactions),
         reaction_groups: groupReactions(reactions),
       });
-      expect(messageHasReactions(message as any)).toBe(true);
+      // @ts-expect-error MessageResponse is not exactly LocalMessage
+      expect(messageHasReactions(message)).toBe(true);
     });
   });
 
@@ -340,7 +367,8 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [],
       });
-      expect(messageHasAttachments(message as any)).toBe(false);
+      // @ts-expect-error MessageResponse is not exactly LocalMessage
+      expect(messageHasAttachments(message)).toBe(false);
     });
     it('should return true if message has attachments', () => {
       const attachment = {
@@ -350,7 +378,8 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [attachment],
       });
-      expect(messageHasAttachments(message as any)).toBe(true);
+      // @ts-expect-error MessageResponse is not exactly LocalMessage
+      expect(messageHasAttachments(message)).toBe(true);
     });
   });
 
@@ -366,7 +395,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf],
       });
-      expect(getImages(message as any)).toStrictEqual([]);
+      expect(getImages(message)).toStrictEqual([]);
     });
     it('should return just the image attachments when message has them', () => {
       const pdf = {
@@ -380,7 +409,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getImages(message as any)).toStrictEqual([img]);
+      expect(getImages(message)).toStrictEqual([img]);
     });
   });
 
@@ -397,7 +426,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [img],
       });
-      expect(getNonImageAttachments(message as any)).toStrictEqual([]);
+      expect(getNonImageAttachments(message)).toStrictEqual([]);
     });
 
     it('should return just the non-image attachments when message has them', () => {
@@ -412,7 +441,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getNonImageAttachments(message as any)).toStrictEqual([pdf]);
+      expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
     });
   });
 
@@ -484,7 +513,7 @@ describe('Message utils', () => {
         users,
         mockTranslatorFunction as any,
         client,
-        (user: any) => `Dr. ${user.name}`,
+        (user) => `Dr. ${user.name}`,
       );
       expect(result).toStrictEqual(`Dr. 1 and Dr. 2`);
     });
