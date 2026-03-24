@@ -22,7 +22,7 @@
   --str-chat__message-box-shadow: none;
   --str-chat__message-active-background-color: transparent;
 
-  --str-chat__message-options-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__message-options-color: var(--button-secondary-text);
   --str-chat__message-options-hover-background-color: var(
     --str-chat__tertiary-surface-color
   );
@@ -551,12 +551,6 @@
 
   .str-chat__message-error-icon {
     display: none;
-    --str-chat-icon-color: var(--str-chat__message-error-message-color);
-
-    /* stylelint-disable-next-line selector-max-id */
-    svg #background {
-      fill: var(--str-chat__message-error-message-color);
-    }
   }
 
   .str-chat__message-inner--error {
@@ -585,11 +579,6 @@
       position: absolute;
       top: 8px;
       inset-inline-end: calc(-1 * calc(#{$icon-size} / 2));
-
-      svg {
-        width: $icon-size;
-        height: $icon-size;
-      }
     }
   }
 }

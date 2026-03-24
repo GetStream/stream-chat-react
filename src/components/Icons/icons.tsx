@@ -505,6 +505,16 @@ export const IconEmojiSmile = createIcon(
   </>,
 );
 
+export const IconExclamation = createIcon(
+  'IconExclamation',
+  <>
+    <g transform='translate(6.2222 0) scale(1.7778)'>
+      <path d='M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z' />
+      <path d='M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z' />
+    </g>
+  </>,
+);
+
 export const IconExclamationCircle1 = createIcon(
   'IconExclamationCircle1',
   <>

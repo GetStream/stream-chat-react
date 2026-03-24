@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { type ComponentProps } from 'react';
+import { IconExclamation } from '../Icons';
 
 export type BadgeVariant =
   | 'default'
@@ -40,4 +41,14 @@ export const Badge = ({
   >
     {children}
   </div>
+);
+
+export const ErrorBadge = ({
+  className,
+  size = 'sm',
+  ...rest
+}: Omit<BadgeProps, 'variant'>) => (
+  <Badge {...rest} className={className} size={size} variant='error'>
+    <IconExclamation />
+  </Badge>
 );

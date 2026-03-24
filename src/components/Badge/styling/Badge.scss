@@ -104,3 +104,21 @@
     padding-inline: var(--spacing-sm);
   }
 }
+
+.str-chat__badge--variant-error {
+  &.str-chat__badge--size-xs {
+    min-width: 16px;
+    min-height: 16px;
+  }
+
+
+  &.str-chat__badge--size-sm {
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  &.str-chat__badge--size-md {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}

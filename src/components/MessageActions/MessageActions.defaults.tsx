@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { GlobalModal } from '../Modal';
 import {
   IconArrowRotateClockwise,
+  IconArrowShareLeft,
   IconBellNotification,
   IconBellOff,
   IconBookmark,
@@ -13,6 +14,7 @@ import {
   IconCircleBanSign,
   IconCloseQuote2,
   IconEditBig,
+  IconEmojiSmile,
   IconFlag2,
   IconMute,
   IconPeopleAdded,
@@ -26,7 +28,6 @@ import { isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import { useMessageReminder } from '../Message/hooks/useMessageReminder';
-import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../Message/icons';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
   useChannelActionContext,
@@ -384,7 +385,7 @@ const DefaultMessageActionComponents = {
   },
   quick: {
     React() {
-      return <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />;
+      return <ReactionSelectorWithButton ReactionIcon={IconEmojiSmile} />;
     },
     Reply() {
       const { handleOpenThread } = useMessageContext();
@@ -397,7 +398,7 @@ const DefaultMessageActionComponents = {
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
-          <ThreadIcon className='str-chat__message-action-icon' />
+          <IconArrowShareLeft className='str-chat__message-action-icon' />
         </QuickMessageActionsButton>
       );
     },
