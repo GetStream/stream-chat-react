@@ -1,0 +1,1408 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Card > (1) should render 'card without caption' if attachment type is 'audio' and 'og_scrape_url neither title_link is a…' 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card > (2) should render 'card without caption' if attachment type is 'video' and 'og_scrape_url neither title_link is a…' 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card > (3) should render 'card without caption' if attachment type is 'image' and 'og_scrape_url neither title_link is a…' 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card > (4) should render 'unable-to-display card' if attachment type is 'audio' and 'neither image and asset urls nor titl…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (5) should render 'unable-to-display card' if attachment type is 'video' and 'neither image and asset urls nor titl…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (6) should render 'unable-to-display card' if attachment type is 'image' and 'neither image and asset urls nor titl…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (7) should render 'audio with caption using og_scrape_ur…' if attachment type is 'audio' and 'title_link is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (8) should render 'video with caption using og_scrape_ur…' if attachment type is 'video' and 'title_link is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (9) should render 'image with caption using og_scrape_ur…' if attachment type is 'image' and 'title_link is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (10) should render 'audio without title' if attachment type is 'audio' and 'title is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (11) should render 'video without title' if attachment type is 'video' and 'title is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (12) should render 'image without title' if attachment type is 'image' and 'title is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (13) should render 'audio without title and with caption …' if attachment type is 'audio' and 'title_link neither title is available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (14) should render 'video without title and with caption …' if attachment type is 'video' and 'title_link neither title is available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (15) should render 'image without title and with caption …' if attachment type is 'image' and 'title_link neither title is available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_og_scrape_url"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_thumb_url"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_og_scrape_url
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (16) should render 'audio widget with title & text in Car…' if attachment type is 'audio' and 'og image URLs are not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (17) should render 'video widget in header and title & te…' if attachment type is 'video' and 'og image URLs are not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (18) should render 'card with title and text only and wit…' if attachment type is 'image' and 'og image URLs are not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (19) should render 'image loaded from thumb_url not audio…' if attachment type is 'audio' and 'thumb_url is available, but not asset…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (20) should render 'image loaded from thumb_url not video…' if attachment type is 'video' and 'thumb_url is available, but not asset…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (21) should render 'image loaded from thumb_url' if attachment type is 'image' and 'thumb_url is available, but not image…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (22) should render 'image loaded from image_url not audio…' if attachment type is 'audio' and 'image_url is available, but not asset…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (23) should render 'image loaded from image_url not video…' if attachment type is 'video' and 'image_url is available, but not asset…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (24) should render 'image loaded from image_url' if attachment type is 'image' and 'image_url is available, but not thumb…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (25) should render 'audio widget with image loaded from t…' if attachment type is 'audio' and 'all props are available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (26) should render 'video widget in header and title & te…' if attachment type is 'video' and 'all props are available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__base-image"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        title="dummyAttachment_title"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (27) should render 'content part with title and text only…' if attachment type is 'audio' and 'asset and neither og image URL is ava…' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > (28) should render 'content part with title and text only…' if attachment type is 'video' and 'scraped media URL is not available' 1`] = `
+<div>
+  <a
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+    href="dummyAttachment_title_link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--title"
+      >
+        dummyAttachment_title
+      </div>
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        dummyAttachment_text
+      </div>
+      <div
+        class="str-chat__message-attachment-card--source-link"
+        data-testid="card-source-link"
+      >
+        <svg
+          class="str-chat__icon str-chat__icon--chain-link"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.26204 6.07259C3.49631 5.83849 3.87542 5.83851 4.1097 6.07259C4.34402 6.3069 4.34401 6.6869 4.1097 6.92122L3.46224 7.56868C2.09022 8.94071 2.09032 11.1653 3.46224 12.5374C4.83433 13.9095 7.0589 13.9095 8.43099 12.5374L9.07454 11.8949C9.30886 11.6605 9.68886 11.6605 9.92317 11.8949C10.1571 12.1292 10.1574 12.5093 9.92317 12.7435L9.27962 13.3861C7.4389 15.2268 4.45432 15.2268 2.6136 13.3861C0.773057 11.5453 0.772952 8.56071 2.6136 6.72005L3.26204 6.07259ZM9.24251 5.9095C9.47682 5.67519 9.85683 5.67519 10.0911 5.9095C10.325 6.14374 10.325 6.52293 10.0911 6.75716L6.75716 10.0911C6.52293 10.325 6.14373 10.325 5.9095 10.0911C5.67519 9.85683 5.67519 9.47683 5.9095 9.24251L9.24251 5.9095ZM6.72005 2.61361C8.56071 0.772958 11.5453 0.77305 13.3861 2.61361C15.2268 4.45432 15.2268 7.4389 13.3861 9.27962L12.7406 9.92513C12.5063 10.1595 12.1263 10.1594 11.8919 9.92513C11.6579 9.69087 11.6579 9.31175 11.8919 9.07747L12.5374 8.43099C13.9095 7.0589 13.9095 4.83433 12.5374 3.46224C11.1653 2.09031 8.94071 2.09022 7.56868 3.46224L6.92415 4.10677C6.68982 4.34093 6.30978 4.34104 6.07552 4.10677C5.84144 3.87249 5.84142 3.4924 6.07552 3.25814L6.72005 2.61361Z"
+          />
+        </svg>
+        <div
+          class="str-chat__message-attachment-card--url"
+        >
+          dummyAttachment_title_link
+        </div>
+      </div>
+    </div>
+  </a>
+</div>
+`;
+
+exports[`Card > should render giphy image if type is giphy 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        this content could not be displayed
+      </div>
+    </div>
+  </div>
+</div>
+`;

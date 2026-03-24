@@ -1,0 +1,153 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ChannelListMessenger > by default, children should be rendered 1`] = `
+<div>
+  <div
+    class="str-chat__channel-list-inner"
+  >
+    <div
+      aria-label="Channel list"
+      class="str-chat__channel-list-inner__main"
+      role="listbox"
+    >
+      <div>
+        children 1
+      </div>
+      <div>
+        children 2
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ChannelListMessenger > when \`error\` prop is true, \`LoadingErrorIndicator\` should be rendered 1`] = `<div />`;
+
+exports[`ChannelListMessenger > when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
+<div>
+  <div
+    class="str-chat__channel-list-inner"
+  >
+    <div
+      aria-label="Channel list"
+      class="str-chat__channel-list-inner__main"
+      role="listbox"
+    >
+      <div
+        class="str-chat__loading-channels"
+      >
+        <div
+          class="str-chat__channel-list-item-container"
+        >
+          <div
+            aria-hidden="true"
+            class="str-chat__channel-list-item str-chat__channel-list-item--loading"
+          >
+            <div
+              class="str-chat__loading-channels-avatar"
+            />
+            <div
+              class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
+            >
+              <div
+                class="str-chat__loading-channels-username"
+              />
+              <div
+                class="str-chat__loading-channels-status"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__channel-list-item-container"
+        >
+          <div
+            aria-hidden="true"
+            class="str-chat__channel-list-item str-chat__channel-list-item--loading"
+          >
+            <div
+              class="str-chat__loading-channels-avatar"
+            />
+            <div
+              class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
+            >
+              <div
+                class="str-chat__loading-channels-username"
+              />
+              <div
+                class="str-chat__loading-channels-status"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__channel-list-item-container"
+        >
+          <div
+            aria-hidden="true"
+            class="str-chat__channel-list-item str-chat__channel-list-item--loading"
+          >
+            <div
+              class="str-chat__loading-channels-avatar"
+            />
+            <div
+              class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
+            >
+              <div
+                class="str-chat__loading-channels-username"
+              />
+              <div
+                class="str-chat__loading-channels-status"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__channel-list-item-container"
+        >
+          <div
+            aria-hidden="true"
+            class="str-chat__channel-list-item str-chat__channel-list-item--loading"
+          >
+            <div
+              class="str-chat__loading-channels-avatar"
+            />
+            <div
+              class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
+            >
+              <div
+                class="str-chat__loading-channels-username"
+              />
+              <div
+                class="str-chat__loading-channels-status"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__channel-list-item-container"
+        >
+          <div
+            aria-hidden="true"
+            class="str-chat__channel-list-item str-chat__channel-list-item--loading"
+          >
+            <div
+              class="str-chat__loading-channels-avatar"
+            />
+            <div
+              class="str-chat__channel-list-item-data str-chat__channel-list-item-data--loading"
+            >
+              <div
+                class="str-chat__loading-channels-username"
+              />
+              <div
+                class="str-chat__loading-channels-status"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
