@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 
@@ -35,18 +34,22 @@ const defaultChannelState = {
 
 const t = vi.fn((key) => key);
 
-const renderComponentBase = ({ channel, client, props }) =>
+const renderComponentBase = ({ channel, client, props }: any) =>
   render(
-    <ChatProvider value={{ channel, client }}>
-      <ChannelStateProvider value={{ channel }}>
-        <TranslationProvider value={{ t }}>
+    <ChatProvider value={{ channel, client } as any}>
+      <ChannelStateProvider value={{ channel } as any}>
+        <TranslationProvider value={{ t } as any}>
           <ChannelHeader {...props} />
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );
 
-async function renderComponent({ channelData, channelType = 'messaging', props } = {}) {
+async function renderComponent({
+  channelData,
+  channelType = 'messaging',
+  props,
+}: any = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
@@ -177,7 +180,7 @@ describe('ChannelHeader', () => {
       expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument(),
     );
     act(() => {
-      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute } as any);
     });
     await waitFor(() =>
       expect(screen.queryAllByText(updatedAttribute.name).length).toBeGreaterThan(0),
@@ -192,7 +195,7 @@ describe('ChannelHeader', () => {
       expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
     });
     act(() => {
-      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute } as any);
     });
     await waitFor(() =>
       expect(screen.getByTestId('avatar-img')).toHaveAttribute(
@@ -207,7 +210,7 @@ describe('ChannelHeader', () => {
       Avatar: ChannelAvatar,
     };
 
-    const getChannelState = (memberCount, channelData) => {
+    const getChannelState = (memberCount: number, channelData?: any) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
@@ -258,7 +261,7 @@ describe('ChannelHeader', () => {
           expect(screen.getByText(channelName)).toBeInTheDocument();
         });
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute });
+          dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute } as any);
         });
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -293,7 +296,7 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
       });
 
       await waitFor(() => {
@@ -337,7 +340,7 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
       });
 
       await waitFor(() => {
@@ -369,12 +372,12 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
         });
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
       });
 
       await waitFor(() => {
@@ -382,7 +385,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
         });
       });
     });
@@ -404,12 +407,12 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
         });
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
       });
 
       await waitFor(() => {
@@ -417,7 +420,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i].userimage);
+          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
         });
       });
     });

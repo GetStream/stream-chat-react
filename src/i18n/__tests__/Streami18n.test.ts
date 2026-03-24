@@ -1,4 +1,3 @@
-// @ts-nocheck
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
 import { nanoid } from 'nanoid';
@@ -82,7 +81,7 @@ describe('Streami18n instance - default', () => {
   it('should provide moment with default en locale', async () => {
     const { tDateTimeParser } = await streami18n.getTranslators();
     expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-    expect(tDateTimeParser().locale()).toBe('en');
+    expect((tDateTimeParser() as any).locale()).toBe('en');
   });
 });
 
@@ -109,7 +108,7 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide moment with `nl` locale', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect(tDateTimeParser().locale()).toBe('nl');
+      expect((tDateTimeParser() as any).locale()).toBe('nl');
     });
   });
 
@@ -140,7 +139,7 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide moment with default `en` locale', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect(tDateTimeParser().locale()).toBe('en');
+      expect((tDateTimeParser() as any).locale()).toBe('en');
     });
   });
 
@@ -148,13 +147,13 @@ describe('Streami18n instance - with built-in langauge', () => {
     const streami18nOptions = {
       language: 'nl',
       dayjsLocaleConfigForLanguage: customDayjsLocaleConfig,
-    };
+    } as any;
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide moment with given custom locale config', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      const localeConfig = tDateTimeParser().localeData();
+      const localeConfig = (tDateTimeParser() as any).localeData();
       for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
         if (localeConfig[key]) {
           expect(
@@ -181,7 +180,7 @@ describe('Streami18n instance - with custom translations', () => {
     const streami18nOptions = {
       langauge: 'zh',
       translationsForLanguage: translations,
-    };
+    } as any;
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide given (chinese in this case) translator', async () => {
@@ -195,7 +194,7 @@ describe('Streami18n instance - with custom translations', () => {
     it('should provide moment with default `en` locale', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect(tDateTimeParser().locale()).toBe('en');
+      expect((tDateTimeParser() as any).locale()).toBe('en');
     });
   });
 });
@@ -211,7 +210,11 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     text1: 'अनुवादित मजकूर 1',
     text2: 'अनुवादित मजकूर 2',
   };
-  streami18n.registerTranslation(languageCode, translations, customDayjsLocaleConfig);
+  streami18n.registerTranslation(
+    languageCode,
+    translations as any,
+    customDayjsLocaleConfig as any,
+  );
 
   streami18n.setLanguage('mr');
 
@@ -225,7 +228,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     const { tDateTimeParser } = await streami18n.getTranslators();
     expect(tDateTimeParser() instanceof Dayjs).toBe(true);
 
-    const localeConfig = tDateTimeParser().localeData();
+    const localeConfig = (tDateTimeParser() as any).localeData();
     for (const key in customDayjsLocaleConfig) {
       if (localeConfig[key]) {
         expect(customDayjsLocaleConfig[key]).toStrictEqual(
@@ -270,7 +273,7 @@ describe('Streami18n timezone', () => {
     it('is by default the local timezone', () => {
       const streamI18n = new Streami18n({ DateTimeParser: module });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(
+      expect((streamI18n.tDateTimeParser(date) as any).format('H')).toBe(
         date.getHours().toString(),
       );
     });
@@ -281,28 +284,28 @@ describe('Streami18n timezone', () => {
         timezone: 'Europe/Prague',
       });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(
+      expect((streamI18n.tDateTimeParser(date) as any).format('H')).not.toBe(
         date.getHours().toString(),
       );
-      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(
+      expect((streamI18n.tDateTimeParser(date) as any).format('H')).not.toBe(
         (date.getUTCHours() - 2).toString(),
       );
     });
 
     it('is ignored if datetime parser does not support timezones', () => {
-      const tz = module.tz;
-      delete module.tz;
+      const tz = (module as any).tz;
+      delete (module as any).tz;
 
       const streamI18n = new Streami18n({
         DateTimeParser: module,
         timezone: 'Europe/Prague',
       });
       const date = new Date();
-      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(
+      expect((streamI18n.tDateTimeParser(date) as any).format('H')).toBe(
         date.getHours().toString(),
       );
 
-      module.tz = tz;
+      (module as any).tz = tz;
     });
     describe('formatters property', () => {
       it('contains the default timestampFormatter', () => {
@@ -310,16 +313,16 @@ describe('Streami18n timezone', () => {
       });
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
-          formatters: { timestampFormatter: (s) => () => 'custom' },
-          translationsForLanguage: { abc: '{{ value | timestampFormatter }}' },
+          formatters: { timestampFormatter: (s: any) => () => 'custom' },
+          translationsForLanguage: { abc: '{{ value | timestampFormatter }}' } as any,
         });
         await i18n.init();
         expect(i18n.t('abc')).toBe('custom');
       });
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
-          formatters: { customFormatter: (s) => () => 'custom' },
-          translationsForLanguage: { abc: '{{ value | customFormatter }}' },
+          formatters: { customFormatter: (s: any) => () => 'custom' },
+          translationsForLanguage: { abc: '{{ value | customFormatter }}' } as any,
         });
         await i18n.init();
         expect(i18n.t('abc')).toBe('custom');
@@ -332,13 +335,13 @@ describe('Streami18n translationBuilder', () => {
   it('is created at construction time', () => {
     const streami18n = new Streami18n(streami18nOptions);
     expect(streami18n.translationBuilder).toBeDefined();
-    expect(streami18n.translationBuilder.topics.size).toBe(0);
+    expect((streami18n.translationBuilder as any).topics.size).toBe(0);
   });
   it('registers topics on init', async () => {
     const streami18n = new Streami18n(streami18nOptions);
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect(streami18n.translationBuilder.topics.size).toBe(1);
+    expect((streami18n.translationBuilder as any).topics.size).toBe(1);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       NotificationTranslationTopic,
     );
@@ -351,10 +354,10 @@ describe('Streami18n translationBuilder', () => {
     const streami18n = new Streami18n({
       ...streami18nOptions,
       translationBuilderTopics: { test: CustomTopic },
-    });
+    } as any);
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect(streami18n.translationBuilder.topics.size).toBe(2);
+    expect((streami18n.translationBuilder as any).topics.size).toBe(2);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       NotificationTranslationTopic,
     );
@@ -368,10 +371,10 @@ describe('Streami18n translationBuilder', () => {
     const streami18n = new Streami18n({
       ...streami18nOptions,
       translationBuilderTopics: { notification: CustomNotificationTranslationTopic },
-    });
+    } as any);
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect(streami18n.translationBuilder.topics.size).toBe(1);
+    expect((streami18n.translationBuilder as any).topics.size).toBe(1);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       CustomNotificationTranslationTopic,
     );

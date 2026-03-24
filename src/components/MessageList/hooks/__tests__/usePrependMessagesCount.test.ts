@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { renderHook } from '@testing-library/react';
 import { usePrependedMessagesCount } from '../VirtualizedMessageList';
 import { generateMessage } from '../../../../mock-builders';
@@ -11,8 +10,8 @@ const getMessages = (length, statuses = []) =>
     }),
   );
 
-const messagesWithDateSeparator = ({ length, messages } = {}) => [
-  generateMessage({ customType: 'message.date' }),
+const messagesWithDateSeparator = ({ length, messages }: any = {}) => [
+  generateMessage({ customType: 'message.date' } as any),
   ...(messages || getMessages(length)),
 ];
 
@@ -22,11 +21,11 @@ const page2 = getMessages(10);
 const page1WithDateSeparator = messagesWithDateSeparator({ messages: page1 });
 const page2WithDateSeparator = messagesWithDateSeparator({ messages: page2 });
 
-const render = ({ hasDateSeparator, messages } = {}) =>
+const render = ({ hasDateSeparator, messages }: any = {}) =>
   renderHook(
-    (props) => usePrependedMessagesCount(props.messages, props.hasDateSeparator),
+    (props: any) => usePrependedMessagesCount(props.messages, props.hasDateSeparator),
     {
-      initialProps: { hasDateSeparator, messages },
+      initialProps: { hasDateSeparator, messages } as any,
     },
   );
 describe('usePrependMessagesCount', function () {

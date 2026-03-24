@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fixWebmDuration from 'fix-webm-duration';
 import * as transcoder from '../../transcode';
 import * as wavTranscoder from '../../transcode/wav';
@@ -22,7 +21,7 @@ import { generateDataavailableEvent } from '../../../../mock-builders/browser/ev
 
 const fileObjectURL = 'fileObjectURL';
 const nanoidMockValue = 'randomNanoId';
-const fileMock = { name: 'fileName' };
+const fileMock = { name: 'fileName' } as any;
 
 const recordedChunkCount = 10;
 const dataPoints = Array.from({ length: recordedChunkCount }, (_, i) => i);
@@ -46,13 +45,13 @@ const createFileFromBlobsSpy = vi
   .spyOn(reactFileUtils, 'createFileFromBlobs')
   .mockReturnValue(fileMock);
 
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 const expectRegistersError = async ({
   action,
   controller,
   errorMsg,
   notificationMsg,
-}) => {
+}: any) => {
   let error, notification;
   const errorSubscription = controller.error.subscribe((e) => {
     error = e;
@@ -76,9 +75,9 @@ const expectRegistersError = async ({
   notificationSubscription?.unsubscribe();
 };
 
-window.MediaRecorder = MediaRecorderMock;
+(window as any).MediaRecorder = MediaRecorderMock;
 
-window.AudioContext = AudioContextMock;
+(window as any).AudioContext = AudioContextMock;
 
 // eslint-disable-next-line
 window.URL.createObjectURL = vi.fn(() => fileObjectURL);
@@ -87,7 +86,7 @@ window.URL.revokeObjectURL = vi.fn();
 
 describe('MediaRecorderController', () => {
   beforeEach(() => {
-    window.navigator.mediaDevices = {
+    (window.navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
@@ -110,7 +109,7 @@ describe('MediaRecorderController', () => {
   });
 
   it('provides defaults on initiation (Safari)', () => {
-    MediaRecorder.isTypeSupported.mockReturnValueOnce(false);
+    (MediaRecorder.isTypeSupported as any).mockReturnValueOnce(false);
     const controller = new MediaRecorderController();
     expect(controller.mediaRecorderConfig).toStrictEqual(
       expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.safari }),
@@ -148,7 +147,7 @@ describe('MediaRecorderController', () => {
     const controller = new MediaRecorderController({
       config,
       generateRecordingTitle,
-      t,
+      t: t as any,
     });
     expect(controller.mediaRecorderConfig).toStrictEqual(
       expect.objectContaining(config.mediaRecorderConfig),
@@ -199,10 +198,10 @@ describe('MediaRecorderController', () => {
   describe('start', () => {
     it('checks device permission if unknown', async () => {
       const controller = new MediaRecorderController();
-      controller.permission.state.next(undefined);
+      controller.permission.state.next(undefined as any);
       const permissionCheckSpy = vi
         .spyOn(controller.permission, 'check')
-        .mockImplementation();
+        .mockImplementation(async () => {});
       await controller.start();
       expect(permissionCheckSpy).toHaveBeenCalledWith();
     });
@@ -211,7 +210,7 @@ describe('MediaRecorderController', () => {
       'registers error if %s',
       async (recordingState) => {
         const controller = new MediaRecorderController();
-        controller.recordingState.next(recordingState);
+        controller.recordingState.next(recordingState as any);
         await expectRegistersError({
           action: controller.start,
           controller,
@@ -227,9 +226,9 @@ describe('MediaRecorderController', () => {
           'with permission "%s"',
           (permission) => {
             it('registers error on unavailable navigator.mediaDevices', async () => {
-              window.navigator.mediaDevices = undefined;
+              (window.navigator as any).mediaDevices = undefined;
               const controller = new MediaRecorderController();
-              controller.permission.state.next(permission);
+              controller.permission.state.next(permission as any);
               await expectRegistersError({
                 action: controller.start,
                 controller,
@@ -243,7 +242,7 @@ describe('MediaRecorderController', () => {
               const controller = new MediaRecorderController({
                 config: { mediaRecorderConfig: { mimeType: 'video/webm' } },
               });
-              controller.permission.state.next(permission);
+              controller.permission.state.next(permission as any);
               await expectRegistersError({
                 action: controller.start,
                 controller,
@@ -256,10 +255,10 @@ describe('MediaRecorderController', () => {
 
             it('does not check device permission', async () => {
               const controller = new MediaRecorderController();
-              controller.permission.state.next(permission);
+              controller.permission.state.next(permission as any);
               const permissionCheckSpy = vi
                 .spyOn(controller.permission, 'check')
-                .mockImplementation();
+                .mockImplementation(async () => {});
               await controller.start();
               expect(permissionCheckSpy).not.toHaveBeenCalledWith();
             });
@@ -268,7 +267,7 @@ describe('MediaRecorderController', () => {
               '%s media devices',
               async () => {
                 const controller = new MediaRecorderController();
-                controller.permission.state.next(permission);
+                controller.permission.state.next(permission as any);
                 await controller.start();
                 if (permission === 'denied') {
                   expect(
@@ -290,7 +289,7 @@ describe('MediaRecorderController', () => {
               '%s amplitude recording for audio recording',
               async () => {
                 const controller = new MediaRecorderController();
-                controller.permission.state.next(permission);
+                controller.permission.state.next(permission as any);
                 await controller.start();
                 if (permission === 'denied') {
                   expect(controller.amplitudeRecorder).toBeUndefined();
@@ -310,7 +309,7 @@ describe('MediaRecorderController', () => {
             it('handles runtime error', async () => {
               const controller = new MediaRecorderController();
               const errorMsg = 'User media error';
-              window.navigator.mediaDevices.getUserMedia.mockRejectedValueOnce(
+              (window.navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(
                 new Error(errorMsg),
               );
               await expectRegistersError({
@@ -348,7 +347,7 @@ describe('MediaRecorderController', () => {
       'does nothing if recording state is %s',
       (recordingState) => {
         const controller = new MediaRecorderController();
-        controller.recordingState.next(recordingState);
+        controller.recordingState.next(recordingState as any);
         controller.pause();
         expect(controller.recordedChunkDurations).toHaveLength(0);
         expect(controller.recordingState.value).toBe(recordingState);
@@ -374,7 +373,7 @@ describe('MediaRecorderController', () => {
       'does nothing if recording state is %s',
       (recordingState) => {
         const controller = new MediaRecorderController();
-        controller.recordingState.next(recordingState);
+        controller.recordingState.next(recordingState as any);
         controller.resume();
         expect(controller.recordedChunkDurations).toHaveLength(0);
         expect(controller.recordingState.value).toBe(recordingState);
@@ -385,11 +384,11 @@ describe('MediaRecorderController', () => {
   describe('stop', () => {
     it('returns existing recording when mediaRecorder is inactive', async () => {
       const controller = new MediaRecorderController();
-      const existingRecording = generateVoiceRecordingAttachment();
+      const existingRecording = generateVoiceRecordingAttachment() as any;
       controller.recording.next(existingRecording);
       // stop() now requires mediaRecorder.state === 'inactive' to return existing recording
       await controller.start();
-      controller.mediaRecorder.state = 'inactive';
+      (controller.mediaRecorder as any).state = 'inactive';
       expect(await controller.stop()).toStrictEqual(
         expect.objectContaining(existingRecording),
       );
@@ -399,7 +398,7 @@ describe('MediaRecorderController', () => {
       'does nothing if recording state is %s',
       async (recordingState) => {
         const controller = new MediaRecorderController();
-        controller.recordingState.next(recordingState);
+        controller.recordingState.next(recordingState as any);
         expect(await controller.stop()).toBeUndefined();
         expect(controller.recordingState.value).toBe(recordingState);
       },
@@ -410,12 +409,12 @@ describe('MediaRecorderController', () => {
       async (recordingState) => {
         const controller = new MediaRecorderController();
         await controller.start();
-        controller.mediaRecorder.state = MediaRecordingState.RECORDING;
+        (controller.mediaRecorder as any).state = MediaRecordingState.RECORDING;
         if (recordingState === MediaRecordingState.PAUSED) {
           controller.pause();
-          controller.mediaRecorder.state = MediaRecordingState.PAUSED;
+          (controller.mediaRecorder as any).state = MediaRecordingState.PAUSED;
         }
-        const voiceRecording = generateVoiceRecordingAttachment();
+        const voiceRecording = generateVoiceRecordingAttachment() as any;
         setTimeout(() => {
           controller.signalRecordingReady(voiceRecording);
         }, 0);
@@ -437,7 +436,7 @@ describe('MediaRecorderController', () => {
       controller.handleDataavailableEvent(
         generateDataavailableEvent({
           dataOverrides: { data: new Blob([], { type: 'audio/webm' }) },
-        }),
+        }) as any,
       );
       expect(controller.recording.value).toBeUndefined();
     });
@@ -449,7 +448,8 @@ describe('MediaRecorderController', () => {
         .spyOn(controller, 'makeVoiceRecording')
         .mockRejectedValue(new Error(errorMsg));
       expectRegistersError({
-        action: () => controller.handleDataavailableEvent(generateDataavailableEvent()),
+        action: () =>
+          controller.handleDataavailableEvent(generateDataavailableEvent() as any),
         controller,
         errorMsg,
         notificationMsg: 'An error has occurred during the recording processing',
@@ -462,18 +462,18 @@ describe('MediaRecorderController', () => {
       const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(undefined);
-      await controller.handleDataavailableEvent(generateDataavailableEvent());
+      await controller.handleDataavailableEvent(generateDataavailableEvent() as any);
       expect(controller.recording.value).toBeUndefined();
       makeVoiceRecordingSpy.mockRestore();
     });
 
     it('emits recording if generation was successful', async () => {
       const controller = new MediaRecorderController();
-      const voiceRecording = generateVoiceRecordingAttachment();
+      const voiceRecording = generateVoiceRecordingAttachment() as any;
       const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(voiceRecording);
-      await controller.handleDataavailableEvent(generateDataavailableEvent());
+      await controller.handleDataavailableEvent(generateDataavailableEvent() as any);
       expect(controller.recording.value).toStrictEqual(
         expect.objectContaining(voiceRecording),
       );
@@ -504,7 +504,7 @@ describe('MediaRecorderController', () => {
       const controller = new MediaRecorderController({
         config: { mediaRecorderConfig: { mimeType } },
       });
-      controller.recordedData.push(new Blob([1], { type: mimeType }));
+      controller.recordedData.push(new Blob(['1'], { type: mimeType }));
       await controller.makeVoiceRecording();
       if (mimeType === 'audio/webm') {
         expect(fixWebmDuration).toHaveBeenCalledTimes(1);
@@ -527,7 +527,7 @@ describe('MediaRecorderController', () => {
       const controller = new MediaRecorderController({
         config: { mediaRecorderConfig: { mimeType } },
       });
-      controller.recordedData.push(new Blob([1], { type: mimeType }));
+      controller.recordedData.push(new Blob(['1'], { type: mimeType }));
       await controller.makeVoiceRecording();
       if (mimeType === 'audio/mp4') {
         expect(transcodeSpy).not.toHaveBeenCalled();
@@ -549,10 +549,10 @@ describe('MediaRecorderController', () => {
         });
 
         controller.recordedData = [
-          new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+          new Blob([new Uint8Array(dataPoints)], { type: recordedMimeType }),
         ];
         controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
-        const recordedFile = new File(controller.recordedData, fileMock);
+        const recordedFile = new File(controller.recordedData, fileMock.name);
         createFileFromBlobsSpy.mockReturnValue(recordedFile);
 
         const recording = await controller.makeVoiceRecording();
@@ -590,10 +590,10 @@ describe('MediaRecorderController', () => {
         });
 
         controller.recordedData = [
-          new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+          new Blob([new Uint8Array(dataPoints)], { type: recordedMimeType }),
         ];
         controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
-        const recordedFile = new File(controller.recordedData, fileMock);
+        const recordedFile = new File(controller.recordedData, fileMock.name);
         createFileFromBlobsSpy.mockReturnValue(recordedFile);
 
         const recording = await controller.makeVoiceRecording();
@@ -632,10 +632,10 @@ describe('MediaRecorderController', () => {
       });
 
       controller.recordedData = [
-        new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+        new Blob([new Uint8Array(dataPoints)], { type: recordedMimeType }),
       ];
       controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
-      const recordedFile = new File(controller.recordedData, fileMock);
+      const recordedFile = new File(controller.recordedData, fileMock.name);
       createFileFromBlobsSpy.mockReturnValue(recordedFile);
 
       const recording = await controller.makeVoiceRecording();

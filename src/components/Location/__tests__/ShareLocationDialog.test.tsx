@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Channel } from '../../Channel';
@@ -26,9 +25,9 @@ const DROPDOWN_SELECTOR = '.str-chat__live-location-sharing-duration-selector__b
 const SHARE_LIVE_LOCATION_SWITCH_TEST_ID = 'share-location-dialog-live-location-switch';
 const GEOLOCATION_MAP_TEST_ID = 'geolocation-map';
 
-const close = vi.fn().mockImplementation();
+const close = vi.fn().mockImplementation(() => {});
 const user = { id: 'user-id' };
-const GeolocationMapComponent = (props) => (
+const GeolocationMapComponent = (props: any) => (
   <div
     data-error={props.geolocationPositionError}
     data-latitude={props.latitude}
@@ -39,7 +38,7 @@ const GeolocationMapComponent = (props) => (
   />
 );
 
-const renderComponent = async ({ channel, client, props } = {}) => {
+const renderComponent = async ({ channel, client, props }: any = {}) => {
   const {
     channels: [defaultChannel],
     client: defaultClient,
@@ -74,7 +73,7 @@ const renderComponent = async ({ channel, client, props } = {}) => {
 const getCurrentPosition = vi.fn().mockImplementation(() => ({}));
 const watchPosition = vi.fn().mockImplementation(() => ({}));
 
-window.navigator.geolocation = {
+(window.navigator as any).geolocation = {
   clearWatch: vi.fn().mockImplementation(() => ({})),
   getCurrentPosition,
   watchPosition,
@@ -84,8 +83,8 @@ describe('ShareLocationDialog', () => {
   afterEach(vi.clearAllMocks);
   it('renders dropdown with default durations', async () => {
     // The switch is disabled until a geolocation position is available
-    const callbacks = {};
-    window.navigator.geolocation.watchPosition.mockImplementation(
+    const callbacks: any = {};
+    (window.navigator.geolocation.watchPosition as any).mockImplementation(
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -116,8 +115,8 @@ describe('ShareLocationDialog', () => {
 
   it('renders dropdown with custom durations', async () => {
     // The switch is disabled until a geolocation position is available
-    const callbacks = {};
-    window.navigator.geolocation.watchPosition.mockImplementation(
+    const callbacks: any = {};
+    (window.navigator.geolocation.watchPosition as any).mockImplementation(
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -149,8 +148,8 @@ describe('ShareLocationDialog', () => {
   });
 
   it('renders GeolocationMap component', async () => {
-    const callbacks = {};
-    window.navigator.geolocation.watchPosition.mockImplementation(
+    const callbacks: any = {};
+    (window.navigator.geolocation.watchPosition as any).mockImplementation(
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -204,8 +203,8 @@ describe('ShareLocationDialog', () => {
   });
 
   it('attaches the position to message composition', async () => {
-    const callbacks = {};
-    window.navigator.geolocation.watchPosition.mockImplementation(
+    const callbacks: any = {};
+    (window.navigator.geolocation.watchPosition as any).mockImplementation(
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -233,8 +232,8 @@ describe('ShareLocationDialog', () => {
   });
 
   it('sends message with the position directly', async () => {
-    const callbacks = {};
-    window.navigator.geolocation.watchPosition.mockImplementation(
+    const callbacks: any = {};
+    (window.navigator.geolocation.watchPosition as any).mockImplementation(
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;

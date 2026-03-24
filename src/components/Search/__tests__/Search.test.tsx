@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -41,19 +40,19 @@ describe('Search', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchResultsHeader: vi.fn(),
     });
 
-    useTranslationContext.mockReturnValue({
+    (useTranslationContext as any).mockReturnValue({
       t: (key) => key,
     });
 
-    useChatContext.mockReturnValue({
+    (useChatContext as any).mockReturnValue({
       searchController: mockSearchController,
     });
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [],
       isActive: true,
       searchSourceTypes: [],
@@ -70,7 +69,7 @@ describe('Search', () => {
   });
 
   it('uses components from context when provided', () => {
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchBar: CustomSearchBar,
       SearchResults: CustomSearchResults,
     });
@@ -84,8 +83,8 @@ describe('Search', () => {
   });
 
   it('applies active class when search is active', () => {
-    useStateStore.mockReturnValue({
-      ...useStateStore(),
+    (useStateStore as any).mockReturnValue({
+      ...(useStateStore as any)(),
       isActive: true,
     });
 
@@ -95,8 +94,8 @@ describe('Search', () => {
   });
 
   it('does not apply active class when search is inactive', () => {
-    useStateStore.mockReturnValue({
-      ...useStateStore(),
+    (useStateStore as any).mockReturnValue({
+      ...(useStateStore as any)(),
       isActive: false,
     });
 
@@ -108,9 +107,9 @@ describe('Search', () => {
   });
 
   it('provides search context to children', async () => {
-    const { SearchContext } = await vi.importActual('../SearchContext');
+    const { SearchContext } = (await vi.importActual('../SearchContext')) as any;
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext);
+      const context = React.useContext(SearchContext) as any;
       return <div data-testid='context-consumer'>{context.placeholder}</div>;
     };
 
@@ -120,7 +119,7 @@ describe('Search', () => {
       </div>
     );
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchBar: CustomSearchBar,
       SearchResults: CustomSearchResults,
     });
@@ -138,9 +137,9 @@ describe('Search', () => {
       placeholder: 'Custom placeholder',
     };
 
-    const { SearchContext } = await vi.importActual('../SearchContext');
+    const { SearchContext } = (await vi.importActual('../SearchContext')) as any;
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext);
+      const context = React.useContext(SearchContext) as any;
       return (
         <div data-testid='context-consumer'>
           <div data-testid='disabled'>{String(context.disabled)}</div>
@@ -156,7 +155,7 @@ describe('Search', () => {
       </div>
     );
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchBar: CustomSearchBar,
       SearchResults: CustomSearchResults,
     });
@@ -169,11 +168,11 @@ describe('Search', () => {
   });
 
   it('handles state updates correctly', () => {
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchBar: CustomSearchBar,
       SearchResults: CustomSearchResults,
     });
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       isActive: false,
     });
 
@@ -183,7 +182,7 @@ describe('Search', () => {
       'str-chat__search--active',
     );
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       isActive: true,
     });
 
@@ -196,13 +195,13 @@ describe('Search', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { directMessagingChannelType, ...propsWithoutChannelType } = defaultProps;
 
-    const { SearchContext } = await vi.importActual('../SearchContext');
+    const { SearchContext } = (await vi.importActual('../SearchContext')) as any;
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext);
+      const context = React.useContext(SearchContext) as any;
       return <div data-testid='channel-type'>{context.directMessagingChannelType}</div>;
     };
     const SearchBar = () => <ContextConsumer />;
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchBar,
       SearchResults: CustomSearchResults,
     });

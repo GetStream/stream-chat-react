@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
@@ -30,7 +29,7 @@ import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 
-window.ResizeObserver = ResizeObserverMock;
+(window as any).ResizeObserver = ResizeObserverMock;
 
 const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
 
@@ -78,7 +77,7 @@ async function renderMessageActions({
   customChatContext = {},
   customMessageContext = {},
   messageActionsProps = {},
-} = {}) {
+}: any = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
   const channel = generateChannel({
     getConfig: () => channelConfig,
@@ -87,21 +86,27 @@ async function renderMessageActions({
   });
 
   return render(
-    <ChatViewContext.Provider value={chatViewContextValue}>
-      <ChatProvider value={{ client, ...customChatContext }}>
+    <ChatViewContext.Provider value={chatViewContextValue as any}>
+      <ChatProvider value={{ client, ...customChatContext } as any}>
         <DialogManagerProvider id='message-actions-dialog-provider'>
-          <ChannelStateProvider value={{ channel, channelConfig, ...channelStateOpts }}>
+          <ChannelStateProvider
+            value={{ channel, channelConfig, ...channelStateOpts } as any}
+          >
             <ChannelActionProvider
-              value={{
-                openThread: vi.fn(),
-                removeMessage: vi.fn(),
-                updateMessage: vi.fn(),
-              }}
+              value={
+                {
+                  openThread: vi.fn(),
+                  removeMessage: vi.fn(),
+                  updateMessage: vi.fn(),
+                } as any
+              }
             >
-              <TranslationProvider value={mockTranslationContext}>
-                <ComponentProvider value={{}}>
+              <TranslationProvider value={mockTranslationContext as any}>
+                <ComponentProvider value={{} as any}>
                   <MessageProvider
-                    value={{ ...defaultMessageContextValue, ...customMessageContext }}
+                    value={
+                      { ...defaultMessageContextValue, ...customMessageContext } as any
+                    }
                   >
                     <MessageActions {...messageActionsProps} />
                   </MessageProvider>
@@ -370,28 +375,34 @@ describe('<MessageActions />', () => {
 
       await act(async () => {
         await render(
-          <ChatProvider value={{ client }}>
+          <ChatProvider value={{ client } as any}>
             <DialogManagerProvider id='message-actions-dialog-provider'>
               <ChannelStateProvider
-                value={{
-                  channel,
-                  channelCapabilities: { 'quote-message': true },
-                }}
+                value={
+                  {
+                    channel,
+                    channelCapabilities: { 'quote-message': true },
+                  } as any
+                }
               >
                 <ChannelActionProvider
-                  value={{
-                    openThread: vi.fn(),
-                    removeMessage: vi.fn(),
-                    updateMessage: vi.fn(),
-                  }}
+                  value={
+                    {
+                      openThread: vi.fn(),
+                      removeMessage: vi.fn(),
+                      updateMessage: vi.fn(),
+                    } as any
+                  }
                 >
-                  <TranslationProvider value={mockTranslationContext}>
-                    <ComponentProvider value={{}}>
+                  <TranslationProvider value={mockTranslationContext as any}>
+                    <ComponentProvider value={{} as any}>
                       <MessageProvider
-                        value={{
-                          ...defaultMessageContextValue,
-                          message,
-                        }}
+                        value={
+                          {
+                            ...defaultMessageContextValue,
+                            message,
+                          } as any
+                        }
                       >
                         <MessageActions />
                       </MessageProvider>
@@ -597,10 +608,10 @@ describe('<MessageActions />', () => {
       'update-own-message',
     ];
 
-    const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }) =>
+    const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }: any) =>
       await act(async () => {
         await render(
-          <ChatViewContext.Provider value={chatViewContextValue}>
+          <ChatViewContext.Provider value={chatViewContextValue as any}>
             <Chat {...chatProps}>
               <Channel {...channelProps}>
                 <DialogManagerProvider id='message-actions-dialog-provider'>
@@ -780,7 +791,7 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
       });
-      vi.spyOn(channel, 'markUnread').mockRejectedValueOnce();
+      vi.spyOn(channel, 'markUnread').mockRejectedValueOnce(undefined as any);
 
       await renderMarkUnreadUI({
         channelProps: { channel },

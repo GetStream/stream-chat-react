@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, cleanup, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
@@ -28,16 +27,21 @@ const formatDate = () => dateMock;
 const createdAt = new Date('2019-04-03T14:42:47.087869Z');
 
 const messageMock = generateMessage({
-  created_at: createdAt,
+  created_at: createdAt as any,
 });
 
-const renderComponent = async ({ chatProps, componentCtx, messageCtx, props } = {}) => {
+const renderComponent = async ({
+  chatProps,
+  componentCtx,
+  messageCtx,
+  props,
+}: any = {}) => {
   let result;
   await act(() => {
     result = render(
       <Chat client={getTestClient()} {...chatProps}>
-        <ComponentProvider value={componentCtx || {}}>
-          <MessageProvider value={{ message: messageMock, ...messageCtx }}>
+        <ComponentProvider value={(componentCtx || {}) as any}>
+          <MessageProvider value={{ message: messageMock, ...messageCtx } as any}>
             <MessageTimestamp {...props} />
           </MessageProvider>
         </ComponentProvider>
@@ -86,7 +90,7 @@ describe('<MessageTimestamp />', () => {
       props: {
         message: {
           ...messageMock,
-          created_at: new Date(messageMock.created_at.getTime() + oneYearMs),
+          created_at: new Date((messageMock.created_at as any).getTime() + oneYearMs),
         },
       },
     });
@@ -95,8 +99,8 @@ describe('<MessageTimestamp />', () => {
 
   it('should not render if no message is available', () => {
     const { container } = render(
-      <MessageProvider value={{}}>
-        <MessageTimestamp message={{}} />
+      <MessageProvider value={{} as any}>
+        <MessageTimestamp message={{} as any} />
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);
@@ -105,8 +109,8 @@ describe('<MessageTimestamp />', () => {
   it('should not render if message created_at is not a valid date', () => {
     const message = generateMessage({ created_at: 'I am not a date' });
     const { container } = render(
-      <MessageProvider value={{}}>
-        <MessageTimestamp message={message} />
+      <MessageProvider value={{} as any}>
+        <MessageTimestamp message={message as any} />
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);
@@ -144,7 +148,9 @@ describe('<MessageTimestamp />', () => {
     const { container } = await renderComponent({
       props: { format: 'YYYY' },
     });
-    expect(container).toHaveTextContent(messageMock.created_at.getFullYear().toString());
+    expect(container).toHaveTextContent(
+      (messageMock.created_at as any).getFullYear().toString(),
+    );
   });
 
   it('should override the custom format provided via i18n service with component props', async () => {
@@ -159,7 +165,9 @@ describe('<MessageTimestamp />', () => {
       },
       props: { format: 'YYYY' },
     });
-    expect(container).toHaveTextContent(messageMock.created_at.getFullYear().toString());
+    expect(container).toHaveTextContent(
+      (messageMock.created_at as any).getFullYear().toString(),
+    );
   });
 
   it('should ignore the custom calendarFormats if calendar is disabled', async () => {
@@ -203,12 +211,14 @@ describe('<MessageTimestamp />', () => {
   it('should not render if called in calendar mode but no calendar function is available from the datetime parser', () => {
     const { container } = render(
       <TranslationContext.Provider
-        value={{
-          tDateTimeParser: () => ({ calendar: undefined }),
-        }}
+        value={
+          {
+            tDateTimeParser: () => ({ calendar: undefined }),
+          } as any
+        }
       >
-        <MessageProvider value={{}}>
-          <MessageTimestamp calendar message={messageMock} />
+        <MessageProvider value={{} as any}>
+          <MessageTimestamp calendar message={messageMock as any} />
         </MessageProvider>
       </TranslationContext.Provider>,
     );

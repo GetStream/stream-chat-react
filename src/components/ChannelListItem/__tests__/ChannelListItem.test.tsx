@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 
@@ -33,7 +32,7 @@ import { initClientWithChannels } from '../../../mock-builders';
 const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
-const PreviewUIComponent = (props) => (
+const PreviewUIComponent = (props: any) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
@@ -42,7 +41,7 @@ const PreviewUIComponent = (props) => (
     </div>
   </>
 );
-const PreviewUIComponentWithLatestMessagePreview = (props) => (
+const PreviewUIComponentWithLatestMessagePreview = (props: any) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
@@ -52,12 +51,12 @@ const PreviewUIComponentWithLatestMessagePreview = (props) => (
   </>
 );
 
-const expectUnreadCountToBe = async (getByTestId, expectedValue) => {
+const expectUnreadCountToBe = async (getByTestId: any, expectedValue: any) => {
   await waitFor(() => {
     expect(getByTestId('unread-count')).toHaveTextContent(expectedValue);
   });
 };
-const expectLastEventMessageToBe = async (getByTestId, expectedValue) => {
+const expectLastEventMessageToBe = async (getByTestId: any, expectedValue: any) => {
   await waitFor(() => {
     expect(getByTestId('last-event-message')).toHaveTextContent(expectedValue);
   });
@@ -67,24 +66,26 @@ const user = { id: 'uthred' };
 const otherUser = { id: 'other-user' };
 
 describe('ChannelPreview', () => {
-  let client;
-  let c0;
-  let c1;
+  let client: any;
+  let c0: any;
+  let c1: any;
   const renderComponent = (
-    props,
-    renderer,
-    { ChannelListItemUI = PreviewUIComponent } = {},
+    props: any,
+    renderer: any,
+    { ChannelListItemUI = PreviewUIComponent as any } = {},
   ) =>
     renderer(
       <ChatContext.Provider
-        value={{
-          channel: props.activeChannel,
-          client,
-          setActiveChannel: () => vi.fn(),
-        }}
+        value={
+          {
+            channel: props.activeChannel,
+            client,
+            setActiveChannel: () => vi.fn(),
+          } as any
+        }
       >
-        <TranslationProvider value={{ t: (key) => key, userLanguage: 'en' }}>
-          <ComponentProvider value={{ ChannelListItemUI }}>
+        <TranslationProvider value={{ t: (key: any) => key, userLanguage: 'en' } as any}>
+          <ComponentProvider value={{ ChannelListItemUI } as any}>
             <ChannelListItem {...props} />
           </ComponentProvider>
         </TranslationProvider>
@@ -138,7 +139,7 @@ describe('ChannelPreview', () => {
     const originalUnreadCount = 100;
     const newUnreadCount = 200;
     vi.spyOn(c0, 'countUnread')
-      .mockImplementation()
+      .mockImplementation(() => 0)
       .mockImplementationOnce(() => originalUnreadCount)
       .mockImplementationOnce(() => newUnreadCount);
     c0.muteStatus = () => false;
@@ -218,7 +219,7 @@ describe('ChannelPreview', () => {
     ['message.undeleted', dispatchMessageDeletedEvent],
   ];
 
-  describe.each(eventCases)('On %s event', (eventType, dispatcher) => {
+  describe.each(eventCases)('On %s event', (eventType, dispatcher: any) => {
     it('should update latest message preview', async () => {
       const newUnreadCount = getRandomInt(1, 10);
       c0.countUnread = () => newUnreadCount;
@@ -416,7 +417,7 @@ describe('ChannelPreview', () => {
         dispatchUserMessagesDeletedEvent({
           client,
           user,
-        });
+        } as any);
       });
 
       await waitFor(() => {
@@ -470,7 +471,7 @@ describe('ChannelPreview', () => {
           channel: c0, // target
           client,
           user,
-        });
+        } as any);
       });
 
       await waitFor(() => {
@@ -644,7 +645,7 @@ describe('ChannelPreview', () => {
   });
 
   describe('user.updated', () => {
-    const renderComponent = async ({ channel, client, componentOverrides }) => {
+    const renderComponent = async ({ channel, client, componentOverrides }: any = {}) => {
       let result;
       await act(() => {
         result = render(
@@ -658,7 +659,7 @@ describe('ChannelPreview', () => {
 
       return result;
     };
-    const getChannelState = (memberCount, channelData) => {
+    const getChannelState = (memberCount: number, channelData?: any) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
@@ -670,7 +671,7 @@ describe('ChannelPreview', () => {
 
     const channelState = getChannelState(2);
 
-    const MockAvatar = ({ imageUrl, userName }) => (
+    const MockAvatar = ({ imageUrl, userName }: any) => (
       <>
         <div className='avatar-name'>{userName}</div>
         <div className='avatar-image'>{imageUrl}</div>
@@ -699,7 +700,7 @@ describe('ChannelPreview', () => {
         expect(screen.getByText(otherUser.name)).toBeInTheDocument();
       });
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
       });
       await waitFor(() => {
         expect(screen.queryAllByText(updatedAttribute.name).length).toBeGreaterThan(0);
@@ -724,7 +725,7 @@ describe('ChannelPreview', () => {
         expect(screen.queryByText(updatedAttribute.image)).not.toBeInTheDocument(),
       );
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
       });
       await waitFor(() =>
         expect(screen.queryAllByText(updatedAttribute.image).length).toBeGreaterThan(0),
@@ -748,7 +749,7 @@ describe('ChannelPreview', () => {
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
       );
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
       });
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
@@ -801,7 +802,7 @@ describe('ChannelPreview', () => {
             expect(screen.getByText(channelName)).toBeInTheDocument();
           });
           act(() => {
-            dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute });
+            dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute } as any);
           });
           await waitFor(() => {
             expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -836,7 +837,7 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute });
+          dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
         });
 
         await waitFor(() => {
@@ -880,7 +881,7 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+          dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
         });
 
         await waitFor(() => {
@@ -917,7 +918,7 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
+          dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
         });
 
         await waitFor(() => {
@@ -952,7 +953,7 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute });
+          dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
         });
 
         await waitFor(() => {

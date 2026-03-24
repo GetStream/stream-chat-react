@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   generateChannel,
   generateMember,
@@ -15,7 +14,7 @@ import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -52,8 +51,8 @@ const mockedChannelData = generateChannel({
   },
   members: [generateMember({ user }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
-  thread: [threadMessage],
-});
+  threads: [threadMessage],
+} as any);
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
@@ -63,7 +62,7 @@ const defaultChatContext = {
   searchController: new SearchController(),
 };
 
-const setup = async ({ channelData } = {}) => {
+const setup = async ({ channelData }: any = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -73,14 +72,14 @@ const setup = async ({ channelData } = {}) => {
   });
   const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
     file: fileUploadUrl,
-  });
+  } as any);
   const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
-  });
+  } as any);
   const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')
-    .mockResolvedValue({ draft: { message: { id: 'x' } } });
-  vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue({});
+    .mockResolvedValue({ draft: { message: { id: 'x', text: '' } } } as any);
+  vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue({} as any);
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
@@ -92,7 +91,7 @@ const ThreadSetter = () => {
   useEffect(() => {
     if (isOpenThread.current) return;
     isOpenThread.current = true;
-    openThread(mainListMessage);
+    openThread(mainListMessage as any);
   }, [openThread]);
 };
 
@@ -105,7 +104,7 @@ const renderComponent = async ({
   customUser,
   messageInputProps = {},
   thread,
-} = {}) => {
+}: any = {}) => {
   let channel = customChannel;
   let client = customClient;
   if (!(channel || client)) {
@@ -122,18 +121,15 @@ const renderComponent = async ({
   await act(() => {
     renderResult = render(
       <ChatProvider
-        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
+        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides } as any}
       >
         <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+          {/* @ts-expect-error -- test-only component */}
           <ThreadSetter />
           <LegacyThreadContext.Provider
-            value={{ legacyThread: thread ?? mainListMessage }}
+            value={{ legacyThread: thread ?? mainListMessage } as any}
           >
-            <MessageComposer
-              isThreadInput
-              parent={thread ?? mainListMessage}
-              {...messageInputProps}
-            />
+            <MessageComposer {...messageInputProps} />
           </LegacyThreadContext.Provider>
         </Channel>
       </ChatProvider>,
@@ -193,7 +189,7 @@ describe('MessageInput in Thread', () => {
       await act(() => {
         customClient.setMessageComposerSetupFunction(({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
-          composer.compositionContext = customChannel;
+          (composer as any).compositionContext = customChannel;
         });
       });
       await renderComponent({
@@ -250,8 +246,8 @@ describe('MessageInput in Thread', () => {
       // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
       // will retrieve the composer from the previous test
       messages: [{ ...mainListMessage, id: 'x' }],
-      thread: [{ ...threadMessage, parent_id: 'x' }],
-    });
+      threads: [{ ...threadMessage, parent_id: 'x' }],
+    } as any);
     const { customChannel, customClient } = await setup({ channelData });
     await renderComponent({
       customChannel,

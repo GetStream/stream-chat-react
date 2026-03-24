@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { render } from '@testing-library/react';
 import React from 'react';
 import { nanoid } from 'nanoid';
@@ -23,7 +22,7 @@ import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -48,7 +47,7 @@ async function renderQuotedMessage({
   customChannel,
   customClient,
   customProps,
-} = {}) {
+}: any = {}) {
   const {
     channels: [channel],
     client,
@@ -57,23 +56,29 @@ async function renderQuotedMessage({
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
-    <ChatProvider value={{ client: customClient ?? client }}>
-      <ChannelStateProvider value={{ channel: customChannel ?? channel, channelConfig }}>
-        <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock }}>
+    <ChatProvider value={{ client: customClient ?? client } as any}>
+      <ChannelStateProvider
+        value={{ channel: customChannel ?? channel, channelConfig } as any}
+      >
+        <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock } as any}>
           <TranslationProvider
-            value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
-            }}
+            value={
+              {
+                t: (key: any) => key,
+                tDateTimeParser: customDateTimeParser,
+                userLanguage: 'en',
+              } as any
+            }
           >
             <ComponentProvider
-              value={{
-                Message() {
-                  return <MessageUI channelConfig={channelConfig} />;
-                },
-                ...componentContext,
-              }}
+              value={
+                {
+                  Message() {
+                    return <MessageUI {...({ channelConfig } as any)} />;
+                  },
+                  ...componentContext,
+                } as any
+              }
             >
               <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
                 <Message {...customProps}>

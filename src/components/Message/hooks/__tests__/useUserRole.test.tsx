@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -17,31 +16,33 @@ const getConfig = vi.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUserRoleHook({
-  channelProps = {},
-  channelStateContextValue = {},
-  clientContextValue = {},
-  disableQuotedMessages,
-  message = generateMessage(),
-  onlySenderCanEdit = false,
-}) {
+async function renderUserRoleHook(
+  {
+    channelProps = {},
+    channelStateContextValue = {},
+    clientContextValue = {},
+    disableQuotedMessages = undefined as any,
+    message = generateMessage(),
+    onlySenderCanEdit = false,
+  } = {} as any,
+) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig,
     state: { membership: {} },
     ...channelProps,
-  });
+  } as any);
 
-  const wrapper = ({ children }) => (
-    <ChatProvider value={{ client, ...clientContextValue }}>
-      <ChannelStateProvider value={{ channel, ...channelStateContextValue }}>
+  const wrapper = ({ children }: any) => (
+    <ChatProvider value={{ client, ...clientContextValue } as any}>
+      <ChannelStateProvider value={{ channel, ...channelStateContextValue } as any}>
         {children}
       </ChannelStateProvider>
     </ChatProvider>
   );
 
   const { result } = renderHook(
-    () => useUserRole(message, onlySenderCanEdit, disableQuotedMessages),
+    () => useUserRole(message as any, onlySenderCanEdit, disableQuotedMessages),
     { wrapper },
   );
   return result.current;

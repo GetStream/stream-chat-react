@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -37,7 +36,7 @@ const pollWithNoVotes = generatePoll({
   vote_counts_by_option: {},
 });
 
-const t = (v) => v;
+const t = (v: any) => v;
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'cast-poll-vote': true },
@@ -59,15 +58,17 @@ describe('PollOptionList', () => {
     messageContext,
     poll,
     pollOptionListProps,
-  }) =>
+  }: any) =>
     render(
-      <ChatProvider value={{ client: chatClient }}>
+      <ChatProvider value={{ client: chatClient } as any}>
         <ModalDialogManagerProvider>
-          <TranslationProvider value={{ t }}>
+          <TranslationProvider value={{ t } as any}>
             <ChannelStateProvider
-              value={{ ...defaultChannelStateContext, ...channelStateContext }}
+              value={{ ...defaultChannelStateContext, ...channelStateContext } as any}
             >
-              <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+              <MessageProvider
+                value={{ ...defaultMessageContext, ...messageContext } as any}
+              >
                 <PollProvider poll={poll}>
                   <PollOptionList {...pollOptionListProps} />
                 </PollProvider>
@@ -85,7 +86,7 @@ describe('PollOptionList', () => {
   it('renders empty container if no options', () => {
     const pollData = generatePoll({ options: [] });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     expect(container.firstChild).toBeEmptyDOMElement();
   });
@@ -98,7 +99,7 @@ describe('PollOptionList', () => {
       })),
     });
     renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
       pollOptionListProps: { optionsDisplayCount: 3 },
     });
     expect(screen.getByText(MORE_OPTIONS_ACTION_TEXT)).toBeInTheDocument();
@@ -112,7 +113,7 @@ describe('PollOptionList', () => {
       })),
     });
     renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
       pollOptionListProps: { optionsDisplayCount: 3 },
     });
     expect(screen.queryByText(MORE_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
@@ -126,7 +127,7 @@ describe('PollOptionList', () => {
       })),
     });
     renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     expect(screen.queryByText(MORE_OPTIONS_ACTION_TEXT)).not.toBeInTheDocument();
   });
@@ -140,7 +141,7 @@ describe('PollOptionList', () => {
     });
     const PollOptionsFullList = () => <div data-testid='poll-options-full-list-custom' />;
     renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
       pollOptionListProps: {
         optionsDisplayCount: 3,
         PollOptionsFullList,
@@ -157,7 +158,7 @@ describe('PollOptionList', () => {
   it('renders votable poll option selectors', () => {
     const pollData = generatePoll();
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
@@ -168,9 +169,9 @@ describe('PollOptionList', () => {
 
   it('renders non-votable poll option selectors if poll is closed and does nothing on option click', () => {
     const pollData = generatePoll({ is_closed: true });
-    const poll = new Poll({ client: {}, poll: pollData });
-    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const poll = new Poll({ client: {} as any, poll: pollData });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({} as any);
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({} as any);
     const { container } = renderComponent({ poll });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     const options = container.querySelectorAll(OPTION_SELECTOR);
@@ -190,9 +191,9 @@ describe('PollOptionList', () => {
 
   it('renders non-votable poll option selectors if missing voting permission and does nothing on option click', () => {
     const pollData = generatePoll();
-    const poll = new Poll({ client: {}, poll: pollData });
-    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const poll = new Poll({ client: {} as any, poll: pollData });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({} as any);
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({} as any);
     const { container } = renderComponent({
       channelStateContext: { channelCapabilities: { 'cast-poll-vote': false } },
       poll,
@@ -216,7 +217,7 @@ describe('PollOptionList', () => {
   it('renders voter avatars with each option', () => {
     const pollData = generatePoll();
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
@@ -229,9 +230,9 @@ describe('PollOptionList', () => {
   });
 
   it('does not renders voter avatars with options for anonymous poll', () => {
-    const pollData = generatePoll({ voting_visibility: 'anonymous' });
+    const pollData = generatePoll({ voting_visibility: 'anonymous' as any });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     expect(votableOptions).toHaveLength(pollData.options.length);
@@ -243,11 +244,11 @@ describe('PollOptionList', () => {
 
   it('casts a vote if not voted previously for a given option', async () => {
     const poll = new Poll({
-      client: {},
+      client: {} as any,
       poll: pollWithNoVotes,
     });
-    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({});
-    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({});
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue({} as any);
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue({} as any);
     const { container } = renderComponent({ poll });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
 
@@ -264,7 +265,7 @@ describe('PollOptionList', () => {
   });
 
   it('updates the UI on cast poll vote state update', () => {
-    const poll = new Poll({ client: {}, poll: pollWithNoVotes });
+    const poll = new Poll({ client: {} as any, poll: pollWithNoVotes });
     const { container } = renderComponent({ poll });
     const votableOptions = container.querySelectorAll(VOTABLE_OPTION_SELECTOR);
     votableOptions.forEach((option) => {
@@ -343,7 +344,7 @@ describe('PollOptionList', () => {
   it('removes the vote if voted previously for a given option', async () => {
     const pollData = generatePoll();
     const removedVoteOptionId = pollData.options[0].id;
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     const { container } = renderComponent({ poll });
     const expectedVoteCountsByOption = {
       ...pollData.vote_counts_by_option,

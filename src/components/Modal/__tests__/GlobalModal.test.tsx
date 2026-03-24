@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 
@@ -6,9 +5,9 @@ import { GlobalModal } from '../GlobalModal';
 import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
 
 const OVERLAY_SELECTOR = '.str-chat__modal';
-const renderComponent = ({ props } = {}) =>
+const renderComponent = ({ props }: any = {}) =>
   render(
-    <ChatProvider value={{ theme: 'messaging light' }}>
+    <ChatProvider value={{ theme: 'messaging light' } as any}>
       <ModalDialogManagerProvider>
         <GlobalModal {...props} />
       </ModalDialogManagerProvider>

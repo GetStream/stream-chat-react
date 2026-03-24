@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 
@@ -10,18 +9,23 @@ import {
   generateLocalImageUploadAttachmentData,
 } from '../../../mock-builders';
 
-const makeImageItem = (overrides) =>
-  generateLocalImageUploadAttachmentData(undefined, generateImageAttachment(overrides));
+const makeImageItem = (overrides?: any) =>
+  generateLocalImageUploadAttachmentData(
+    undefined,
+    generateImageAttachment(overrides) as any,
+  ) as any;
 
 const ContextReader = () => {
-  const ctx = useGalleryContext('ContextReader');
+  const ctx = useGalleryContext();
   return (
     <div data-testid='context-reader'>
       <span data-testid='current-index'>{ctx.currentIndex}</span>
       <span data-testid='item-count'>{ctx.itemCount}</span>
       <span data-testid='has-next'>{String(ctx.hasNext)}</span>
       <span data-testid='has-previous'>{String(ctx.hasPrevious)}</span>
-      <span data-testid='current-item-url'>{ctx.currentItem?.image_url ?? ''}</span>
+      <span data-testid='current-item-url'>
+        {(ctx.currentItem as any)?.image_url ?? ''}
+      </span>
       <button data-testid='go-next' onClick={ctx.goToNext} type='button'>
         Next
       </button>
@@ -57,7 +61,7 @@ describe('Gallery', () => {
     const items = [makeImageItem()];
 
     render(
-      <ComponentProvider value={{ GalleryUI: ContextGalleryUI }}>
+      <ComponentProvider value={{ GalleryUI: ContextGalleryUI } as any}>
         <Gallery items={items} />
       </ComponentProvider>,
     );

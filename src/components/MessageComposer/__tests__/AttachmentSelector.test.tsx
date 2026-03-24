@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MessageComposer } from '../MessageComposer';
@@ -30,9 +29,9 @@ const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = {
-  t: (v) => v,
-  tDateTimeParser: (v) => v.toString(),
-};
+  t: (v: any) => v,
+  tDateTimeParser: (v: any) => v.toString(),
+} as any;
 
 const defaultChannelData = {
   own_capabilities: ['upload-file'],
@@ -61,7 +60,7 @@ const renderComponent = async ({
   customClient,
   message,
   messageInputProps,
-} = {}) => {
+}: any = {}) => {
   let channel, client;
   if (customChannel && customClient) {
     channel = customChannel;
@@ -75,7 +74,7 @@ const renderComponent = async ({
     channel = res.channels[0];
     client = res.client;
   }
-  vi.spyOn(channel, 'getDraft').mockImplementation();
+  vi.spyOn(channel, 'getDraft').mockImplementation((() => {}) as any);
 
   const ThreadOrChannel = () =>
     channelStateContext?.thread ? (
@@ -99,8 +98,8 @@ const renderComponent = async ({
         <Chat client={client}>
           <ComponentProvider value={{ ...componentContext }}>
             <TranslationProvider value={translationContext}>
-              <TypingProvider value={{}}>
-                <ChannelActionProvider value={{}}>
+              <TypingProvider value={{} as any}>
+                <ChannelActionProvider value={{} as any}>
                   <ChannelStateProvider
                     value={{
                       ...defaultChannelStateContext,
@@ -110,7 +109,7 @@ const renderComponent = async ({
                   >
                     <div id={CHANNEL_CONTAINER_ID}>
                       {message ? (
-                        <MessageProvider value={{ message }}>
+                        <MessageProvider value={{ message } as any}>
                           <ThreadOrChannel />
                         </MessageProvider>
                       ) : (
@@ -459,7 +458,7 @@ describe('AttachmentSelector', () => {
   it('renders custom modal content if provided', async () => {
     const buttonText = 'Custom text';
     const modalText = 'Modal text';
-    const ActionButton = ({ openModalForAction }) => (
+    const ActionButton = ({ openModalForAction }: any) => (
       <div
         onClick={() => {
           openModalForAction('custom');
@@ -468,7 +467,7 @@ describe('AttachmentSelector', () => {
         {buttonText}
       </div>
     );
-    const ModalContent = ({ close }) => <div onClick={close}>{modalText}</div>;
+    const ModalContent = ({ close }: any) => <div onClick={close}>{modalText}</div>;
     const CustomAttachmentSelector = () => (
       <AttachmentSelector
         attachmentSelectorActionSet={[{ ActionButton, ModalContent, type: 'custom' }]}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import {
   countReactions,
@@ -21,26 +20,26 @@ import {
   validateAndGetMessage,
 } from '../utils';
 
-const alice = generateUser({ name: 'alice' });
-const bob = generateUser({ name: 'bob' });
+const alice = generateUser({ name: 'alice' }) as any;
+const bob = generateUser({ name: 'bob' }) as any;
 
 describe('Message utils', () => {
   describe('validateAndGetMessage function', () => {
     it('should return null if called without a function as the first parameter', () => {
-      const result = validateAndGetMessage({}, 'Message');
+      const result = validateAndGetMessage({} as any, 'Message' as any);
       expect(result).toBeNull();
     });
 
     it('should return null if result of function call is not a string', () => {
       const fn = () => null;
-      const result = validateAndGetMessage(fn, 'something');
+      const result = validateAndGetMessage(fn, 'something' as any);
       expect(result).toBeNull();
     });
 
     it('should return the result of the function call when it is a string', () => {
-      const fn = (msg) => msg;
+      const fn = (msg: any) => msg;
       const message = 'message';
-      const result = validateAndGetMessage(fn, [message]);
+      const result = validateAndGetMessage(fn, [message] as any);
       expect(result).toBe(message);
     });
   });
@@ -54,12 +53,12 @@ describe('Message utils', () => {
           user: alice,
         },
       ];
-      const result = isUserMuted(undefined, mutes);
+      const result = isUserMuted(undefined, mutes as any);
       expect(result).toBe(false);
     });
 
     it('should return false if mutes is not defined', () => {
-      const message = generateMessage();
+      const message = generateMessage() as any;
       const result = isUserMuted(message, undefined);
       expect(result).toBe(false);
     });
@@ -72,8 +71,8 @@ describe('Message utils', () => {
           user: alice,
         },
       ];
-      const message = generateMessage({ user: bob });
-      const result = isUserMuted(message, mutes);
+      const message = generateMessage({ user: bob }) as any;
+      const result = isUserMuted(message, mutes as any);
       expect(result).toBe(true);
     });
   });
@@ -114,21 +113,21 @@ describe('Message utils', () => {
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['remindMe'], defaultCapabilities, {
         user_message_reminders: true,
-      });
+      } as any);
       expect(result).toStrictEqual(['remindMe']);
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['saveForLater'], defaultCapabilities, {
         user_message_reminders: true,
-      });
+      } as any);
       expect(result).toStrictEqual(['saveForLater']);
     });
 
     it('should include reminder actions if enabled in channel config', () => {
       const result = getMessageActions(true, defaultCapabilities, {
         user_message_reminders: true,
-      });
+      } as any);
       expect(result).toEqual(actions);
     });
 
@@ -170,7 +169,7 @@ describe('Message utils', () => {
       const message = generateMessage();
       const currentProps = { message };
       const nextProps = { message };
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(shouldUpdate).toBe(false);
     });
 
@@ -179,7 +178,7 @@ describe('Message utils', () => {
       const message2 = generateMessage({ id: 'message-2' });
       const currentProps = { message: message1 };
       const nextProps = { message: message2 };
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(shouldUpdate).toBe(true);
     });
 
@@ -207,17 +206,17 @@ describe('Message utils', () => {
           {
             message: {
               ...message,
-              quoted_message: { ...quotedMessage, [key]: prevVal },
+              quoted_message: { ...quotedMessage, [key as any]: prevVal },
               quoted_message_id: quotedMessage.id,
             },
-          },
+          } as any,
           {
             message: {
               ...message,
-              quoted_message: { ...quotedMessage, [key]: nextVal },
+              quoted_message: { ...quotedMessage, [key as any]: nextVal },
               quoted_message_id: quotedMessage.id,
             },
-          },
+          } as any,
         );
         expect(shouldUpdate).toBe(true);
       });
@@ -229,14 +228,14 @@ describe('Message utils', () => {
               quoted_message: undefined,
               quoted_message_id: undefined,
             },
-          },
+          } as any,
           {
             message: {
               ...message,
               quoted_message: quotedMessage,
               quoted_message_id: quotedMessage.id,
             },
-          },
+          } as any,
         ),
       ).toBe(true);
     });
@@ -247,8 +246,8 @@ describe('Message utils', () => {
       const currentProps = { message, readBy: currentReadBy };
       const nextReadBy = [alice, bob];
       const nextProps = { message, readBy: nextReadBy };
-      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -259,8 +258,8 @@ describe('Message utils', () => {
       const currentProps = { groupStyles: currentGroupStyles, message };
       const nextGroupStyles = ['bottom', 'right'];
       const nextProps = { groupStyles: nextGroupStyles, message };
-      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -271,8 +270,8 @@ describe('Message utils', () => {
       const currentProps = { lastReceivedId: currentLastReceivedId, message };
       const nextLastReceivedId = 'some-other-message';
       const nextProps = { lastReceivedId: nextLastReceivedId, message };
-      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -283,8 +282,8 @@ describe('Message utils', () => {
       const currentProps = { message, messageListRect: currentMessageListRect };
       const nextMessageListRect = { height: 200, width: 200, x: 20, y: 20 };
       const nextProps = { message, messageListRect: nextMessageListRect };
-      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
+      const arePropsEqual = areMessagePropsEqual(nextProps as any, currentProps as any);
+      const shouldUpdate = !areMessagePropsEqual(nextProps as any, currentProps as any);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -294,8 +293,8 @@ describe('Message utils', () => {
       const prevMessageActions = ['edit', 'delete'];
       const nextMessageActions = ['edit', 'delete', 'reply'];
       const shouldUpdate = !areMessagePropsEqual(
-        { message, messageActions: prevMessageActions },
-        { message, messageActions: nextMessageActions },
+        { message, messageActions: prevMessageActions } as any,
+        { message, messageActions: nextMessageActions } as any,
       );
       expect(shouldUpdate).toBe(true);
     });
@@ -305,8 +304,8 @@ describe('Message utils', () => {
       const prevMessageActions = ['edit', 'delete'];
       const nextMessageActions = ['edit', 'delete'];
       const shouldUpdate = !areMessagePropsEqual(
-        { message, messageActions: prevMessageActions },
-        { message, messageActions: nextMessageActions },
+        { message, messageActions: prevMessageActions } as any,
+        { message, messageActions: nextMessageActions } as any,
       );
       expect(shouldUpdate).toBe(false);
     });
@@ -320,7 +319,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         latest_reactions: [],
       });
-      expect(messageHasReactions(message)).toBe(false);
+      expect(messageHasReactions(message as any)).toBe(false);
     });
     it('should return true if message has reactions', () => {
       const reactions = [generateReaction()];
@@ -329,7 +328,7 @@ describe('Message utils', () => {
         reaction_counts: countReactions(reactions),
         reaction_groups: groupReactions(reactions),
       });
-      expect(messageHasReactions(message)).toBe(true);
+      expect(messageHasReactions(message as any)).toBe(true);
     });
   });
 
@@ -341,7 +340,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [],
       });
-      expect(messageHasAttachments(message)).toBe(false);
+      expect(messageHasAttachments(message as any)).toBe(false);
     });
     it('should return true if message has attachments', () => {
       const attachment = {
@@ -351,7 +350,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [attachment],
       });
-      expect(messageHasAttachments(message)).toBe(true);
+      expect(messageHasAttachments(message as any)).toBe(true);
     });
   });
 
@@ -367,7 +366,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf],
       });
-      expect(getImages(message)).toStrictEqual([]);
+      expect(getImages(message as any)).toStrictEqual([]);
     });
     it('should return just the image attachments when message has them', () => {
       const pdf = {
@@ -381,7 +380,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getImages(message)).toStrictEqual([img]);
+      expect(getImages(message as any)).toStrictEqual([img]);
     });
   });
 
@@ -398,7 +397,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [img],
       });
-      expect(getNonImageAttachments(message)).toStrictEqual([]);
+      expect(getNonImageAttachments(message as any)).toStrictEqual([]);
     });
 
     it('should return just the non-image attachments when message has them', () => {
@@ -413,7 +412,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
+      expect(getNonImageAttachments(message as any)).toStrictEqual([pdf]);
     });
   });
 
@@ -428,7 +427,7 @@ describe('Message utils', () => {
     it('ignores the client user', () => {
       const result = getReadByTooltipText(
         [client.user],
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
         tooltipUserNameMapper,
       );
@@ -437,7 +436,7 @@ describe('Message utils', () => {
     it('returns a single user if only one user in array', () => {
       const result = getReadByTooltipText(
         [bob],
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
         tooltipUserNameMapper,
       );
@@ -447,7 +446,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
         tooltipUserNameMapper,
       );
@@ -461,7 +460,7 @@ describe('Message utils', () => {
       ];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
         tooltipUserNameMapper,
       );
@@ -473,7 +472,7 @@ describe('Message utils', () => {
       );
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
         tooltipUserNameMapper,
       );
@@ -483,20 +482,22 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction,
+        mockTranslatorFunction as any,
         client,
-        (user) => `Dr. ${user.name}`,
+        (user: any) => `Dr. ${user.name}`,
       );
       expect(result).toStrictEqual(`Dr. 1 and Dr. 2`);
     });
     it('throws error if no translator function provided', () => {
-      expect(() => getReadByTooltipText([], null, client, tooltipUserNameMapper)).toThrow(
+      expect(() =>
+        getReadByTooltipText([], null as any, client, tooltipUserNameMapper),
+      ).toThrow(
         'getReadByTooltipText was called, but translation function is not available',
       );
     });
     it('throws error if no tooltipUserNameMapper function provided', () => {
       expect(() =>
-        getReadByTooltipText([], mockTranslatorFunction, client, undefined),
+        getReadByTooltipText([], mockTranslatorFunction as any, client, undefined as any),
       ).toThrow(
         'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
       );

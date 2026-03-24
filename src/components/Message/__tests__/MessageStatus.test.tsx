@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
@@ -49,12 +48,12 @@ const defaultMsgCtx = {
   isMyMessage: vi.fn().mockReturnValue(true),
 };
 
-const renderComponent = ({ chatCtx, componentCtx, messageCtx, props } = {}) =>
+const renderComponent = ({ chatCtx, componentCtx, messageCtx, props }: any = {}) =>
   render(
-    <ChatProvider value={chatCtx}>
-      <TranslationProvider value={{ t }}>
-        <ComponentProvider value={componentCtx || {}}>
-          <MessageProvider value={{ ...defaultMsgCtx, ...messageCtx }}>
+    <ChatProvider value={chatCtx as any}>
+      <TranslationProvider value={{ t } as any}>
+        <ComponentProvider value={(componentCtx || {}) as any}>
+          <MessageProvider value={{ ...defaultMsgCtx, ...messageCtx } as any}>
             <MessageStatus {...props} />
           </MessageProvider>
         </ComponentProvider>
