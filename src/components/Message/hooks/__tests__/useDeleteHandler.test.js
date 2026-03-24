@@ -100,7 +100,7 @@ describe('useDeleteHandler custom hook', () => {
     const handleDelete = await renderUseDeleteHandler(networkFailedMessage);
 
     await act(async () => {
-      await handleDelete(mouseEventMock);
+      await handleDelete();
     });
 
     expect(removeMessage).toHaveBeenCalledWith(networkFailedMessage);

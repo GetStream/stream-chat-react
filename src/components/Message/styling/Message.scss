@@ -571,7 +571,6 @@
     }
   }
 
-  &.str-chat__message--error,
   &.str-chat__message--failed {
     $icon-size: calc(var(--str-chat__spacing-px) * 18);
 
