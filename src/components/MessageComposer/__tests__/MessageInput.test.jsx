@@ -324,6 +324,32 @@ describe(`MessageInputFlat`, () => {
     });
   });
 
+  it('should force single-line placeholder styling while input is empty', async () => {
+    await renderComponent();
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+    expect(textarea.style.whiteSpace).toBe('nowrap');
+    expect(textarea.style.overflow).toBe('hidden');
+    expect(textarea.style.textOverflow).toBe('ellipsis');
+  });
+
+  it('should remove empty-state single-line styling after user types', async () => {
+    await renderComponent();
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+    fireEvent.change(textarea, {
+      target: { value: 'hello world' },
+    });
+
+    await waitFor(() => {
+      expect(textarea.style.whiteSpace).toBe('');
+      expect(textarea.style.overflow).toBe('');
+      expect(textarea.style.textOverflow).toBe('');
+    });
+  });
+
   it('should display default value', async () => {
     const defaultValue = nanoid();
     const { customChannel, customClient } = await setup();
