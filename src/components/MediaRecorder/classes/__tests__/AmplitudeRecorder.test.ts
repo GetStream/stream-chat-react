@@ -1,5 +1,7 @@
+import { fromPartial } from '@total-typescript/shoehorn';
 import {
   AmplitudeRecorder,
+  type AmplitudeRecorderConfig,
   AmplitudeRecorderState,
   DEFAULT_AMPLITUDE_RECORDER_CONFIG,
 } from '../AmplitudeRecorder';
@@ -12,7 +14,7 @@ vi.spyOn(window, 'setInterval').mockReturnValue(intervalID as any);
 
 describe('AmplitudeRecorder', () => {
   it('is initiated with defaults', () => {
-    const ar = new AmplitudeRecorder({ stream: {} as any });
+    const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
     expect(ar.config).toStrictEqual(
       expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
@@ -28,23 +30,29 @@ describe('AmplitudeRecorder', () => {
       samplingFrequencyMs: 30,
     };
 
-    const mixedConfig: any = {
+    const mixedConfig: AmplitudeRecorderConfig = {
       analyserConfig: customConfig.analyserConfig,
       sampleCount: DEFAULT_AMPLITUDE_RECORDER_CONFIG.sampleCount,
       samplingFrequencyMs: DEFAULT_AMPLITUDE_RECORDER_CONFIG.samplingFrequencyMs,
     };
 
-    let ar = new AmplitudeRecorder({ config: customConfig } as any);
+    let ar = new AmplitudeRecorder({
+      config: customConfig,
+      stream: fromPartial<MediaStream>({}),
+    });
     expect(ar.config).toStrictEqual(expect.objectContaining(customConfig));
     ar = new AmplitudeRecorder({
-      config: { analyserConfig: customConfig.analyserConfig },
-    } as any);
+      config: fromPartial<AmplitudeRecorderConfig>({
+        analyserConfig: customConfig.analyserConfig,
+      }),
+      stream: fromPartial<MediaStream>({}),
+    });
     expect(ar.config).toStrictEqual(expect.objectContaining(mixedConfig));
   });
 
   describe('start', () => {
     it('throws error if MediaStream is not available', () => {
-      const ar = new AmplitudeRecorder({ stream: {} as any });
+      const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
       ar.stream = undefined;
       expect(ar.start).toThrow(
         'Missing MediaStream instance. Cannot to start amplitude recording',
@@ -52,7 +60,7 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('initiates the recorder state', () => {
-      const ar = new AmplitudeRecorder({ stream: {} as any });
+      const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
       (ar as any).start({});
       expect(ar.audioContext).toBeDefined();
       expect(ar.analyserNode).toStrictEqual(
@@ -66,7 +74,7 @@ describe('AmplitudeRecorder', () => {
   });
 
   it('stops the recording', () => {
-    const ar = new AmplitudeRecorder({ stream: {} as any });
+    const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
     (ar as any).start({});
     ar.stop();
     expect(ar.audioContext).toBeDefined();
@@ -81,7 +89,7 @@ describe('AmplitudeRecorder', () => {
 
   describe('close', () => {
     it('disconnects all the devices', () => {
-      const ar = new AmplitudeRecorder({ stream: {} as any });
+      const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
       const stopSpy = vi.spyOn(ar, 'stop');
       (ar as any).start({});
       ar.stop();
@@ -95,7 +103,7 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('stops the recording if not already stopped', () => {
-      const ar = new AmplitudeRecorder({ stream: {} as any });
+      const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
       const stopSpy = vi.spyOn(ar, 'stop');
       (ar as any).start({});
       ar.close();
@@ -108,7 +116,7 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('cannot restart the recorder', () => {
-      const ar = new AmplitudeRecorder({ stream: {} as any });
+      const ar = new AmplitudeRecorder({ stream: fromPartial<MediaStream>({}) });
       (ar as any).start({});
       ar.close();
       (ar as any).start();

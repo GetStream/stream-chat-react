@@ -1,4 +1,6 @@
 import fixWebmDuration from 'fix-webm-duration';
+import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import * as transcoder from '../../transcode';
 import * as wavTranscoder from '../../transcode/wav';
 import {
@@ -21,7 +23,7 @@ import { generateDataavailableEvent } from '../../../../mock-builders/browser/ev
 
 const fileObjectURL = 'fileObjectURL';
 const nanoidMockValue = 'randomNanoId';
-const fileMock = { name: 'fileName' } as any;
+const fileMock = fromPartial<File>({ name: 'fileName' });
 
 const recordedChunkCount = 10;
 const dataPoints = Array.from({ length: recordedChunkCount }, (_, i) => i);
@@ -51,8 +53,14 @@ const expectRegistersError = async ({
   controller,
   errorMsg,
   notificationMsg,
-}: any) => {
-  let error, notification;
+}: {
+  action: () => void | Promise<void>;
+  controller: MediaRecorderController;
+  errorMsg: string;
+  notificationMsg?: string;
+}) => {
+  let error: Error | undefined;
+  let notification: { text: string; type: string } | undefined;
   const errorSubscription = controller.error.subscribe((e) => {
     error = e;
   });
@@ -62,7 +70,7 @@ const expectRegistersError = async ({
       notification = n;
     });
   await action();
-  expect(error.message).toBe(errorMsg);
+  expect(error?.message).toBe(errorMsg);
   expect(consoleErrorSpy.mock.calls[0][0]).toBe('[MEDIA RECORDER ERROR]');
   expect(consoleErrorSpy.mock.calls[0][1].message).toBe(errorMsg);
   if (notificationMsg)
@@ -384,7 +392,8 @@ describe('MediaRecorderController', () => {
   describe('stop', () => {
     it('returns existing recording when mediaRecorder is inactive', async () => {
       const controller = new MediaRecorderController();
-      const existingRecording = generateVoiceRecordingAttachment() as any;
+      const existingRecording =
+        generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
       controller.recording.next(existingRecording);
       // stop() now requires mediaRecorder.state === 'inactive' to return existing recording
       await controller.start();
@@ -414,9 +423,10 @@ describe('MediaRecorderController', () => {
           controller.pause();
           (controller.mediaRecorder as any).state = MediaRecordingState.PAUSED;
         }
-        const voiceRecording = generateVoiceRecordingAttachment() as any;
+        const voiceRecording =
+          generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
         setTimeout(() => {
-          controller.signalRecordingReady(voiceRecording);
+          controller.signalRecordingReady?.(voiceRecording);
         }, 0);
         const stopResult = await controller.stop();
         expect(stopResult).toStrictEqual(expect.objectContaining(voiceRecording));
@@ -434,9 +444,11 @@ describe('MediaRecorderController', () => {
     it('does nothing if event does not contain data', () => {
       const controller = new MediaRecorderController();
       controller.handleDataavailableEvent(
-        generateDataavailableEvent({
-          dataOverrides: { data: new Blob([], { type: 'audio/webm' }) },
-        }) as any,
+        fromPartial<BlobEvent>(
+          generateDataavailableEvent({
+            dataOverrides: { data: new Blob([], { type: 'audio/webm' }) },
+          }),
+        ),
       );
       expect(controller.recording.value).toBeUndefined();
     });
@@ -449,7 +461,9 @@ describe('MediaRecorderController', () => {
         .mockRejectedValue(new Error(errorMsg));
       expectRegistersError({
         action: () =>
-          controller.handleDataavailableEvent(generateDataavailableEvent() as any),
+          controller.handleDataavailableEvent(
+            fromPartial<BlobEvent>(generateDataavailableEvent()),
+          ),
         controller,
         errorMsg,
         notificationMsg: 'An error has occurred during the recording processing',
@@ -462,18 +476,23 @@ describe('MediaRecorderController', () => {
       const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(undefined);
-      await controller.handleDataavailableEvent(generateDataavailableEvent() as any);
+      await controller.handleDataavailableEvent(
+        fromPartial<BlobEvent>(generateDataavailableEvent()),
+      );
       expect(controller.recording.value).toBeUndefined();
       makeVoiceRecordingSpy.mockRestore();
     });
 
     it('emits recording if generation was successful', async () => {
       const controller = new MediaRecorderController();
-      const voiceRecording = generateVoiceRecordingAttachment() as any;
+      const voiceRecording =
+        generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
       const makeVoiceRecordingSpy = vi
         .spyOn(controller, 'makeVoiceRecording')
         .mockResolvedValue(voiceRecording);
-      await controller.handleDataavailableEvent(generateDataavailableEvent() as any);
+      await controller.handleDataavailableEvent(
+        fromPartial<BlobEvent>(generateDataavailableEvent()),
+      );
       expect(controller.recording.value).toStrictEqual(
         expect.objectContaining(voiceRecording),
       );

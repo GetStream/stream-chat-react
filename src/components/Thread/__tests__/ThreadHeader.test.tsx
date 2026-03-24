@@ -94,9 +94,10 @@ const renderComponent = ({
         <TranslationProvider
           value={
             {
-              t: ((key: any, options: any) => {
+              t: ((key: string, options?: Record<string, unknown>) => {
                 if (key === 'Thread') return 'Thread';
-                if (key === 'replyCount') return `${options.count} replies`;
+                if (key === 'replyCount')
+                  return `${(options as Record<string, number>)?.count} replies`;
                 if (key === 'aria/Close thread') return 'Close thread';
 
                 return key;

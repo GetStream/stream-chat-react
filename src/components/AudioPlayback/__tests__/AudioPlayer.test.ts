@@ -1,7 +1,11 @@
-import { AudioPlayer, elementIsPlaying } from '../AudioPlayer';
+import { fromPartial } from '@total-typescript/shoehorn';
+import { AudioPlayer, type AudioPlayerOptions, elementIsPlaying } from '../AudioPlayer';
+import type { AudioPlayerPool } from '../AudioPlayerPool';
 
 // ---- Keep throttle synchronous so seek assertions are deterministic ----
-vi.mock('lodash.throttle', () => ({ default: (fn) => fn }));
+vi.mock('lodash.throttle', () => ({
+  default: (fn: (...args: unknown[]) => unknown) => fn,
+}));
 
 // ---- Stable console noise filter (optional) ----
 const originalConsoleError = console.error;
@@ -17,7 +21,7 @@ beforeAll(() => {
 const SRC = 'https://example.com/a.mp3';
 const MIME = 'audio/mpeg';
 
-const createdAudios = [];
+const createdAudios: HTMLAudioElement[] = [];
 const makeErrorPlugin = () => {
   const onError = vi.fn();
   return {
@@ -26,13 +30,13 @@ const makeErrorPlugin = () => {
   };
 };
 
-const makePlayer = (overrides: any = {}) => {
-  const pool = {
-    acquireElement: ({ src }: any) => new Audio(src),
+const makePlayer = (overrides: Partial<AudioPlayerOptions> = {}) => {
+  const pool = fromPartial<AudioPlayerPool>({
+    acquireElement: ({ src }: { ownerId: string; src: string }) => new Audio(src),
     deregister: () => {},
     releaseElement: () => {},
     setActiveAudioPlayer: vi.fn(),
-  } as any;
+  });
   return new AudioPlayer({
     durationSeconds: 100,
     id: 'id-1',
@@ -306,10 +310,9 @@ describe('AudioPlayer', () => {
     vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
 
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
-      width: 100,
-      x: 0,
-    } as any);
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(
+      fromPartial<DOMRect>({ width: 100, x: 0 }),
+    );
 
     p.seek({ clientX: 50, currentTarget: target });
 
@@ -323,10 +326,9 @@ describe('AudioPlayer', () => {
     p.play();
     vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
-      width: 100,
-      x: 0,
-    } as any);
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(
+      fromPartial<DOMRect>({ width: 100, x: 0 }),
+    );
 
     p.seek({ clientX: 150, currentTarget: target }); // clientX > width
     expect(p.state.getLatestValue().secondsElapsed).toBe(0);
@@ -341,10 +343,9 @@ describe('AudioPlayer', () => {
     vi.spyOn(player.elementRef, 'duration', 'get').mockReturnValue(NaN);
 
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
-      width: 100,
-      x: 0,
-    } as any);
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(
+      fromPartial<DOMRect>({ width: 100, x: 0 }),
+    );
 
     player.seek({ clientX: 50, currentTarget: target });
 

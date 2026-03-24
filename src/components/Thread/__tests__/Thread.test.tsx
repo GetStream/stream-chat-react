@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
+import type { StreamChat } from 'stream-chat';
 
 import {
   ChannelActionProvider,
@@ -50,7 +51,7 @@ vi.mock('../../ChatView', () => ({
   })),
 }));
 
-let chatClient;
+let chatClient: StreamChat;
 const alice = generateUser({ id: 'alice', name: 'alice' });
 const bob = generateUser({ id: 'bob', name: 'bob' });
 const parentMessage = generateMessage({ reply_count: 2, user: alice });
@@ -77,9 +78,9 @@ const channelActionContextMock = {
   loadMoreThread: vi.fn(() => Promise.resolve()),
 };
 
-const i18nMock = vi.fn((key, props) => {
-  if (key === 'replyCount' && props.count === 1) return '1 reply';
-  else if (key === 'replyCount' && props.count > 1) return '2 replies';
+const i18nMock = vi.fn((key: string, props?: { count?: number }) => {
+  if (key === 'replyCount' && props?.count === 1) return '1 reply';
+  else if (key === 'replyCount' && (props?.count ?? 0) > 1) return '2 replies';
   return key;
 });
 
@@ -89,7 +90,13 @@ const renderComponent = ({
   chatClient,
   componentOverrides = {},
   threadProps = {},
-}: any) =>
+}: {
+  channelActionOverrides?: Record<string, unknown>;
+  channelStateOverrides?: Record<string, unknown>;
+  chatClient: StreamChat;
+  componentOverrides?: Record<string, unknown>;
+  threadProps?: Record<string, unknown>;
+}) =>
   render(
     <ChatProvider
       value={mockChatContext({ client: chatClient, latestMessageDatesByChannels: {} })}

@@ -5,6 +5,7 @@ import * as transcoder from '../../transcode';
 
 import { MessageComposer } from '../../../MessageComposer';
 import {
+  type ChannelActionContextValue,
   ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
@@ -61,9 +62,9 @@ const DEFAULT_RENDER_PARAMS = {
 
 window.ResizeObserver = ResizeObserverMock as any;
 
-vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
-  width: 120,
-} as any);
+vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
+  fromPartial<DOMRect>({ width: 120 }),
+);
 
 const renderComponent = async ({
   channelActionCtx,
@@ -119,7 +120,7 @@ vi.mock('nanoid', () => ({
 vi.mock('fix-webm-duration', () => ({ default: vi.fn((blob) => blob) }));
 
 vi.mock('../../../Notifications', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<Record<string, unknown>>();
   const notificationTarget = await import('../../../Notifications/notificationTarget');
   return {
     ...actual,
@@ -130,8 +131,8 @@ vi.mock('../../../Notifications', async (importOriginal) => {
 
 vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-vi.spyOn(transcoder, 'transcode').mockImplementation((opts: any) =>
-  Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
+vi.spyOn(transcoder, 'transcode').mockImplementation((opts) =>
+  Promise.resolve(new Blob([opts.blob], { type: 'audio/wav' })),
 );
 
 (window.navigator as any).permissions = {
@@ -388,7 +389,7 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <ChannelActionProvider value={{} as any}>
+    <ChannelActionProvider value={fromPartial<ChannelActionContextValue>({})}>
       <WithAudioPlayback>
         <MessageComposerContextProvider
           value={
