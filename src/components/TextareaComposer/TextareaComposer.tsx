@@ -1,11 +1,15 @@
 import clsx from 'clsx';
-import type {
-  ChangeEventHandler,
-  SyntheticEvent,
-  TextareaHTMLAttributes,
-  UIEventHandler,
+import React, {
+  type ChangeEventHandler,
+  type SyntheticEvent,
+  type TextareaHTMLAttributes,
+  type UIEventHandler,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
 } from 'react';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
@@ -262,6 +266,13 @@ export const TextareaComposer = ({
     if (!textareaRef.current || textareaIsFocused || !focus) return;
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
+
+  useEffect(
+    () => () => {
+      messageComposer.clear();
+    },
+    [messageComposer],
+  );
 
   useLayoutEffect(() => {
     /**
