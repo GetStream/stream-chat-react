@@ -443,6 +443,7 @@
   "View translation": "अनुवाद देखें",
   "Voice message": "आवाज संदेश",
   "Voice message {{ duration }}": "वॉइस संदेश {{ duration }}",
+  "Voice message deleted": "वॉइस संदेश हटा दिया गया",
   "voiceMessageCount_one": "1 ध्वनि संदेश",
   "voiceMessageCount_other": "{{ count }} ध्वनि संदेश",
   "Vote ended": "मतदान समाप्त",

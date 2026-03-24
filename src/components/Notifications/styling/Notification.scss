@@ -1,7 +1,7 @@
 .str-chat__notification {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--spacing-xs);
   min-height: 48px;
   min-width: 200px;
   max-width: 100%;
@@ -21,7 +21,6 @@
     display: flex;
     flex: 1 1 auto;
     gap: var(--spacing-xs);
-    min-width: 0;
 
     .str-chat__notification-icon {
       display: flex;
@@ -38,7 +37,8 @@
       flex: 1 1 auto;
       padding-block: var(--spacing-xxxs);
       font: var(--str-chat__caption-default-text);
-      min-width: 0;
+      text-align: center;
+      white-space: nowrap;
     }
   }
 

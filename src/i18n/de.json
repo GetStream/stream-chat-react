@@ -442,6 +442,7 @@
   "View translation": "Übersetzung anzeigen",
   "Voice message": "Sprachnachricht",
   "Voice message {{ duration }}": "Sprachnachricht {{ duration }}",
+  "Voice message deleted": "Sprachnachricht gelöscht",
   "voiceMessageCount_one": "Sprachnachricht",
   "voiceMessageCount_other": "{{ count }} sprachnachrichten",
   "Vote ended": "Abstimmung beendet",

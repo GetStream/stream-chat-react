@@ -442,6 +442,7 @@
   "View translation": "View translation",
   "Voice message": "Voice message",
   "Voice message {{ duration }}": "Voice message {{ duration }}",
+  "Voice message deleted": "Voice message deleted",
   "voiceMessageCount_one": "Voice message",
   "voiceMessageCount_other": "{{ count }} voice messages",
   "Vote ended": "Vote ended",

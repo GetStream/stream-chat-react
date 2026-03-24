@@ -435,6 +435,7 @@
   "View translation": "번역 보기",
   "Voice message": "음성 메시지",
   "Voice message {{ duration }}": "음성 메시지 {{ duration }}",
+  "Voice message deleted": "음성 메시지가 삭제됨",
   "voiceMessageCount_other": "음성 메시지 {{ count }}개",
   "Vote ended": "투표 종료",
   "Votes": "투표",

@@ -444,6 +444,7 @@
   "View translation": "Vertaling bekijken",
   "Voice message": "Spraakbericht",
   "Voice message {{ duration }}": "Spraakbericht {{ duration }}",
+  "Voice message deleted": "Spraakbericht verwijderd",
   "voiceMessageCount_one": "Spraakbericht",
   "voiceMessageCount_other": "{{ count }} spraakberichten",
   "Vote ended": "Stemmen beëindigd",

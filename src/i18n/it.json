@@ -460,6 +460,7 @@
   "View translation": "Visualizza traduzione",
   "Voice message": "Messaggio vocale",
   "Voice message {{ duration }}": "Messaggio vocale {{ duration }}",
+  "Voice message deleted": "Messaggio vocale eliminato",
   "voiceMessageCount_one": "Messaggio vocale",
   "voiceMessageCount_many": "{{ count }} messaggi vocali",
   "voiceMessageCount_other": "{{ count }} messaggi vocali",
