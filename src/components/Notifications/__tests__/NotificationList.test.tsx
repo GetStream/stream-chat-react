@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { useChatContext } from '../../../context';
 import { NotificationList } from '../NotificationList';
@@ -8,15 +7,15 @@ import { useNotifications } from '../hooks/useNotifications';
 
 import type { Notification } from 'stream-chat';
 
-jest.mock('../../../context', () => ({
-  useChatContext: jest.fn(),
+vi.mock('../../../context', () => ({
+  useChatContext: vi.fn(),
 }));
 
-jest.mock('../hooks/useNotifications', () => ({
-  useNotifications: jest.fn(),
+vi.mock('../hooks/useNotifications', () => ({
+  useNotifications: vi.fn(),
 }));
 
-jest.mock('../Notification', () => {
+vi.mock('../Notification', () => {
   const MockNotification = React.forwardRef(
     (
       {
@@ -49,12 +48,12 @@ jest.mock('../Notification', () => {
   return { Notification: MockNotification };
 });
 
-const mockedUseChatContext = jest.mocked(useChatContext);
-const mockedUseNotifications = jest.mocked(useNotifications);
+const mockedUseChatContext = vi.mocked(useChatContext);
+const mockedUseNotifications = vi.mocked(useNotifications);
 
-const clearTimeout = jest.fn();
-const remove = jest.fn();
-const startTimeout = jest.fn();
+const clearTimeout = vi.fn();
+const remove = vi.fn();
+const startTimeout = vi.fn();
 
 const notifications = [
   {
@@ -96,21 +95,21 @@ class IntersectionObserverMock {
     observerEntries.push({ callback, options });
   }
 
-  disconnect = jest.fn();
+  disconnect = vi.fn();
 
   observe = (element: Element) => {
     this.element = element;
     observerEntries[observerEntries.length - 1].element = element;
   };
 
-  unobserve = jest.fn();
+  unobserve = vi.fn();
 }
 
 describe('NotificationList', () => {
   let currentNotifications: Notification[];
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     observerEntries.splice(0, observerEntries.length);
     currentNotifications = [...notifications];
     mockedUseChatContext.mockReturnValue({
@@ -126,7 +125,7 @@ describe('NotificationList', () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
     clearTimeout.mockReset();
     remove.mockReset();
     startTimeout.mockReset();
@@ -179,7 +178,7 @@ describe('NotificationList', () => {
 
     rerender(<NotificationList />);
     act(() => {
-      jest.advanceTimersByTime(340);
+      vi.advanceTimersByTime(340);
     });
     rerender(<NotificationList />);
 

@@ -1,35 +1,41 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
-import { ChatViewContext } from '../../../ChatView';
+import { ChatViewContext, useChatViewContext } from '../../../ChatView';
 import { useChannelListContext, useChannelStateContext } from '../../../../context';
 import { useNotificationTarget } from '../useNotificationTarget';
 import { useThreadContext } from '../../../Threads/ThreadContext';
 import { useLegacyThreadContext } from '../../../Thread';
 
-jest.mock('../../../../context', () => ({
-  useChannelListContext: jest.fn(),
-  useChannelStateContext: jest.fn(),
+vi.mock('../../../ChatView', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useChatViewContext: vi.fn(),
 }));
 
-jest.mock('../../../Threads/ThreadContext', () => ({
-  useThreadContext: jest.fn(),
+vi.mock('../../../../context', () => ({
+  useChannelListContext: vi.fn(),
+  useChannelStateContext: vi.fn(),
 }));
 
-jest.mock('../../../Thread', () => ({
-  useLegacyThreadContext: jest.fn(),
+vi.mock('../../../Threads/ThreadContext', () => ({
+  useThreadContext: vi.fn(),
 }));
 
-const mockedUseChannelListContext = jest.mocked(useChannelListContext);
-const mockedUseChannelStateContext = jest.mocked(useChannelStateContext);
-const mockedUseLegacyThreadContext = jest.mocked(useLegacyThreadContext);
-const mockedUseThreadContext = jest.mocked(useThreadContext);
+vi.mock('../../../Thread', () => ({
+  useLegacyThreadContext: vi.fn(),
+}));
+
+const mockedUseChannelListContext = vi.mocked(useChannelListContext);
+const mockedUseChannelStateContext = vi.mocked(useChannelStateContext);
+const mockedUseChatViewContext = vi.mocked(useChatViewContext);
+const mockedUseLegacyThreadContext = vi.mocked(useLegacyThreadContext);
+const mockedUseThreadContext = vi.mocked(useThreadContext);
 
 const chatViewWrapper = (activeChatView) => {
   const Wrapper = ({ children }) =>
     React.createElement(
       ChatViewContext.Provider,
-      { value: { activeChatView, setActiveChatView: jest.fn() } },
+      { value: { activeChatView, setActiveChatView: vi.fn() } },
       children,
     );
   Wrapper.displayName = 'ChatViewWrapper';
@@ -40,11 +46,20 @@ describe('useNotificationTarget', () => {
   beforeEach(() => {
     mockedUseChannelListContext.mockReturnValue({});
     mockedUseChannelStateContext.mockReturnValue({});
+    mockedUseChatViewContext.mockReturnValue({
+      activeChatView: 'channels',
+      setActiveChatView: vi.fn(),
+    });
     mockedUseLegacyThreadContext.mockReturnValue({});
     mockedUseThreadContext.mockReturnValue(undefined);
   });
 
-  afterEach(jest.resetAllMocks);
+  afterEach(() => {
+    mockedUseChannelStateContext.mockReset();
+    mockedUseChatViewContext.mockReset();
+    mockedUseThreadContext.mockReset();
+    mockedUseLegacyThreadContext.mockReset();
+  });
 
   it('returns channel when channel context exists', () => {
     mockedUseChannelStateContext.mockReturnValue({ channel: {} });
@@ -63,6 +78,10 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns channel-list for channels view without thread or channel context', () => {
+    mockedUseChatViewContext.mockReturnValue({
+      activeChatView: 'channels',
+      setActiveChatView: vi.fn(),
+    });
     mockedUseChannelListContext.mockReturnValue({ channels: [] });
 
     const { result } = renderHook(() => useNotificationTarget(), {

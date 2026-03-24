@@ -6,7 +6,7 @@ const errors = emittedValues.map((val) => new Error(val));
 describe('Subject', () => {
   it('emits value to all observers', () => {
     const subject = new Subject();
-    const observers = Array.from({ length: 5 }, () => jest.fn());
+    const observers = Array.from({ length: 5 }, () => vi.fn());
     observers.forEach((observer) => subject.subscribe(observer));
     emittedValues.forEach((emitted) => {
       subject.next(emitted);
@@ -18,8 +18,8 @@ describe('Subject', () => {
   it('emits error to all observers', () => {
     const subject = new Subject();
     const observers = Array.from({ length: 5 }, () => ({
-      error: jest.fn(),
-      next: jest.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     observers.forEach((observer) => subject.subscribe(observer));
 
@@ -39,8 +39,8 @@ describe('Subject', () => {
   it('completes all subscriptions', () => {
     const subject = new Subject();
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      next: vi.fn(),
     }));
     observers.forEach((observer) => subject.subscribe(observer));
     Array.from({ length: 2 }, () => subject.complete());
@@ -54,9 +54,9 @@ describe('Subject', () => {
   it('unsubscribes observers', () => {
     const subject = new Subject();
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     const subscriptions = observers.map((observer) => subject.subscribe(observer));
     subscriptions.slice(3).forEach((subscription) => subscription.unsubscribe());
@@ -84,9 +84,9 @@ describe('Subject', () => {
   it('unsubscribes', () => {
     const subject = new Subject();
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     observers.map((observer) => subject.subscribe(observer));
     subject.unsubscribe();

@@ -8,8 +8,8 @@ import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
-jest.mock('nanoid', () => ({
-  nanoid: jest.fn(() => mockedNanoId),
+vi.mock('nanoid', () => ({
+  nanoid: vi.fn(() => mockedNanoId),
 }));
 
 const myUserId = 'myUserId';
@@ -373,10 +373,10 @@ describe('processMessages', () => {
   });
 
   describe('giphy preview message', () => {
-    const setGiphyPreviewMessageMock = jest.fn();
+    const setGiphyPreviewMessageMock = vi.fn();
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('is set if provided with preview message setter and messages contain ephemeral giphy message', () => {
@@ -424,7 +424,7 @@ describe('processMessages', () => {
   it('executes reviewProcessedMessage function for each message', () => {
     const msgCount = 5;
     const messages = Array.from({ length: msgCount }, generateMessage);
-    const reviewProcessedMessage = jest.fn();
+    const reviewProcessedMessage = vi.fn();
     processMessages({
       messages,
       reviewProcessedMessage,

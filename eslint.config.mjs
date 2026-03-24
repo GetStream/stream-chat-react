@@ -6,8 +6,7 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys';
 import reactPlugin from 'eslint-plugin-react';
-import jestPlugin from 'eslint-plugin-jest';
-import jestDOMPlugin from 'eslint-plugin-jest-dom';
+import vitestPlugin from '@vitest/eslint-plugin';
 
 export default tseslint.config(
   {
@@ -116,24 +115,20 @@ export default tseslint.config(
     },
   },
   {
-    name: 'jest',
+    name: 'vitest',
     files: ['src/**/__tests__/**'],
-    // extends: [jestDOMPlugin.configs['flat/recommended']],
-    plugins: { jest: jestPlugin, 'jest-dom': jestDOMPlugin },
+    plugins: { vitest: vitestPlugin },
     languageOptions: {
-      globals: jestPlugin.environments.globals.globals,
+      globals: vitestPlugin.environments.env.globals,
     },
     rules: {
-      'jest/expect-expect': 'off',
-      'jest/no-conditional-expect': 'off',
-      'jest/prefer-inline-snapshots': 'off',
-      'jest/lowercase-name': 'off',
-      'jest/prefer-expect-assertions': 'off',
-      'jest/no-hooks': 'off',
-      'jest/no-if': 'off',
-      'jest/prefer-spy-on': 'warn',
-      'jest-dom/prefer-in-document': 'warn',
-      'jest-dom/prefer-to-have-class': 'warn',
+      'vitest/expect-expect': 'off',
+      'vitest/no-conditional-expect': 'off',
+      'vitest/prefer-inline-snapshots': 'off',
+      'vitest/prefer-lowercase-title': 'off',
+      'vitest/prefer-expect-assertions': 'off',
+      'vitest/no-hooks': 'off',
+      'vitest/prefer-spy-on': 'warn',
       '@typescript-eslint/no-empty-function': 'off', // explicitly disable for tests
     },
   },

@@ -8,7 +8,7 @@ import { AudioContextMock } from '../../../../mock-builders/browser';
 window.AudioContext = AudioContextMock;
 
 const intervalID = 1;
-jest.spyOn(window, 'setInterval').mockReturnValue(intervalID);
+vi.spyOn(window, 'setInterval').mockReturnValue(intervalID);
 
 describe('AmplitudeRecorder', () => {
   it('is initiated with defaults', () => {
@@ -82,7 +82,7 @@ describe('AmplitudeRecorder', () => {
   describe('close', () => {
     it('disconnects all the devices', () => {
       const ar = new AmplitudeRecorder({ stream: {} });
-      const stopSpy = jest.spyOn(ar, 'stop');
+      const stopSpy = vi.spyOn(ar, 'stop');
       ar.start({});
       ar.stop();
       ar.close();
@@ -96,7 +96,7 @@ describe('AmplitudeRecorder', () => {
 
     it('stops the recording if not already stopped', () => {
       const ar = new AmplitudeRecorder({ stream: {} });
-      const stopSpy = jest.spyOn(ar, 'stop');
+      const stopSpy = vi.spyOn(ar, 'stop');
       ar.start({});
       ar.close();
       expect(stopSpy).toHaveBeenCalledWith();

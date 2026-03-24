@@ -3,7 +3,7 @@ import { generateMessage, generateUser } from 'mock-builders';
 import { useUserHandler } from '../useUserHandler';
 
 const mouseEventMock = {
-  preventDefault: jest.fn(() => {}),
+  preventDefault: vi.fn(() => {}),
 };
 
 function renderUseUserHandlerHook(message = generateMessage(), eventHandlers) {
@@ -12,7 +12,7 @@ function renderUseUserHandlerHook(message = generateMessage(), eventHandlers) {
 }
 
 describe('useUserHandler custom hook', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
   it('should return a handlers for mouse events on the Avatar child component', () => {
     const handleUserEvents = renderUseUserHandlerHook();
     expect(handleUserEvents).toStrictEqual({
@@ -24,7 +24,7 @@ describe('useUserHandler custom hook', () => {
   it('should call user click handler with user message', () => {
     const user = generateUser();
     const message = generateMessage({ user });
-    const customUserClickHandler = jest.fn();
+    const customUserClickHandler = vi.fn();
     const { onUserClick } = renderUseUserHandlerHook(message, {
       onUserClickHandler: customUserClickHandler,
     });
@@ -35,7 +35,7 @@ describe('useUserHandler custom hook', () => {
   it('should call user hover handler with user message', () => {
     const user = generateUser();
     const message = generateMessage({ user });
-    const customUserHoverHandler = jest.fn();
+    const customUserHoverHandler = vi.fn();
     const { onUserHover } = renderUseUserHandlerHook(message, {
       onUserHoverHandler: customUserHoverHandler,
     });

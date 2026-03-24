@@ -4,7 +4,7 @@ describe('audioPlayerNotificationsPluginFactory', () => {
   const t = (s) => s;
 
   const makeClient = () => {
-    const addError = jest.fn();
+    const addError = vi.fn();
     return {
       addError,
       client: { notifications: { addError } },

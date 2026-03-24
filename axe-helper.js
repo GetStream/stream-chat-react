@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
-const { configureAxe } = require('jest-axe');
+import { configureAxe } from 'vitest-axe';
 
-module.exports.axe = configureAxe();
+export const axe = configureAxe();

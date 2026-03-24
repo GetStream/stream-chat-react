@@ -1,1 +1,1 @@
-jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();

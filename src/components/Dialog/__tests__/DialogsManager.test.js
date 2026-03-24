@@ -1,5 +1,10 @@
+import { nanoid } from 'nanoid';
+
 import { DialogManager } from '../service/DialogManager';
-import * as nanoid from 'nanoid';
+
+vi.mock('nanoid', () => ({
+  nanoid: vi.fn(),
+}));
 
 const dialogId = 'dialogId';
 
@@ -11,7 +16,7 @@ describe('DialogManager', () => {
   });
 
   it('initiates with default options', () => {
-    jest.spyOn(nanoid, 'nanoid').mockReturnValue('mockedId');
+    vi.mocked(nanoid).mockReturnValue('mockedId');
     const dialogManager = new DialogManager();
     expect(dialogManager.id).toBe('mockedId');
   });
@@ -149,21 +154,21 @@ describe('DialogManager', () => {
   });
 
   it('marks dialog for removal', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const dialogManager = new DialogManager();
     dialogManager.getOrCreate({ id: dialogId });
     dialogManager.open({ id: dialogId });
     dialogManager.markForRemoval(dialogId);
 
-    jest.runAllTimers();
+    vi.runAllTimers();
 
     expect(dialogManager.openDialogCount).toBe(0);
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
   it('cancels dialog removal if it is referenced again quickly', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const dialogManager = new DialogManager();
     dialogManager.getOrCreate({ id: dialogId });
@@ -171,7 +176,7 @@ describe('DialogManager', () => {
     dialogManager.markForRemoval(dialogId);
     dialogManager.getOrCreate({ id: dialogId });
 
-    jest.runAllTimers();
+    vi.runAllTimers();
 
     expect(dialogManager.openDialogCount).toBe(1);
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);

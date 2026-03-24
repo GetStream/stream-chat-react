@@ -7,7 +7,7 @@ import type { GalleryContextValue } from '../GalleryContext';
 
 describe('useGalleryContext', () => {
   it('should warn and return empty object when used outside provider', () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
 
     const { result } = renderHook(() => useGalleryContext('TestComponent'));
 
@@ -27,14 +27,14 @@ describe('useGalleryContext', () => {
         image_url: 'http://test.jpg',
         type: 'image',
       } as GalleryContextValue['currentItem'],
-      goToIndex: jest.fn(),
-      goToNext: jest.fn(),
-      goToPrevious: jest.fn(),
+      goToIndex: vi.fn(),
+      goToNext: vi.fn(),
+      goToPrevious: vi.fn(),
       hasNext: true,
       hasPrevious: false,
       itemCount: 2,
       items: [] as GalleryContextValue['items'],
-      onRequestClose: jest.fn(),
+      onRequestClose: vi.fn(),
     };
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (

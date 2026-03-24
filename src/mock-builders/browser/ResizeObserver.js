@@ -9,10 +9,10 @@ export class ResizeObserverMock {
     ResizeObserverMock.observers.push(this);
   }
 
-  observe = jest.fn(() => {
+  observe = vi.fn(() => {
     this.active = true;
   });
-  disconnect = jest.fn(() => {
+  disconnect = vi.fn(() => {
     this.active = false;
   });
 }

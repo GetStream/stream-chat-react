@@ -1,12 +1,12 @@
 import { AudioPlayer, elementIsPlaying } from '../AudioPlayer';
 
 // ---- Keep throttle synchronous so seek assertions are deterministic ----
-jest.mock('lodash.throttle', () => (fn) => fn);
+vi.mock('lodash.throttle', () => ({ default: (fn) => fn }));
 
 // ---- Stable console noise filter (optional) ----
 const originalConsoleError = console.error;
 beforeAll(() => {
-  jest.spyOn(console, 'error').mockImplementation((...args) => {
+  vi.spyOn(console, 'error').mockImplementation((...args) => {
     const msg = String(args[0]?.message ?? args[0] ?? '');
     if (/Not implemented/i.it(msg)) return;
     originalConsoleError(...args);
@@ -19,7 +19,7 @@ const MIME = 'audio/mpeg';
 
 const createdAudios = [];
 const makeErrorPlugin = () => {
-  const onError = jest.fn();
+  const onError = vi.fn();
   return {
     onError,
     plugin: { id: 'TestErrorPlugin', onError },
@@ -31,7 +31,7 @@ const makePlayer = (overrides = {}) => {
     acquireElement: ({ src }) => new Audio(src),
     deregister: () => {},
     releaseElement: () => {},
-    setActiveAudioPlayer: jest.fn(),
+    setActiveAudioPlayer: vi.fn(),
   };
   return new AudioPlayer({
     durationSeconds: 100,
@@ -47,31 +47,31 @@ const makePlayer = (overrides = {}) => {
 describe('AudioPlayer', () => {
   beforeEach(() => {
     const RealAudio = window.Audio;
-    jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
+    vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
       const el = new RealAudio(...args);
       createdAudios.push(el);
       return el;
     });
 
     // Stub core media methods
-    jest.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
-    jest
-      .spyOn(HTMLMediaElement.prototype, 'play')
-      .mockImplementation(() => Promise.resolve());
-    jest.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
+    vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+      Promise.resolve(),
+    );
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
     // Default media flags
-    jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
-    jest.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
-    jest.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     createdAudios.length = 0;
   });
 
   it('constructor sets initial state (canPlayRecord & playbackRates)', () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
 
     const player = makePlayer({ playbackRates: [1, 1.25, 1.5] });
 
@@ -88,8 +88,8 @@ describe('AudioPlayer', () => {
 
   it('preloads metadata and updates duration before playback starts', () => {
     const probe = document.createElement('audio');
-    const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(probe);
-    const durationSpy = jest.spyOn(probe, 'duration', 'get').mockReturnValue(42);
+    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(probe);
+    const durationSpy = vi.spyOn(probe, 'duration', 'get').mockReturnValue(42);
 
     const player = makePlayer({ durationSeconds: undefined });
 
@@ -103,7 +103,7 @@ describe('AudioPlayer', () => {
   });
 
   it('constructor marks not playable when mimeType unsupported', () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('');
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('');
     expect(makePlayer({ mimeType: 'audio/unknown' }).canPlayRecord).toBe(false);
   });
 
@@ -111,13 +111,13 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
     // attach an element so canPlayMimeType uses elementRef
     player.ensureElementRef();
-    const spy = jest.spyOn(player.elementRef, 'canPlayType').mockReturnValue('probably');
+    const spy = vi.spyOn(player.elementRef, 'canPlayType').mockReturnValue('probably');
     expect(player.canPlayMimeType('audio/ogg')).toBe(true);
     expect(spy).toHaveBeenCalledWith('audio/ogg');
   });
 
   it('play() success updates isPlaying and playbackRate', async () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
     const player = makePlayer({ playbackRates: [1, 1.5, 2] });
 
     await player.play({ currentPlaybackRate: 1.5 });
@@ -133,11 +133,11 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
 
     // Make element look like it's already playing
-    jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
     // attach and spy on the concrete element
     player.ensureElementRef();
-    const playSpy = jest.spyOn(player.elementRef, 'play');
+    const playSpy = vi.spyOn(player.elementRef, 'play');
 
     await player.play();
     expect(player.isPlaying).toBe(true);
@@ -145,7 +145,7 @@ describe('AudioPlayer', () => {
   });
 
   it('play() when not playable triggers registerError {errCode:not-playable}', async () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('');
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('');
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ mimeType: 'audio/zzz', plugins: [plugin] });
     await player.play();
@@ -159,7 +159,7 @@ describe('AudioPlayer', () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
     player.ensureElementRef();
-    jest.spyOn(player.elementRef, 'play').mockRejectedValueOnce(new Error('x'));
+    vi.spyOn(player.elementRef, 'play').mockRejectedValueOnce(new Error('x'));
     await player.play();
     expect(onError).toHaveBeenCalledWith(
       expect.objectContaining({ errCode: 'not-playable', player }),
@@ -168,67 +168,67 @@ describe('AudioPlayer', () => {
   });
 
   it('safety timeout pauses if play did not resolve within 2000ms', async () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
-    jest.useFakeTimers({ now: Date.now() });
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.useFakeTimers({ now: Date.now() });
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
 
     let resolve;
     // attach and stub play to a pending promise
     player.ensureElementRef();
-    jest.spyOn(player.elementRef, 'play').mockImplementation(
+    vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
           resolve = res;
         }),
     );
-    const pauseSpy = jest.spyOn(player.elementRef, 'pause').mockImplementation();
+    const pauseSpy = vi.spyOn(player.elementRef, 'pause').mockImplementation();
 
     const playPromise = player.play();
-    jest.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(2000);
     resolve();
     expect(pauseSpy).toHaveBeenCalledTimes(1);
     expect(player.isPlaying).toBe(false);
     expect(onError).not.toHaveBeenCalled();
 
-    jest.useRealTimers();
+    vi.useRealTimers();
     await Promise.resolve(playPromise);
   });
 
   it('safety timeout registers failed-to-start if pause throws', () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
-    jest.useFakeTimers({ now: Date.now() });
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.useFakeTimers({ now: Date.now() });
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
 
     let resolve;
     player.ensureElementRef();
-    jest.spyOn(player.elementRef, 'play').mockImplementation(
+    vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
           resolve = res;
         }),
     );
-    jest.spyOn(player.elementRef, 'pause').mockImplementation(() => {
+    vi.spyOn(player.elementRef, 'pause').mockImplementation(() => {
       throw new Error('nope');
     });
 
     player.play();
-    jest.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(2000);
     resolve();
     expect(onError).toHaveBeenCalledWith(
       expect.objectContaining({ errCode: 'failed-to-start', player }),
     );
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('pause() when element is playing updates state and calls audioElement.pause()', () => {
     const player = makePlayer();
-    jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
     player.ensureElementRef();
-    const pauseSpy = jest.spyOn(player.elementRef, 'pause');
+    const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).toHaveBeenCalled();
     expect(player.isPlaying).toBe(false);
@@ -237,7 +237,7 @@ describe('AudioPlayer', () => {
   it('pause() when element is not playing does nothing', () => {
     const player = makePlayer();
     player.ensureElementRef();
-    const pauseSpy = jest.spyOn(player.elementRef, 'pause');
+    const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).not.toHaveBeenCalled();
   });
@@ -255,7 +255,7 @@ describe('AudioPlayer', () => {
   it('stop() pauses, resets secondsElapsed and currentTime', () => {
     const player = makePlayer();
     player.ensureElementRef();
-    const pauseSpy = jest.spyOn(player, 'pause');
+    const pauseSpy = vi.spyOn(player, 'pause');
     player.state.partialNext({ secondsElapsed: 50 });
     expect(player.secondsElapsed).toBe(50);
 
@@ -268,13 +268,13 @@ describe('AudioPlayer', () => {
   it('togglePlay delegates to play() / pause()', async () => {
     const p = makePlayer();
 
-    const playSpy = jest.spyOn(p, 'play');
-    const pauseSpy = jest.spyOn(p, 'pause');
+    const playSpy = vi.spyOn(p, 'play');
+    const pauseSpy = vi.spyOn(p, 'pause');
 
     await p.togglePlay();
     expect(playSpy).toHaveBeenCalled();
 
-    jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
     p.state.partialNext({ isPlaying: true });
     await p.togglePlay();
     expect(pauseSpy).toHaveBeenCalled();
@@ -303,10 +303,10 @@ describe('AudioPlayer', () => {
   it('seek updates currentTime and progress when seekable', () => {
     const p = makePlayer();
     p.play();
-    jest.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
+    vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
 
     const target = document.createElement('div');
-    jest.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
 
     p.seek({ clientX: 50, currentTarget: target });
 
@@ -318,9 +318,9 @@ describe('AudioPlayer', () => {
   it('seek does nothing if ratio is out of 0..1', () => {
     const p = makePlayer();
     p.play();
-    jest.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
+    vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
     const target = document.createElement('div');
-    jest.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
 
     p.seek({ clientX: 150, currentTarget: target }); // clientX > width
     expect(p.state.getLatestValue().secondsElapsed).toBe(0);
@@ -332,10 +332,10 @@ describe('AudioPlayer', () => {
     player.ensureElementRef();
 
     // not seekable
-    jest.spyOn(player.elementRef, 'duration', 'get').mockReturnValue(NaN);
+    vi.spyOn(player.elementRef, 'duration', 'get').mockReturnValue(NaN);
 
     const target = document.createElement('div');
-    jest.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
 
     player.seek({ clientX: 50, currentTarget: target });
 
@@ -347,7 +347,7 @@ describe('AudioPlayer', () => {
   it('setSecondsElapsed updates seconds and progressPercent in state', () => {
     const p = makePlayer();
     p.play();
-    jest.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(200);
+    vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(200);
 
     p.setSecondsElapsed(40);
     const st = p.state.getLatestValue();
@@ -358,10 +358,10 @@ describe('AudioPlayer', () => {
   it('elementIsPlaying utility', () => {
     const el = document.createElement('audio');
 
-    const pausedSpy = jest
+    const pausedSpy = vi
       .spyOn(HTMLMediaElement.prototype, 'paused', 'get')
       .mockReturnValue(true);
-    const endedSpy = jest
+    const endedSpy = vi
       .spyOn(HTMLMediaElement.prototype, 'ended', 'get')
       .mockReturnValue(false);
 
@@ -375,13 +375,13 @@ describe('AudioPlayer', () => {
   });
 
   it('requestRemoval clears element (load not called) and nulls elementRef, notifies plugins', () => {
-    const onRemove = jest.fn();
+    const onRemove = vi.fn();
     const player = makePlayer({ plugins: [{ id: 'TestOnRemove', onRemove }] });
 
     // attach concrete element to spy on load()
     player.ensureElementRef();
     const el = createdAudios[1];
-    const loadSpy = jest.spyOn(el, 'load');
+    const loadSpy = vi.spyOn(el, 'load');
 
     expect(player.elementRef).toBe(el);
 
@@ -393,7 +393,7 @@ describe('AudioPlayer', () => {
   });
 
   it('play() after requestRemoval is a no-op (player disposed)', async () => {
-    jest.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
     const player = makePlayer();
 
     // ensure element exists before removal

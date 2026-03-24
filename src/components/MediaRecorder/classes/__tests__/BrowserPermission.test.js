@@ -3,11 +3,11 @@ import { EventEmitterMock } from '../../../../mock-builders/browser';
 
 const defaultMockState = 'prompt';
 window.navigator.permissions = {
-  query: jest.fn(),
+  query: vi.fn(),
 };
 
 describe('BrowserPermission', () => {
-  afterEach(jest.clearAllMocks);
+  afterEach(vi.clearAllMocks);
 
   it('is initiated for microphone', () => {
     const permission = new BrowserPermission({ mediaType: 'audio' });

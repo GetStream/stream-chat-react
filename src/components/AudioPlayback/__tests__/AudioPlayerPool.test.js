@@ -1,32 +1,32 @@
 import { AudioPlayerPool } from '../AudioPlayerPool';
 
 // make throttle a no-op where indirectly used
-jest.mock('lodash.throttle', () => (fn) => fn);
+vi.mock('lodash.throttle', () => ({ default: (fn) => fn }));
 
 describe('AudioPlayerPool', () => {
   const createdAudios = [];
 
   beforeEach(() => {
     const RealAudio = window.Audio;
-    jest.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
+    vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
       const el = new RealAudio(...args);
       createdAudios.push(el);
       return el;
     });
 
-    jest.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
-    jest
-      .spyOn(HTMLMediaElement.prototype, 'play')
-      .mockImplementation(() => Promise.resolve());
-    jest.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
+    vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => ({}));
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+      Promise.resolve(),
+    );
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => ({}));
 
-    jest.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
-    jest.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
-    jest.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(100);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     createdAudios.length = 0;
   });
   const defaultDescriptor = { durationSeconds: 100, mimeType: 'audio/mpeg' };
@@ -47,7 +47,7 @@ describe('AudioPlayerPool', () => {
       title: 'Title A',
       waveformData: [1],
     });
-    const regSpy = jest.spyOn(p1, 'registerSubscriptions');
+    const regSpy = vi.spyOn(p1, 'registerSubscriptions');
     const p1Again = makePlayer(pool, {
       durationSeconds: 10,
       id: 'a',
@@ -80,8 +80,8 @@ describe('AudioPlayerPool', () => {
     expect(el2).toBeInstanceOf(HTMLAudioElement);
     expect(el1).not.toBe(el2);
 
-    const loadSpy1 = jest.spyOn(el1, 'load');
-    const loadSpy2 = jest.spyOn(el2, 'load');
+    const loadSpy1 = vi.spyOn(el1, 'load');
+    const loadSpy2 = vi.spyOn(el2, 'load');
 
     // change sources; pool should set src but not call load()
     const el1again = pool.acquireElement({
@@ -102,8 +102,8 @@ describe('AudioPlayerPool', () => {
     const pool = new AudioPlayerPool({ allowConcurrentPlayback: true });
     const p1 = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
     const el1 = pool.acquireElement({ ownerId: p1.id, src: p1.src });
-    const pauseSpy = jest.spyOn(el1, 'pause');
-    const loadSpy = jest.spyOn(el1, 'load');
+    const pauseSpy = vi.spyOn(el1, 'pause');
+    const loadSpy = vi.spyOn(el1, 'load');
 
     pool.releaseElement(p1.id);
     expect(pauseSpy).toHaveBeenCalled();
@@ -122,9 +122,9 @@ describe('AudioPlayerPool', () => {
     const p2 = makePlayer(pool, { id: 'o2', src: 'https://example.com/b.mp3' });
 
     const el1 = pool.acquireElement({ ownerId: p1.id, src: p1.src });
-    const loadSpy = jest.spyOn(el1, 'load');
-    const pauseSpyPrev = jest.spyOn(p1, 'pause');
-    const releaseForHandoffSpy = jest.spyOn(p1, 'releaseElementForHandoff');
+    const loadSpy = vi.spyOn(el1, 'load');
+    const pauseSpyPrev = vi.spyOn(p1, 'pause');
+    const releaseForHandoffSpy = vi.spyOn(p1, 'releaseElementForHandoff');
 
     const el2 = pool.acquireElement({ ownerId: p2.id, src: p2.src });
     expect(el2).toBe(el1); // shared element
@@ -137,8 +137,8 @@ describe('AudioPlayerPool', () => {
     const pool = new AudioPlayerPool({ allowConcurrentPlayback: false });
     const p1 = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
     const el = pool.acquireElement({ ownerId: p1.id, src: p1.src });
-    const pauseSpy = jest.spyOn(el, 'pause');
-    const loadSpy = jest.spyOn(el, 'load');
+    const pauseSpy = vi.spyOn(el, 'pause');
+    const loadSpy = vi.spyOn(el, 'load');
 
     pool.releaseElement(p1.id);
     expect(pauseSpy).toHaveBeenCalled();
@@ -155,8 +155,8 @@ describe('AudioPlayerPool', () => {
     const p1 = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
     const p2 = makePlayer(pool, { id: 'o2', src: 'https://example.com/b.mp3' });
 
-    const spy1 = jest.spyOn(p1, 'registerSubscriptions');
-    const spy2 = jest.spyOn(p2, 'registerSubscriptions');
+    const spy1 = vi.spyOn(p1, 'registerSubscriptions');
+    const spy2 = vi.spyOn(p2, 'registerSubscriptions');
 
     // give only p2 an elementRef
     const el = document.createElement('audio');

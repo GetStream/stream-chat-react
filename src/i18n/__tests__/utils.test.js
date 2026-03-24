@@ -2,9 +2,9 @@ import { getDateString, predefinedFormatters } from '../utils';
 import { Streami18n } from '../Streami18n';
 import Dayjs from 'dayjs';
 
-jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
-const t = jest.fn();
+const t = vi.fn();
 const timestampTranslationKey = 'timestampTranslationKey';
 
 const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
@@ -24,7 +24,7 @@ describe('getDateString', () => {
   });
 
   it('returns null if creation date string is incorrectly formatted', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     expect(
       getDateString({
         calendar: true,
@@ -37,7 +37,7 @@ describe('getDateString', () => {
   });
 
   it('returns null if neither datetime formatter nor custom formatting function are provided', () => {
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     expect(
       getDateString({
         calendar: true,
@@ -51,7 +51,7 @@ describe('getDateString', () => {
 
   it('returns a date string formatted with custom formatter function', () => {
     const expectedValue = 'expected';
-    const formatDateMock = jest.fn().mockReturnValue(expectedValue);
+    const formatDateMock = vi.fn().mockReturnValue(expectedValue);
     expect(
       getDateString({
         calendar: true,
@@ -109,8 +109,8 @@ describe('getDateString', () => {
     'invokes calendar method on dayOrMoment object with calendar formats %s',
     (_, calendarFormats) => {
       const dayOrMoment = {
-        calendar: jest.fn(),
-        format: jest.fn(),
+        calendar: vi.fn(),
+        format: vi.fn(),
         isSame: true,
       };
       getDateString({
@@ -133,8 +133,8 @@ describe('getDateString', () => {
     'invokes format method on dayOrMoment object with calendar formats %s',
     (_, calendarFormats) => {
       const dayOrMoment = {
-        calendar: jest.fn(),
-        format: jest.fn(),
+        calendar: vi.fn(),
+        format: vi.fn(),
         isSame: true,
       };
       const format = 'XY';
@@ -167,7 +167,7 @@ describe('getDateString', () => {
   );
   it('gives preference to custom formatDate function before translation', () => {
     const expectedValue = 0;
-    const formatDate = jest.fn();
+    const formatDate = vi.fn();
     getDateString({
       calendar: true,
       format: 'hh:mm A',
@@ -277,15 +277,15 @@ describe('getDateString', () => {
 
   describe('relativeCompact', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
-      jest.setSystemTime(FIXED_NOW);
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      vi.setSystemTime(FIXED_NOW);
     });
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('returns "Today" for same calendar day', () => {
-      const mockT = jest.fn((key) => {
+      const mockT = vi.fn((key) => {
         if (key === 'timestamp/relativeToday') return 'Today';
         return key;
       });
@@ -300,7 +300,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Yesterday" for 1 day ago', () => {
-      const mockT = jest.fn((key) => {
+      const mockT = vi.fn((key) => {
         if (key === 'timestamp/relativeYesterday') return 'Yesterday';
         return key;
       });
@@ -317,7 +317,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nd ago" for 2–6 days ago', () => {
-      const mockT = jest.fn((key, opts) => {
+      const mockT = vi.fn((key, opts) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;
@@ -335,7 +335,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nw ago" for 1–3 weeks ago', () => {
-      const mockT = jest.fn((key, opts) => {
+      const mockT = vi.fn((key, opts) => {
         if (key === 'timestamp/relativeWeeksAgo' && opts && opts.count)
           return `${opts.count}w ago`;
         return key;
@@ -353,7 +353,7 @@ describe('getDateString', () => {
     });
 
     it('returns DD/MM/YY for 4+ weeks ago', () => {
-      const mockT = jest.fn((key) => key);
+      const mockT = vi.fn((key) => key);
       const twentyEightDaysAgo = new Date(FIXED_NOW);
       twentyEightDaysAgo.setUTCDate(twentyEightDaysAgo.getUTCDate() - 28);
       const result = getDateString({
@@ -367,7 +367,7 @@ describe('getDateString', () => {
     });
 
     it('returns DD/MM/YY for future date', () => {
-      const mockT = jest.fn((key) => key);
+      const mockT = vi.fn((key) => key);
       const tomorrow = new Date(FIXED_NOW);
       tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
       const result = getDateString({
@@ -381,7 +381,7 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxWeeks: 0 (no "Nw ago", 7+ days show as date)', () => {
-      const mockT = jest.fn((key) => key);
+      const mockT = vi.fn((key) => key);
       const sevenDaysAgo = new Date(FIXED_NOW);
       sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
       const result = getDateString({
@@ -396,7 +396,7 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxDays (only 2–N days show "Nd ago")', () => {
-      const mockT = jest.fn((key, opts) => {
+      const mockT = vi.fn((key, opts) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;
@@ -417,8 +417,8 @@ describe('getDateString', () => {
 
     it('does not use relativeCompact when t or tDateTimeParser is missing', () => {
       const dayOrMoment = {
-        calendar: jest.fn(),
-        format: jest.fn().mockReturnValue('formatted'),
+        calendar: vi.fn(),
+        format: vi.fn().mockReturnValue('formatted'),
         isSame: true,
       };
       getDateString({
@@ -459,7 +459,7 @@ describe('predefinedFormatters', () => {
         ).toBeFalsy();
       });
       it('should log error parsing invalid calendarFormats', () => {
-        const consoleErrorSpy = jest
+        const consoleErrorSpy = vi
           .spyOn(console, 'error')
           .mockImplementationOnce(() => null);
         timestampFormatter(yesterday, 'en', { calendar: true, calendarFormats: '}' });
@@ -518,11 +518,11 @@ describe('predefinedFormatters', () => {
 
     describe('relativeCompact', () => {
       beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(FIXED_NOW);
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        vi.setSystemTime(FIXED_NOW);
       });
       afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
       });
 
       it('formats with relativeCompact: true (uses t for labels; date for 4+ weeks)', () => {

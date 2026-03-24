@@ -17,14 +17,17 @@ const connectUser = (client, user) =>
     resolve();
   });
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
 function mockClient(client, mocks = {}) {
-  jest.spyOn(client, '_setToken').mockImplementation();
-  jest.spyOn(client, '_setupConnection').mockImplementation();
-  jest.spyOn(client, 'getAppSettings').mockImplementation(mocks.getAppSettings);
-  jest.spyOn(client, 'queryReactions').mockImplementation(mocks.queryReactions);
+  vi.spyOn(client, '_setToken').mockImplementation(noop);
+  vi.spyOn(client, '_setupConnection').mockImplementation(noop);
+  vi.spyOn(client, 'getAppSettings').mockImplementation(mocks.getAppSettings ?? noop);
+  vi.spyOn(client, 'queryReactions').mockImplementation(mocks.queryReactions ?? noop);
   client.tokenManager = {
-    getToken: jest.fn(() => token),
-    tokenReady: jest.fn(() => true),
+    getToken: vi.fn(() => token),
+    tokenReady: vi.fn(() => true),
   };
   client.connectUser = connectUser.bind(null, client);
   return client;

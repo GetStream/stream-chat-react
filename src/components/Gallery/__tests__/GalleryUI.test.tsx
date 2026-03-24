@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
 import { Gallery } from '../Gallery';
 import { GalleryUI } from '../GalleryUI';
@@ -280,7 +279,7 @@ describe('GalleryUI', () => {
     });
 
     it('should render a close action when the gallery is shown inside a modal', () => {
-      const close = jest.fn();
+      const close = vi.fn();
       const items = [makeImageItem()];
 
       renderGalleryUI(items, { modalContext: { close } });
@@ -292,7 +291,7 @@ describe('GalleryUI', () => {
 
   describe('Background click closing', () => {
     it('should close when the empty gallery background is clicked by default', () => {
-      const close = jest.fn();
+      const close = vi.fn();
       const items = [makeImageItem()];
 
       const { container } = renderGalleryUI(items, { modalContext: { close } });
@@ -303,7 +302,7 @@ describe('GalleryUI', () => {
     });
 
     it('should not close when the current media is clicked', () => {
-      const close = jest.fn();
+      const close = vi.fn();
       const items = [makeImageItem()];
 
       renderGalleryUI(items, { modalContext: { close } });
@@ -314,7 +313,7 @@ describe('GalleryUI', () => {
     });
 
     it('should not close when closeOnBackgroundClick is disabled', () => {
-      const close = jest.fn();
+      const close = vi.fn();
       const items = [makeImageItem()];
 
       const { container } = renderGalleryUI(items, {
@@ -328,7 +327,7 @@ describe('GalleryUI', () => {
     });
 
     it('should ignore the next click after a swipe gesture', () => {
-      const close = jest.fn();
+      const close = vi.fn();
       const items = [makeImageItem(), makeImageItem(), makeImageItem()];
 
       const { container } = renderGalleryUI(items, { modalContext: { close } });

@@ -21,7 +21,7 @@ jobs:
     if: ${{ inputs.dry_run || startsWith(github.ref_name, 'release') || startsWith(github.ref_name, 'master') || startsWith(github.ref_name, 'rc')}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

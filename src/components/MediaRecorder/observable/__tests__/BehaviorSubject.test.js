@@ -14,14 +14,14 @@ describe('BehaviorSubject', () => {
 
   it('emits current value on subscribe', () => {
     const subject = new BehaviorSubject(initialValue);
-    const observers = Array.from({ length: 5 }, () => jest.fn());
+    const observers = Array.from({ length: 5 }, () => vi.fn());
     observers.forEach((observer) => subject.subscribe(observer));
     observers.forEach((observer) => expect(observer).toHaveBeenCalledWith(initialValue));
   });
 
   it('emits value to all observers', () => {
     const subject = new BehaviorSubject();
-    const observers = Array.from({ length: 5 }, () => jest.fn());
+    const observers = Array.from({ length: 5 }, () => vi.fn());
     observers.forEach((observer) => subject.subscribe(observer));
     emittedValues.forEach((emitted) => {
       subject.next(emitted);
@@ -34,8 +34,8 @@ describe('BehaviorSubject', () => {
   it('emits error to all observers', () => {
     const subject = new BehaviorSubject();
     const observers = Array.from({ length: 5 }, () => ({
-      error: jest.fn(),
-      next: jest.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     observers.forEach((observer) => subject.subscribe(observer));
 
@@ -54,8 +54,8 @@ describe('BehaviorSubject', () => {
   it('completes all subscriptions', () => {
     const subject = new BehaviorSubject();
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      next: vi.fn(),
     }));
     observers.forEach((observer) => subject.subscribe(observer));
     Array.from({ length: 2 }, () => subject.complete());
@@ -69,9 +69,9 @@ describe('BehaviorSubject', () => {
   it('unsubscribes observers', () => {
     const subject = new BehaviorSubject(initialValue);
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     const subscriptions = observers.map((observer) => subject.subscribe(observer));
     subscriptions.slice(3).forEach((subscription) => subscription.unsubscribe());
@@ -102,9 +102,9 @@ describe('BehaviorSubject', () => {
   it('unsubscribes', () => {
     const subject = new BehaviorSubject(initialValue);
     const observers = Array.from({ length: 5 }, () => ({
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
+      complete: vi.fn(),
+      error: vi.fn(),
+      next: vi.fn(),
     }));
     observers.map((observer) => subject.subscribe(observer));
     subject.unsubscribe();

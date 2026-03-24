@@ -1,6 +1,6 @@
 import { NotificationTranslationTopic, TranslationBuilder } from '../TranslationBuilder';
 
-const mockI18Next = { id: 'mockI18Next', use: jest.fn() };
+const mockI18Next = { id: 'mockI18Next', use: vi.fn() };
 describe('TranslationBuilder and TranslationTopic', () => {
   it('gets initiated', () => {
     const manager = new TranslationBuilder(mockI18Next);
@@ -21,7 +21,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
   });
 
   it('registers and removes translators', () => {
-    const translator = jest.fn();
+    const translator = vi.fn();
     const manager = new TranslationBuilder(mockI18Next);
     manager.registerTopic('notification', NotificationTranslationTopic);
     manager.registerTranslators('notification', { test: translator });
@@ -33,7 +33,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
 
   it('stores translators for non-existent topic in a buffer', () => {
     const manager = new TranslationBuilder(mockI18Next);
-    const translators = { custom1: jest.fn(), custom2: jest.fn() };
+    const translators = { custom1: vi.fn(), custom2: vi.fn() };
     manager.registerTranslators('notification', translators);
     expect(manager.topics.size).toEqual(0);
     expect(manager.translatorRegistrationsBuffer.notification).toEqual(translators);
@@ -41,7 +41,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
 
   it('removes translators from buffer on translation removal', () => {
     const manager = new TranslationBuilder(mockI18Next);
-    const translators = { custom1: jest.fn(), custom2: jest.fn() };
+    const translators = { custom1: vi.fn(), custom2: vi.fn() };
     manager.registerTranslators('notification', translators);
     manager.removeTranslators('notification', ['custom1']);
     expect(Object.keys(manager.translatorRegistrationsBuffer.notification).length).toBe(
@@ -52,7 +52,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
 
   it('flushes the buffered translators on topic registration', () => {
     const manager = new TranslationBuilder(mockI18Next);
-    const translators = { custom1: jest.fn(), custom2: jest.fn() };
+    const translators = { custom1: vi.fn(), custom2: vi.fn() };
     manager.registerTranslators('notification', translators);
     manager.registerTopic('notification', NotificationTranslationTopic);
     expect(manager.translatorRegistrationsBuffer.notification).toBeUndefined();
@@ -60,7 +60,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
 
   it("overrides the topic's translators with buffered translators", () => {
     const manager = new TranslationBuilder(mockI18Next);
-    const translator = jest.fn().mockImplementation();
+    const translator = vi.fn().mockImplementation();
     const translatorName = 'api:attachment:upload:failed';
     const translators = { [translatorName]: translator };
     manager.registerTranslators('notification', translators);

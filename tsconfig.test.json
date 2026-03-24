@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "jsx": "react",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": ["vitest/globals"]
   },
   "include": ["src/**/__tests__/**/*.test.js"]
 }

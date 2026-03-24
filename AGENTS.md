@@ -20,7 +20,6 @@ Agents should prioritize backwards compatibility, API stability, and high test c
 
 - src/ — Components, hooks, contexts, styles, and utilities (library source).
 - scripts/ - Scripts run during the build process
-- e2e/ — Playwright specs.
 - examples/ — Example apps/snippets.
 - developers/ — Dev notes & scripts.
 
@@ -30,7 +29,6 @@ Use the closest folder’s patterns and conventions when editing.
 
 Root configs:
 
-- .babelrc.js
 - .gitignore
 - .lintstagedrc.fix.json
 - .lintstagedrc.json
@@ -38,14 +36,10 @@ Root configs:
 - .prettierignore
 - .prettierrc
 - .releaserc.json
-- babel.config.js
 - codecov.yml
 - commitlint.config.mjs
 - eslint.config.mjs,
 - i18next.config.ts
-- jest.config.js
-- jest.config.js
-- playwright.config.ts
 - tsconfig.json
 
 Respect any repo-specific rules. Do not suppress rules broadly; justify and scope exceptions.

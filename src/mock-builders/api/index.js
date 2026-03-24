@@ -9,10 +9,7 @@
  */
 export const useMockedApis = (client, apiResponses) => {
   apiResponses.forEach(({ response, type }) => {
-    jest
-      .spyOn(client.axiosInstance, type)
-      .mockImplementation()
-      .mockResolvedValue(response);
+    vi.spyOn(client.axiosInstance, type).mockImplementation().mockResolvedValue(response);
   });
 };
 
