@@ -236,7 +236,7 @@ const MessageUIWithContext = ({
               <div className='str-chat__message-reactions-host'>
                 {hasReactions && <MessageReactions reverse />}
               </div>
-              <div className='str-chat__message-error-icon'>
+              <div className='str-chat__message-error-indicator'>
                 <ErrorBadge />
               </div>
             </>

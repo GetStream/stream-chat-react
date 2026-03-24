@@ -736,8 +736,10 @@ describe('<MessageSimple />', () => {
         ...bouncedMessageOptions,
         cid: channel.cid,
       });
-      const { queryByTestId } = await renderMessageSimple({ message });
-      expect(queryByTestId('error')).toBeInTheDocument();
+      const { container } = await renderMessageSimple({ message });
+      expect(
+        container.querySelector('.str-chat__message-error-indicator'),
+      ).toBeInTheDocument();
     });
 
     it('should render open bounce modal on click', async () => {
