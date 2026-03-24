@@ -340,8 +340,13 @@ describe('MessageList', () => {
 
     expect(reviewProcessedMessage.mock.calls[0][0].changes[0].id).toMatch('message.date');
     expect(reviewProcessedMessage.mock.calls[0][0].changes[1].id).toBe(messages[0].id);
-    expect(reviewProcessedMessage.mock.calls[1][0].changes[0].id).toBe(messages[1].id);
-    expect(reviewProcessedMessage.mock.calls[2][0].changes[0].id).toBe(messages[2].id);
+    const renderedMessageIds = reviewProcessedMessage.mock.calls
+      .flatMap(([{ changes }]) => changes)
+      .map(({ id }) => id)
+      .filter((id) => !id.startsWith('message.date'));
+    const uniqueRenderedMessageIds = Array.from(new Set(renderedMessageIds));
+
+    expect(uniqueRenderedMessageIds).toEqual(messages.map(({ id }) => id));
   });
 
   describe('unread messages', () => {

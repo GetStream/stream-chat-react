@@ -6,6 +6,7 @@ import {
   ACTIONS_NOT_WORKING_IN_THREAD,
   isMessageBounced,
   isMessageErrorRetryable,
+  isNetworkSendFailure,
 } from '../../Message/utils';
 
 import type { MessageActionSetItem } from '../MessageActions';
@@ -37,6 +38,7 @@ export const useBaseMessageActionSetFilter = (
   const isMessageThreadReply = typeof message.parent_id === 'string';
   const isBounced = isMessageBounced(message);
   const allowRetry = isMessageErrorRetryable(message);
+  const hasNetworkSendFailure = isNetworkSendFailure(message);
 
   return useMemo(() => {
     if (disable) return messageActionSet;
@@ -61,8 +63,8 @@ export const useBaseMessageActionSetFilter = (
       if (message.error) {
         return (
           (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||
-          (type === 'edit' && canEdit && isBounced) ||
-          (type === 'delete' && canDelete && isBounced)
+          (type === 'edit' && ((isBounced && canEdit) || hasNetworkSendFailure)) ||
+          (type === 'delete' && ((isBounced && canDelete) || hasNetworkSendFailure))
         );
       }
 
@@ -106,6 +108,7 @@ export const useBaseMessageActionSetFilter = (
     message.text,
     message.type,
     disable,
+    hasNetworkSendFailure,
     messageActionSet,
   ]);
 };

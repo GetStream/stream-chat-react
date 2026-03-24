@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
-import { SearchController } from 'stream-chat';
+import { ErrorFromResponse, SearchController } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -1870,6 +1870,45 @@ describe('Channel', () => {
         const msg = channel.state.findMessage(messageId);
         expect(msg).toBeDefined();
         expect(msg.status).toBe('received');
+      });
+
+      it('should convert axios network errors to ErrorFromResponse when sending fails', async () => {
+        const messageText = nanoid();
+        const messageId = nanoid();
+        const axiosNetworkError = new Error('Network Error');
+        axiosNetworkError.name = 'AxiosError';
+        axiosNetworkError.code = 'ERR_NETWORK';
+
+        jest.spyOn(channel, 'sendMessage').mockRejectedValueOnce(axiosNetworkError);
+
+        let sendMessage;
+        await renderComponent({ channel, chatClient }, ({ sendMessage: sm }) => {
+          sendMessage = sm;
+        });
+
+        await act(() =>
+          sendMessage({
+            localMessage: {
+              ...generateMessage({
+                id: messageId,
+                text: messageText,
+              }),
+              status: 'sending',
+            },
+            message: generateMessage({
+              id: messageId,
+              text: messageText,
+            }),
+          }),
+        );
+
+        const failedMessage = channel.state.findMessage(messageId);
+        expect(failedMessage).toBeDefined();
+        expect(failedMessage.status).toBe('failed');
+        expect(failedMessage.error).toBeInstanceOf(ErrorFromResponse);
+        expect(failedMessage.error.message).toBe('Network Error');
+        expect(failedMessage.error.status).toBe(0);
+        expect(failedMessage.error.code).toBeNull();
       });
 
       it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
