@@ -793,7 +793,7 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
       });
-      vi.spyOn(channel, 'markUnread').mockRejectedValueOnce(undefined as any);
+      vi.spyOn(channel, 'markUnread').mockRejectedValueOnce(undefined!);
 
       await renderMarkUnreadUI({
         channelProps: { channel },

@@ -5,6 +5,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ChatProvider, useChannelActionContext } from '../../../context';
 import { Channel } from '../../Channel';
@@ -70,16 +71,16 @@ const setup = async ({ channelData }: any = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
-    file: fileUploadUrl,
-  } as any);
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
-    file: fileUploadUrl,
-  } as any);
+  const sendImageSpy = vi
+    .spyOn(customChannel, 'sendImage')
+    .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
+  const sendFileSpy = vi
+    .spyOn(customChannel, 'sendFile')
+    .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')
-    .mockResolvedValue({ draft: { message: { id: 'x', text: '' } } } as any);
-  vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue({} as any);
+    .mockResolvedValue(fromPartial({ draft: { message: { id: 'x', text: '' } } }));
+  vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue(fromPartial({}));
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };

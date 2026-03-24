@@ -3,6 +3,7 @@ import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 import { nanoid } from 'nanoid';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { MessageComposer } from '../MessageComposer';
 import { Channel } from '../../Channel/Channel';
@@ -738,7 +739,7 @@ describe(`MessageInputFlat`, () => {
       const cause = new Error('failed to upload');
       const { customChannel, customClient, sendFileSpy } =
         await setupUploadRejected(cause);
-      sendFileSpy.mockResolvedValueOnce({ file: fileUploadUrl } as any);
+      sendFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
       await renderComponent({
         customChannel,
         customClient,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChatViewContext, useChatViewContext } from '../../../ChatView';
 import { useChannelListContext, useChannelStateContext } from '../../../../context';
@@ -44,13 +45,13 @@ const chatViewWrapper = (activeChatView) => {
 
 describe('useNotificationTarget', () => {
   beforeEach(() => {
-    mockedUseChannelListContext.mockReturnValue({} as any);
-    mockedUseChannelStateContext.mockReturnValue({} as any);
+    mockedUseChannelListContext.mockReturnValue(fromPartial({}));
+    mockedUseChannelStateContext.mockReturnValue(fromPartial({}));
     mockedUseChatViewContext.mockReturnValue({
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
     });
-    mockedUseLegacyThreadContext.mockReturnValue({} as any);
+    mockedUseLegacyThreadContext.mockReturnValue(fromPartial({}));
     mockedUseThreadContext.mockReturnValue(undefined);
   });
 
@@ -62,7 +63,7 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns channel when channel context exists', () => {
-    mockedUseChannelStateContext.mockReturnValue({ channel: {} } as any);
+    mockedUseChannelStateContext.mockReturnValue(fromPartial({ channel: {} }));
 
     const { result } = renderHook(() => useNotificationTarget());
 
@@ -70,7 +71,7 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns thread when thread context exists', () => {
-    mockedUseThreadContext.mockReturnValue({} as any);
+    mockedUseThreadContext.mockReturnValue(fromPartial({}));
 
     const { result } = renderHook(() => useNotificationTarget());
 
@@ -82,7 +83,7 @@ describe('useNotificationTarget', () => {
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
     });
-    mockedUseChannelListContext.mockReturnValue({ channels: [] } as any);
+    mockedUseChannelListContext.mockReturnValue(fromPartial({ channels: [] }));
 
     const { result } = renderHook(() => useNotificationTarget(), {
       wrapper: chatViewWrapper('channels'),

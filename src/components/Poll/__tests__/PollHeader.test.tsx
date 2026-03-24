@@ -3,6 +3,8 @@ import { render } from '@testing-library/react';
 import { PollHeader } from '../PollHeader';
 import { PollProvider, TranslationProvider } from '../../../context';
 import { Poll } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { generatePoll } from '../../../mock-builders';
 
 const TITLE_SELECTOR = '.str-chat__poll-title';
@@ -23,7 +25,7 @@ describe('PollHeader', () => {
   it('should not render if poll name is missing', () => {
     const pollData = generatePoll({ name: '' });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     expect(container).toBeEmptyDOMElement();
   });
@@ -31,7 +33,7 @@ describe('PollHeader', () => {
   it('should render vote ended header', () => {
     const pollData = generatePoll({ is_closed: true });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -42,7 +44,7 @@ describe('PollHeader', () => {
   it('should render select one header', () => {
     const pollData = generatePoll({ enforce_unique_vote: true });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -53,7 +55,7 @@ describe('PollHeader', () => {
   it('should render Select up to {{count}} header', () => {
     const pollData = generatePoll({ max_votes_allowed: 2 });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -64,7 +66,7 @@ describe('PollHeader', () => {
   it('should render Select one or more header', () => {
     const pollData = generatePoll({ max_votes_allowed: undefined });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -83,7 +85,7 @@ describe('PollHeader', () => {
       ],
     });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -94,7 +96,7 @@ describe('PollHeader', () => {
   it('should render no header text if no options available', () => {
     const pollData = generatePoll({ max_votes_allowed: undefined, options: [] });
     const { container } = renderComponent({
-      poll: new Poll({ client: {} as any, poll: pollData }),
+      poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);

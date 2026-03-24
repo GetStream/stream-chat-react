@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
@@ -117,7 +118,9 @@ describe('ThreadHeader', () => {
   });
 
   it('renders the channel display title in the subtitle', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
+    vi.mocked(useChannelPreviewInfo).mockReturnValue(
+      fromPartial({ displayTitle: 'Bob' }),
+    );
 
     renderComponent();
 
@@ -125,7 +128,9 @@ describe('ThreadHeader', () => {
   });
 
   it('falls back to the parent message author when the channel has no display title', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: undefined } as any);
+    vi.mocked(useChannelPreviewInfo).mockReturnValue(
+      fromPartial({ displayTitle: undefined }),
+    );
 
     renderComponent({
       channelOverrides: {
@@ -144,7 +149,9 @@ describe('ThreadHeader', () => {
   });
 
   it('renders only the reply count when no title source is available', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: undefined } as any);
+    vi.mocked(useChannelPreviewInfo).mockReturnValue(
+      fromPartial({ displayTitle: undefined }),
+    );
 
     renderComponent({
       channelOverrides: {
@@ -164,7 +171,9 @@ describe('ThreadHeader', () => {
   });
 
   it('does not render the sidebar toggle in the channels view', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
+    vi.mocked(useChannelPreviewInfo).mockReturnValue(
+      fromPartial({ displayTitle: 'Bob' }),
+    );
 
     renderComponent({
       activeChatView: 'channels',
@@ -175,7 +184,9 @@ describe('ThreadHeader', () => {
   });
 
   it('renders the sidebar toggle in the threads view', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
+    vi.mocked(useChannelPreviewInfo).mockReturnValue(
+      fromPartial({ displayTitle: 'Bob' }),
+    );
 
     renderComponent({
       activeChatView: 'threads',

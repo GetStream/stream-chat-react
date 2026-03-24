@@ -1,5 +1,7 @@
 import React from 'react';
 import { Poll as PollClass } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { render, screen } from '@testing-library/react';
 import { Poll } from '../Poll';
 import {
@@ -62,7 +64,7 @@ const renderComponent = async ({
 describe('Poll', () => {
   it('renders default poll UI', async () => {
     const pollData = generatePoll();
-    const poll = new PollClass({ client: {} as any, poll: pollData });
+    const poll = new PollClass({ client: fromPartial<StreamChat>({}), poll: pollData });
     const { container } = await renderComponent({
       props: { poll },
     });
@@ -72,7 +74,7 @@ describe('Poll', () => {
   });
   it('renders custom PollActions', async () => {
     const pollData = generatePoll();
-    const poll = new PollClass({ client: {} as any, poll: pollData });
+    const poll = new PollClass({ client: fromPartial<StreamChat>({}), poll: pollData });
     const testId = 'custom-poll-actions';
     const CustomPollActions = () => <div data-testid={testId} />;
     const { container } = await renderComponent({
@@ -89,7 +91,7 @@ describe('Poll', () => {
     const testId = 'custom-poll-header';
     const PollHeader = () => <div data-testid={testId} />;
     const pollData = generatePoll();
-    const poll = new PollClass({ client: {} as any, poll: pollData });
+    const poll = new PollClass({ client: fromPartial<StreamChat>({}), poll: pollData });
     const { container } = await renderComponent({
       componentContext: { PollHeader },
       props: { poll },
@@ -104,7 +106,7 @@ describe('Poll', () => {
     const testId = 'custom-poll-option-selector';
     const PollOptionSelector = () => <div data-testid={testId} />;
     const pollData = generatePoll();
-    const poll = new PollClass({ client: {} as any, poll: pollData });
+    const poll = new PollClass({ client: fromPartial<StreamChat>({}), poll: pollData });
     const { container } = await renderComponent({
       componentContext: { PollOptionSelector },
       props: { poll },
@@ -119,7 +121,7 @@ describe('Poll', () => {
     const testId = 'custom-poll-content';
     const PollContent = () => <div data-testid={testId} />;
     const pollData = generatePoll();
-    const poll = new PollClass({ client: {} as any, poll: pollData });
+    const poll = new PollClass({ client: fromPartial<StreamChat>({}), poll: pollData });
     const { container } = await renderComponent({
       componentContext: { PollContent },
       props: { poll },

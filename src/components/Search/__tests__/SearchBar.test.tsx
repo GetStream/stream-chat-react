@@ -41,7 +41,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: false,
       searchQuery: '',
-    } as any);
+    });
   });
 
   it('renders with default state', () => {
@@ -82,7 +82,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    } as any);
+    });
 
     render(<SearchBar />);
 
@@ -96,7 +96,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    } as any);
+    });
 
     render(<SearchBar />);
 
@@ -108,7 +108,7 @@ describe('SearchBar', () => {
       isActive: true,
       searchQuery: 'test',
     };
-    vi.mocked(useStateStore).mockReturnValue(state as any);
+    vi.mocked(useStateStore).mockReturnValue(state);
 
     render(<SearchBar />);
     expect(screen.getByTestId(INPUT_TEST_ID)).toHaveValue(state.searchQuery);
@@ -121,7 +121,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
-    } as any);
+    });
 
     render(<SearchBar />);
 
@@ -133,7 +133,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
-    } as any);
+    });
 
     render(<SearchBar />);
 
@@ -146,7 +146,7 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    } as any);
+    });
 
     render(<SearchBar />);
 
@@ -191,7 +191,7 @@ describe('SearchBar', () => {
       input: null,
       isActive: true,
       searchQuery: 'test',
-    } as any);
+    });
 
     rerender(<SearchBar />);
 

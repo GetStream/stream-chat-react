@@ -1,5 +1,7 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { AddCommentPrompt } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
@@ -24,8 +26,8 @@ describe('AddCommentPrompt', () => {
   afterEach(vi.resetAllMocks);
 
   it('renders update form for existing comment and submits it', async () => {
-    const poll = new Poll({ client: {} as any, poll: generatePoll() });
-    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue(undefined as any);
+    const poll = new Poll({ client: fromPartial<StreamChat>({}), poll: generatePoll() });
+    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue(undefined!);
     const { container } = renderComponent({ poll });
     const input = container.querySelector('input');
     expect(input).toHaveValue((poll.data.ownAnswer as any).text);
@@ -52,8 +54,11 @@ describe('AddCommentPrompt', () => {
   });
 
   it('renders form to add a new answer and submits it', async () => {
-    const poll = new Poll({ client: {} as any, poll: generatePoll({ own_votes: [] }) });
-    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue(undefined as any);
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: generatePoll({ own_votes: [] }),
+    });
+    const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue(undefined!);
     const { container } = renderComponent({ poll });
     const input = container.querySelector('input');
     expect(input).toHaveValue('');

@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import * as transcoder from '../../transcode';
 
 import { MessageComposer } from '../../../MessageComposer';
@@ -314,10 +315,10 @@ describe('MessageInput', () => {
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
-    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as any);
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
     const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
-      .mockResolvedValue({ file: fileObjectURL } as any);
+      .mockResolvedValue(fromPartial({ file: fileObjectURL }));
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
@@ -347,11 +348,13 @@ describe('MessageInput', () => {
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
-    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as any);
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
     const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
-      .mockResolvedValue({ file: fileObjectURL } as any);
-    const sendMessageSpy = vi.spyOn(channel, 'sendMessage').mockResolvedValue({} as any);
+      .mockResolvedValue(fromPartial({ file: fileObjectURL }));
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },

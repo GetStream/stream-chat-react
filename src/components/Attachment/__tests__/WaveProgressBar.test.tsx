@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 
@@ -13,12 +14,12 @@ const AMPLITUDE_BAR_TEST_ID = 'amplitude-bar';
 
 const getBoundingClientRect = vi
   .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: 120, x: 0 } as any);
+  .mockReturnValue(fromPartial({ width: 120, x: 0 }));
 
 describe('WaveProgressBar', () => {
   beforeEach(() => {
     ResizeObserverMock.observers = [];
-    getBoundingClientRect.mockReturnValue({ width: 120, x: 0 } as any);
+    getBoundingClientRect.mockReturnValue(fromPartial({ width: 120, x: 0 }));
   });
 
   it('is not rendered if waveform data is missing', () => {
@@ -27,7 +28,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('is not rendered if no space available', () => {
-    getBoundingClientRect.mockReturnValue({ width: 0, x: 0 } as any);
+    getBoundingClientRect.mockReturnValue(fromPartial({ width: 0, x: 0 }));
     render(
       <WaveProgressBar
         {...({ amplitudesCount: 5 } as any)}

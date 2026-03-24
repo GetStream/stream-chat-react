@@ -1349,7 +1349,7 @@ describe('MessageList', () => {
     ])('calls %s', async (funcName) => {
       const markUnreadSpy = vi.spyOn(channel, 'markUnread');
       if (funcName === 'getMarkMessageUnreadErrorNotification')
-        markUnreadSpy.mockRejectedValueOnce(undefined as any);
+        markUnreadSpy.mockRejectedValueOnce(undefined!);
 
       const message = generateMessage();
       const notificationFunc = vi.fn();

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { SearchSourceResultListFooter } from '../SearchResults';
 import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
@@ -24,9 +25,11 @@ describe('SearchSourceResultListFooter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(useSearchSourceResultsContext).mockReturnValue({
-      searchSource: mockSearchSource,
-    } as any);
+    vi.mocked(useSearchSourceResultsContext).mockReturnValue(
+      fromPartial({
+        searchSource: mockSearchSource,
+      }),
+    );
 
     vi.mocked(useComponentContext).mockReturnValue({
       SearchSourceResultsLoadingIndicator: DefaultLoadingIndicator,
@@ -39,14 +42,14 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: false,
-    } as any);
+    });
   });
 
   it('renders loading indicator when isLoading is true', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    } as any);
+    });
 
     render(<SearchSourceResultListFooter />);
 
@@ -58,7 +61,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    } as any);
+    });
 
     render(<SearchSourceResultListFooter />);
 
@@ -70,7 +73,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: false,
-    } as any);
+    });
 
     render(<SearchSourceResultListFooter />);
 
@@ -91,7 +94,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    } as any);
+    });
 
     render(<SearchSourceResultListFooter />);
 
@@ -106,7 +109,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    } as any);
+    });
 
     render(<SearchSourceResultListFooter />);
 
@@ -120,7 +123,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    } as any);
+    });
 
     rerender(<SearchSourceResultListFooter />);
     expect(screen.getByText('All results loaded')).toBeInTheDocument();
@@ -128,7 +131,7 @@ describe('SearchSourceResultListFooter', () => {
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    } as any);
+    });
 
     rerender(<SearchSourceResultListFooter />);
     expect(screen.getByTestId('default-loading-indicator')).toBeInTheDocument();
