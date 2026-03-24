@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 
 import { Gallery } from '../Gallery';
 import { useGalleryContext } from '../GalleryContext';
+import { ComponentProvider } from '../../../context';
 import {
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
@@ -41,10 +42,27 @@ describe('Gallery', () => {
     expect(screen.getByTestId('context-reader')).toBeInTheDocument();
   });
 
-  it('should render null when no GalleryUI is provided', () => {
+  it('should render default GalleryUI when no GalleryUI is provided', () => {
     const items = [makeImageItem()];
-    const { container } = render(<Gallery items={items} />);
-    expect(container.innerHTML).toBe('');
+    render(<Gallery items={items} />);
+    expect(screen.getByRole('button', { name: 'Previous image' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next image' })).toBeInTheDocument();
+  });
+
+  it('should render context GalleryUI when GalleryUI prop is not provided', () => {
+    const ContextGalleryUI = () => (
+      <div data-testid='context-gallery-ui'>Context Gallery</div>
+    );
+    const items = [makeImageItem()];
+
+    render(
+      <ComponentProvider value={{ GalleryUI: ContextGalleryUI }}>
+        <Gallery items={items} />
+      </ComponentProvider>,
+    );
+
+    expect(screen.getByTestId('context-gallery-ui')).toBeInTheDocument();
+    expect(screen.getByText('Context Gallery')).toBeInTheDocument();
   });
 
   it('should set initialIndex correctly', () => {

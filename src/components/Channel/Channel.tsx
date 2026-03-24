@@ -12,13 +12,11 @@ import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import type {
-  APIErrorResponse,
   ChannelAPIResponse,
   ChannelMemberResponse,
   ChannelQueryOptions,
   ChannelState,
   DeleteMessageOptions,
-  ErrorFromResponse,
   Event,
   EventAPIResponse,
   GiphyVersions,
@@ -72,7 +70,11 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { findInMsgSetByDate, findInMsgSetById } from './utils';
+import {
+  adaptMessageSendErrorToErrorFromResponse,
+  findInMsgSetByDate,
+  findInMsgSetById,
+} from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
 import type {
@@ -941,11 +943,7 @@ const ChannelInner = (
         });
       }
     } catch (error) {
-      // error response isn't usable so needs to be stringified then parsed
-      const stringError = JSON.stringify(error);
-      const parsedError = (
-        stringError ? JSON.parse(stringError) : {}
-      ) as ErrorFromResponse<APIErrorResponse>;
+      const parsedError = adaptMessageSendErrorToErrorFromResponse(error);
 
       // Handle the case where the message already exists
       // (typically, when retrying to send a message).

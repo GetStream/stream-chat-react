@@ -197,20 +197,24 @@ describe('<MessageText />', () => {
 
   it('should inform that message was not sent when message is has type "error"', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { container, getByText } = await renderMessageText({
+    const { container, getByTestId } = await renderMessageText({
       customProps: { message },
     });
-    expect(getByText('Error · Unsent')).toBeInTheDocument();
+    expect(getByTestId('error')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { container, getByText } = await renderMessageText({
+    const { container, getByTestId } = await renderMessageText({
       customProps: { message },
     });
-    expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__message--failed')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__message-send-can-be-retried'),
+    ).toBeInTheDocument();
+    expect(getByTestId('error')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

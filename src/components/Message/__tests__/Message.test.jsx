@@ -160,7 +160,11 @@ describe('<Message /> component', () => {
     });
 
     context.handleReaction();
-    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'message.own_reactions contained reactions from a different user',
+      ),
+    );
   });
 
   it('should delete own reaction from channel if it was already there', async () => {

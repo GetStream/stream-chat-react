@@ -1,4 +1,4 @@
-import { validateAndGetMessage } from '../utils';
+import { isNetworkSendFailure, validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChatContext } from '../../../context/ChatContext';
@@ -18,12 +18,22 @@ export const useDeleteHandler = (
 ): MessageContextValue['handleDelete'] => {
   const { getErrorNotification, notify } = notifications;
 
-  const { deleteMessage, updateMessage } = useChannelActionContext('useDeleteHandler');
+  const { deleteMessage, removeMessage, updateMessage } =
+    useChannelActionContext('useDeleteHandler');
   const { client } = useChatContext('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
   return async (options?: DeleteMessageOptions) => {
-    if (!message?.id || !client || !updateMessage) {
+    if (!message) {
+      return;
+    }
+
+    if (message.type === 'error' || isNetworkSendFailure(message)) {
+      removeMessage?.(message);
+      return;
+    }
+
+    if (!message.id || !client || !updateMessage) {
       return;
     }
 
@@ -35,6 +45,7 @@ export const useDeleteHandler = (
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
       if (notify) notify(errorMessage || t('Error deleting message'), 'error');
+      throw e;
     }
   };
 };

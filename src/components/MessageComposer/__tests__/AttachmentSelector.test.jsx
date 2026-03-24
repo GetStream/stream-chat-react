@@ -129,6 +129,28 @@ const renderComponent = async ({
 };
 
 describe('AttachmentSelector', () => {
+  it('applies rotate classes to icon content and not to the invoke button', async () => {
+    await renderComponent();
+
+    const invokeButton = screen.getByTestId('invoke-attachment-selector-button');
+
+    expect(invokeButton).not.toHaveClass('str-chat__prepare-rotate45');
+    expect(invokeButton).not.toHaveClass('str-chat__rotate45');
+
+    const icon = invokeButton.querySelector(
+      '.str-chat__attachment-selector__menu-button__icon',
+    );
+    expect(icon).toHaveClass('str-chat__prepare-rotate45');
+    expect(icon).not.toHaveClass('str-chat__rotate45');
+
+    await invokeMenu();
+
+    expect(invokeButton).not.toHaveClass('str-chat__prepare-rotate45');
+    expect(invokeButton).not.toHaveClass('str-chat__rotate45');
+    expect(icon).toHaveClass('str-chat__prepare-rotate45');
+    expect(icon).toHaveClass('str-chat__rotate45');
+  });
+
   it('renders with all the buttons if all the permissions are granted', async () => {
     await renderComponent();
     await invokeMenu();

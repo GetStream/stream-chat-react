@@ -645,7 +645,32 @@ describe('<MessageActions />', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should be displayed for own messages', async () => {
+    it('should be displayed for other users messages', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: { own_capabilities },
+            messages: [message],
+            read,
+          },
+        ],
+        customUser: me,
+      });
+
+      await renderMarkUnreadUI({
+        channelProps: { channel },
+        chatProps: { client },
+        messageProps: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
+    });
+
+    it('should not be displayed for own messages', async () => {
       const myMessage = { ...message, user: me };
       const {
         channels: [channel],
@@ -668,7 +693,7 @@ describe('<MessageActions />', () => {
       });
       await toggleOpenMessageActions();
 
-      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
+      expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
     it('should not be displayed for thread messages', async () => {

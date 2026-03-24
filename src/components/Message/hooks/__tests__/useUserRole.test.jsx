@@ -321,6 +321,27 @@ describe('useUserRole custom hook', () => {
     );
 
     it.each([
+      [true, alice, false],
+      [true, bob, true],
+      [false, alice, false],
+      [false, bob, false],
+    ])(
+      'determine mark unread permission',
+      async (readEventsPerm, messageAuthor, expected) => {
+        const message = generateMessage({ user: messageAuthor });
+        const { canMarkUnread } = await renderUserRoleHook({
+          channelStateContextValue: {
+            channelCapabilities: {
+              'read-events': readEventsPerm,
+            },
+          },
+          message,
+        });
+        expect(canMarkUnread).toBe(expected);
+      },
+    );
+
+    it.each([
       [true, true, false],
       [true, false, false],
       [false, true, true],

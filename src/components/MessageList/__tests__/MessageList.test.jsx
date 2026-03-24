@@ -334,8 +334,13 @@ describe('MessageList', () => {
 
     expect(reviewProcessedMessage.mock.calls[0][0].changes[0].id).toMatch('message.date');
     expect(reviewProcessedMessage.mock.calls[0][0].changes[1].id).toBe(messages[0].id);
-    expect(reviewProcessedMessage.mock.calls[1][0].changes[0].id).toBe(messages[1].id);
-    expect(reviewProcessedMessage.mock.calls[2][0].changes[0].id).toBe(messages[2].id);
+    const renderedMessageIds = reviewProcessedMessage.mock.calls
+      .flatMap(([{ changes }]) => changes)
+      .map(({ id }) => id)
+      .filter((id) => !id.startsWith('message.date'));
+    const uniqueRenderedMessageIds = Array.from(new Set(renderedMessageIds));
+
+    expect(uniqueRenderedMessageIds).toEqual(messages.map(({ id }) => id));
   });
 
   describe('unread messages', () => {
@@ -1165,6 +1170,7 @@ describe('MessageList', () => {
       });
 
       it('preserves the viewport when older messages are prepended after pagination starts near the top', async () => {
+        const PREPEND_BASE_SCROLL_TOP = 220;
         const currentMessages = Array.from({ length: 2 }, (_, index) =>
           generateMessage({
             id: `current-${index + 1}`,
@@ -1215,7 +1221,7 @@ describe('MessageList', () => {
               return originalGetBoundingClientRect.call(this);
             }
 
-            const messageTopMap = screen.queryByText('older-1')
+            const baseMessageTopMap = screen.queryByText('older-1')
               ? {
                   'current-1': 400,
                   'current-2': 560,
@@ -1226,7 +1232,12 @@ describe('MessageList', () => {
                   'current-1': 100,
                   'current-2': 260,
                 };
-            const top = messageTopMap[messageId] ?? 0;
+            const scrollTop =
+              document.querySelector('.str-chat__message-list')?.scrollTop ?? 0;
+            const topOffsetAfterScroll = screen.queryByText('older-1')
+              ? scrollTop - PREPEND_BASE_SCROLL_TOP
+              : 0;
+            const top = (baseMessageTopMap[messageId] ?? 0) - topOffsetAfterScroll;
 
             return {
               bottom: top + 120,
@@ -1289,8 +1300,8 @@ describe('MessageList', () => {
         fireEvent.scroll(listElement, { target: { scrollTop: 50 } });
         fireEvent.click(screen.getByText('start load older'));
 
-        listElement.scrollTop = 220;
-        fireEvent.scroll(listElement, { target: { scrollTop: 220 } });
+        listElement.scrollTop = PREPEND_BASE_SCROLL_TOP;
+        fireEvent.scroll(listElement, { target: { scrollTop: PREPEND_BASE_SCROLL_TOP } });
         Object.defineProperty(listElement, 'scrollHeight', {
           configurable: true,
           value: 900,

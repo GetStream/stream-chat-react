@@ -41,9 +41,10 @@ export const useChatViewContext = () => {
   const value = useContext(ChatViewContext);
 
   if (!value) {
-    throw new Error(
+    console.warn(
       'The useChatViewContext hook was called outside of the ChatView provider.',
     );
+    return {} as ChatViewContextValue;
   }
 
   return value;

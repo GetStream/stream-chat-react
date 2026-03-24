@@ -1,9 +1,14 @@
 import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer/icons';
 import { IconMicrophone, IconPause, IconTrashBin } from '../../Icons';
 import React from 'react';
-import { useMessageComposerContext } from '../../../context';
+import {
+  useChatContext,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
+import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
 
 const ToggleRecordingButton = () => {
   const {
@@ -27,9 +32,13 @@ const ToggleRecordingButton = () => {
 };
 
 export const AudioRecorderRecordingControls = () => {
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
   const {
     recordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageComposerContext();
+  const panel = useNotificationTarget();
+
   const isUploadingFile = recording?.localMetadata?.uploadState === 'uploading';
 
   if (!recorder) return null;
@@ -43,7 +52,17 @@ export const AudioRecorderRecordingControls = () => {
           className='str-chat__audio_recorder__cancel-button'
           data-testid={'cancel-recording-audio-button'}
           disabled={isUploadingFile}
-          onClick={recorder.cancel}
+          onClick={() => {
+            recorder.cancel();
+            client.notifications.addInfo({
+              message: t('Voice message deleted'),
+              options: {
+                tags: addNotificationTargetTag(panel),
+                type: 'audioRecording:cancel:success',
+              },
+              origin: { emitter: 'AudioRecorder' },
+            });
+          }}
           size='sm'
           variant='secondary'
         >

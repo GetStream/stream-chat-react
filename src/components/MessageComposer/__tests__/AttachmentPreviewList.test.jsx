@@ -340,6 +340,25 @@ describe('AttachmentPreviewList', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('opens the gallery preview for image attachments', async () => {
+    await renderComponent({
+      attachments: [
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-1', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-1',
+            image_url: 'https://example.com/image-upload-1.jpg',
+          },
+        ),
+      ],
+    });
+
+    fireEvent.click(screen.getByTestId('attachment-preview-media'));
+
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'image-upload-1' })).toBeInTheDocument();
+  });
+
   describe('shared location', () => {
     const renderLocationPreview = async ({ customPreview, location, remove } = {}) => {
       const {

@@ -198,11 +198,6 @@
   font: var(--str-chat__body2-medium-text);
 }
 
-.str-chat__message--error-message {
-  color: var(--str-chat__message-error-message-color);
-  font: var(--str-chat__caption-text);
-}
-
 .str-chat__message {
   @include utils.component-layer-overrides('message');
 
@@ -576,7 +571,6 @@
     }
   }
 
-  &.str-chat__message--error,
   &.str-chat__message--failed {
     $icon-size: calc(var(--str-chat__spacing-px) * 18);
 
