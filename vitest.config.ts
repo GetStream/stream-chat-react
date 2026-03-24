@@ -25,7 +25,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'lcov'],
       include: ['src/**/*.{ts,tsx,js,jsx}'],
-      exclude: ['src/**/__tests__/**', 'src/mock-builders/**', 'src/@types/**'],
+      exclude: [
+        'src/**/__tests__/**',
+        'src/mock-builders/**',
+        'src/@types/**',
+        'src/**/*.json',
+      ],
     },
   },
 });
