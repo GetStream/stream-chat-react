@@ -114,7 +114,9 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper with custom
 <div>
   <div
     class="XXX"
+    data-index="10000000"
     data-item-index="10000000"
+    data-known-size="0"
   />
 </div>
 `;
@@ -123,7 +125,9 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper with custom
 <div>
   <div
     class="XXX"
+    data-index="10000000"
     data-item-index="10000000"
+    data-known-size="0"
   />
 </div>
 `;
@@ -132,7 +136,9 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper without cus
 <div>
   <div
     class="str-chat__virtual-list-message-wrapper str-chat__li str-chat__li--single"
+    data-index="10000000"
     data-item-index="10000000"
+    data-known-size="0"
   />
 </div>
 `;
@@ -141,7 +147,9 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper without cus
 <div>
   <div
     class="str-chat__virtual-list-message-wrapper str-chat__li"
+    data-index="10000000"
     data-item-index="10000000"
+    data-known-size="0"
   />
 </div>
 `;

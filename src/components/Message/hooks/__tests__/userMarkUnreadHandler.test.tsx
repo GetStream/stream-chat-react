@@ -1,12 +1,16 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
+import type { MarkUnreadHandlerNotifications } from '../useMarkUnreadHandler';
 import { ChannelStateProvider, TranslationProvider } from '../../../../context';
+import type { TranslationContextValue } from '../../../../context';
 import {
   generateMessage,
   mockChannelStateContext,
   mockTranslationContextValue,
 } from '../../../../mock-builders';
+import type { LocalMessage } from 'stream-chat';
 
 vi.spyOn(console, 'warn').mockImplementation(() => null);
 
@@ -15,15 +19,20 @@ const customErrorString = 'Custom Error';
 const noop = () => null;
 const generateSuccessString = () => customSuccessString;
 const generateErrorString = () => customErrorString;
-const event = { preventDefault: vi.fn() };
-const t = ((str: any) => str) as any;
-const message = generateMessage();
-const notifications = {
+const event = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
+const t = ((str: string) => str) as TranslationContextValue['t'];
+const message = generateMessage() as unknown as LocalMessage;
+const notifications: MarkUnreadHandlerNotifications = {
   notify: vi.fn(),
 };
-const channel = { markUnread: vi.fn() } as any;
-function renderUseMarkUnreadHandlerHook({ message, notifications }: any = {}) {
-  const wrapper = ({ children }: any) => (
+const channel = fromPartial<{ markUnread: ReturnType<typeof vi.fn> }>({
+  markUnread: vi.fn(),
+});
+function renderUseMarkUnreadHandlerHook({
+  message,
+  notifications,
+}: { message?: LocalMessage; notifications?: MarkUnreadHandlerNotifications } = {}) {
+  const wrapper = ({ children }: { children?: React.ReactNode }) => (
     <TranslationProvider value={mockTranslationContextValue({ t })}>
       <ChannelStateProvider
         value={mockChannelStateContext({
@@ -43,26 +52,26 @@ describe('useMarkUnreadHandler', () => {
   afterEach(vi.clearAllMocks);
   it('does not call channel.markUnread if no message is provided', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook();
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(channel.markUnread).not.toHaveBeenCalled();
   });
   it('does not call channel.markUnread if message is missing id', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
-      message: generateMessage({ id: undefined }),
+      message: generateMessage({ id: undefined }) as unknown as LocalMessage,
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(channel.markUnread).not.toHaveBeenCalled();
   });
   it('calls channel.markUnread', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(channel.markUnread).toHaveBeenCalledWith(
       expect.objectContaining({ message_id: message.id }),
     );
   });
   it('does not register success notification if getSuccessNotification is not available', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message, notifications });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notifications.notify).not.toHaveBeenCalled();
   });
   it('does not register success notification if getSuccessNotification does not generate one', async () => {
@@ -70,7 +79,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: { ...notifications, getSuccessNotification: noop },
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notifications.notify).not.toHaveBeenCalled();
   });
   it('registers the success notification if getSuccessNotification generates one', async () => {
@@ -82,7 +91,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithSuccess,
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notificationsWithSuccess.notify).toHaveBeenCalledWith(
       customSuccessString,
       'success',
@@ -95,7 +104,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications,
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notifications.notify).toHaveBeenCalledWith(
       'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
       'error',
@@ -111,7 +120,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithError,
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notificationsWithError.notify).toHaveBeenCalledWith(
       customErrorString,
       'error',
@@ -128,7 +137,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithError,
     });
-    await handleMarkUnread(event as any);
+    await handleMarkUnread(event);
     expect(notificationsWithError.notify).not.toHaveBeenCalled();
   });
 });

@@ -37,10 +37,10 @@ import {
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
-vi.mock('../../ChatView', async (importOriginal: any) => {
-  const actual = await importOriginal();
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
   return {
-    ...(actual as any),
+    ...actual,
     useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
@@ -57,7 +57,7 @@ Dayjs.extend(calendar);
 vi.mock('../MessageText', () => ({
   MessageText: vi.fn(() => <div data-testid='mocked-message-text' />),
 }));
-vi.mock('../../Avatar', async (importOriginal: any) => ({
+vi.mock('../../Avatar', async (importOriginal) => ({
   ...(await importOriginal()),
   Avatar: vi.fn(() => <div data-testid='mocked-avatar' />),
 }));
@@ -73,14 +73,18 @@ const openThreadMock = vi.fn();
 const retrySendMessageMock = vi.fn();
 const removeMessageMock = vi.fn();
 
-function generateAliceMessage(messageOptions?: any) {
+function generateAliceMessage(
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
+) {
   return generateMessage({
     user: alice,
     ...messageOptions,
   });
 }
 
-function generateBobMessage(messageOptions?: any) {
+function generateBobMessage(
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
+) {
   return generateMessage({
     user: bob,
     ...messageOptions,
@@ -93,12 +97,12 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },
-    channelConfigOverrides = { replies: true } as any,
-    components = {} as any,
+    channelConfigOverrides = { replies: true } as Record<string, unknown>,
+    components = {} as Record<string, unknown>,
     message,
-    props = {} as any,
+    props = {} as Record<string, unknown>,
     renderer = render,
-  }: any) {
+  }: Record<string, any>) {
     let result;
     await act(() => {
       result = renderer(
@@ -169,7 +173,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with default MessageDelete component when message was deleted', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-17T03:24:00'),
+      deleted_at: new Date('2019-12-17T03:24:00').toISOString(),
     });
     const { container, getByTestId } = await renderMessageSimple({
       message: deletedMessage,
@@ -181,7 +185,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-25T03:24:00'),
+      deleted_at: new Date('2019-12-25T03:24:00').toISOString(),
     });
     const CustomMessageDeletedComponent = () => (
       <p data-testid='custom-message-deleted'>Gone!</p>
@@ -711,7 +715,7 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  describe.each([
+  describe.each<[string, Record<string, unknown>]>([
     [
       'v1',
       {

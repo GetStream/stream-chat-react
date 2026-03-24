@@ -24,7 +24,7 @@ import {
 import { ComponentProvider } from '../../../context/ComponentContext';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -64,7 +64,7 @@ async function renderComponent({
   message,
   props = {},
   renderer = render,
-}: any) {
+}: Record<string, any>) {
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
@@ -101,7 +101,7 @@ async function renderComponent({
             })}
           >
             <TranslationProvider
-              value={mockTranslationContextValue({ t: (key: any) => key })}
+              value={mockTranslationContextValue({ t: (key: string) => key })}
             >
               <Message message={message} {...props} />
             </TranslationProvider>
@@ -113,9 +113,9 @@ async function renderComponent({
 }
 
 function renderComponentWithMessage(
-  props: any = {},
-  channelStateOpts: any = {},
-  channelConfig: any = { replies: true },
+  props: Record<string, unknown> = {},
+  channelStateOpts: Record<string, unknown> = {},
+  channelConfig: Record<string, unknown> = { replies: true },
 ) {
   const message = generateMessage();
   return renderComponent({ channelConfig, channelStateOpts, message, props });

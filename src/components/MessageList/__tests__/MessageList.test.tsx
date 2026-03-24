@@ -32,7 +32,7 @@ vi.mock('../../EmptyStateIndicator', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<Record<string, unknown>>();
 
   return {
     ...actual,
@@ -66,7 +66,7 @@ const renderComponent = ({
   chatClient,
   components = {},
   msgListProps,
-}: any) =>
+}: Record<string, any>) =>
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
@@ -128,7 +128,9 @@ describe('MessageList', () => {
   });
 
   it('should render the thread head if provided', async () => {
-    const MsgListHead = (props) => <div>{props.message.text}</div>;
+    const MsgListHead = (props: { message: Pick<typeof message1, 'text'> }) => (
+      <div>{props.message.text}</div>
+    );
 
     await act(() => {
       renderComponent({
@@ -312,8 +314,11 @@ describe('MessageList', () => {
   });
 
   it('should use custom message list renderer if provided', async () => {
-    const customRenderMessages = ({ messages }) =>
-      messages.map((msg) => <li key={msg.id}>prefixed {msg.text}</li>);
+    const customRenderMessages = ({
+      messages,
+    }: {
+      messages: Array<{ id: string; text: string }>;
+    }) => messages.map((msg) => <li key={msg.id}>prefixed {msg.text}</li>);
 
     renderComponent({
       channelProps: { channel },
@@ -359,7 +364,11 @@ describe('MessageList', () => {
     const unread_messages = 2;
     const lastReadMessage = messages[unread_messages];
     const separatorText = `${unread_messages} unread`;
-    const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }: any) => {
+    const dispatchMarkUnreadForChannel = ({
+      channel,
+      client,
+      payload = {},
+    }: Record<string, any>) => {
       dispatchNotificationMarkUnread({
         channel,
         client,
@@ -378,7 +387,7 @@ describe('MessageList', () => {
 
     beforeEach(() => {
       class IntersectionObserverMock {
-        constructor(cb) {
+        constructor(cb: IntersectionObserverCallback) {
           invokeIntersectionCb = cb;
         }
         disconnect() {

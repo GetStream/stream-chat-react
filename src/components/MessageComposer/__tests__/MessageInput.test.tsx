@@ -25,7 +25,7 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -135,7 +135,7 @@ const sendMessageMock = vi.fn();
 const mockAddNotification = vi.fn();
 
 vi.mock('../../Channel/utils', async (importOriginal) => ({
-  ...((await importOriginal()) as any),
+  ...(await importOriginal<Record<string, unknown>>()),
   makeAddNotifications: () => mockAddNotification,
 }));
 
@@ -150,7 +150,7 @@ const defaultMessageContextValue = {
   message: mainListMessage,
 };
 
-function dropFile(file: any, formElement: any) {
+function dropFile(file: File, formElement: Element) {
   fireEvent.drop(formElement, {
     dataTransfer: {
       files: [file],
@@ -159,7 +159,7 @@ function dropFile(file: any, formElement: any) {
   });
 }
 
-const initQuotedMessagePreview = async (message: any) => {
+const initQuotedMessagePreview = async (message: { text?: string }) => {
   await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
 
   // Open the message actions dropdown
@@ -177,14 +177,14 @@ const initQuotedMessagePreview = async (message: any) => {
   });
 };
 
-const quotedMessagePreviewIsDisplayedCorrectly = async (message: any) => {
+const quotedMessagePreviewIsDisplayedCorrectly = async (message: { text?: string }) => {
   await waitFor(() =>
     expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
   );
   await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
 };
 
-const quotedMessagePreviewIsNotDisplayed = (message: any) => {
+const quotedMessagePreviewIsNotDisplayed = (message: { text?: string }) => {
   expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
   expect(screen.queryByText(message.text)).not.toBeInTheDocument();
 };
@@ -200,7 +200,7 @@ const renderComponent = async ({
   messageActionsProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
-}: any = {}) => {
+}: Record<string, any> = {}) => {
   let channel = customChannel;
   let client = customClient;
   if (!(channel || client)) {
@@ -254,14 +254,14 @@ const tearDown = () => {
   vi.clearAllMocks();
 };
 
-function axeNoViolations(container: any) {
+function axeNoViolations(container: Element) {
   return async () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   };
 }
 
-const setup = async ({ channelData }: any = {}) => {
+const setup = async ({ channelData }: Record<string, any> = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -280,7 +280,7 @@ const setup = async ({ channelData }: any = {}) => {
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
 };
 
-const setupUploadRejected = async (error: any) => {
+const setupUploadRejected = async (error: unknown) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -333,7 +333,7 @@ describe(`MessageInputFlat`, () => {
     await waitFor(() => {
       const textarea = screen.getByPlaceholderText(inputPlaceholder);
       expect(textarea).toBeInTheDocument();
-      expect((textarea as any).value).toBe('');
+      expect((textarea as HTMLTextAreaElement).value).toBe('');
     });
   });
 

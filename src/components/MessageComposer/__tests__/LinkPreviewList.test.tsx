@@ -36,9 +36,11 @@ const mockedChannelData = generateChannel({
   threads: [threadMessage],
 } as any);
 
-const renderComponent = async (
-  { channelProps = {}, client, linkPreviewListProps = {} } = {} as any,
-) => {
+const renderComponent = async ({
+  channelProps = {},
+  client,
+  linkPreviewListProps = {},
+}: Record<string, any> = {}) => {
   let renderResult;
   await act(() => {
     renderResult = render(

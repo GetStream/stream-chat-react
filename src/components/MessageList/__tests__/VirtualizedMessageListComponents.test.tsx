@@ -6,6 +6,7 @@ import {
   Item,
   messageRenderer,
 } from '../VirtualizedMessageListComponents';
+import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateChannel,
   generateMessage,
@@ -28,23 +29,33 @@ import {
   useMessageContext,
 } from '../../../context';
 import { ChatViewContext } from '../../ChatView/ChatView';
+import type { ChatView } from '../../ChatView/ChatView';
 import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
+import type { Channel, StreamChat } from 'stream-chat';
 
 const prependOffset = 0;
 const user1 = generateUser();
 const user2 = generateUser();
-let client: any;
-let channel: any;
+let client: StreamChat;
+let channel: Channel;
 
 const PREPEND_OFFSET = 10 ** 7;
 
-const chatViewContextValue = {
-  activeChatView: 'channels',
+const chatViewContextValue: React.ComponentProps<
+  typeof ChatViewContext.Provider
+>['value'] = {
+  activeChatView: 'channels' as ChatView,
   setActiveChatView: () => {},
-} as any;
+};
 
-const Wrapper = ({ children, componentContext = {} }: any) => (
+const Wrapper = ({
+  children,
+  componentContext = {},
+}: {
+  children?: React.ReactNode;
+  componentContext?: Record<string, unknown>;
+}) => (
   <ChatViewContext.Provider value={chatViewContextValue}>
     <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider value={mockChannelStateContext({ channel })}>
@@ -60,8 +71,10 @@ const Wrapper = ({ children, componentContext = {} }: any) => (
   </ChatViewContext.Provider>
 );
 
-const renderElements = (children: any, componentContext?: any) =>
-  render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
+const renderElements = (
+  children: React.ReactNode,
+  componentContext?: Record<string, unknown>,
+) => render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
 
 describe('VirtualizedMessageComponents', () => {
   describe('Item', function () {
@@ -80,7 +93,9 @@ describe('VirtualizedMessageComponents', () => {
       'should render wrapper %s custom classes %s group styles',
       (_, __, customClasses, messageGroupStyles) => {
         const props = {
+          'data-index': PREPEND_OFFSET,
           'data-item-index': PREPEND_OFFSET,
+          'data-known-size': 0,
         };
         const virtuosoContext = {
           customClasses,
@@ -90,7 +105,7 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = renderElements(
-          <Item context={virtuosoContext as any} {...(props as any)} />,
+          <Item context={virtuosoContext as unknown as VirtuosoContext} {...props} />,
         );
         expect(container).toMatchSnapshot();
       },
@@ -107,7 +122,9 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render LoadingIndicator in Header when loading more messages', () => {
       const context = { loadingMore: true };
-      const { container } = renderElements(<Header context={context as any} />);
+      const { container } = renderElements(
+        <Header context={context as unknown as VirtuosoContext} />,
+      );
       expect(container).toMatchSnapshot();
     });
 
@@ -115,7 +132,7 @@ describe('VirtualizedMessageComponents', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { loadingMore: true };
       const { container } = renderElements(
-        <Header context={context as any} />,
+        <Header context={context as unknown as VirtuosoContext} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -140,7 +157,9 @@ describe('VirtualizedMessageComponents', () => {
     // FIXME: this is a crazy pattern of having to set LoadingIndicator to null so that additionalVirtuosoProps.head can be rendered.
     it('should not render custom head in Header when loading more messages, but the LoadingIndicator', () => {
       const context = { head, loadingMore: true };
-      const { container } = renderElements(<Header context={context as any} />);
+      const { container } = renderElements(
+        <Header context={context as unknown as VirtuosoContext} />,
+      );
       expect(container).toMatchSnapshot();
     });
 
@@ -151,7 +170,7 @@ describe('VirtualizedMessageComponents', () => {
       };
       const context = { head, loadingMore: true };
       const { container } = renderElements(
-        <Header context={context as any} />,
+        <Header context={context as unknown as VirtuosoContext} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -165,7 +184,9 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should not render custom head in Header when not loading more messages', () => {
       const context = { head };
-      const { container } = renderElements(<Header context={context as any} />);
+      const { container } = renderElements(
+        <Header context={context as unknown as VirtuosoContext} />,
+      );
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
@@ -179,7 +200,7 @@ describe('VirtualizedMessageComponents', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { head, loadingMore: true };
       const { container } = renderElements(
-        <Header context={context as any} />,
+        <Header context={context as unknown as VirtuosoContext} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -200,7 +221,7 @@ describe('VirtualizedMessageComponents', () => {
   });
 
   describe('EmptyPlaceholder', () => {
-    const EmptyStateIndicator = ({ listType }) => (
+    const EmptyStateIndicator = ({ listType }: { listType?: string }) => (
       <div data-listtype={listType}>Custom EmptyStateIndicator</div>
     );
     const NullEmptyStateIndicator = null;
@@ -212,7 +233,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render empty for thread by default', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as any} />,
+        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
       );
       expect(container).toBeEmptyDOMElement();
     });
@@ -223,7 +244,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render custom EmptyStateIndicator for thread', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as any} />,
+        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
         componentContext,
       );
       expect(container).toMatchSnapshot();
@@ -238,7 +259,7 @@ describe('VirtualizedMessageComponents', () => {
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as any} />,
+        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
         componentContext,
       );
       expect(container).toBeEmptyDOMElement();
@@ -265,7 +286,11 @@ describe('VirtualizedMessageComponents', () => {
         numItemsPrepended,
         processedMessages: [generateMessage()],
       };
-      messageRenderer(virtuosoIndex, undefined, virtuosoContext as any);
+      messageRenderer(
+        virtuosoIndex,
+        undefined,
+        virtuosoContext as unknown as VirtuosoContext,
+      );
       expect(customMessageRenderer).toHaveBeenCalledWith(
         expect.arrayContaining(virtuosoContext.processedMessages),
         0,
@@ -298,7 +323,11 @@ describe('VirtualizedMessageComponents', () => {
               };
               return (
                 <div key={numItemsPrepended}>
-                  {messageRenderer(virtuosoIndex, undefined, virtuosoContext as any)}
+                  {messageRenderer(
+                    virtuosoIndex,
+                    undefined,
+                    virtuosoContext as unknown as VirtuosoContext,
+                  )}
                 </div>
               );
             })}
@@ -315,7 +344,11 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
+          messageRenderer(
+            virtuosoIndex,
+            undefined,
+            virtuosoContext as unknown as VirtuosoContext,
+          ),
         );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
@@ -329,7 +362,13 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [generateMessage({ type: 'system' })],
         };
 
-        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext as any));
+        render(
+          messageRenderer(
+            virtuosoIndex,
+            undefined,
+            virtuosoContext as unknown as VirtuosoContext,
+          ),
+        );
         expect(screen.getByText(text)).toBeInTheDocument();
       });
 
@@ -341,7 +380,11 @@ describe('VirtualizedMessageComponents', () => {
           ],
         };
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
+          messageRenderer(
+            virtuosoIndex,
+            undefined,
+            virtuosoContext as unknown as VirtuosoContext,
+          ),
         );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
@@ -356,7 +399,13 @@ describe('VirtualizedMessageComponents', () => {
             generateMessage({ customType: 'message.date', date: new Date() } as any),
           ],
         };
-        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext as any));
+        render(
+          messageRenderer(
+            virtuosoIndex,
+            undefined,
+            virtuosoContext as unknown as VirtuosoContext,
+          ),
+        );
         expect(screen.getByText(text)).toBeInTheDocument();
       });
 
@@ -368,7 +417,11 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
+          messageRenderer(
+            virtuosoIndex,
+            undefined,
+            virtuosoContext as unknown as VirtuosoContext,
+          ),
         );
         expect(container).toMatchInlineSnapshot(`
                   <div>
@@ -389,7 +442,13 @@ describe('VirtualizedMessageComponents', () => {
 
         const Message = () => <div className='message-component' />;
 
-        const renderMarkUnread = async ({ virtuosoContext, virtuosoIndex }: any = {}) => {
+        const renderMarkUnread = async ({
+          virtuosoContext,
+          virtuosoIndex,
+        }: {
+          virtuosoContext?: Record<string, unknown>;
+          virtuosoIndex?: number;
+        } = {}) => {
           const {
             channels: [channel],
             client,
@@ -404,7 +463,7 @@ describe('VirtualizedMessageComponents', () => {
                         {messageRenderer(
                           virtuosoIndex ?? PREPEND_OFFSET,
                           undefined,
-                          virtuosoContext as any,
+                          virtuosoContext as unknown as VirtuosoContext,
                         )}
                       </ChannelStateProvider>
                     </ChannelActionProvider>
@@ -598,7 +657,11 @@ describe('VirtualizedMessageComponents', () => {
                 };
                 return (
                   <div key={numItemsPrepended}>
-                    {messageRenderer(virtuosoIndex, undefined, virtuosoContext as any)}
+                    {messageRenderer(
+                      virtuosoIndex,
+                      undefined,
+                      virtuosoContext as unknown as VirtuosoContext,
+                    )}
                   </div>
                 );
               })}
