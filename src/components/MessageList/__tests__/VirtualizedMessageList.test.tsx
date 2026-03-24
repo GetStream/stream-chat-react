@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 import React, { act } from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { nanoid } from 'nanoid';

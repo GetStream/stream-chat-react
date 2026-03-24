@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
@@ -19,7 +18,7 @@ describe('LoadingErrorIndicator', () => {
 
   it('should render when an error is passed', () => {
     const { container } = render(
-      <LoadingErrorIndicator error={{ message: 'this is an error' }} />,
+      <LoadingErrorIndicator error={{ message: 'this is an error' } as any} />,
     );
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -33,7 +32,7 @@ describe('LoadingErrorIndicator', () => {
     const chatClient = await getTestClientWithUser({ id: 'test' });
     const { getByText } = render(
       <Chat client={chatClient}>
-        <LoadingErrorIndicator error={{ message: 'test error message' }} />,
+        <LoadingErrorIndicator error={{ message: 'test error message' } as any} />,
       </Chat>,
     );
     waitFor(() => {

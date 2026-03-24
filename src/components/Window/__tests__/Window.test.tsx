@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render } from '@testing-library/react';
 
@@ -7,9 +6,9 @@ import { Window } from '../Window';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { generateMessage } from '../../../mock-builders';
 
-const renderComponent = ({ channelStateContextMock, props }) =>
+const renderComponent = ({ channelStateContextMock, props }: any) =>
   render(
-    <ChannelStateProvider value={channelStateContextMock ?? {}}>
+    <ChannelStateProvider value={(channelStateContextMock ?? {}) as any}>
       <Window {...props} />
     </ChannelStateProvider>,
   );

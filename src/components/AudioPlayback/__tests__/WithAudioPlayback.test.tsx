@@ -1,4 +1,3 @@
-// @ts-nocheck
 // WithAudioPlayback.test.js
 import React, { useEffect } from 'react';
 import { act, cleanup, render } from '@testing-library/react';
@@ -9,7 +8,7 @@ import { useAudioPlayer, WithAudioPlayback } from '../WithAudioPlayback';
 vi.mock('../../../context', () => {
   const mockAddError = vi.fn();
   const mockClient = { notifications: { addError: mockAddError } };
-  const t = (s) => s;
+  const t = (s: string) => s;
   return {
     __esModule: true,
     mockAddError,
@@ -20,16 +19,17 @@ vi.mock('../../../context', () => {
 });
 
 // mock useNotificationTarget (called by useAudioPlayer)
-vi.mock('../../Notifications', async (importOriginal) => ({
+vi.mock('../../Notifications', async (importOriginal: any) => ({
   ...(await importOriginal()),
   useNotificationTarget: () => 'channel',
 }));
 
 // make throttle a no-op (so seek/time-related stuff runs synchronously)
-vi.mock('lodash.throttle', () => ({ default: (fn) => fn }));
+vi.mock('lodash.throttle', () => ({ default: (fn: any) => fn }));
 
 // ------------------ imports FROM mocks ------------------
 
+// @ts-expect-error mockAddError is a custom export from the vi.mock factory above
 import { mockAddError as addErrorSpy } from '../../../context';
 
 // silence console.error in tests but capture calls for assertions

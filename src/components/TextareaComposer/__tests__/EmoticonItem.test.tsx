@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
@@ -9,7 +8,7 @@ afterEach(cleanup);
 
 describe('EmoticonItem', () => {
   it('should not render component with empty entity', () => {
-    const { container } = render(<EmoticonItem entity={{}} />);
+    const { container } = render(<EmoticonItem entity={{} as any} />);
     expect(container).toBeEmptyDOMElement();
   });
 

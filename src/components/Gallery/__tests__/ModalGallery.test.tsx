@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -17,11 +16,11 @@ const makeImageItem = (overrides = {}) => ({
 
 const renderComponent = (props = {}, componentOverrides = {}) =>
   render(
-    <TranslationProvider value={mockTranslationContext}>
+    <TranslationProvider value={mockTranslationContext as any}>
       <ComponentProvider
         value={{
-          Modal: ({ children, className, open }) =>
-            open ? <div className={className}>{children}</div> : null,
+          Modal: (({ children, className, open }: any) =>
+            open ? <div className={className}>{children}</div> : null) as any,
           ...componentOverrides,
         }}
       >

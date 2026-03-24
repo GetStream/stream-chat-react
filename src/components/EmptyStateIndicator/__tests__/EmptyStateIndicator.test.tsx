@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render, screen } from '@testing-library/react';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 
@@ -12,7 +11,7 @@ import {
 
 import { generateMessage, getTestClientWithUser } from '../../../mock-builders';
 
-let client;
+let client: any;
 
 const mockedChannel = {
   off: vi.fn(),
@@ -22,18 +21,18 @@ const mockedChannel = {
 };
 
 const i18nMock = {
-  t: vi.fn((key, props) => {
+  t: vi.fn((key: string, props: any) => {
     if (key === 'replyCount' && props.count === 1) return '1 reply';
     else if (key === 'replyCount' && props.count > 1) return '2 replies';
     return key;
   }),
 };
 
-const renderComponent = ({ channelState, client }) =>
+const renderComponent = ({ channelState, client }: any) =>
   render(
-    <ChatProvider value={{ client, latestMessageDatesByChannels: {} }}>
-      <TranslationProvider value={i18nMock}>
-        <ChannelStateProvider value={channelState}>
+    <ChatProvider value={{ client, latestMessageDatesByChannels: {} } as any}>
+      <TranslationProvider value={i18nMock as any}>
+        <ChannelStateProvider value={channelState as any}>
           <ThreadStart />
         </ChannelStateProvider>
       </TranslationProvider>

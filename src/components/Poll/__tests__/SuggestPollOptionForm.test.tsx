@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
@@ -10,12 +9,12 @@ const SUBMIT_BUTTON_TEXT = 'Send';
 
 const newlyTypedValue = 'XX';
 
-const t = (v) => v;
+const t = ((v: any) => v) as any;
 
-const renderComponent = ({ client, poll, props }) =>
+const renderComponent = ({ client, poll, props }: any) =>
   render(
-    <ChatProvider value={{ client }}>
-      <TranslationProvider value={{ t }}>
+    <ChatProvider value={{ client } as any}>
+      <TranslationProvider value={{ t } as any}>
         <PollProvider poll={poll}>
           <SuggestPollOptionPrompt {...props} />
         </PollProvider>
@@ -32,7 +31,7 @@ describe('SuggestPollOptionPrompt', () => {
       .mockResolvedValue({ poll_option: { id: 'new-poll-option-id' } });
     const client = { createPollOption: createPollOptionSpy };
     const poll = new Poll({
-      client,
+      client: client as any,
       poll: generatePoll(),
     });
     const { container } = renderComponent({ client, poll });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
@@ -15,9 +14,9 @@ const BASE_IMAGE_TEST_ID = 'str-chat__base-image';
 const PLACEHOLDER_TEST_ID = 'str-chat__base-image-placeholder';
 const getImage = () => screen.queryByTestId(BASE_IMAGE_TEST_ID);
 
-const renderComponent = (props = {}) =>
+const renderComponent = (props: any = {}) =>
   render(
-    <TranslationProvider value={mockTranslationContext}>
+    <TranslationProvider value={mockTranslationContext as any}>
       <ComponentProvider value={{}}>
         <BaseImage {...props} />
       </ComponentProvider>
@@ -86,7 +85,7 @@ describe('BaseImage', () => {
     expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument();
 
     rerender(
-      <TranslationProvider value={mockTranslationContext}>
+      <TranslationProvider value={mockTranslationContext as any}>
         <ComponentProvider value={{}}>
           <BaseImage src={'new-src'} />
         </ComponentProvider>

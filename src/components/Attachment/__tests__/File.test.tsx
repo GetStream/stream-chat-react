@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render } from '@testing-library/react';
 
@@ -6,8 +5,8 @@ import { FileAttachment } from '../FileAttachment';
 import { TranslationContext } from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 
-const getComponent = ({ attachment }) => (
-  <TranslationContext.Provider value={mockTranslationContext}>
+const getComponent = ({ attachment }: any) => (
+  <TranslationContext.Provider value={mockTranslationContext as any}>
     <FileAttachment attachment={attachment} />
   </TranslationContext.Provider>
 );

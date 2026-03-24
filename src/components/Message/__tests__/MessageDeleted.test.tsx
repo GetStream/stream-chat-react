@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render } from '@testing-library/react';
 
@@ -12,7 +11,7 @@ function renderComponent() {
   const t = vi.fn((key) => key);
 
   return render(
-    <TranslationProvider value={{ t }}>
+    <TranslationProvider value={{ t } as any}>
       <MessageDeletedBubble />
     </TranslationProvider>,
   );

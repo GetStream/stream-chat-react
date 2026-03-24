@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 
 import { act, cleanup, render } from '@testing-library/react';
@@ -21,8 +20,8 @@ const NoOpModal = ({ children }) => <div>{children}</div>;
 
 const renderWithProviders = (ui) =>
   render(
-    <TranslationProvider value={mockTranslationContext}>
-      <ComponentProvider value={{ Modal: NoOpModal }}>{ui}</ComponentProvider>
+    <TranslationProvider value={mockTranslationContext as any}>
+      <ComponentProvider value={{ Modal: NoOpModal as any }}>{ui}</ComponentProvider>
     </TranslationProvider>,
   );
 

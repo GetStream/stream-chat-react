@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
@@ -9,13 +8,13 @@ afterEach(cleanup);
 
 describe('commandItem', () => {
   it('should render nothing with empty entity (no name)', () => {
-    const { container } = render(<CommandItem entity={{}} />);
+    const { container } = render(<CommandItem entity={{} as any} />);
     // CommandItem returns null when entity.name is falsy
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = { args: 'args', description: 'description', name: 'name' };
+    const entity = { args: 'args', description: 'description', name: 'name' } as any;
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
@@ -11,7 +10,7 @@ describe('LoadMoreButton', () => {
 
   it('should render component with default props', () => {
     const { container, getByTestId } = render(
-      <TranslationProvider value={mockTranslationContext}>
+      <TranslationProvider value={mockTranslationContext as any}>
         <LoadMoreButton isLoading={false} onClick={() => null} />
       </TranslationProvider>,
     );

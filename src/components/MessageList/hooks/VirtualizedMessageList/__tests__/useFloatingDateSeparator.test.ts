@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { act, renderHook } from '@testing-library/react';
 
 import { useFloatingDateSeparator } from '../useFloatingDateSeparator';

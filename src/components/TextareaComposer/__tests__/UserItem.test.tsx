@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
@@ -10,7 +9,7 @@ afterEach(cleanup);
 
 describe('UserItem', () => {
   it('should render component with default props', () => {
-    const { container } = render(<UserItem entity={{}} />);
+    const { container } = render(<UserItem entity={{} as any} />);
     expect(container).toBeEmptyDOMElement();
   });
 

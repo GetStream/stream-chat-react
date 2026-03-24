@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -88,7 +87,9 @@ const renderGalleryUI = (
   }
 
   return render(
-    <TranslationProvider value={mockTranslationContext}>{children}</TranslationProvider>,
+    <TranslationProvider value={mockTranslationContext as any}>
+      {children}
+    </TranslationProvider>,
   );
 };
 

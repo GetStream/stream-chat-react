@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 
@@ -10,13 +9,15 @@ import { mockTranslationContext } from '../../../mock-builders';
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-const Component = ({ error = false, loading = false }) => (
-  <TranslationProvider value={mockTranslationContext}>
+const Component = ({ error = false, loading = false }: any) => (
+  <TranslationProvider value={mockTranslationContext as any}>
     <ChannelListUI
-      error={error}
-      loading={loading}
-      LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
-      LoadingIndicator={() => <div>Loading Indicator</div>}
+      {...({
+        error,
+        loading,
+        LoadingErrorIndicator: () => <div>Loading Error Indicator</div>,
+        LoadingIndicator: () => <div>Loading Indicator</div>,
+      } as any)}
     >
       <div>children 1</div>
       <div>children 2</div>
