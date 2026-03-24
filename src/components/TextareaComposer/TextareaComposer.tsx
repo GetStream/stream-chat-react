@@ -107,6 +107,17 @@ export const TextareaComposer = ({
     textComposer.state,
     textComposerStateSelector,
   );
+  // react-textarea-autosize can measure placeholder content as multi-line in narrow layouts,
+  // producing an inflated initial height (e.g. 2 rows) before the user types.
+  // Clamp to a single row only while empty unless the integrator explicitly set minRows.
+  const autosizeRows = !text && minRows == null ? 1 : undefined;
+  const textareaStyle = text
+    ? undefined
+    : ({
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      } satisfies React.CSSProperties);
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(
@@ -297,8 +308,8 @@ export const TextareaComposer = ({
         )}
         data-testid='message-input'
         disabled={!enabled || !!cooldownRemaining}
-        maxRows={maxRows}
-        minRows={minRows}
+        maxRows={autosizeRows ?? maxRows}
+        minRows={autosizeRows ?? minRows}
         onBlur={onBlur}
         onChange={changeHandler}
         onCompositionEnd={onCompositionEnd}
@@ -311,6 +322,7 @@ export const TextareaComposer = ({
         ref={(ref) => {
           textareaRef.current = ref;
         }}
+        style={textareaStyle}
       />
       {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
       {!isComposing && (
