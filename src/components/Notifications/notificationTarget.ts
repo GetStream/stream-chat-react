@@ -35,9 +35,12 @@ export const getNotificationTargetTag = (panel: NotificationTargetPanel) =>
   `target:${panel}` as const;
 
 export const addNotificationTargetTag = (
-  panel: NotificationTargetPanel,
+  panel: NotificationTargetPanel | undefined,
   tags?: string[],
-) => Array.from(new Set([getNotificationTargetTag(panel), ...(tags ?? [])]));
+) => {
+  if (!panel) return tags ?? [];
+  return Array.from(new Set([getNotificationTargetTag(panel), ...(tags ?? [])]));
+};
 
 export const isNotificationForPanel = (
   notification: Notification,
