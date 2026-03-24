@@ -49,34 +49,43 @@ import {
   CommandsSubmenuHeader,
 } from './CommandsMenu';
 
-const AttachmentSelectorMenuInitButtonIcon = () => {
+const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
 
   if (AttachmentSelectorInitiationButtonContents) {
-    return <AttachmentSelectorInitiationButtonContents />;
+    return (
+      <span className={className}>
+        <AttachmentSelectorInitiationButtonContents />
+      </span>
+    );
   }
 
-  return <IconPlusLarge className='str-chat__attachment-selector__menu-button__icon' />;
+  return (
+    <IconPlusLarge
+      className={clsx('str-chat__attachment-selector__menu-button__icon', className)}
+    />
+  );
 };
 
-export const AttachmentSelectorButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  function AttachmentSelectorButton({ className, ...props }, ref) {
-    return (
-      <Button
-        appearance='outline'
-        circular
-        className={clsx('str-chat__attachment-selector__menu-button', className)}
-        data-testid='invoke-attachment-selector-button'
-        size='lg'
-        variant='secondary'
-        {...props}
-        ref={ref}
-      >
-        <AttachmentSelectorMenuInitButtonIcon />
-      </Button>
-    );
-  },
-);
+export const AttachmentSelectorButton = forwardRef<
+  HTMLButtonElement,
+  ButtonProps & { iconClassName?: string }
+>(function AttachmentSelectorButton({ className, iconClassName, ...props }, ref) {
+  return (
+    <Button
+      appearance='outline'
+      circular
+      className={clsx('str-chat__attachment-selector__menu-button', className)}
+      data-testid='invoke-attachment-selector-button'
+      size='lg'
+      variant='secondary'
+      {...props}
+      ref={ref}
+    >
+      <AttachmentSelectorMenuInitButtonIcon className={iconClassName} />
+    </Button>
+  );
+});
 
 export const SimpleAttachmentSelector = () => {
   const { channelCapabilities } = useChannelStateContext();
@@ -360,10 +369,10 @@ export const AttachmentSelector = ({
           aria-expanded={menuDialogIsOpen}
           aria-haspopup='true'
           aria-label={t('aria/Open Attachment Selector')}
-          className={clsx('str-chat__prepare-rotate45', {
+          disabled={isCooldownActive}
+          iconClassName={clsx('str-chat__prepare-rotate45', {
             'str-chat__rotate45': menuDialogIsOpen,
           })}
-          disabled={isCooldownActive}
           onClick={() => menuDialog?.toggle()}
           ref={menuButtonRef}
         />
