@@ -1,20 +1,21 @@
-import type { ChannelResponse, StreamChat, UserResponse } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { ChannelResponse, Event, StreamChat, UserResponse } from 'stream-chat';
 
 export default (
   client: StreamChat,
   user: UserResponse,
-  channel: ChannelResponse = {} as any,
+  channel: ChannelResponse = fromPartial({}),
   last_read_message_id?: string,
 ) => {
-  const event = {
+  const event = fromPartial<Event>({
     channel,
     cid: channel.cid,
     created_at: new Date().toISOString(),
     last_read_message_id: last_read_message_id || 'last_read_message_id',
     type: 'message.read' as const,
     user,
-  };
-  client.dispatchEvent(event as any);
+  });
+  client.dispatchEvent(event);
 
   return event;
 };

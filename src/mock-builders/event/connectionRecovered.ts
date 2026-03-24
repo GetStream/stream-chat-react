@@ -1,7 +1,10 @@
-import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Event, StreamChat } from 'stream-chat';
 
 export default (client: StreamChat) => {
-  client.dispatchEvent({
-    type: 'connection.recovered',
-  } as any);
+  client.dispatchEvent(
+    fromPartial<Event>({
+      type: 'connection.recovered',
+    }),
+  );
 };

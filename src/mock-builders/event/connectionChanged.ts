@@ -1,8 +1,11 @@
-import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Event, StreamChat } from 'stream-chat';
 
 export default (client: StreamChat, online: boolean) => {
-  client.dispatchEvent({
-    online,
-    type: 'connection.changed',
-  } as any);
+  client.dispatchEvent(
+    fromPartial<Event>({
+      online,
+      type: 'connection.changed',
+    }),
+  );
 };

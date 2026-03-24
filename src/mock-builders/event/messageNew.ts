@@ -1,17 +1,20 @@
-import type { ChannelResponse, MessageResponse, StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { ChannelResponse, Event, MessageResponse, StreamChat } from 'stream-chat';
 
 export default (
   client: StreamChat,
   newMessage: MessageResponse,
-  channel: ChannelResponse = {} as any,
+  channel: ChannelResponse = fromPartial({}),
 ) => {
-  client.dispatchEvent({
-    channel,
-    channel_id: channel.id,
-    channel_type: channel.type,
-    cid: channel.cid,
-    message: newMessage,
-    type: 'message.new',
-    user: newMessage.user,
-  } as any);
+  client.dispatchEvent(
+    fromPartial<Event>({
+      channel,
+      channel_id: channel.id,
+      channel_type: channel.type,
+      cid: channel.cid,
+      message: newMessage,
+      type: 'message.new',
+      user: newMessage.user,
+    }),
+  );
 };

@@ -1,9 +1,12 @@
-import type { StreamChat, UserResponse } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Event, StreamChat, UserResponse } from 'stream-chat';
 
 export default (client: StreamChat, user: UserResponse) => {
-  client.dispatchEvent({
-    created_at: new Date().toISOString(),
-    type: 'user.updated',
-    user,
-  } as any);
+  client.dispatchEvent(
+    fromPartial<Event>({
+      created_at: new Date().toISOString(),
+      type: 'user.updated',
+      user,
+    }),
+  );
 };
