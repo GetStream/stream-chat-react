@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
-
-import { MessageErrorIcon } from './icons';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeletedBubble as DefaultMessageDeletedBubble } from './MessageDeletedBubble';
 import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
@@ -46,6 +44,7 @@ import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { MessageBubble } from './MessageBubble';
+import { ErrorBadge } from '../Badge';
 
 type MessageUIWithContextProps = MessageContextValue;
 
@@ -237,7 +236,9 @@ const MessageUIWithContext = ({
               <div className='str-chat__message-reactions-host'>
                 {hasReactions && <MessageReactions reverse />}
               </div>
-              <MessageErrorIcon />
+              <div className='str-chat__message-error-indicator'>
+                <ErrorBadge />
+              </div>
             </>
           )}
         </div>

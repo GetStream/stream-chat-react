@@ -26,6 +26,8 @@
 
     .str-chat__message-action-icon path {
       fill: var(--str-chat__message-options-color);
+      stroke: var(--str-chat__message-options-color);
+      stroke-width: 0.25;
     }
   }
 
