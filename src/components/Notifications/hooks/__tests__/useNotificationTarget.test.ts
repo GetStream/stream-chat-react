@@ -1,12 +1,14 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 
 import { ChatViewContext, useChatViewContext } from '../../../ChatView';
-import { useChannelListContext } from '../../../../context';
+import { useChannelListContext, useChannelStateContext } from '../../../../context';
 import { useNotificationTarget } from '../useNotificationTarget';
 import { useThreadContext } from '../../../Threads/ThreadContext';
 import { useLegacyThreadContext } from '../../../Thread';
 
-vi.mock('../../../ChatView', () => ({
+vi.mock('../../../ChatView', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
   useChatViewContext: vi.fn(),
 }));
 
@@ -24,6 +26,7 @@ vi.mock('../../../Thread', () => ({
 }));
 
 const mockedUseChannelListContext = vi.mocked(useChannelListContext);
+const mockedUseChannelStateContext = vi.mocked(useChannelStateContext);
 const mockedUseChatViewContext = vi.mocked(useChatViewContext);
 const mockedUseLegacyThreadContext = vi.mocked(useLegacyThreadContext);
 const mockedUseThreadContext = vi.mocked(useThreadContext);
@@ -32,7 +35,7 @@ const chatViewWrapper = (activeChatView) => {
   const Wrapper = ({ children }) =>
     React.createElement(
       ChatViewContext.Provider,
-      { value: { activeChatView, setActiveChatView: jest.fn() } },
+      { value: { activeChatView, setActiveChatView: vi.fn() } },
       children,
     );
   Wrapper.displayName = 'ChatViewWrapper';

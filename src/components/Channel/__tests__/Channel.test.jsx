@@ -1871,7 +1871,7 @@ describe('Channel', () => {
         axiosNetworkError.name = 'AxiosError';
         axiosNetworkError.code = 'ERR_NETWORK';
 
-        jest.spyOn(channel, 'sendMessage').mockRejectedValueOnce(axiosNetworkError);
+        vi.spyOn(channel, 'sendMessage').mockRejectedValueOnce(axiosNetworkError);
 
         let sendMessage;
         await renderComponent({ channel, chatClient }, ({ sendMessage: sm }) => {
