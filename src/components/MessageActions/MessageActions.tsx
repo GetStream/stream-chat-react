@@ -11,10 +11,11 @@ import {
 } from '../Dialog';
 import { useBaseMessageActionSetFilter } from './hooks';
 import { defaultMessageActionSet } from './MessageActions.defaults';
-import { ActionsIcon, type MESSAGE_ACTIONS } from '../Message';
+import { type MESSAGE_ACTIONS } from '../Message';
 import { Button } from '../Button';
 import { ReactionSelector } from '../Reactions';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
+import { IconDotGrid1x3Horizontal } from '../Icons';
 
 type BaseMessageActionSetItem = {
   type: keyof typeof MESSAGE_ACTIONS | (string & {});
@@ -115,7 +116,7 @@ export const MessageActions = ({
             ref={setActionsBoxButtonElement}
             variant='secondary'
           >
-            <ActionsIcon className='str-chat__message-action-icon' />
+            <IconDotGrid1x3Horizontal className='str-chat__message-action-icon' />
           </Button>
 
           <ContextMenu

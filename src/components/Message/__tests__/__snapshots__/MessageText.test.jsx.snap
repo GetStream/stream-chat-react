@@ -35,26 +35,28 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
         class="str-chat__message-reactions-host"
       />
       <div
-        class="str-chat__message-error-icon"
+        class="str-chat__message-error-indicator"
       >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            class="str-chat__icon str-chat__icon--exclamation"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              transform="translate(6.2222 0) scale(1.7778)"
+            >
+              <path
+                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
+              />
+              <path
+                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
+              />
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
     <div
@@ -99,26 +101,28 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
         class="str-chat__message-reactions-host"
       />
       <div
-        class="str-chat__message-error-icon"
+        class="str-chat__message-error-indicator"
       >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            class="str-chat__icon str-chat__icon--exclamation"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              transform="translate(6.2222 0) scale(1.7778)"
+            >
+              <path
+                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
+              />
+              <path
+                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
+              />
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
     <div
@@ -163,26 +167,28 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
         class="str-chat__message-reactions-host"
       />
       <div
-        class="str-chat__message-error-icon"
+        class="str-chat__message-error-indicator"
       >
-        <svg
-          data-testid="error"
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-            fill="black"
-            id="background"
-          />
-          <path
-            d="M13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-            fill="white"
-          />
-        </svg>
+          <svg
+            class="str-chat__icon str-chat__icon--exclamation"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              transform="translate(6.2222 0) scale(1.7778)"
+            >
+              <path
+                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
+              />
+              <path
+                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
+              />
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
     <div
