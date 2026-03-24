@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { Channel } from '../../Channel';
@@ -31,7 +30,7 @@ const getGeolocationMap = () => screen.queryByTestId('geolocation-map');
 const ownUser = { id: 'user-id' };
 const otherUser = { id: 'other-user-id' };
 
-const renderComponent = async ({ channel, client, props } = {}) => {
+const renderComponent = async ({ channel, client, props } = {} as any) => {
   const {
     channels: [defaultChannel],
     client: defaultClient,

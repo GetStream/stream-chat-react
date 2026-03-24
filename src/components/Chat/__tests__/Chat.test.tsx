@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 
@@ -205,7 +204,7 @@ describe('Chat', () => {
     it('init the mute state with client data', async () => {
       const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
       // First load, mutes are initialized empty
-      chatClientWithUser.user.mutes = [];
+      (chatClientWithUser as any).user.mutes = [];
       let context;
       const { rerender } = render(
         <Chat client={chatClientWithUser}>
@@ -218,7 +217,7 @@ describe('Chat', () => {
       );
       // Chat client loads mutes information
       const mutes = ['user_y', 'user_z'];
-      chatClientWithUser.user.mutes = mutes;
+      (chatClientWithUser as any).user.mutes = mutes;
       await act(() => {
         rerender(
           <Chat client={chatClientWithUser}>
@@ -249,7 +248,7 @@ describe('Chat', () => {
       await waitFor(() => expect(context.mutes).toStrictEqual([]));
 
       const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes));
+      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes as any));
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
 
       act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
@@ -326,8 +325,8 @@ describe('Chat', () => {
     it('should use i18n provided in props', async () => {
       const i18nInstance = new Streami18n();
       await i18nInstance.getTranslators();
-      i18nInstance.t = 't';
-      i18nInstance.tDateTimeParser = 'tDateTimeParser';
+      (i18nInstance as any).t = 't';
+      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
 
       let context;
       render(
@@ -341,16 +340,16 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
-        expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
+        expect(context.t).toBe((i18nInstance as any).t);
+        expect(context.tDateTimeParser).toBe((i18nInstance as any).tDateTimeParser);
       });
     });
 
     it('props change should update the context', async () => {
       const i18nInstance = new Streami18n();
       await i18nInstance.getTranslators();
-      i18nInstance.t = 't';
-      i18nInstance.tDateTimeParser = 'tDateTimeParser';
+      (i18nInstance as any).t = 't';
+      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
 
       let context;
       const { rerender } = render(
@@ -364,14 +363,14 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
-        expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
+        expect(context.t).toBe((i18nInstance as any).t);
+        expect(context.tDateTimeParser).toBe((i18nInstance as any).tDateTimeParser);
       });
 
       const newI18nInstance = new Streami18n();
       await newI18nInstance.getTranslators();
-      newI18nInstance.t = 'newT';
-      newI18nInstance.tDateTimeParser = 'newtDateTimeParser';
+      (newI18nInstance as any).t = 'newT';
+      (newI18nInstance as any).tDateTimeParser = 'newtDateTimeParser';
 
       rerender(
         <Chat client={chatClient} i18nInstance={newI18nInstance}>
@@ -383,10 +382,10 @@ describe('Chat', () => {
         </Chat>,
       );
       await waitFor(() => {
-        expect(context.t).toBe(newI18nInstance.t);
-        expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
-        expect(context.t).not.toBe(i18nInstance.t);
-        expect(context.tDateTimeParser).not.toBe(i18nInstance.tDateTimeParser);
+        expect(context.t).toBe((newI18nInstance as any).t);
+        expect(context.tDateTimeParser).toBe((newI18nInstance as any).tDateTimeParser);
+        expect(context.t).not.toBe((i18nInstance as any).t);
+        expect(context.tDateTimeParser).not.toBe((i18nInstance as any).tDateTimeParser);
       });
     });
   });

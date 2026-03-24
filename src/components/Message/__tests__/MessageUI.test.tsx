@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Dayjs from 'dayjs';
@@ -36,10 +35,10 @@ import {
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
-vi.mock('../../ChatView', async (importOriginal) => {
+vi.mock('../../ChatView', async (importOriginal: any) => {
   const actual = await importOriginal();
   return {
-    ...actual,
+    ...(actual as any),
     useChatViewContext: vi.fn(() => ({
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
@@ -56,7 +55,7 @@ Dayjs.extend(calendar);
 vi.mock('../MessageText', () => ({
   MessageText: vi.fn(() => <div data-testid='mocked-message-text' />),
 }));
-vi.mock('../../Avatar', async (importOriginal) => ({
+vi.mock('../../Avatar', async (importOriginal: any) => ({
   ...(await importOriginal()),
   Avatar: vi.fn(() => <div data-testid='mocked-avatar' />),
 }));
@@ -72,14 +71,14 @@ const openThreadMock = vi.fn();
 const retrySendMessageMock = vi.fn();
 const removeMessageMock = vi.fn();
 
-function generateAliceMessage(messageOptions) {
+function generateAliceMessage(messageOptions?: any) {
   return generateMessage({
     user: alice,
     ...messageOptions,
   });
 }
 
-function generateBobMessage(messageOptions) {
+function generateBobMessage(messageOptions?: any) {
   return generateMessage({
     user: bob,
     ...messageOptions,
@@ -92,29 +91,33 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },
-    channelConfigOverrides = { replies: true },
-    components = {},
+    channelConfigOverrides = { replies: true } as any,
+    components = {} as any,
     message,
-    props = {},
+    props = {} as any,
     renderer = render,
-  }) {
+  }: any) {
     let result;
     await act(() => {
       result = renderer(
         <Chat client={client}>
           <ChannelStateProvider
-            value={{
-              channel,
-              channelCapabilities,
-              channelConfig: channelConfigOverrides,
-            }}
+            value={
+              {
+                channel,
+                channelCapabilities,
+                channelConfig: channelConfigOverrides,
+              } as any
+            }
           >
             <ChannelActionProvider
-              value={{
-                openThread: openThreadMock,
-                removeMessage: removeMessageMock,
-                retrySendMessage: retrySendMessageMock,
-              }}
+              value={
+                {
+                  openThread: openThreadMock,
+                  removeMessage: removeMessageMock,
+                  retrySendMessage: retrySendMessageMock,
+                } as any
+              }
             >
               <WithComponents
                 overrides={{
@@ -125,11 +128,13 @@ describe('<MessageSimple />', () => {
                 }}
               >
                 <Message
-                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                  isMyMessage={() => true}
-                  message={message}
-                  threadList={false}
-                  {...props}
+                  {...({
+                    getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
+                    isMyMessage: () => true,
+                    message,
+                    threadList: false,
+                    ...props,
+                  } as any)}
                 />
               </WithComponents>
             </ChannelActionProvider>
@@ -148,7 +153,7 @@ describe('<MessageSimple />', () => {
   beforeEach(async () => {
     const mockedChannel = generateChannel({
       state: { membership: {} },
-    });
+    } as any);
 
     client = await getTestClientWithUser(alice);
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
@@ -572,7 +577,7 @@ describe('<MessageSimple />', () => {
         generateImageAttachment(),
         generateImageAttachment(),
       ],
-      shared_location: generateStaticLocationResponse(),
+      shared_location: generateStaticLocationResponse({}),
     });
     const { container } = await renderMessageSimple({ message });
     expect(container.querySelectorAll('.str-chat__modal-gallery__image')).toHaveLength(2);

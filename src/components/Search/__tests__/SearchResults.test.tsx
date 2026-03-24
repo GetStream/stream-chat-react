@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -48,21 +47,21 @@ describe('SearchResults', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useSearchContext.mockReturnValue({
+    (useSearchContext as any).mockReturnValue({
       searchController: mockSearchController,
     });
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchResultsHeader: DefaultSearchResultsHeader,
       SearchResultsPresearch: DefaultSearchResultsPresearch,
       SearchSourceResults: DefaultSearchSourceResults,
     });
 
-    useTranslationContext.mockReturnValue({
+    (useTranslationContext as any).mockReturnValue({
       t: (key) => key,
     });
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: '',
@@ -70,7 +69,7 @@ describe('SearchResults', () => {
   });
 
   it('renders nothing when search is not active', () => {
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [],
       isActive: false,
       searchQuery: '',
@@ -89,7 +88,7 @@ describe('SearchResults', () => {
   });
 
   it('renders presearch when no search query is present', () => {
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: '',
@@ -102,7 +101,7 @@ describe('SearchResults', () => {
   });
 
   it('renders source results when search query is present', () => {
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: 'test',
@@ -120,7 +119,7 @@ describe('SearchResults', () => {
       { isActive: true, items: [], type: 'channels' },
     ];
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: mockSources,
       isActive: true,
       searchQuery: 'test',
@@ -140,13 +139,13 @@ describe('SearchResults', () => {
       <div data-testid='custom-presearch'>Custom Presearch</div>
     );
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchResultsHeader: CustomHeader,
       SearchResultsPresearch: CustomPresearch,
       SearchSourceResults: CustomSourceResults,
     });
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: '',
@@ -167,7 +166,7 @@ describe('SearchResults', () => {
   });
 
   it('passes correct props to SearchResultsPresearch', () => {
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: '',
@@ -180,7 +179,7 @@ describe('SearchResults', () => {
   });
 
   it('passes correct props to SearchSourceResults', () => {
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       activeSources: [mockSearchSource],
       isActive: true,
       searchQuery: 'test',

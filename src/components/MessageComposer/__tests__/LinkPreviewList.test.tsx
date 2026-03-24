@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   generateChannel,
   generateMember,
@@ -34,14 +33,12 @@ const threadMessage = generateMessage({
 const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
-  thread: [threadMessage],
-});
+  threads: [threadMessage],
+} as any);
 
-const renderComponent = async ({
-  channelProps = {},
-  client,
-  linkPreviewListProps = {},
-} = {}) => {
+const renderComponent = async (
+  { channelProps = {}, client, linkPreviewListProps = {} } = {} as any,
+) => {
   let renderResult;
   await act(() => {
     renderResult = render(
@@ -73,7 +70,9 @@ describe('LinkPreviewList', () => {
   });
 
   const previews = Array.from({ length: 4 })
-    .map(() => generateScrapedImageAttachment({ status: LinkPreviewStatus.LOADED }))
+    .map(() =>
+      generateScrapedImageAttachment({ status: LinkPreviewStatus.LOADED } as any),
+    )
     .reduce((acc, p) => {
       acc.set(p.og_scrape_url, p);
       return acc;
@@ -117,7 +116,7 @@ describe('LinkPreviewList', () => {
     });
     await act(() => {
       channel.messageComposer.linkPreviewsManager.state.next({ previews });
-      channel.messageComposer.state.next({ quotedMessage: generateMessage() });
+      (channel.messageComposer.state as any).next({ quotedMessage: generateMessage() });
     });
     const linkPreviewCards = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviewCards).toHaveLength(1);
@@ -148,7 +147,7 @@ describe('LinPreviewCard', () => {
         status: LinkPreviewStatus.LOADED,
         text: 'text',
         title: 'title',
-      }),
+      } as any),
     });
     expect(screen.getByTestId(LINK_PREVIEW_TEST_ID)).toBeInTheDocument();
     expect(screen.getByText('title')).toBeInTheDocument();
@@ -165,7 +164,7 @@ describe('LinPreviewCard', () => {
         status: LinkPreviewStatus.LOADING,
         text: 'text',
         title: 'title',
-      }),
+      } as any),
     });
     const card = screen.getByTestId(LINK_PREVIEW_TEST_ID);
     expect(card).toBeInTheDocument();
@@ -181,7 +180,7 @@ describe('LinPreviewCard', () => {
         status: LinkPreviewStatus.DISMISSED,
         text: 'text',
         title: 'title',
-      }),
+      } as any),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -195,7 +194,7 @@ describe('LinPreviewCard', () => {
         status: LinkPreviewStatus.FAILED,
         text: 'text',
         title: 'title',
-      }),
+      } as any),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -209,7 +208,7 @@ describe('LinPreviewCard', () => {
         status: LinkPreviewStatus.PENDING,
         text: 'text',
         title: 'title',
-      }),
+      } as any),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -222,7 +221,9 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({ status: LinkPreviewStatus.LOADED }),
+      linkPreview: generateScrapedImageAttachment({
+        status: LinkPreviewStatus.LOADED,
+      } as any),
     });
 
     fireEvent.click(screen.getByTestId('link-preview-card-dismiss-btn'));

@@ -1,25 +1,24 @@
-// @ts-nocheck
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 
-vi.spyOn(console, 'warn').mockImplementation();
+vi.spyOn(console, 'warn').mockImplementation(() => {});
 const originalSample = Array.from({ length: 10 }, (_, i) => i);
 
 const BAR_ROOT_TEST_ID = 'wave-progress-bar-track';
 const PROGRESS_INDICATOR_TEST_ID = 'wave-progress-bar-progress-indicator';
 const AMPLITUDE_BAR_TEST_ID = 'amplitude-bar';
-window.ResizeObserver = ResizeObserverMock;
+(window as any).ResizeObserver = ResizeObserverMock;
 
 const getBoundingClientRect = vi
   .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
-  .mockReturnValue({ width: 120, x: 0 });
+  .mockReturnValue({ width: 120, x: 0 } as any);
 
 describe('WaveProgressBar', () => {
   beforeEach(() => {
     ResizeObserverMock.observers = [];
-    getBoundingClientRect.mockReturnValue({ width: 120, x: 0 });
+    getBoundingClientRect.mockReturnValue({ width: 120, x: 0 } as any);
   });
 
   it('is not rendered if waveform data is missing', () => {
@@ -28,10 +27,10 @@ describe('WaveProgressBar', () => {
   });
 
   it('is not rendered if no space available', () => {
-    getBoundingClientRect.mockReturnValue({ width: 0, x: 0 });
+    getBoundingClientRect.mockReturnValue({ width: 0, x: 0 } as any);
     render(
       <WaveProgressBar
-        amplitudesCount={5}
+        {...({ amplitudesCount: 5 } as any)}
         seek={vi.fn()}
         waveformData={originalSample}
       />,
@@ -84,7 +83,7 @@ describe('WaveProgressBar', () => {
   it('recalculates the number of bars on root resize', async () => {
     render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(ResizeObserverMock.observers).toHaveLength(1);
-    const activeObserver = ResizeObserver.observers[0];
+    const activeObserver = (ResizeObserver as any).observers[0];
     expect(activeObserver.active).toBeTruthy();
     await act(() => {
       activeObserver.cb([{ contentRect: { width: 21 } }]);
@@ -105,16 +104,16 @@ describe('WaveProgressBar', () => {
   });
 
   it('does not recalculate the number of bars on root resize if ResizeObserver is unsupported', () => {
-    window.ResizeObserver = undefined;
+    (window as any).ResizeObserver = undefined;
     render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(ResizeObserverMock.observers).toHaveLength(0);
-    window.ResizeObserver = ResizeObserverMock;
+    (window as any).ResizeObserver = ResizeObserverMock;
   });
 
   it('is rendered with zero progress by default if waveform data is available', () => {
     render(
       <WaveProgressBar
-        amplitudesCount={5}
+        {...({ amplitudesCount: 5 } as any)}
         seek={vi.fn()}
         waveformData={originalSample}
       />,
@@ -127,8 +126,7 @@ describe('WaveProgressBar', () => {
   it('is rendered with highlighted bars with non-zero progress', () => {
     const { container } = render(
       <WaveProgressBar
-        amplitudesCount={5}
-        progress={20}
+        {...({ amplitudesCount: 5, progress: 20 } as any)}
         seek={vi.fn()}
         waveformData={originalSample}
       />,

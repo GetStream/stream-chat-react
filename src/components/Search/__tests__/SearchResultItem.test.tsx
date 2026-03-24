@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { SearchController } from 'stream-chat';
@@ -24,8 +23,8 @@ import {
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
-const mockSetActiveChannel = vi.fn().mockImplementation();
-const mockSetChannels = vi.fn().mockImplementation();
+const mockSetActiveChannel = vi.fn().mockImplementation(() => {});
+const mockSetChannels = vi.fn().mockImplementation(() => {});
 const directMessagingChannelType = 'X';
 
 const renderComponent = async ({
@@ -36,23 +35,23 @@ const renderComponent = async ({
   messageResponseData,
   SearchResultItemComponent,
   userData,
-}) => {
+}: any) => {
   const {
     channels: [channel],
     client,
   } = await initClientWithChannels();
-  let item;
+  let item: any;
   if (channelSearchData) {
     item = await initChannelFromData({
       channelData: channelSearchData,
       client,
-    });
+    } as any);
   } else if (messageResponseData) {
     item = messageResponseData;
     await initChannelFromData({
       channelData: messageResponseData,
       client,
-    });
+    } as any);
   } else if (userData) {
     item = userData;
   }
@@ -67,8 +66,8 @@ const renderComponent = async ({
       }}
     >
       <DialogManagerProvider>
-        <ChannelListContextProvider value={{ setChannels: mockSetChannels }}>
-          <SearchContextProvider value={{ directMessagingChannelType }}>
+        <ChannelListContextProvider value={{ setChannels: mockSetChannels } as any}>
+          <SearchContextProvider value={{ directMessagingChannelType } as any}>
             <SearchResultItemComponent item={item} />
           </SearchContextProvider>
         </ChannelListContextProvider>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 
@@ -13,8 +12,8 @@ import { defaultReactionOptions } from '../reactionOptions';
 import { useProcessReactions } from '../hooks/useProcessReactions';
 import { getTestClient } from '../../../mock-builders';
 
-const generateReactionsFromReactionGroups = (reactionGroups) =>
-  Object.entries(reactionGroups).flatMap(([type, { count }]) =>
+const generateReactionsFromReactionGroups = (reactionGroups: any) =>
+  Object.entries(reactionGroups).flatMap(([type, { count }]: any) =>
     generateReactions(count, (i) => ({
       type,
       user: generateUser({ id: `mark-${i}`, name: `Mark Number ${i}` }),
@@ -32,7 +31,7 @@ const MessageReactionsDetailWrapper = ({
   sortReactionDetails,
   sortReactions,
   ...rest
-}) => {
+}: any) => {
   const { existingReactions, totalReactionCount } = useProcessReactions({
     reaction_groups,
     reactions,
@@ -55,12 +54,12 @@ const MessageReactionsDetailWrapper = ({
 
 const chatClient = getTestClient();
 
-const renderComponent = ({ handleFetchReactions, ...props }) =>
+const renderComponent = ({ handleFetchReactions, ...props }: any) =>
   render(
-    <ChatProvider value={{ client: chatClient }}>
+    <ChatProvider value={{ client: chatClient } as any}>
       <DialogManagerProvider>
-        <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
-          <MessageProvider value={{}}>
+        <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
+          <MessageProvider value={{} as any}>
             <MessageReactionsDetailWrapper
               handleFetchReactions={handleFetchReactions}
               {...props}
@@ -74,7 +73,7 @@ const renderComponent = ({ handleFetchReactions, ...props }) =>
 describe('MessageReactionsDetail', () => {
   beforeEach(() => {
     // disable warnings (unreachable context)
-    vi.spyOn(console, 'warn').mockImplementation(null);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -135,10 +134,10 @@ describe('MessageReactionsDetail', () => {
     );
 
     const { getAllByTestId, rerender } = render(
-      <ChatProvider value={{ client: chatClient }}>
+      <ChatProvider value={{ client: chatClient } as any}>
         <DialogManagerProvider>
-          <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
-            <MessageProvider value={{}}>
+          <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
+            <MessageProvider value={{} as any}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
                 reaction_groups={reactionGroups}
@@ -156,10 +155,10 @@ describe('MessageReactionsDetail', () => {
     });
 
     rerender(
-      <ChatProvider value={{ client: chatClient }}>
+      <ChatProvider value={{ client: chatClient } as any}>
         <DialogManagerProvider>
-          <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
-            <MessageProvider value={{}}>
+          <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
+            <MessageProvider value={{} as any}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
                 reaction_groups={reactionGroups}

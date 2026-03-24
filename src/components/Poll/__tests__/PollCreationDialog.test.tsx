@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PollCreationDialog } from '../PollCreationDialog';
@@ -39,7 +38,9 @@ const close = vi.fn();
 const handleSubmit = vi.fn();
 const user = generateUser();
 
-const renderComponent = async ({ channel: customChannel, client: customClient } = {}) => {
+const renderComponent = async (
+  { channel: customChannel, client: customClient } = {} as any,
+) => {
   let channel = customChannel;
   let client = customClient;
   if (!(channel && client)) {
@@ -52,7 +53,7 @@ const renderComponent = async ({ channel: customChannel, client: customClient } 
     result = render(
       <Chat client={client}>
         <Channel channel={channel}>
-          <MessageComposerContextProvider value={{ handleSubmit }}>
+          <MessageComposerContextProvider value={{ handleSubmit } as any}>
             <PollCreationDialog close={close} />
           </MessageComposerContextProvider>
         </Channel>
@@ -252,7 +253,7 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.click(getVoteLimitSwitch());
     });
-    expect(getMaxVoteCountInput()?.value).toBe('2');
+    expect((getMaxVoteCountInput() as any)?.value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeDisabled();
   });
@@ -279,7 +280,7 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.change(maxVoteCountInput, { target: { value: '2' } });
     });
-    expect(getMaxVoteCountInput().value).toBe('2');
+    expect((getMaxVoteCountInput() as any).value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeEnabled();
   });
@@ -311,7 +312,7 @@ describe('PollCreationDialog', () => {
     });
 
     // SDK clamps max_votes_allowed to valid range [2, 10]
-    expect(getMaxVoteCountInput().value).toBe('10');
+    expect((getMaxVoteCountInput() as any).value).toBe('10');
     expect(screen.queryByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).not.toBeInTheDocument();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeEnabled();
@@ -372,10 +373,10 @@ describe('PollCreationDialog', () => {
     await renderComponent({ channel, client });
     const createPollSpy = vi
       .spyOn(client, 'createPoll')
-      .mockImplementationOnce(() => Promise.resolve({ poll }));
+      .mockImplementationOnce(() => Promise.resolve({ poll }) as any);
     const initPollStateSpy = vi
       .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation();
+      .mockImplementation(() => {});
 
     await act(async () => {
       await fireEvent.change(getNameInput(), { target: { value: formState.name } });
@@ -434,7 +435,7 @@ describe('PollCreationDialog', () => {
     } = await initClientWithChannels({ customUser: user });
     const initPollStateSpy = vi
       .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation();
+      .mockImplementation(() => {});
 
     await renderComponent({ channel, client });
 

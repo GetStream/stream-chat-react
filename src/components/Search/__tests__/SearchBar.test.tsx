@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
@@ -37,12 +36,12 @@ describe('SearchBar', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    useSearchContext.mockReturnValue(defaultProps);
-    useTranslationContext.mockReturnValue({ t: (key) => key });
-    useStateStore.mockReturnValue({
+    vi.mocked(useSearchContext).mockReturnValue(defaultProps as any);
+    vi.mocked(useTranslationContext).mockReturnValue({ t: (key: any) => key } as any);
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: false,
       searchQuery: '',
-    });
+    } as any);
   });
 
   it('renders with default state', () => {
@@ -60,10 +59,10 @@ describe('SearchBar', () => {
   });
 
   it('shows default placeholder when none provided', () => {
-    useSearchContext.mockReturnValue({
+    vi.mocked(useSearchContext).mockReturnValue({
       ...defaultProps,
       placeholder: undefined,
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -80,10 +79,10 @@ describe('SearchBar', () => {
   });
 
   it('clears search when input is emptied', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -94,10 +93,10 @@ describe('SearchBar', () => {
   });
 
   it('shows clear button when there is a search query', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -109,7 +108,7 @@ describe('SearchBar', () => {
       isActive: true,
       searchQuery: 'test',
     };
-    useStateStore.mockReturnValue(state);
+    vi.mocked(useStateStore).mockReturnValue(state as any);
 
     render(<SearchBar />);
     expect(screen.getByTestId(INPUT_TEST_ID)).toHaveValue(state.searchQuery);
@@ -119,10 +118,10 @@ describe('SearchBar', () => {
   });
 
   it('shows cancel button when search is active', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -131,10 +130,10 @@ describe('SearchBar', () => {
   });
 
   it('handles cancel button click', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -144,10 +143,10 @@ describe('SearchBar', () => {
   });
 
   it('handles escape key press', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: 'test',
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -157,10 +156,10 @@ describe('SearchBar', () => {
   });
 
   it('handles blur when exitSearchOnInputBlur is true', () => {
-    useSearchContext.mockReturnValue({
+    vi.mocked(useSearchContext).mockReturnValue({
       ...defaultProps,
       exitSearchOnInputBlur: true,
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -172,10 +171,10 @@ describe('SearchBar', () => {
   });
 
   it('disables input when disabled prop is true', () => {
-    useSearchContext.mockReturnValue({
+    vi.mocked(useSearchContext).mockReturnValue({
       ...defaultProps,
       disabled: true,
-    });
+    } as any);
 
     render(<SearchBar />);
 
@@ -188,11 +187,11 @@ describe('SearchBar', () => {
     // Mock queries in progress
     vi.mocked(useSearchQueriesInProgress).mockReturnValue(['users']);
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       input: null,
       isActive: true,
       searchQuery: 'test',
-    });
+    } as any);
 
     rerender(<SearchBar />);
 

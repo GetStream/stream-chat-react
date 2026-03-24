@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { AudioPlayer, elementIsPlaying } from '../AudioPlayer';
 
 // ---- Keep throttle synchronous so seek assertions are deterministic ----
@@ -9,7 +8,7 @@ const originalConsoleError = console.error;
 beforeAll(() => {
   vi.spyOn(console, 'error').mockImplementation((...args) => {
     const msg = String(args[0]?.message ?? args[0] ?? '');
-    if (/Not implemented/i.it(msg)) return;
+    if (/Not implemented/i.test(msg)) return;
     originalConsoleError(...args);
   });
 });
@@ -27,13 +26,13 @@ const makeErrorPlugin = () => {
   };
 };
 
-const makePlayer = (overrides = {}) => {
+const makePlayer = (overrides: any = {}) => {
   const pool = {
-    acquireElement: ({ src }) => new Audio(src),
+    acquireElement: ({ src }: any) => new Audio(src),
     deregister: () => {},
     releaseElement: () => {},
     setActiveAudioPlayer: vi.fn(),
-  };
+  } as any;
   return new AudioPlayer({
     durationSeconds: 100,
     id: 'id-1',
@@ -111,7 +110,7 @@ describe('AudioPlayer', () => {
   it('canPlayMimeType delegates to elementRef.canPlayType', () => {
     const player = makePlayer();
     // attach an element so canPlayMimeType uses elementRef
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const spy = vi.spyOn(player.elementRef, 'canPlayType').mockReturnValue('probably');
     expect(player.canPlayMimeType('audio/ogg')).toBe(true);
     expect(spy).toHaveBeenCalledWith('audio/ogg');
@@ -127,7 +126,7 @@ describe('AudioPlayer', () => {
     expect(player.currentPlaybackRate).toBe(1.5);
     expect(player.elementRef.playbackRate).toBe(1.5);
     // eslint-disable-next-line no-underscore-dangle
-    expect(player._pool.setActiveAudioPlayer).toHaveBeenCalledWith(player);
+    expect((player as any)._pool.setActiveAudioPlayer).toHaveBeenCalledWith(player);
   });
 
   it('play() early-return path when element is already playing', async () => {
@@ -137,7 +136,7 @@ describe('AudioPlayer', () => {
     vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
     // attach and spy on the concrete element
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const playSpy = vi.spyOn(player.elementRef, 'play');
 
     await player.play();
@@ -159,7 +158,7 @@ describe('AudioPlayer', () => {
   it('play() when element.play rejects triggers registerError(error) and isPlaying=false', async () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     vi.spyOn(player.elementRef, 'play').mockRejectedValueOnce(new Error('x'));
     await player.play();
     expect(onError).toHaveBeenCalledWith(
@@ -176,18 +175,18 @@ describe('AudioPlayer', () => {
 
     let resolve;
     // attach and stub play to a pending promise
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
           resolve = res;
         }),
     );
-    const pauseSpy = vi.spyOn(player.elementRef, 'pause').mockImplementation();
+    const pauseSpy = vi.spyOn(player.elementRef!, 'pause').mockImplementation(() => {});
 
     const playPromise = player.play();
     vi.advanceTimersByTime(2000);
-    resolve();
+    resolve!();
     expect(pauseSpy).toHaveBeenCalledTimes(1);
     expect(player.isPlaying).toBe(false);
     expect(onError).not.toHaveBeenCalled();
@@ -203,7 +202,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer({ plugins: [plugin] });
 
     let resolve;
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
@@ -228,7 +227,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
     vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).toHaveBeenCalled();
@@ -237,7 +236,7 @@ describe('AudioPlayer', () => {
 
   it('pause() when element is not playing does nothing', () => {
     const player = makePlayer();
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).not.toHaveBeenCalled();
@@ -255,7 +254,7 @@ describe('AudioPlayer', () => {
 
   it('stop() pauses, resets secondsElapsed and currentTime', () => {
     const player = makePlayer();
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const pauseSpy = vi.spyOn(player, 'pause');
     player.state.partialNext({ secondsElapsed: 50 });
     expect(player.secondsElapsed).toBe(50);
@@ -307,7 +306,10 @@ describe('AudioPlayer', () => {
     vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
 
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+      width: 100,
+      x: 0,
+    } as any);
 
     p.seek({ clientX: 50, currentTarget: target });
 
@@ -321,7 +323,10 @@ describe('AudioPlayer', () => {
     p.play();
     vi.spyOn(p.elementRef, 'duration', 'get').mockReturnValue(120);
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+      width: 100,
+      x: 0,
+    } as any);
 
     p.seek({ clientX: 150, currentTarget: target }); // clientX > width
     expect(p.state.getLatestValue().secondsElapsed).toBe(0);
@@ -330,13 +335,16 @@ describe('AudioPlayer', () => {
   it('seek emits errCode seek-not-supported when not seekable', () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
 
     // not seekable
     vi.spyOn(player.elementRef, 'duration', 'get').mockReturnValue(NaN);
 
     const target = document.createElement('div');
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ width: 100, x: 0 });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+      width: 100,
+      x: 0,
+    } as any);
 
     player.seek({ clientX: 50, currentTarget: target });
 
@@ -380,7 +388,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer({ plugins: [{ id: 'TestOnRemove', onRemove }] });
 
     // attach concrete element to spy on load()
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const el = createdAudios[1];
     const loadSpy = vi.spyOn(el, 'load');
 
@@ -398,7 +406,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
 
     // ensure element exists before removal
-    player.ensureElementRef();
+    (player as any).ensureElementRef();
     const firstEl = createdAudios[1];
     expect(player.elementRef).toBe(firstEl);
 

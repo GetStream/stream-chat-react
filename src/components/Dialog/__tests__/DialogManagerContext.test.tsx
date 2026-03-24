@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {
@@ -22,7 +21,7 @@ const SHARED_MANAGER_ID = 'shared-manager';
 const MANAGER_1_ID = 'manager-1';
 const MANAGER_2_ID = 'manager-2';
 
-const TestComponent = ({ dialogId, dialogManagerId, testId }) => {
+const TestComponent = ({ dialogId, dialogManagerId, testId }: any) => {
   const { dialogManager } = useDialogManager({ dialogId, dialogManagerId });
   const openDialogCount = useOpenedDialogCount({ dialogManagerId });
   const isOpen = useDialogIsOpen(dialogId, dialogManagerId);
@@ -35,7 +34,7 @@ const TestComponent = ({ dialogId, dialogManagerId, testId }) => {
   );
 };
 
-const DialogTestComponent = ({ dialogId, managerId }) => {
+const DialogTestComponent = ({ dialogId, managerId }: any) => {
   const { dialogManager } = useDialogManager({ dialogManagerId: managerId });
 
   const handleOpenDialog = () => {

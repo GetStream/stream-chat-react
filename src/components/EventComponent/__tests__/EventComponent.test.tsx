@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { act, cleanup, render, screen } from '@testing-library/react';
@@ -17,7 +16,7 @@ describe('EventComponent', () => {
     type: 'system',
   };
 
-  const renderComponent = async ({ chatProps, props } = {}) => {
+  const renderComponent = async ({ chatProps, props } = {} as any) => {
     let result;
     await act(() => {
       result = render(
@@ -30,12 +29,14 @@ describe('EventComponent', () => {
   };
 
   it('should render null for empty message', () => {
-    const { container } = render(<EventComponent message={{}} />);
+    const { container } = render(<EventComponent message={{} as any} />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should render null for non-system message types', () => {
-    const { container } = render(<EventComponent message={{ type: 'channel.event' }} />);
+    const { container } = render(
+      <EventComponent message={{ type: 'channel.event' } as any} />,
+    );
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -103,7 +104,7 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const { container } = render(<EventComponent message={msg} />);
+      const { container } = render(<EventComponent message={msg as any} />);
       expect(container).toBeEmptyDOMElement();
     });
 
@@ -117,7 +118,7 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const { container } = render(<EventComponent message={msg} />);
+      const { container } = render(<EventComponent message={msg as any} />);
       expect(container).toBeEmptyDOMElement();
     });
   });

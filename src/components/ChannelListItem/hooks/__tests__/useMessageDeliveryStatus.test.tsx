@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import {
@@ -46,8 +45,8 @@ const getClientAndChannel = async (channelData = {}, user = userA) => {
 
 const ownLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: userB }),
-    generateMessage({ created_at: new Date(2000), user: userA }),
+    generateMessage({ created_at: new Date(1000) as any, user: userB }),
+    generateMessage({ created_at: new Date(2000) as any, user: userA }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -55,8 +54,8 @@ const ownLastMessage = () => {
 
 const othersLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: userA }),
-    generateMessage({ created_at: new Date(2000), user: userB }),
+    generateMessage({ created_at: new Date(1000) as any, user: userA }),
+    generateMessage({ created_at: new Date(2000) as any, user: userB }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -152,9 +151,9 @@ const lastMessageRead = (messages) => [
   },
 ];
 
-const renderComponent = ({ channel, client, lastMessage }) => {
-  const wrapper = ({ children }) => (
-    <ChatContext.Provider value={{ client }}>{children}</ChatContext.Provider>
+const renderComponent = ({ channel, client, lastMessage }: any) => {
+  const wrapper = ({ children }: any) => (
+    <ChatContext.Provider value={{ client } as any}>{children}</ChatContext.Provider>
   );
 
   return renderHook(() => useMessageDeliveryStatus({ channel, lastMessage }), {
@@ -246,11 +245,11 @@ describe('Message delivery status', () => {
 
       const { result } = renderComponent({ channel, client });
       const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
+        created_at: new Date('1970-01-01T00:00:02.00Z') as any,
         user: userB,
       });
       await act(() => {
-        dispatchMessageNewEvent(client, newMessage, channel);
+        dispatchMessageNewEvent(client, newMessage, channel as any);
       });
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
@@ -262,11 +261,11 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       const newMessage = generateMessage({
-        created_at: new Date(2000),
+        created_at: new Date(2000) as any,
         user: userA,
       });
       await act(() => {
-        dispatchMessageNewEvent(client, newMessage, channel);
+        dispatchMessageNewEvent(client, newMessage, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
@@ -364,7 +363,7 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       await act(() => {
-        dispatchMessageReadEvent(client, userB, channel);
+        dispatchMessageReadEvent(client, userB, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
@@ -377,7 +376,7 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       await act(() => {
-        dispatchMessageReadEvent(client, userB, channel);
+        dispatchMessageReadEvent(client, userB, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBeUndefined();
@@ -390,7 +389,7 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       await act(() => {
-        dispatchMessageReadEvent(client, userA, channel);
+        dispatchMessageReadEvent(client, userA, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
@@ -412,7 +411,7 @@ describe('Message delivery status', () => {
       };
 
       await act(() => {
-        dispatchMessageUpdatedEvent(client, updatedMessage, channel);
+        dispatchMessageUpdatedEvent(client, updatedMessage as any, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
@@ -430,7 +429,7 @@ describe('Message delivery status', () => {
       };
 
       await act(() => {
-        dispatchMessageUpdatedEvent(client, updatedMessage, channel);
+        dispatchMessageUpdatedEvent(client, updatedMessage as any, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
@@ -444,7 +443,7 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
 
       await act(() => {
-        dispatchMessageDeletedEvent(client, lastMessage, channel);
+        dispatchMessageDeletedEvent(client, lastMessage, channel as any);
       });
 
       rerender();
@@ -458,7 +457,7 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       await act(() => {
-        dispatchMessageDeletedEvent(client, lastMessage, channel);
+        dispatchMessageDeletedEvent(client, lastMessage, channel as any);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);

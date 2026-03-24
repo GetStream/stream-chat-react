@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AudioRecordingPlayback } from '../AudioRecordingPlayback';
@@ -54,8 +53,10 @@ vi.spyOn(console, 'warn').mockImplementation(() => {});
 vi.spyOn(window.HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
   width: defaultProps.waveformData.length,
   x: 0,
-});
-vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+} as any);
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
+  () => undefined as any,
+);
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'duration', 'get').mockReturnValue(
@@ -72,9 +73,9 @@ class PointerEventMock extends Event {
   }
 }
 
-window.PointerEvent = PointerEventMock;
+(window as any).PointerEvent = PointerEventMock;
 
-const renderComponent = ({ getPlayer = () => null, ...props } = {}) => {
+const renderComponent = ({ getPlayer = () => null, ...props }: any = {}) => {
   const finalProps = { ...defaultProps, ...props };
   const PlayerGetter = () => {
     const player = useAudioPlayer(finalProps);
@@ -155,7 +156,7 @@ describe('AudioRecordingPlayback', () => {
     });
     // With container width=5 and clientX=3, progress=60%, so indicatorLeft = 3px
     // But actual value depends on internal calculations including indicator width
-    const leftValue = parseInt(slider.style.left, 10);
+    const leftValue = parseInt((slider as HTMLElement).style.left, 10);
     expect(leftValue).toBeGreaterThan(0);
   });
 
@@ -180,7 +181,7 @@ describe('AudioRecordingPlayback', () => {
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));
     });
-    const leftValue = parseInt(slider.style.left, 10);
+    const leftValue = parseInt((slider as HTMLElement).style.left, 10);
     expect(leftValue).toBeGreaterThan(0);
   });
 });

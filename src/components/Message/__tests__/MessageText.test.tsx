@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { axe } from '../../../../axe-helper';
@@ -28,7 +27,7 @@ import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -72,38 +71,44 @@ async function renderMessageText({
   const channel = generateChannel({
     getConfig: () => channelConfigOverrides,
     state: { membership: {} },
-  });
+  } as any);
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
-  const channelConfig = channel.getConfig();
+  const channelConfig = (channel as any).getConfig();
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
+    <ChatProvider value={{ client } as any}>
+      <ChannelStateProvider
+        value={{ channel, channelCapabilities, channelConfig } as any}
+      >
         <ChannelActionProvider
-          value={{
-            onMentionsClick: onMentionsClickMock,
-            onMentionsHover: onMentionsHoverMock,
-          }}
+          value={
+            {
+              onMentionsClick: onMentionsClickMock,
+              onMentionsHover: onMentionsHoverMock,
+            } as any
+          }
         >
           <TranslationProvider
             value={{
-              t: (key) => key,
-              tDateTimeParser: customDateTimeParser,
+              t: ((key: string) => key) as any,
+              tDateTimeParser: customDateTimeParser as any,
               userLanguage: 'en',
             }}
           >
             <ComponentProvider
-              value={{
-                Attachment,
+              value={
+                {
+                  Attachment,
 
-                Message: () => <MessageUI channelConfig={channelConfig} />,
-                reactionOptions: defaultReactionOptions,
-              }}
+                  Message: () => <MessageUI {...({ channelConfig } as any)} />,
+                  reactionOptions: defaultReactionOptions,
+                } as any
+              }
             >
               <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...defaultProps} {...customProps}>
-                  <MessageText {...defaultProps} {...customProps} />
+                <Message {...(defaultProps as any)} {...customProps}>
+                  <MessageText {...(defaultProps as any)} {...customProps} />
                 </Message>
               </DialogManagerProvider>
             </ComponentProvider>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   AmplitudeRecorder,
   AmplitudeRecorderState,
@@ -6,14 +5,14 @@ import {
 } from '../AmplitudeRecorder';
 import { AudioContextMock } from '../../../../mock-builders/browser';
 
-window.AudioContext = AudioContextMock;
+window.AudioContext = AudioContextMock as any;
 
 const intervalID = 1;
-vi.spyOn(window, 'setInterval').mockReturnValue(intervalID);
+vi.spyOn(window, 'setInterval').mockReturnValue(intervalID as any);
 
 describe('AmplitudeRecorder', () => {
   it('is initiated with defaults', () => {
-    const ar = new AmplitudeRecorder({ stream: {} });
+    const ar = new AmplitudeRecorder({ stream: {} as any });
     expect(ar.config).toStrictEqual(
       expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
@@ -29,23 +28,23 @@ describe('AmplitudeRecorder', () => {
       samplingFrequencyMs: 30,
     };
 
-    const mixedConfig = {
+    const mixedConfig: any = {
       analyserConfig: customConfig.analyserConfig,
       sampleCount: DEFAULT_AMPLITUDE_RECORDER_CONFIG.sampleCount,
       samplingFrequencyMs: DEFAULT_AMPLITUDE_RECORDER_CONFIG.samplingFrequencyMs,
     };
 
-    let ar = new AmplitudeRecorder({ config: customConfig });
+    let ar = new AmplitudeRecorder({ config: customConfig } as any);
     expect(ar.config).toStrictEqual(expect.objectContaining(customConfig));
     ar = new AmplitudeRecorder({
       config: { analyserConfig: customConfig.analyserConfig },
-    });
+    } as any);
     expect(ar.config).toStrictEqual(expect.objectContaining(mixedConfig));
   });
 
   describe('start', () => {
     it('throws error if MediaStream is not available', () => {
-      const ar = new AmplitudeRecorder({ stream: {} });
+      const ar = new AmplitudeRecorder({ stream: {} as any });
       ar.stream = undefined;
       expect(ar.start).toThrow(
         'Missing MediaStream instance. Cannot to start amplitude recording',
@@ -53,8 +52,8 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('initiates the recorder state', () => {
-      const ar = new AmplitudeRecorder({ stream: {} });
-      ar.start({});
+      const ar = new AmplitudeRecorder({ stream: {} as any });
+      (ar as any).start({});
       expect(ar.audioContext).toBeDefined();
       expect(ar.analyserNode).toStrictEqual(
         expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG.analyserConfig),
@@ -67,8 +66,8 @@ describe('AmplitudeRecorder', () => {
   });
 
   it('stops the recording', () => {
-    const ar = new AmplitudeRecorder({ stream: {} });
-    ar.start({});
+    const ar = new AmplitudeRecorder({ stream: {} as any });
+    (ar as any).start({});
     ar.stop();
     expect(ar.audioContext).toBeDefined();
     expect(ar.analyserNode).toStrictEqual(
@@ -82,9 +81,9 @@ describe('AmplitudeRecorder', () => {
 
   describe('close', () => {
     it('disconnects all the devices', () => {
-      const ar = new AmplitudeRecorder({ stream: {} });
+      const ar = new AmplitudeRecorder({ stream: {} as any });
       const stopSpy = vi.spyOn(ar, 'stop');
-      ar.start({});
+      (ar as any).start({});
       ar.stop();
       ar.close();
 
@@ -96,9 +95,9 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('stops the recording if not already stopped', () => {
-      const ar = new AmplitudeRecorder({ stream: {} });
+      const ar = new AmplitudeRecorder({ stream: {} as any });
       const stopSpy = vi.spyOn(ar, 'stop');
-      ar.start({});
+      (ar as any).start({});
       ar.close();
       expect(stopSpy).toHaveBeenCalledWith();
       expect(ar.state.value).toBe(AmplitudeRecorderState.CLOSED);
@@ -109,10 +108,10 @@ describe('AmplitudeRecorder', () => {
     });
 
     it('cannot restart the recorder', () => {
-      const ar = new AmplitudeRecorder({ stream: {} });
-      ar.start({});
+      const ar = new AmplitudeRecorder({ stream: {} as any });
+      (ar as any).start({});
       ar.close();
-      ar.start();
+      (ar as any).start();
       expect(ar.state.value).toBe(AmplitudeRecorderState.CLOSED);
     });
   });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -68,39 +67,43 @@ const renderComponent = ({
   props = {},
   threadContext = undefined,
 } = {}) => {
-  const client = { off: vi.fn(), on: vi.fn(), user: alice, userID: alice.id };
+  const client = { off: vi.fn(), on: vi.fn(), user: alice, userID: alice.id } as any;
   const thread = createThread(alice);
-  const channel = createChannel(channelOverrides);
+  const channel = createChannel(channelOverrides) as any;
 
-  useChatViewContext.mockReturnValue({
+  vi.mocked(useChatViewContext).mockReturnValue({
     activeChatView,
     setActiveChatView: vi.fn(),
-  });
-  useThreadContext.mockReturnValue(threadContext);
+  } as any);
+  vi.mocked(useThreadContext).mockReturnValue(threadContext as any);
 
   return render(
     <ChatProvider
-      value={{
-        client,
-        closeMobileNav: vi.fn(),
-        latestMessageDatesByChannels: {},
-        navOpen: false,
-        openMobileNav: vi.fn(),
-      }}
+      value={
+        {
+          client,
+          closeMobileNav: vi.fn(),
+          latestMessageDatesByChannels: {},
+          navOpen: false,
+          openMobileNav: vi.fn(),
+        } as any
+      }
     >
-      <ChannelStateProvider value={{ channel, thread }}>
+      <ChannelStateProvider value={{ channel, thread } as any}>
         <TranslationProvider
-          value={{
-            t: (key, options) => {
-              if (key === 'Thread') return 'Thread';
-              if (key === 'replyCount') return `${options.count} replies`;
-              if (key === 'aria/Close thread') return 'Close thread';
+          value={
+            {
+              t: ((key: any, options: any) => {
+                if (key === 'Thread') return 'Thread';
+                if (key === 'replyCount') return `${options.count} replies`;
+                if (key === 'aria/Close thread') return 'Close thread';
 
-              return key;
-            },
-          }}
+                return key;
+              }) as any,
+            } as any
+          }
         >
-          <ThreadHeader closeThread={vi.fn()} thread={thread} {...props} />
+          <ThreadHeader closeThread={vi.fn()} thread={thread as any} {...props} />
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,
@@ -114,7 +117,7 @@ describe('ThreadHeader', () => {
   });
 
   it('renders the channel display title in the subtitle', () => {
-    useChannelPreviewInfo.mockReturnValue({ displayTitle: 'Bob' });
+    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
 
     renderComponent();
 
@@ -122,7 +125,7 @@ describe('ThreadHeader', () => {
   });
 
   it('falls back to the parent message author when the channel has no display title', () => {
-    useChannelPreviewInfo.mockReturnValue({ displayTitle: undefined });
+    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: undefined } as any);
 
     renderComponent({
       channelOverrides: {
@@ -141,7 +144,7 @@ describe('ThreadHeader', () => {
   });
 
   it('renders only the reply count when no title source is available', () => {
-    useChannelPreviewInfo.mockReturnValue({ displayTitle: undefined });
+    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: undefined } as any);
 
     renderComponent({
       channelOverrides: {
@@ -161,7 +164,7 @@ describe('ThreadHeader', () => {
   });
 
   it('does not render the sidebar toggle in the channels view', () => {
-    useChannelPreviewInfo.mockReturnValue({ displayTitle: 'Bob' });
+    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
 
     renderComponent({
       activeChatView: 'channels',
@@ -172,7 +175,7 @@ describe('ThreadHeader', () => {
   });
 
   it('renders the sidebar toggle in the threads view', () => {
-    useChannelPreviewInfo.mockReturnValue({ displayTitle: 'Bob' });
+    vi.mocked(useChannelPreviewInfo).mockReturnValue({ displayTitle: 'Bob' } as any);
 
     renderComponent({
       activeChatView: 'threads',

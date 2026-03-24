@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -22,22 +21,24 @@ const mouseEventMock = {
 };
 
 async function renderUseHandleMuteHook(
-  message = generateMessage(),
-  notificationOpts,
-  channelStateContextValue,
+  message: any = generateMessage(),
+  notificationOpts?: any,
+  channelStateContextValue?: any,
 ) {
   const client = await getTestClientWithUser(alice);
   client.muteUser = muteUser;
   client.unmuteUser = unmuteUser;
   const channel = generateChannel();
 
-  const wrapper = ({ children }) => (
-    <ChatProvider value={{ client }}>
+  const wrapper = ({ children }: any) => (
+    <ChatProvider value={{ client } as any}>
       <ChannelStateProvider
-        value={{
-          channel,
-          ...channelStateContextValue,
-        }}
+        value={
+          {
+            channel,
+            ...channelStateContextValue,
+          } as any
+        }
       >
         {children}
       </ChannelStateProvider>
@@ -60,7 +61,7 @@ describe('useHandleMute custom hook', () => {
   it('should throw a warning when there are missing parameters and the handler is called', async () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleMute = await renderUseHandleMuteHook(undefined);
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseMuteHandlerParamsWarning);
   });
 
@@ -73,7 +74,7 @@ describe('useHandleMute custom hook', () => {
       getSuccessNotification: getMuteUserSuccessNotification,
       notify,
     });
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(userMutedNotification, 'success');
   });
@@ -84,7 +85,7 @@ describe('useHandleMute custom hook', () => {
     const defaultSuccessMessage = '{{ user }} has been muted';
     const notify = vi.fn();
     const handleMute = await renderUseHandleMuteHook(message, { notify });
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(defaultSuccessMessage, 'success');
   });
@@ -99,7 +100,7 @@ describe('useHandleMute custom hook', () => {
       getErrorNotification,
       notify,
     });
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(userMutedFailNotification, 'error');
   });
@@ -113,7 +114,7 @@ describe('useHandleMute custom hook', () => {
     const handleMute = await renderUseHandleMuteHook(message, {
       notify,
     });
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(defaultFailNotification, 'error');
   });
@@ -132,7 +133,7 @@ describe('useHandleMute custom hook', () => {
       },
       { mutes: [{ target: { id: bob.id } }] },
     );
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(userUnmutedNotification, 'success');
   });
@@ -150,7 +151,7 @@ describe('useHandleMute custom hook', () => {
       },
       { mutes: [{ target: { id: bob.id } }] },
     );
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
   });
@@ -170,7 +171,7 @@ describe('useHandleMute custom hook', () => {
       { mutes: [{ target: { id: bob.id } }] },
     );
 
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(userMutedFailNotification, 'error');
   });
@@ -190,7 +191,7 @@ describe('useHandleMute custom hook', () => {
         mutes: [{ target: { id: bob.id } }],
       },
     );
-    await handleMute(mouseEventMock);
+    await handleMute(mouseEventMock as any);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
     expect(notify).toHaveBeenCalledWith(defaultFailNotification, 'error');
   });

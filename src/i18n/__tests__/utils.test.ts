@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { getDateString, predefinedFormatters } from '../utils';
 import { Streami18n } from '../Streami18n';
 import Dayjs from 'dayjs';
 
 vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
-const t = vi.fn();
+const t = vi.fn() as any;
 const timestampTranslationKey = 'timestampTranslationKey';
 
 const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
@@ -17,9 +16,9 @@ describe('getDateString', () => {
       getDateString({
         calendar: true,
         format: 'hh:mm A',
-        formatDate: (input) => input,
+        formatDate: ((input: any) => input) as any,
         messageCreatedAt: undefined,
-        tDateTimeParser: (input) => input,
+        tDateTimeParser: ((input: any) => input) as any,
       }),
     ).toBeNull();
   });
@@ -30,9 +29,9 @@ describe('getDateString', () => {
       getDateString({
         calendar: true,
         format: 'hh:mm A',
-        formatDate: (input) => input,
+        formatDate: ((input: any) => input) as any,
         messageCreatedAt: 'yesterday',
-        tDateTimeParser: (input) => input,
+        tDateTimeParser: ((input: any) => input) as any,
       }),
     ).toBeNull();
   });
@@ -59,7 +58,7 @@ describe('getDateString', () => {
         format: 'hh:mm A',
         formatDate: formatDateMock,
         messageCreatedAt,
-        tDateTimeParser: (input) => input,
+        tDateTimeParser: ((input: any) => input) as any,
       }),
     ).toBe(expectedValue);
   });
@@ -72,7 +71,7 @@ describe('getDateString', () => {
         format: 'hh:mm A',
         formatDate: undefined,
         messageCreatedAt,
-        tDateTimeParser: (input) => new Date(input),
+        tDateTimeParser: (input: any) => new Date(input),
       }),
     ).toBe(expectedValue);
   });
@@ -113,7 +112,7 @@ describe('getDateString', () => {
         calendar: vi.fn(),
         format: vi.fn(),
         isSame: true,
-      };
+      } as any;
       getDateString({
         calendar: true,
         calendarFormats,
@@ -137,7 +136,7 @@ describe('getDateString', () => {
         calendar: vi.fn(),
         format: vi.fn(),
         isSame: true,
-      };
+      } as any;
       const format = 'XY';
       getDateString({
         calendar: false,
@@ -161,7 +160,7 @@ describe('getDateString', () => {
           format: 'hh:mm A',
           formatDate: undefined,
           messageCreatedAt,
-          tDateTimeParser: () => returnedValue,
+          tDateTimeParser: (() => returnedValue) as any,
         }),
       ).toBeNull();
     },
@@ -286,14 +285,14 @@ describe('getDateString', () => {
     });
 
     it('returns "Today" for same calendar day', () => {
-      const mockT = vi.fn((key) => {
+      const mockT = vi.fn((key: any) => {
         if (key === 'timestamp/relativeToday') return 'Today';
         return key;
       });
       const result = getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Today');
@@ -301,7 +300,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Yesterday" for 1 day ago', () => {
-      const mockT = vi.fn((key) => {
+      const mockT = vi.fn((key: any) => {
         if (key === 'timestamp/relativeYesterday') return 'Yesterday';
         return key;
       });
@@ -310,7 +309,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: yesterday.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Yesterday');
@@ -318,7 +317,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nd ago" for 2–6 days ago', () => {
-      const mockT = vi.fn((key, opts) => {
+      const mockT = vi.fn((key: any, opts: any) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;
@@ -328,7 +327,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: threeDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('3d ago');
@@ -336,7 +335,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nw ago" for 1–3 weeks ago', () => {
-      const mockT = vi.fn((key, opts) => {
+      const mockT = vi.fn((key: any, opts: any) => {
         if (key === 'timestamp/relativeWeeksAgo' && opts && opts.count)
           return `${opts.count}w ago`;
         return key;
@@ -346,7 +345,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('1w ago');
@@ -354,13 +353,13 @@ describe('getDateString', () => {
     });
 
     it('returns DD/MM/YY for 4+ weeks ago', () => {
-      const mockT = vi.fn((key) => key);
+      const mockT = vi.fn((key: any) => key);
       const twentyEightDaysAgo = new Date(FIXED_NOW);
       twentyEightDaysAgo.setUTCDate(twentyEightDaysAgo.getUTCDate() - 28);
       const result = getDateString({
         messageCreatedAt: twentyEightDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -368,13 +367,13 @@ describe('getDateString', () => {
     });
 
     it('returns DD/MM/YY for future date', () => {
-      const mockT = vi.fn((key) => key);
+      const mockT = vi.fn((key: any) => key);
       const tomorrow = new Date(FIXED_NOW);
       tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
       const result = getDateString({
         messageCreatedAt: tomorrow.toISOString(),
         relativeCompact: true,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -382,14 +381,14 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxWeeks: 0 (no "Nw ago", 7+ days show as date)', () => {
-      const mockT = vi.fn((key) => key);
+      const mockT = vi.fn((key: any) => key);
       const sevenDaysAgo = new Date(FIXED_NOW);
       sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
         relativeCompactMaxWeeks: 0,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -397,7 +396,7 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxDays (only 2–N days show "Nd ago")', () => {
-      const mockT = vi.fn((key, opts) => {
+      const mockT = vi.fn((key: any, opts: any) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;
@@ -409,7 +408,7 @@ describe('getDateString', () => {
         relativeCompact: true,
         relativeCompactMaxDays: 2,
         relativeCompactMaxWeeks: 0,
-        t: mockT,
+        t: mockT as any,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -421,7 +420,7 @@ describe('getDateString', () => {
         calendar: vi.fn(),
         format: vi.fn().mockReturnValue('formatted'),
         isSame: true,
-      };
+      } as any;
       getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,

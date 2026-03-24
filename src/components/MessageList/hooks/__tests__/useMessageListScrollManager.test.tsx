@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 
@@ -12,7 +11,7 @@ const myUserId = 'alice';
 const generateMessages = (length, userId = myUserId) =>
   Array.from({ length }, (_, index) => ({ id: index.toString(), userId }));
 
-const defaultInputs = {
+const defaultInputs: any = {
   loadMoreScrollThreshold: 100,
   messages: [],
   scrollContainerMeasures: () => ({
@@ -45,12 +44,12 @@ describe('useMessageListScrollManager', () => {
     };
 
     const { rerender } = render(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp />
       </ChatProvider>,
     );
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp />
       </ChatProvider>,
     );
@@ -60,7 +59,7 @@ describe('useMessageListScrollManager', () => {
 
   it('emits scrollTop delta when messages are prepended', () => {
     const onScrollBy = vi.fn();
-    const Comp = (props) => {
+    const Comp = (props: any) => {
       useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
@@ -69,20 +68,20 @@ describe('useMessageListScrollManager', () => {
           scrollHeight: props.scrollHeight,
         }),
         scrollToBottom: () => {},
-      });
+      } as any);
 
       return <div />;
     };
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} scrollHeight={400} />
       </ChatProvider>,
     );
 
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={generateMessages(10).concat(messages)} scrollHeight={600} />
       </ChatProvider>,
     );
@@ -92,7 +91,7 @@ describe('useMessageListScrollManager', () => {
 
   it('emits scroll to bottom when new messages arrive', () => {
     const scrollToBottom = vi.fn();
-    const Comp = (props) => {
+    const Comp = (props: any) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
@@ -110,13 +109,13 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} scrollHeight={400} />
       </ChatProvider>,
     );
 
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages.concat(generateMessages(10))} scrollHeight={600} />
       </ChatProvider>,
     );
@@ -126,7 +125,7 @@ describe('useMessageListScrollManager', () => {
 
   it('does not emit scroll to bottom when new messages arrive and user has scrolled up', () => {
     const showNewMessages = vi.fn();
-    const Comp = (props) => {
+    const Comp = (props: any) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
@@ -134,7 +133,7 @@ describe('useMessageListScrollManager', () => {
           scrollHeight: props.scrollHeight,
         }),
         showNewMessages,
-      });
+      } as any);
 
       updateScrollTop(props.scrollTop);
 
@@ -143,21 +142,21 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
       </ChatProvider>,
     );
 
     // simulate scrolled up
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
     // add new messages
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp
           messages={messages.concat(generateMessages(10))}
           offsetHeight={100}
@@ -172,7 +171,7 @@ describe('useMessageListScrollManager', () => {
 
   it('emits scroll to bottom when new own message is posted, regardless of scroll position', () => {
     const scrollToBottom = vi.fn();
-    const Comp = (props) => {
+    const Comp = (props: any) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
@@ -180,7 +179,7 @@ describe('useMessageListScrollManager', () => {
           scrollHeight: props.scrollHeight,
         }),
         scrollToBottom,
-      });
+      } as any);
 
       updateScrollTop(props.scrollTop);
 
@@ -189,7 +188,7 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
         ,
       </ChatProvider>,
@@ -197,16 +196,16 @@ describe('useMessageListScrollManager', () => {
 
     // simulate scrolled up
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
     // add new messages
     rerender(
-      <ChatProvider value={{ client }}>
+      <ChatProvider value={{ client } as any}>
         <Comp
-          messages={messages.concat([{ id: 100, user: { id: client.userID } }])}
+          messages={messages.concat([{ id: 100, user: { id: client.userID } }] as any)}
           offsetHeight={100}
           scrollHeight={600}
           scrollTop={200}

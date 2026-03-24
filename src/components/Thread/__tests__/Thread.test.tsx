@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 
@@ -85,17 +84,17 @@ const renderComponent = ({
   chatClient,
   componentOverrides = {},
   threadProps = {},
-}) =>
+}: any) =>
   render(
-    <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
+    <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} } as any}>
       <ChannelStateProvider
-        value={{ ...channelStateContextMock, ...channelStateOverrides }}
+        value={{ ...channelStateContextMock, ...channelStateOverrides } as any}
       >
         <ChannelActionProvider
-          value={{ ...channelActionContextMock, ...channelActionOverrides }}
+          value={{ ...channelActionContextMock, ...channelActionOverrides } as any}
         >
-          <ComponentProvider value={{ ...componentOverrides }}>
-            <TranslationProvider value={{ t: i18nMock }}>
+          <ComponentProvider value={{ ...componentOverrides } as any}>
+            <TranslationProvider value={{ t: i18nMock } as any}>
               <Thread {...threadProps} />
             </TranslationProvider>
           </ComponentProvider>
@@ -120,7 +119,7 @@ describe('Thread', () => {
   it('should render the MessageList component with the correct props without date separators', () => {
     const additionalMessageListProps = {
       loadingMore: false,
-      loadMore: channelActionContextMock.threadLoadingMore,
+      loadMore: (channelActionContextMock as any).threadLoadingMore,
       propName: 'value',
       read: {},
     };
@@ -139,8 +138,8 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: channelActionContextMock.threadLoadingMore,
-        loadMore: channelStateContextMock.loadMoreThread,
+        loadingMore: (channelActionContextMock as any).threadLoadingMore,
+        loadMore: (channelStateContextMock as any).loadMoreThread,
         Message: MessageMock,
         messages: channelStateContextMock.threadMessages,
         threadList: true,
@@ -153,7 +152,7 @@ describe('Thread', () => {
   it('should render the MessageList component with date separators if enabled', () => {
     const additionalMessageListProps = {
       loadingMore: false,
-      loadMore: channelActionContextMock.threadLoadingMore,
+      loadMore: (channelActionContextMock as any).threadLoadingMore,
       propName: 'value',
       read: {},
     };
@@ -173,8 +172,8 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: channelActionContextMock.threadLoadingMore,
-        loadMore: channelStateContextMock.loadMoreThread,
+        loadingMore: (channelActionContextMock as any).threadLoadingMore,
+        loadMore: (channelStateContextMock as any).loadMoreThread,
         Message: MessageMock,
         messages: channelStateContextMock.threadMessages,
         threadList: true,
@@ -307,15 +306,15 @@ describe('Thread', () => {
 
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ getConfig: () => ({ replies: false }) });
-    const channelConfig = ch.getConfig();
+    const ch = generateChannel({ getConfig: () => ({ replies: false }) } as any);
+    const channelConfig = (ch as any).getConfig();
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
+    const channel = client.channel('messaging', (ch as any).id);
     await channel.watch();
 
     const { container } = render(
       <ChannelStateProvider
-        value={{ ...channelStateContextMock, channel, channelConfig }}
+        value={{ ...channelStateContextMock, channel, channelConfig } as any}
       >
         <Thread />
       </ChannelStateProvider>,

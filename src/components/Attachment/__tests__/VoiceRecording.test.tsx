@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -20,11 +19,11 @@ const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 
 const attachment = generateVoiceRecordingAttachment();
 
-window.ResizeObserver = ResizeObserverMock;
+(window as any).ResizeObserver = ResizeObserverMock;
 
 vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
   width: 120,
-});
+} as any);
 
 const clickPlay = async () => {
   await act(async () => {
@@ -32,12 +31,14 @@ const clickPlay = async () => {
   });
 };
 
-vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
+  () => undefined as any,
+);
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
-    <ChatProvider value={{ client: {} }}>
+    <ChatProvider value={{ client: {} } as any}>
       <WithAudioPlayback>
         <VoiceRecordingComponent {...props} />
       </WithAudioPlayback>
@@ -63,13 +64,13 @@ describe('VoiceRecording', () => {
       createdAudios.push(el);
       return el;
     });
-    const message = generateMessage();
+    const message = generateMessage() as any;
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true }}>
+        <MessageProvider value={{ message, threadList: true } as any}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
       </WithAudioPlayback>,
@@ -86,16 +87,16 @@ describe('VoiceRecording', () => {
       createdAudios.push(el);
       return el;
     });
-    const message = generateMessage();
+    const message = generateMessage() as any;
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <VoiceRecording attachment={attachment} isQuoted={true} />
         </MessageProvider>
       </WithAudioPlayback>,
@@ -108,7 +109,9 @@ describe('VoiceRecording', () => {
 describe('VoiceRecordingPlayer', () => {
   beforeAll(() => {
     vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
+      () => undefined as any,
+    );
     vi.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });
   afterAll(vi.clearAllMocks);

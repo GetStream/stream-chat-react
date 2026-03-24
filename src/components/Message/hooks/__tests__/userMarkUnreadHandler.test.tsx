@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
@@ -13,19 +12,21 @@ const noop = () => null;
 const generateSuccessString = () => customSuccessString;
 const generateErrorString = () => customErrorString;
 const event = { preventDefault: vi.fn() };
-const t = (str) => str;
+const t = ((str: any) => str) as any;
 const message = generateMessage();
 const notifications = {
   notify: vi.fn(),
 };
-const channel = { markUnread: vi.fn() };
-function renderUseMarkUnreadHandlerHook({ message, notifications } = {}) {
-  const wrapper = ({ children }) => (
-    <TranslationProvider value={{ t }}>
+const channel = { markUnread: vi.fn() } as any;
+function renderUseMarkUnreadHandlerHook({ message, notifications }: any = {}) {
+  const wrapper = ({ children }: any) => (
+    <TranslationProvider value={{ t } as any}>
       <ChannelStateProvider
-        value={{
-          channel,
-        }}
+        value={
+          {
+            channel,
+          } as any
+        }
       >
         {children}
       </ChannelStateProvider>
@@ -40,26 +41,26 @@ describe('useMarkUnreadHandler', () => {
   afterEach(vi.clearAllMocks);
   it('does not call channel.markUnread if no message is provided', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook();
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(channel.markUnread).not.toHaveBeenCalled();
   });
   it('does not call channel.markUnread if message is missing id', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message: generateMessage({ id: undefined }),
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(channel.markUnread).not.toHaveBeenCalled();
   });
   it('calls channel.markUnread', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(channel.markUnread).toHaveBeenCalledWith(
       expect.objectContaining({ message_id: message.id }),
     );
   });
   it('does not register success notification if getSuccessNotification is not available', async () => {
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message, notifications });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notifications.notify).not.toHaveBeenCalled();
   });
   it('does not register success notification if getSuccessNotification does not generate one', async () => {
@@ -67,7 +68,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: { ...notifications, getSuccessNotification: noop },
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notifications.notify).not.toHaveBeenCalled();
   });
   it('registers the success notification if getSuccessNotification generates one', async () => {
@@ -79,7 +80,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithSuccess,
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notificationsWithSuccess.notify).toHaveBeenCalledWith(
       customSuccessString,
       'success',
@@ -87,19 +88,19 @@ describe('useMarkUnreadHandler', () => {
   });
 
   it('registers the default error notification if getErrorNotification is missing', async () => {
-    channel.markUnread.mockRejectedValueOnce();
+    channel.markUnread.mockRejectedValueOnce(undefined);
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message,
       notifications,
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notifications.notify).toHaveBeenCalledWith(
       'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
       'error',
     );
   });
   it('registers the custom error notification if available getErrorNotification generates one', async () => {
-    channel.markUnread.mockRejectedValueOnce();
+    channel.markUnread.mockRejectedValueOnce(undefined);
     const notificationsWithError = {
       getErrorNotification: generateErrorString,
       notify: vi.fn(),
@@ -108,7 +109,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithError,
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notificationsWithError.notify).toHaveBeenCalledWith(
       customErrorString,
       'error',
@@ -116,7 +117,7 @@ describe('useMarkUnreadHandler', () => {
   });
 
   it('does not register the custom error notification if available getErrorNotification does not generate one', async () => {
-    channel.markUnread.mockRejectedValueOnce();
+    channel.markUnread.mockRejectedValueOnce(undefined);
     const notificationsWithError = {
       getErrorNotification: noop,
       notify: vi.fn(),
@@ -125,7 +126,7 @@ describe('useMarkUnreadHandler', () => {
       message,
       notifications: notificationsWithError,
     });
-    await handleMarkUnread(event);
+    await handleMarkUnread(event as any);
     expect(notificationsWithError.notify).not.toHaveBeenCalled();
   });
 });

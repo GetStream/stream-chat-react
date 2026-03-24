@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render, screen } from '@testing-library/react';
@@ -27,17 +26,17 @@ const scrollToBottom = vi.fn();
 
 async function renderComponent(
   typing = {},
-  threadList,
-  value = {},
-  typingIndicatorProps = {},
+  threadList?: any,
+  value: any = {},
+  typingIndicatorProps: any = {},
 ) {
   const client = await getTestClientWithUser(me);
 
   return render(
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ ...value }}>
-        <ComponentProvider value={{}}>
-          <TypingProvider value={{ typing }}>
+    <ChatProvider value={{ client } as any}>
+      <ChannelStateProvider value={{ ...value } as any}>
+        <ComponentProvider value={{} as any}>
+          <TypingProvider value={{ typing } as any}>
             <TypingIndicator
               scrollToBottom={scrollToBottom}
               threadList={threadList}
@@ -59,9 +58,9 @@ describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(
-      <ChatProvider value={{}}>
-        <ChannelStateProvider value={{}}>
-          <ComponentProvider value={{}}>
+      <ChatProvider value={{} as any}>
+        <ChannelStateProvider value={{} as any}>
+          <ComponentProvider value={{} as any}>
             <TypingIndicator scrollToBottom={scrollToBottom} />
           </ComponentProvider>
         </ChannelStateProvider>
@@ -73,10 +72,10 @@ describe('TypingIndicator', () => {
   it('should render hidden indicator with empty typing', async () => {
     const client = await getTestClientWithUser(me);
     const { container } = render(
-      <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{}}>
-          <ComponentProvider value={{}}>
-            <TypingProvider value={{ typing: {} }}>
+      <ChatProvider value={{ client } as any}>
+        <ChannelStateProvider value={{} as any}>
+          <ComponentProvider value={{} as any}>
+            <TypingProvider value={{ typing: {} } as any}>
               <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>
@@ -153,17 +152,17 @@ describe('TypingIndicator', () => {
 
   it('should render null if typing_events is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: false } });
+    const ch = generateChannel({ config: { typing_events: false } } as any);
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    const channelConfig = { typing_events: false };
+    const channel = client.channel('messaging', (ch as any).id);
+    const channelConfig = { typing_events: false } as any;
     await channel.watch();
 
     const { container } = render(
-      <ChatProvider value={{ client }}>
-        <ChannelStateProvider value={{ channel, channelConfig }}>
-          <ComponentProvider value={{}}>
-            <TypingProvider value={{ typing: {} }}>
+      <ChatProvider value={{ client } as any}>
+        <ChannelStateProvider value={{ channel, channelConfig } as any}>
+          <ComponentProvider value={{} as any}>
+            <TypingProvider value={{ typing: {} } as any}>
               <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>
@@ -183,7 +182,7 @@ describe('TypingIndicator', () => {
 
     beforeEach(async () => {
       client = await getTestClientWithUser();
-      ch = generateChannel({ config: { typing_events: true } });
+      ch = generateChannel({ config: { typing_events: true } } as any);
       useMockedApis(client, [getOrCreateChannelApi(ch)]);
       channel = client.channel('messaging', ch.id);
       await channel.watch();

@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { BrowserPermission } from '../BrowserPermission';
 import { EventEmitterMock } from '../../../../mock-builders/browser';
 
 const defaultMockState = 'prompt';
-window.navigator.permissions = {
+(window.navigator as any).permissions = {
   query: vi.fn(),
 };
 
@@ -28,7 +27,7 @@ describe('BrowserPermission', () => {
 
   describe('check', () => {
     it('registers error and returns on checking unsupported permission', async () => {
-      const permission = new BrowserPermission({ mediaType: 'X' });
+      const permission = new BrowserPermission({ mediaType: 'X' as any });
       let error;
       const errorSubscription = permission.error.subscribe((e) => {
         error = e;
@@ -43,7 +42,7 @@ describe('BrowserPermission', () => {
 
     it('handles permission query error', async () => {
       const permission = new BrowserPermission({ mediaType: 'audio' });
-      window.navigator.permissions.query.mockRejectedValueOnce('Query error');
+      (window.navigator.permissions.query as any).mockRejectedValueOnce('Query error');
       await permission.check();
       expect(permission.state.value).toBe('granted');
     });
@@ -51,8 +50,8 @@ describe('BrowserPermission', () => {
     it('emits permission status and state', async () => {
       const permission = new BrowserPermission({ mediaType: 'audio' });
       const status = new EventEmitterMock();
-      status.state = defaultMockState;
-      window.navigator.permissions.query.mockResolvedValueOnce(status);
+      (status as any).state = defaultMockState;
+      (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
       await permission.check();
 
       expect(permission.status.value).toStrictEqual(status);
@@ -62,7 +61,7 @@ describe('BrowserPermission', () => {
 
   describe('listening to permission status change', () => {
     it('is prevented for unsupported permission', async () => {
-      const permission = new BrowserPermission({ mediaType: 'X' });
+      const permission = new BrowserPermission({ mediaType: 'X' as any });
       let error;
       const errorSubscription = permission.error.subscribe((e) => {
         error = e;
@@ -82,8 +81,8 @@ describe('BrowserPermission', () => {
         error = e;
       });
       const status = new EventEmitterMock();
-      status.state = defaultMockState;
-      window.navigator.permissions.query.mockResolvedValueOnce(status);
+      (status as any).state = defaultMockState;
+      (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
       await permission.watch();
 
       expect(permission.state.value).toBe(defaultMockState);
@@ -91,7 +90,8 @@ describe('BrowserPermission', () => {
       expect(error).toBeUndefined();
       errorSubscription.unsubscribe();
 
-      const registeredHandler = permission.status.value.addEventListener.mock.calls[0][1];
+      const registeredHandler = (permission.status.value as any).addEventListener.mock
+        .calls[0][1];
       registeredHandler({ target: { state: 'granted' } });
       expect(permission.state.value).toBe('granted');
     });
@@ -99,8 +99,8 @@ describe('BrowserPermission', () => {
     it('allows to unsubscribe from watching permission status change event', async () => {
       const permission = new BrowserPermission({ mediaType: 'audio' });
       const status = new EventEmitterMock();
-      status.state = defaultMockState;
-      window.navigator.permissions.query.mockResolvedValueOnce(status);
+      (status as any).state = defaultMockState;
+      (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
       await permission.watch();
       expect(permission.status.value.removeEventListener).not.toHaveBeenCalled();
       permission.unwatch();

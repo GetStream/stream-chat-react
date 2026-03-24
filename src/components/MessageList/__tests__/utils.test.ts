@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   generateFileAttachment,
   generateMessage,
@@ -48,7 +47,12 @@ const makeDateSeparator = (message) => ({
   id: makeDateMessageId(message.created_at),
 });
 
-const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread) => {
+const dateSeparatorInsertedAt = (
+  expectedWhere: any,
+  messages: any,
+  newMessageList: any,
+  unread?: any,
+) => {
   if (!expectedWhere) {
     throw new Error('Missing "where"');
   }
@@ -59,8 +63,8 @@ const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread
   const midDateMsg = makeDateSeparator(messages[1]);
 
   if (unread) {
-    startDateMsg.unread = unread;
-    midDateMsg.unread = unread;
+    (startDateMsg as any).unread = unread;
+    (midDateMsg as any).unread = unread;
   }
 
   // beginning + mid
@@ -123,7 +127,7 @@ describe('processMessages', () => {
   describe('date separator', () => {
     it('is disabled by default', () => {
       const { messages, newMessageList } = runMessageProcessing(msgCreationDatesSameDay);
-      dateSeparatorInsertedAt([], messages, newMessageList);
+      dateSeparatorInsertedAt([] as any, messages, newMessageList);
     });
 
     describe('inserted at the beginning only', () => {
@@ -415,7 +419,7 @@ describe('processMessages', () => {
       msgCreationDatesDifferentDay,
       enableDateSeparatorParams,
     );
-    const customMessages = newMessageList.filter((m) =>
+    const customMessages = newMessageList.filter((m: any) =>
       Object.values(CUSTOM_MESSAGE_TYPE).includes(m.customType),
     );
     const customMsgIDs = customMessages.map((m) => m.id);
@@ -424,7 +428,7 @@ describe('processMessages', () => {
 
   it('executes reviewProcessedMessage function for each message', () => {
     const msgCount = 5;
-    const messages = Array.from({ length: msgCount }, generateMessage);
+    const messages: any[] = Array.from({ length: msgCount }, generateMessage);
     const reviewProcessedMessage = vi.fn();
     processMessages({
       messages,
@@ -441,14 +445,14 @@ describe('processMessages', () => {
 
 describe('getGroupStyles', () => {
   const user = generateUser();
-  let message;
-  let previousMessage;
-  let nextMessage;
-  let noGroupByUser;
+  let message: any;
+  let previousMessage: any;
+  let nextMessage: any;
+  let noGroupByUser: any;
   beforeEach(() => {
-    message = generateMessage({ created_at: new Date(2), user });
-    previousMessage = generateMessage({ created_at: new Date(1), user });
-    nextMessage = generateMessage({ created_at: new Date(100), user });
+    message = generateMessage({ created_at: new Date(2) as any, user });
+    previousMessage = generateMessage({ created_at: new Date(1) as any, user });
+    nextMessage = generateMessage({ created_at: new Date(100) as any, user });
     noGroupByUser = false;
   });
 

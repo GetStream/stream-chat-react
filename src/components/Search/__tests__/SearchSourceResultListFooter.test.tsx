@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -25,29 +24,29 @@ describe('SearchSourceResultListFooter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useSearchSourceResultsContext.mockReturnValue({
+    vi.mocked(useSearchSourceResultsContext).mockReturnValue({
       searchSource: mockSearchSource,
-    });
+    } as any);
 
-    useComponentContext.mockReturnValue({
+    vi.mocked(useComponentContext).mockReturnValue({
       SearchSourceResultsLoadingIndicator: DefaultLoadingIndicator,
-    });
+    } as any);
 
-    useTranslationContext.mockReturnValue({
-      t: (key) => key,
-    });
+    vi.mocked(useTranslationContext).mockReturnValue({
+      t: (key: any) => key,
+    } as any);
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: false,
-    });
+    } as any);
   });
 
   it('renders loading indicator when isLoading is true', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    });
+    } as any);
 
     render(<SearchSourceResultListFooter />);
 
@@ -56,10 +55,10 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('renders "All results loaded" message when hasNext is false', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    });
+    } as any);
 
     render(<SearchSourceResultListFooter />);
 
@@ -68,10 +67,10 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('renders only the footer wrapper when not loading and has more results', () => {
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: false,
-    });
+    } as any);
 
     render(<SearchSourceResultListFooter />);
 
@@ -85,14 +84,14 @@ describe('SearchSourceResultListFooter', () => {
       <div data-testid='custom-loading-indicator'>Custom Loading...</div>
     );
 
-    useComponentContext.mockReturnValue({
+    vi.mocked(useComponentContext).mockReturnValue({
       SearchSourceResultsLoadingIndicator: CustomLoadingIndicator,
-    });
+    } as any);
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    });
+    } as any);
 
     render(<SearchSourceResultListFooter />);
 
@@ -101,13 +100,13 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('translates "All results loaded" message', () => {
-    const mockTranslate = vi.fn((key) => `Translated ${key}`);
-    useTranslationContext.mockReturnValue({ t: mockTranslate });
+    const mockTranslate = vi.fn((key: any) => `Translated ${key}`);
+    vi.mocked(useTranslationContext).mockReturnValue({ t: mockTranslate } as any);
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    });
+    } as any);
 
     render(<SearchSourceResultListFooter />);
 
@@ -118,18 +117,18 @@ describe('SearchSourceResultListFooter', () => {
   it('handles state updates correctly', () => {
     const { rerender } = render(<SearchSourceResultListFooter />);
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
       isLoading: false,
-    });
+    } as any);
 
     rerender(<SearchSourceResultListFooter />);
     expect(screen.getByText('All results loaded')).toBeInTheDocument();
 
-    useStateStore.mockReturnValue({
+    vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: true,
-    });
+    } as any);
 
     rerender(<SearchSourceResultListFooter />);
     expect(screen.getByTestId('default-loading-indicator')).toBeInTheDocument();
