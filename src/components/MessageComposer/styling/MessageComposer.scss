@@ -188,14 +188,16 @@
         height: 100%;
         display: flex;
         align-items: flex-end;
+        flex: 0 0 auto;
+        align-self: flex-end;
       }
     }
 
     .str-chat__message-composer-controls__text-composition-controls__text {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      display: flex;
       align-items: center;
       width: 100%;
+      min-width: 0;
       gap: var(--spacing-xxs);
     }
 
@@ -224,6 +226,7 @@
       position: relative;
       display: flex;
       align-items: center;
+      width: 100%;
 
       textarea {
         @include utils.component-layer-overrides('message-textarea');
