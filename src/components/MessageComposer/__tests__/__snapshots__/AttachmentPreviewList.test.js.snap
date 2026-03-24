@@ -14,7 +14,6 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
         data-testid="attachment-preview-list"
       >
         <div
-          aria-label="Download attachment"
           class="str-chat__attachment-preview-media str-chat__attachment-preview-media--uploading"
           data-testid="attachment-preview-media"
           tabindex="-1"
@@ -92,7 +91,6 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
           </button>
         </div>
         <div
-          aria-label="Download attachment"
           class="str-chat__attachment-preview-media str-chat__attachment-preview-media--uploading"
           data-testid="attachment-preview-media"
           tabindex="-1"

@@ -1,4 +1,4 @@
-import React, { type ComponentType, useMemo } from 'react';
+import React, { type ComponentType, useCallback, useMemo, useRef, useState } from 'react';
 import {
   isLocalAttachment,
   isLocalAudioAttachment,
@@ -24,6 +24,10 @@ import {
   MediaAttachmentPreview,
   type MediaAttachmentPreviewProps,
 } from './MediaAttachmentPreview';
+import { toBaseImageDescriptors } from '../../BaseImage';
+import { Gallery } from '../../Gallery';
+import { GlobalModal } from '../../Modal';
+import { useComponentContext } from '../../../context';
 
 export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?:
@@ -43,12 +47,35 @@ export const AttachmentPreviewList = ({
   VideoAttachmentPreview = MediaAttachmentPreview,
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposerController();
+  const { Modal = GlobalModal } = useComponentContext();
+  const [showPreview, setShowPreview] = useState(false);
+  const initialIndexRef = useRef(0);
 
   const { attachments } = useAttachmentsForPreview();
   const filteredAttachments = useMemo(
     () => attachments.filter((a) => !isVoiceRecordingAttachment(a)),
     [attachments],
   );
+
+  const { galleryItems, previewIndexById } = useMemo(() => {
+    const items: NonNullable<ReturnType<typeof toBaseImageDescriptors>>[] = [];
+    const indexById: Record<string, number> = {};
+    for (const a of attachments) {
+      if (isLocalImageAttachment(a) || isLocalVideoAttachment(a)) {
+        const descriptor = toBaseImageDescriptors(a);
+        if (descriptor) {
+          indexById[a.localMetadata.id] = items.length;
+          items.push(descriptor);
+        }
+      }
+    }
+    return { galleryItems: items, previewIndexById: indexById };
+  }, [attachments]);
+
+  const openPreviewAtIndex = useCallback((index: number) => {
+    initialIndexRef.current = index;
+    setShowPreview(true);
+  }, []);
 
   if (!filteredAttachments.length) return null;
 
@@ -76,6 +103,9 @@ export const AttachmentPreviewList = ({
               attachment={attachment}
               handleRetry={messageComposer.attachmentManager.uploadAttachment}
               key={attachment.localMetadata.id || attachment.asset_url}
+              openPreview={() =>
+                openPreviewAtIndex(previewIndexById[attachment.localMetadata.id] ?? 0)
+              }
               removeAttachments={messageComposer.attachmentManager.removeAttachments}
             />
           );
@@ -85,6 +115,9 @@ export const AttachmentPreviewList = ({
               attachment={attachment}
               handleRetry={messageComposer.attachmentManager.uploadAttachment}
               key={attachment.localMetadata.id || attachment.image_url}
+              openPreview={() =>
+                openPreviewAtIndex(previewIndexById[attachment.localMetadata.id] ?? 0)
+              }
               removeAttachments={messageComposer.attachmentManager.removeAttachments}
             />
           );
@@ -109,6 +142,15 @@ export const AttachmentPreviewList = ({
         }
         return null;
       })}
+      {galleryItems.length > 0 && (
+        <Modal
+          className='str-chat__gallery-modal'
+          onClose={() => setShowPreview(false)}
+          open={showPreview}
+        >
+          <Gallery initialIndex={initialIndexRef.current} items={galleryItems} />
+        </Modal>
+      )}
     </div>
   );
 };
