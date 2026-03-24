@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { ErrorFromResponse, SearchController } from 'stream-chat';
+import type { Channel as ChannelType, MessageResponse, UserResponse } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { Channel } from '../Channel';
@@ -39,7 +40,7 @@ vi.mock('../../Loading', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<Record<string, unknown>>();
 
   return {
     ...actual,
@@ -98,7 +99,7 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
 };
 
 // In order for ChannelInner to be rendered, we need to set the active channel first.
-const ActiveChannelSetter = ({ activeChannel }: any) => {
+const ActiveChannelSetter = ({ activeChannel }: { activeChannel?: ChannelType }) => {
   const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
@@ -106,7 +107,10 @@ const ActiveChannelSetter = ({ activeChannel }: any) => {
   return null;
 };
 
-const renderComponent = async (props: any = {}, callback: any = () => {}) => {
+const renderComponent = async (
+  props: Record<string, any> = {},
+  callback: (ctx: Record<string, any>) => void = () => {},
+) => {
   const {
     channel: channelFromProps,
     chatClient: chatClientFromProps,
@@ -137,7 +141,13 @@ const initClient = async ({
   messages,
   pinnedMessages,
   user,
-}: any) => {
+}: {
+  channelId?: string;
+  channelType?: string;
+  messages?: MessageResponse[];
+  pinnedMessages?: MessageResponse[];
+  user: UserResponse;
+}) => {
   const members = [generateMember({ user })];
   const mockedChannel = generateChannel({
     channel: {
@@ -166,8 +176,8 @@ const MockMessageList = () => {
   );
 };
 
-const getMessageIds = (renderedMessages: any[] = []) =>
-  renderedMessages.map(({ id }: any) => id);
+const getMessageIds = (renderedMessages: { id: string }[] = []) =>
+  renderedMessages.map(({ id }) => id);
 
 describe('Channel', () => {
   const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' } as any);
@@ -1264,7 +1274,12 @@ describe('Channel', () => {
         currentMsgSet,
         loadScenario,
         ownReadState,
-      }: any) => {
+      }: {
+        channelQueryResolvedValue?: MessageResponse[];
+        currentMsgSet: MessageResponse[];
+        loadScenario: string;
+        ownReadState: Record<string, unknown>;
+      }) => {
         const {
           channels: [channel],
           client: chatClient,

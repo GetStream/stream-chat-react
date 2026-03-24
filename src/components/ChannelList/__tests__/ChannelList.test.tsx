@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { SearchController } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
@@ -781,7 +782,10 @@ describe('ChannelList', () => {
         ]);
       });
 
-      const renderComponents = async (chatContext = {}, channeListProps?: any) =>
+      const renderComponents = async (
+        chatContext = {},
+        channeListProps?: Record<string, any>,
+      ) =>
         await act(
           async () =>
             await render(
@@ -1900,7 +1904,7 @@ describe('ChannelList', () => {
       queryChannelsMock.mockClear();
     });
 
-    const renderUI = (client: any, channelListProps?: any) =>
+    const renderUI = (client: StreamChat, channelListProps?: Record<string, any>) =>
       render(
         <Chat client={client}>
           <ChannelList filters={{}} options={{ limit: 2 }} {...channelListProps} />

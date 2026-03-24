@@ -22,6 +22,8 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import type { ChannelHeaderProps } from '../ChannelHeader';
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
@@ -37,7 +39,15 @@ const defaultChannelState = {
 
 const t = vi.fn((key) => key);
 
-const renderComponentBase = ({ channel, client, props }: any) =>
+const renderComponentBase = ({
+  channel,
+  client,
+  props,
+}: {
+  channel: ChannelType;
+  client: StreamChat;
+  props?: ChannelHeaderProps;
+}) =>
   render(
     <ChatProvider value={mockChatContext({ channel, client })}>
       <ChannelStateProvider value={mockChannelStateContext({ channel })}>
@@ -52,7 +62,11 @@ async function renderComponent({
   channelData,
   channelType = 'messaging',
   props,
-}: any = {}) {
+}: {
+  channelData?: Record<string, unknown>;
+  channelType?: string;
+  props?: ChannelHeaderProps;
+} = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
@@ -183,7 +197,7 @@ describe('ChannelHeader', () => {
       expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument(),
     );
     act(() => {
-      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute } as any);
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
     });
     await waitFor(() =>
       expect(screen.queryAllByText(updatedAttribute.name).length).toBeGreaterThan(0),
@@ -198,7 +212,7 @@ describe('ChannelHeader', () => {
       expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
     });
     act(() => {
-      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute } as any);
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
     });
     await waitFor(() =>
       expect(screen.getByTestId('avatar-img')).toHaveAttribute(
@@ -213,7 +227,10 @@ describe('ChannelHeader', () => {
       Avatar: ChannelAvatar,
     };
 
-    const getChannelState = (memberCount: number, channelData?: any) => {
+    const getChannelState = (
+      memberCount: number,
+      channelData?: Record<string, unknown>,
+    ) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
@@ -264,7 +281,7 @@ describe('ChannelHeader', () => {
           expect(screen.getByText(channelName)).toBeInTheDocument();
         });
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute } as any);
+          dispatchUserUpdatedEvent(client, { ...user, ...updatedAttribute });
         });
         await waitFor(() => {
           expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument();
@@ -299,7 +316,7 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
+        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute });
       });
 
       await waitFor(() => {
@@ -343,7 +360,7 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
+        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute });
       });
 
       await waitFor(() => {
