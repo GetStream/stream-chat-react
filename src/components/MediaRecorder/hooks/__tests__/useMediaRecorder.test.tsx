@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { act, renderHook } from '@testing-library/react';
 import React from 'react';
 import { useMediaRecorder } from '../useMediaRecorder';
@@ -12,14 +11,14 @@ import {
 import { Chat } from '../../../Chat';
 import { Channel } from '../../../Channel';
 
-window.MediaRecorder = MediaRecorderMock;
+window.MediaRecorder = MediaRecorderMock as any;
 
 const handleSubmit = vi.fn();
 
 const defaultMockPermissionState = 'prompt';
 const status = new EventEmitterMock();
-status.state = defaultMockPermissionState;
-window.navigator.permissions = {
+(status as any).state = defaultMockPermissionState;
+(window.navigator as any).permissions = {
   query: vi.fn().mockResolvedValue(status),
 };
 
@@ -35,9 +34,12 @@ const render = async (params = {}) => {
   );
   let result;
   await act(async () => {
-    result = await renderHook(() => useMediaRecorder({ enabled: true, ...params }), {
-      wrapper,
-    });
+    result = await renderHook(
+      () => useMediaRecorder({ enabled: true, ...params } as any),
+      {
+        wrapper,
+      },
+    );
   });
   return { channel, ...result };
 };

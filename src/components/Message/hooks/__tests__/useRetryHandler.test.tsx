@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -9,9 +8,11 @@ import { generateMessage } from '../../../../mock-builders';
 
 const retrySendMessage = vi.fn();
 
-function renderUseRetryHandlerHook(customRetrySendMessage) {
-  const wrapper = ({ children }) => (
-    <ChannelActionProvider value={{ retrySendMessage }}>{children}</ChannelActionProvider>
+function renderUseRetryHandlerHook(customRetrySendMessage?: any) {
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ChannelActionProvider value={{ retrySendMessage } as any}>
+      {children}
+    </ChannelActionProvider>
   );
 
   const { result } = renderHook(() => useRetryHandler(customRetrySendMessage), {
@@ -31,7 +32,7 @@ describe('useReactionHandler custom hook', () => {
   it('should retry send message when called', () => {
     const handleRetry = renderUseRetryHandlerHook();
     const message = generateMessage();
-    handleRetry(message);
+    handleRetry(message as any);
     expect(retrySendMessage).toHaveBeenCalledWith(message);
   });
 
@@ -39,7 +40,7 @@ describe('useReactionHandler custom hook', () => {
     const customRetrySendMessage = vi.fn();
     const handleRetry = renderUseRetryHandlerHook(customRetrySendMessage);
     const message = generateMessage();
-    handleRetry(message);
+    handleRetry(message as any);
     expect(retrySendMessage).not.toHaveBeenCalled();
     expect(customRetrySendMessage).toHaveBeenCalledWith(message);
   });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -13,11 +12,13 @@ const mouseEventMock = {
 };
 
 function renderUseOpenThreadHandlerHook(
-  message = generateMessage(),
-  openThread = openThreadMock,
+  message: any = generateMessage(),
+  openThread: any = openThreadMock,
 ) {
-  const wrapper = ({ children }) => (
-    <ChannelActionProvider value={{ openThread }}>{children}</ChannelActionProvider>
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ChannelActionProvider value={{ openThread } as any}>
+      {children}
+    </ChannelActionProvider>
   );
 
   const { result } = renderHook(() => useOpenThreadHandler(message), { wrapper });
@@ -35,21 +36,21 @@ describe('useOpenThreadHandler custom hook', () => {
   it('should allow user to open a thread', () => {
     const message = generateMessage();
     const handleOpenThread = renderUseOpenThreadHandlerHook(message);
-    handleOpenThread(mouseEventMock);
+    handleOpenThread(mouseEventMock as any);
     expect(openThreadMock).toHaveBeenCalledWith(message, mouseEventMock);
   });
 
   it('should warn user if it is called without a message', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => {});
     const handleOpenThread = renderUseOpenThreadHandlerHook(null);
-    handleOpenThread(mouseEventMock);
+    handleOpenThread(mouseEventMock as any);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
 
   it('should warn user if it open thread is not defined in the channel context', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => {});
     const handleOpenThread = renderUseOpenThreadHandlerHook(generateMessage(), null);
-    handleOpenThread(mouseEventMock);
+    handleOpenThread(mouseEventMock as any);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
 
@@ -57,7 +58,7 @@ describe('useOpenThreadHandler custom hook', () => {
     const message = generateMessage();
     const customThreadHandler = vi.fn();
     const handleOpenThread = renderUseOpenThreadHandlerHook(message, customThreadHandler);
-    handleOpenThread(mouseEventMock);
+    handleOpenThread(mouseEventMock as any);
     expect(customThreadHandler).toHaveBeenCalledWith(message, mouseEventMock);
     expect(openThreadMock).not.toHaveBeenCalled();
   });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -34,10 +33,10 @@ vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
 });
 
 const originalConsoleError = console.error;
-vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg) => {
+vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg: any[]) => {
   const msg = Array.isArray(errorOrTextorArg)
     ? errorOrTextorArg[0]
-    : (errorOrTextorArg.message ?? errorOrTextorArg);
+    : ((errorOrTextorArg as any).message ?? errorOrTextorArg);
   if (msg.match('Not implemented')) return;
   originalConsoleError(...errorOrTextorArg);
 });
@@ -80,7 +79,9 @@ describe('Audio', () => {
   beforeEach(() => {
     // jsdom doesn't define these, so mock them instead
     // see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement#Methods
-    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+      Promise.resolve(),
+    );
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
     vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
   });
@@ -97,7 +98,9 @@ describe('Audio', () => {
     });
 
     expect(getByText(audioAttachment.title)).toBeInTheDocument();
-    expect(getByText(prettifyFileSize(audioAttachment.file_size))).toBeInTheDocument();
+    expect(
+      getByText(prettifyFileSize(audioAttachment.file_size as number)),
+    ).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
@@ -119,7 +122,7 @@ describe('Audio', () => {
     const { getByTestId } = renderComponent({ og: audioAttachment });
     await clickToPlay();
     vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockImplementationOnce(
-      () => ({ width: 120, x: 0 }),
+      () => ({ width: 120, x: 0 }) as any,
     );
 
     vi.spyOn(HTMLAudioElement.prototype, 'currentTime', 'set').mockImplementationOnce(
@@ -266,10 +269,10 @@ describe('Audio', () => {
     const message = generateMessage();
     render(
       <WithAudioPlayback allowConcurrentPlayback>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true }}>
+        <MessageProvider value={{ message, threadList: true } as any}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,
@@ -288,10 +291,10 @@ describe('Audio', () => {
     const message = generateMessage();
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={{ message }}>
+        <MessageProvider value={{ message } as any}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,

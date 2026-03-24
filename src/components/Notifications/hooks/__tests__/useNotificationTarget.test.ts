@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -45,13 +44,13 @@ const chatViewWrapper = (activeChatView) => {
 
 describe('useNotificationTarget', () => {
   beforeEach(() => {
-    mockedUseChannelListContext.mockReturnValue({});
-    mockedUseChannelStateContext.mockReturnValue({});
+    mockedUseChannelListContext.mockReturnValue({} as any);
+    mockedUseChannelStateContext.mockReturnValue({} as any);
     mockedUseChatViewContext.mockReturnValue({
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
     });
-    mockedUseLegacyThreadContext.mockReturnValue({});
+    mockedUseLegacyThreadContext.mockReturnValue({} as any);
     mockedUseThreadContext.mockReturnValue(undefined);
   });
 
@@ -63,7 +62,7 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns channel when channel context exists', () => {
-    mockedUseChannelStateContext.mockReturnValue({ channel: {} });
+    mockedUseChannelStateContext.mockReturnValue({ channel: {} } as any);
 
     const { result } = renderHook(() => useNotificationTarget());
 
@@ -71,7 +70,7 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns thread when thread context exists', () => {
-    mockedUseThreadContext.mockReturnValue({});
+    mockedUseThreadContext.mockReturnValue({} as any);
 
     const { result } = renderHook(() => useNotificationTarget());
 
@@ -83,7 +82,7 @@ describe('useNotificationTarget', () => {
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
     });
-    mockedUseChannelListContext.mockReturnValue({ channels: [] });
+    mockedUseChannelListContext.mockReturnValue({ channels: [] } as any);
 
     const { result } = renderHook(() => useNotificationTarget(), {
       wrapper: chatViewWrapper('channels'),

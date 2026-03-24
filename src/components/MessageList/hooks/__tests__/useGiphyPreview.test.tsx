@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
@@ -21,8 +20,8 @@ const ownNonGiphyMessage = generateMessage({ user: me });
 const foreignNonGiphyMessage = generateMessage({ user: otherUser });
 
 const render = ({ client, separateGiphyPreview }) => {
-  const wrapper = ({ children }) => (
-    <ChatProvider value={{ client }}>{children}</ChatProvider>
+  const wrapper = ({ children }: any) => (
+    <ChatProvider value={{ client } as any}>{children}</ChatProvider>
   );
   return renderHook(() => useGiphyPreview(separateGiphyPreview), { wrapper });
 };
@@ -45,7 +44,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -58,7 +57,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -71,7 +70,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -84,7 +83,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {

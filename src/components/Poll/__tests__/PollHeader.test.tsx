@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render } from '@testing-library/react';
 import { PollHeader } from '../PollHeader';
@@ -9,11 +8,11 @@ import { generatePoll } from '../../../mock-builders';
 const TITLE_SELECTOR = '.str-chat__poll-title';
 const SUBTITLE_SELECTOR = '.str-chat__poll-subtitle';
 
-const t = (v) => v;
+const t = ((v: string) => v) as any;
 
 const renderComponent = ({ poll }) =>
   render(
-    <TranslationProvider value={{ t }}>
+    <TranslationProvider value={{ t } as any}>
       <PollProvider poll={poll}>
         <PollHeader />
       </PollProvider>
@@ -24,7 +23,7 @@ describe('PollHeader', () => {
   it('should not render if poll name is missing', () => {
     const pollData = generatePoll({ name: '' });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     expect(container).toBeEmptyDOMElement();
   });
@@ -32,7 +31,7 @@ describe('PollHeader', () => {
   it('should render vote ended header', () => {
     const pollData = generatePoll({ is_closed: true });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -43,7 +42,7 @@ describe('PollHeader', () => {
   it('should render select one header', () => {
     const pollData = generatePoll({ enforce_unique_vote: true });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -54,7 +53,7 @@ describe('PollHeader', () => {
   it('should render Select up to {{count}} header', () => {
     const pollData = generatePoll({ max_votes_allowed: 2 });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -65,7 +64,7 @@ describe('PollHeader', () => {
   it('should render Select one or more header', () => {
     const pollData = generatePoll({ max_votes_allowed: undefined });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -84,7 +83,7 @@ describe('PollHeader', () => {
       ],
     });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
@@ -95,7 +94,7 @@ describe('PollHeader', () => {
   it('should render no header text if no options available', () => {
     const pollData = generatePoll({ max_votes_allowed: undefined, options: [] });
     const { container } = renderComponent({
-      poll: new Poll({ client: {}, poll: pollData }),
+      poll: new Poll({ client: {} as any, poll: pollData }),
     });
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);

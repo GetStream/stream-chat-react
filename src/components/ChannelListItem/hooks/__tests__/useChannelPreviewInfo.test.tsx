@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 
@@ -39,12 +38,16 @@ const createWrapper = (client) =>
   function Wrapper({ children }) {
     return (
       <ChatContext.Provider
-        value={{
-          client,
-          theme: 'messaging light',
-        }}
+        value={
+          {
+            client,
+            theme: 'messaging light',
+          } as any
+        }
       >
-        <TranslationProvider value={{ t: (key) => key }}>{children}</TranslationProvider>
+        <TranslationProvider value={{ t: (key: string) => key } as any}>
+          {children}
+        </TranslationProvider>
       </ChatContext.Provider>
     );
   };
@@ -175,7 +178,7 @@ describe('useChannelPreviewInfo', () => {
       expect(updateInfo).toBeDefined();
 
       act(() => {
-        updateInfo();
+        (updateInfo as any)();
       });
 
       expect(result.current.displayImage).toBe(imageUrl);

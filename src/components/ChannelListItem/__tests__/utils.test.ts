@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { nanoid } from 'nanoid';
@@ -43,13 +42,13 @@ describe('ChannelPreview utils', () => {
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
     const channelWithDeletedMessage = generateChannel({
-      messages: [generateMessage({ deleted_at: new Date() })],
+      messages: [generateMessage({ deleted_at: new Date().toISOString() })],
     });
     const channelWithLocationMessage = generateChannel({
       messages: [
         generateMessage({
           attachments: [],
-          shared_location: generateStaticLocationResponse(),
+          shared_location: generateStaticLocationResponse({}),
           text: '',
         }),
       ],
@@ -57,7 +56,7 @@ describe('ChannelPreview utils', () => {
     const channelWithAttachmentMessage = generateChannel({
       messages: [
         generateMessage({
-          attachments: [generateImageAttachment()],
+          attachments: [generateImageAttachment({})],
           text: undefined,
         }),
       ],
@@ -65,7 +64,7 @@ describe('ChannelPreview utils', () => {
     const channelWithHTMLInMessage = generateChannel({
       messages: [
         generateMessage({
-          attachments: [generateImageAttachment()],
+          attachments: [generateImageAttachment({})],
           text:
             '<h1>Hello, world!</h1> \n' +
             '<p>This is my first web page.</p> \n' +
@@ -92,14 +91,14 @@ describe('ChannelPreview utils', () => {
         channelWithHTMLInMessage,
       ],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
-      const t = (text) => text;
+      const t = ((text: string) => text) as any;
       const channel = await getQueriedChannelInstance(c);
       const preview = getLatestMessagePreview(channel, t);
       if (isReactMarkdownElement(preview)) {
         const { container } = render(preview);
         expect(container).toHaveTextContent(expectedValue);
       } else {
-        expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
+        expect(getLatestMessagePreview(channel, t as any)).toBe(expectedValue);
       }
     });
   });

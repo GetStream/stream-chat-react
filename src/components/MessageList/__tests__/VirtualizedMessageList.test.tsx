@@ -1,5 +1,3 @@
-// @ts-nocheck
-// @ts-nocheck
 import React, { act } from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { nanoid } from 'nanoid';
@@ -24,7 +22,7 @@ vi.mock('react-virtuoso', async () => {
   const { Virtuoso } = await import('react-virtuoso');
   const { forwardRef } = await import('react');
   return {
-    Virtuoso: forwardRef((props, ref) => (
+    Virtuoso: forwardRef((props: any, ref: any) => (
       <Virtuoso
         ref={ref}
         {...props}
@@ -37,12 +35,12 @@ vi.mock('react-virtuoso', async () => {
 });
 
 vi.mock('../../Loading', async (importOriginal) => ({
-  ...(await importOriginal()),
+  ...((await importOriginal()) as any),
   LoadingIndicator: vi.fn(() => <div>LoadingIndicator</div>),
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -74,7 +72,7 @@ async function createChannel(empty = false) {
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', mockedChannel.id);
+  const channel = client.channel('messaging', mockedChannel.channel.id);
   await channel.watch();
 
   return { channel, client };
@@ -105,7 +103,7 @@ describe('VirtualizedMessageList', () => {
 
 describe('usePrependedMessagesCount', () => {
   const TestCase = ({ messages }) => {
-    const prependCount = usePrependedMessagesCount(messages);
+    const prependCount = usePrependedMessagesCount(messages, false);
     return <div data-prepend-count={prependCount} id='prepend-counter' />;
   };
 

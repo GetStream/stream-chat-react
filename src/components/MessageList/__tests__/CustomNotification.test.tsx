@@ -1,5 +1,3 @@
-// @ts-nocheck
-// @ts-nocheck
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
@@ -11,14 +9,18 @@ afterEach(cleanup);
 describe('CustomNotification', () => {
   it('should render nothing if active is false', () => {
     const { container } = render(
-      <CustomNotification active={false}>test</CustomNotification>,
+      <CustomNotification active={false} type={undefined as any}>
+        test
+      </CustomNotification>,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should render children when active', () => {
     const { container } = render(
-      <CustomNotification active={true}>children</CustomNotification>,
+      <CustomNotification active={true} type={undefined as any}>
+        children
+      </CustomNotification>,
     );
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -49,7 +51,7 @@ describe('CustomNotification', () => {
     const className = 'custom-classname-xxx';
 
     const { getByTestId } = render(
-      <CustomNotification active={true} className={className}>
+      <CustomNotification active={true} className={className} type={undefined as any}>
         x
       </CustomNotification>,
     );

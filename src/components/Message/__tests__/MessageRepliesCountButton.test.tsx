@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
@@ -8,12 +7,12 @@ const onClickMock = vi.fn();
 const defaultSingularText = '1 reply';
 const defaultPluralText = '2 replies';
 
-const i18nMock = (key, { count }) =>
-  count > 1 ? defaultPluralText : defaultSingularText;
+const i18nMock = ((key: string, { count }: { count: number }) =>
+  count > 1 ? defaultPluralText : defaultSingularText) as any;
 
-const renderComponent = (props, channelStateCtx) =>
+const renderComponent = (props: any, channelStateCtx?: any) =>
   render(
-    <TranslationProvider value={{ t: i18nMock }}>
+    <TranslationProvider value={{ t: i18nMock } as any}>
       <ChannelStateProvider
         value={{ channelCapabilities: { 'send-reply': true }, ...channelStateCtx }}
       >

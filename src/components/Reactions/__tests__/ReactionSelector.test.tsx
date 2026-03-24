@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
@@ -13,13 +12,13 @@ import { generateMessage, generateReaction } from '../../../mock-builders';
 
 const handleReactionMock = vi.fn();
 
-const renderComponent = ({ reactionOptions, ...props } = {}) =>
+const renderComponent = ({ reactionOptions, ...props }: any = {}) =>
   render(
     <DialogManagerProvider>
       <ComponentProvider
         value={{ reactionOptions: reactionOptions ?? defaultReactionOptions }}
       >
-        <MessageProvider value={{ message: generateMessage() }}>
+        <MessageProvider value={{ message: generateMessage() } as any}>
           <ReactionSelector handleReaction={handleReactionMock} {...props} />
         </MessageProvider>
       </ComponentProvider>

@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 
 import { ChatProvider, TranslationProvider } from '../../../context';
 import { getTestClientWithUser } from '../../../mock-builders';
@@ -10,7 +10,9 @@ vi.mock('../../Threads', async () => {
   const React = await import('react');
 
   return {
-    ThreadProvider: ({ children }) => <div data-testid='thread-provider'>{children}</div>,
+    ThreadProvider: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid='thread-provider'>{children}</div>
+    ),
   };
 });
 
@@ -24,7 +26,7 @@ const ActivateThreadsView = () => {
   return null;
 };
 
-const renderComponent = async (threadManagerState) => {
+const renderComponent = async (threadManagerState: any) => {
   const client = await getTestClientWithUser();
   const currentThreadManagerState = client.threads.state.getLatestValue();
 
@@ -40,14 +42,14 @@ const renderComponent = async (threadManagerState) => {
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: {},
+        channelsQueryState: {} as any,
         client,
         closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
         openMobileNav: vi.fn(),
-        searchController: {},
+        searchController: {} as any,
         setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
@@ -55,7 +57,7 @@ const renderComponent = async (threadManagerState) => {
     >
       <TranslationProvider
         value={{
-          t: (key) => key,
+          t: ((key: string) => key) as any,
           tDateTimeParser: vi.fn(),
           userLanguage: 'en',
         }}
@@ -74,20 +76,20 @@ const renderComponent = async (threadManagerState) => {
   );
 };
 
-const renderSelector = async (selectorProps) => {
+const renderSelector = async (selectorProps?: any) => {
   const client = await getTestClientWithUser();
 
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: {},
+        channelsQueryState: {} as any,
         client,
         closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
         openMobileNav: vi.fn(),
-        searchController: {},
+        searchController: {} as any,
         setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
@@ -95,7 +97,7 @@ const renderSelector = async (selectorProps) => {
     >
       <TranslationProvider
         value={{
-          t: (key) => key,
+          t: ((key: string) => key) as any,
           tDateTimeParser: vi.fn(),
           userLanguage: 'en',
         }}

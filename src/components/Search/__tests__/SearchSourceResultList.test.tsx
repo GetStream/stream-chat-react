@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -60,21 +59,21 @@ describe('SearchSourceResultList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useSearchSourceResultsContext.mockReturnValue({
+    (useSearchSourceResultsContext as any).mockReturnValue({
       searchSource: mockSearchSource,
     });
 
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchSourceResultListFooter: MockFooter,
     });
 
-    useStateStore.mockReturnValue({
+    (useStateStore as any).mockReturnValue({
       items: mockItems,
     });
   });
 
   it('renders nothing when SearchResultItem is not found for source type', () => {
-    useSearchSourceResultsContext.mockReturnValue({
+    (useSearchSourceResultsContext as any).mockReturnValue({
       searchSource: { ...mockSearchSource, type: 'unknown' },
     });
 
@@ -134,7 +133,7 @@ describe('SearchSourceResultList', () => {
   });
 
   it('handles empty items array', () => {
-    useStateStore.mockReturnValue({ items: [] });
+    (useStateStore as any).mockReturnValue({ items: [] });
 
     render(<SearchSourceResultList SearchResultItems={DefaultSearchResultItems} />);
 
@@ -161,7 +160,7 @@ describe('SearchSourceResultList', () => {
 
   it('uses custom footer component when provided through context', () => {
     const CustomFooter = () => <div data-testid='custom-footer'>Custom Footer</div>;
-    useComponentContext.mockReturnValue({
+    (useComponentContext as any).mockReturnValue({
       SearchSourceResultListFooter: CustomFooter,
     });
 

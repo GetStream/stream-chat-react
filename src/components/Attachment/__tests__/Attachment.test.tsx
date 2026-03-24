@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
@@ -57,7 +56,7 @@ const ATTACHMENTS = {
 
 const renderComponent = (props) =>
   render(
-    <ChannelStateProvider value={{}}>
+    <ChannelStateProvider value={{} as any}>
       <Attachment
         AttachmentActions={AttachmentActions}
         Audio={Audio}
@@ -259,13 +258,13 @@ describe('attachment', () => {
   });
 
   it('renders shared location with Geolocation attachment', () => {
-    renderComponent({ attachments: [generateLiveLocationResponse()] });
+    renderComponent({ attachments: [generateLiveLocationResponse({})] });
     waitFor(() => {
-      expect(screen.getByTestId(testId)).toBeInTheDocument();
+      expect(screen.getByTestId('geolocation-attachment')).toBeInTheDocument();
     });
-    renderComponent({ attachments: [generateStaticLocationResponse()] });
+    renderComponent({ attachments: [generateStaticLocationResponse({})] });
     waitFor(() => {
-      expect(screen.getByTestId(testId)).toBeInTheDocument();
+      expect(screen.getByTestId('geolocation-attachment')).toBeInTheDocument();
     });
   });
 

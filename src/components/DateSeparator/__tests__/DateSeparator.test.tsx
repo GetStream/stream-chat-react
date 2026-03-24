@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 import { act, cleanup, render, screen } from '@testing-library/react';
@@ -15,7 +14,7 @@ const dateMock = 'the date';
 const date = new Date('2020-03-30T22:57:47.173Z');
 const formatDate = () => dateMock;
 
-const renderComponent = async ({ chatProps, props }) => {
+const renderComponent = async ({ chatProps, props }: any) => {
   let result;
   await act(() => {
     result = render(
@@ -170,7 +169,7 @@ describe('DateSeparator', () => {
   });
 
   describe('Position prop', () => {
-    const renderWithPosition = (position) => (
+    const renderWithPosition = (position?: any) => (
       <DateSeparator date={date} formatDate={formatDate} position={position} />
     );
 

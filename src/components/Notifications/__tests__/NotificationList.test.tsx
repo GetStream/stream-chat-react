@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
@@ -115,14 +114,14 @@ describe('NotificationList', () => {
     currentNotifications = [...notifications];
     mockedUseChatContext.mockReturnValue({
       client: { notifications: { clearTimeout, remove, startTimeout } },
-    });
+    } as any);
     remove.mockImplementation((id: string) => {
       currentNotifications = currentNotifications.filter(
         (notification) => notification.id !== id,
       );
     });
     mockedUseNotifications.mockImplementation(() => currentNotifications);
-    window.IntersectionObserver = IntersectionObserverMock;
+    window.IntersectionObserver = IntersectionObserverMock as any;
   });
 
   afterEach(() => {
@@ -132,7 +131,7 @@ describe('NotificationList', () => {
     startTimeout.mockReset();
     mockedUseChatContext.mockReset();
     mockedUseNotifications.mockReset();
-    delete (window as Partial<Window>).IntersectionObserver;
+    delete (window as any).IntersectionObserver;
   });
 
   it('starts a timeout only when a notification first intersects the scroll container', () => {
@@ -161,7 +160,7 @@ describe('NotificationList', () => {
   });
 
   it('starts timeouts immediately when IntersectionObserver is not available', () => {
-    delete (window as Partial<Window>).IntersectionObserver;
+    delete (window as any).IntersectionObserver;
 
     render(<NotificationList />);
 

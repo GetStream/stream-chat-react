@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -47,7 +46,7 @@ async function renderUseDeleteHandler(message = testMessage) {
   );
   let rendered;
   await act(async () => {
-    rendered = await renderHook(() => useDeleteHandler(message), { wrapper });
+    rendered = await renderHook(() => useDeleteHandler(message as any), { wrapper });
   });
 
   return rendered.result.current;
@@ -96,7 +95,7 @@ describe('useDeleteHandler custom hook', () => {
     const networkFailedMessage = generateMessage({
       error: { status: 0 },
       status: 'failed',
-    });
+    } as any);
 
     const handleDelete = await renderUseDeleteHandler(networkFailedMessage);
 
@@ -121,9 +120,12 @@ describe('useDeleteHandler custom hook', () => {
       </Chat>
     );
 
-    const { result } = renderHook(() => useDeleteHandler(testMessage, { notify }), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useDeleteHandler(testMessage as any, { notify }),
+      {
+        wrapper,
+      },
+    );
 
     await expect(result.current()).rejects.toThrow('delete failed');
     expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');

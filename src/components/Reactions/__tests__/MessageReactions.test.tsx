@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render } from '@testing-library/react';
 
@@ -13,8 +12,8 @@ import { defaultReactionOptions } from '../reactionOptions';
 
 const USER_ID = 'mark';
 
-const renderComponent = ({ reaction_groups = {}, ...props } = {}) => {
-  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
+const renderComponent = ({ reaction_groups = {}, ...props }: any = {}) => {
+  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]: any) =>
     Array.from({ length: count }, (_, i) =>
       generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
     ),
@@ -24,7 +23,7 @@ const renderComponent = ({ reaction_groups = {}, ...props } = {}) => {
     <DialogManagerProvider>
       <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
         <MessageProvider
-          value={{ isMyMessage: () => false, message: { id: 'test-msg' } }}
+          value={{ isMyMessage: () => false, message: { id: 'test-msg' } } as any}
         >
           <MessageReactions
             reaction_groups={reaction_groups}

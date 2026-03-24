@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { renderHook } from '@testing-library/react';
 import { generateMessage, generateUser } from 'mock-builders';
 import { useUserHandler } from '../useUserHandler';
@@ -7,7 +6,7 @@ const mouseEventMock = {
   preventDefault: vi.fn(() => {}),
 };
 
-function renderUseUserHandlerHook(message = generateMessage(), eventHandlers) {
+function renderUseUserHandlerHook(message: any = generateMessage(), eventHandlers?: any) {
   const { result } = renderHook(() => useUserHandler(message, eventHandlers));
   return result.current;
 }
@@ -29,7 +28,7 @@ describe('useUserHandler custom hook', () => {
     const { onUserClick } = renderUseUserHandlerHook(message, {
       onUserClickHandler: customUserClickHandler,
     });
-    onUserClick(mouseEventMock);
+    onUserClick(mouseEventMock as any);
     expect(customUserClickHandler).toHaveBeenCalledWith(mouseEventMock, user);
   });
 
@@ -40,7 +39,7 @@ describe('useUserHandler custom hook', () => {
     const { onUserHover } = renderUseUserHandlerHook(message, {
       onUserHoverHandler: customUserHoverHandler,
     });
-    onUserHover(mouseEventMock);
+    onUserHover(mouseEventMock as any);
     expect(customUserHoverHandler).toHaveBeenCalledWith(mouseEventMock, user);
   });
 
@@ -48,7 +47,7 @@ describe('useUserHandler custom hook', () => {
     const user = generateUser();
     const message = generateMessage({ user });
     const { onUserClick, onUserHover } = renderUseUserHandlerHook(message);
-    expect(() => onUserClick(mouseEventMock)).not.toThrow();
-    expect(() => onUserHover(mouseEventMock)).not.toThrow();
+    expect(() => onUserClick(mouseEventMock as any)).not.toThrow();
+    expect(() => onUserHover(mouseEventMock as any)).not.toThrow();
   });
 });

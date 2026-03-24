@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
@@ -25,8 +24,8 @@ describe('ChannelPreviewMessenger', () => {
 
   let chatClient;
   let channel;
-  const renderComponent = (props, componentOverrides = {}) => (
-    <ChatProvider value={{ client: chatClient }}>
+  const renderComponent = (props?: any, componentOverrides = {}) => (
+    <ChatProvider value={{ client: chatClient } as any}>
       <DialogManagerProvider>
         <ComponentProvider
           value={{
@@ -89,7 +88,7 @@ describe('ChannelPreviewMessenger', () => {
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });
 
-    const results = await axe(container.firstChild.firstChild);
+    const results = await axe(container.firstChild!.firstChild as Element);
 
     expect(results).toHaveNoViolations();
   });

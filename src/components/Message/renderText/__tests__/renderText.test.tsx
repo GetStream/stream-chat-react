@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
@@ -321,11 +320,9 @@ const multilineWithStrongText = 'This is **the first** line\n\nThis is the secon
 
 describe('keepLineBreaksPlugin', () => {
   const doRenderText = (text, present) => {
-    const Markdown = renderText(
-      text,
-      {},
-      { getRemarkPlugins: () => (present ? [keepLineBreaksPlugin] : []) },
-    );
+    const Markdown = renderText(text, [] as any, {
+      getRemarkPlugins: () => (present ? [keepLineBreaksPlugin] : []),
+    });
     return render(Markdown).container;
   };
 
@@ -421,11 +418,9 @@ describe('htmlToTextPlugin', () => {
   <script>console.error('This error should not be logged from renderText.test.js!')</script>
 </div>
 `;
-    const Markdown = renderText(
-      textWithHtml,
-      {},
-      { getRemarkPlugins: () => (withPlugin ? [htmlToTextPlugin] : []) },
-    );
+    const Markdown = renderText(textWithHtml, [] as any, {
+      getRemarkPlugins: () => (withPlugin ? [htmlToTextPlugin] : []),
+    });
     return render(Markdown).container;
   };
 
@@ -442,11 +437,9 @@ describe('htmlToTextPlugin', () => {
 
 describe('plusPlusToEmphasis', () => {
   const renderTextPlusPlus = (text, withPlugin = true) => {
-    const Markdown = renderText(
-      text,
-      {},
-      { getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []) },
-    );
+    const Markdown = renderText(text, [] as any, {
+      getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []),
+    });
     return render(Markdown).container;
   };
 
@@ -474,11 +467,9 @@ describe('plusPlusToEmphasis', () => {
 
 describe('imageToLink', () => {
   const renderImageToLink = (text, withPlugin = true) => {
-    const Markdown = renderText(
-      text,
-      {},
-      { getRemarkPlugins: () => (withPlugin ? [imageToLink] : []) },
-    );
+    const Markdown = renderText(text, [] as any, {
+      getRemarkPlugins: () => (withPlugin ? [imageToLink] : []),
+    });
     return render(Markdown).container;
   };
 
@@ -517,11 +508,9 @@ describe('remarkIgnoreMarkdown', () => {
   ].join('\n');
 
   const renderWithPlugin = (plugins = []) => {
-    const Markdown = renderText(
-      text,
-      {},
-      { getRemarkPlugins: () => [...plugins, remarkIgnoreMarkdown] },
-    );
+    const Markdown = renderText(text, [] as any, {
+      getRemarkPlugins: () => [...plugins, remarkIgnoreMarkdown],
+    });
     return render(Markdown).container;
   };
 

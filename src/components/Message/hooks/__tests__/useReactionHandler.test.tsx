@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -23,7 +22,7 @@ const updateMessage = vi.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUseReactionHandlerHook(params = {}) {
+async function renderUseReactionHandlerHook(params: any = {}) {
   const {
     channelContextProps = {},
     channelStateContextOverrides = {},
@@ -39,16 +38,18 @@ async function renderUseReactionHandlerHook(params = {}) {
     ...channelContextProps,
   });
 
-  const wrapper = ({ children }) => (
-    <ChatProvider value={{ client }}>
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ChatProvider value={{ client } as any}>
       <ChannelStateProvider
-        value={{
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateContextOverrides,
-        }}
+        value={
+          {
+            channel,
+            channelCapabilities: { 'send-reaction': true },
+            ...channelStateContextOverrides,
+          } as any
+        }
       >
-        <ChannelActionProvider value={{ updateMessage }}>
+        <ChannelActionProvider value={{ updateMessage } as any}>
           {children}
         </ChannelActionProvider>
       </ChannelStateProvider>
@@ -69,7 +70,7 @@ describe('useReactionHandler custom hook', () => {
   it('should warn user if the hooks was not initialized with a defined message', async () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleReaction = await renderUseReactionHandlerHook({ message: null });
-    await handleReaction();
+    await (handleReaction as any)();
     expect(console.warn).toHaveBeenCalledWith(reactionHandlerWarning);
   });
 
@@ -78,7 +79,7 @@ describe('useReactionHandler custom hook', () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
-    await handleReaction();
+    await (handleReaction as any)();
     expect(console.warn).toHaveBeenCalledWith(
       `message.own_reactions contained reactions from a different user, this indicates a bug`,
     );

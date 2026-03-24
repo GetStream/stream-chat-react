@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 
@@ -13,15 +12,15 @@ const mouseEventMock = {
   preventDefault: vi.fn(() => {}),
 };
 
-function generateHookHandler(hook) {
+function generateHookHandler(hook: any) {
   return (
-    message,
-    hookOptions,
-    onMentionsClick = onMentionsClickMock,
-    onMentionsHover = onMentionsHoverMock,
+    message?: any,
+    hookOptions?: any,
+    onMentionsClick: any = onMentionsClickMock,
+    onMentionsHover: any = onMentionsHoverMock,
   ) => {
-    const wrapper = ({ children }) => (
-      <ChannelActionProvider value={{ onMentionsClick, onMentionsHover }}>
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <ChannelActionProvider value={{ onMentionsClick, onMentionsHover } as any}>
         {children}
       </ChannelActionProvider>
     );

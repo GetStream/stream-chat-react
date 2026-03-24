@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -39,15 +38,15 @@ describe('SearchResultsHeader', () => {
       source.search.mockClear();
     });
 
-    useSearchContext.mockReturnValue({
+    (useSearchContext as any).mockReturnValue({
       searchController: mockSearchController,
     });
 
-    useTranslationContext.mockReturnValue({
+    (useTranslationContext as any).mockReturnValue({
       t: (key) => key,
     });
 
-    useStateStore.mockReturnValue({ isActive: false });
+    (useStateStore as any).mockReturnValue({ isActive: false });
   });
 
   describe('rendering', () => {
@@ -91,7 +90,7 @@ describe('SearchResultsHeader', () => {
 
   describe('button states and styling', () => {
     it('applies active class to button when source is active', () => {
-      useStateStore.mockReturnValue({ isActive: true });
+      (useStateStore as any).mockReturnValue({ isActive: true });
       render(<SearchResultsHeader />);
 
       const label = screen.getByText(
@@ -104,7 +103,7 @@ describe('SearchResultsHeader', () => {
     });
 
     it('does not apply active class when source is inactive', () => {
-      useStateStore.mockReturnValue({ isActive: false });
+      (useStateStore as any).mockReturnValue({ isActive: false });
       render(<SearchResultsHeader />);
 
       const label = screen.getByText(
@@ -121,7 +120,7 @@ describe('SearchResultsHeader', () => {
     it('deactivates source when clicking active source button', () => {
       Object.values(mockSources).forEach((source) => {
         if (source.type !== 'messages') return;
-        source.isActive = true;
+        (source as any).isActive = true;
       });
       render(<SearchResultsHeader />);
 
@@ -133,7 +132,7 @@ describe('SearchResultsHeader', () => {
 
       Object.values(mockSources).forEach((source) => {
         if (source.type !== 'messages') return;
-        source.isActive = undefined;
+        (source as any).isActive = undefined;
       });
     });
 
