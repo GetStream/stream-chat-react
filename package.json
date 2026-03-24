@@ -145,6 +145,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "@total-typescript/shoehorn": "^0.1.2",
     "@types/hast": "^2.3.4",
     "@types/jsdom": "^21.1.5",
     "@types/linkifyjs": "^2.1.7",

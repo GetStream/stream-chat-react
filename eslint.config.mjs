@@ -116,7 +116,7 @@ export default tseslint.config(
   },
   {
     name: 'vitest',
-    files: ['src/**/__tests__/**'],
+    files: ['src/**/__tests__/**', 'src/mock-builders/**'],
     plugins: { vitest: vitestPlugin },
     languageOptions: {
       globals: vitestPlugin.environments.env.globals,
@@ -130,6 +130,8 @@ export default tseslint.config(
       'vitest/no-hooks': 'off',
       'vitest/prefer-spy-on': 'warn',
       '@typescript-eslint/no-empty-function': 'off', // explicitly disable for tests
+      '@typescript-eslint/no-explicit-any': 'off', // test mocks frequently need any
+      '@typescript-eslint/no-non-null-assertion': 'off', // DOM queries in tests commonly use !
     },
   },
 );

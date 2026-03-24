@@ -17,7 +17,7 @@ export const generateReminderResponse = ({
   const created_at = new Date().toISOString();
   const basePayload: ReminderResponse = {
     ...baseData,
-    channel: generateChannel({ channel: { cid: baseData.channel_cid } }).channel,
+    channel: generateChannel({ channel: { cid: baseData.channel_cid } }).channel as any,
     created_at,
     message: { id: baseData.message_id, type: 'regular' },
     updated_at: created_at,
