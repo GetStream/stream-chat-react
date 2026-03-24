@@ -123,17 +123,19 @@ export const PollOptionSelector = ({
       {canCastVote && <Checkmark checked={!!ownVotesByOptionId[option.id]} />}
       <div className='str-chat__poll-option-data'>
         <p className='str-chat__poll-option-text'>{option.text}</p>
-        {displayAvatarCount && voting_visibility === 'public' && (
-          <div className='str-chat__poll-option-voters'>
-            <AvatarStack displayInfo={avatarDisplayInfo} size='xs' />
+        <div className='str-chat__poll-option-votes'>
+          {displayAvatarCount && voting_visibility === 'public' && (
+            <div className='str-chat__poll-option-voters'>
+              <AvatarStack displayInfo={avatarDisplayInfo} size='xs' />
+            </div>
+          )}
+          <div className='str-chat__poll-option-vote-count'>
+            {voteCountVerbose
+              ? t('{{count}} votes', {
+                  count: vote_counts_by_option[option.id] ?? 0,
+                })
+              : (vote_counts_by_option[option.id] ?? 0)}
           </div>
-        )}
-        <div className='str-chat__poll-option-vote-count'>
-          {voteCountVerbose
-            ? t('{{count}} votes', {
-                count: vote_counts_by_option[option.id] ?? 0,
-              })
-            : (vote_counts_by_option[option.id] ?? 0)}
         </div>
       </div>
       <AmountBar
