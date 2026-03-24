@@ -197,24 +197,28 @@ describe('<MessageText />', () => {
 
   it('should inform that message was not sent when message is has type "error"', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { container, getByTestId } = await renderMessageText({
+    const { container } = await renderMessageText({
       customProps: { message },
     });
-    expect(getByTestId('error')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__message-error-indicator'),
+    ).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { container, getByTestId } = await renderMessageText({
+    const { container } = await renderMessageText({
       customProps: { message },
     });
     expect(container.querySelector('.str-chat__message--failed')).toBeInTheDocument();
     expect(
       container.querySelector('.str-chat__message-send-can-be-retried'),
     ).toBeInTheDocument();
-    expect(getByTestId('error')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__message-error-indicator'),
+    ).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
