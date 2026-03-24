@@ -10,6 +10,8 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  mockChannelStateContext,
+  mockChatContext,
 } from '../../../../mock-builders';
 
 const getConfig = vi.fn();
@@ -34,8 +36,10 @@ async function renderUserRoleHook(
   } as any);
 
   const wrapper = ({ children }: any) => (
-    <ChatProvider value={{ client, ...clientContextValue } as any}>
-      <ChannelStateProvider value={{ channel, ...channelStateContextValue } as any}>
+    <ChatProvider value={mockChatContext({ client, ...clientContextValue })}>
+      <ChannelStateProvider
+        value={mockChannelStateContext({ channel, ...channelStateContextValue })}
+      >
         {children}
       </ChannelStateProvider>
     </ChatProvider>

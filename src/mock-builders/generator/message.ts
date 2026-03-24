@@ -2,7 +2,10 @@ import { nanoid } from 'nanoid';
 import type { MessageResponse } from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
 
-type GenerateMessageOptions = DeepPartial<MessageResponse> & {
+type GenerateMessageOptions = Omit<
+  DeepPartial<MessageResponse>,
+  'created_at' | 'updated_at'
+> & {
   created_at?: Date | string;
   updated_at?: Date | string;
 };

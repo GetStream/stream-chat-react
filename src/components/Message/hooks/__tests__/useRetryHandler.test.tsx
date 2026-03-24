@@ -4,13 +4,13 @@ import { renderHook } from '@testing-library/react';
 import { useRetryHandler } from '../useRetryHandler';
 
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { generateMessage } from '../../../../mock-builders';
+import { generateMessage, mockChannelActionContext } from '../../../../mock-builders';
 
 const retrySendMessage = vi.fn();
 
 function renderUseRetryHandlerHook(customRetrySendMessage?: any) {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChannelActionProvider value={{ retrySendMessage } as any}>
+    <ChannelActionProvider value={mockChannelActionContext({ retrySendMessage })}>
       {children}
     </ChannelActionProvider>
   );

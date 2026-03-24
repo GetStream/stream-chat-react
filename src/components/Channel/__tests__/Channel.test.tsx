@@ -194,7 +194,7 @@ describe('Channel', () => {
     messages = Array.from({ length: 25 }, (_, i) =>
       generateMessage({
         cid: `${channelType}:${channelId}`,
-        created_at: new Date((i + 1) * 1000000) as any,
+        created_at: new Date((i + 1) * 1000000),
         user,
       }),
     );
@@ -726,7 +726,7 @@ describe('Channel', () => {
       const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
       const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, (_, index) =>
         generateMessage({
-          created_at: new Date(timestamp + index * 1000) as any,
+          created_at: new Date(timestamp + index * 1000),
           parent_id: threadMessage.id,
         }),
       );
@@ -924,7 +924,7 @@ describe('Channel', () => {
 
       it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
         let channelHasMore = false;
-        const newMessages = [generateMessage({ created_at: new Date(1000) as any })];
+        const newMessages = [generateMessage({ created_at: new Date(1000) })];
         await renderComponent(
           { channel, chatClient },
           ({ hasMore, loadMore, messages: contextMessages }) => {
@@ -1017,10 +1017,10 @@ describe('Channel', () => {
 
       it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
         const firstPageMessages = Array.from({ length: 25 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 16) * 100000) as any }),
+          generateMessage({ created_at: new Date((i + 16) * 100000) }),
         );
         const secondPageMessages = Array.from({ length: 15 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1) * 100000) as any }),
+          generateMessage({ created_at: new Date((i + 1) * 100000) }),
         );
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageMessages, channel),
@@ -1100,10 +1100,10 @@ describe('Channel', () => {
           messages: { limit: equalCount },
         };
         const firstPageMessages = Array.from({ length: equalCount }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1 + equalCount) * 100000) as any }),
+          generateMessage({ created_at: new Date((i + 1 + equalCount) * 100000) }),
         );
         const secondPageMessages = Array.from({ length: equalCount - 1 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1) * 100000) as any }),
+          generateMessage({ created_at: new Date((i + 1) * 100000) }),
         );
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageMessages, channel),
@@ -1154,15 +1154,15 @@ describe('Channel', () => {
       const first_unread_message_id = 'Y';
       const firtUnreadDate = new Date(1500);
       const lastReadMessage = generateMessage({
-        created_at: last_read as any,
+        created_at: last_read,
         id: last_read_message_id,
       });
       const firstUnreadMessage = generateMessage({
-        created_at: firtUnreadDate as any,
+        created_at: firtUnreadDate,
         id: first_unread_message_id,
       });
       const currentMessageSetLastReadLoadedFirstUnreadNotLoaded = [
-        generateMessage({ created_at: new Date(100) as any }),
+        generateMessage({ created_at: new Date(100) }),
         lastReadMessage,
       ];
       const currentMessageSetLastReadFirstUnreadLoaded = [
@@ -1450,16 +1450,16 @@ describe('Channel', () => {
           'last page',
           'first unread message',
           [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') as any }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
             generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.001Z') as any,
+              created_at: new Date('2024-01-01T00:00:00.001Z'),
               id: last_read_message_id,
             }),
             generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.002Z') as any,
+              created_at: new Date('2024-01-01T00:00:00.002Z'),
               id: first_unread_message_id,
             }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.003Z') as any }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.003Z') }),
           ],
           first_unread_message_id,
         ],
@@ -1468,14 +1468,14 @@ describe('Channel', () => {
           'other than last page',
           'first unread message',
           [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') as any }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') as any }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
             generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.002Z') as any,
+              created_at: new Date('2024-01-01T00:00:00.002Z'),
               id: last_read_message_id,
             }),
             generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.003Z') as any,
+              created_at: new Date('2024-01-01T00:00:00.003Z'),
               id: first_unread_message_id,
             }),
           ],
@@ -1486,11 +1486,11 @@ describe('Channel', () => {
           'other than last page',
           'last read message',
           [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') as any }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') as any }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.002Z') as any }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.002Z') }),
             generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.003Z') as any,
+              created_at: new Date('2024-01-01T00:00:00.003Z'),
               id: last_read_message_id,
             }),
           ],

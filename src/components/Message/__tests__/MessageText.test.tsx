@@ -18,6 +18,11 @@ import {
   generateUser,
   getTestClientWithUser,
   groupReactions,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 import { Attachment } from '../../Attachment';
@@ -77,34 +82,30 @@ async function renderMessageText({
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
-    <ChatProvider value={{ client } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider
-        value={{ channel, channelCapabilities, channelConfig } as any}
+        value={mockChannelStateContext({ channel, channelCapabilities, channelConfig })}
       >
         <ChannelActionProvider
-          value={
-            {
-              onMentionsClick: onMentionsClickMock,
-              onMentionsHover: onMentionsHoverMock,
-            } as any
-          }
+          value={mockChannelActionContext({
+            onMentionsClick: onMentionsClickMock,
+            onMentionsHover: onMentionsHoverMock,
+          })}
         >
           <TranslationProvider
-            value={{
+            value={mockTranslationContextValue({
               t: ((key: string) => key) as any,
               tDateTimeParser: customDateTimeParser as any,
               userLanguage: 'en',
-            }}
+            })}
           >
             <ComponentProvider
-              value={
-                {
-                  Attachment,
+              value={mockComponentContext({
+                Attachment,
 
-                  Message: () => <MessageUI {...({ channelConfig } as any)} />,
-                  reactionOptions: defaultReactionOptions,
-                } as any
-              }
+                Message: () => <MessageUI {...({ channelConfig } as any)} />,
+                reactionOptions: defaultReactionOptions,
+              })}
             >
               <DialogManagerProvider id='message-dialog-manager-provider'>
                 <Message {...(defaultProps as any)} {...customProps}>

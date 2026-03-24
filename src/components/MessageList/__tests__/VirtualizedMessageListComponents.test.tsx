@@ -12,6 +12,11 @@ import {
   generateUser,
   getTestClientWithUser,
   initClientWithChannels,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 import {
   ChannelActionProvider,
@@ -41,10 +46,10 @@ const chatViewContextValue = {
 
 const Wrapper = ({ children, componentContext = {} }: any) => (
   <ChatViewContext.Provider value={chatViewContextValue}>
-    <ChatProvider value={{ client } as any}>
-      <ChannelStateProvider value={{ channel } as any}>
-        <ChannelActionProvider value={{} as any}>
-          <ComponentProvider value={componentContext as any}>
+    <ChatProvider value={mockChatContext({ client })}>
+      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+        <ChannelActionProvider value={mockChannelActionContext()}>
+          <ComponentProvider value={mockComponentContext(componentContext)}>
             <DialogManagerProvider id='vml-components-dialog-manager'>
               {children}
             </DialogManagerProvider>
@@ -391,11 +396,11 @@ describe('VirtualizedMessageComponents', () => {
           } = await initClientWithChannels();
           return render(
             <ChatViewContext.Provider value={chatViewContextValue}>
-              <ChatProvider value={{ client } as any}>
-                <TranslationProvider value={{ t: (v: any) => v } as any}>
-                  <ComponentProvider value={{} as any}>
-                    <ChannelActionProvider value={{} as any}>
-                      <ChannelStateProvider value={{ channel } as any}>
+              <ChatProvider value={mockChatContext({ client })}>
+                <TranslationProvider value={mockTranslationContextValue()}>
+                  <ComponentProvider value={mockComponentContext()}>
+                    <ChannelActionProvider value={mockChannelActionContext()}>
+                      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
                         {messageRenderer(
                           virtuosoIndex ?? PREPEND_OFFSET,
                           undefined,

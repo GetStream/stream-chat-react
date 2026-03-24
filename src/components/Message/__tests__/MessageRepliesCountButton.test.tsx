@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
 import { ChannelStateProvider, TranslationProvider } from '../../../context';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 const onClickMock = vi.fn();
 const defaultSingularText = '1 reply';
@@ -12,7 +13,7 @@ const i18nMock = ((key: string, { count }: { count: number }) =>
 
 const renderComponent = (props: any, channelStateCtx?: any) =>
   render(
-    <TranslationProvider value={{ t: i18nMock } as any}>
+    <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
       <ChannelStateProvider
         value={{ channelCapabilities: { 'send-reply': true }, ...channelStateCtx }}
       >

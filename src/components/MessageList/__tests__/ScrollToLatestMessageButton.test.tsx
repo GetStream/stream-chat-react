@@ -8,6 +8,7 @@ import {
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
   generateMessage,
+  mockChatContext,
 } from '../../../mock-builders';
 
 const BUTTON_TEST_ID = 'scroll-to-latest-message-button';
@@ -61,7 +62,7 @@ describe.each([
 
   it(`is not rendered if ${containerMsgList} scrolled to the bottom`, () => {
     const { container } = render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
         </ChannelStateProvider>
@@ -72,7 +73,7 @@ describe.each([
 
   it('is rendered if scrolled above the threshold', () => {
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -86,7 +87,7 @@ describe.each([
 
   it('calls the onclick callback', async () => {
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -108,7 +109,7 @@ describe.each([
   it('does not increase the unread count if already scrolled at the bottom', async () => {
     const newMessage = generateMessage({ user: anotherUser });
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
         </ChannelStateProvider>
@@ -134,7 +135,7 @@ describe.each([
   it('shows the count unread if new message arrives to active channel from another user', async () => {
     const newMessage = generateMessage({ user: anotherUser });
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -164,7 +165,7 @@ describe.each([
   it('does not show unread count for own arriving messages', async () => {
     const newMessage = generateMessage({ user: client.user });
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -196,7 +197,7 @@ describe.each([
       existingUsers: users,
     });
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -229,7 +230,7 @@ describe.each([
     });
 
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -256,7 +257,7 @@ describe.each([
 
   it('increases the count unread with each new message arrival', async () => {
     render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <ScrollToLatestMessageButton
             isMessageListScrolledToBottom={false}
@@ -297,7 +298,7 @@ describe.each([
     const newMessage = generateMessage(messagePayload);
 
     const { container } = render(
-      <ChatProvider value={{ channel, client } as any}>
+      <ChatProvider value={mockChatContext({ channel, client })}>
         <ChannelStateProvider value={channelStateContext}>
           <div id={mainListId}>
             <ScrollToLatestMessageButton

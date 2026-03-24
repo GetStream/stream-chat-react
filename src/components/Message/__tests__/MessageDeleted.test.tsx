@@ -4,6 +4,7 @@ import { render } from '@testing-library/react';
 import { MessageDeletedBubble } from '../MessageDeletedBubble';
 
 import { TranslationProvider } from '../../../context/TranslationContext';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 const messageDeletedTestId = 'message-deleted-bubble';
 
@@ -11,7 +12,7 @@ function renderComponent() {
   const t = vi.fn((key) => key);
 
   return render(
-    <TranslationProvider value={{ t } as any}>
+    <TranslationProvider value={mockTranslationContextValue({ t })}>
       <MessageDeletedBubble />
     </TranslationProvider>,
   );

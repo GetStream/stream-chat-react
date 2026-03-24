@@ -6,11 +6,17 @@ import { axe } from '../../../../axe-helper';
 import { MessageReactionsDetail } from '../MessageReactionsDetail';
 import { MessageProvider } from '../../../context/MessageContext';
 
-import { generateReactions, generateUser } from '../../../mock-builders';
+import {
+  generateReactions,
+  generateUser,
+  getTestClient,
+  mockChatContext,
+  mockComponentContext,
+  mockMessageContext,
+} from '../../../mock-builders';
 import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 import { useProcessReactions } from '../hooks/useProcessReactions';
-import { getTestClient } from '../../../mock-builders';
 
 const generateReactionsFromReactionGroups = (reactionGroups: any) =>
   Object.entries(reactionGroups).flatMap(([type, { count }]: any) =>
@@ -56,10 +62,12 @@ const chatClient = getTestClient();
 
 const renderComponent = ({ handleFetchReactions, ...props }: any) =>
   render(
-    <ChatProvider value={{ client: chatClient } as any}>
+    <ChatProvider value={mockChatContext({ client: chatClient })}>
       <DialogManagerProvider>
-        <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
-          <MessageProvider value={{} as any}>
+        <ComponentProvider
+          value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
+        >
+          <MessageProvider value={mockMessageContext()}>
             <MessageReactionsDetailWrapper
               handleFetchReactions={handleFetchReactions}
               {...props}
@@ -134,10 +142,12 @@ describe('MessageReactionsDetail', () => {
     );
 
     const { getAllByTestId, rerender } = render(
-      <ChatProvider value={{ client: chatClient } as any}>
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
         <DialogManagerProvider>
-          <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
-            <MessageProvider value={{} as any}>
+          <ComponentProvider
+            value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
+          >
+            <MessageProvider value={mockMessageContext()}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
                 reaction_groups={reactionGroups}
@@ -155,10 +165,12 @@ describe('MessageReactionsDetail', () => {
     });
 
     rerender(
-      <ChatProvider value={{ client: chatClient } as any}>
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
         <DialogManagerProvider>
-          <ComponentProvider value={{ reactionOptions: defaultReactionOptions } as any}>
-            <MessageProvider value={{} as any}>
+          <ComponentProvider
+            value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
+          >
+            <MessageProvider value={mockMessageContext()}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
                 reaction_groups={reactionGroups}

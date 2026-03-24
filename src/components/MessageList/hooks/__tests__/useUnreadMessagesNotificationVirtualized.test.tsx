@@ -32,11 +32,11 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
 
     it('should not show notification if unread count is 0', async () => {
       const now = new Date();
-      const lastRead = new Date((now as any) - 1000);
-      const firstRenderedMsgCreated = new Date((now as any) - 500);
+      const lastRead = new Date(now.getTime() - 1000);
+      const firstRenderedMsgCreated = new Date(now.getTime() - 500);
       const messages = [
-        generateMessage({ created_at: firstRenderedMsgCreated as any }),
-        generateMessage({ created_at: now as any }),
+        generateMessage({ created_at: firstRenderedMsgCreated }),
+        generateMessage({ created_at: now }),
       ];
       const { result } = render({ lastRead, showAlways: false, unreadCount: 0 });
       await act(() => {
@@ -49,11 +49,11 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       'should show notification if there are unread messages and first rendered message was created later than last read when showUnreadNotificationAlways is %s',
       async (showUnreadNotificationAlways) => {
         const now = new Date();
-        const lastRead = new Date((now as any) - 1000);
-        const firstRenderedMsgCreated = new Date((now as any) - 500);
+        const lastRead = new Date(now.getTime() - 1000);
+        const firstRenderedMsgCreated = new Date(now.getTime() - 500);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated as any }),
-          generateMessage({ created_at: now as any }),
+          generateMessage({ created_at: firstRenderedMsgCreated }),
+          generateMessage({ created_at: now }),
         ];
         const { result } = render({
           lastRead,
@@ -74,12 +74,12 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       '%s show notification if the last rendered message was created earlier than last read when showUnreadNotificationAlways is %s',
       async (_, showUnreadNotificationAlways) => {
         const now = new Date();
-        const firstRenderedMsgCreated = new Date((now as any) - 1002);
-        const lastRenderedMsgCreated = new Date((now as any) - 1001);
-        const lastRead = new Date((now as any) - 1000);
+        const firstRenderedMsgCreated = new Date(now.getTime() - 1002);
+        const lastRenderedMsgCreated = new Date(now.getTime() - 1001);
+        const lastRead = new Date(now.getTime() - 1000);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated as any }),
-          generateMessage({ created_at: lastRenderedMsgCreated as any }),
+          generateMessage({ created_at: firstRenderedMsgCreated }),
+          generateMessage({ created_at: lastRenderedMsgCreated }),
         ];
         const { result } = render({
           lastRead,
@@ -97,11 +97,11 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       'should not show notification if the first rendered message was created earlier than last read when showUnreadNotificationAlways is %s',
       async (showUnreadNotificationAlways) => {
         const now = new Date();
-        const firstRenderedMsgCreated = new Date((now as any) - 1002);
-        const lastRead = new Date((now as any) - 1001);
+        const firstRenderedMsgCreated = new Date(now.getTime() - 1002);
+        const lastRead = new Date(now.getTime() - 1001);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated as any }),
-          generateMessage({ created_at: lastRead as any }),
+          generateMessage({ created_at: firstRenderedMsgCreated }),
+          generateMessage({ created_at: lastRead }),
         ];
         const { result } = render({
           lastRead,
@@ -119,11 +119,11 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       'should not show notification if the last rendered message was created earlier than last read when showUnreadNotificationAlways is %s',
       async (showUnreadNotificationAlways) => {
         const now = new Date();
-        const lastRead = new Date((now as any) - 1001);
-        const lastRenderedMsgCreated = new Date((now as any) - 1000);
+        const lastRead = new Date(now.getTime() - 1001);
+        const lastRenderedMsgCreated = new Date(now.getTime() - 1000);
         const messages = [
-          generateMessage({ created_at: lastRead as any }),
-          generateMessage({ created_at: lastRenderedMsgCreated as any }),
+          generateMessage({ created_at: lastRead }),
+          generateMessage({ created_at: lastRenderedMsgCreated }),
         ];
         const { result } = render({
           lastRead,

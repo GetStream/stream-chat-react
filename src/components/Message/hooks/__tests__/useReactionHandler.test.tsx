@@ -12,6 +12,9 @@ import {
   generateReaction,
   generateUser,
   getTestClientWithUser,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
 } from '../../../../mock-builders';
 
 const getConfig = vi.fn();
@@ -39,17 +42,15 @@ async function renderUseReactionHandlerHook(params: any = {}) {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChatProvider value={{ client } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider
-        value={
-          {
-            channel,
-            channelCapabilities: { 'send-reaction': true },
-            ...channelStateContextOverrides,
-          } as any
-        }
+        value={mockChannelStateContext({
+          channel,
+          channelCapabilities: { 'send-reaction': true },
+          ...channelStateContextOverrides,
+        })}
       >
-        <ChannelActionProvider value={{ updateMessage } as any}>
+        <ChannelActionProvider value={mockChannelActionContext({ updateMessage })}>
           {children}
         </ChannelActionProvider>
       </ChannelStateProvider>

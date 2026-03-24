@@ -9,7 +9,13 @@ import {
   TranslationProvider,
 } from '../../../context';
 
-import { generateMessage, getTestClientWithUser } from '../../../mock-builders';
+import {
+  generateMessage,
+  getTestClientWithUser,
+  mockChannelStateContext,
+  mockChatContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 let client: any;
 
@@ -30,9 +36,9 @@ const i18nMock = {
 
 const renderComponent = ({ channelState, client }: any) =>
   render(
-    <ChatProvider value={{ client, latestMessageDatesByChannels: {} } as any}>
-      <TranslationProvider value={i18nMock as any}>
-        <ChannelStateProvider value={channelState as any}>
+    <ChatProvider value={mockChatContext({ client, latestMessageDatesByChannels: {} })}>
+      <TranslationProvider value={mockTranslationContextValue(i18nMock)}>
+        <ChannelStateProvider value={mockChannelStateContext(channelState)}>
           <ThreadStart />
         </ChannelStateProvider>
       </TranslationProvider>

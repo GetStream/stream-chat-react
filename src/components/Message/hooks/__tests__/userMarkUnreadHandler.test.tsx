@@ -2,7 +2,11 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
 import { ChannelStateProvider, TranslationProvider } from '../../../../context';
-import { generateMessage } from '../../../../mock-builders';
+import {
+  generateMessage,
+  mockChannelStateContext,
+  mockTranslationContextValue,
+} from '../../../../mock-builders';
 
 vi.spyOn(console, 'warn').mockImplementation(() => null);
 
@@ -20,13 +24,11 @@ const notifications = {
 const channel = { markUnread: vi.fn() } as any;
 function renderUseMarkUnreadHandlerHook({ message, notifications }: any = {}) {
   const wrapper = ({ children }: any) => (
-    <TranslationProvider value={{ t } as any}>
+    <TranslationProvider value={mockTranslationContextValue({ t })}>
       <ChannelStateProvider
-        value={
-          {
-            channel,
-          } as any
-        }
+        value={mockChannelStateContext({
+          channel,
+        })}
       >
         {children}
       </ChannelStateProvider>

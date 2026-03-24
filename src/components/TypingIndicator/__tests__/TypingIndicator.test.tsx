@@ -14,6 +14,10 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTypingContext,
   useMockedApis,
 } from '../../../mock-builders';
 
@@ -33,10 +37,10 @@ async function renderComponent(
   const client = await getTestClientWithUser(me);
 
   return render(
-    <ChatProvider value={{ client } as any}>
-      <ChannelStateProvider value={{ ...value } as any}>
-        <ComponentProvider value={{} as any}>
-          <TypingProvider value={{ typing } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
+      <ChannelStateProvider value={mockChannelStateContext({ ...value })}>
+        <ComponentProvider value={mockComponentContext()}>
+          <TypingProvider value={mockTypingContext({ typing })}>
             <TypingIndicator
               scrollToBottom={scrollToBottom}
               threadList={threadList}
@@ -58,9 +62,9 @@ describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(
-      <ChatProvider value={{} as any}>
-        <ChannelStateProvider value={{} as any}>
-          <ComponentProvider value={{} as any}>
+      <ChatProvider value={mockChatContext()}>
+        <ChannelStateProvider value={mockChannelStateContext()}>
+          <ComponentProvider value={mockComponentContext()}>
             <TypingIndicator scrollToBottom={scrollToBottom} />
           </ComponentProvider>
         </ChannelStateProvider>
@@ -72,10 +76,10 @@ describe('TypingIndicator', () => {
   it('should render hidden indicator with empty typing', async () => {
     const client = await getTestClientWithUser(me);
     const { container } = render(
-      <ChatProvider value={{ client } as any}>
-        <ChannelStateProvider value={{} as any}>
-          <ComponentProvider value={{} as any}>
-            <TypingProvider value={{ typing: {} } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
+        <ChannelStateProvider value={mockChannelStateContext()}>
+          <ComponentProvider value={mockComponentContext()}>
+            <TypingProvider value={mockTypingContext({ typing: {} })}>
               <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>
@@ -159,10 +163,10 @@ describe('TypingIndicator', () => {
     await channel.watch();
 
     const { container } = render(
-      <ChatProvider value={{ client } as any}>
-        <ChannelStateProvider value={{ channel, channelConfig } as any}>
-          <ComponentProvider value={{} as any}>
-            <TypingProvider value={{ typing: {} } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
+        <ChannelStateProvider value={mockChannelStateContext({ channel, channelConfig })}>
+          <ComponentProvider value={mockComponentContext()}>
+            <TypingProvider value={mockTypingContext({ typing: {} })}>
               <TypingIndicator scrollToBottom={scrollToBottom} />
             </TypingProvider>
           </ComponentProvider>

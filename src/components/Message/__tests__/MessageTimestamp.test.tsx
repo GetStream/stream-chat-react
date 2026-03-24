@@ -7,7 +7,11 @@ import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 
 import { Chat } from '../../Chat';
-import { getTestClient } from '../../../mock-builders';
+import {
+  getTestClient,
+  mockComponentContext,
+  mockMessageContext,
+} from '../../../mock-builders';
 import { Streami18n } from '../../../i18n';
 
 Dayjs.extend(calendar);
@@ -27,7 +31,7 @@ const formatDate = () => dateMock;
 const createdAt = new Date('2019-04-03T14:42:47.087869Z');
 
 const messageMock = generateMessage({
-  created_at: createdAt as any,
+  created_at: createdAt,
 });
 
 const renderComponent = async ({
@@ -40,8 +44,10 @@ const renderComponent = async ({
   await act(() => {
     result = render(
       <Chat client={getTestClient()} {...chatProps}>
-        <ComponentProvider value={(componentCtx || {}) as any}>
-          <MessageProvider value={{ message: messageMock, ...messageCtx } as any}>
+        <ComponentProvider value={mockComponentContext(componentCtx || {})}>
+          <MessageProvider
+            value={mockMessageContext({ message: messageMock, ...messageCtx })}
+          >
             <MessageTimestamp {...props} />
           </MessageProvider>
         </ComponentProvider>
@@ -90,7 +96,9 @@ describe('<MessageTimestamp />', () => {
       props: {
         message: {
           ...messageMock,
-          created_at: new Date((messageMock.created_at as any).getTime() + oneYearMs),
+          created_at: new Date(
+            (messageMock.created_at as unknown as Date).getTime() + oneYearMs,
+          ),
         },
       },
     });
@@ -99,7 +107,7 @@ describe('<MessageTimestamp />', () => {
 
   it('should not render if no message is available', () => {
     const { container } = render(
-      <MessageProvider value={{} as any}>
+      <MessageProvider value={mockMessageContext()}>
         <MessageTimestamp message={{} as any} />
       </MessageProvider>,
     );
@@ -109,7 +117,7 @@ describe('<MessageTimestamp />', () => {
   it('should not render if message created_at is not a valid date', () => {
     const message = generateMessage({ created_at: 'I am not a date' });
     const { container } = render(
-      <MessageProvider value={{} as any}>
+      <MessageProvider value={mockMessageContext()}>
         <MessageTimestamp message={message as any} />
       </MessageProvider>,
     );
@@ -149,7 +157,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      (messageMock.created_at as any).getFullYear().toString(),
+      (messageMock.created_at as unknown as Date).getFullYear().toString(),
     );
   });
 
@@ -166,7 +174,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      (messageMock.created_at as any).getFullYear().toString(),
+      (messageMock.created_at as unknown as Date).getFullYear().toString(),
     );
   });
 
@@ -217,7 +225,7 @@ describe('<MessageTimestamp />', () => {
           } as any
         }
       >
-        <MessageProvider value={{} as any}>
+        <MessageProvider value={mockMessageContext()}>
           <MessageTimestamp calendar message={messageMock as any} />
         </MessageProvider>
       </TranslationContext.Provider>,

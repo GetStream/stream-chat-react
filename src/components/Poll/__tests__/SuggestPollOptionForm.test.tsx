@@ -3,7 +3,11 @@ import { Poll } from 'stream-chat';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { SuggestPollOptionPrompt } from '../PollActions';
 import { ChatProvider, PollProvider, TranslationProvider } from '../../../context';
-import { generatePoll } from '../../../mock-builders';
+import {
+  generatePoll,
+  mockChatContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const SUBMIT_BUTTON_TEXT = 'Send';
 
@@ -13,8 +17,8 @@ const t = ((v: any) => v) as any;
 
 const renderComponent = ({ client, poll, props }: any) =>
   render(
-    <ChatProvider value={{ client } as any}>
-      <TranslationProvider value={{ t } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
+      <TranslationProvider value={mockTranslationContextValue({ t })}>
         <PollProvider poll={poll}>
           <SuggestPollOptionPrompt {...props} />
         </PollProvider>

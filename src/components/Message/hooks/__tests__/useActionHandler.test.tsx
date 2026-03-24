@@ -11,6 +11,9 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
 } from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
@@ -27,9 +30,11 @@ async function renderUseHandleActionHook(message: any = generateMessage()) {
     sendAction,
   } as any);
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChatProvider value={{ client } as any}>
-      <ChannelStateProvider value={{ channel } as any}>
-        <ChannelActionProvider value={{ removeMessage, updateMessage } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
+      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+        <ChannelActionProvider
+          value={mockChannelActionContext({ removeMessage, updateMessage })}
+        >
           {children}
         </ChannelActionProvider>
       </ChannelStateProvider>

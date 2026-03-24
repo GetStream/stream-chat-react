@@ -30,6 +30,8 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   groupReactions,
+  mockChannelActionContext,
+  mockChannelStateContext,
   useMockedApis,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
@@ -102,22 +104,18 @@ describe('<MessageSimple />', () => {
       result = renderer(
         <Chat client={client}>
           <ChannelStateProvider
-            value={
-              {
-                channel,
-                channelCapabilities,
-                channelConfig: channelConfigOverrides,
-              } as any
-            }
+            value={mockChannelStateContext({
+              channel,
+              channelCapabilities,
+              channelConfig: channelConfigOverrides,
+            })}
           >
             <ChannelActionProvider
-              value={
-                {
-                  openThread: openThreadMock,
-                  removeMessage: removeMessageMock,
-                  retrySendMessage: retrySendMessageMock,
-                } as any
-              }
+              value={mockChannelActionContext({
+                openThread: openThreadMock,
+                removeMessage: removeMessageMock,
+                retrySendMessage: retrySendMessageMock,
+              })}
             >
               <WithComponents
                 overrides={{

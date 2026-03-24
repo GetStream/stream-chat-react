@@ -11,23 +11,19 @@ import type {
   TypingContextValue,
 } from '../context';
 
-export const mockChatContext = (overrides: Partial<ChatContextValue> = {}) =>
+export const mockChatContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<ChatContextValue>({
     theme: 'messaging light',
     ...overrides,
   });
 
-export const mockChannelStateContext = (
-  overrides: Partial<ChannelStateContextValue> = {},
-) => fromPartial<ChannelStateContextValue>(overrides);
+export const mockChannelStateContext = (overrides: Record<string, unknown> = {}) =>
+  fromPartial<ChannelStateContextValue>(overrides);
 
-export const mockChannelActionContext = (
-  overrides: Partial<ChannelActionContextValue> = {},
-) => fromPartial<ChannelActionContextValue>(overrides);
+export const mockChannelActionContext = (overrides: Record<string, unknown> = {}) =>
+  fromPartial<ChannelActionContextValue>(overrides);
 
-export const mockTranslationContextValue = (
-  overrides: Partial<TranslationContextValue> = {},
-) =>
+export const mockTranslationContextValue = (overrides: Record<string, unknown> = {}) =>
   fromPartial<TranslationContextValue>({
     t: ((key: string) => key.split('/').pop()) as TranslationContextValue['t'],
     tDateTimeParser: ((input: any) => ({
@@ -40,19 +36,17 @@ export const mockTranslationContextValue = (
     ...overrides,
   });
 
-export const mockComponentContext = (overrides: Partial<ComponentContextValue> = {}) =>
+export const mockComponentContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<ComponentContextValue>(overrides);
 
-export const mockMessageContext = (overrides: Partial<MessageContextValue> = {}) =>
+export const mockMessageContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<MessageContextValue>(overrides);
 
-export const mockMessageListContext = (
-  overrides: Partial<MessageListContextValue> = {},
-) => fromPartial<MessageListContextValue>(overrides);
+export const mockMessageListContext = (overrides: Record<string, unknown> = {}) =>
+  fromPartial<MessageListContextValue>(overrides);
 
-export const mockTypingContext = (overrides: Partial<TypingContextValue> = {}) =>
+export const mockTypingContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<TypingContextValue>(overrides);
 
-export const mockChannelListContext = (
-  overrides: Partial<ChannelListContextValue> = {},
-) => fromPartial<ChannelListContextValue>(overrides);
+export const mockChannelListContext = (overrides: Record<string, unknown> = {}) =>
+  fromPartial<ChannelListContextValue>(overrides);

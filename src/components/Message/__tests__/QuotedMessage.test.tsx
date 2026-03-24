@@ -15,6 +15,11 @@ import {
   generateFileAttachment,
   generateUser,
   initClientWithChannels,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 import { Message } from '../Message';
@@ -56,29 +61,30 @@ async function renderQuotedMessage({
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
-    <ChatProvider value={{ client: customClient ?? client } as any}>
+    <ChatProvider value={mockChatContext({ client: customClient ?? client })}>
       <ChannelStateProvider
-        value={{ channel: customChannel ?? channel, channelConfig } as any}
+        value={mockChannelStateContext({
+          channel: customChannel ?? channel,
+          channelConfig,
+        })}
       >
-        <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock } as any}>
+        <ChannelActionProvider
+          value={mockChannelActionContext({ jumpToMessage: jumpToMessageMock })}
+        >
           <TranslationProvider
-            value={
-              {
-                t: (key: any) => key,
-                tDateTimeParser: customDateTimeParser,
-                userLanguage: 'en',
-              } as any
-            }
+            value={mockTranslationContextValue({
+              t: (key: any) => key,
+              tDateTimeParser: customDateTimeParser,
+              userLanguage: 'en',
+            })}
           >
             <ComponentProvider
-              value={
-                {
-                  Message() {
-                    return <MessageUI {...({ channelConfig } as any)} />;
-                  },
-                  ...componentContext,
-                } as any
-              }
+              value={mockComponentContext({
+                Message() {
+                  return <MessageUI {...({ channelConfig } as any)} />;
+                },
+                ...componentContext,
+              })}
             >
               <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
                 <Message {...customProps}>

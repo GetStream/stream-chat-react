@@ -15,6 +15,11 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
 
@@ -86,15 +91,23 @@ const renderComponent = ({
   threadProps = {},
 }: any) =>
   render(
-    <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} } as any}>
+    <ChatProvider
+      value={mockChatContext({ client: chatClient, latestMessageDatesByChannels: {} })}
+    >
       <ChannelStateProvider
-        value={{ ...channelStateContextMock, ...channelStateOverrides } as any}
+        value={mockChannelStateContext({
+          ...channelStateContextMock,
+          ...channelStateOverrides,
+        })}
       >
         <ChannelActionProvider
-          value={{ ...channelActionContextMock, ...channelActionOverrides } as any}
+          value={mockChannelActionContext({
+            ...channelActionContextMock,
+            ...channelActionOverrides,
+          })}
         >
-          <ComponentProvider value={{ ...componentOverrides } as any}>
-            <TranslationProvider value={{ t: i18nMock } as any}>
+          <ComponentProvider value={mockComponentContext({ ...componentOverrides })}>
+            <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
               <Thread {...threadProps} />
             </TranslationProvider>
           </ComponentProvider>
@@ -314,7 +327,11 @@ describe('Thread', () => {
 
     const { container } = render(
       <ChannelStateProvider
-        value={{ ...channelStateContextMock, channel, channelConfig } as any}
+        value={mockChannelStateContext({
+          ...channelStateContextMock,
+          channel,
+          channelConfig,
+        })}
       >
         <Thread />
       </ChannelStateProvider>,

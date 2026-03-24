@@ -4,7 +4,11 @@ import { cleanup, render } from '@testing-library/react';
 import { useMessageListScrollManager } from '../';
 
 import { ChatProvider } from '../../../../context/ChatContext';
-import { generateUser, getTestClientWithUser } from '../../../../mock-builders';
+import {
+  generateUser,
+  getTestClientWithUser,
+  mockChatContext,
+} from '../../../../mock-builders';
 
 const myUserId = 'alice';
 
@@ -44,12 +48,12 @@ describe('useMessageListScrollManager', () => {
     };
 
     const { rerender } = render(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp />
       </ChatProvider>,
     );
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp />
       </ChatProvider>,
     );
@@ -75,13 +79,13 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} scrollHeight={400} />
       </ChatProvider>,
     );
 
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={generateMessages(10).concat(messages)} scrollHeight={600} />
       </ChatProvider>,
     );
@@ -109,13 +113,13 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} scrollHeight={400} />
       </ChatProvider>,
     );
 
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages.concat(generateMessages(10))} scrollHeight={600} />
       </ChatProvider>,
     );
@@ -142,21 +146,21 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
       </ChatProvider>,
     );
 
     // simulate scrolled up
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
     // add new messages
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp
           messages={messages.concat(generateMessages(10))}
           offsetHeight={100}
@@ -188,7 +192,7 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
         ,
       </ChatProvider>,
@@ -196,14 +200,14 @@ describe('useMessageListScrollManager', () => {
 
     // simulate scrolled up
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
     // add new messages
     rerender(
-      <ChatProvider value={{ client } as any}>
+      <ChatProvider value={mockChatContext({ client })}>
         <Comp
           messages={messages.concat([{ id: 100, user: { id: client.userID } }] as any)}
           offsetHeight={100}

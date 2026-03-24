@@ -12,6 +12,10 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  mockChatContext,
+  mockComponentContext,
+  mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
@@ -50,10 +54,12 @@ const defaultMsgCtx = {
 
 const renderComponent = ({ chatCtx, componentCtx, messageCtx, props }: any = {}) =>
   render(
-    <ChatProvider value={chatCtx as any}>
-      <TranslationProvider value={{ t } as any}>
-        <ComponentProvider value={(componentCtx || {}) as any}>
-          <MessageProvider value={{ ...defaultMsgCtx, ...messageCtx } as any}>
+    <ChatProvider value={mockChatContext(chatCtx)}>
+      <TranslationProvider value={mockTranslationContextValue({ t })}>
+        <ComponentProvider value={mockComponentContext(componentCtx || {})}>
+          <MessageProvider
+            value={mockMessageContext({ ...defaultMsgCtx, ...messageCtx })}
+          >
             <MessageStatus {...props} />
           </MessageProvider>
         </ComponentProvider>

@@ -14,6 +14,8 @@ import {
   generateMessage,
   generatePoll,
   getTestClientWithUser,
+  mockChatContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const POLL_ACTIONS__CLASS = '.str-chat__poll-actions';
@@ -39,9 +41,9 @@ const renderComponent = async ({
 }: any) => {
   const client = customClient ?? (await getTestClientWithUser());
   return render(
-    <ChatProvider value={{ client } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
       <ModalDialogManagerProvider>
-        <TranslationProvider value={{ t } as any}>
+        <TranslationProvider value={mockTranslationContextValue({ t })}>
           <ComponentProvider value={componentContext ?? {}}>
             <ChannelStateProvider
               value={{ ...defaultChannelStateContext, ...channelStateContext }}

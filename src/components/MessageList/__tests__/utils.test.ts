@@ -450,9 +450,9 @@ describe('getGroupStyles', () => {
   let nextMessage: any;
   let noGroupByUser: any;
   beforeEach(() => {
-    message = generateMessage({ created_at: new Date(2) as any, user });
-    previousMessage = generateMessage({ created_at: new Date(1) as any, user });
-    nextMessage = generateMessage({ created_at: new Date(100) as any, user });
+    message = generateMessage({ created_at: new Date(2), user });
+    previousMessage = generateMessage({ created_at: new Date(1), user });
+    nextMessage = generateMessage({ created_at: new Date(100), user });
     noGroupByUser = false;
   });
 

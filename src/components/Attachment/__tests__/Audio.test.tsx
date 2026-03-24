@@ -2,7 +2,11 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { Audio } from '../Audio';
-import { generateAudioAttachment, generateMessage } from '../../../mock-builders';
+import {
+  generateAudioAttachment,
+  generateMessage,
+  mockMessageContext,
+} from '../../../mock-builders';
 import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
@@ -269,10 +273,10 @@ describe('Audio', () => {
     const message = generateMessage();
     render(
       <WithAudioPlayback allowConcurrentPlayback>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true } as any}>
+        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,
@@ -291,10 +295,10 @@ describe('Audio', () => {
     const message = generateMessage();
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
       </WithAudioPlayback>,

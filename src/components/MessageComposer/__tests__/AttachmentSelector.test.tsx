@@ -10,7 +10,13 @@ import {
   TranslationProvider,
   TypingProvider,
 } from '../../../context';
-import { generateMessage, initClientWithChannels } from '../../../mock-builders';
+import {
+  generateMessage,
+  initClientWithChannels,
+  mockChannelActionContext,
+  mockMessageContext,
+  mockTypingContext,
+} from '../../../mock-builders';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
@@ -98,8 +104,8 @@ const renderComponent = async ({
         <Chat client={client}>
           <ComponentProvider value={{ ...componentContext }}>
             <TranslationProvider value={translationContext}>
-              <TypingProvider value={{} as any}>
-                <ChannelActionProvider value={{} as any}>
+              <TypingProvider value={mockTypingContext()}>
+                <ChannelActionProvider value={mockChannelActionContext()}>
                   <ChannelStateProvider
                     value={{
                       ...defaultChannelStateContext,
@@ -109,7 +115,7 @@ const renderComponent = async ({
                   >
                     <div id={CHANNEL_CONTAINER_ID}>
                       {message ? (
-                        <MessageProvider value={{ message } as any}>
+                        <MessageProvider value={mockMessageContext({ message })}>
                           <ThreadOrChannel />
                         </MessageProvider>
                       ) : (

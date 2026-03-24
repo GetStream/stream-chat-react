@@ -15,7 +15,9 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
-  mockTranslationContext,
+  mockChannelStateContext,
+  mockComponentContext,
+  mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
@@ -38,10 +40,10 @@ const mockedChannel = generateChannel({
 const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(
     <ChatProvider value={chatContext as any}>
-      <TranslationContext.Provider value={mockTranslationContext as any}>
+      <TranslationContext.Provider value={mockTranslationContextValue()}>
         <ChannelActionProvider value={channelActionContext}>
-          <ChannelStateProvider value={{} as any}>
-            <ComponentProvider value={{} as any}>
+          <ChannelStateProvider value={mockChannelStateContext()}>
+            <ComponentProvider value={mockComponentContext()}>
               <WithAudioPlayback>
                 <Card {...cardProps} />
               </WithAudioPlayback>

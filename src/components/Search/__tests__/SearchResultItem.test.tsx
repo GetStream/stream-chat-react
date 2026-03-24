@@ -19,6 +19,7 @@ import {
   generateUser,
   initChannelFromData,
   initClientWithChannels,
+  mockChannelListContext,
 } from '../../../mock-builders';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
@@ -66,7 +67,9 @@ const renderComponent = async ({
       }}
     >
       <DialogManagerProvider>
-        <ChannelListContextProvider value={{ setChannels: mockSetChannels } as any}>
+        <ChannelListContextProvider
+          value={mockChannelListContext({ setChannels: mockSetChannels })}
+        >
           <SearchContextProvider value={{ directMessagingChannelType } as any}>
             <SearchResultItemComponent item={item} />
           </SearchContextProvider>

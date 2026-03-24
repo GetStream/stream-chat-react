@@ -20,7 +20,12 @@ import {
   generateUser,
   getTestClientWithUser,
   initClientWithChannels,
-  mockTranslationContext,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 import { ChatViewContext } from '../../ChatView/ChatView';
@@ -87,26 +92,29 @@ async function renderMessageActions({
 
   return render(
     <ChatViewContext.Provider value={chatViewContextValue as any}>
-      <ChatProvider value={{ client, ...customChatContext } as any}>
+      <ChatProvider value={mockChatContext({ client, ...customChatContext })}>
         <DialogManagerProvider id='message-actions-dialog-provider'>
           <ChannelStateProvider
-            value={{ channel, channelConfig, ...channelStateOpts } as any}
+            value={mockChannelStateContext({
+              channel,
+              channelConfig,
+              ...channelStateOpts,
+            })}
           >
             <ChannelActionProvider
-              value={
-                {
-                  openThread: vi.fn(),
-                  removeMessage: vi.fn(),
-                  updateMessage: vi.fn(),
-                } as any
-              }
+              value={mockChannelActionContext({
+                openThread: vi.fn(),
+                removeMessage: vi.fn(),
+                updateMessage: vi.fn(),
+              })}
             >
-              <TranslationProvider value={mockTranslationContext as any}>
-                <ComponentProvider value={{} as any}>
+              <TranslationProvider value={mockTranslationContextValue()}>
+                <ComponentProvider value={mockComponentContext()}>
                   <MessageProvider
-                    value={
-                      { ...defaultMessageContextValue, ...customMessageContext } as any
-                    }
+                    value={mockMessageContext({
+                      ...defaultMessageContextValue,
+                      ...customMessageContext,
+                    })}
                   >
                     <MessageActions {...messageActionsProps} />
                   </MessageProvider>
@@ -375,34 +383,28 @@ describe('<MessageActions />', () => {
 
       await act(async () => {
         await render(
-          <ChatProvider value={{ client } as any}>
+          <ChatProvider value={mockChatContext({ client })}>
             <DialogManagerProvider id='message-actions-dialog-provider'>
               <ChannelStateProvider
-                value={
-                  {
-                    channel,
-                    channelCapabilities: { 'quote-message': true },
-                  } as any
-                }
+                value={mockChannelStateContext({
+                  channel,
+                  channelCapabilities: { 'quote-message': true },
+                })}
               >
                 <ChannelActionProvider
-                  value={
-                    {
-                      openThread: vi.fn(),
-                      removeMessage: vi.fn(),
-                      updateMessage: vi.fn(),
-                    } as any
-                  }
+                  value={mockChannelActionContext({
+                    openThread: vi.fn(),
+                    removeMessage: vi.fn(),
+                    updateMessage: vi.fn(),
+                  })}
                 >
-                  <TranslationProvider value={mockTranslationContext as any}>
-                    <ComponentProvider value={{} as any}>
+                  <TranslationProvider value={mockTranslationContextValue()}>
+                    <ComponentProvider value={mockComponentContext()}>
                       <MessageProvider
-                        value={
-                          {
-                            ...defaultMessageContextValue,
-                            message,
-                          } as any
-                        }
+                        value={mockMessageContext({
+                          ...defaultMessageContextValue,
+                          message,
+                        })}
                       >
                         <MessageActions />
                       </MessageProvider>

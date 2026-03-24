@@ -15,6 +15,11 @@ import {
   generateReaction,
   generateUser,
   getTestClientWithUser,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
+  mockComponentContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
@@ -71,37 +76,33 @@ async function renderComponent({
   const client = await getTestClientWithUser(alice);
 
   return renderer(
-    <ChatProvider value={{ client, ...clientOpts } as any}>
+    <ChatProvider value={mockChatContext({ client, ...clientOpts })}>
       <ChannelStateProvider
-        value={
-          {
-            channel,
-            channelCapabilities: { 'send-reaction': true },
-            ...channelStateOpts,
-          } as any
-        }
+        value={mockChannelStateContext({
+          channel,
+          channelCapabilities: { 'send-reaction': true },
+          ...channelStateOpts,
+        })}
       >
         <ChannelActionProvider
-          value={
-            {
-              openThread: vi.fn(),
-              removeMessage: vi.fn(),
-              updateMessage: vi.fn(),
-              ...channelActionOpts,
-            } as any
-          }
+          value={mockChannelActionContext({
+            openThread: vi.fn(),
+            removeMessage: vi.fn(),
+            updateMessage: vi.fn(),
+            ...channelActionOpts,
+          })}
         >
           <ComponentProvider
-            value={
-              {
-                Message: () => (
-                  <CustomMessageUIComponent contextCallback={contextCallback} />
-                ),
-                ...components,
-              } as any
-            }
+            value={mockComponentContext({
+              Message: () => (
+                <CustomMessageUIComponent contextCallback={contextCallback} />
+              ),
+              ...components,
+            })}
           >
-            <TranslationProvider value={{ t: (key: any) => key } as any}>
+            <TranslationProvider
+              value={mockTranslationContextValue({ t: (key: any) => key })}
+            >
               <Message message={message} {...props} />
             </TranslationProvider>
           </ComponentProvider>

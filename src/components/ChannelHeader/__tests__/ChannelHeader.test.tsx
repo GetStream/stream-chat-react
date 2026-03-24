@@ -15,6 +15,9 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
+  mockChannelStateContext,
+  mockChatContext,
+  mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
@@ -36,9 +39,9 @@ const t = vi.fn((key) => key);
 
 const renderComponentBase = ({ channel, client, props }: any) =>
   render(
-    <ChatProvider value={{ channel, client } as any}>
-      <ChannelStateProvider value={{ channel } as any}>
-        <TranslationProvider value={{ t } as any}>
+    <ChatProvider value={mockChatContext({ channel, client })}>
+      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+        <TranslationProvider value={mockTranslationContextValue({ t })}>
           <ChannelHeader {...props} />
         </TranslationProvider>
       </ChannelStateProvider>

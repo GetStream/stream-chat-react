@@ -4,7 +4,11 @@ import { renderHook } from '@testing-library/react';
 import { useMentionsHandler } from '../useMentionsHandler';
 
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { generateMessage, generateUser } from '../../../../mock-builders';
+import {
+  generateMessage,
+  generateUser,
+  mockChannelActionContext,
+} from '../../../../mock-builders';
 
 const onMentionsClickMock = vi.fn();
 const onMentionsHoverMock = vi.fn();
@@ -20,7 +24,9 @@ function generateHookHandler(hook: any) {
     onMentionsHover: any = onMentionsHoverMock,
   ) => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <ChannelActionProvider value={{ onMentionsClick, onMentionsHover } as any}>
+      <ChannelActionProvider
+        value={mockChannelActionContext({ onMentionsClick, onMentionsHover })}
+      >
         {children}
       </ChannelActionProvider>
     );

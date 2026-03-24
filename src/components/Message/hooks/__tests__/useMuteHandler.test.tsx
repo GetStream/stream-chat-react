@@ -10,6 +10,8 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  mockChannelStateContext,
+  mockChatContext,
 } from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
@@ -31,14 +33,12 @@ async function renderUseHandleMuteHook(
   const channel = generateChannel();
 
   const wrapper = ({ children }: any) => (
-    <ChatProvider value={{ client } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider
-        value={
-          {
-            channel,
-            ...channelStateContextValue,
-          } as any
-        }
+        value={mockChannelStateContext({
+          channel,
+          ...channelStateContextValue,
+        })}
       >
         {children}
       </ChannelStateProvider>

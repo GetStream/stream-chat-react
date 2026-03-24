@@ -12,6 +12,9 @@ import {
   generateMessage,
   generateUser,
   initClientWithChannels,
+  mockChannelActionContext,
+  mockChannelStateContext,
+  mockChatContext,
 } from '../../../../mock-builders';
 import { act } from 'react';
 
@@ -21,9 +24,11 @@ const setChannelUnreadUiState = vi.fn();
 
 const render = ({ channel, client, params }: any) => {
   const wrapper = ({ children }: any) => (
-    <ChatProvider value={{ client } as any}>
-      <ChannelStateProvider value={{ channel } as any}>
-        <ChannelActionProvider value={{ markRead, setChannelUnreadUiState } as any}>
+    <ChatProvider value={mockChatContext({ client })}>
+      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+        <ChannelActionProvider
+          value={mockChannelActionContext({ markRead, setChannelUnreadUiState })}
+        >
           {children}
         </ChannelActionProvider>
       </ChannelStateProvider>
@@ -36,8 +41,8 @@ const render = ({ channel, client, params }: any) => {
 const unreadLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) as any }),
-    generateMessage({ created_at: new Date(2) as any }),
+    generateMessage({ created_at: new Date(1) }),
+    generateMessage({ created_at: new Date(2) }),
   ];
   return {
     messages,
@@ -55,8 +60,8 @@ const unreadLastMessageChannelData = () => {
 const readLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) as any }),
-    generateMessage({ created_at: new Date(2) as any }),
+    generateMessage({ created_at: new Date(1) }),
+    generateMessage({ created_at: new Date(2) }),
   ];
   return {
     channel: { config: { read_events: true } },

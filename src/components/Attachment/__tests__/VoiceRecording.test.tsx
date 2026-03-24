@@ -4,6 +4,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import {
   generateMessage,
   generateVoiceRecordingAttachment,
+  mockChatContext,
+  mockMessageContext,
 } from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChatProvider, MessageProvider } from '../../../context';
@@ -38,7 +40,7 @@ vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {}
 
 const renderComponent = (props, VoiceRecordingComponent = VoiceRecording) =>
   render(
-    <ChatProvider value={{ client: {} } as any}>
+    <ChatProvider value={mockChatContext()}>
       <WithAudioPlayback>
         <VoiceRecordingComponent {...props} />
       </WithAudioPlayback>
@@ -64,13 +66,13 @@ describe('VoiceRecording', () => {
       createdAudios.push(el);
       return el;
     });
-    const message = generateMessage() as any;
+    const message = generateMessage();
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message, threadList: true } as any}>
+        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
       </WithAudioPlayback>,
@@ -87,16 +89,16 @@ describe('VoiceRecording', () => {
       createdAudios.push(el);
       return el;
     });
-    const message = generateMessage() as any;
+    const message = generateMessage();
     render(
       <WithAudioPlayback>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={{ message } as any}>
+        <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} isQuoted={true} />
         </MessageProvider>
       </WithAudioPlayback>,

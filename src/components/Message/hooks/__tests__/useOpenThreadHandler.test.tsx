@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { useOpenThreadHandler } from '../useOpenThreadHandler';
 
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { generateMessage } from '../../../../mock-builders';
+import { generateMessage, mockChannelActionContext } from '../../../../mock-builders';
 
 const openThreadMock = vi.fn();
 const mouseEventMock = {
@@ -16,7 +16,7 @@ function renderUseOpenThreadHandlerHook(
   openThread: any = openThreadMock,
 ) {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChannelActionProvider value={{ openThread } as any}>
+    <ChannelActionProvider value={mockChannelActionContext({ openThread })}>
       {children}
     </ChannelActionProvider>
   );

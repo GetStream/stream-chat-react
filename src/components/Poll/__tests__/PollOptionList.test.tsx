@@ -17,6 +17,10 @@ import {
   generatePollVoteRemovedEvent,
   generateUser,
   getTestClientWithUser,
+  mockChannelStateContext,
+  mockChatContext,
+  mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const OPTION_SELECTOR = '.str-chat__poll-option';
@@ -60,14 +64,20 @@ describe('PollOptionList', () => {
     pollOptionListProps,
   }: any) =>
     render(
-      <ChatProvider value={{ client: chatClient } as any}>
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
         <ModalDialogManagerProvider>
-          <TranslationProvider value={{ t } as any}>
+          <TranslationProvider value={mockTranslationContextValue({ t })}>
             <ChannelStateProvider
-              value={{ ...defaultChannelStateContext, ...channelStateContext } as any}
+              value={mockChannelStateContext({
+                ...defaultChannelStateContext,
+                ...channelStateContext,
+              })}
             >
               <MessageProvider
-                value={{ ...defaultMessageContext, ...messageContext } as any}
+                value={mockMessageContext({
+                  ...defaultMessageContext,
+                  ...messageContext,
+                })}
               >
                 <PollProvider poll={poll}>
                   <PollOptionList {...pollOptionListProps} />
