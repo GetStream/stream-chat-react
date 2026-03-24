@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Poll } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -24,7 +23,7 @@ const VIEW_COMMENTS_ACTION_TEXT = 'View {{count}} comments';
 const VIEW_RESULTS_ACTION_TEXT = 'View results';
 const END_VOTE_ACTION_TEXT = 'End poll';
 
-const t = (v) => v;
+const t = (v: any) => v;
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'cast-poll-vote': true, 'query-poll-votes': true },
@@ -40,16 +39,18 @@ const renderComponent = async ({
   messageContext,
   poll,
   props,
-}) => {
+}: any = {}) => {
   const client = customClient ?? (await getTestClientWithUser());
   return render(
-    <ChatProvider value={{ client }}>
+    <ChatProvider value={{ client } as any}>
       <ModalDialogManagerProvider>
-        <TranslationProvider value={{ t }}>
+        <TranslationProvider value={{ t } as any}>
           <ChannelStateProvider
-            value={{ ...defaultChannelStateContext, ...channelStateContext }}
+            value={{ ...defaultChannelStateContext, ...channelStateContext } as any}
           >
-            <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
+            <MessageProvider
+              value={{ ...defaultMessageContext, ...messageContext } as any}
+            >
               <PollProvider poll={poll}>
                 <PollActions {...props} />
               </PollProvider>
@@ -69,7 +70,7 @@ describe('PollActions', () => {
       allow_user_suggested_options: true,
       is_closed: false,
     });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({
       channelStateContext: { channelCapabilities: { 'cast-poll-vote': false } },
       poll,
@@ -82,7 +83,7 @@ describe('PollActions', () => {
       allow_user_suggested_options: true,
       is_closed: false,
     });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.getByText(SUGGEST_OPTION_ACTION_TEXT)).toBeInTheDocument();
   });
@@ -92,7 +93,7 @@ describe('PollActions', () => {
       allow_user_suggested_options: true,
       is_closed: true,
     });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(SUGGEST_OPTION_ACTION_TEXT)).not.toBeInTheDocument();
   });
@@ -102,49 +103,49 @@ describe('PollActions', () => {
       allow_user_suggested_options: false,
       is_closed: false,
     });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(SUGGEST_OPTION_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
   it('shows "Update your comment" action', async () => {
     const pollData = generatePoll({ allow_answers: true, is_closed: false });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.getByText(UPDATE_COMMENT_ACTION_TEXT)).toBeInTheDocument();
   });
 
   it('hides "Update your comment" action if poll is closed', async () => {
     const pollData = generatePoll({ allow_answers: true, is_closed: true });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(UPDATE_COMMENT_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
   it('hides "Update your comment" action if answers are not allowed', async () => {
     const pollData = generatePoll({ allow_answers: false, is_closed: false });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(UPDATE_COMMENT_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
   it('shows "View {{count}} comments" action if answers exist and query-poll-votes permission is granted', async () => {
     const pollData = generatePoll({ answers_count: 1 });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.getByText(VIEW_COMMENTS_ACTION_TEXT)).toBeInTheDocument();
   });
 
   it('hides "View {{count}} comments" action if there are no answers', async () => {
     const pollData = generatePoll({ answers_count: 0 });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.queryByText(VIEW_COMMENTS_ACTION_TEXT)).not.toBeInTheDocument();
   });
 
   it('hides "View {{count}} comments" action if the query-poll-votes permission is not granted', async () => {
     const pollData = generatePoll({ answers_count: 1 });
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({
       channelStateContext: { channelCapabilities: { 'query-poll-votes': false } },
       poll,
@@ -154,7 +155,7 @@ describe('PollActions', () => {
 
   it('shows "View results" action', async () => {
     const pollData = generatePoll();
-    const poll = new Poll({ client: {}, poll: pollData });
+    const poll = new Poll({ client: {} as any, poll: pollData });
     await renderComponent({ poll });
     expect(screen.getByText(VIEW_RESULTS_ACTION_TEXT)).toBeInTheDocument();
   });

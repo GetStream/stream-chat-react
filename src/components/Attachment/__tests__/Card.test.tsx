@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
@@ -21,28 +20,28 @@ import {
 } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
 
-let chatClient;
-let channel;
+let chatClient: any;
+let channel: any;
 const user = generateUser({ id: 'userId', name: 'username' });
 
-vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation();
-vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
-vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation();
-const channelActionContext = {};
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(async () => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
+const channelActionContext = {} as any;
 
 const mockedChannel = generateChannel({
   members: [generateMember({ user })],
   messages: [],
-  thread: [],
-});
+  threads: [],
+} as any);
 
-const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
+const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(
-    <ChatProvider value={chatContext}>
-      <TranslationContext.Provider value={mockTranslationContext}>
+    <ChatProvider value={chatContext as any}>
+      <TranslationContext.Provider value={mockTranslationContext as any}>
         <ChannelActionProvider value={channelActionContext}>
-          <ChannelStateProvider value={{}}>
-            <ComponentProvider value={{}}>
+          <ChannelStateProvider value={{} as any}>
+            <ComponentProvider value={{} as any}>
               <WithAudioPlayback>
                 <Card {...cardProps} />
               </WithAudioPlayback>
@@ -57,7 +56,7 @@ describe('Card', () => {
   beforeAll(async () => {
     chatClient = await getTestClientWithUser({ id: user.id });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
+    channel = chatClient.channel('messaging', (mockedChannel as any).id);
     channel.query();
   });
 
@@ -76,7 +75,7 @@ describe('Card', () => {
 
   const attachmentTypes = ['audio', 'image', 'video'];
 
-  const cases = attachmentTypes.reduce((acc, type) => {
+  const cases = attachmentTypes.reduce((acc: any, type) => {
     const attachment = { ...dummyAttachment, type };
     acc[type] = [
       {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { SearchController } from 'stream-chat';
@@ -116,13 +115,15 @@ describe('ChannelList', () => {
       Object.defineProperty(window, 'innerWidth', { value: 500, writable: true });
       const { container, getByRole, getByTestId } = await render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: true,
-            searchController: new SearchController(),
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              closeMobileNav,
+              navOpen: true,
+              searchController: new SearchController(),
+            } as any
+          }
         >
           <WithComponents
             overrides={{
@@ -155,13 +156,15 @@ describe('ChannelList', () => {
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
       const { container, getByRole, getByTestId } = await render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            closeMobileNav,
-            navOpen: false,
-            searchController: new SearchController(),
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              closeMobileNav,
+              navOpen: false,
+              searchController: new SearchController(),
+            } as any
+          }
         >
           <WithComponents
             overrides={{
@@ -227,7 +230,7 @@ describe('ChannelList', () => {
             ChannelListUI: ChannelListComponent,
           }}
         >
-          <ChannelList {...props} filters={{ dummyFilter: true }} />
+          <ChannelList {...props} filters={{ dummyFilter: true } as any} />
         </WithComponents>
       </Chat>,
     );
@@ -251,7 +254,9 @@ describe('ChannelList', () => {
         }),
       filters: {},
     };
-    const queryChannelsMock = vi.spyOn(client, 'queryChannels').mockImplementationOnce();
+    const queryChannelsMock = vi
+      .spyOn(client, 'queryChannels')
+      .mockImplementationOnce((() => {}) as any);
 
     const { rerender } = render(
       <Chat client={client}>
@@ -597,12 +602,14 @@ describe('ChannelList', () => {
     it('should call `setActiveChannel` prop function with first channel as param', async () => {
       render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              searchController: new SearchController(),
+              setActiveChannel,
+            } as any
+          }
         >
           <ChannelList
             filters={{}}
@@ -628,18 +635,20 @@ describe('ChannelList', () => {
     it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', async () => {
       render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              searchController: new SearchController(),
+              setActiveChannel,
+            } as any
+          }
         >
           <ChannelList
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
             options={{ presence: true, state: true, watch: true }}
-            setActiveChannel={setActiveChannel}
+            {...({ setActiveChannel } as any)}
             setActiveChannelOnMount
             watchers={watchersConfig}
           />
@@ -662,18 +671,20 @@ describe('ChannelList', () => {
 
       render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              searchController: new SearchController(),
+              setActiveChannel,
+            } as any
+          }
         >
           <ChannelList
             customActiveChannel='missing-channel-id'
             filters={{}}
             options={{ presence: true, state: true, watch: true }}
-            setActiveChannel={setActiveChannel}
+            {...({ setActiveChannel } as any)}
             setActiveChannelOnMount
             watchers={watchersConfig}
           />
@@ -691,12 +702,14 @@ describe('ChannelList', () => {
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
       const { container, getAllByRole, getByRole, getByTestId } = render(
         <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClient,
-            searchController: new SearchController(),
-            setActiveChannel,
-          }}
+          value={
+            {
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              searchController: new SearchController(),
+              setActiveChannel,
+            } as any
+          }
         >
           <WithComponents
             overrides={{
@@ -714,7 +727,7 @@ describe('ChannelList', () => {
                 state: true,
                 watch: true,
               }}
-              setActiveChannel={setActiveChannel}
+              {...({ setActiveChannel } as any)}
               setActiveChannelOnMount
               watchers={watchersConfig}
             />
@@ -760,7 +773,7 @@ describe('ChannelList', () => {
         client = await getTestClientWithUser({ id: user1.id });
 
         useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
-        channel = client.channel('messaging', mockedChannels[0].id);
+        channel = client.channel('messaging', (mockedChannels[0] as any).id);
         await channel.watch();
         useMockedApis(client, [
           queryChannelsApi(mockedChannels), // first API call goes to /channels endpoint
@@ -768,19 +781,21 @@ describe('ChannelList', () => {
         ]);
       });
 
-      const renderComponents = async (chatContext = {}, channeListProps) =>
+      const renderComponents = async (chatContext = {}, channeListProps?: any) =>
         await act(
           async () =>
             await render(
               <ChatContext.Provider
-                value={{
-                  channelsQueryState: channelsQueryStateMock,
-                  searchController: new SearchController(),
-                  setActiveChannel,
-                  ...chatContext,
-                }}
+                value={
+                  {
+                    channelsQueryState: channelsQueryStateMock,
+                    searchController: new SearchController(),
+                    setActiveChannel,
+                    ...chatContext,
+                  } as any
+                }
               >
-                <TranslationContext.Provider value={mockTranslationContext}>
+                <TranslationContext.Provider value={mockTranslationContext as any}>
                   <ChannelList
                     filters={{}}
                     options={{ presence: true, state: true }}
@@ -935,7 +950,9 @@ describe('ChannelList', () => {
           await render(
             <Chat client={client}>
               <ChannelList
-                additionalChannelSearchProps={{ searchForChannels: true }}
+                {...({
+                  additionalChannelSearchProps: { searchForChannels: true },
+                } as any)}
                 filters={{}}
                 options={{ presence: true, state: true }}
                 showChannelSearch
@@ -1560,12 +1577,14 @@ describe('ChannelList', () => {
         const setActiveChannel = vi.fn();
         const { container, getByRole } = await render(
           <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              searchController: new SearchController(),
-              setActiveChannel,
-            }}
+            value={
+              {
+                channelsQueryState: channelsQueryStateMock,
+                client: chatClient,
+                searchController: new SearchController(),
+                setActiveChannel,
+              } as any
+            }
           >
             <WithComponents
               overrides={{
@@ -1575,8 +1594,10 @@ describe('ChannelList', () => {
             >
               <ChannelList
                 {...channelListProps}
-                channel={{ cid: testChannel1.channel.cid }}
-                setActiveChannel={setActiveChannel}
+                {...({
+                  channel: { cid: testChannel1.channel.cid },
+                  setActiveChannel,
+                } as any)}
               />
             </WithComponents>
           </ChatContext.Provider>,
@@ -1641,12 +1662,14 @@ describe('ChannelList', () => {
         const setActiveChannel = vi.fn();
         const { container, getByRole } = await render(
           <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              searchController: new SearchController(),
-              setActiveChannel,
-            }}
+            value={
+              {
+                channelsQueryState: channelsQueryStateMock,
+                client: chatClient,
+                searchController: new SearchController(),
+                setActiveChannel,
+              } as any
+            }
           >
             <WithComponents
               overrides={{
@@ -1656,8 +1679,10 @@ describe('ChannelList', () => {
             >
               <ChannelList
                 {...channelListProps}
-                channel={{ cid: testChannel1.channel.cid }}
-                setActiveChannel={setActiveChannel}
+                {...({
+                  channel: { cid: testChannel1.channel.cid },
+                  setActiveChannel,
+                } as any)}
               />
             </WithComponents>
           </ChatContext.Provider>,
@@ -1875,7 +1900,7 @@ describe('ChannelList', () => {
       queryChannelsMock.mockClear();
     });
 
-    const renderUI = (client, channelListProps) =>
+    const renderUI = (client: any, channelListProps?: any) =>
       render(
         <Chat client={client}>
           <ChannelList filters={{}} options={{ limit: 2 }} {...channelListProps} />

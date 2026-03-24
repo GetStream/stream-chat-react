@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
@@ -33,7 +32,7 @@ vi.mock('../../EmptyStateIndicator', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
 
   return {
     ...actual,
@@ -62,7 +61,12 @@ const mockedChannelData = generateChannel({
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
 
-const renderComponent = ({ channelProps, chatClient, components = {}, msgListProps }) =>
+const renderComponent = ({
+  channelProps,
+  chatClient,
+  components = {},
+  msgListProps,
+}: any) =>
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
@@ -90,7 +94,7 @@ describe('MessageList', () => {
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
-    channel = chatClient.channel('messaging', mockedChannelData.id);
+    channel = chatClient.channel('messaging', (mockedChannelData as any).id);
     await channel.watch();
 
     markReadMock = vi.spyOn(channel, 'markRead').mockResolvedValue(markReadApi(channel));
@@ -111,7 +115,9 @@ describe('MessageList', () => {
     expect(await findByTestId('reverse-infinite-scroll')).toBeInTheDocument();
 
     const newMessage = generateMessage({ user: user2 });
-    act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel));
+    act(() =>
+      dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel as any),
+    );
 
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -224,7 +230,7 @@ describe('MessageList', () => {
     for (let i = 0; i < 3; i++) {
       const newMessage = generateMessage({ text: `text-${i}`, user: user2 });
       act(() =>
-        dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel),
+        dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel as any),
       );
     }
 
@@ -268,7 +274,7 @@ describe('MessageList', () => {
   });
 
   it('should render intro messages', async () => {
-    const intro = generateMessage({ customType: 'message.intro' });
+    const intro = generateMessage({ customType: 'message.intro' } as any);
     const headerText = 'header is rendered';
     const Header = () => <div>{headerText}</div>;
 
@@ -353,18 +359,18 @@ describe('MessageList', () => {
     const unread_messages = 2;
     const lastReadMessage = messages[unread_messages];
     const separatorText = `${unread_messages} unread`;
-    const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }) => {
+    const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }: any) => {
       dispatchNotificationMarkUnread({
         channel,
         client,
         payload: {
           first_unread_message_id: messages[unread_messages + 1].id,
-          last_read: lastReadMessage.created_at,
+          last_read_at: lastReadMessage.created_at,
           last_read_message_id: lastReadMessage.id,
           unread_messages,
           user: client.user,
           ...payload,
-        },
+        } as any,
       });
     };
 
@@ -383,7 +389,7 @@ describe('MessageList', () => {
         }
       }
 
-      window.IntersectionObserver = IntersectionObserverMock;
+      window.IntersectionObserver = IntersectionObserverMock as any;
     });
     afterEach(vi.clearAllMocks);
     afterAll(vi.restoreAllMocks);
@@ -393,7 +399,7 @@ describe('MessageList', () => {
       const MarkReadButton = () => {
         const { markRead } = useChannelActionContext();
         return (
-          <button data-testid={markReadBtnTestId} onClick={markRead}>
+          <button data-testid={markReadBtnTestId} onClick={markRead as any}>
             MarkRead
           </button>
         );
@@ -408,7 +414,7 @@ describe('MessageList', () => {
           <Chat client={client}>
             <Channel channel={channel}>
               <MarkReadButton />
-              <MessageList messages={messages} />
+              <MessageList messages={messages as any} />
             </Channel>
           </Chat>,
         );
@@ -486,7 +492,7 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false as any);
 
       await act(() => {
         renderComponent({
@@ -527,7 +533,7 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false as any);
 
       await act(() => {
         renderComponent({
@@ -914,9 +920,8 @@ describe('MessageList', () => {
             <Chat client={chatClient}>
               <Channel channel={channel}>
                 <MessageList
-                  hasMoreNewer={canLoadNewer}
-                  jumpToLatestMessage={jumpToLatestMessage}
-                  messages={renderedMessages}
+                  {...({ hasMoreNewer: canLoadNewer, jumpToLatestMessage } as any)}
+                  messages={renderedMessages as any}
                 />
               </Channel>
             </Chat>
@@ -1021,8 +1026,8 @@ describe('MessageList', () => {
               <Chat client={chatClient}>
                 <Channel channel={channel}>
                   <MessageList
-                    highlightedMessageId={highlightedId}
-                    messages={renderedMessages}
+                    {...({ highlightedMessageId: highlightedId } as any)}
+                    messages={renderedMessages as any}
                   />
                 </Channel>
               </Chat>
@@ -1130,7 +1135,10 @@ describe('MessageList', () => {
               </button>
               <Chat client={chatClient}>
                 <Channel channel={channel}>
-                  <MessageList hasMoreNewer={canLoadNewer} messages={renderedMessages} />
+                  <MessageList
+                    {...({ hasMoreNewer: canLoadNewer } as any)}
+                    messages={renderedMessages as any}
+                  />
                 </Channel>
               </Chat>
             </>
@@ -1276,7 +1284,7 @@ describe('MessageList', () => {
                 <Channel channel={channel}>
                   <MessageList
                     loadingMore={loadingMore}
-                    messages={renderedMessages}
+                    messages={renderedMessages as any}
                     scrolledUpThreshold={200}
                   />
                 </Channel>
@@ -1341,7 +1349,7 @@ describe('MessageList', () => {
     ])('calls %s', async (funcName) => {
       const markUnreadSpy = vi.spyOn(channel, 'markUnread');
       if (funcName === 'getMarkMessageUnreadErrorNotification')
-        markUnreadSpy.mockRejectedValueOnce();
+        markUnreadSpy.mockRejectedValueOnce(undefined as any);
 
       const message = generateMessage();
       const notificationFunc = vi.fn();
@@ -1349,7 +1357,7 @@ describe('MessageList', () => {
         const { handleMarkUnread } = useMessageContext();
         useEffect(() => {
           const event = { preventDefault: () => null };
-          handleMarkUnread(event);
+          handleMarkUnread(event as any);
         }, [handleMarkUnread]);
         return null;
       };

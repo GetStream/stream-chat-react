@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { SearchController } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -25,7 +24,7 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -72,8 +71,8 @@ const mockedChannelData = generateChannel({
   },
   members: [generateMember({ user }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
-  thread: [threadMessage],
-});
+  threads: [threadMessage],
+} as any);
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
@@ -92,7 +91,15 @@ const getFile = (name = filename) => new File(['content'], name, { type: 'text/p
 
 // Polyfill DOMRect for jsdom
 if (typeof globalThis.DOMRect === 'undefined') {
-  globalThis.DOMRect = class DOMRect {
+  (globalThis as any).DOMRect = class DOMRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
     constructor(x = 0, y = 0, width = 0, height = 0) {
       this.x = x;
       this.y = y;
@@ -127,7 +134,7 @@ const sendMessageMock = vi.fn();
 const mockAddNotification = vi.fn();
 
 vi.mock('../../Channel/utils', async (importOriginal) => ({
-  ...(await importOriginal()),
+  ...((await importOriginal()) as any),
   makeAddNotifications: () => mockAddNotification,
 }));
 
@@ -142,7 +149,7 @@ const defaultMessageContextValue = {
   message: mainListMessage,
 };
 
-function dropFile(file, formElement) {
+function dropFile(file: any, formElement: any) {
   fireEvent.drop(formElement, {
     dataTransfer: {
       files: [file],
@@ -151,7 +158,7 @@ function dropFile(file, formElement) {
   });
 }
 
-const initQuotedMessagePreview = async (message) => {
+const initQuotedMessagePreview = async (message: any) => {
   await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
 
   // Open the message actions dropdown
@@ -169,14 +176,14 @@ const initQuotedMessagePreview = async (message) => {
   });
 };
 
-const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
+const quotedMessagePreviewIsDisplayedCorrectly = async (message: any) => {
   await waitFor(() =>
     expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
   );
   await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
 };
 
-const quotedMessagePreviewIsNotDisplayed = (message) => {
+const quotedMessagePreviewIsNotDisplayed = (message: any) => {
   expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
   expect(screen.queryByText(message.text)).not.toBeInTheDocument();
 };
@@ -192,7 +199,7 @@ const renderComponent = async ({
   messageActionsProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
-} = {}) => {
+}: any = {}) => {
   let channel = customChannel;
   let client = customClient;
   if (!(channel || client)) {
@@ -209,12 +216,16 @@ const renderComponent = async ({
     renderResult = render(
       <WithComponents overrides={components}>
         <ChatProvider
-          value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}
+          value={
+            { ...defaultChatContext, channel, client, ...chatContextOverrides } as any
+          }
         >
           <DialogManagerProvider id='message-input-test-dialog-manager'>
             <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
               <MessageProvider
-                value={{ ...defaultMessageContextValue, ...messageContextOverrides }}
+                value={
+                  { ...defaultMessageContextValue, ...messageContextOverrides } as any
+                }
               >
                 <MessageActions
                   disableBaseMessageActionSetFilter
@@ -242,14 +253,14 @@ const tearDown = () => {
   vi.clearAllMocks();
 };
 
-function axeNoViolations(container) {
+function axeNoViolations(container: any) {
   return async () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   };
 }
 
-const setup = async ({ channelData } = {}) => {
+const setup = async ({ channelData }: any = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -259,16 +270,16 @@ const setup = async ({ channelData } = {}) => {
   });
   const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
     file: fileUploadUrl,
-  });
+  } as any);
   const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
     file: fileUploadUrl,
-  });
+  } as any);
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
 };
 
-const setupUploadRejected = async (error) => {
+const setupUploadRejected = async (error: any) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -292,7 +303,7 @@ const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
   });
 
   // Set cooldown active via the channel's cooldownTimer state
-  channel.cooldownTimer.state.next({ cooldownRemaining: cooldown });
+  channel.cooldownTimer.state.next({ cooldownRemaining: cooldown } as any);
 
   await renderComponent({
     customChannel: channel,
@@ -321,7 +332,7 @@ describe(`MessageInputFlat`, () => {
     await waitFor(() => {
       const textarea = screen.getByPlaceholderText(inputPlaceholder);
       expect(textarea).toBeInTheDocument();
-      expect(textarea.value).toBe('');
+      expect((textarea as any).value).toBe('');
     });
   });
 
@@ -428,9 +439,9 @@ describe(`MessageInputFlat`, () => {
         og_scrape_url: 'http://getstream.io',
         status: 'loaded',
         title: 'http://getstream.io',
-      });
+      } as any);
       customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([[scrapedData.og_scrape_url, scrapedData]]),
+        previews: new Map([[scrapedData.og_scrape_url, scrapedData]]) as any,
       });
     });
 
@@ -449,7 +460,7 @@ describe(`MessageInputFlat`, () => {
         bubbles: true,
       });
       // set `clipboardData`. Mock DataTransfer object
-      clipboardEvent.clipboardData = {
+      (clipboardEvent as any).clipboardData = {
         items: [
           {
             getAsFile: () => file,
@@ -491,7 +502,7 @@ describe(`MessageInputFlat`, () => {
         bubbles: true,
       });
       // set `clipboardData`. Mock DataTransfer object
-      clipboardEvent.clipboardData = {
+      (clipboardEvent as any).clipboardData = {
         items: [
           {
             getAsFile: () => file,
@@ -653,7 +664,7 @@ describe(`MessageInputFlat`, () => {
     it('should show attachment previews if at least one non-scraped attachments available', async () => {
       const { customChannel, customClient } = await setup();
       customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' }],
+        attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' } as any],
       });
       await renderComponent({
         customChannel,
@@ -674,9 +685,9 @@ describe(`MessageInputFlat`, () => {
         ...generateLocalAttachmentData(),
         ...generateScrapedDataAttachment(),
       };
-      const unknownAttachment = { ...generateLocalAttachmentData(), type: 'xxx' };
+      const unknownAttachment = { ...generateLocalAttachmentData(), type: 'xxx' } as any;
       customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [scrapedAttachment, unknownAttachment],
+        attachments: [scrapedAttachment as any, unknownAttachment],
       });
       await renderComponent({
         customChannel,
@@ -712,7 +723,7 @@ describe(`MessageInputFlat`, () => {
       });
       const linkPreviewData = generateScrapedDataAttachment();
       customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]),
+        previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]) as any,
       });
       await renderComponent({
         customChannel,
@@ -727,7 +738,7 @@ describe(`MessageInputFlat`, () => {
       const cause = new Error('failed to upload');
       const { customChannel, customClient, sendFileSpy } =
         await setupUploadRejected(cause);
-      sendFileSpy.mockResolvedValueOnce({ file: fileUploadUrl });
+      sendFileSpy.mockResolvedValueOnce({ file: fileUploadUrl } as any);
       await renderComponent({
         customChannel,
         customClient,
@@ -771,7 +782,7 @@ describe(`MessageInputFlat`, () => {
 
       const clipboardEvent = new Event('paste', { bubbles: true });
       // set `clipboardData`. Mock DataTransfer object
-      clipboardEvent.clipboardData = {
+      (clipboardEvent as any).clipboardData = {
         items: [
           { getAsFile: () => file, kind: 'file' },
           { getAsFile: () => image, kind: 'file' },
@@ -1348,7 +1359,7 @@ describe(`MessageInputFlat`, () => {
         cooldown.toString(),
       );
       await act(() => {
-        channel.cooldownTimer.state.next({ cooldownRemaining: 0 });
+        channel.cooldownTimer.state.next({ cooldownRemaining: 0 } as any);
       });
       expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
     });

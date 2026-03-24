@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import * as transcoder from '../../transcode';
@@ -34,7 +33,10 @@ import { MediaRecordingState } from '../../classes';
 import { WithAudioPlayback } from '../../../AudioPlayback';
 import { ChatViewContext } from '../../../ChatView/ChatView';
 
-const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
+const chatViewContextValue = {
+  activeChatView: 'channels',
+  setActiveChatView: () => {},
+} as any;
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
@@ -56,11 +58,11 @@ const DEFAULT_RENDER_PARAMS = {
   componentCtx: {},
 };
 
-window.ResizeObserver = ResizeObserverMock;
+window.ResizeObserver = ResizeObserverMock as any;
 
 vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
   width: 120,
-});
+} as any);
 
 const renderComponent = async ({
   channelActionCtx,
@@ -68,7 +70,7 @@ const renderComponent = async ({
   chatCtx,
   componentCtx,
   props,
-} = {}) => {
+}: any = {}) => {
   const {
     channels: [channel],
     client,
@@ -116,7 +118,7 @@ vi.mock('nanoid', () => ({
 vi.mock('fix-webm-duration', () => ({ default: vi.fn((blob) => blob) }));
 
 vi.mock('../../../Notifications', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   const notificationTarget = await import('../../../Notifications/notificationTarget');
   return {
     ...actual,
@@ -125,21 +127,21 @@ vi.mock('../../../Notifications', async (importOriginal) => {
   };
 });
 
-vi.spyOn(console, 'warn').mockImplementation();
+vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-vi.spyOn(transcoder, 'transcode').mockImplementation((opts) =>
+vi.spyOn(transcoder, 'transcode').mockImplementation((opts: any) =>
   Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
 );
 
-window.navigator.permissions = {
+(window.navigator as any).permissions = {
   query: vi.fn(),
 };
 
-window.MediaRecorder = MediaRecorderMock;
+window.MediaRecorder = MediaRecorderMock as any;
 
-window.AudioContext = AudioContextMock;
+window.AudioContext = AudioContextMock as any;
 
-window.AnalyserNode = AnalyserNodeMock;
+window.AnalyserNode = AnalyserNodeMock as any;
 
 const fileObjectURL = 'fileObjectURL';
 // eslint-disable-next-line
@@ -149,7 +151,7 @@ window.URL.revokeObjectURL = vi.fn();
 
 describe('MessageInput', () => {
   beforeEach(() => {
-    window.navigator.mediaDevices = {
+    (window.navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
@@ -166,7 +168,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button if navigator.mediaDevices is undefined', async () => {
-    window.navigator.mediaDevices = undefined;
+    (window.navigator as any).mediaDevices = undefined;
     await renderComponent();
     expect(
       screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
@@ -199,10 +201,10 @@ describe('MessageInput', () => {
       client,
     } = await initClientWithChannels();
     channel.messageComposer.attachmentManager.upsertAttachments([
-      { ...generateLocalAttachmentData(), ...generateFileAttachment() },
-      { ...generateLocalAttachmentData(), ...generateImageAttachment() },
-      { ...generateLocalAttachmentData(), ...generateAudioAttachment() },
-      { ...generateLocalAttachmentData(), ...generateVideoAttachment() },
+      { ...generateLocalAttachmentData(), ...generateFileAttachment() } as any,
+      { ...generateLocalAttachmentData(), ...generateImageAttachment() } as any,
+      { ...generateLocalAttachmentData(), ...generateAudioAttachment() } as any,
+      { ...generateLocalAttachmentData(), ...generateVideoAttachment() } as any,
     ]);
     await renderComponent({
       channelStateCtx: { channel },
@@ -219,7 +221,7 @@ describe('MessageInput', () => {
       client,
     } = await initClientWithChannels();
     channel.messageComposer.attachmentManager.upsertAttachments([
-      { ...generateLocalAttachmentData(), ...generateVoiceRecordingAttachment() },
+      { ...generateLocalAttachmentData(), ...generateVoiceRecordingAttachment() } as any,
     ]);
     await renderComponent({
       channelStateCtx: { channel },
@@ -279,9 +281,9 @@ describe('MessageInput', () => {
 
   it('does not show RecordingPermissionDeniedNotification until start recording button clicked if microphone permission is denied', async () => {
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
-    const status = new EventEmitterMock();
+    const status = new EventEmitterMock() as any;
     status.state = 'denied';
-    window.navigator.permissions.query.mockResolvedValueOnce(status);
+    (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
     await renderComponent();
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     await act(() => {
@@ -292,9 +294,9 @@ describe('MessageInput', () => {
 
   it('renders custom RecordingPermissionDeniedNotification', async () => {
     const RecordingPermissionDeniedNotification = () => <div>custom notification</div>;
-    const status = new EventEmitterMock();
+    const status = new EventEmitterMock() as any;
     status.state = 'denied';
-    window.navigator.permissions.query.mockResolvedValueOnce(status);
+    (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
     await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
@@ -312,10 +314,10 @@ describe('MessageInput', () => {
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
-    vi.spyOn(client, 'getAppSettings').mockResolvedValue({});
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as any);
     const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
-      .mockResolvedValue({ file: fileObjectURL });
+      .mockResolvedValue({ file: fileObjectURL } as any);
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
@@ -345,11 +347,11 @@ describe('MessageInput', () => {
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
-    vi.spyOn(client, 'getAppSettings').mockResolvedValue({});
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as any);
     const sendFileSpy = vi
       .spyOn(channel, 'sendFile')
-      .mockResolvedValue({ file: fileObjectURL });
-    const sendMessageSpy = vi.spyOn(channel, 'sendMessage').mockResolvedValue({});
+      .mockResolvedValue({ file: fileObjectURL } as any);
+    const sendMessageSpy = vi.spyOn(channel, 'sendMessage').mockResolvedValue({} as any);
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
@@ -383,12 +385,14 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <ChannelActionProvider value={{}}>
+    <ChannelActionProvider value={{} as any}>
       <WithAudioPlayback>
         <MessageComposerContextProvider
-          value={{
-            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-          }}
+          value={
+            {
+              recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+            } as any
+          }
         >
           <AudioRecorder />
         </MessageComposerContextProvider>
@@ -445,7 +449,7 @@ describe('AudioRecorder', () => {
     await renderAudioRecorder({
       recording: generateVoiceRecordingAttachment({
         localMetadata: { uploadState: 'uploading' },
-      }),
+      } as any),
       recordingState: MediaRecordingState.STOPPED,
     });
     expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import {
@@ -30,19 +29,22 @@ import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 const prependOffset = 0;
 const user1 = generateUser();
 const user2 = generateUser();
-let client;
-let channel;
+let client: any;
+let channel: any;
 
 const PREPEND_OFFSET = 10 ** 7;
 
-const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
+const chatViewContextValue = {
+  activeChatView: 'channels',
+  setActiveChatView: () => {},
+} as any;
 
-const Wrapper = ({ children, componentContext = {} }) => (
+const Wrapper = ({ children, componentContext = {} }: any) => (
   <ChatViewContext.Provider value={chatViewContextValue}>
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
-        <ChannelActionProvider value={{}}>
-          <ComponentProvider value={componentContext}>
+    <ChatProvider value={{ client } as any}>
+      <ChannelStateProvider value={{ channel } as any}>
+        <ChannelActionProvider value={{} as any}>
+          <ComponentProvider value={componentContext as any}>
             <DialogManagerProvider id='vml-components-dialog-manager'>
               {children}
             </DialogManagerProvider>
@@ -53,7 +55,7 @@ const Wrapper = ({ children, componentContext = {} }) => (
   </ChatViewContext.Provider>
 );
 
-const renderElements = (children, componentContext) =>
+const renderElements = (children: any, componentContext?: any) =>
   render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
 
 describe('VirtualizedMessageComponents', () => {
@@ -83,7 +85,7 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = renderElements(
-          <Item context={virtuosoContext} {...props} />,
+          <Item context={virtuosoContext as any} {...(props as any)} />,
         );
         expect(container).toMatchSnapshot();
       },
@@ -100,7 +102,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render LoadingIndicator in Header when loading more messages', () => {
       const context = { loadingMore: true };
-      const { container } = renderElements(<Header context={context} />);
+      const { container } = renderElements(<Header context={context as any} />);
       expect(container).toMatchSnapshot();
     });
 
@@ -108,7 +110,7 @@ describe('VirtualizedMessageComponents', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { loadingMore: true };
       const { container } = renderElements(
-        <Header context={context} />,
+        <Header context={context as any} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -133,7 +135,7 @@ describe('VirtualizedMessageComponents', () => {
     // FIXME: this is a crazy pattern of having to set LoadingIndicator to null so that additionalVirtuosoProps.head can be rendered.
     it('should not render custom head in Header when loading more messages, but the LoadingIndicator', () => {
       const context = { head, loadingMore: true };
-      const { container } = renderElements(<Header context={context} />);
+      const { container } = renderElements(<Header context={context as any} />);
       expect(container).toMatchSnapshot();
     });
 
@@ -144,7 +146,7 @@ describe('VirtualizedMessageComponents', () => {
       };
       const context = { head, loadingMore: true };
       const { container } = renderElements(
-        <Header context={context} />,
+        <Header context={context as any} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -158,7 +160,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should not render custom head in Header when not loading more messages', () => {
       const context = { head };
-      const { container } = renderElements(<Header context={context} />);
+      const { container } = renderElements(<Header context={context as any} />);
       expect(container).toMatchInlineSnapshot(`
         <div>
           <div>
@@ -172,7 +174,7 @@ describe('VirtualizedMessageComponents', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const context = { head, loadingMore: true };
       const { container } = renderElements(
-        <Header context={context} />,
+        <Header context={context as any} />,
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`
@@ -205,7 +207,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render empty for thread by default', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
+        <EmptyPlaceholder context={{ threadList: true } as any} />,
       );
       expect(container).toBeEmptyDOMElement();
     });
@@ -216,7 +218,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render custom EmptyStateIndicator for thread', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
+        <EmptyPlaceholder context={{ threadList: true } as any} />,
         componentContext,
       );
       expect(container).toMatchSnapshot();
@@ -231,7 +233,7 @@ describe('VirtualizedMessageComponents', () => {
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true }} />,
+        <EmptyPlaceholder context={{ threadList: true } as any} />,
         componentContext,
       );
       expect(container).toBeEmptyDOMElement();
@@ -258,7 +260,7 @@ describe('VirtualizedMessageComponents', () => {
         numItemsPrepended,
         processedMessages: [generateMessage()],
       };
-      messageRenderer(virtuosoIndex, undefined, virtuosoContext);
+      messageRenderer(virtuosoIndex, undefined, virtuosoContext as any);
       expect(customMessageRenderer).toHaveBeenCalledWith(
         expect.arrayContaining(virtuosoContext.processedMessages),
         0,
@@ -291,7 +293,7 @@ describe('VirtualizedMessageComponents', () => {
               };
               return (
                 <div key={numItemsPrepended}>
-                  {messageRenderer(virtuosoIndex, undefined, virtuosoContext)}
+                  {messageRenderer(virtuosoIndex, undefined, virtuosoContext as any)}
                 </div>
               );
             })}
@@ -308,7 +310,7 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
         );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
@@ -322,7 +324,7 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [generateMessage({ type: 'system' })],
         };
 
-        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
+        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext as any));
         expect(screen.getByText(text)).toBeInTheDocument();
       });
 
@@ -330,11 +332,11 @@ describe('VirtualizedMessageComponents', () => {
         const virtuosoContext = {
           numItemsPrepended,
           processedMessages: [
-            generateMessage({ customType: 'message.date', date: new Date() }),
+            generateMessage({ customType: 'message.date', date: new Date() } as any),
           ],
         };
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
         );
         expect(container).toMatchInlineSnapshot(`<div />`);
       });
@@ -346,10 +348,10 @@ describe('VirtualizedMessageComponents', () => {
           DateSeparator,
           numItemsPrepended,
           processedMessages: [
-            generateMessage({ customType: 'message.date', date: new Date() }),
+            generateMessage({ customType: 'message.date', date: new Date() } as any),
           ],
         };
-        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext));
+        render(messageRenderer(virtuosoIndex, undefined, virtuosoContext as any));
         expect(screen.getByText(text)).toBeInTheDocument();
       });
 
@@ -361,7 +363,7 @@ describe('VirtualizedMessageComponents', () => {
         };
 
         const { container } = render(
-          messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+          messageRenderer(virtuosoIndex, undefined, virtuosoContext as any),
         );
         expect(container).toMatchInlineSnapshot(`
                   <div>
@@ -374,27 +376,30 @@ describe('VirtualizedMessageComponents', () => {
 
       describe('UnreadMessagesSeparator', () => {
         const messages = Array.from({ length: 2 }, (_, i) =>
-          generateMessage({ created_at: new Date(i + 2).toISOString(), id: i + 1 }),
+          generateMessage({
+            created_at: new Date(i + 2).toISOString(),
+            id: i + 1,
+          } as any),
         );
 
         const Message = () => <div className='message-component' />;
 
-        const renderMarkUnread = async ({ virtuosoContext, virtuosoIndex } = {}) => {
+        const renderMarkUnread = async ({ virtuosoContext, virtuosoIndex }: any = {}) => {
           const {
             channels: [channel],
             client,
           } = await initClientWithChannels();
           return render(
             <ChatViewContext.Provider value={chatViewContextValue}>
-              <ChatProvider value={{ client }}>
-                <TranslationProvider value={{ t: (v) => v }}>
-                  <ComponentProvider value={{}}>
-                    <ChannelActionProvider value={{}}>
-                      <ChannelStateProvider value={{ channel }}>
+              <ChatProvider value={{ client } as any}>
+                <TranslationProvider value={{ t: (v: any) => v } as any}>
+                  <ComponentProvider value={{} as any}>
+                    <ChannelActionProvider value={{} as any}>
+                      <ChannelStateProvider value={{ channel } as any}>
                         {messageRenderer(
                           virtuosoIndex ?? PREPEND_OFFSET,
                           undefined,
-                          virtuosoContext,
+                          virtuosoContext as any,
                         )}
                       </ChannelStateProvider>
                     </ChannelActionProvider>
@@ -588,7 +593,7 @@ describe('VirtualizedMessageComponents', () => {
                 };
                 return (
                   <div key={numItemsPrepended}>
-                    {messageRenderer(virtuosoIndex, undefined, virtuosoContext)}
+                    {messageRenderer(virtuosoIndex, undefined, virtuosoContext as any)}
                   </div>
                 );
               })}

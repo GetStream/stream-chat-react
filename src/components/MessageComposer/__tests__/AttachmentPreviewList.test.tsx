@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import {
@@ -20,7 +19,7 @@ import {
 } from '../../../mock-builders';
 import { WithComponents } from '../../../context';
 
-vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
 const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
@@ -63,7 +62,7 @@ const renderComponent = async ({
   coords,
   editedMessage,
   props,
-} = {}) => {
+}: any = {}) => {
   let channel = customChannel;
   let client = customClient;
   if (!(customChannel && customClient)) {
@@ -118,23 +117,23 @@ describe('AttachmentPreviewList', () => {
           generateAudioAttachment({
             localMetadata: { id: 'audio-attachment-id', uploadState: state },
             title: `audio-attachment-${state}`,
-          }),
+          } as any),
           generateVoiceRecordingAttachment({
             localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
             title: `voice-recording-attachment-${state}`,
-          }),
+          } as any),
           generateVideoAttachment({
             localMetadata: { id: 'video-attachment-id', uploadState: state },
             title: `video-attachment-${state}`,
-          }),
+          } as any),
           generateFileAttachment({
             localMetadata: { id: 'file-attachment-id', uploadState: state },
             title: `file-upload-${state}`,
-          }),
+          } as any),
           generateImageAttachment({
             fallback: `image-upload-${state}`,
             localMetadata: { id: 'image-attachment-id', uploadState: state },
-          }),
+          } as any),
         ],
       });
 
@@ -159,7 +158,7 @@ describe('AttachmentPreviewList', () => {
             uploadState: 'finished',
           },
           title: 'voice-recording-finished',
-        }),
+        } as any),
       ],
       component: VoiceRecordingPreviewSlot,
       props: {
@@ -361,7 +360,11 @@ describe('AttachmentPreviewList', () => {
   });
 
   describe('shared location', () => {
-    const renderLocationPreview = async ({ customPreview, location, remove } = {}) => {
+    const renderLocationPreview = async ({
+      customPreview,
+      location,
+      remove,
+    }: any = {}) => {
       const {
         channels: [channel],
         client,

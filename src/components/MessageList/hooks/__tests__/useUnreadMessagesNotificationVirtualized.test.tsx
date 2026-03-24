@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { useUnreadMessagesNotificationVirtualized } from '../VirtualizedMessageList';
@@ -36,8 +35,8 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       const lastRead = new Date((now as any) - 1000);
       const firstRenderedMsgCreated = new Date((now as any) - 500);
       const messages = [
-        generateMessage({ created_at: firstRenderedMsgCreated }),
-        generateMessage({ created_at: now }),
+        generateMessage({ created_at: firstRenderedMsgCreated as any }),
+        generateMessage({ created_at: now as any }),
       ];
       const { result } = render({ lastRead, showAlways: false, unreadCount: 0 });
       await act(() => {
@@ -53,8 +52,8 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         const lastRead = new Date((now as any) - 1000);
         const firstRenderedMsgCreated = new Date((now as any) - 500);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated }),
-          generateMessage({ created_at: now }),
+          generateMessage({ created_at: firstRenderedMsgCreated as any }),
+          generateMessage({ created_at: now as any }),
         ];
         const { result } = render({
           lastRead,
@@ -79,8 +78,8 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         const lastRenderedMsgCreated = new Date((now as any) - 1001);
         const lastRead = new Date((now as any) - 1000);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated }),
-          generateMessage({ created_at: lastRenderedMsgCreated }),
+          generateMessage({ created_at: firstRenderedMsgCreated as any }),
+          generateMessage({ created_at: lastRenderedMsgCreated as any }),
         ];
         const { result } = render({
           lastRead,
@@ -101,8 +100,8 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         const firstRenderedMsgCreated = new Date((now as any) - 1002);
         const lastRead = new Date((now as any) - 1001);
         const messages = [
-          generateMessage({ created_at: firstRenderedMsgCreated }),
-          generateMessage({ created_at: lastRead }),
+          generateMessage({ created_at: firstRenderedMsgCreated as any }),
+          generateMessage({ created_at: lastRead as any }),
         ];
         const { result } = render({
           lastRead,
@@ -123,8 +122,8 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         const lastRead = new Date((now as any) - 1001);
         const lastRenderedMsgCreated = new Date((now as any) - 1000);
         const messages = [
-          generateMessage({ created_at: lastRead }),
-          generateMessage({ created_at: lastRenderedMsgCreated }),
+          generateMessage({ created_at: lastRead as any }),
+          generateMessage({ created_at: lastRenderedMsgCreated as any }),
         ];
         const { result } = render({
           lastRead,

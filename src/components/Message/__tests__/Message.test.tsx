@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 
@@ -20,7 +19,7 @@ import {
 import { ComponentProvider } from '../../../context/ComponentContext';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -60,7 +59,7 @@ async function renderComponent({
   message,
   props = {},
   renderer = render,
-}) {
+}: any) {
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
@@ -68,35 +67,41 @@ async function renderComponent({
     sendReaction,
     state: { membership: {} },
     ...channelStateOpts,
-  });
+  } as any);
   const client = await getTestClientWithUser(alice);
 
   return renderer(
-    <ChatProvider value={{ client, ...clientOpts }}>
+    <ChatProvider value={{ client, ...clientOpts } as any}>
       <ChannelStateProvider
-        value={{
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateOpts,
-        }}
+        value={
+          {
+            channel,
+            channelCapabilities: { 'send-reaction': true },
+            ...channelStateOpts,
+          } as any
+        }
       >
         <ChannelActionProvider
-          value={{
-            openThread: vi.fn(),
-            removeMessage: vi.fn(),
-            updateMessage: vi.fn(),
-            ...channelActionOpts,
-          }}
+          value={
+            {
+              openThread: vi.fn(),
+              removeMessage: vi.fn(),
+              updateMessage: vi.fn(),
+              ...channelActionOpts,
+            } as any
+          }
         >
           <ComponentProvider
-            value={{
-              Message: () => (
-                <CustomMessageUIComponent contextCallback={contextCallback} />
-              ),
-              ...components,
-            }}
+            value={
+              {
+                Message: () => (
+                  <CustomMessageUIComponent contextCallback={contextCallback} />
+                ),
+                ...components,
+              } as any
+            }
           >
-            <TranslationProvider value={{ t: (key) => key }}>
+            <TranslationProvider value={{ t: (key: any) => key } as any}>
               <Message message={message} {...props} />
             </TranslationProvider>
           </ComponentProvider>
@@ -107,9 +112,9 @@ async function renderComponent({
 }
 
 function renderComponentWithMessage(
-  props = {},
-  channelStateOpts = {},
-  channelConfig = { replies: true },
+  props: any = {},
+  channelStateOpts: any = {},
+  channelConfig: any = { replies: true },
 ) {
   const message = generateMessage();
   return renderComponent({ channelConfig, channelStateOpts, message, props });
@@ -378,7 +383,7 @@ describe('<Message /> component', () => {
     const muteUser = vi.fn(() => Promise.resolve());
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
-    client.muteUser = muteUser;
+    client.muteUser = muteUser as any;
     let context;
 
     await renderComponent({
@@ -406,7 +411,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
     const muteUser = vi.fn(() => Promise.resolve());
-    client.muteUser = muteUser;
+    client.muteUser = muteUser as any;
     let context;
 
     await renderComponent({
@@ -435,7 +440,7 @@ describe('<Message /> component', () => {
     const muteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
-    client.muteUser = muteUser;
+    client.muteUser = muteUser as any;
     let context;
 
     await renderComponent({
@@ -464,7 +469,7 @@ describe('<Message /> component', () => {
     const addErrorSpy = vi.spyOn(client.notifications, 'addError');
     const muteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
-    client.muteUser = muteUser;
+    client.muteUser = muteUser as any;
     let context;
 
     await renderComponent({
@@ -493,7 +498,7 @@ describe('<Message /> component', () => {
     const unmuteUser = vi.fn(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
     const getMuteUserSuccessNotification = vi.fn(() => userUnmutedNotification);
-    client.unmuteUser = unmuteUser;
+    client.unmuteUser = unmuteUser as any;
     let context;
 
     await renderComponent({
@@ -522,7 +527,7 @@ describe('<Message /> component', () => {
     const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
     const unmuteUser = vi.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
-    client.unmuteUser = unmuteUser;
+    client.unmuteUser = unmuteUser as any;
     let context;
 
     await renderComponent({
@@ -551,7 +556,7 @@ describe('<Message /> component', () => {
     const unmuteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
-    client.unmuteUser = unmuteUser;
+    client.unmuteUser = unmuteUser as any;
     let context;
 
     await renderComponent({
@@ -580,7 +585,7 @@ describe('<Message /> component', () => {
     const addErrorSpy = vi.spyOn(client.notifications, 'addError');
     const unmuteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
-    client.unmuteUser = unmuteUser;
+    client.unmuteUser = unmuteUser as any;
     let context;
 
     await renderComponent({
@@ -772,7 +777,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
     const flagMessage = vi.fn(() => Promise.resolve());
-    client.flagMessage = flagMessage;
+    client.flagMessage = flagMessage as any;
     const messageFlaggedNotification = 'Message flagged!';
     const getFlagMessageSuccessNotification = vi.fn(() => messageFlaggedNotification);
     let context;
@@ -801,7 +806,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
     const flagMessage = vi.fn(() => Promise.resolve());
-    client.flagMessage = flagMessage;
+    client.flagMessage = flagMessage as any;
     const defaultSuccessNotification = 'Message has been successfully flagged';
     let context;
 
@@ -828,7 +833,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const addErrorSpy = vi.spyOn(client.notifications, 'addError');
     const flagMessage = vi.fn(() => Promise.reject());
-    client.flagMessage = flagMessage;
+    client.flagMessage = flagMessage as any;
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getFlagMessageErrorNotification = vi.fn(() => messageFlagFailedNotification);
     let context;
@@ -857,7 +862,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const addErrorSpy = vi.spyOn(client.notifications, 'addError');
     const flagMessage = vi.fn(() => Promise.reject());
-    client.flagMessage = flagMessage;
+    client.flagMessage = flagMessage as any;
     const defaultFlagMessageFailedNotification = 'Error adding flag';
     let context;
 
