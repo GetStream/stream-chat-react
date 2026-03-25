@@ -132,7 +132,6 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-function': 'off', // explicitly disable for tests
       '@typescript-eslint/no-explicit-any': 'off', // test mocks frequently need any
       '@typescript-eslint/no-non-null-assertion': 'off', // DOM queries in tests commonly use !
-      '@typescript-eslint/ban-ts-comment': 'off', // @ts-nocheck used during incremental TS migration
     },
   },
 );

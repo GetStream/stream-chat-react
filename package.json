@@ -204,6 +204,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "types": "tsc --emitDeclarationOnly false --noEmit",
+    "types:tests": "tsc --project tsconfig.test.json --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
