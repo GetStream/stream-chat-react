@@ -102,6 +102,7 @@
   "aria/Unblock User": "Kullanıcının engelini kaldır",
   "aria/Unmute User": "Sesini aç",
   "aria/Unpin Message": "Sabitlemeyi kaldır",
+  "aria/Upload progress": "Yüzde {{percent}} karşıya yüklendi",
   "Ask a question": "Bir soru sor",
   "Attach": "Ekle",
   "Attach files": "Dosya ekle",

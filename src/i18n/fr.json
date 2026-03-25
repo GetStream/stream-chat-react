@@ -110,6 +110,7 @@
   "aria/Unblock User": "Débloquer l'utilisateur",
   "aria/Unmute User": "Désactiver muet",
   "aria/Unpin Message": "Détacher le message",
+  "aria/Upload progress": "{{percent}} pour cent téléchargés",
   "Ask a question": "Poser une question",
   "Attach": "Joindre",
   "Attach files": "Joindre des fichiers",

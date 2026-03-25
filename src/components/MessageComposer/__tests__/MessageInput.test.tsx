@@ -345,6 +345,16 @@ const setupUploadRejected = async (error: unknown) => {
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
 };
 
+/** `channel.sendImage` / `channel.sendFile` pass upload options (e.g. `onUploadProgress`) after the file. */
+const expectChannelUploadCall = (spy, expectedFile) => {
+  expect(spy).toHaveBeenCalled();
+  const callArgs = spy.mock.calls[0];
+  expect(callArgs[0]).toBe(expectedFile);
+  expect(callArgs[callArgs.length - 1]).toEqual(
+    expect.objectContaining({ onUploadProgress: expect.any(Function) }),
+  );
+};
+
 const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
   const {
     channels: [channel],
@@ -562,8 +572,8 @@ describe(`MessageInputFlat`, () => {
       });
       const filenameTexts = await screen.findAllByTitle(filename);
       await waitFor(() => {
-        expect(sendFileSpy).toHaveBeenCalledWith(file);
-        expect(sendImageSpy).toHaveBeenCalledWith(image);
+        expectChannelUploadCall(sendFileSpy, file);
+        expectChannelUploadCall(sendImageSpy, image);
         expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
         expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
         filenameTexts.forEach((filenameText) => expect(filenameText).toBeInTheDocument());
@@ -634,7 +644,7 @@ describe(`MessageInputFlat`, () => {
         dropFile(file, formElement);
       });
       await waitFor(() => {
-        expect(sendImageSpy).toHaveBeenCalledWith(file);
+        expectChannelUploadCall(sendImageSpy, file);
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();

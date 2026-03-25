@@ -101,6 +101,7 @@
   "aria/Unblock User": "사용자 차단 해제",
   "aria/Unmute User": "음소거 해제",
   "aria/Unpin Message": "핀 해제",
+  "aria/Upload progress": "{{percent}}퍼센트 업로드됨",
   "Ask a question": "질문하기",
   "Attach": "첨부",
   "Attach files": "파일 첨부",

@@ -74,6 +74,7 @@ import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageComposer/EditedMessagePreview';
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
+import type { UploadProgressProps } from '../components/MessageComposer/icons';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
@@ -148,6 +149,8 @@ export type ComponentContextValue = {
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  /** Custom UI component for determinate attachment upload progress (0–100) in attachment previews, defaults to and accepts same props as: [UploadProgress](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/icons.tsx) */
+  UploadProgress?: React.ComponentType<UploadProgressProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */

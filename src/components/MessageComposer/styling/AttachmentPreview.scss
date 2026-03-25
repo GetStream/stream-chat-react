@@ -76,6 +76,19 @@
 
   --str-chat__attachment-preview-file-fatal-error-color: var(--color-accent-error);
 
+  .str-chat__attachment-upload-progress {
+    color: var(--str-chat__primary-color);
+
+    .str-chat__upload-progress {
+      width: 100%;
+      height: 100%;
+    }
+
+    svg {
+      display: block;
+    }
+  }
+
   .str-chat__message-composer-voice-preview-slot {
     display: flex;
     align-items: center;
@@ -210,7 +223,9 @@
       );
     }
 
-    .str-chat__icon.str-chat__loading-indicator {
+    .str-chat__loading-indicator,
+    .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--overlay,
+    .str-chat__icon--exclamation-circle {
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
       position: absolute;
@@ -233,6 +248,11 @@
       border-radius: var(--radius-max);
       background: var(--badge-bg-error);
       color: var(--badge-text-on-accent);
+    }
+
+    .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--overlay {
+      border: none;
+      border-radius: 0;
     }
   }
 
@@ -283,9 +303,18 @@
       font-size: var(--typography-font-size-xs);
       line-height: var(--typography-line-height-tight);
 
-      .str-chat__icon.str-chat__loading-indicator {
+      .str-chat__loading-indicator,
+      .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--inline {
         width: var(--icon-size-sm);
         height: var(--icon-size-sm);
+      }
+
+      .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--inline {
+        flex-shrink: 0;
+      }
+
+      .str-chat__attachment-preview-file__upload-size-fraction {
+        white-space: nowrap;
       }
 
       .str-chat__attachment-preview-file__fatal-error {
