@@ -22,10 +22,7 @@ export type ReactionSelectorProps = {
 
 interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): ReactNode;
-  getDialogId: (_: {
-    messageId: string;
-    threadList?: boolean;
-  }) => string;
+  getDialogId: (_: { messageId: string; threadList?: boolean }) => string;
   displayName: string;
 }
 
