@@ -25,7 +25,7 @@ import type {
   ReactionsComparator,
   ReactionType,
 } from './types';
-import { DialogAnchor, useDialogOnNearestManager } from '../Dialog';
+import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 
 export type MessageReactionsProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -103,6 +103,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const divRef = useRef<ComponentRef<'div'>>(null);
   const dialogId = `message-reactions-detail-${message.id}`;
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const isDialogOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
   const handleReactionButtonClick = (reactionType: ReactionType | null) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
@@ -149,6 +150,8 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
         role='figure'
       >
         <FragmentOrButton
+          aria-expanded={isDialogOpen}
+          aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
           onClick={() =>
@@ -187,11 +190,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
               <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
                 <button
                   className='str-chat__message-reactions__list-item-button'
-                  onClick={() =>
-                    handleReactionButtonClick(
-                      existingReactions.at(-1)?.reactionType ?? null,
-                    )
-                  }
+                  onClick={() => handleReactionButtonClick(null)}
                 >
                   <span className='str-chat__message-reactions__overflow-count'>
                     +{totalReactionCount - cappedExistingReactions.reactionCountToDisplay}
