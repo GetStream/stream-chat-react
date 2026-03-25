@@ -93,7 +93,7 @@ body {
     min-width: 0;
     height: 100%;
     position: relative;
-    z-index: 4;
+    z-index: 1;
   }
 
   .app-chat-view__channels-layout > .str-chat__channel,
@@ -585,7 +585,7 @@ body {
         transform var(--str-chat__chat-view-selector-transition-duration, 180ms)
           var(--str-chat__chat-view-selector-transition-easing, ease),
         visibility 0s linear var(--str-chat__chat-view-selector-transition-duration, 180ms);
-      z-index: 6;
+      z-index: 1;
     }
 
     .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
