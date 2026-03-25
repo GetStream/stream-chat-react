@@ -180,12 +180,24 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: $controls-containers-min-height;
+      justify-content: center;
       gap: var(--spacing-sm);
+
+      .str-chat__message-composer-controls__text-composition-controls__command-chip-container {
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        flex: 0 0 auto;
+        align-self: flex-end;
+      }
     }
 
     .str-chat__message-composer-controls__text-composition-controls__text {
       display: flex;
-      align-items: end;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
       gap: var(--spacing-xxs);
     }
 
@@ -210,10 +222,11 @@
 
     .str-chat__textarea {
       flex: 1;
+      min-width: 0;
       position: relative;
       display: flex;
       align-items: center;
-      margin-inline: var(--spacing-xxs) var(--spacing-xs);
+      width: 100%;
 
       textarea {
         @include utils.component-layer-overrides('message-textarea');
