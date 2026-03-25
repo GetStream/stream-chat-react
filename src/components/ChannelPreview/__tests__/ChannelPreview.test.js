@@ -500,11 +500,11 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkRead({ client });
       });
-      expectUnreadCountToBe(screen.getByTestId, 0);
+      await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
     it('should set unread count to 0 for current channel', async () => {
@@ -518,11 +518,11 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkRead({ channel: channelInPreview, client });
       });
-      expectUnreadCountToBe(screen.getByTestId, 0);
+      await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
     it('should be ignored if not targeted for the current channel', async () => {
@@ -537,11 +537,11 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkRead({ channel: activeChannel, client });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
   });
 
@@ -558,7 +558,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: channelInPreview,
@@ -567,7 +567,7 @@ describe('ChannelPreview', () => {
           user: otherUser,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it('should be ignored if not targeted for the current channel', async () => {
@@ -582,7 +582,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: activeChannel,
@@ -591,13 +591,17 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it("should set unread count from client's unread count state for active channel", async () => {
       const unreadCount = 0;
+      const nextUnreadCount = 5;
       const activeChannel = c1;
-      activeChannel.countUnread = () => unreadCount;
+      jest
+        .spyOn(activeChannel, 'countUnread')
+        .mockReturnValueOnce(unreadCount)
+        .mockReturnValueOnce(nextUnreadCount);
       renderComponent(
         {
           activeChannel,
@@ -605,9 +609,8 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: activeChannel,
@@ -616,14 +619,18 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, nextUnreadCount);
     });
 
     it("should set unread count from client's unread count state for non-active channel", async () => {
       const unreadCount = 0;
+      const nextUnreadCount = 5;
       const channelInPreview = c0;
       const activeChannel = c1;
-      channelInPreview.countUnread = () => unreadCount;
+      jest
+        .spyOn(channelInPreview, 'countUnread')
+        .mockReturnValueOnce(unreadCount)
+        .mockReturnValueOnce(nextUnreadCount);
       renderComponent(
         {
           activeChannel,
@@ -631,9 +638,8 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: channelInPreview,
@@ -642,7 +648,7 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, nextUnreadCount);
     });
   });
 

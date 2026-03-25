@@ -278,7 +278,7 @@ describe('PollCreationDialog', () => {
 
   it('registers max vote count field error and prevents submission', async () => {
     const text = 'Abc';
-    await renderComponent();
+    const { channel } = await renderComponent();
     const nameInput = getNameInput();
     await act(async () => {
       await fireEvent.change(nameInput, { target: { value: text } });
@@ -294,6 +294,25 @@ describe('PollCreationDialog', () => {
     const maxVoteCountInput = screen.getByPlaceholderText(MAX_VOTES_FIELD_PLACEHOLDER);
     await act(async () => {
       await fireEvent.change(maxVoteCountInput, { target: { value: '11' } });
+    });
+
+    // stream-chat clamps max_votes_allowed on field change, so force a blur-validation
+    // pass with raw out-of-range value through the state middleware.
+    await act(async () => {
+      const pollComposer = channel.messageComposer.pollComposer;
+      const latestState = pollComposer.state.getLatestValue();
+      const result = await pollComposer.stateMiddlewareExecutor.execute({
+        eventName: 'handleFieldBlur',
+        initialValue: {
+          nextState: { ...latestState },
+          previousState: { ...latestState },
+          targetFields: { max_votes_allowed: '11' },
+        },
+      });
+
+      if (result.status !== 'discard') {
+        pollComposer.state.next(result.state.nextState);
+      }
     });
 
     const maxVoteCountErrors = screen.getAllByTestId(

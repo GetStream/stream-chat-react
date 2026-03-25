@@ -23,7 +23,7 @@ describe('CustomNotification', () => {
       <div>
         <div
           aria-live="polite"
-          class="str-chat__custom-notification notification-undefined str-chat__notification str-chat-react__notification"
+          class="str-chat__custom-notification str-chat__notification str-chat-react__notification"
           data-testid="custom-notification"
         >
           children
