@@ -16,6 +16,7 @@ import {
   mockChatContext,
 } from '../../../../mock-builders';
 import type { LocalMessage, MessageResponse } from 'stream-chat';
+import type { ChannelStateContextValue } from '../../../../context';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -28,7 +29,7 @@ const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
 async function renderUseHandleMuteHook(
   message: LocalMessage | undefined = generateMessage() as MessageResponse & LocalMessage,
   notificationOpts?: MuteUserNotifications,
-  channelStateContextValue?: Record<string, any>,
+  channelStateContextValue?: Partial<ChannelStateContextValue> & Record<string, unknown>,
 ) {
   const client = await getTestClientWithUser(alice);
   client.muteUser = muteUser;
@@ -134,7 +135,7 @@ describe('useHandleMute custom hook', () => {
         getSuccessNotification,
         notify,
       },
-      { mutes: [{ target: { id: bob.id } }] },
+      { mutes: [{ target: { id: bob.id } }] as any },
     );
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -152,7 +153,7 @@ describe('useHandleMute custom hook', () => {
       {
         notify,
       },
-      { mutes: [{ target: { id: bob.id } }] },
+      { mutes: [{ target: { id: bob.id } }] as any },
     );
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -171,7 +172,7 @@ describe('useHandleMute custom hook', () => {
         getErrorNotification,
         notify,
       },
-      { mutes: [{ target: { id: bob.id } }] },
+      { mutes: [{ target: { id: bob.id } }] as any },
     );
 
     await handleMute(mouseEventMock);
@@ -191,7 +192,7 @@ describe('useHandleMute custom hook', () => {
         notify,
       },
       {
-        mutes: [{ target: { id: bob.id } }],
+        mutes: [{ target: { id: bob.id } }] as any,
       },
     );
     await handleMute(mouseEventMock);

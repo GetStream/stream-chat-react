@@ -5,6 +5,7 @@ import { MessageComposerContextProvider } from '../../../context';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 const NAME_FIELD_PLACEHOLDER = 'Ask a Question';
 const OPTION_FIELD_PLACEHOLDER = 'Add an Option';
@@ -39,7 +40,10 @@ const handleSubmit = vi.fn();
 const user = generateUser();
 
 const renderComponent = async (
-  { channel: customChannel, client: customClient } = {} as Record<string, any>,
+  { channel: customChannel, client: customClient } = {} as {
+    channel?: ChannelType;
+    client?: StreamChat;
+  },
 ) => {
   let channel = customChannel;
   let client = customClient;

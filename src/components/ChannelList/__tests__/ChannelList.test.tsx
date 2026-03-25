@@ -42,6 +42,7 @@ import {
   WithComponents,
 } from '../../../context';
 import { ChannelListUI } from '../ChannelListUI';
+import type { ChannelListProps } from '../ChannelList';
 
 const channelsQueryStateMock = {
   error: null,
@@ -784,7 +785,7 @@ describe('ChannelList', () => {
 
       const renderComponents = async (
         chatContext = {},
-        channeListProps?: Record<string, any>,
+        channeListProps?: Partial<ChannelListProps>,
       ) =>
         await act(
           async () =>
@@ -1904,7 +1905,7 @@ describe('ChannelList', () => {
       queryChannelsMock.mockClear();
     });
 
-    const renderUI = (client: StreamChat, channelListProps?: Record<string, any>) =>
+    const renderUI = (client: StreamChat, channelListProps?: Partial<ChannelListProps>) =>
       render(
         <Chat client={client}>
           <ChannelList filters={{}} options={{ limit: 2 }} {...channelListProps} />

@@ -28,6 +28,7 @@ import {
   TranslationProvider,
   useMessageContext,
 } from '../../../context';
+import type { ComponentContextValue } from '../../../context';
 import { ChatViewContext } from '../../ChatView/ChatView';
 import type { ChatView } from '../../ChatView/ChatView';
 import { MessageUI } from '../../Message';
@@ -54,7 +55,7 @@ const Wrapper = ({
   componentContext = {},
 }: {
   children?: React.ReactNode;
-  componentContext?: Record<string, any>;
+  componentContext?: Partial<ComponentContextValue>;
 }) => (
   <ChatViewContext.Provider value={chatViewContextValue}>
     <ChatProvider value={mockChatContext({ client })}>
@@ -73,7 +74,7 @@ const Wrapper = ({
 
 const renderElements = (
   children: React.ReactNode,
-  componentContext?: Record<string, any>,
+  componentContext?: Partial<ComponentContextValue>,
 ) => render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
 
 describe('VirtualizedMessageComponents', () => {
@@ -446,7 +447,7 @@ describe('VirtualizedMessageComponents', () => {
           virtuosoContext,
           virtuosoIndex,
         }: {
-          virtuosoContext?: Record<string, any>;
+          virtuosoContext?: Partial<VirtuosoContext>;
           virtuosoIndex?: number;
         } = {}) => {
           const {
@@ -488,7 +489,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
+              virtuosoRef: { current: {} } as any,
             },
           });
           expect(
@@ -514,7 +515,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
+              virtuosoRef: { current: {} } as any,
             },
           });
           expect(container).toMatchInlineSnapshot(`
@@ -540,7 +541,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 0,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
+              virtuosoRef: { current: {} } as any,
             },
           });
           expect(
@@ -565,7 +566,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 0,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
+              virtuosoRef: { current: {} } as any,
             },
           });
           expect(container).toMatchInlineSnapshot(`
@@ -590,7 +591,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} },
+              virtuosoRef: { current: {} } as any,
             },
           });
           expect(container).toMatchInlineSnapshot(`

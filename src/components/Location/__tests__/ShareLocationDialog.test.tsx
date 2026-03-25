@@ -4,7 +4,12 @@ import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
 import { ShareLocationDialog } from '../ShareLocationDialog';
+import type {
+  ShareGeolocationMapProps,
+  ShareLocationDialogProps,
+} from '../ShareLocationDialog';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
   useMessageComposerController: vi.fn().mockReturnValue({
@@ -27,7 +32,7 @@ const GEOLOCATION_MAP_TEST_ID = 'geolocation-map';
 
 const close = vi.fn().mockImplementation(() => {});
 const user = { id: 'user-id' };
-const GeolocationMapComponent = (props: Record<string, any>) => (
+const GeolocationMapComponent = (props: ShareGeolocationMapProps) => (
   <div
     data-error={props.geolocationPositionError}
     data-latitude={props.latitude}
@@ -38,7 +43,15 @@ const GeolocationMapComponent = (props: Record<string, any>) => (
   />
 );
 
-const renderComponent = async ({ channel, client, props }: Record<string, any> = {}) => {
+const renderComponent = async ({
+  channel,
+  client,
+  props,
+}: {
+  channel?: ChannelType;
+  client?: StreamChat;
+  props?: Partial<ShareLocationDialogProps>;
+} = {}) => {
   const {
     channels: [defaultChannel],
     client: defaultClient,

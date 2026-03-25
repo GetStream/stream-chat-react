@@ -22,8 +22,9 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
-import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import type { ChannelResponse, Channel as ChannelType, StreamChat } from 'stream-chat';
 import type { ChannelHeaderProps } from '../ChannelHeader';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
@@ -63,7 +64,7 @@ async function renderComponent({
   channelType = 'messaging',
   props,
 }: {
-  channelData?: Record<string, any>;
+  channelData?: Partial<ChannelResponse> & Record<string, unknown>;
   channelType?: string;
   props?: ChannelHeaderProps;
 } = {}) {
@@ -227,7 +228,10 @@ describe('ChannelHeader', () => {
       Avatar: ChannelAvatar,
     };
 
-    const getChannelState = (memberCount: number, channelData?: Record<string, any>) => {
+    const getChannelState = (
+      memberCount: number,
+      channelData?: GenerateChannelOptions,
+    ) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({

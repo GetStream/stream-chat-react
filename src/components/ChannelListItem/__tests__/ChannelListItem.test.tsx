@@ -4,12 +4,14 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 
 import { ChannelAvatar } from '../../Avatar';
 import { ChannelListItem } from '../ChannelListItem';
-import type { ChannelListItemProps } from '../ChannelListItem';
+import type { ChannelListItemProps, ChannelListItemUIProps } from '../ChannelListItem';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
 import { ComponentProvider, WithComponents } from '../../../context';
+import type { ComponentContextValue } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 import {
   dispatchChannelTruncatedEvent,
@@ -38,7 +40,7 @@ import {
 const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
 
-const PreviewUIComponent = (props: Record<string, any>) => (
+const PreviewUIComponent = (props: ChannelListItemUIProps) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
@@ -47,7 +49,7 @@ const PreviewUIComponent = (props: Record<string, any>) => (
     </div>
   </>
 );
-const PreviewUIComponentWithLatestMessagePreview = (props: Record<string, any>) => (
+const PreviewUIComponentWithLatestMessagePreview = (props: ChannelListItemUIProps) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
@@ -83,7 +85,7 @@ describe('ChannelPreview', () => {
   let c0: Channel;
   let c1: Channel;
   const renderComponent = (
-    props: ChannelListItemProps & Record<string, any>,
+    props: ChannelListItemProps,
     renderer: (ui: React.ReactNode) => any,
     { ChannelListItemUI = PreviewUIComponent as any } = {},
   ) =>
@@ -674,7 +676,7 @@ describe('ChannelPreview', () => {
     }: {
       channel?: Channel;
       client?: StreamChat;
-      componentOverrides?: Record<string, any>;
+      componentOverrides?: Partial<ComponentContextValue>;
     } = {}) => {
       let result;
       await act(() => {
@@ -689,7 +691,10 @@ describe('ChannelPreview', () => {
 
       return result;
     };
-    const getChannelState = (memberCount: number, channelData?: Record<string, any>) => {
+    const getChannelState = (
+      memberCount: number,
+      channelData?: GenerateChannelOptions,
+    ) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({

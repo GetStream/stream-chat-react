@@ -5,7 +5,9 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
 
 import { EventComponent } from '../EventComponent';
+import type { EventComponentProps } from '../EventComponent';
 import { Chat } from '../../Chat';
+import type { ChatProps } from '../../Chat';
 import { getTestClient } from '../../../mock-builders';
 
 const SYSTEM_MSG_TEST_ID = 'message-system';
@@ -16,9 +18,14 @@ describe('EventComponent', () => {
   const message = {
     created_at: new Date('2020-03-13T10:18:38.148025Z'),
     type: 'system',
-  };
+  } as any;
 
-  const renderComponent = async ({ chatProps, props } = {} as Record<string, any>) => {
+  const renderComponent = async (
+    { chatProps, props } = {} as {
+      chatProps?: Partial<ChatProps>;
+      props?: Partial<EventComponentProps>;
+    },
+  ) => {
     let result;
     await act(() => {
       result = render(

@@ -36,6 +36,8 @@ import {
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
+import type { ChannelConfigWithInfo } from 'stream-chat';
+import type { ComponentContextValue, MessageContextValue } from '../../../context';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -74,7 +76,7 @@ const retrySendMessageMock = vi.fn();
 const removeMessageMock = vi.fn();
 
 function generateAliceMessage(
-  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, any>,
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
 ) {
   return generateMessage({
     user: alice,
@@ -83,7 +85,7 @@ function generateAliceMessage(
 }
 
 function generateBobMessage(
-  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, any>,
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
 ) {
   return generateMessage({
     user: bob,
@@ -97,12 +99,20 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },
-    channelConfigOverrides = { replies: true } as Record<string, any>,
-    components = {} as Record<string, any>,
+    channelConfigOverrides = { replies: true } as Partial<ChannelConfigWithInfo> &
+      Record<string, unknown>,
+    components = {} as Partial<ComponentContextValue>,
     message,
-    props = {} as Record<string, any>,
+    props = {} as Partial<MessageContextValue>,
     renderer = render,
-  }: Record<string, any>) {
+  }: {
+    channelCapabilities?: Record<string, boolean>;
+    channelConfigOverrides?: Partial<ChannelConfigWithInfo> & Record<string, unknown>;
+    components?: Partial<ComponentContextValue>;
+    message: ReturnType<typeof generateMessage>;
+    props?: Partial<MessageContextValue>;
+    renderer?: typeof render;
+  }) {
     let result;
     await act(() => {
       result = renderer(
@@ -715,7 +725,9 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  describe.each<[string, Record<string, any>]>([
+  describe.each<
+    [string, Parameters<typeof generateMessage>[0] & Record<string, unknown>]
+  >([
     [
       'v1',
       {

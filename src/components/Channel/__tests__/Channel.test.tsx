@@ -35,8 +35,14 @@ import {
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
 import { WithComponents } from '../../../context';
+import type {
+  ChannelActionContextValue,
+  ChannelStateContextValue,
+  ComponentContextValue,
+} from '../../../context';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
+import type { ChannelProps } from '../Channel';
 
 vi.mock('../../Loading', () => ({
   LoadingChannel: vi.fn(() => <div>Loading channel</div>),
@@ -75,7 +81,7 @@ const queryChannelWithNewMessages = (newMessages, channel) =>
     }),
   );
 
-const MockAvatar = ({ userName }) => (
+const MockAvatar = ({ userName }: any) => (
   <div className='avatar' data-testid='custom-avatar'>
     {userName}
   </div>
@@ -113,8 +119,15 @@ const ActiveChannelSetter = ({ activeChannel }: { activeChannel?: ChannelType })
 };
 
 const renderComponent = async (
-  props: Record<string, any> = {},
-  callback: (ctx: Record<string, any>) => void = () => {},
+  props: {
+    channel?: ChannelType;
+    chatClient?: typeof import('stream-chat').StreamChat.prototype;
+    children?: React.ReactNode;
+    components?: Partial<ComponentContextValue>;
+  } & Partial<ChannelProps> = {},
+  callback: (
+    ctx: ChannelStateContextValue & ChannelActionContextValue & ComponentContextValue,
+  ) => void = () => {},
 ) => {
   const {
     channel: channelFromProps,
@@ -717,9 +730,9 @@ describe('Channel', () => {
       // and then calls hasThread with the thread id if it was set.
       await renderComponent(
         { channel, chatClient },
-        ({ openThread, thread, threadInstance }) => {
+        ({ openThread, thread, threadInstance }: any) => {
           if (!thread) {
-            openThread(threadMessage, { preventDefault: () => null });
+            openThread(threadMessage, { preventDefault: () => null } as any);
           } else {
             hasThread(thread.id);
             hasThreadInstance(threadInstance);
@@ -814,7 +827,7 @@ describe('Channel', () => {
             // if there is no open thread
             if (!threadHasAlreadyBeenOpened) {
               // and we haven't opened one before, open a thread
-              openThread(threadMessage, { preventDefault: () => null });
+              openThread(threadMessage, { preventDefault: () => null } as any);
               threadHasAlreadyBeenOpened = true;
             } else {
               // if we opened it ourselves before, it means the thread was successfully closed
@@ -822,7 +835,7 @@ describe('Channel', () => {
             }
           } else {
             // if a thread is open, close it.
-            closeThread({ preventDefault: () => null });
+            closeThread({ preventDefault: () => null } as any);
           }
         },
       );
@@ -1285,7 +1298,7 @@ describe('Channel', () => {
         channelQueryResolvedValue?: (MessageResponse | LocalMessage)[];
         currentMsgSet: (MessageResponse | LocalMessage)[];
         loadScenario: string;
-        ownReadState: Record<string, any>;
+        ownReadState: Record<string, unknown>;
       }) => {
         const {
           channels: [channel],
@@ -1341,7 +1354,7 @@ describe('Channel', () => {
                 ownReadState.first_unread_message_id &&
                 !channelUnreadUiState.first_unread_message_id
               ) {
-                setChannelUnreadUiState(ownReadState); // needed as the first_unread_message_id is not available on channels load
+                setChannelUnreadUiState(ownReadState as any); // needed as the first_unread_message_id is not available on channels load
                 return;
               }
               if (hasJumped) {
@@ -1836,7 +1849,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
           if (!hasSent) {
             const m = generateMessage();
-            sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+            sendMessage({ localMessage: { ...m, status: 'sending' }, message: m as any });
             hasSent = true;
           }
         });
@@ -1861,7 +1874,10 @@ describe('Channel', () => {
           ({ sendMessage }) => {
             if (!hasSent) {
               const m = generateMessage({ text: messageText });
-              sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+              sendMessage({
+                localMessage: { ...m, status: 'sending' },
+                message: m as any,
+              });
               hasSent = true;
             }
           },
@@ -1901,7 +1917,10 @@ describe('Channel', () => {
                 status: 'sending', // FIXME: had to be explicitly added
                 text: messageText,
               });
-              sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
+              sendMessage({
+                localMessage: { ...m, status: 'sending' },
+                message: m as any,
+              });
               hasSent = true;
             }
           },
@@ -2210,7 +2229,7 @@ describe('Channel', () => {
                 localMessage: {
                   ...messageObject,
                   status: 'sending',
-                },
+                } as any,
                 message: messageObject,
               });
               hasSent = true;
@@ -2220,7 +2239,7 @@ describe('Channel', () => {
             ) {
               // retry
               useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
-              retrySendMessage(messageObject);
+              retrySendMessage(messageObject as any);
               hasRetried = true;
             }
           },
@@ -2476,7 +2495,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
           if (!thread) {
             // first, open thread
-            openThread(threadMessage, { preventDefault: () => null });
+            openThread(threadMessage, { preventDefault: () => null } as any);
           } else if (thread.text !== newText) {
             // then, update the thread message
             // FIXME: dispatch event needs to be queued on event loop now
@@ -2507,7 +2526,7 @@ describe('Channel', () => {
           ({ openThread, thread, threadMessages }) => {
             if (!thread) {
               // first, open thread
-              openThread(threadMessage, { preventDefault: () => null });
+              openThread(threadMessage, { preventDefault: () => null } as any);
             } else if (!threadMessages.some(({ id }) => id === newThreadMessage.id)) {
               // then, add new thread message
               // FIXME: dispatch event needs to be queued on event loop now
@@ -2534,7 +2553,7 @@ describe('Channel', () => {
           callback:
             (message) =>
             ({ openThread, thread }) => {
-              if (!thread) openThread(message, { preventDefault: () => null });
+              if (!thread) openThread(message, { preventDefault: () => null } as any);
             },
           component: Thread,
           getFirstMessageAvatar: () => {
@@ -2570,7 +2589,7 @@ describe('Channel', () => {
                 Avatar: MockAvatar,
               },
             },
-            callback?.(threadMessage),
+            callback?.(threadMessage) as any,
           );
 
           await waitFor(() => {
@@ -2607,7 +2626,7 @@ describe('Channel', () => {
                 Avatar: MockAvatar,
               },
             },
-            callback?.(threadMessage),
+            callback?.(threadMessage) as any,
           );
 
           await waitFor(() => {

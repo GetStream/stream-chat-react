@@ -26,6 +26,10 @@ import {
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import type { ComponentContextValue } from '../../../context';
+import type { ChannelProps } from '../../Channel';
+import type { MessageListProps } from '../MessageList';
 
 vi.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: vi.fn(),
@@ -66,7 +70,12 @@ const renderComponent = ({
   chatClient,
   components = {},
   msgListProps,
-}: Record<string, any>) =>
+}: {
+  channelProps?: Partial<ChannelProps> & Record<string, unknown>;
+  chatClient: StreamChat;
+  components?: Partial<ComponentContextValue>;
+  msgListProps?: Partial<MessageListProps> & Record<string, unknown>;
+}) =>
   render(
     <Chat client={chatClient}>
       <Channel {...channelProps}>
@@ -222,7 +231,7 @@ describe('MessageList', () => {
         channel,
       },
       chatClient,
-      msgListProps: { groupStyles: () => classNameSuffix },
+      msgListProps: { groupStyles: (() => classNameSuffix) as any },
     });
 
     await waitFor(() => {
@@ -323,7 +332,7 @@ describe('MessageList', () => {
     renderComponent({
       channelProps: { channel },
       chatClient,
-      msgListProps: { renderMessages: customRenderMessages },
+      msgListProps: { renderMessages: customRenderMessages as any },
     });
 
     await waitFor(() => {
@@ -368,7 +377,11 @@ describe('MessageList', () => {
       channel,
       client,
       payload = {},
-    }: Record<string, any>) => {
+    }: {
+      channel: ChannelType;
+      client: StreamChat;
+      payload?: Record<string, unknown>;
+    }) => {
       dispatchNotificationMarkUnread({
         channel,
         client,

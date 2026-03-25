@@ -3,11 +3,13 @@ import { act, render, screen } from '@testing-library/react';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { Geolocation } from '../Geolocation';
+import type { GeolocationProps } from '../Geolocation';
 import {
   generateLiveLocationResponse,
   generateStaticLocationResponse,
   initClientWithChannels,
 } from '../../../mock-builders';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 const GeolocationMapComponent = (props) => (
   <div data-props={props} data-testid='geolocation-map' />
@@ -31,7 +33,11 @@ const ownUser = { id: 'user-id' };
 const otherUser = { id: 'other-user-id' };
 
 const renderComponent = async (
-  { channel, client, props } = {} as Record<string, any>,
+  { channel, client, props } = {} as {
+    channel?: ChannelType;
+    client?: StreamChat;
+    props?: GeolocationProps;
+  },
 ) => {
   const {
     channels: [defaultChannel],
@@ -42,7 +48,7 @@ const renderComponent = async (
     result = render(
       <Chat client={client ?? defaultClient}>
         <Channel channel={channel ?? defaultChannel}>
-          <Geolocation {...props} />
+          <Geolocation {...props!} />
         </Channel>
       </Chat>,
     );

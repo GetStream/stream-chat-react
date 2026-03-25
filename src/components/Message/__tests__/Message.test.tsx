@@ -22,6 +22,14 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context/ComponentContext';
+import type { ChannelConfigWithInfo, LocalMessage } from 'stream-chat';
+import type {
+  ChannelActionContextValue,
+  ChannelStateContextValue,
+  ChatContextValue,
+  ComponentContextValue,
+} from '../../../context';
+import type { MessageProps } from '../types';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -64,7 +72,18 @@ async function renderComponent({
   message,
   props = {},
   renderer = render,
-}: Record<string, any>) {
+}: {
+  channelActionOpts?: Partial<ChannelActionContextValue> & Record<string, unknown>;
+  channelConfig?: Partial<ChannelConfigWithInfo>;
+  channelStateOpts?: Partial<ChannelStateContextValue> & Record<string, unknown>;
+  clientOpts?: Partial<ChatContextValue>;
+  components?: Partial<ComponentContextValue>;
+  contextCallback?: (ctx: Record<string, unknown>) => void;
+  message: LocalMessage;
+  props?: Partial<MessageProps> & Record<string, unknown>;
+  renderer?: typeof render;
+  [key: string]: unknown;
+}) {
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
@@ -113,9 +132,9 @@ async function renderComponent({
 }
 
 function renderComponentWithMessage(
-  props: Record<string, any> = {},
-  channelStateOpts: Record<string, any> = {},
-  channelConfig: Record<string, any> = { replies: true },
+  props: Partial<MessageProps> & Record<string, unknown> = {},
+  channelStateOpts: Partial<ChannelStateContextValue> & Record<string, unknown> = {},
+  channelConfig: Partial<ChannelConfigWithInfo> = { replies: true },
 ) {
   const message = generateMessage();
   return renderComponent({ channelConfig, channelStateOpts, message, props });
@@ -506,7 +525,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -536,7 +555,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -565,7 +584,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -594,7 +613,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -627,7 +646,7 @@ describe('<Message /> component', () => {
           context = ctx;
         },
         message,
-        props: { messageActions },
+        props: { messageActions: messageActions as any },
       });
 
       expect(context.getMessageActions()).toStrictEqual([]);
@@ -981,7 +1000,7 @@ describe('<Message /> component', () => {
 
   it('should pass channel configuration to UI rendered UI component', async () => {
     const message = generateMessage({ user: alice });
-    const channelConfigMock = { mutes: false, replies: false };
+    const channelConfigMock = { mutes: false, replies: false } as ChannelConfigWithInfo;
     let context;
 
     await renderComponent({
@@ -1056,7 +1075,7 @@ describe('<Message /> component', () => {
     await renderComponent({
       components: { Message: UIMock },
       message,
-      props: { groupStyles: ['bottom', 'left'] },
+      props: { groupStyles: ['bottom', 'left'] as any },
       render: rerender,
     });
 
@@ -1099,7 +1118,7 @@ describe('<Message /> component', () => {
           width: 100,
           x: 10,
           y: 10,
-        },
+        } as any,
       },
     });
 
@@ -1115,7 +1134,7 @@ describe('<Message /> component', () => {
           width: 200,
           x: 20,
           y: 20,
-        },
+        } as any,
       },
       render: rerender,
     });

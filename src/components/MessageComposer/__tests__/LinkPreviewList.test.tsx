@@ -10,9 +10,12 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import type { ChannelProps } from '../../Channel';
 
+import type { StreamChat } from 'stream-chat';
 import { LinkPreviewStatus } from 'stream-chat';
 import { LinkPreviewCard, LinkPreviewList } from '../LinkPreviewList';
+import type { LinkPreviewListProps } from '../LinkPreviewList';
 
 const LINK_PREVIEW_TEST_ID = 'link-preview-card';
 const userId = 'userId';
@@ -40,7 +43,11 @@ const renderComponent = async ({
   channelProps = {},
   client,
   linkPreviewListProps = {},
-}: Record<string, any> = {}) => {
+}: {
+  channelProps?: Partial<ChannelProps>;
+  client?: StreamChat;
+  linkPreviewListProps?: Partial<LinkPreviewListProps>;
+} = {}) => {
   let renderResult;
   await act(() => {
     renderResult = render(

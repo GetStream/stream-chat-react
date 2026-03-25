@@ -318,7 +318,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nd ago" for 2–6 days ago', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, any>) => {
+      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;
@@ -336,7 +336,7 @@ describe('getDateString', () => {
     });
 
     it('returns "Nw ago" for 1–3 weeks ago', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, any>) => {
+      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
         if (key === 'timestamp/relativeWeeksAgo' && opts && opts.count)
           return `${opts.count}w ago`;
         return key;
@@ -397,7 +397,7 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxDays (only 2–N days show "Nd ago")', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, any>) => {
+      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
         if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
           return `${opts.count}d ago`;
         return key;

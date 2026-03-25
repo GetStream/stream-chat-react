@@ -10,6 +10,11 @@ import { Channel } from '../../Channel/Channel';
 import { MessageActions } from '../../MessageActions';
 
 import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
+import type {
+  ChatContextValue,
+  ComponentContextValue,
+  MessageContextValue,
+} from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -23,6 +28,11 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import type { Channel as ChannelType, StreamChat, UserResponse } from 'stream-chat';
+import type { ChannelProps } from '../../Channel';
+import type { MessageComposerProps } from '../MessageComposer';
+import type { MessageActionsProps } from '../../MessageActions';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -200,7 +210,19 @@ const renderComponent = async ({
   messageActionsProps = {},
   messageContextOverrides = {},
   messageInputProps = {},
-}: Record<string, any> = {}) => {
+}: {
+  channelData?: GenerateChannelOptions | GenerateChannelOptions[];
+  channelProps?: Partial<ChannelProps>;
+  chatContextOverrides?: Partial<ChatContextValue>;
+  components?: Partial<ComponentContextValue> & Record<string, unknown>;
+  customChannel?: ChannelType;
+  customClient?: StreamChat;
+  customUser?: UserResponse;
+  messageActionsProps?: Partial<MessageActionsProps>;
+  messageContextOverrides?: Partial<MessageContextValue>;
+  messageInputProps?: Partial<MessageComposerProps>;
+  [key: string]: unknown;
+} = {}) => {
   let channel = customChannel;
   let client = customClient;
   if (!(channel || client)) {
@@ -261,7 +283,7 @@ function axeNoViolations(container: Element) {
   };
 }
 
-const setup = async ({ channelData }: Record<string, any> = {}) => {
+const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } = {}) => {
   const {
     channels: [customChannel],
     client: customClient,
@@ -960,7 +982,7 @@ describe(`MessageInputFlat`, () => {
             cid: customChannel.cid,
             created_at: new Date(),
             updated_at: new Date(),
-          },
+          } as any,
         },
       });
 

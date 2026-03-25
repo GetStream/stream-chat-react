@@ -13,6 +13,9 @@ import {
   mockChannelStateContext,
   mockChatContext,
 } from '../../../../mock-builders';
+import type { LocalMessage } from 'stream-chat';
+import type { ChannelStateContextValue, ChatContextValue } from '../../../../context';
+import type { GenerateChannelOptions } from '../../../../mock-builders/generator/channel';
 
 const getConfig = vi.fn();
 const alice = generateUser({ name: 'alice' });
@@ -26,7 +29,14 @@ async function renderUserRoleHook(
     disableQuotedMessages = undefined as any,
     message = generateMessage(),
     onlySenderCanEdit = false,
-  } = {} as Record<string, any>,
+  } = {} as {
+    channelProps?: GenerateChannelOptions & Record<string, unknown>;
+    channelStateContextValue?: Partial<ChannelStateContextValue>;
+    clientContextValue?: Partial<ChatContextValue>;
+    disableQuotedMessages?: boolean;
+    message?: LocalMessage;
+    onlySenderCanEdit?: boolean;
+  },
 ) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({

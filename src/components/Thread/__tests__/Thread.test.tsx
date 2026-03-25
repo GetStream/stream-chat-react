@@ -28,6 +28,12 @@ import { Message as MessageMock } from '../../Message/Message';
 import { MessageComposer as MessageInputMock } from '../../MessageComposer/MessageComposer';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
+import type { ThreadProps } from '../Thread';
+import type {
+  ChannelActionContextValue,
+  ChannelStateContextValue,
+  ComponentContextValue,
+} from '../../../context';
 
 vi.mock('../../Message/Message', () => ({
   Message: vi.fn(() => <div />),
@@ -91,11 +97,11 @@ const renderComponent = ({
   componentOverrides = {},
   threadProps = {},
 }: {
-  channelActionOverrides?: Record<string, any>;
-  channelStateOverrides?: Record<string, any>;
+  channelActionOverrides?: Partial<ChannelActionContextValue>;
+  channelStateOverrides?: Partial<ChannelStateContextValue>;
   chatClient: StreamChat;
-  componentOverrides?: Record<string, any>;
-  threadProps?: Record<string, any>;
+  componentOverrides?: Partial<ComponentContextValue>;
+  threadProps?: Partial<ThreadProps> & Record<string, unknown>;
 }) =>
   render(
     <ChatProvider
@@ -147,7 +153,7 @@ describe('Thread', () => {
       chatClient,
       threadProps: {
         additionalMessageListProps,
-        Message: MessageMock,
+        Message: MessageMock as any,
       },
     });
 
@@ -181,7 +187,7 @@ describe('Thread', () => {
       threadProps: {
         additionalMessageListProps,
         enableDateSeparator: true,
-        Message: MessageMock,
+        Message: MessageMock as any,
       },
     });
 
@@ -210,7 +216,7 @@ describe('Thread', () => {
     };
     renderComponent({
       chatClient,
-      threadProps: props,
+      threadProps: props as any,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
@@ -233,7 +239,7 @@ describe('Thread', () => {
 
     renderComponent({
       chatClient,
-      threadProps: props,
+      threadProps: props as any,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
