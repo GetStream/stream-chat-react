@@ -1,0 +1,155 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VirtualizedMessageComponents > EmptyPlaceholder > should render custom EmptyStateIndicator for main message list 1`] = `
+<div>
+  <div
+    data-listtype="message"
+  >
+    Custom EmptyStateIndicator
+  </div>
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > EmptyPlaceholder > should render custom EmptyStateIndicator for thread 1`] = `
+<div>
+  <div
+    data-listtype="thread"
+  >
+    Custom EmptyStateIndicator
+  </div>
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > EmptyPlaceholder > should render for main message list by default 1`] = `
+<div>
+  <div
+    class="str-chat__empty-channel"
+  >
+    <svg
+      class="str-chat__icon str-chat__icon--bubble-2-chat-message"
+      viewBox="0 0 16 16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.16799 2.5H12.8347C13.571 2.5 14.168 3.09695 14.168 3.83333V10.8333C14.168 11.5697 13.571 12.1667 12.8347 12.1667H8.00136L4.66799 14V12.1667H3.16799C2.43161 12.1667 1.83466 11.5697 1.83466 10.8333V3.83333C1.83466 3.09695 2.43161 2.5 3.16799 2.5Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.2"
+      />
+    </svg>
+    <p
+      class="str-chat__empty-channel-text"
+      role="listitem"
+    >
+      Send a message to start the conversation
+    </p>
+  </div>
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Header > should not render custom head in Header when loading more messages, but the LoadingIndicator 1`] = `
+<div>
+  <div>
+    Custom head
+  </div>
+  <div
+    class="str-chat__virtual-list__loading"
+  >
+    <svg
+      class="str-chat__icon str-chat__icon--loading-circle str-chat__loading-indicator"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M17.5 10C17.5 14.1422 14.1422 17.5 10 17.5C5.85787 17.5 2.5 14.1422 2.5 10C2.5 5.85787 5.85787 2.5 10 2.5C14.1422 2.5 17.5 5.85787 17.5 10Z"
+        fill="none"
+        opacity="0.25"
+        stroke="currentColor"
+        stroke-width="1.5"
+      />
+      <path
+        d="M17.4542 10.8333C17.0698 14.3096 14.3096 17.0698 10.8333 17.4542"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.5"
+      />
+    </svg>
+  </div>
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Header > should render LoadingIndicator in Header when loading more messages 1`] = `
+<div>
+  <div
+    class="str-chat__virtual-list__loading"
+  >
+    <svg
+      class="str-chat__icon str-chat__icon--loading-circle str-chat__loading-indicator"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M17.5 10C17.5 14.1422 14.1422 17.5 10 17.5C5.85787 17.5 2.5 14.1422 2.5 10C2.5 5.85787 5.85787 2.5 10 2.5C14.1422 2.5 17.5 5.85787 17.5 10Z"
+        fill="none"
+        opacity="0.25"
+        stroke="currentColor"
+        stroke-width="1.5"
+      />
+      <path
+        d="M17.4542 10.8333C17.0698 14.3096 14.3096 17.0698 10.8333 17.4542"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.5"
+      />
+    </svg>
+  </div>
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Item > should render wrapper with custom classes with group styles 1`] = `
+<div>
+  <div
+    class="XXX"
+    data-index="10000000"
+    data-item-index="10000000"
+    data-known-size="0"
+  />
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Item > should render wrapper with custom classes without group styles 1`] = `
+<div>
+  <div
+    class="XXX"
+    data-index="10000000"
+    data-item-index="10000000"
+    data-known-size="0"
+  />
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Item > should render wrapper without custom classes with group styles 1`] = `
+<div>
+  <div
+    class="str-chat__virtual-list-message-wrapper str-chat__li str-chat__li--single"
+    data-index="10000000"
+    data-item-index="10000000"
+    data-known-size="0"
+  />
+</div>
+`;
+
+exports[`VirtualizedMessageComponents > Item > should render wrapper without custom classes without group styles 1`] = `
+<div>
+  <div
+    class="str-chat__virtual-list-message-wrapper str-chat__li"
+    data-index="10000000"
+    data-item-index="10000000"
+    data-known-size="0"
+  />
+</div>
+`;

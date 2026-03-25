@@ -1,9 +1,22 @@
 {
   "compilerOptions": {
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowJs": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "paths": {
+      "mock-builders": ["./src/mock-builders"],
+      "mock-builders/*": ["./src/mock-builders/*"]
+    }
   },
-  "include": ["src/**/__tests__/**/*.test.js"]
+  "include": ["src"]
 }

@@ -1606,6 +1606,11 @@
   dependencies:
     "@babel/runtime" "^7.12.5"
 
+"@total-typescript/shoehorn@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@total-typescript/shoehorn/-/shoehorn-0.1.2.tgz#a0c095ce8cb9b4ae3556bcff42702ddb072e9d18"
+  integrity sha512-p7nNZbOZIofpDNyP0u1BctFbjxD44Qc+oO5jufgQdFdGIXJLc33QRloJpq7k5T59CTgLWfQSUxsuqLcmeurYRw==
+
 "@tufjs/canonical-json@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tufjs/canonical-json/-/canonical-json-2.0.0.tgz#a52f61a3d7374833fca945b2549bc30a2dd40d0a"

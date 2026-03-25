@@ -1,0 +1,1427 @@
+import React from 'react';
+import { SearchController } from 'stream-chat';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { axe } from '../../../../axe-helper';
+import { nanoid } from 'nanoid';
+import { fromPartial } from '@total-typescript/shoehorn';
+
+import { MessageComposer } from '../MessageComposer';
+import { Channel } from '../../Channel/Channel';
+import { MessageActions } from '../../MessageActions';
+
+import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
+import type {
+  ChatContextValue,
+  ComponentContextValue,
+  MessageContextValue,
+} from '../../../context';
+import { ChatProvider } from '../../../context/ChatContext';
+import {
+  dispatchMessageDeletedEvent,
+  dispatchMessageUpdatedEvent,
+  generateChannel,
+  generateLocalAttachmentData,
+  generateMember,
+  generateMessage,
+  generateScrapedDataAttachment,
+  generateUser,
+  initClientWithChannels,
+} from '../../../mock-builders';
+import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import type { Channel as ChannelType, StreamChat, UserResponse } from 'stream-chat';
+import type { ChannelProps } from '../../Channel';
+import type { MessageComposerProps } from '../MessageComposer';
+import type { MessageActionsProps } from '../../MessageActions';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
+
+vi.mock('../../ChatView', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../ChatView')>();
+  return {
+    ...actual,
+    useChatViewContext: vi.fn(() => ({
+      activeChatView: 'channels',
+      setActiveChatView: vi.fn(),
+    })),
+    useThreadsViewContext: vi.fn(() => ({
+      activeThread: undefined,
+      setActiveThread: vi.fn(),
+    })),
+  };
+});
+
+const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-media';
+const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
+const FILE_INPUT_TEST_ID = 'file-input';
+const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
+const SEND_BTN_TEST_ID = 'send-button';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
+const UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID = 'attachment-preview-file';
+
+const cid = 'messaging:general';
+const inputPlaceholder = 'Type your message';
+const userId = 'userId';
+const username = 'username';
+const mentionId = 'mention-id';
+const mentionName = 'mention-name';
+const user = generateUser({ id: userId, name: username });
+const mentionUser = generateUser({
+  id: mentionId,
+  name: mentionName,
+});
+const mainListMessage = generateMessage({ cid, user });
+const threadMessage = generateMessage({
+  parent_id: mainListMessage.id,
+  type: 'reply',
+  user,
+});
+const mockedChannelData = generateChannel({
+  channel: {
+    id: 'general',
+    own_capabilities: ['send-poll', 'upload-file'],
+    type: 'messaging',
+  },
+  members: [generateMember({ user }), generateMember({ user: mentionUser })],
+  messages: [mainListMessage],
+  threads: [threadMessage],
+} as any);
+
+const defaultChatContext = {
+  channelsQueryState: { queryInProgress: 'uninitialized' },
+  getAppSettings: vi.fn(),
+  latestMessageDatesByChannels: {},
+  mutes: [],
+  searchController: new SearchController(),
+};
+
+const cooldown = 30;
+const filename = 'some.txt';
+const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
+
+const getImage = () => new File(['content'], filename, { type: 'image/png' });
+const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
+
+// Polyfill DOMRect for jsdom
+if (typeof globalThis.DOMRect === 'undefined') {
+  (globalThis as any).DOMRect = class DOMRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+    constructor(x = 0, y = 0, width = 0, height = 0) {
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.top = y;
+      this.right = x + width;
+      this.bottom = y + height;
+      this.left = x;
+    }
+    toJSON() {
+      return JSON.stringify(this);
+    }
+  };
+}
+
+// Patch getComputedStyle to return an iterable CSSStyleDeclaration (jsdom lacks Symbol.iterator)
+const origGetComputedStyle = window.getComputedStyle;
+window.getComputedStyle = function (...args) {
+  const style = origGetComputedStyle.apply(this, args);
+  if (!style[Symbol.iterator]) {
+    style[Symbol.iterator] = function* () {
+      for (let i = 0; i < this.length; i++) {
+        yield this[i];
+      }
+    };
+  }
+  return style;
+};
+
+const sendMessageMock = vi.fn();
+const mockAddNotification = vi.fn();
+
+vi.mock('../../Channel/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../Channel/utils')>()),
+  makeAddNotifications: () => mockAddNotification,
+}));
+
+const defaultMessageContextValue = {
+  getMessageActions: () => ['delete', 'edit', 'quote'],
+  handleDelete: () => {},
+  handleFlag: () => {},
+  handleMute: () => {},
+  handleOpenThread: () => {},
+  handlePin: () => {},
+  isMyMessage: () => true,
+  message: mainListMessage,
+};
+
+function dropFile(file: File, formElement: Element) {
+  fireEvent.drop(formElement, {
+    dataTransfer: {
+      files: [file],
+      types: ['Files'],
+    },
+  });
+}
+
+const initQuotedMessagePreview = async (message: { text?: string }) => {
+  await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
+
+  // Open the message actions dropdown
+  const actionsButton = await screen.findByTestId('message-actions-toggle-button');
+  await act(() => {
+    fireEvent.click(actionsButton);
+  });
+
+  // Click the Quote button in the dropdown
+  const quoteButton = await screen.findByText(/^Quote Reply$/i);
+  await waitFor(() => expect(quoteButton).toBeInTheDocument());
+
+  act(() => {
+    fireEvent.click(quoteButton);
+  });
+};
+
+const quotedMessagePreviewIsDisplayedCorrectly = async (message: { text?: string }) => {
+  await waitFor(() =>
+    expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+  );
+  await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
+};
+
+const quotedMessagePreviewIsNotDisplayed = (message: { text?: string }) => {
+  expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(message.text)).not.toBeInTheDocument();
+};
+
+const renderComponent = async ({
+  channelData = [],
+  channelProps = {},
+  chatContextOverrides = {},
+  components = {},
+  customChannel,
+  customClient,
+  customUser,
+  messageActionsProps = {},
+  messageContextOverrides = {},
+  messageInputProps = {},
+}: {
+  channelData?: GenerateChannelOptions | GenerateChannelOptions[];
+  channelProps?: Partial<ChannelProps>;
+  chatContextOverrides?: Partial<ChatContextValue>;
+  components?: Partial<ComponentContextValue> & Record<string, unknown>;
+  customChannel?: ChannelType;
+  customClient?: StreamChat;
+  customUser?: UserResponse;
+  messageActionsProps?: Partial<MessageActionsProps>;
+  messageContextOverrides?: Partial<MessageContextValue>;
+  messageInputProps?: Partial<MessageComposerProps>;
+  [key: string]: unknown;
+} = {}) => {
+  let channel = customChannel;
+  let client = customClient;
+  if (!(channel || client)) {
+    const result = await initClientWithChannels({
+      channelsData: [{ ...mockedChannelData, ...channelData }],
+      customUser: customUser || user,
+    });
+    channel = result.channels[0];
+    client = result.client;
+  }
+  let renderResult;
+
+  await act(() => {
+    renderResult = render(
+      <WithComponents overrides={components}>
+        <ChatProvider
+          value={
+            { ...defaultChatContext, channel, client, ...chatContextOverrides } as any
+          }
+        >
+          <DialogManagerProvider id='message-input-test-dialog-manager'>
+            <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+              <MessageProvider
+                value={
+                  { ...defaultMessageContextValue, ...messageContextOverrides } as any
+                }
+              >
+                <MessageActions
+                  disableBaseMessageActionSetFilter
+                  {...messageActionsProps}
+                />
+              </MessageProvider>
+              <MessageComposer {...messageInputProps} />
+            </Channel>
+          </DialogManagerProvider>
+        </ChatProvider>
+      </WithComponents>,
+    );
+  });
+
+  const submit = async () => {
+    const submitButton = renderResult.findByTestId('send-button');
+    fireEvent.click(await submitButton);
+  };
+
+  return { channel, client, submit, ...renderResult };
+};
+
+const tearDown = () => {
+  cleanup();
+  vi.clearAllMocks();
+};
+
+function axeNoViolations(container: Element) {
+  return async () => {
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  };
+}
+
+const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } = {}) => {
+  const {
+    channels: [customChannel],
+    client: customClient,
+  } = await initClientWithChannels({
+    channelsData: [channelData ?? mockedChannelData],
+    customUser: user,
+  });
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
+    file: fileUploadUrl,
+  } as any);
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
+    file: fileUploadUrl,
+  } as any);
+  customChannel.initialized = true;
+  customClient.activeChannels[customChannel.cid] = customChannel;
+  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+};
+
+const setupUploadRejected = async (error: unknown) => {
+  const {
+    channels: [customChannel],
+    client: customClient,
+  } = await initClientWithChannels({
+    channelsData: [mockedChannelData],
+    customUser: user,
+  });
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockRejectedValueOnce(error);
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
+  customClient.activeChannels[customChannel.cid] = customChannel;
+  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+};
+
+const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({
+    channelsData: [{ channel: { cooldown } }],
+    customUser: user,
+  });
+
+  // Set cooldown active via the channel's cooldownTimer state
+  channel.cooldownTimer.state.next({ cooldownRemaining: cooldown } as any);
+
+  await renderComponent({
+    customChannel: channel,
+    customClient: client,
+    messageInputProps,
+  });
+  return { channel };
+};
+
+describe(`MessageInputFlat`, () => {
+  afterEach(tearDown);
+
+  it('should render custom EmojiPicker', async () => {
+    const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
+
+    await renderComponent({ components: { EmojiPicker: CustomEmojiPicker } });
+
+    await waitFor(() => {
+      const c = screen.getByTestId('custom-emoji-picker');
+      expect(c).toBeInTheDocument();
+    });
+  });
+
+  it('should contain placeholder text if no default message text provided', async () => {
+    await renderComponent();
+    await waitFor(() => {
+      const textarea = screen.getByPlaceholderText(inputPlaceholder);
+      expect(textarea).toBeInTheDocument();
+      expect((textarea as HTMLTextAreaElement).value).toBe('');
+    });
+  });
+
+  it('should force single-line placeholder styling while input is empty', async () => {
+    await renderComponent();
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+    expect(textarea.style.whiteSpace).toBe('nowrap');
+    expect(textarea.style.overflow).toBe('hidden');
+    expect(textarea.style.textOverflow).toBe('ellipsis');
+  });
+
+  it('should remove empty-state single-line styling after user types', async () => {
+    await renderComponent();
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+    fireEvent.change(textarea, {
+      target: { value: 'hello world' },
+    });
+
+    await waitFor(() => {
+      expect(textarea.style.whiteSpace).toBe('');
+      expect(textarea.style.overflow).toBe('');
+      expect(textarea.style.textOverflow).toBe('');
+    });
+  });
+
+  it('should display default value', async () => {
+    const defaultValue = nanoid();
+    const { customChannel, customClient } = await setup();
+    customChannel.messageComposer.textComposer.defaultValue = defaultValue;
+    await renderComponent({
+      customChannel,
+      customClient,
+    });
+    await waitFor(() => {
+      const textarea = screen.queryByDisplayValue(defaultValue);
+      expect(textarea).toBeInTheDocument();
+    });
+  });
+
+  it('should shift focus to the textarea if the `focus` prop is true', async () => {
+    const { container } = await renderComponent({
+      messageInputProps: {
+        focus: true,
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(inputPlaceholder)).toHaveFocus();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render default file upload icon', async () => {
+    const { container } = await renderComponent();
+    const fileUploadIcon = await screen.findByTestId('invoke-attachment-selector-button');
+
+    await waitFor(() => {
+      expect(fileUploadIcon).toBeInTheDocument();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render custom AttachmentSelectorInitiationButtonContents', async () => {
+    const AttachmentSelectorInitiationButtonContents = () => (
+      <svg>
+        <title>CustomAttachmentIcon</title>
+      </svg>
+    );
+
+    const { container } = await renderComponent({
+      components: { AttachmentSelectorInitiationButtonContents },
+    });
+
+    const customIcon = await screen.findByTitle('CustomAttachmentIcon');
+
+    await waitFor(() => {
+      expect(customIcon).toBeInTheDocument();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('FileUploadIcon is no longer used (replaced by AttachmentSelectorInitiationButtonContents)', async () => {
+    const FileUploadIcon = () => (
+      <svg>
+        <title>NotFileUploadIcon</title>
+      </svg>
+    );
+
+    const AttachmentSelectorInitiationButtonContents = () => (
+      <svg>
+        <title>AttachmentSelectorInitiationButtonContents</title>
+      </svg>
+    );
+
+    const { container } = await renderComponent({
+      components: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+    });
+
+    const fileUploadIcon = screen.queryByTitle('NotFileUploadIcon');
+    const attachmentSelectorButtonIcon = screen.getByTitle(
+      'AttachmentSelectorInitiationButtonContents',
+    );
+    await waitFor(() => {
+      expect(fileUploadIcon).not.toBeInTheDocument();
+      expect(attachmentSelectorButtonIcon).toBeInTheDocument();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('are rendered in custom LinkPreviewList component', async () => {
+    const LINK_PREVIEW_TEST_ID = 'link-preview-card';
+    const customTestId = 'custom-link-preview';
+    const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      components: { LinkPreviewList: CustomLinkPreviewList },
+      customChannel,
+      customClient,
+    });
+    // Manually trigger link preview state so the previews section renders
+    await act(() => {
+      const scrapedData = generateScrapedDataAttachment({
+        og_scrape_url: 'http://getstream.io',
+        status: 'loaded',
+        title: 'http://getstream.io',
+      } as any);
+      customChannel.messageComposer.linkPreviewsManager.state.next({
+        previews: new Map([[scrapedData.og_scrape_url, scrapedData]]) as any,
+      });
+    });
+
+    expect(screen.queryByTestId(customTestId)).toBeInTheDocument();
+    expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  describe('Attachments', () => {
+    it('Pasting images and files should result in uploading the files and showing previews', async () => {
+      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { container } = await renderComponent({ customChannel, customClient });
+      const file = getFile();
+      const image = getImage();
+
+      const clipboardEvent = new Event('paste', {
+        bubbles: true,
+      });
+      // set `clipboardData`. Mock DataTransfer object
+      clipboardEvent['clipboardData'] = {
+        items: [
+          {
+            getAsFile: () => file,
+            kind: 'file',
+          },
+          {
+            getAsFile: () => image,
+            kind: 'file',
+          },
+        ],
+      };
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      await act(async () => {
+        await formElement.dispatchEvent(clipboardEvent);
+      });
+      const filenameTexts = await screen.findAllByTitle(filename);
+      await waitFor(() => {
+        expect(sendFileSpy).toHaveBeenCalledWith(file);
+        expect(sendImageSpy).toHaveBeenCalledWith(image);
+        expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
+        expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
+        filenameTexts.forEach((filenameText) => expect(filenameText).toBeInTheDocument());
+        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+      });
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('gives preference to pasting text over files', async () => {
+      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { container } = await renderComponent({ customChannel, customClient });
+      const pastedString = 'pasted string';
+
+      const file = getFile();
+      const image = getImage();
+
+      const clipboardEvent = new Event('paste', {
+        bubbles: true,
+      });
+      // set `clipboardData`. Mock DataTransfer object
+      clipboardEvent['clipboardData'] = {
+        items: [
+          {
+            getAsFile: () => file,
+            kind: 'file',
+          },
+          {
+            getAsFile: () => image,
+            kind: 'file',
+          },
+          {
+            getAsString: (cb) => cb(pastedString),
+            kind: 'string',
+            type: 'text/plain',
+          },
+        ],
+      };
+      const formElement = screen.getByPlaceholderText(inputPlaceholder);
+      await act(async () => {
+        await formElement.dispatchEvent(clipboardEvent);
+      });
+
+      await waitFor(() => {
+        expect(sendFileSpy).not.toHaveBeenCalled();
+        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(screen.queryByTestId(IMAGE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(FILE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+        expect(screen.queryByText(filename)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+        ).not.toBeInTheDocument();
+        expect(formElement).toHaveValue(pastedString);
+      });
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('Should upload an image when it is dropped on the dropzone', async () => {
+      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { container } = await renderComponent({ customChannel, customClient });
+      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      const file = getImage();
+      await act(() => {
+        dropFile(file, formElement);
+      });
+      await waitFor(() => {
+        expect(sendImageSpy).toHaveBeenCalledWith(file);
+      });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({ customChannel, customClient });
+      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        dropFile(getFile(), formElement);
+      });
+
+      const filenameText = await screen.findByText(filename);
+
+      expect(filenameText).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
+      });
+
+      await axeNoViolations(container);
+    });
+
+    it('should allow uploading files with the file upload button', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({ customChannel, customClient });
+      const file = getFile();
+      const input = screen.getByTestId(FILE_INPUT_TEST_ID);
+
+      await act(() => {
+        fireEvent.change(input, {
+          target: {
+            files: [file],
+          },
+        });
+      });
+
+      expect(screen.getByText(filename)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
+      });
+      await axeNoViolations(container);
+    });
+
+    it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
+      const {
+        channels: [customChannel],
+        client: customClient,
+      } = await initClientWithChannels({
+        channelsData: [mockedChannelData],
+        customUser: user,
+      });
+      customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 1;
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const input = screen.getByTestId(FILE_INPUT_TEST_ID);
+      expect(input).not.toHaveAttribute('multiple');
+      await axeNoViolations(container);
+    });
+
+    it('should set multiple attribute on the file input if multipleUploads is true', async () => {
+      const {
+        channels: [customChannel],
+        client: customClient,
+      } = await initClientWithChannels({
+        channelsData: [mockedChannelData],
+        customUser: user,
+      });
+      customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 5;
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const input = screen.getByTestId(FILE_INPUT_TEST_ID);
+      expect(input).toHaveAttribute('multiple');
+      await axeNoViolations(container);
+    });
+
+    const filename1 = '1.txt';
+    const filename2 = '2.txt';
+    it('should only allow dropping max number of files into the dropzone', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      act(() => {
+        customChannel.messageComposer.attachmentManager.maxNumberOfFilesPerMessage = 1;
+      });
+
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+
+      const file = getFile(filename1);
+
+      act(() => dropFile(file, formElement));
+
+      await waitFor(() => expect(screen.queryByText(filename1)).toBeInTheDocument());
+
+      const file2 = getFile(filename2);
+      act(() => dropFile(file2, formElement));
+
+      await waitFor(() => expect(screen.queryByText(filename2)).not.toBeInTheDocument());
+
+      await axeNoViolations(container);
+    });
+
+    it('should show attachment previews if at least one non-scraped attachments available', async () => {
+      const { customChannel, customClient } = await setup();
+      customChannel.messageComposer.attachmentManager.state.next({
+        attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' } as any],
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const previewListContainer = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+      expect(previewListContainer).toBeInTheDocument();
+      expect(previewListContainer.children).toHaveLength(1);
+      expect(previewListContainer.children[0]).toHaveAttribute(
+        'data-testid',
+        UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID,
+      );
+    });
+
+    it('should not show scraped content in attachment previews', async () => {
+      const { customChannel, customClient } = await setup();
+      const scrapedAttachment = {
+        ...generateLocalAttachmentData(),
+        ...generateScrapedDataAttachment(),
+      };
+      const unknownAttachment = { ...generateLocalAttachmentData(), type: 'xxx' } as any;
+      customChannel.messageComposer.attachmentManager.state.next({
+        attachments: [scrapedAttachment as any, unknownAttachment],
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const previewListContainer = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+      expect(previewListContainer).toBeInTheDocument();
+      expect(previewListContainer.children).toHaveLength(1);
+      expect(previewListContainer.children[0]).toHaveAttribute(
+        'data-testid',
+        UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID,
+      );
+    });
+
+    it('should not show attachment previews if no files uploaded and no attachments available', async () => {
+      const { customChannel, customClient } = await setup();
+      customChannel.messageComposer.attachmentManager.state.next({
+        attachments: [],
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(
+        screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should not show attachment previews if no files uploaded and attachments available are only link previews', async () => {
+      const { customChannel, customClient } = await setup();
+      customChannel.messageComposer.attachmentManager.state.next({
+        attachments: [],
+      });
+      const linkPreviewData = generateScrapedDataAttachment();
+      customChannel.messageComposer.linkPreviewsManager.state.next({
+        previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]) as any,
+      });
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(
+        screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should show attachment preview list if not only failed uploads are available', async () => {
+      const cause = new Error('failed to upload');
+      const { customChannel, customClient, sendFileSpy } =
+        await setupUploadRejected(cause);
+      sendFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      const file = getFile();
+
+      await act(async () => await dropFile(file, formElement));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID)).toBeInTheDocument();
+      });
+
+      await act(async () => await dropFile(file, formElement));
+
+      await waitFor(() => {
+        const previewList = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+        expect(previewList).toBeInTheDocument();
+        expect(previewList.children).toHaveLength(2);
+      });
+    });
+  });
+
+  describe('Uploads disabled', () => {
+    const channelData = { channel: { own_capabilities: [] } };
+
+    it('pasting images and files should do nothing', async () => {
+      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup({
+        channelData,
+      });
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      const file = getFile();
+      const image = getImage();
+
+      const clipboardEvent = new Event('paste', { bubbles: true });
+      // set `clipboardData`. Mock DataTransfer object
+      clipboardEvent['clipboardData'] = {
+        items: [
+          { getAsFile: () => file, kind: 'file' },
+          { getAsFile: () => image, kind: 'file' },
+        ],
+      };
+      const formElement = screen.getByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        formElement.dispatchEvent(clipboardEvent);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(filename)).not.toBeInTheDocument();
+        expect(sendFileSpy).not.toHaveBeenCalled();
+        expect(sendImageSpy).not.toHaveBeenCalled();
+      });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('Should not upload an image when it is dropped on the dropzone', async () => {
+      const { customChannel, customClient, sendImageSpy } = await setup({
+        channelData,
+      });
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      const file = getImage();
+
+      await act(async () => {
+        await dropFile(file, formElement);
+      });
+
+      await waitFor(() => {
+        expect(sendImageSpy).not.toHaveBeenCalled();
+      });
+      await waitFor(axeNoViolations(container));
+    });
+  });
+
+  describe('Submitting', () => {
+    it('should submit the input value when clicking the submit button', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      const messageText = 'Some text';
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: messageText,
+        },
+      });
+
+      await act(() => submit());
+
+      expect(sendMessageMock).toHaveBeenCalledWith(
+        customChannel,
+        expect.objectContaining({
+          text: messageText,
+        }),
+        {},
+      );
+      await axeNoViolations(container);
+    });
+
+    it('should allow to send custom message data', async () => {
+      const { customChannel, customClient } = await setup();
+      const customMessageData = { customX: 'customX' };
+      const CustomStateSetter = null;
+
+      customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        CustomStateSetter,
+      });
+
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: 'Some text',
+        },
+      });
+
+      await act(() => submit());
+
+      await waitFor(() => {
+        expect(sendMessageMock).toHaveBeenCalledWith(
+          customChannel,
+          expect.objectContaining(customMessageData),
+          {},
+        );
+      });
+      await axeNoViolations(container);
+    });
+
+    it('should use overrideSubmitHandler prop if it is defined', async () => {
+      const overrideMock = vi.fn().mockImplementation(() => Promise.resolve());
+      const { customChannel, customClient } = await setup();
+      const customMessageData = { customX: 'customX' };
+      customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        messageInputProps: {
+          overrideSubmitHandler: overrideMock,
+        },
+      });
+      const messageText = 'Some text';
+
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: messageText,
+        },
+      });
+
+      await act(() => submit());
+
+      expect(overrideMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cid: customChannel.cid,
+          localMessage: expect.objectContaining({
+            text: messageText,
+            ...customMessageData,
+          }),
+          message: expect.objectContaining({
+            text: messageText,
+            ...customMessageData,
+          }),
+          sendOptions: expect.objectContaining({}),
+        }),
+      );
+      await axeNoViolations(container);
+    });
+
+    it('should not do anything if the message is empty and has no files', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+        messageContextOverrides: {
+          message: {
+            cid: customChannel.cid,
+            created_at: new Date(),
+            updated_at: new Date(),
+          } as any,
+        },
+      });
+
+      await act(() => submit());
+
+      expect(sendMessageMock).not.toHaveBeenCalled();
+      await axeNoViolations(container);
+    });
+
+    it('should add image as attachment if a message is submitted with an image', async () => {
+      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { container, submit } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+      const file = getImage();
+      await act(async () => {
+        await dropFile(file, formElement);
+      });
+
+      // wait for image uploading to complete before trying to send the message
+
+      await waitFor(() => expect(sendImageSpy).toHaveBeenCalled());
+
+      await act(async () => await submit());
+
+      const msgFragment = {
+        attachments: expect.arrayContaining([
+          expect.objectContaining({
+            image_url: fileUploadUrl,
+            type: 'image',
+          }),
+        ]),
+      };
+
+      await waitFor(() => {
+        expect(sendMessageMock).toHaveBeenCalledWith(
+          customChannel,
+          expect.objectContaining(msgFragment),
+          {},
+        );
+      });
+
+      await axeNoViolations(container);
+    });
+
+    it('should submit if shouldSubmit function is not provided but keydown events do match', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+
+      const messageText = 'Some text';
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(async () => {
+        await fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+      });
+
+      await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+
+      expect(sendMessageMock).toHaveBeenCalledWith(
+        customChannel,
+        expect.objectContaining({
+          text: messageText,
+        }),
+        {},
+      );
+      await axeNoViolations(container);
+    });
+
+    it('should not submit if shouldSubmit function is provided but keydown events do not match', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+        messageInputProps: {
+          shouldSubmit: (e) => e.key === '9',
+        },
+      });
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      const messageText = 'Some text';
+      fireEvent.change(input, {
+        target: {
+          value: messageText,
+        },
+      });
+
+      await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+
+      expect(sendMessageMock).not.toHaveBeenCalled();
+      await axeNoViolations(container);
+    });
+
+    it('should submit if shouldSubmit function is provided and keydown events do match', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+        messageInputProps: {
+          shouldSubmit: (e) => e.key === '9',
+        },
+      });
+      const messageText = 'Submission text.';
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(async () => {
+        await fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+      });
+      await act(async () => {
+        await fireEvent.keyDown(input, {
+          key: '9',
+        });
+      });
+      expect(sendMessageMock).toHaveBeenCalledWith(
+        customChannel,
+        expect.objectContaining({
+          text: messageText,
+        }),
+        {},
+      );
+
+      await axeNoViolations(container);
+    });
+
+    it('should not submit if Shift key is pressed', async () => {
+      const { customChannel, customClient } = await setup();
+      const { container } = await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const messageText = 'Submission text.';
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(async () => {
+        await fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+      });
+      await act(async () => {
+        await fireEvent.keyDown(input, {
+          key: 'Enter',
+          shiftKey: true,
+        });
+      });
+
+      expect(sendMessageMock).not.toHaveBeenCalled();
+
+      await axeNoViolations(container);
+    });
+  });
+
+  it('should list all the available users to mention if only @ is typed', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+
+    const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+    await act(async () => {
+      await fireEvent.change(formElement, {
+        target: {
+          selectionEnd: 1,
+          selectionStart: 1,
+          value: '@',
+        },
+      });
+    });
+
+    await waitFor(() => {
+      const usernameList = document.querySelectorAll('.str-chat__suggestion-list-item');
+      expect(usernameList).toHaveLength(
+        Object.keys(customChannel.state.members).length - 1, // remove own user
+      );
+    });
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
+
+  it('should add a mentioned user if @ is typed and a user is selected', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup();
+    const { container, submit } = await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+
+    const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+    await act(async () => {
+      await fireEvent.change(formElement, {
+        target: {
+          selectionEnd: 1,
+          selectionStart: 1,
+          value: '@',
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(
+        document.querySelectorAll('.str-chat__suggestion-list-item').length,
+      ).toBeGreaterThan(0);
+    });
+    const firstItem = document.querySelectorAll('.str-chat__suggestion-list-item')[0];
+    await act(async () => {
+      await fireEvent.click(firstItem);
+    });
+
+    await act(() => submit());
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      customChannel,
+      expect.objectContaining({
+        mentioned_users: expect.arrayContaining([mentionId]),
+        text: '@mention-name ',
+      }),
+      {},
+    );
+
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should override the default List component when SuggestionList is provided as a prop', async () => {
+    const AutocompleteSuggestionList = () => (
+      <div data-testid='suggestion-list'>Suggestion List</div>
+    );
+    const { customChannel, customClient } = await setup();
+    const { container } = await renderComponent({
+      components: {
+        AutocompleteSuggestionList,
+      },
+      customChannel,
+      customClient,
+    });
+
+    const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+
+    // the component does not check whether there are items to be displayed
+    expect(await screen.findByText('Suggestion List')).toBeInTheDocument();
+
+    await act(() => {
+      fireEvent.change(formElement, {
+        target: { value: '/' },
+      });
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByText('Suggestion List')).toBeInTheDocument(),
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  describe('QuotedMessagePreview', () => {
+    it('is displayed on quote action click', async () => {
+      await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+    });
+
+    it('renders quoted message text', async () => {
+      const m = generateMessage({
+        mentioned_users: [{ id: 'john', name: 'John Cena' }],
+        text: 'hey @John Cena',
+        user,
+      });
+      await renderComponent({ messageContextOverrides: { message: m } });
+      await initQuotedMessagePreview(m);
+
+      expect(await screen.findByText(m.text)).toBeInTheDocument();
+    });
+
+    it('uses custom renderText fn if provided', async () => {
+      const m = generateMessage({
+        text: nanoid(),
+        user,
+      });
+      const fn = vi.fn().mockReturnValue(<div data-testid={m.text}>{m.text}</div>);
+      await renderComponent({
+        components: {
+          QuotedMessagePreview: (props) => (
+            <QuotedMessagePreview {...props} renderText={fn} />
+          ),
+        },
+        messageContextOverrides: { message: m },
+      });
+      await initQuotedMessagePreview(m);
+
+      expect(fn).toHaveBeenCalled();
+      expect(await screen.findByTestId(m.text)).toBeInTheDocument();
+    });
+
+    it('is updated on original message update', async () => {
+      const { channel, client } = await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      mainListMessage.text = new Date().toISOString();
+      await act(() => {
+        dispatchMessageUpdatedEvent(client, mainListMessage, channel);
+      });
+      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+    });
+
+    it('is closed on original message delete', async () => {
+      const { channel, client } = await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      await act(() => {
+        dispatchMessageDeletedEvent(client, mainListMessage, channel);
+      });
+      quotedMessagePreviewIsNotDisplayed(mainListMessage);
+    });
+  });
+
+  describe('send button', () => {
+    it('should be renderer for empty input', async () => {
+      await renderComponent();
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('should not be rendered during active cooldown period', async () => {
+      await renderWithActiveCooldown();
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should not be renderer if explicitly hidden', async () => {
+      await renderComponent({ messageInputProps: { hideSendButton: true } });
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should be disabled if there is no content to be submitted', async () => {
+      await renderComponent();
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeDisabled();
+    });
+
+    it('should be enabled if there is text to be submitted', async () => {
+      await renderComponent();
+      await act(() => {
+        fireEvent.change(screen.getByPlaceholderText(inputPlaceholder), {
+          target: {
+            value: 'X',
+          },
+        });
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+    });
+
+    it('should be enabled if there are uploads to be submitted', async () => {
+      const { customChannel, customClient } = await setup();
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const file = getFile();
+
+      await act(async () => {
+        await fireEvent.change(screen.getByTestId(FILE_INPUT_TEST_ID), {
+          target: {
+            files: [file],
+          },
+        });
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+    });
+
+    it('should disabled if there are failed attachments only', async () => {
+      const error = new Error('Upload failed');
+      const { customChannel, customClient } = await setupUploadRejected(error);
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      const file = getFile();
+
+      await act(async () => {
+        await fireEvent.change(screen.getByTestId(FILE_INPUT_TEST_ID), {
+          target: {
+            files: [file],
+          },
+        });
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).not.toBeEnabled();
+    });
+  });
+
+  describe('cooldown timer', () => {
+    const COOLDOWN_TIMER_TEST_ID = 'cooldown-timer';
+
+    it('should be renderer during active cool-down period', async () => {
+      await renderWithActiveCooldown();
+      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('should not be renderer if send button explicitly hidden', async () => {
+      await renderWithActiveCooldown({ messageInputProps: { hideSendButton: true } });
+      expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should be removed after cool-down period elapsed', async () => {
+      const { channel } = await renderWithActiveCooldown();
+      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(
+        cooldown.toString(),
+      );
+      await act(() => {
+        channel.cooldownTimer.state.next({ cooldownRemaining: 0 } as any);
+      });
+      expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('SendToChannelCheckbox', () => {
+    it('does not render in the channel context', async () => {
+      const { customChannel, customClient } = await setup();
+      await renderComponent({
+        customChannel,
+        customClient,
+      });
+      expect(screen.queryByTestId('send-to-channel-checkbox')).not.toBeInTheDocument();
+    });
+  });
+});

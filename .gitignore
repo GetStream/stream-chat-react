@@ -78,4 +78,4 @@ coverage.out
 # stream-chat-css/docusaurus files
 docusaurus/docs/React/theming
 docusaurus/docs/React/assets/stream-chat-css*
-shared
+sharedtsconfig.test.tsbuildinfo

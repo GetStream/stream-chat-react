@@ -1,8 +1,17 @@
 import { nanoid } from 'nanoid';
-import type { ChannelAPIResponse, ChannelConfigWithInfo } from 'stream-chat';
+import type {
+  ChannelAPIResponse,
+  ChannelConfigWithInfo,
+  LocalMessage,
+  MessageResponse,
+} from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
 
-export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
+export type GenerateChannelOptions = Omit<DeepPartial<ChannelAPIResponse>, 'messages'> & {
+  messages?: (DeepPartial<MessageResponse> | LocalMessage)[];
+};
+
+export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIResponse => {
   const { channel: optionsChannel, ...optionsBesidesChannel } =
     options ?? ({} as ChannelAPIResponse);
   const id = optionsChannel?.id ?? nanoid();
@@ -13,7 +22,7 @@ export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
   return {
     members: [],
     messages: [],
-    pinnedMessages: [],
+    pinned_messages: [],
     ...optionsBesidesChannel,
 
     channel: {
@@ -67,5 +76,5 @@ export const generateChannel = (options?: DeepPartial<ChannelAPIResponse>) => {
       updated_at: '2020-04-28T11:20:48.578147Z',
       ...restOptionsChannel,
     },
-  };
+  } as ChannelAPIResponse;
 };

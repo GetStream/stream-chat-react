@@ -9,7 +9,7 @@ describe('useGalleryContext', () => {
   it('should warn and return empty object when used outside provider', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
 
-    const { result } = renderHook(() => useGalleryContext('TestComponent'));
+    const { result } = renderHook(() => useGalleryContext());
 
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('useGalleryContext hook was called outside'),
@@ -43,7 +43,7 @@ describe('useGalleryContext', () => {
       </GalleryContext.Provider>
     );
 
-    const { result } = renderHook(() => useGalleryContext('TestComponent'), { wrapper });
+    const { result } = renderHook(() => useGalleryContext(), { wrapper });
 
     expect(result.current).toBe(mockContextValue);
   });
