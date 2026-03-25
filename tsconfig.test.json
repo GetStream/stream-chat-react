@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "strictBindCallApply": true,
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowJs": true,
