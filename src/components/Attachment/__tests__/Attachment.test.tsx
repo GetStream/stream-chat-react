@@ -18,7 +18,10 @@ import {
 
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
-import { generateScrapedVideoAttachment } from '../../../mock-builders';
+import {
+  generateScrapedVideoAttachment,
+  mockChannelStateContext,
+} from '../../../mock-builders';
 import { ChannelStateProvider } from '../../../context';
 
 const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
@@ -33,8 +36,9 @@ const ModalGallery = (props) => (
   <div data-testid='gallery-attachment'>{props.customTestId}</div>
 );
 const Giphy = (props) => <div data-testid='giphy-attachment'>{props.customTestId}</div>;
+const GEOLOCATION_TEST_ID = 'geolocation-attachment';
 const Geolocation = (props) => (
-  <div data-testid={'geolocation-attachment'}>{props.customTestId}</div>
+  <div data-testid={GEOLOCATION_TEST_ID}>{props.customTestId}</div>
 );
 
 const ATTACHMENTS = {
@@ -56,7 +60,7 @@ const ATTACHMENTS = {
 
 const renderComponent = (props) =>
   render(
-    <ChannelStateProvider value={{} as any}>
+    <ChannelStateProvider value={mockChannelStateContext()}>
       <Attachment
         AttachmentActions={AttachmentActions}
         Audio={Audio}
@@ -260,11 +264,11 @@ describe('attachment', () => {
   it('renders shared location with Geolocation attachment', () => {
     renderComponent({ attachments: [generateLiveLocationResponse({})] });
     waitFor(() => {
-      expect(screen.getByTestId('geolocation-attachment')).toBeInTheDocument();
+      expect(screen.getByTestId(GEOLOCATION_TEST_ID)).toBeInTheDocument();
     });
     renderComponent({ attachments: [generateStaticLocationResponse({})] });
     waitFor(() => {
-      expect(screen.getByTestId('geolocation-attachment')).toBeInTheDocument();
+      expect(screen.getByTestId(GEOLOCATION_TEST_ID)).toBeInTheDocument();
     });
   });
 

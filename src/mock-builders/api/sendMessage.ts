@@ -1,4 +1,4 @@
-import type { MessageResponse } from 'stream-chat';
+import type { LocalMessage, MessageResponse } from 'stream-chat';
 
 import { mockedApiResponse } from './utils';
 
@@ -8,7 +8,7 @@ import { mockedApiResponse } from './utils';
  * api - /channels/{type}/{id}/message
  */
 export const sendMessageApi = (
-  message: MessageResponse | Record<string, unknown> = {},
+  message: MessageResponse | LocalMessage = {} as MessageResponse,
 ) => {
   const result = {
     message,
